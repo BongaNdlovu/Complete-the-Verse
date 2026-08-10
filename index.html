@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>COMPLETE THE VERSE — A Trial of Scripture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/game.css">
+</head>
+<body class="cine biblical-thriller">
+<div id="backdrop"></div>
+<div id="cinematic-fx" aria-hidden="true">
+  <div class="smoke-wisp one"></div><div class="smoke-wisp two"></div>
+</div>
+<div class="layer" id="vignette"></div>
+<div class="layer" id="grain"></div>
+<div class="cbar top"></div><div class="cbar bot"></div>
+<div id="flash"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="hg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#ffe6b0"/><stop offset="45%" stop-color="#e8913f"/><stop offset="100%" stop-color="#b41f22"/>
+  </linearGradient>
+</defs></svg>
+
+<div id="app">
+
+  <!-- ============ BOOT ============ -->
+  <section class="view on" id="v-boot">
+    <div class="scrollpad" style="justify-content:center">
+      <div class="bootmark"></div>
+      <div class="kick">The Scripture Trial · Preparing the record</div>
+      <div class="h-xl" style="margin-top:2vh">Complete<br>The Verse</div>
+      <div class="bootbar"><i id="boot-fill"></i></div>
+      <div id="boot-msg">Opening the sacred record…</div>
+    </div>
+  </section>
+
+  <!-- ============ MENU ============ -->
+  <section class="view" id="v-menu">
+    <div class="scrollpad">
+      <div class="kick">King James Version &nbsp;·&nbsp; 66 Books &nbsp;·&nbsp; One final answer</div>
+      <div class="h-xl" style="margin-top:1.6vh">Complete<br>The Verse</div>
+      <div class="fil"><i></i></div>
+      <p style="max-width:46ch;text-align:center;color:var(--parch-dim);font-style:italic;font-size:clamp(.95rem,1.8vw,1.15rem);line-height:1.6">
+        The words appear. One phrase is taken away. Complete it before the final second falls.</p>
+
+      <div class="modes" id="modes"></div>
+
+      <div class="subnav">
+        <button class="btn ghost sm" data-go="study">Study Hall</button>
+        <button class="btn ghost sm" data-go="seals">Seals</button>
+        <button class="btn ghost sm" data-go="records">Records</button>
+        <button class="btn ghost sm" data-go="settings">Settings</button>
+      </div>
+      <div class="hint" id="menu-hint"></div>
+    </div>
+  </section>
+
+  <!-- ============ BRIEF ============ -->
+  <section class="view" id="v-brief">
+    <div class="scrollpad">
+      <div class="kick" id="brief-kick">Mode</div>
+      <div class="h-lg" id="brief-title" style="margin-top:1.4vh"></div>
+      <div class="fil"><i></i></div>
+      <p id="brief-desc" style="max-width:52ch;text-align:center;color:var(--parch-dim);line-height:1.62;font-size:1.02rem"></p>
+      <div class="briefinfo" id="brief-info" style="margin-top:3vh"></div>
+      <div class="h-sm" id="brief-difflabel" style="margin-top:2.6vh">Choose your ordeal</div>
+      <div class="diffs" id="diffs"></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+        <button class="btn" id="brief-start">Begin</button>
+        <button class="btn ghost" data-go="menu">Back</button>
+      </div>
+      <div class="hint">A–D or 1–4 to select &nbsp;·&nbsp; Enter to lock &nbsp;·&nbsp; S Selah &nbsp;·&nbsp; I Illuminate &nbsp;·&nbsp; Esc pause</div>
+    </div>
+  </section>
+
+  <!-- ============ ACT CARD ============ -->
+  <section class="view" id="v-act">
+    <div class="scrollpad" style="justify-content:center">
+      <div class="actnum" id="act-num">I</div>
+      <div class="actname" id="act-name"></div>
+      <div class="fil"><i></i></div>
+      <div class="actsub" id="act-sub"></div>
+      <div class="act-report" id="act-report"></div>
+      <div class="actmeta" id="act-meta"></div>
+    </div>
+  </section>
+
+  <!-- ============ PLAY ============ -->
+  <section class="view" id="v-play">
+   <div class="cine-wrap">
+
+    <header class="hdr">
+      <div class="hdr-side l">
+        <div class="hdr-lab">Question Difficulty</div>
+        <div class="hdr-val" id="hud-diff">Foundation</div>
+      </div>
+      <div class="hdr-title">Complete the Verse <small style="display:block;font-family:var(--ui);font-size:.26em;letter-spacing:.5em;color:var(--gold-dim);margin-top:.7em">The Scripture Trial</small></div>
+      <div class="hdr-side r">
+        <div class="hdr-lab">Round Title</div>
+        <div class="hdr-val" id="hud-round">The Familiar</div>
+      </div>
+      <div class="hdr-rule"></div>
+    </header>
+
+    <div class="stage">
+      <div class="edge l"></div><div class="edge r"></div>
+
+      <div class="rail l">
+        <div class="hud-away">
+          <div class="rail-lab">Current Streak</div>
+          <div class="rail-val" id="hud-streak">0 Verses</div>
+        </div>
+        <div>
+          <div class="rail-lab">Lives Remaining</div>
+          <div class="heartrow" id="hud-lives"></div>
+        </div>
+      </div>
+
+      <div class="rail r">
+        <div>
+          <div class="rail-lab">Score</div>
+          <div class="rail-val" id="score">0</div>
+        </div>
+        <div>
+          <div class="rail-lab">Multiplier</div>
+          <div><span class="multbadge" id="mult">×1</span></div>
+        </div>
+        <div>
+          <div class="rail-lab" id="hud-qlab">Verse</div>
+          <div class="rail-val small" id="hud-q">1 / 8</div>
+        </div>
+        <div class="hud-away">
+          <div class="rail-lab">Run Accuracy</div>
+          <div class="rail-val small" id="hud-accuracy">—</div>
+        </div>
+      </div>
+
+      <div class="momentum" aria-label="Momentum meter">
+        <div class="momentum-top"><span>Momentum</span><b id="momentum-name">Cold Start</b><span id="momentum-pct">0%</span></div>
+        <div class="momentum-track"><i class="momentum-fill" id="momentum-fill"></i></div>
+      </div>
+      <div class="act-track" id="act-track" aria-label="Run progress"></div>
+
+      <div class="kjv"><b>KJV</b></div>
+
+      <div class="verse-stage">
+        <div class="verse-main" id="verse"></div>
+        <div class="ref-line"><i></i><span id="ref">&nbsp;</span><i></i></div>
+      </div>
+
+      <div class="answers" id="opts"></div>
+      <div class="assembly" id="assembly"></div>
+
+      <div class="control">
+        <div class="ring" id="ring">
+          <svg viewBox="0 0 120 120">
+            <defs>
+              <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffe8ae"/>
+                <stop offset="42%" stop-color="#d5ad62"/>
+                <stop offset="74%" stop-color="#bd4a3d"/>
+                <stop offset="100%" stop-color="#711419"/>
+              </linearGradient>
+            </defs>
+            <circle class="trk" cx="60" cy="60" r="52"></circle>
+            <circle class="arc" id="ring-arc" cx="60" cy="60" r="52"
+                    stroke-dasharray="326.7" stroke-dashoffset="0"></circle>
+          </svg>
+          <b id="clock">00:14</b>
+        </div>
+        <button class="confirm-answer" id="confirm-answer" type="button" disabled>Lock Answer</button>
+        <div class="warn">
+          <b id="warn-1">14 seconds remaining</b>
+          Select a phrase, then lock it<br>Enter or Space confirms
+        </div>
+      </div>
+
+      <div class="powerbar" id="powers"></div>
+    </div>
+
+    <footer class="ftr"></footer>
+    <canvas id="viz"></canvas>
+   </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section class="view" id="v-results">
+    <div class="scrollpad">
+      <div class="ending-stage defeated" id="ending-stage">
+        <div class="ending-label" id="ending-label">Mission outcome</div>
+        <div class="ending-title" id="ending-title">The Record Closes</div>
+        <div class="ending-copy" id="ending-copy">The words remain. Return when you are ready.</div>
+        <div class="credits-line"></div>
+      </div>
+      <div class="kick" id="res-kick">The trial is ended</div>
+      <div class="rank" id="res-rank" style="margin-top:1.4vh"></div>
+      <div class="bigscore" id="res-score">0</div>
+      <div class="footer res-primary">
+        <button class="btn" id="res-again">Run It Back</button>
+        <button class="btn ghost" id="res-share" type="button" style="display:none">Share Daily</button>
+        <button class="btn ghost" data-go="study">Study Missed</button>
+        <button class="btn ghost" data-go="menu">Main Hall</button>
+      </div>
+      <div class="hint" id="res-best"></div>
+      <div class="schedule" id="res-schedule" style="display:none"></div>
+      <details class="res-details" id="res-details-score">
+        <summary>Score breakdown &amp; progress</summary>
+        <div class="breakdown" id="res-breakdown"></div>
+        <div class="stats" id="res-stats"></div>
+        <div class="xpbar">
+          <div class="top"><span id="xp-lvl">Level 1</span><span id="xp-gain">+0 XP</span></div>
+          <div class="track"><i id="xp-fill"></i></div>
+        </div>
+        <div class="sealsrow" id="res-seals"></div>
+      </details>
+      <details class="res-details" id="res-details-missed">
+        <summary>Verses to review</summary>
+        <div class="missed" id="res-missed"></div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ STUDY HALL ============ -->
+  <section class="view" id="v-study">
+    <div class="scrollpad" style="align-items:center">
+      <div class="panelhead">
+        <div><div class="kick">Study Hall</div><div class="h-lg" style="margin-top:.5vh">The Whole Counsel</div></div>
+        <button class="btn ghost sm" data-go="menu">Back</button>
+      </div>
+      <div class="searchbar">
+        <input id="study-q" placeholder="Search text, book or reference…" spellcheck="false">
+        <select id="study-book"><option value="">All books</option></select>
+        <select id="study-filter">
+          <option value="all">All verses</option>
+          <option value="due">Due for review</option>
+          <option value="learning">Still learning</option>
+          <option value="held">Held</option>
+          <option value="unseen">Never seen</option>
+        </select>
+      </div>
+      <div class="listwrap" id="study-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ SEALS ============ -->
+  <section class="view" id="v-seals">
+    <div class="scrollpad" style="align-items:center">
+      <div class="panelhead">
+        <div><div class="kick">Achievements</div><div class="h-lg" style="margin-top:.5vh" id="seals-title">Seals</div></div>
+        <button class="btn ghost sm" data-go="menu">Back</button>
+      </div>
+      <div class="listwrap"><div class="sealgrid" id="sealgrid"></div></div>
+    </div>
+  </section>
+
+  <!-- ============ RECORDS ============ -->
+  <section class="view" id="v-records">
+    <div class="scrollpad" style="align-items:center">
+      <div class="panelhead">
+        <div><div class="kick">Records</div><div class="h-lg" style="margin-top:.5vh">The Chronicle</div></div>
+        <div class="tabs">
+          <button class="tab on" data-rtab="board">Leaderboard</button>
+          <button class="tab" data-rtab="life">Lifetime</button>
+          <button class="tab" data-rtab="books">By Book</button>
+        </div>
+        <button class="btn ghost sm" data-go="menu">Back</button>
+      </div>
+      <div class="listwrap" id="records-body"></div>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="view" id="v-settings">
+    <div class="scrollpad" style="align-items:center">
+      <div class="panelhead">
+        <div><div class="kick">Settings</div><div class="h-lg" style="margin-top:.5vh">The Lamp Room</div></div>
+        <button class="btn ghost sm" data-go="menu">Back</button>
+      </div>
+      <div class="listwrap" style="display:flex;flex-direction:column;align-items:center" id="settings-body"></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="setpiece-card" id="setpiece-card" role="status" aria-live="assertive">
+  <div class="setpiece-inner">
+    <div class="setpiece-code" id="setpiece-code">Special sequence</div>
+    <div class="setpiece-title" id="setpiece-title">Rapid Recall</div>
+    <div class="setpiece-rule" id="setpiece-rule">Five verses. Thirty seconds. No pause between answers.</div>
+    <div class="setpiece-count" id="setpiece-count">Sequence incoming</div>
+  </div>
+</div>
+
+<div id="pause">
+  <div class="kick">Paused</div>
+  <div class="h-lg" style="margin-top:1.4vh">Selah</div>
+  <div class="fil"><i></i></div>
+  <div class="pause-stats" id="pause-stats"></div>
+  <div class="footer">
+    <button class="btn" id="pause-resume">Resume</button>
+    <button class="btn ghost" id="pause-quit">Abandon Run</button>
+  </div>
+</div>
+
+<div id="tutorial" aria-modal="true" role="dialog" aria-labelledby="tut-title">
+  <div class="tut-card">
+    <div class="kick">First light</div>
+    <div class="h-lg" id="tut-title" style="margin-top:1vh">How the trial works</div>
+    <div class="fil"><i></i></div>
+    <ol class="tut-steps">
+      <li><b>Read the verse</b> — one phrase is taken away.</li>
+      <li><b>Select A–D</b> (or tap), then <b>Lock Answer</b> / Enter.</li>
+      <li><b>Lifelines:</b> S = Selah (+5s), I = Illuminate (−2 wrong).</li>
+    </ol>
+    <p class="tut-note"><b>The Drill</b> brings back verses on the day they fall due. <b>Recall</b> asks you
+      to type them out with no options at all. Esc pauses any run.</p>
+    <div class="footer">
+      <button class="btn" id="tut-go" type="button">Start the Drill</button>
+      <button class="btn ghost" id="tut-skip" type="button">Enter the hall</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/verses.js"></script>
+<script src="js/verses-extra.js"></script>
+<script src="js/passages.js"></script>
+<script src="js/legacy-ids.js"></script>
+<script src="js/bank.js"></script>
+<script src="js/srs.js"></script>
+<script src="js/recall.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

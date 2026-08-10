@@ -1,0 +1,171 @@
+/**
+ * Structural checks for the split game, the verse bank and the review
+ * systems. Run: node game-structure.test.js
+ *
+ * The bank assertion used to be "verse total in 400-600", which is the
+ * assertion that let a 309-entry generated bank in when 296 of its
+ * entries could not teach anything. Size is not the property worth
+ * defending. What follows asserts the properties that are: the gate
+ * passes, every book carries enough verses to draw from, and no entry is
+ * reachable that the gate would reject.
+ */
+const fs = require("fs");
+const path = require("path");
+const { execFileSync } = require("child_process");
+const { loadBank } = require("./scripts/load-bank");
+const QA = require("./scripts/verse-qa");
+
+const root = __dirname;
+const fails = [];
+function assert(cond, msg) { if (!cond) fails.push(msg); }
+
+const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
+const game  = fs.readFileSync(path.join(root, "js", "game.js"), "utf8");
+const css   = fs.readFileSync(path.join(root, "css", "game.css"), "utf8");
+
+/* ---------- files and load order ---------- */
+["index.html", "css/game.css", "js/verses.js", "js/verses-extra.js", "js/passages.js",
+ "js/bank.js", "js/srs.js", "js/recall.js", "js/legacy-ids.js", "js/game.js",
+ "scripts/verse-qa.js", "scripts/qa-verses.js", "content/QUARANTINE.md", "content/quarantine.json"
+].forEach(f => assert(fs.existsSync(path.join(root, f)), f + " exists"));
+
+const order = ["js/verses.js", "js/verses-extra.js", "js/passages.js", "js/legacy-ids.js",
+               "js/bank.js", "js/srs.js", "js/recall.js", "js/game.js"];
+let prev = -1;
+order.forEach(f => {
+  const at = index.indexOf('src="' + f + '"');
+  assert(at >= 0, "index.html loads " + f);
+  assert(at > prev, f + " loads after its dependencies");
+  prev = at;
+});
+
+/* ---------- audio ---------- */
+assert(game.includes("TRACKS"), "track bed map required");
+assert(game.includes("playTrack"), "track playback helper required");
+["menu","act1","act2","act3","act4","act5","results"].forEach(bed => {
+  assert(fs.existsSync(path.join(root, "audio", bed + ".mp3")), bed + " track file required");
+  assert(game.includes("audio/" + bed + ".mp3"), bed + " mapped in TRACKS");
+});
+
+/* ---------- the bank ---------- */
+const bank = loadBank();
+const V = bank.VERSES;
+
+assert(V.length >= 250, "bank holds at least 250 verses (got " + V.length + ")");
+
+const errored = V.filter(v => QA.auditVerse(v).some(f => f.severity === "error"));
+assert(errored.length === 0,
+  "every playable verse passes the QA gate (failing: " +
+  errored.slice(0, 5).map(v => v.r).join(", ") + (errored.length > 5 ? " +" + (errored.length - 5) : "") + ")");
+
+const pErrored = bank.PASSAGES.flatMap(QA.passageToVerses)
+  .filter(v => QA.auditVerse(v).some(f => f.severity === "error"));
+assert(pErrored.length === 0, "every passage blank passes the QA gate");
+
+// The gate is the contract, so run the real binary too: a test that only
+// calls the library would not catch the CLI drifting away from it.
+let gateOk = true;
+try { execFileSync(process.execPath, [path.join(root, "scripts", "qa-verses.js")], {stdio: "pipe"}); }
+catch (e) { gateOk = false; }
+assert(gateOk, "scripts/qa-verses.js exits zero");
+
+const counts = {};
+V.forEach(v => { counts[v.b] = (counts[v.b] || 0) + 1; });
+const missing = bank.BOOKS_ORDER.filter(b => !counts[b]);
+assert(missing.length === 0, "every book of the 66 is represented (missing: " + missing.join(", ") + ")");
+const thin = bank.BOOKS_ORDER.filter(b => (counts[b] || 0) < 4);
+assert(thin.length === 0, "no book carries fewer than 4 verses (thin: " + thin.join(", ") + ")");
+
+[1,2,3,4,5].forEach(t => assert((bank.BY_TIER[t] || []).length >= 15,
+  "tier " + t + " has enough verses to draw a run from (got " + (bank.BY_TIER[t] || []).length + ")"));
+
+/* ---------- stable ids ---------- */
+const ids = new Set();
+let dupes = 0, indexish = 0;
+V.forEach(v => {
+  if (ids.has(v.id)) dupes++;
+  ids.add(v.id);
+  if (typeof v.id === "number" || /^\d+$/.test(String(v.id))) indexish++;
+});
+assert(dupes === 0, "verse ids are unique (" + dupes + " duplicates)");
+assert(indexish === 0, "verse ids are not array indices — saves must survive a reorder");
+assert(V.every(v => v.id.indexOf(String(v.r).toLowerCase().slice(0, 3).replace(/[^a-z0-9]/g, "")) >= 0 || v.id.length > 4),
+  "verse ids derive from the reference");
+
+// Reordering the bank must not change a single id.
+const before = V.map(v => v.id).sort().join("|");
+const after = V.slice().reverse().map(v => bank.verseId(v)).sort().join("|");
+assert(before === after, "ids are stable under reordering");
+
+/* ---------- save migration ---------- */
+assert(fs.existsSync(path.join(root, "js", "legacy-ids.js")), "legacy id table generated");
+const legacy = fs.readFileSync(path.join(root, "js", "legacy-ids.js"), "utf8");
+const table = JSON.parse(legacy.match(/LEGACY_ID_TABLE = (\[[\s\S]*?\]);/)[1]);
+const legacyOrder = JSON.parse(fs.readFileSync(path.join(root, "content", "legacy-order.json"), "utf8"));
+assert(table.length === legacyOrder.length, "legacy table covers every v2 slot");
+const mapped = table.filter(Boolean);
+assert(mapped.length > 150, "a substantial share of v2 progress carries over (" + mapped.length + ")");
+assert(mapped.every(id => ids.has(id)), "every mapped legacy id points at a verse that still exists");
+assert(game.includes("ctv_save_v3"), "save key bumped for the new id scheme");
+assert(game.includes("ctv_save_v2"), "v2 saves are still read for migration");
+assert(game.includes("function migrateV2"), "v2 migration implemented");
+
+/* ---------- quarantine ---------- */
+const quarantine = JSON.parse(fs.readFileSync(path.join(root, "content", "quarantine.json"), "utf8"));
+assert(quarantine.length > 0, "quarantine records what was cut");
+assert(quarantine.every(q => q.ref && q.reasons && q.reasons.length),
+  "every quarantined entry carries a reference and a reason");
+/* A quarantined reference may legitimately come back — that is what the
+   queue is for, and a re-authored verse often keeps the same blank
+   because the blank was rarely what broke. What must never come back is
+   the broken set of options, so that is what this asserts. */
+const liveByKey = new Map();
+V.forEach(v => liveByKey.set(QA.norm(v.r) + "||" + QA.norm(v.a), v));
+const reimported = quarantine.filter(q => {
+  const v = liveByKey.get(QA.norm(q.ref) + "||" + QA.norm(q.blank));
+  return v && JSON.stringify(v.d) === JSON.stringify(q.distractors);
+});
+assert(reimported.length === 0,
+  "no quarantined entry is live with its broken distractors (" +
+  reimported.map(q => q.ref).join(", ") + ")");
+assert(quarantine.every(q => typeof q.resolved === "boolean"),
+  "quarantine tracks which entries have been re-authored");
+
+/* ---------- modes and review systems ---------- */
+assert(game.includes('practice:{ key:"practice"'), "drill mode defined");
+assert(game.includes('recall:{ key:"recall"'), "recall (typing) mode defined");
+assert(game.includes("function drawReviewVerse"), "SRS-driven draw implemented");
+assert(!game.includes("function drawPracticeVerse"), "accuracy-weighted draw replaced");
+assert(game.includes('R.mode==="recall"'), "recall wired into the run loop");
+assert(game.includes("SRS.buildQueue"), "drill order comes from the scheduler");
+assert(game.includes("function scheduleReview"), "answers reschedule the verse");
+assert(game.includes("SRS.schedule"), "scheduler invoked");
+assert(game.includes("function renderTypedQuestion"), "typed question renderer present");
+assert(game.includes("Recall.grade"), "typed answers are graded");
+assert(game.includes("q.d)"), "typed grading receives the verse's distractors");
+assert(game.includes("function typedHint"), "Illuminate adapted for typing");
+assert(game.includes("dueToday"), "due count surfaced");
+
+assert(game.includes('endRun("abandon")'), "abandon records via endRun");
+assert(game.includes("function shareDailyResult"), "daily share helper");
+assert(game.includes("function showTutorialIfNeeded"), "tutorial helper");
+assert(game.includes("tutorialDone"), "tutorial persistence flag");
+assert(game.includes("VERSES.length"), "menu uses dynamic verse count");
+
+/* ---------- markup and styling for the new surfaces ---------- */
+assert(index.includes('id="tutorial"'), "tutorial markup present");
+assert(index.includes('id="res-share"'), "share button present");
+assert(index.includes('id="res-schedule"'), "next-review panel present");
+assert(index.includes('value="due"'), "Study Hall can filter to due verses");
+assert(css.includes(".typed-input"), "typed answer styling present");
+assert(css.includes(".schedule"), "review schedule styling present");
+assert(css.includes("#tutorial"), "tutorial CSS present");
+assert(!css.includes("VERSE INTELLIGENCE"), "AI CSS block stripped");
+
+if (fails.length) {
+  console.error("FAIL (" + fails.length + ")");
+  fails.forEach(f => console.error(" - " + f));
+  process.exit(1);
+}
+console.log("PASS — game structure · verses=" + V.length + " · books=" + Object.keys(counts).length +
+  " · passages=" + bank.PASSAGES.length + " · legacy mapped=" + mapped.length);
