@@ -171,6 +171,16 @@ body.reduced .site-marker.current .beacon { animation: none; opacity: .5; }
 .arc-head:first-child { margin-top: 0; }
 .arc-head span { font-family: var(--ui); font-size: .54rem; letter-spacing: .16em; color: var(--parch-dim); }
 .arc-head.done { color: var(--green); }
+.arc-head.flawless { color: var(--gold-hot); text-shadow: 0 0 16px rgba(217,182,103,.6); }
+
+/* "Walk it" — the optional one-run relay through a whole arc. */
+.arc-relay {
+  margin-left: auto; font-family: var(--ui); font-size: .5rem; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--gold-dim); cursor: pointer;
+  border: 1px solid var(--edge); padding: .3em .6em; background: rgba(6,7,11,.6);
+  transition: .2s ease;
+}
+.arc-relay:hover { color: var(--gold-hot); border-color: var(--gold); background: rgba(217,182,103,.14); }
 
 .rail-site {
   display: flex; align-items: center; gap: 9px; width: 100%; text-align: left;
@@ -316,6 +326,42 @@ body.reduced .site-marker.current .beacon { animation: none; opacity: .5; }
 .brief-live .bl { text-align: center; }
 .brief-live .bl b { display: block; font-family: var(--disp); font-size: clamp(.95rem, 2.1vw, 1.3rem); color: var(--parch); }
 .brief-live .bl span { font-family: var(--ui); font-size: .54rem; letter-spacing: .22em; color: #6b6552; text-transform: uppercase; }
+
+/* ------------------------------------------------------ the sky, in the play view
+
+   Set by applySiteSky() in game.js from the site's true solar altitude
+   and its live weather. These grade the backdrop the act palette has
+   already chosen rather than replacing it, so a Gospel-arc site still
+   reads as the Gospel arc — it just happens to be after dark.
+
+   Cosmetic only. Nothing here is allowed to change the clock. */
+
+#backdrop { transition: filter 1.4s ease; }
+
+body.sky-day      #backdrop { filter: brightness(1.10) saturate(1.00); }
+body.sky-golden   #backdrop { filter: brightness(1.06) saturate(1.14) hue-rotate(-7deg); }
+body.sky-twilight #backdrop { filter: brightness(.80) saturate(.92) hue-rotate(-16deg); }
+body.sky-night    #backdrop { filter: brightness(.60) saturate(.68) hue-rotate(200deg); }
+
+/* Night deepens the letterbox and pulls the vignette in — the blackout
+   look the third act already uses, arrived at honestly. */
+body.sky-night #vignette { box-shadow: inset 0 0 240px 90px rgba(0,0,0,.92), inset 0 0 560px 200px rgba(0,0,0,.7); }
+
+body.wx-dust  #backdrop { filter: brightness(.90) sepia(.48) saturate(1.25) hue-rotate(-14deg); }
+body.wx-dust  #grain    { opacity: .21; }
+body.wx-haze  #backdrop { filter: brightness(.94) contrast(.88) sepia(.32) saturate(.9); }
+body.wx-rain  #backdrop { filter: brightness(.74) saturate(.62) hue-rotate(192deg); }
+body.wx-storm #backdrop { filter: brightness(.60) contrast(1.22) saturate(.48) hue-rotate(198deg); }
+body.wx-snow  #backdrop { filter: brightness(1.04) saturate(.45) hue-rotate(190deg); }
+
+/* Weather beats time of day where they disagree — a storm at noon is
+   still a storm — so these come last and win the cascade. */
+body.wx-storm #vignette,
+body.wx-rain  #vignette { box-shadow: inset 0 0 220px 80px rgba(0,4,14,.86); }
+
+@media (prefers-reduced-motion: reduce) {
+  #backdrop { transition: none; }
+}
 
 /* ---------------------------------------------------------------- responsive */
 

@@ -181,7 +181,15 @@ const SEALS = [
   {id:"road-arc1",  n:"Out of Ur",       d:"Complete the Patriarchs — Ur to Beersheba."},
   {id:"road-half",  n:"Half the Road",   d:"Complete two full arcs of the Pilgrimage."},
   {id:"road-patmos",n:"The Last Island", d:"Reach and clear Patmos."},
-  {id:"road-end",   n:"Ur to Patmos",    d:"Clear all 29 sites on the Pilgrimage."}
+  {id:"road-end",   n:"Ur to Patmos",    d:"Clear all 29 sites on the Pilgrimage."},
+  /* One per arc. A site's perfect flag is sticky, so an arc can be
+     perfected a site at a time — the seal rewards precision over the
+     whole stretch, not one flawless sitting. */
+  {id:"arc-patriarchs",n:"Faith of Abraham", d:"Keep every verse at every site from Ur to Beersheba."},
+  {id:"arc-exodus",    n:"Out of Egypt",     d:"Keep every verse at every site from Goshen to Jericho."},
+  {id:"arc-kingdom",   n:"By the Rivers",    d:"Keep every verse at every site from Jerusalem to Susa."},
+  {id:"arc-gospel",    n:"To the Ends",      d:"Keep every verse at every site from Bethlehem to Patmos."},
+  {id:"relay",         n:"Without Rest",     d:"Walk a whole arc in one unbroken run."}
 ];
 function hasSeal(id){ return SAVE.seals.indexOf(id) >= 0; }
 
@@ -197,6 +205,12 @@ const MODES = {
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, same verses, typed out word for word.",
     tagline:"Typed · cleared sites", info:[["6","Verses"],["Typed","No options"],["22s","Clock"]] },
+  /* The relay is opt-in and launched from an arc on the map, never from
+     the menu — it is the harder way to walk ground the site-by-site
+     campaign already lets you take at your own pace. */
+  relay:{ key:"relay", name:"The Long Road", kick:"One unbroken walk", hidden:true,
+    desc:"A whole arc in a single run. Lives carry from site to site and never come back, and the clock keeps tightening the way the road does. Sites you pass stay cleared even if the road ends you.",
+    tagline:"A whole arc · shared lives", info:[["1","Run"],["Shared","Lives"],["No","Rest"]] },
   trial:{ key:"trial", name:"The Trial", kick:"Campaign",
     desc:"Five acts. The clock tightens with every one. Reach Act V with one life, clear its five questions, and earn the ending.",
     tagline:"5 acts · one-life finale", info:[["5","Acts"],["39+","Verses"],["14→6.5s","Clock"]] },
@@ -228,6 +242,15 @@ const ACTS = [
   {n:"IV", name:"No Turning Back",     tier:4, q:9, t:8500,  pal:"act4", sub:"Rapid decisions. Reduced time. Every answer changes the ending."},
   {n:"V",  name:"The Final Test",      tier:5, q:5, t:6500, pal:"act5", sub:"One life. Five decisions. Complete the passage and hold the line."}
 ];
+
+/* The streaks at which the score multiplier steps up. Both the
+   multiplier and the momentum meter read from this one list, because
+   they used to disagree: the meter filled to 100% at a streak of 10
+   while ×5 did not land until 12, so the bar sat pinned at "Overdrive"
+   for two verses before the reward it was promising actually arrived.
+   The meter is now a readout of the multiplier rather than a second
+   scale that happens to look like it. */
+const MOMENTUM_STEPS = [3, 5, 8, 12];
 
 /* ------------------------- AUDIO ------------------------- */
 const Snd = (function(){
@@ -486,8 +509,11 @@ const Director = (function(){
   }
   function momentum(announce){
     if(!$("momentum-fill"))return;
-    const pct=Math.min(100,(R.streak||0)*10);
-    const level=pct>=100?4:pct>=70?3:pct>=40?2:pct>=10?1:0;
+    const s=R.streak||0;
+    const top=MOMENTUM_STEPS[MOMENTUM_STEPS.length-1];
+    const pct=Math.min(100, s/top*100);
+    let level=0;
+    MOMENTUM_STEPS.forEach((n,i)=>{ if(s>=n) level=i+1; });
     const names=["Cold Start","Building","Unbroken","Scripture Locked","Overdrive"];
     $("momentum-fill").style.width=pct+"%";
     $("momentum-pct").textContent=pct+"%";
@@ -562,25 +588,66 @@ const Director = (function(){
 
 /* ------------------------- CINEMATIC SET-PIECE ROUNDS ------------------------- */
 const SetPieces=(function(){
-  const defs=[
-    {id:"rapid",act:0,after:3,title:"Rapid Recall",rule:"Five short verses. Six seconds each. Answers lock on selection.",count:5,duration:6000,auto:true,code:"Velocity sequence",voice:"Rapid recall. Five verses. Six seconds each."},
-    {id:"lockdown",act:1,after:3,title:"Book Lockdown",rule:"Three transmissions from one Bible book. Hold the source.",count:3,duration:8500,sameBook:true,code:"Source restricted",voice:"Book lockdown. Source restricted."},
-    {id:"missing",act:2,after:4,title:"The Missing Passage",rule:"One passage, three phrases torn out. Lifelines are offline until it is whole.",count:3,duration:24000,passage:true,noPowers:true,code:"Blackout protocol",voice:"The missing passage. Three phrases gone. Lifelines offline."},
-    {id:"nochance",act:3,after:3,title:"No Second Chances",rule:"One difficult verse. Triple reward. No lifeline can change the result.",count:1,duration:7000,noPowers:true,reward:3,code:"Red-line decision",voice:"No second chances."},
-    {id:"reconstruct",act:3,after:7,title:"Final Reconstruction",rule:"One passage shattered into fragments. Rebuild it, then lock the passage.",count:5,duration:30000,reconstruct:true,noPowers:true,reward:2,code:"Passage assembly",voice:"Final reconstruction. Rebuild the passage."}
+  /* The five sequences, keyed so both campaigns can reference the same
+     definition rather than each keeping its own copy. */
+  const DEFS={
+    rapid:{id:"rapid",title:"Rapid Recall",rule:"Five short verses. Six seconds each. Answers lock on selection.",count:5,duration:6000,auto:true,code:"Velocity sequence",voice:"Rapid recall. Five verses. Six seconds each."},
+    lockdown:{id:"lockdown",title:"Book Lockdown",rule:"Three transmissions from one Bible book. Hold the source.",count:3,duration:8500,sameBook:true,code:"Source restricted",voice:"Book lockdown. Source restricted."},
+    missing:{id:"missing",title:"The Missing Passage",rule:"One passage, three phrases torn out. Lifelines are offline until it is whole.",count:3,duration:24000,passage:true,noPowers:true,code:"Blackout protocol",voice:"The missing passage. Three phrases gone. Lifelines offline."},
+    nochance:{id:"nochance",title:"No Second Chances",rule:"One difficult verse. Triple reward. No lifeline can change the result.",count:1,duration:7000,noPowers:true,reward:3,code:"Red-line decision",voice:"No second chances."},
+    reconstruct:{id:"reconstruct",title:"Final Reconstruction",rule:"One passage shattered into fragments. Rebuild it, then lock the passage.",count:5,duration:30000,reconstruct:true,noPowers:true,reward:2,code:"Passage assembly",voice:"Final reconstruction. Rebuild the passage."}
+  };
+
+  /* The Trial fires them by act and question number, as it always has. */
+  const TRIAL=[
+    {use:"rapid",       act:0, after:3},
+    {use:"lockdown",    act:1, after:3},
+    {use:"missing",     act:2, after:4},
+    {use:"nochance",    act:3, after:3},
+    {use:"reconstruct", act:3, after:7}
   ];
+
+  /* The Pilgrimage fires them by PLACE, after the site's verses are kept
+     — the sequence is the climax of the site rather than an interruption
+     in the middle of it, which is why the briefing's "six verses" stays
+     true and the finale still lands as a surprise.
+
+     Each one is chosen because the place asks for it: the walls of
+     Jericho fall and you rebuild the passage out of the rubble; Sinai is
+     where the Law was given, so the source is locked to Exodus; Golgotha
+     is the hinge of the whole road and takes the one-shot; Babylon is
+     the exile, so the lifelines go dark; Patmos closes the journey the
+     way Revelation closes the book. `code` overrides the generic banner
+     so the card names the moment, not the mechanic. */
+  const SITES={
+    sinai:    {use:"lockdown",    book:"Exodus", code:"The Law is given",
+               voice:"Book lockdown. The source is Exodus."},
+    jericho:  {use:"reconstruct", code:"The walls come down",
+               voice:"The wall is fallen. Rebuild what stood."},
+    babylon:  {use:"missing",     code:"By the rivers of Babylon",
+               voice:"The exile. Three phrases gone. Lifelines offline."},
+    golgotha: {use:"nochance",    code:"The hinge of the road",
+               voice:"No second chances."},
+    nineveh:  {use:"rapid",       code:"Forty days and Nineveh falls",
+               voice:"Rapid recall. Five verses. Six seconds each."},
+    patmos:   {use:"reconstruct", code:"The last word",
+               voice:"Final reconstruction. Rebuild the ending."}
+  };
+
   function cleanup(){
     if(!R.setpiece)return;
     document.body.classList.remove("setpiece-active");
     Director.callout("Sequence complete");
     R.setpiece=null;
   }
-  function maybeLaunch(){
-    if(R.mode!=="trial"||R.setpiece)return false;
-    const d=defs.find(x=>x.act===R.actIdx&&x.after===R.qInAct&&!R.setpieceDone.has(x.id));
-    if(!d)return false;
+
+  /* Shared launch. `over` carries the per-site overrides. */
+  function launch(base, over){
+    const d=Object.assign({},base,over||{});
     R.setpieceDone.add(d.id);
-    R.setpiece=Object.assign({},d,{remaining:d.count,book:null,finishing:false});
+    R.setpiece=Object.assign({},d,{
+      remaining:d.count, book:d.book||null, finishing:false
+    });
     R.running=false;
     $("setpiece-code").textContent=d.code;
     $("setpiece-title").textContent=d.title;
@@ -596,16 +663,59 @@ const SetPieces=(function(){
     });
     return true;
   }
+
+  function maybeLaunch(){
+    if(R.mode!=="trial"||R.setpiece)return false;
+    const slot=TRIAL.find(x=>x.act===R.actIdx&&x.after===R.qInAct&&!R.setpieceDone.has(DEFS[x.use].id));
+    if(!slot)return false;
+    return launch(DEFS[slot.use]);
+  }
+
+  /* Called once, when a site's verses are all answered. Returns false at
+     every site that has no sequence, which is most of them — a finale at
+     every stop would stop being a finale. */
+  function maybeLaunchSite(){
+    if(R.mode!=="pilgrimage"||R.setpiece)return false;
+    const slot=SITES[R.siteId];
+    if(!slot)return false;
+    const base=DEFS[slot.use];
+    if(R.setpieceDone.has(base.id))return false;
+    return launch(base, {
+      book:slot.book||null,
+      code:slot.code||base.code,
+      voice:slot.voice||base.voice
+    });
+  }
+
+  function hasSite(siteId){ return !!SITES[siteId]; }
+  function siteTitle(siteId){ return SITES[siteId] ? DEFS[SITES[siteId].use].title : ""; }
+  /* On the road, a sequence should still sound like the place it is
+     happening in — a Rapid Recall at Nineveh drawing from Philippians
+     would undo the whole point of binding levels to sites. So a
+     pilgrimage set piece draws from the site's own books first and only
+     falls back to the tier pool if they cannot supply it. */
+  function drawBound(tier){
+    if(R.mode!=="pilgrimage"||!R.siteId) return drawVerse(tier);
+    const site=Pilgrimage.site(R.siteId);
+    if(!site) return drawVerse(tier);
+    const exclude={}; R.used.forEach(id=>exclude[id]=1);
+    const pool=Pilgrimage.resolvePool(site,{need:1,exclude:exclude,tier:tier}).verses;
+    if(!pool.length) return drawVerse(tier);
+    const v=pool[0];
+    R.used.add(v.id);
+    return v;
+  }
+
   function draw(tier){
     const s=R.setpiece;if(!s)return drawVerse(tier);
     let v;
     if(s.sameBook&&s.book){
       let pool=VERSES.filter(x=>x.b===s.book&&!R.used.has(x.id));
       if(!pool.length)pool=VERSES.filter(x=>x.b===s.book);
-      v=pool.length?pool[Math.floor(Math.random()*pool.length)]:drawVerse(tier);
+      v=pool.length?pool[Math.floor(Math.random()*pool.length)]:drawBound(tier);
       R.used.add(v.id);
     }else{
-      v=drawVerse(tier);
+      v=drawBound(tier);
       if(s.sameBook)s.book=v.b;
     }
     s.remaining--;
@@ -617,7 +727,8 @@ const SetPieces=(function(){
   function noPowers(){return !!(R.setpiece&&R.setpiece.noPowers)}
   function autoLock(){return !!(R.setpiece&&R.setpiece.auto)}
   function label(){return R.setpiece?R.setpiece.title:""}
-  return {cleanup,maybeLaunch,draw,duration,bonus,noPowers,autoLock,label};
+  return {cleanup,maybeLaunch,maybeLaunchSite,hasSite,siteTitle,
+          draw,duration,bonus,noPowers,autoLock,label};
 })();
 
 /* ------------------------- AUDIO VISUALISER ------------------------- */
@@ -682,6 +793,9 @@ function go(view){
   // Leaving the map stops its clocks; a terminator redraw on a hidden
   // view is pure waste and keeps a timer alive for the whole session.
   if(leaving==="atlas" && view!=="atlas") Atlas.unmount();
+  // The site's sky belongs to the site. Anywhere else gets the game's
+  // own grading back.
+  if(view!=="play") applySiteSky(null);
   if(view==="atlas"){ Backdrop.palette("menu"); Snd.ambience("menu"); openAtlas(); }
   if(view==="menu"){ Backdrop.palette("menu"); Snd.ambience("menu"); renderMenu(); }
   if(view==="results"){ Backdrop.palette("results"); Snd.ambience("results"); }
@@ -800,6 +914,7 @@ function pilgrimOverview(){ return Pilgrimage.overview(SAVE.pilgrim); }
 function savePilgrim(p){ SAVE.pilgrim = p; persist(); }
 
 let pendingSiteId = null;
+let pendingArcKey = null;
 let atlasWired = false;
 
 function wireAtlas(){
@@ -808,6 +923,7 @@ function wireAtlas(){
 
   Atlas.on("begin",  id => openSiteBrief(id, "pilgrimage"));
   Atlas.on("recall", id => openSiteBrief(id, "pilgrim-recall"));
+  Atlas.on("relay",  key => openRelayBrief(key));
 
   const rail = $("atlas-rail"), toggle = $("atlas-rail-toggle");
   if(toggle && rail) toggle.addEventListener("click", ()=>{ Snd.ui(); rail.classList.toggle("hidden"); });
@@ -829,6 +945,37 @@ function openAtlas(){
   // Live weather is a bonus, never a dependency: this promise cannot
   // reject (see live.js) and nothing waits on it.
   if(SAVE.set.liveWeather) Atlas.loadWeather();
+}
+
+/* ---- the real sky over the real place ----
+   The atlas already knows the true solar altitude and the live weather
+   at every site. Until now that only graded the map, which made the
+   most distinctive thing about this campaign purely decorative. This
+   carries it into the play view: answering at Nineveh after dark
+   actually happens in the dark, and a dust storm over Ur puts dust on
+   the screen.
+
+   Strictly cosmetic. Real weather must never touch the clock or the
+   difficulty — a player cannot plan around the wind in Iraq, and losing
+   a run to it would be unfair in a way no amount of atmosphere pays
+   for. */
+function applySiteSky(siteId){
+  const b = document.body;
+  ["sky-night","sky-twilight","sky-golden","sky-day",
+   "wx-dust","wx-rain","wx-storm","wx-haze","wx-snow"].forEach(c=>b.classList.remove(c));
+  if(!siteId) return;
+  const site = Pilgrimage.site(siteId);
+  if(!site) return;
+
+  const now = new Date();
+  const sun = Geo.sunPosition(now, site.coords[0], site.coords[1]);
+  b.classList.add("sky-" + Geo.lightPhase(sun.altitude));
+
+  // readingFor never returns null — live if we have it, authored climate
+  // if we do not — so there is no offline branch to write here.
+  const r = Live.readingFor(site);
+  const key = r && r.sky ? r.sky.key : "clear";
+  if(key !== "clear" && key !== "cloud") b.classList.add("wx-" + key);
 }
 
 /* ---- the briefing card for one site ---- */
@@ -875,15 +1022,81 @@ function openSiteBrief(siteId, mode){
   ].map(i=>'<div class="bl"><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("");
 
   $("sb-start").textContent = sbMode === "pilgrim-recall" ? "Type it from memory" : (b.cleared ? "Walk it again" : "Begin");
-  $("sb-hint").textContent = sbMode === "pilgrim-recall"
-    ? "Type the missing phrase · Enter to lock · Esc pauses"
-    : "A–D or 1–4 to select · Enter to lock · S Selah · I Illuminate · Esc pauses";
 
+  /* Named as a warning, not a spoiler: the player should know this stop
+     ends differently and find out how when it arrives. */
+  const finale = sbMode === "pilgrimage" && SetPieces.hasSite(siteId)
+    ? " · this place does not end quietly" : "";
+  $("sb-hint").textContent = (sbMode === "pilgrim-recall"
+    ? "Type the missing phrase · Enter to lock · Esc pauses"
+    : "A–D or 1–4 to select · Enter to lock · S Selah · I Illuminate · Esc pauses") + finale;
+
+  go("sitebrief");
+}
+
+/* ---- the briefing for a whole arc walked in one run ----
+   Deliberately blunt about the cost. The relay is the optional hard way
+   through ground the campaign already lets you take one site at a time,
+   so the card should read as a warning rather than an invitation. */
+function openRelayBrief(arcKey){
+  const arc = Pilgrimage.arc(arcKey);
+  if(!arc) return;
+  const st = Pilgrimage.arcStatus(SAVE.pilgrim, arcKey);
+  if(!st.open){ Atlas.note("That stretch of road is not open yet."); return; }
+
+  pendingArcKey = arcKey; sbSiteId = null; sbMode = "relay";
+  const sites = Pilgrimage.sitesInArc(arcKey);
+  const D = DIFFS[SAVE.set.diff] || DIFFS.disciple;
+  const first = Pilgrimage.indexOf(sites[0].id);
+  const last  = Pilgrimage.indexOf(sites[sites.length-1].id);
+  const secs  = i => (Pilgrimage.clockFor(i) * D.time / 1000).toFixed(1);
+
+  $("sb-arc").textContent = arc.n + " · " + arc.name;
+  $("sb-name").textContent = "The Long Road";
+  $("sb-quote").textContent = arc.sub;
+  $("sb-ref").textContent = sites[0].name + "  →  " + sites[sites.length-1].name;
+
+  $("sb-info").innerHTML = [
+    [String(sites.length), "Sites, unbroken"],
+    [String(sites.length * Pilgrimage.VERSES_PER_SITE), "Verses"],
+    [String(D.lives), "Lives, shared"],
+    [secs(first) + "s → " + secs(last) + "s", "Clock tightens"],
+    [st.cleared + " / " + st.total, "Already cleared"]
+  ].map(i=>'<div class="bi"><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("");
+
+  $("sb-live").innerHTML = "";
+  $("sb-start").textContent = "Walk it";
+  $("sb-hint").textContent = "Lives do not come back · every site you pass stays cleared, even if the road ends you";
   go("sitebrief");
 }
 
 $("sb-start").addEventListener("click", ()=>{ Snd.unlock(); startRun(sbMode, SAVE.set.diff); });
 $("sb-back").addEventListener("click", ()=>{ Snd.ui(); go("atlas"); });
+
+/* ---- the relay banks each site as it is passed ----
+   Sites are recorded the moment the road leaves them, so ending at the
+   fifth site of an arc still keeps the four behind it. The score is
+   deliberately left at zero: the relay proves you can walk the stretch
+   without rest, and the site's best score stays something you earn by
+   walking it properly. Accuracy is real, so an arc can still be
+   perfected this way. */
+function bankRelaySite(siteId){
+  const rl = R.relay;
+  if(!rl || !siteId || rl.banked.indexOf(siteId) >= 0) return;
+  const c = R.correct  - (rl.markCorrect  || 0);
+  const a = R.attempts - (rl.markAttempts || 0);
+  rl.banked.push(siteId);
+  rl.markCorrect = R.correct; rl.markAttempts = R.attempts;
+
+  const wasCleared = Pilgrimage.isCleared(SAVE.pilgrim, siteId);
+  SAVE.pilgrim = Pilgrimage.record(SAVE.pilgrim, siteId, {
+    cleared:true, score:0, accuracy: a ? Math.round(c/a*100) : 100, at:Date.now()
+  });
+  if(!wasCleared) SAVE.life.sitesCleared++;
+  persist();
+  const s = Pilgrimage.site(siteId);
+  if(s) Director.callout(s.name + " — behind you");
+}
 
 /* ---- what a finished site does to the journey ---- */
 function recordSiteResult(cleared, total, acc){
@@ -999,6 +1212,23 @@ function startRun(mode, diffKey){
     siteDraw = Pilgrimage.drawSite(siteId, {attempt: rec ? rec.attempts : 0});
   }
 
+  /* The relay flattens a whole arc into one queue, each entry tagged
+     with the site it came from so the clock, the tier and the HUD can
+     follow the road as it goes. Sites are banked as they are passed —
+     dying at the fifth site does not take the four behind it. */
+  let relay = null;
+  if(mode==="relay"){
+    const arcKey = pendingArcKey || (R.relay && R.relay.arcKey);
+    const list = Pilgrimage.sitesInArc(arcKey);
+    const queue = [];
+    list.forEach(s=>{
+      const rec = Pilgrimage.recordOf(SAVE.pilgrim, s.id);
+      Pilgrimage.drawSite(s.id, {attempt: rec ? rec.attempts : 0}).verses
+        .forEach(v => queue.push({siteId:s.id, index:Pilgrimage.indexOf(s.id), v:v}));
+    });
+    relay = {arcKey:arcKey, sites:list.map(s=>s.id), queue:queue, idx:0, banked:[], current:null};
+  }
+
   Object.assign(R, {
     runToken, sceneToken:0, ended:false,
     mode, diff:D, actIdx:0, qInAct:0, qTotal:0,
@@ -1009,7 +1239,7 @@ function startRun(mode, diffKey){
     running:false, tEnd:0, tTotal:0, qStart:0, q:null, paused:false, locked:false, selected:null,
     actNoLoss:true, gotUnshaken:false, dailyIdx:0, daily:null, endlessBase:12000,
     startedAt:Date.now(), lastTickSec:-1, lastHeart:0, pressureStage:-1,
-    setpiece:null, setpieceDone:new Set(), oneLifeCalled:false,
+    setpiece:null, setpieceDone:new Set(), oneLifeCalled:false, overdriveGift:false,
     passage:null, recon:null, usedPass:new Set(), adaptivePick:"",
     decisionMs:0, timedDecisions:0, fastestMs:Infinity,
     actStartAttempts:0, actStartCorrect:0,
@@ -1019,7 +1249,8 @@ function startRun(mode, diffKey){
     typedExact:0, typedClose:0, rescheduled:[],
     siteId: siteId, siteIndex: siteIndex, siteIdx: 0,
     siteVerses: siteDraw ? siteDraw.verses : null,
-    siteRing: siteDraw ? siteDraw.ring : ""
+    siteRing: siteDraw ? siteDraw.ring : "",
+    relay: relay
   });
   document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4");
   if(mode==="daily") R.daily = buildDailyList();
@@ -1039,10 +1270,18 @@ function startRun(mode, diffKey){
       const arc = site ? Pilgrimage.arc(site.arc) : null;
       pal = (arc && arc.pal) || "act2";
     }
+    if(mode==="relay"){
+      const arc = Pilgrimage.arc(relay.arcKey);
+      pal = (arc && arc.pal) || "act3";
+    }
     Backdrop.palette(pal);
     Snd.ambience(pal);
     $("hud-round").textContent = isPilgrim && Pilgrimage.site(siteId)
-      ? Pilgrimage.site(siteId).name : MODES[mode].name;
+      ? Pilgrimage.site(siteId).name
+      : mode==="relay" ? (Pilgrimage.arc(relay.arcKey) || {name:"The Long Road"}).name
+      : MODES[mode].name;
+    // The play view wears the sky the site is actually under.
+    applySiteSky(isPilgrim ? siteId : mode==="relay" ? relay.sites[0] : null);
     go("play"); nextQuestion();
   }
 }
@@ -1122,13 +1361,26 @@ function questionDuration(){
   if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
     return siteClockMs(R.siteId, R.mode) * R.diff.time;
   }
+  // The relay inherits each site's own clock as it reaches it, so the
+  // road tightens inside a single run exactly as it does across many.
+  if(R.mode==="relay"){
+    const cur = R.relay && R.relay.current;
+    return Pilgrimage.clockFor(cur ? cur.index : 0) * R.diff.time;
+  }
   return Math.max(4200, R.endlessBase - R.qTotal*180) * R.diff.time;
 }
 function currentTier(){
   if(R.mode==="trial") return ACTS[R.actIdx].tier;
   if(R.mode==="daily") return R.daily.list[R.dailyIdx] ? R.daily.list[R.dailyIdx].v.t : 5;
   if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
+    // A closing sequence draws fresh verses, so it wants the site's own
+    // target tier rather than the tier of the verse just answered.
+    if(R.setpiece) return Pilgrimage.tierFor(R.siteIndex);
     return R.q ? R.q.t : Pilgrimage.tierFor(R.siteIndex);
+  }
+  if(R.mode==="relay"){
+    const cur = R.relay && R.relay.current;
+    return R.q ? R.q.t : Pilgrimage.tierFor(cur ? cur.index : 0);
   }
   if(R.mode==="practice" || R.mode==="recall") return R.q ? R.q.t : 2;
   const n = R.qTotal;
@@ -1150,14 +1402,36 @@ function nextQuestion(){
   }
   if(R.mode==="daily" && R.dailyIdx >= R.daily.list.length){ endRun("complete"); return; }
   if((R.mode==="practice" || R.mode==="recall") && R.qTotal >= R.practiceLen){ endRun("complete"); return; }
-  if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") &&
-     R.siteIdx >= (R.siteVerses ? R.siteVerses.length : 0)){ endRun("complete"); return; }
+  /* The site's own verses are exhausted. A handful of places close with
+     a set piece rather than simply ending — the sequence is the climax
+     of the site, which is why it fires here and not partway through. */
+  if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece &&
+     R.siteIdx >= (R.siteVerses ? R.siteVerses.length : 0)){
+    if(SetPieces.maybeLaunchSite()) return;
+    endRun("complete"); return;
+  }
+  if(R.mode==="relay" && R.relay.idx >= R.relay.queue.length){ endRun("complete"); return; }
   if(R.setpiece && R.setpiece.passage){ startPassage(); updateChips(); return; }
   if(R.setpiece && R.setpiece.reconstruct){ startReconstruct(); updateChips(); return; }
 
   let v;
   if(R.mode==="daily"){ v = R.daily.list[R.dailyIdx].v; R.dailyIdx++; }
-  else if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){ v = R.siteVerses[R.siteIdx]; R.siteIdx++; }
+  // During a site's closing sequence the fixed list is finished, so the
+  // verses come from SetPieces.draw below instead.
+  else if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece){ v = R.siteVerses[R.siteIdx]; R.siteIdx++; }
+  else if(R.mode==="relay"){
+    const rl = R.relay, entry = rl.queue[rl.idx];
+    // Leaving a site banks it before the next one starts.
+    if(rl.current && rl.current.siteId !== entry.siteId) bankRelaySite(rl.current.siteId);
+    rl.current = entry; rl.idx++;
+    const site = Pilgrimage.site(entry.siteId);
+    if(site){
+      const arc = Pilgrimage.arc(site.arc);
+      if(arc) Backdrop.palette(arc.pal);
+      applySiteSky(entry.siteId);
+    }
+    v = entry.v;
+  }
   else if(R.mode==="practice" || R.mode==="recall"){ v = drawReviewVerse(); }
   else v = R.mode==="endless"&&!R.setpiece ? drawEndlessVerse(currentTier()) : SetPieces.draw(currentTier());
 
@@ -1188,9 +1462,19 @@ function updateChips(){
     $("hud-q").textContent = R.dailyIdx+" / "+R.daily.list.length;
   } else if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
     const site = Pilgrimage.site(R.siteId);
-    $("hud-round").textContent = site ? site.name : "The Pilgrimage";
-    $("hud-qlab").textContent = R.mode==="pilgrim-recall" ? "Typed" : "Verse";
-    $("hud-q").textContent = R.siteIdx+" / "+(R.siteVerses ? R.siteVerses.length : 0);
+    const n = R.siteVerses ? R.siteVerses.length : 0;
+    $("hud-round").textContent = R.setpiece ? SetPieces.label()
+      : site ? site.name : "The Pilgrimage";
+    $("hud-qlab").textContent = R.setpiece ? "Sequence"
+      : R.mode==="pilgrim-recall" ? "Typed" : "Verse";
+    $("hud-q").textContent = R.setpiece
+      ? (R.setpiece.count-R.setpiece.remaining)+" / "+R.setpiece.count
+      : R.siteIdx+" / "+n;
+  } else if(R.mode==="relay"){
+    const cur = R.relay.current, site = cur ? Pilgrimage.site(cur.siteId) : null;
+    $("hud-round").textContent = site ? site.name : "The Long Road";
+    $("hud-qlab").textContent = "Site "+(R.relay.banked.length+1)+" of "+R.relay.sites.length;
+    $("hud-q").textContent = R.relay.idx+" / "+R.relay.queue.length;
   } else if(R.mode==="practice" || R.mode==="recall"){
     $("hud-round").textContent = (R.mode==="recall" ? "Recall · " : "Drill · ")+(R.adaptivePick||"Spaced review");
     $("hud-qlab").textContent = R.mode==="recall" ? "Typed" : "Drill";
@@ -1230,6 +1514,16 @@ function updateActTrack(){
     }).join("");
     const site=Pilgrimage.site(R.siteId);
     el.setAttribute("aria-label",(site?site.name+" — ":"")+"verse "+R.siteIdx+" of "+n);
+  }else if(R.mode==="relay"){
+    // One step per site in the arc — the track IS the road.
+    const rl=R.relay, cur=rl.current?rl.current.siteId:null;
+    el.innerHTML=rl.sites.map((id,i)=>{
+      const done=rl.banked.indexOf(id)>=0, current=id===cur&&!done;
+      const s=Pilgrimage.site(id);
+      return '<div class="act-step'+(done?" done":"")+(current?" current":"")+'"><i style="width:'+(done?100:current?55:0)+'%"></i><span>'+
+        esc(s?s.name.split(/[ (]/)[0].slice(0,3):String(i+1))+'</span></div>';
+    }).join("");
+    el.setAttribute("aria-label","Site "+(rl.banked.length+1)+" of "+rl.sites.length);
   }else if(R.mode==="practice" || R.mode==="recall"){
     const step=Math.max(1,Math.round(R.practiceLen/5));
     const marks=[1,2,3,4,5].map(n=>Math.min(R.practiceLen, n*step));
@@ -1496,9 +1790,23 @@ function usePower(kind){
 /* ------------------------- ANSWERING ------------------------- */
 function multiplier(){
   const s=R.streak;
-  let m = s>=12?5 : s>=8?4 : s>=5?3 : s>=3?2 : 1;
+  let m = 1;
+  MOMENTUM_STEPS.forEach((n,i)=>{ if(s>=n) m=i+2; });
   if(R.mode==="trial" && R.actIdx===4) m += 2;
   return m;
+}
+/* Overdrive is the top of the meter. It used to be pure spectacle — the
+   loudest state in the game did nothing a quieter one did not. Now it
+   pays: the clock bonus doubles while it holds, and reaching it once in
+   a run hands back a spent lifeline. */
+function inOverdrive(){ return (R.streak||0) >= MOMENTUM_STEPS[MOMENTUM_STEPS.length-1]; }
+function overdriveReward(){
+  if(R.streak !== MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] || R.overdriveGift) return;
+  R.overdriveGift = true;
+  if(R.powers.selah < 1){ R.powers.selah = 1; Director.callout("Overdrive — Selah restored"); }
+  else if(R.powers.illum < 2){ R.powers.illum++; Director.callout("Overdrive — Illuminate restored"); }
+  else { Director.callout("Overdrive — the clock pays double"); }
+  renderPowers();
 }
 function setMult(pop){
   const m=multiplier(), el=$("mult");
@@ -1566,7 +1874,8 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     R.correct++; R.streak++; R.best=Math.max(R.best,R.streak);
     R.booksRun.add(q.b);
     if(elapsed < 1500) R.fast++;
-    const timeBonus = Math.round(left / R.tTotal * 140);
+    overdriveReward();
+    const timeBonus = Math.round(left / R.tTotal * 140 * (inOverdrive() ? 2 : 1));
     const tierW = 1 + q.t*0.12;
     const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * tierW * SetPieces.bonus());
     R.score += gained;
@@ -2039,6 +2348,11 @@ function endRun(reason){
   // A site is cleared by answering every verse in it — surviving to the
   // end. Dying or abandoning leaves it exactly as it was.
   const siteCleared = isPilgrim && reason==="complete";
+  /* Read BEFORE recordSiteResult writes, or every clear looks like a
+     repeat. Walking new ground pays roughly double, so pushing further
+     down the road always beats farming a site you have already beaten —
+     without ever making the retry itself worthless. */
+  const firstVisit = isPilgrim && R.siteId && !Pilgrimage.isCleared(SAVE.pilgrim, R.siteId);
   if(reason==="death" || reason==="abandon"){ Snd.death(); Backdrop.hit("death"); }
   else { Snd.victory(); Backdrop.hit("levelup"); }
 
@@ -2060,8 +2374,13 @@ function endRun(reason){
                       : isPilgrim ? Math.round(R.correct * 90 * R.diff.score *
                           (1 + Pilgrimage.positionOf(R.siteIndex)) * (siteCleared ? 1.35 : 1))
                       : Math.round(R.correct * 60 * R.diff.score);
+  /* New ground pays. Shown as its own line rather than folded into a
+     multiplier so the player can see exactly what the first clear was
+     worth and why the second one pays less. */
+  const firstClearBonus = (siteCleared && firstVisit)
+    ? Math.round((baseScore + survivalBonus) * 0.9) : 0;
   const total = reason==="abandon" ? Math.round((baseScore + streakBonus + accBonus + survivalBonus) * 0.85)
-              : baseScore + streakBonus + accBonus + survivalBonus;
+              : baseScore + streakBonus + accBonus + survivalBonus + firstClearBonus;
 
   // ---- seals ----
   if(!hasSeal("first")) grantSeal("first");
@@ -2078,6 +2397,12 @@ function endRun(reason){
   SAVE.life.bestStreak = Math.max(SAVE.life.bestStreak, R.best);
   if(R.mode==="trial") SAVE.life.sdBest = Math.max(SAVE.life.sdBest, R.sdCount);
   if(R.mode==="endless") SAVE.life.endlessBest = Math.max(SAVE.life.endlessBest, R.qTotal);
+  /* The relay banks each site as it leaves it, so all that is left at
+     the end is the one still underfoot — and only if it was finished. */
+  if(R.mode==="relay" && R.relay){
+    if(reason==="complete" && R.relay.current) bankRelaySite(R.relay.current.siteId);
+    if(reason==="complete" && !hasSeal("relay")) grantSeal("relay");
+  }
   const road = isPilgrim ? recordSiteResult(siteCleared, total, acc) : null;
   if(road && road.firstClear){
     if(!hasSeal("road-first")) grantSeal("road-first");
@@ -2085,6 +2410,15 @@ function endRun(reason){
     if(road.after.arcs.filter(a=>a.complete).length >= 2 && !hasSeal("road-half")) grantSeal("road-half");
     if(road.after.complete && !hasSeal("road-end")) grantSeal("road-end");
     if(R.siteId==="patmos" && !hasSeal("road-patmos")) grantSeal("road-patmos");
+  }
+  /* Read straight off the saved journey rather than off `road`, because
+     the relay banks its sites itself and never produces a `road`.
+     Checked on every finish, not only a first clear: perfecting an arc
+     usually means going back to tidy up a site you scraped through. */
+  if(isPilgrim || R.mode==="relay"){
+    Pilgrimage.overview(SAVE.pilgrim).arcs.forEach(a=>{
+      if(a.perfect && !hasSeal("arc-"+a.key)) grantSeal("arc-"+a.key);
+    });
   }
   const isRecord = total > (SAVE.best[R.mode]||0);
   const prevBest = SAVE.best[R.mode]||0;
@@ -2108,7 +2442,8 @@ function endRun(reason){
   persist();
 
   renderResults({reason, total, baseScore, streakBonus, accBonus, survivalBonus, acc,
-    xpGain, beforeLvl, afterInfo, isRecord, prevBest, dailyRecorded, road, siteCleared});
+    xpGain, beforeLvl, afterInfo, isRecord, prevBest, dailyRecorded, road, siteCleared,
+    firstClearBonus});
   if(afterInfo.level>beforeLvl){ setTimeout(()=>{ Snd.level(); Backdrop.hit("levelup"); toast("Level "+afterInfo.level+" — "+rankFor(afterInfo.level)); }, 1400); }
   go("results");
 }
@@ -2136,7 +2471,9 @@ function renderResults(o){
     row("Verses kept", fmt(o.baseScore)) +
     row("Longest streak ×"+R.best, "+"+fmt(o.streakBonus)) +
     row("Accuracy "+Math.round(o.acc*100)+"%", "+"+fmt(o.accBonus)) +
-    row(R.mode==="trial" ? "Acts survived" : R.mode==="endless" ? "Distance" : "Verses answered", "+"+fmt(o.survivalBonus)) +
+    row(R.mode==="trial" ? "Acts survived" : R.mode==="endless" ? "Distance"
+        : R.mode==="relay" ? "Sites walked" : "Verses answered", "+"+fmt(o.survivalBonus)) +
+    (o.firstClearBonus ? row("New ground — first clear", "+"+fmt(o.firstClearBonus)) : "") +
     '<div class="brow tot"><span>Final</span><b>'+fmt(o.total)+'</b></div>';
   function row(a,b){ return '<div class="brow"><span>'+esc(a)+'</span><b>'+esc(b)+'</b></div>'; }
 
@@ -2203,10 +2540,36 @@ function renderResults(o){
      just what you scored, and sends you back to the map instead of the
      main hall. */
   const isPilgrim = R.mode==="pilgrimage" || R.mode==="pilgrim-recall";
+  const onRoad = isPilgrim || R.mode==="relay";
   const roadBtn=$("res-road");
   if(roadBtn){
-    roadBtn.style.display = isPilgrim ? "" : "none";
+    roadBtn.style.display = onRoad ? "" : "none";
     roadBtn.onclick = ()=>{ Snd.ui(); go("atlas"); };
+  }
+
+  /* Straight on to the next site, without a round trip to the map. With
+     29 stops the map screen between every one of them becomes a toll
+     rather than a moment, so a player on a run can just keep walking. */
+  const nextBtn=$("res-next");
+  if(nextBtn){
+    const nxt = isPilgrim && o.siteCleared ? Pilgrimage.currentSite(SAVE.pilgrim) : null;
+    const showNext = !!(nxt && !Pilgrimage.isCleared(SAVE.pilgrim, nxt.id));
+    nextBtn.style.display = showNext ? "" : "none";
+    if(showNext){
+      nextBtn.textContent = "On to " + nxt.name.replace(/\s*\(.*\)$/, "");
+      nextBtn.onclick = ()=>{ Snd.unlock(); Snd.ui(); openSiteBrief(nxt.id, "pilgrimage"); };
+    }
+  }
+
+  if(R.mode==="relay" && R.relay){
+    const arc = Pilgrimage.arc(R.relay.arcKey);
+    const done = R.relay.banked.length, all = R.relay.sites.length;
+    $("res-kick").textContent = o.reason==="complete"
+      ? (arc ? arc.name + " — walked without rest" : "The arc is walked")
+      : "The road ended early";
+    $("res-best").textContent = done === all
+      ? "Every site from " + (Pilgrimage.site(R.relay.sites[0])||{name:""}).name + " onward is cleared"
+      : done + " of " + all + " sites banked before the road ended · they stay cleared";
   }
   if(isPilgrim && o.road){
     const site = Pilgrimage.site(R.siteId);
@@ -2437,7 +2800,7 @@ function abandonRun(){
     Snd.ui();
     // Backing out of a site before answering anything drops you on the
     // map you came from, not in the main hall.
-    go(R.mode==="pilgrimage"||R.mode==="pilgrim-recall" ? "atlas" : "menu");
+    go(R.mode==="pilgrimage"||R.mode==="pilgrim-recall"||R.mode==="relay" ? "atlas" : "menu");
     return;
   }
   endRun("abandon");

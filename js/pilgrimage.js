@@ -175,9 +175,19 @@ var Pilgrimage = (function () {
   function arcStatus(progress, arcKey) {
     var list = sitesInArc(arcKey);
     var done = list.filter(function (s) { return isCleared(progress, s.id); }).length;
+    /* "Perfect" on a site means a clean sweep — every verse kept, which
+       is also the only way to reach the end without losing a life. An
+       arc is perfect when every site in it is, and because a site's
+       perfect flag is sticky once earned, the arc can be perfected one
+       site at a time rather than in a single flawless sitting. */
+    var flawless = list.length > 0 && list.every(function (s) {
+      var r = recordOf(progress, s.id);
+      return !!(r && r.cleared && r.perfect);
+    });
     return {
       key: arcKey, total: list.length, cleared: done,
       complete: list.length > 0 && done === list.length,
+      perfect: flawless,
       // An arc is open once its first site is open.
       open: list.length > 0 && isUnlocked(progress, list[0].id)
     };

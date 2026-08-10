@@ -42,7 +42,7 @@ var Atlas = (function () {
   var routeLayers = [];
   var empireLayer = null, terminatorLayer = null;
   var activeId = null, progress = null;
-  var hooks = { begin: null, recall: null, exit: null };
+  var hooks = { begin: null, recall: null, relay: null, exit: null };
   var termTimer = null, noteTimer = null;
   var layers = { routes: true, empires: true, borders: false, terminator: true };
   var coldOpenDone = false;
@@ -411,9 +411,14 @@ var Atlas = (function () {
 
     Pilgrimage.arcs().forEach(function (arc) {
       var st = Pilgrimage.arcStatus(progress, arc.key);
-      html += '<div class="arc-head' + (st.complete ? " done" : "") + '">' +
+      html += '<div class="arc-head' + (st.complete ? " done" : "") + (st.perfect ? " flawless" : "") + '">' +
         esc(arc.n + ". " + arc.name) +
-        '<span>' + st.cleared + "/" + st.total + '</span></div>';
+        '<span>' + st.cleared + "/" + st.total + (st.perfect ? " ✦" : "") + '</span>' +
+        // The relay is offered only once the arc is reachable, and it is
+        // always optional — the site-by-site road is the main way through.
+        (st.open ? '<button class="arc-relay" type="button" data-relay="' + esc(arc.key) +
+                   '" title="Walk the whole arc in one unbroken run">Walk it</button>' : '') +
+        '</div>';
 
       Pilgrimage.sitesInArc(arc.key).forEach(function (site) {
         var i = Pilgrimage.indexOf(site.id);
@@ -434,6 +439,15 @@ var Atlas = (function () {
     host.innerHTML = html;
     host.querySelectorAll("[data-site]").forEach(function (b) {
       b.addEventListener("click", function () { sfx("ui"); select(b.dataset.site); });
+    });
+    host.querySelectorAll("[data-relay]").forEach(function (b) {
+      b.addEventListener("click", function (e) {
+        // The button sits inside the arc header; without this the click
+        // would also fall through to whatever is behind it.
+        if (e && e.stopPropagation) e.stopPropagation();
+        sfx("ui");
+        if (hooks.relay) hooks.relay(b.dataset.relay);
+      });
     });
 
     var ov = Pilgrimage.overview(progress);
@@ -625,9 +639,15 @@ var Atlas = (function () {
     host.innerHTML = defs.map(function (d) {
       return '<button class="lyr' + (layers[d[0]] ? " on" : "") + '" data-layer="' + d[0] +
              '" type="button" aria-pressed="' + !!layers[d[0]] + '">' + d[1] + '</button>';
-    }).join("");
+    }).join("") +
+      // The opening flight already existed and nothing ever called it.
+      '<button class="lyr" data-tour="1" type="button" title="Fly the whole road, Ur to Patmos">Fly the road</button>';
+
     host.querySelectorAll("[data-layer]").forEach(function (b) {
       b.addEventListener("click", function () { sfx("ui"); setLayer(b.dataset.layer); });
+    });
+    host.querySelectorAll("[data-tour]").forEach(function (b) {
+      b.addEventListener("click", function () { sfx("ui"); replayColdOpen(); });
     });
   }
 
