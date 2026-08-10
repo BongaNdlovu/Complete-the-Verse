@@ -11,9 +11,14 @@ const SUITE = [
   ["verse-qa logic", "verse-qa.test.js"],
   ["srs logic",      "srs.test.js"],
   ["recall logic",   "recall.test.js"],
+  ["geo logic",      "geo.test.js"],
+  ["pilgrimage",     "pilgrimage.test.js"],
+  ["live data",      "live.test.js"],
   ["integration",    "integration.test.js"],
   ["game structure", "game-structure.test.js"],
   ["ui structure",   "ui-structure.test.js"],
+  ["atlas data",     "sites.test.js"],
+  ["atlas view",     "atlas.test.js"],
   ["soundtrack",     "soundtrack.test.js"],
   ["sfx",            "sfx.test.js"]
 ];

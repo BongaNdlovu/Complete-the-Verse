@@ -55,13 +55,18 @@ const SAVE_KEY = "ctv_save_v3";
 const LEGACY_SAVE_KEY = "ctv_save_v2";
 const DEFAULT_SAVE = {
   v:3, xp:0, runs:0,
-  best:{trial:0, endless:0, daily:0, practice:0, recall:0},
+  best:{trial:0, endless:0, daily:0, practice:0, recall:0, pilgrimage:0, "pilgrim-recall":0},
   seals:[],
   life:{correct:0, attempts:0, bestStreak:0, sdBest:0, endlessBest:0, dailyDone:0, perfectActs:0,
-        typedExact:0, typedAttempts:0, reviewsDone:0},
+        typedExact:0, typedAttempts:0, reviewsDone:0, sitesCleared:0, arcsCleared:0},
   books:{}, verse:{}, srs:{}, board:[],
   daily:{date:"", score:0},
-  set:{music:0.45, sfx:0.7, quality:"high", reduced:false, shake:true, voice:true, diff:"disciple", tutorialDone:false}
+  /* The road from Ur to Patmos. Shape is owned by pilgrimage.js —
+     blankProgress() there is the authority — and stored here so a
+     journey survives a reload. */
+  pilgrim:{sites:{}, lastPlayed:"", started:0},
+  set:{music:0.45, sfx:0.7, quality:"high", reduced:false, shake:true, voice:true, diff:"disciple",
+       tutorialDone:false, liveWeather:true, coldOpenDone:false}
 };
 let SAVE = load();
 function load(){
@@ -76,7 +81,14 @@ function load(){
       life:Object.assign({}, DEFAULT_SAVE.life, s.life||{}),
       set:Object.assign({}, DEFAULT_SAVE.set, s.set||{}),
       daily:Object.assign({}, DEFAULT_SAVE.daily, s.daily||{}),
-      srs:Object.assign({}, s.srs||{})
+      srs:Object.assign({}, s.srs||{}),
+      // A save written before the Pilgrimage existed has no `pilgrim`
+      // key at all. Merging rather than replacing means such a player
+      // simply starts the journey at Ur with everything else intact —
+      // no wipe, no reset, no lost seals.
+      pilgrim:Object.assign({sites:{}, lastPlayed:"", started:0}, s.pilgrim||{}, {
+        sites:Object.assign({}, (s.pilgrim && s.pilgrim.sites) || {})
+      })
     });
     if(migrating) migrateV2(out, s);
     return out;
@@ -164,12 +176,27 @@ const SEALS = [
   {id:"books66", n:"The Whole Counsel",  d:"Answer correctly from all 66 books."},
   {id:"lvl20",   n:"Master of the Word", d:"Reach level 20."},
   {id:"life500", n:"Scribe's Hand",      d:"500 correct answers, all-time."},
-  {id:"ironman", n:"Iron Sharpeneth",    d:"Complete the Trial on Watchman difficulty."}
+  {id:"ironman", n:"Iron Sharpeneth",    d:"Complete the Trial on Watchman difficulty."},
+  {id:"road-first", n:"Get Thee Out",    d:"Clear your first site on the Pilgrimage."},
+  {id:"road-arc1",  n:"Out of Ur",       d:"Complete the Patriarchs — Ur to Beersheba."},
+  {id:"road-half",  n:"Half the Road",   d:"Complete two full arcs of the Pilgrimage."},
+  {id:"road-patmos",n:"The Last Island", d:"Reach and clear Patmos."},
+  {id:"road-end",   n:"Ur to Patmos",    d:"Clear all 29 sites on the Pilgrimage."}
 ];
 function hasSeal(id){ return SAVE.seals.indexOf(id) >= 0; }
 
 /* ------------------------- MODES / DIFFICULTY / ACTS ------------------------- */
 const MODES = {
+  /* The Pilgrimage does not use the standard brief screen — it opens the
+     atlas instead, and the site you pick there is the level. `atlas:true`
+     is what routes it. `hidden:true` keeps a mode off the menu without
+     hiding it from the results screen, which still needs its name. */
+  pilgrimage:{ key:"pilgrimage", name:"The Pilgrimage", kick:"The long road", atlas:true,
+    desc:"Twenty-nine places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is six verses drawn from its own scripture, and clearing it opens the next stretch of road. The clock closes as you go east.",
+    tagline:"29 sites · Ur to Patmos", info:[["29","Sites"],["6","Verses each"],["14→6.5s","Clock"]] },
+  "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
+    desc:"A site you have already cleared, walked again with no options on the screen. Same place, same verses, typed out word for word.",
+    tagline:"Typed · cleared sites", info:[["6","Verses"],["Typed","No options"],["22s","Clock"]] },
   trial:{ key:"trial", name:"The Trial", kick:"Campaign",
     desc:"Five acts. The clock tightens with every one. Reach Act V with one life, clear its five questions, and earn the ending.",
     tagline:"5 acts · one-life finale", info:[["5","Acts"],["39+","Verses"],["14→6.5s","Clock"]] },
@@ -646,11 +673,16 @@ const Viz = (function(){
 /* ------------------------- ROUTER ------------------------- */
 let currentView = "boot";
 function go(view){
+  const leaving = currentView;
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
   const el = $("v-"+view); if(el) el.classList.add("on");
   currentView = view;
   // the play view supplies its own header/footer letterboxing
   document.body.classList.toggle("cine", view==="act"||view==="boot");
+  // Leaving the map stops its clocks; a terminator redraw on a hidden
+  // view is pure waste and keeps a timer alive for the whole session.
+  if(leaving==="atlas" && view!=="atlas") Atlas.unmount();
+  if(view==="atlas"){ Backdrop.palette("menu"); Snd.ambience("menu"); openAtlas(); }
   if(view==="menu"){ Backdrop.palette("menu"); Snd.ambience("menu"); renderMenu(); }
   if(view==="results"){ Backdrop.palette("results"); Snd.ambience("results"); }
   if(view==="study") renderStudy();
@@ -691,7 +723,9 @@ function buildPlayerCard(){
 function updatePlayerCard(){
   const li = levelInfo(SAVE.xp);
   const card = $("playercard"); if(!card) return;
-  card.style.display = (currentView==="play"||currentView==="boot"||currentView==="act") ? "none" : "flex";
+  // The atlas has its own chrome in that corner, so the card stands down.
+  card.style.display = (currentView==="play"||currentView==="boot"||
+                        currentView==="act"||currentView==="atlas") ? "none" : "flex";
   $("pc-lvl").textContent = li.level;
   $("pc-rank").textContent = rankFor(li.level);
   $("pc-xpfill").style.width = (li.into/li.need*100)+"%";
@@ -703,19 +737,27 @@ function renderMenu(){
   const today = todayKey();
   const dailyDone = SAVE.daily.date === today;
   const due = dueToday();
-  $("modes").innerHTML = Object.keys(MODES).map(k=>{
+  const road = pilgrimOverview();
+  $("modes").innerHTML = Object.keys(MODES).filter(k=>!MODES[k].hidden).map(k=>{
     const m = MODES[k];
     let pill = "";
     if(k==="daily") pill = dailyDone
       ? '<span class="pill done">Done · '+fmt(SAVE.daily.score)+'</span>'
       : '<span class="pill">Today</span>';
     else if(k==="practice" && due) pill = '<span class="pill due">'+fmt(due)+' due</span>';
+    else if(k==="pilgrimage") pill = road.complete
+      ? '<span class="pill done">Road walked</span>'
+      : '<span class="pill">'+road.cleared+' / '+road.total+'</span>';
     else if(SAVE.best[k]) pill = '<span class="pill">Best '+fmt(SAVE.best[k])+'</span>';
     return '<button class="mode" data-mode="'+k+'">'+pill+'<b>'+esc(m.name)+'</b><p>'+esc(m.desc)+'</p>'+
       '<span class="tagline">'+esc(m.tagline)+'</span></button>';
   }).join("");
   $("modes").querySelectorAll("[data-mode]").forEach(b=>{
-    b.addEventListener("click",()=>{ Snd.unlock(); Snd.ui(); openBrief(b.dataset.mode); });
+    b.addEventListener("click",()=>{
+      Snd.unlock(); Snd.ui();
+      // The Pilgrimage picks its level on the map, not on a brief card.
+      if(MODES[b.dataset.mode].atlas) go("atlas"); else openBrief(b.dataset.mode);
+    });
   });
   const done = SAVE.seals.length, tot = SEALS.length;
   $("menu-hint").textContent = SAVE.runs
@@ -747,6 +789,123 @@ function renderDiffs(){
   });
 }
 $("brief-start").addEventListener("click", ()=>{ Snd.unlock(); startRun(briefMode, SAVE.set.diff); });
+
+/* ------------------------- THE PILGRIMAGE -------------------------
+   The campaign rules live in pilgrimage.js and the map lives in
+   atlas.js. What follows is only the wiring between them and the run
+   machinery below: which site was picked, what happens when it is
+   cleared, and where the player is sent afterwards. */
+
+function pilgrimOverview(){ return Pilgrimage.overview(SAVE.pilgrim); }
+function savePilgrim(p){ SAVE.pilgrim = p; persist(); }
+
+let pendingSiteId = null;
+let atlasWired = false;
+
+function wireAtlas(){
+  if(atlasWired) return;
+  atlasWired = true;
+
+  Atlas.on("begin",  id => openSiteBrief(id, "pilgrimage"));
+  Atlas.on("recall", id => openSiteBrief(id, "pilgrim-recall"));
+
+  const rail = $("atlas-rail"), toggle = $("atlas-rail-toggle");
+  if(toggle && rail) toggle.addEventListener("click", ()=>{ Snd.ui(); rail.classList.toggle("hidden"); });
+
+  const zin = $("atlas-zin"), zout = $("atlas-zout"), zfit = $("atlas-zfit");
+  if(zin)  zin.addEventListener("click",  ()=>{ Snd.ui(); if(Atlas.hasMap()) Atlas.focus(Atlas.activeSite()?Atlas.activeSite().id:null,{zoom:9}); });
+  if(zout) zout.addEventListener("click", ()=>{ Snd.ui(); if(Atlas.hasMap()) Atlas.focus(Atlas.activeSite()?Atlas.activeSite().id:null,{zoom:6}); });
+  if(zfit) zfit.addEventListener("click", ()=>{ Snd.ui(); Atlas.fitAll(); });
+
+  // On a phone the rail covers the map, so it starts out of the way.
+  if(rail && window.innerWidth < 720) rail.classList.add("hidden");
+}
+
+function openAtlas(){
+  wireAtlas();
+  Atlas.seenColdOpen(!!SAVE.set.coldOpenDone);
+  Atlas.mount(SAVE.pilgrim);
+  if(!SAVE.set.coldOpenDone){ SAVE.set.coldOpenDone = true; persist(); }
+  // Live weather is a bonus, never a dependency: this promise cannot
+  // reject (see live.js) and nothing waits on it.
+  if(SAVE.set.liveWeather) Atlas.loadWeather();
+}
+
+/* ---- the briefing card for one site ---- */
+let sbSiteId = null, sbMode = "pilgrimage";
+
+function siteClockMs(siteId, mode){
+  // Typed recall needs a clock sized for typing, not for picking — the
+  // same reasoning the standard Recall mode uses.
+  if(mode === "pilgrim-recall") return 22000;
+  return Pilgrimage.clockFor(Pilgrimage.indexOf(siteId));
+}
+
+function openSiteBrief(siteId, mode){
+  const b = Pilgrimage.brief(siteId, SAVE.pilgrim);
+  if(!b) return;
+  if(!b.unlocked){ Atlas.note("That place is still sealed."); return; }
+
+  sbSiteId = siteId; sbMode = mode || "pilgrimage"; pendingSiteId = siteId;
+  const s = b.site, arc = b.arc, D = DIFFS[SAVE.set.diff] || DIFFS.disciple;
+  const secs = (siteClockMs(siteId, sbMode) * D.time / 1000).toFixed(1);
+
+  $("sb-arc").textContent = arc ? arc.n + " · " + arc.name : s.tag;
+  $("sb-name").textContent = s.name;
+  $("sb-quote").textContent = s.quote;
+  $("sb-ref").textContent = s.quoteRef;
+
+  $("sb-info").innerHTML = [
+    [b.ordinal + " / " + b.total, "Site on the road"],
+    [String(b.verses), sbMode === "pilgrim-recall" ? "Verses, typed" : "Verses"],
+    [TIER_NAMES[b.tier] || "Foundation", "Difficulty"],
+    [secs + "s", "Per verse"],
+    [String(D.lives), "Lives"]
+  ].map(i=>'<div class="bi"><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("");
+
+  // Conditions at the real place, right now.
+  const r = Live.readingFor(s);
+  const now = new Date();
+  const sun = Geo.sunPosition(now, s.coords[0], s.coords[1]);
+  $("sb-live").innerHTML = [
+    [r.tempC + "°C", r.live ? "Temperature now" : "Typical temperature"],
+    [r.sky ? r.sky.label : "—", "Sky"],
+    [Geo.solarClock(now, s.coords[1]), "Local solar time"],
+    [s.elevation + " m", "Elevation"]
+  ].map(i=>'<div class="bl"><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("");
+
+  $("sb-start").textContent = sbMode === "pilgrim-recall" ? "Type it from memory" : (b.cleared ? "Walk it again" : "Begin");
+  $("sb-hint").textContent = sbMode === "pilgrim-recall"
+    ? "Type the missing phrase · Enter to lock · Esc pauses"
+    : "A–D or 1–4 to select · Enter to lock · S Selah · I Illuminate · Esc pauses";
+
+  go("sitebrief");
+}
+
+$("sb-start").addEventListener("click", ()=>{ Snd.unlock(); startRun(sbMode, SAVE.set.diff); });
+$("sb-back").addEventListener("click", ()=>{ Snd.ui(); go("atlas"); });
+
+/* ---- what a finished site does to the journey ---- */
+function recordSiteResult(cleared, total, acc){
+  if(!R.siteId) return null;
+  const before = Pilgrimage.overview(SAVE.pilgrim);
+  const wasCleared = Pilgrimage.isCleared(SAVE.pilgrim, R.siteId);
+
+  const next = Pilgrimage.record(SAVE.pilgrim, R.siteId, {
+    cleared: cleared, score: total, accuracy: Math.round(acc*100),
+    livesLeft: R.lives, at: Date.now()
+  });
+  SAVE.pilgrim = next;
+
+  const after = Pilgrimage.overview(next);
+  if(cleared && !wasCleared){
+    SAVE.life.sitesCleared++;
+    const arcsBefore = before.arcs.filter(a=>a.complete).length;
+    const arcsAfter  = after.arcs.filter(a=>a.complete).length;
+    if(arcsAfter > arcsBefore) SAVE.life.arcsCleared++;
+  }
+  return {before, after, firstClear: cleared && !wasCleared};
+}
 
 /* ------------------------- RUN STATE ------------------------- */
 const R = {};
@@ -826,8 +985,22 @@ function startRun(mode, diffKey){
   const D = DIFFS[diffKey] || DIFFS.disciple;
   const runToken = (R.runToken||0) + 1;
   pendingSeals = [];
+
+  /* A pilgrimage level is a fixed list of verses drawn from the site's
+     own scripture, decided here and then played straight through. The
+     attempt count seeds the draw, so walking a site again gives you a
+     different six rather than the same six. */
+  const isPilgrim = mode==="pilgrimage" || mode==="pilgrim-recall";
+  let siteId = null, siteDraw = null, siteIndex = -1;
+  if(isPilgrim){
+    siteId = pendingSiteId || R.siteId;
+    siteIndex = Pilgrimage.indexOf(siteId);
+    const rec = Pilgrimage.recordOf(SAVE.pilgrim, siteId);
+    siteDraw = Pilgrimage.drawSite(siteId, {attempt: rec ? rec.attempts : 0});
+  }
+
   Object.assign(R, {
-    runToken, sceneToken:0,
+    runToken, sceneToken:0, ended:false,
     mode, diff:D, actIdx:0, qInAct:0, qTotal:0,
     score:0, disp:0, lives:D.lives, maxLives:D.lives,
     streak:0, best:0, correct:0, attempts:0, missed:[], used:new Set(),
@@ -840,9 +1013,13 @@ function startRun(mode, diffKey){
     passage:null, recon:null, usedPass:new Set(), adaptivePick:"",
     decisionMs:0, timedDecisions:0, fastestMs:Infinity,
     actStartAttempts:0, actStartCorrect:0,
-    practiceLen: mode==="practice" ? 15 : mode==="recall" ? 12 : 0,
-    typed: mode==="recall", hintLevel:0, queue:null,
-    typedExact:0, typedClose:0, rescheduled:[]
+    practiceLen: mode==="practice" ? 15 : mode==="recall" ? 12
+               : isPilgrim ? siteDraw.verses.length : 0,
+    typed: mode==="recall" || mode==="pilgrim-recall", hintLevel:0, queue:null,
+    typedExact:0, typedClose:0, rescheduled:[],
+    siteId: siteId, siteIndex: siteIndex, siteIdx: 0,
+    siteVerses: siteDraw ? siteDraw.verses : null,
+    siteRing: siteDraw ? siteDraw.ring : ""
   });
   document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4");
   if(mode==="daily") R.daily = buildDailyList();
@@ -854,10 +1031,18 @@ function startRun(mode, diffKey){
   if(mode==="practice" || mode==="recall") R.queue = buildReviewQueue(R.practiceLen + 12);
   if(mode==="trial"){ beginAct(0); }
   else {
-    const pal = mode==="endless" ? "act3" : mode==="practice" ? "act1" : mode==="recall" ? "act4" : "act2";
+    // Each arc of the road carries its own bed, so the Patriarchs and
+    // the Church do not sound like the same afternoon.
+    let pal = mode==="endless" ? "act3" : mode==="practice" ? "act1" : mode==="recall" ? "act4" : "act2";
+    if(isPilgrim){
+      const site = Pilgrimage.site(siteId);
+      const arc = site ? Pilgrimage.arc(site.arc) : null;
+      pal = (arc && arc.pal) || "act2";
+    }
     Backdrop.palette(pal);
     Snd.ambience(pal);
-    $("hud-round").textContent = MODES[mode].name;
+    $("hud-round").textContent = isPilgrim && Pilgrimage.site(siteId)
+      ? Pilgrimage.site(siteId).name : MODES[mode].name;
     go("play"); nextQuestion();
   }
 }
@@ -932,11 +1117,19 @@ function questionDuration(){
   // Typing a phrase takes far longer than picking one, so Recall gets a
   // clock sized for the work rather than the same one the pickers use.
   if(R.mode==="recall"){ return 22000 * R.diff.time; }
+  // The road's clock is a function of how far east you are: 14s at Ur,
+  // 6.5s at Patmos. pilgrimage.js owns the ramp.
+  if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
+    return siteClockMs(R.siteId, R.mode) * R.diff.time;
+  }
   return Math.max(4200, R.endlessBase - R.qTotal*180) * R.diff.time;
 }
 function currentTier(){
   if(R.mode==="trial") return ACTS[R.actIdx].tier;
   if(R.mode==="daily") return R.daily.list[R.dailyIdx] ? R.daily.list[R.dailyIdx].v.t : 5;
+  if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
+    return R.q ? R.q.t : Pilgrimage.tierFor(R.siteIndex);
+  }
   if(R.mode==="practice" || R.mode==="recall") return R.q ? R.q.t : 2;
   const n = R.qTotal;
   if(n<5) return 1; if(n<11) return 2; if(n<19) return 3; if(n<29) return 4;
@@ -957,11 +1150,14 @@ function nextQuestion(){
   }
   if(R.mode==="daily" && R.dailyIdx >= R.daily.list.length){ endRun("complete"); return; }
   if((R.mode==="practice" || R.mode==="recall") && R.qTotal >= R.practiceLen){ endRun("complete"); return; }
+  if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") &&
+     R.siteIdx >= (R.siteVerses ? R.siteVerses.length : 0)){ endRun("complete"); return; }
   if(R.setpiece && R.setpiece.passage){ startPassage(); updateChips(); return; }
   if(R.setpiece && R.setpiece.reconstruct){ startReconstruct(); updateChips(); return; }
 
   let v;
   if(R.mode==="daily"){ v = R.daily.list[R.dailyIdx].v; R.dailyIdx++; }
+  else if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){ v = R.siteVerses[R.siteIdx]; R.siteIdx++; }
   else if(R.mode==="practice" || R.mode==="recall"){ v = drawReviewVerse(); }
   else v = R.mode==="endless"&&!R.setpiece ? drawEndlessVerse(currentTier()) : SetPieces.draw(currentTier());
 
@@ -990,6 +1186,11 @@ function updateChips(){
     $("hud-round").textContent = "Daily Trial";
     $("hud-qlab").textContent = "Verse";
     $("hud-q").textContent = R.dailyIdx+" / "+R.daily.list.length;
+  } else if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
+    const site = Pilgrimage.site(R.siteId);
+    $("hud-round").textContent = site ? site.name : "The Pilgrimage";
+    $("hud-qlab").textContent = R.mode==="pilgrim-recall" ? "Typed" : "Verse";
+    $("hud-q").textContent = R.siteIdx+" / "+(R.siteVerses ? R.siteVerses.length : 0);
   } else if(R.mode==="practice" || R.mode==="recall"){
     $("hud-round").textContent = (R.mode==="recall" ? "Recall · " : "Drill · ")+(R.adaptivePick||"Spaced review");
     $("hud-qlab").textContent = R.mode==="recall" ? "Typed" : "Drill";
@@ -1019,6 +1220,16 @@ function updateActTrack(){
       return '<div class="act-step'+(pct>=100?" done":pct>0?" current":"")+'"><i style="width:'+pct+'%"></i><span>'+(i+1)+'</span></div>';
     }).join("");
     el.setAttribute("aria-label","Daily progress "+R.dailyIdx+" of 20");
+  }else if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
+    // One step per verse: a six-verse site reads cleanly as six marks,
+    // and the player can see exactly how much of the site is left.
+    const n=R.siteVerses?R.siteVerses.length:0;
+    el.innerHTML=Array.from({length:n},(_,i)=>{
+      const done=i<R.siteIdx-1, current=i===R.siteIdx-1;
+      return '<div class="act-step'+(done?" done":"")+(current?" current":"")+'"><i style="width:'+(done?100:current?60:0)+'%"></i><span>'+(i+1)+'</span></div>';
+    }).join("");
+    const site=Pilgrimage.site(R.siteId);
+    el.setAttribute("aria-label",(site?site.name+" — ":"")+"verse "+R.siteIdx+" of "+n);
   }else if(R.mode==="practice" || R.mode==="recall"){
     const step=Math.max(1,Math.round(R.practiceLen/5));
     const marks=[1,2,3,4,5].map(n=>Math.min(R.practiceLen, n*step));
@@ -1809,6 +2020,14 @@ function checkMetaSeals(){
 
 /* ------------------------- END OF RUN ------------------------- */
 function endRun(reason){
+  /* Idempotent on purpose. This is the one function that writes
+     permanent progress — records, XP, seals, and now a cleared site on
+     the Pilgrimage — and it is reachable from two directions at once: a
+     timer running out and a player locking an answer in the same tick.
+     Running it twice would bank the run twice and count a site visit
+     that never happened. The guard is cleared by startRun. */
+  if(R.ended) return;
+  R.ended = true;
   invalidateRun();
   clearSequence();
   document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7");
@@ -1816,6 +2035,10 @@ function endRun(reason){
   const reachedV = (R.mode==="trial" && R.actIdx>=4);
   const trialWon = R.mode==="trial" && reason==="complete";
   const finished = reason==="complete";
+  const isPilgrim = R.mode==="pilgrimage" || R.mode==="pilgrim-recall";
+  // A site is cleared by answering every verse in it — surviving to the
+  // end. Dying or abandoning leaves it exactly as it was.
+  const siteCleared = isPilgrim && reason==="complete";
   if(reason==="death" || reason==="abandon"){ Snd.death(); Backdrop.hit("death"); }
   else { Snd.victory(); Backdrop.hit("levelup"); }
 
@@ -1831,6 +2054,11 @@ function endRun(reason){
                       // strictly harder than recognising them, and an exact
                       // match is worth more than a forgiven typo.
                       : R.mode==="recall" ? Math.round((R.typedExact * 220 + R.typedClose * 120) * R.diff.score)
+                      // The road pays by distance: a verse kept at Patmos is
+                      // worth roughly double the same verse kept at Ur, which
+                      // is the honest weighting when the clock has halved.
+                      : isPilgrim ? Math.round(R.correct * 90 * R.diff.score *
+                          (1 + Pilgrimage.positionOf(R.siteIndex)) * (siteCleared ? 1.35 : 1))
                       : Math.round(R.correct * 60 * R.diff.score);
   const total = reason==="abandon" ? Math.round((baseScore + streakBonus + accBonus + survivalBonus) * 0.85)
               : baseScore + streakBonus + accBonus + survivalBonus;
@@ -1850,6 +2078,14 @@ function endRun(reason){
   SAVE.life.bestStreak = Math.max(SAVE.life.bestStreak, R.best);
   if(R.mode==="trial") SAVE.life.sdBest = Math.max(SAVE.life.sdBest, R.sdCount);
   if(R.mode==="endless") SAVE.life.endlessBest = Math.max(SAVE.life.endlessBest, R.qTotal);
+  const road = isPilgrim ? recordSiteResult(siteCleared, total, acc) : null;
+  if(road && road.firstClear){
+    if(!hasSeal("road-first")) grantSeal("road-first");
+    if(road.after.arcs[0].complete && !hasSeal("road-arc1")) grantSeal("road-arc1");
+    if(road.after.arcs.filter(a=>a.complete).length >= 2 && !hasSeal("road-half")) grantSeal("road-half");
+    if(road.after.complete && !hasSeal("road-end")) grantSeal("road-end");
+    if(R.siteId==="patmos" && !hasSeal("road-patmos")) grantSeal("road-patmos");
+  }
   const isRecord = total > (SAVE.best[R.mode]||0);
   const prevBest = SAVE.best[R.mode]||0;
   if(isRecord) SAVE.best[R.mode] = total;
@@ -1872,7 +2108,7 @@ function endRun(reason){
   persist();
 
   renderResults({reason, total, baseScore, streakBonus, accBonus, survivalBonus, acc,
-    xpGain, beforeLvl, afterInfo, isRecord, prevBest, dailyRecorded});
+    xpGain, beforeLvl, afterInfo, isRecord, prevBest, dailyRecorded, road, siteCleared});
   if(afterInfo.level>beforeLvl){ setTimeout(()=>{ Snd.level(); Backdrop.hit("levelup"); toast("Level "+afterInfo.level+" — "+rankFor(afterInfo.level)); }, 1400); }
   go("results");
 }
@@ -1961,6 +2197,31 @@ function renderResults(o){
   if(shareBtn){
     shareBtn.style.display = R.mode==="daily" ? "" : "none";
     shareBtn.onclick = ()=>shareDailyResult(o.total);
+  }
+
+  /* On the road, the results screen reports where you are rather than
+     just what you scored, and sends you back to the map instead of the
+     main hall. */
+  const isPilgrim = R.mode==="pilgrimage" || R.mode==="pilgrim-recall";
+  const roadBtn=$("res-road");
+  if(roadBtn){
+    roadBtn.style.display = isPilgrim ? "" : "none";
+    roadBtn.onclick = ()=>{ Snd.ui(); go("atlas"); };
+  }
+  if(isPilgrim && o.road){
+    const site = Pilgrimage.site(R.siteId);
+    const nxt = Pilgrimage.currentSite(o.road.after ? SAVE.pilgrim : SAVE.pilgrim);
+    $("res-kick").textContent = o.siteCleared
+      ? (site ? site.name + " is behind you" : "The site is cleared")
+      : (site ? site.name + " holds" : "The site holds");
+    const line = o.siteCleared
+      ? o.road.after.complete
+        ? "Every site from Ur to Patmos is cleared. The road is walked."
+        : "The road opens to " + (nxt ? nxt.name : "the next site") +
+          " · " + o.road.after.cleared + " of " + o.road.after.total + " sites"
+      : "Walk it again when you are ready · " + o.road.after.cleared +
+        " of " + o.road.after.total + " sites cleared";
+    $("res-best").textContent = line;
   }
   updatePlayerCard();
 }
@@ -2054,6 +2315,8 @@ function renderRecords(){
       box(fmt(SAVE.best.trial),"Trial best")+box(fmt(SAVE.best.endless),"Endless best")+
       box(fmt(SAVE.best.daily),"Daily best")+box(SAVE.life.sdBest,"Final Test best")+
       box(SAVE.life.endlessBest,"Longest gauntlet")+box(SAVE.life.dailyDone,"Dailies completed")+
+      box(Pilgrimage.clearedCount(SAVE.pilgrim)+" / "+Pilgrimage.count(),"Sites cleared")+
+      box(fmt(SAVE.best.pilgrimage),"Pilgrimage best")+
       box(SAVE.seals.length+" / "+SEALS.length,"Seals")+
       '</div>';
     function box(a,b){ return '<div class="sbox"><b>'+esc(String(a))+'</b><span>'+esc(b)+'</span></div>'; }
@@ -2084,7 +2347,10 @@ function renderSettings(){
       seg("reduced",[[false,"Off"],[true,"On"]],s.reduced)) +
     setRow("Screen shake","The kick when you lose a life.",
       seg("shake",[[true,"On"],[false,"Off"]],s.shake)) +
-    '<div class="footer"><button class="btn ghost sm" id="set-reset">Erase all progress</button></div>';
+    setRow("Live conditions","Real current weather at each site on the Pilgrimage map. Off, or offline, it uses that place's typical climate instead — the map never waits on it.",
+      seg("liveWeather",[[true,"On"],[false,"Off"]],s.liveWeather)) +
+    '<div class="footer"><button class="btn ghost sm" id="set-road">Restart the Pilgrimage</button>' +
+    '<button class="btn ghost sm" id="set-reset">Erase all progress</button></div>';
 
   function setRow(l,sub,ctrl){ return '<div class="setrow"><div><label>'+esc(l)+'</label><small>'+esc(sub)+'</small></div>'+ctrl+'</div>'; }
   function seg(key,opts,cur){
@@ -2105,9 +2371,20 @@ function renderSettings(){
       });
     });
   });
+  /* Deliberately separate from the full erase: a player who wants to
+     walk the road again from Ur should not have to give up their seals,
+     their level and their whole scheduling history to do it. */
+  $("set-road").addEventListener("click", ()=>{
+    const done = Pilgrimage.clearedCount(SAVE.pilgrim);
+    if(!done){ toast("The journey has not started yet"); return; }
+    if(!confirm("Seal all "+done+" cleared sites again and start the road from Ur? Seals, level and verse history are kept.")) return;
+    SAVE.pilgrim = Pilgrimage.blankProgress(); persist();
+    Atlas.setProgress(SAVE.pilgrim); Snd.ui(); renderSettings(); toast("The road is sealed back to Ur");
+  });
   $("set-reset").addEventListener("click", ()=>{
     if(!confirm("Erase every seal, record and statistic? This cannot be undone.")) return;
     SAVE = JSON.parse(JSON.stringify(DEFAULT_SAVE)); persist();
+    Atlas.setProgress(SAVE.pilgrim);
     applySettings(); updatePlayerCard(); renderSettings(); toast("All progress erased");
   });
 }
@@ -2118,6 +2395,7 @@ function applySettings(){
   const quality=["high","balanced","low"].includes(SAVE.set.quality)?SAVE.set.quality:"high";
   document.body.classList.add("quality-"+quality);
   Snd.setMusic(SAVE.set.music); Snd.setSfx(SAVE.set.sfx);
+  Live.configure({enabled: SAVE.set.liveWeather !== false});
   Director.syncFx();
   if(currentView==="play")Viz.size();
 }
@@ -2157,7 +2435,9 @@ function abandonRun(){
     $("setpiece-card").classList.remove("on");
     document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7");
     Snd.ui();
-    go("menu");
+    // Backing out of a site before answering anything drops you on the
+    // map you came from, not in the main hall.
+    go(R.mode==="pilgrimage"||R.mode==="pilgrim-recall" ? "atlas" : "menu");
     return;
   }
   endRun("abandon");
@@ -2199,9 +2479,17 @@ function bindTutorial(){
 addEventListener("keydown", e=>{
   const k = e.key.toLowerCase();
   if(document.activeElement && /input|select|textarea/i.test(document.activeElement.tagName)) return;
-  if(k==="escape"){ if(currentView==="play") togglePause(); else if(currentView!=="menu") go("menu"); return; }
+  // Escape walks back one step rather than always jumping to the hall:
+  // a site briefing belongs to the map, so it returns there.
+  if(k==="escape"){
+    if(currentView==="play") togglePause();
+    else if(currentView==="sitebrief") go("atlas");
+    else if(currentView!=="menu") go("menu");
+    return;
+  }
   if(currentView==="menu" && (k==="enter"||k===" ")){ e.preventDefault(); Snd.unlock(); openBrief("trial"); return; }
   if(currentView==="brief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(briefMode, SAVE.set.diff); return; }
+  if(currentView==="sitebrief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(sbMode, SAVE.set.diff); return; }
   if(currentView==="results" && (k==="enter"||k===" ")){ e.preventDefault(); startRun(R.mode, R.diff.key); return; }
   if(currentView!=="play") return;
   if(k==="s"){ usePower("selah"); return; }

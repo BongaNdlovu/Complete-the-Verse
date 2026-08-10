@@ -93,9 +93,85 @@ assert(css.includes(".mode .pill.due"), "due-count pill styled");
 assert(css.includes(".mastery.m2"), "learning band styled in Study Hall");
 assert(game.includes("function verseScheduleLabel"), "Study Hall shows the schedule");
 
+/* ---------- the Pilgrimage: markup the atlas reaches for by id ----------
+   atlas.js resolves these with getElementById and quietly does nothing
+   when one is absent, which is the right behaviour at runtime and a
+   terrible way to find out you deleted a div. So the contract between
+   the markup and the module is asserted here instead. */
+const atlas = fs.readFileSync(path.join(__dirname, "css", "atlas.css"), "utf8");
+const atlasJs = fs.readFileSync(path.join(__dirname, "js", "atlas.js"), "utf8");
+
+[ "v-atlas", "atlas-map", "atlas-rail", "atlas-rail-list", "atlas-dossier",
+  "atlas-doss-body", "atlas-doss-actions", "atlas-layers", "atlas-note",
+  "atlas-open", "atlas-fill", "atlas-count", "atlas-zin", "atlas-zout",
+  "atlas-zfit", "atlas-rail-toggle"
+].forEach(id => assert(html.includes('id="' + id + '"'), "atlas markup provides #" + id));
+
+[ "v-sitebrief", "sb-arc", "sb-name", "sb-quote", "sb-ref", "sb-info",
+  "sb-live", "sb-start", "sb-back", "sb-hint"
+].forEach(id => assert(html.includes('id="' + id + '"'), "site briefing provides #" + id));
+
+assert(html.includes('id="res-road"'), "results offers a way back to the road");
+
+/* Every id atlas.js looks up must actually exist in the markup. This is
+   the assertion that catches a rename on one side only. */
+const wanted = new Set();
+let m, re = /\$\("([a-z0-9-]+)"\)/g;
+while ((m = re.exec(atlasJs))) wanted.add(m[1]);
+const orphans = [...wanted].filter(id => !html.includes('id="' + id + '"'));
+assert(orphans.length === 0, "atlas.js reaches for ids the markup does not define: " + orphans.join(", "));
+
+/* ---------- atlas styling ---------- */
+assert(html.includes('href="css/atlas.css"'), "atlas stylesheet is loaded");
+assert(html.includes('href="vendor/leaflet/leaflet.css"'), "vendored Leaflet CSS is loaded");
+assert(html.indexOf('href="vendor/leaflet/leaflet.css"') < html.indexOf('href="css/atlas.css"'),
+  "atlas.css loads after Leaflet so it can override it");
+
+assert(atlas.includes(".site-marker"), "site markers styled");
+assert(atlas.includes(".site-marker.locked") && atlas.includes(".site-marker.cleared") &&
+       atlas.includes(".site-marker.current"), "marker states are visually distinct");
+assert(atlas.includes(".route-walked") && atlas.includes(".route-ahead"),
+  "the walked road and the road ahead are drawn differently");
+assert(atlas.includes(".terminator-shape") && atlas.includes(".empire-shape"),
+  "night side and empire overlays styled");
+assert(/\[data-light="night"\]/.test(atlas) && /\[data-light="day"\]/.test(atlas),
+  "the map is graded by the real sky at the site");
+assert(/\[data-sky="dust"\]/.test(atlas) && /\[data-sky="rain"\]/.test(atlas),
+  "live weather grades the map");
+
+/* The atlas must use the game's own tokens rather than a second palette:
+   that is the whole reason it was ported off Tailwind. */
+assert(/var\(--gold/.test(atlas) && /var\(--parch/.test(atlas) && /var\(--disp\)/.test(atlas),
+  "atlas.css is built on the game's design tokens");
+/* Checks for an actual reference, not the word: atlas.css's header
+   comment explains why the map was ported off Tailwind, and matching
+   prose would fail on the very comment documenting the decision. */
+assert(!/cdn\.tailwindcss|tailwind\.min\.css|font-awesome|fontawesome/i.test(html),
+  "no Tailwind or FontAwesome is loaded alongside the game's own styles");
+assert(!/class="[^"]*\b(?:fa-solid|fa-regular|text-amber-\d|bg-stone-\d)\b/.test(html),
+  "no Tailwind or FontAwesome class names survive in the markup");
+
+/* Reduced motion has to reach the map too, not just the game chrome. */
+assert(/prefers-reduced-motion/.test(atlas), "atlas respects reduced motion");
+assert(atlas.includes("body.reduced .route-line"), "route animation stops under reduced motion");
+assert(/@media \(max-width: ?720px\)/.test(atlas), "the atlas has a phone layout");
+
+/* ---------- the Pilgrimage in game.js ---------- */
+assert(game.includes('pilgrimage:{ key:"pilgrimage"'), "the Pilgrimage is a mode");
+assert(game.includes('"pilgrim-recall"'), "cleared sites can be replayed typed");
+assert(/hidden:true/.test(game), "the typed replay is kept off the menu");
+assert(game.includes("function openSiteBrief"), "sites get a briefing card");
+assert(game.includes("function recordSiteResult"), "finishing a site updates the journey");
+assert(game.includes("SAVE.pilgrim"), "journey progress is saved");
+assert(/pilgrim:Object\.assign/.test(game), "an older save migrates rather than being wiped");
+assert(game.includes("Live.configure"), "live conditions follow the setting");
+assert(game.includes('seg("liveWeather"'), "live conditions can be switched off");
+assert(game.includes('id="set-road"') || game.includes("set-road"),
+  "the journey can be restarted without erasing everything else");
+
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");
   fails.forEach((f) => console.error(" - " + f));
   process.exit(1);
 }
-console.log("PASS — index.html UI structure checks");
+console.log("PASS — index.html UI structure checks · atlas wired");

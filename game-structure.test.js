@@ -24,13 +24,31 @@ const game  = fs.readFileSync(path.join(root, "js", "game.js"), "utf8");
 const css   = fs.readFileSync(path.join(root, "css", "game.css"), "utf8");
 
 /* ---------- files and load order ---------- */
-["index.html", "css/game.css", "js/verses.js", "js/verses-extra.js", "js/passages.js",
- "js/bank.js", "js/srs.js", "js/recall.js", "js/legacy-ids.js", "js/game.js",
- "scripts/verse-qa.js", "scripts/qa-verses.js", "content/QUARANTINE.md", "content/quarantine.json"
+["index.html", "css/game.css", "css/atlas.css", "js/verses.js", "js/verses-extra.js",
+ "js/passages.js", "js/bank.js", "js/srs.js", "js/recall.js", "js/legacy-ids.js",
+ "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js", "js/live.js",
+ "js/atlas.js", "js/game.js",
+ "scripts/verse-qa.js", "scripts/qa-verses.js", "scripts/load-atlas.js",
+ "content/QUARANTINE.md", "content/quarantine.json"
 ].forEach(f => assert(fs.existsSync(path.join(root, f)), f + " exists"));
 
+/* Leaflet is vendored rather than pulled from a CDN so the game keeps
+   working with no network and no install step. If these go missing the
+   Pilgrimage silently loses its map, so their presence is asserted. */
+["vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css",
+ "vendor/leaflet/images/marker-icon.png", "vendor/leaflet/images/marker-shadow.png"
+].forEach(f => assert(fs.existsSync(path.join(root, f)), f + " vendored"));
+assert(!/unpkg\.com|cdnjs|jsdelivr|cdn\.tailwindcss/.test(index),
+  "index.html pulls no script or stylesheet from a CDN");
+
 const order = ["js/verses.js", "js/verses-extra.js", "js/passages.js", "js/legacy-ids.js",
-               "js/bank.js", "js/srs.js", "js/recall.js", "js/game.js"];
+               "js/bank.js", "js/srs.js", "js/recall.js",
+               // pilgrimage.js captures the merged VERSES array, so it has
+               // to come after bank.js; atlas.js uses all of the above.
+               "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js",
+               "js/live.js", "js/atlas.js", "js/game.js"];
+assert(index.indexOf("vendor/leaflet/leaflet.js") < index.indexOf('src="js/atlas.js"'),
+  "Leaflet loads before the atlas that uses it");
 let prev = -1;
 order.forEach(f => {
   const at = index.indexOf('src="' + f + '"');

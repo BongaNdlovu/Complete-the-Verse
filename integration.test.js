@@ -96,8 +96,14 @@ function makeSandbox(){
   return sandbox;
 }
 
+/* Same order as index.html. The Pilgrimage files are included because
+   game.js now calls into them at boot — and because booting them in a
+   sandbox with no Leaflet and no fetch is exactly the degradation path
+   they are supposed to survive. */
 const FILES = ["js/verses.js","js/verses-extra.js","js/passages.js","js/legacy-ids.js",
-               "js/bank.js","js/srs.js","js/recall.js","js/game.js"];
+               "js/bank.js","js/srs.js","js/recall.js",
+               "js/sites.js","js/empires.js","js/geo.js","js/pilgrimage.js",
+               "js/live.js","js/atlas.js","js/game.js"];
 function boot(preload){
   const sb = makeSandbox();
   if(preload) sb.localStorage.setItem(preload.key, JSON.stringify(preload.value));
@@ -281,6 +287,147 @@ eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
   eq("nothing is due on day one", read(s, "dueToday()"), 0);
   read(s, "startRun('practice','disciple')");
   ok("the drill still has verses to serve", read(s, "R.queue.length") > 0);
+}
+
+/* ---------- the Pilgrimage, played end to end ----------
+   This is the branch that matters: game.js now has a whole run type
+   whose verses come from a fixed site list rather than a tier draw, and
+   whose ending writes to a save key that did not exist before. The
+   sandbox has no Leaflet and no fetch, which is also the degradation
+   path the atlas is meant to survive. */
+{
+  const s = boot();
+
+  eq("the Pilgrimage is on the menu", read(s, "!!MODES.pilgrimage"), true);
+  eq("the typed replay is kept off it", read(s, "!!MODES['pilgrim-recall'].hidden"), true);
+  eq("a fresh save starts the road at Ur", read(s, "Pilgrimage.currentSite(SAVE.pilgrim).id"), "ur");
+  eq("nothing is cleared yet", read(s, "Pilgrimage.clearedCount(SAVE.pilgrim)"), 0);
+
+  // Starting a site the way the briefing card does.
+  read(s, "pendingSiteId = 'ur'; startRun('pilgrimage','disciple')");
+  eq("the run knows which site it is", read(s, "R.siteId"), "ur");
+  eq("the run draws six verses", read(s, "R.siteVerses.length"), 6);
+  eq("they come from the site's own books", read(s, "R.siteRing"), "site");
+  eq("it is not a typing run", read(s, "R.typed"), false);
+  eq("the clock is the site's clock",
+     read(s, "questionDuration()"), read(s, "Pilgrimage.clockFor(0) * R.diff.time"));
+  ok("every drawn verse belongs to Ur's books",
+     read(s, "(function(){var b={};Pilgrimage.site('ur').books.forEach(function(x){b[x]=1});" +
+             "return R.siteVerses.every(function(v){return b[v.b]===1})})()"));
+
+  /* startRun already served the first verse, so five more calls finish
+     the site and the sixth finds the list exhausted and ends the run by
+     itself. Ending it by hand here would hide whether that automatic
+     ending actually works. */
+  eq("the first verse is served by starting the run", read(s, "R.siteIdx"), 1);
+  read(s, "(function(){ for(var i=0;i<5;i++){ R.correct++; R.attempts++; nextQuestion(); } })()");
+  eq("all six verses are served", read(s, "R.siteIdx"), 6);
+  read(s, "R.correct++; R.attempts++; nextQuestion();");
+  eq("running out of verses ends the run on its own", read(s, "R.ended"), true);
+
+  eq("finishing clears the site", read(s, "Pilgrimage.isCleared(SAVE.pilgrim,'ur')"), true);
+  eq("clearing opens the next site", read(s, "Pilgrimage.isUnlocked(SAVE.pilgrim,'haran')"), true);
+  eq("the road moves on", read(s, "Pilgrimage.currentSite(SAVE.pilgrim).id"), "haran");
+  eq("the site records exactly one attempt", read(s, "Pilgrimage.recordOf(SAVE.pilgrim,'ur').attempts"), 1);
+  ok("the site records a score", read(s, "Pilgrimage.recordOf(SAVE.pilgrim,'ur').best") > 0);
+
+  // endRun is reachable from a timeout and a click in the same tick, so
+  // a second call must bank nothing further.
+  const runsAfter = read(s, "SAVE.runs");
+  read(s, "endRun('complete')");
+  eq("ending a finished run again banks nothing", read(s, "SAVE.runs"), runsAfter);
+  eq("nor does it count a second visit",
+     read(s, "Pilgrimage.recordOf(SAVE.pilgrim,'ur').attempts"), 1);
+  eq("the journey counter moves", read(s, "SAVE.life.sitesCleared"), 1);
+  eq("a first clear earns its seal", read(s, "SAVE.seals.indexOf('road-first') >= 0"), true);
+  ok("the Pilgrimage keeps a best score", read(s, "SAVE.best.pilgrimage") > 0);
+
+  // And the progress survives a reload.
+  const s2 = boot({key:"ctv_save_v3", value:JSON.parse(read(s, "JSON.stringify(SAVE)"))});
+  eq("a cleared site survives a reload", read(s2, "Pilgrimage.isCleared(SAVE.pilgrim,'ur')"), true);
+  eq("and the road still points onward", read(s2, "Pilgrimage.currentSite(SAVE.pilgrim).id"), "haran");
+}
+
+/* ---------- failing a site changes nothing ---------- */
+{
+  const s = boot();
+  read(s, "pendingSiteId = 'ur'; startRun('pilgrimage','disciple')");
+  read(s, "(function(){ nextQuestion(); R.attempts++; })()");
+  read(s, "endRun('death')");
+
+  eq("dying does not clear the site", read(s, "Pilgrimage.isCleared(SAVE.pilgrim,'ur')"), false);
+  eq("nor does it open the next one", read(s, "Pilgrimage.isUnlocked(SAVE.pilgrim,'haran')"), false);
+  eq("but the attempt is recorded", read(s, "Pilgrimage.recordOf(SAVE.pilgrim,'ur').attempts"), 1);
+  eq("the road still points at Ur", read(s, "Pilgrimage.currentSite(SAVE.pilgrim).id"), "ur");
+}
+
+/* ---------- the typed replay ---------- */
+{
+  const s = boot();
+  read(s, "pendingSiteId='ur'; startRun('pilgrim-recall','disciple')");
+  eq("the replay types its answers", read(s, "R.typed"), true);
+  eq("it still draws six verses", read(s, "R.siteVerses.length"), 6);
+  ok("it gets a clock sized for typing",
+     read(s, "questionDuration()") > read(s, "Pilgrimage.clockFor(0) * R.diff.time"));
+}
+
+/* ---------- the difficulty ramp is real in play ---------- */
+{
+  const s = boot();
+  read(s, "pendingSiteId='ur'; startRun('pilgrimage','disciple')");
+  const atUr = read(s, "questionDuration()");
+  read(s, "pendingSiteId='patmos'; startRun('pilgrimage','disciple')");
+  const atPatmos = read(s, "questionDuration()");
+  ok("the clock is tighter at the end of the road than the start", atPatmos < atUr, {atUr, atPatmos});
+  eq("the last site is tier 5", read(s, "Pilgrimage.tierFor(Pilgrimage.indexOf('patmos'))"), 5);
+}
+
+/* ---------- the Pilgrimage feeds the scheduler ---------- */
+{
+  const s = boot();
+  read(s, "pendingSiteId='ur'; startRun('pilgrimage','disciple'); nextQuestion(); R.tTotal=12000;");
+  const id = read(s, "R.q.id");
+  read(s, "scheduleReview(R.q, {correct:true, fraction:0.3})");
+  eq("a site answer schedules the verse", read(s, "!!SAVE.srs[" + JSON.stringify(id) + "]"), true);
+  eq("and counts toward lifetime review", read(s, "SAVE.life.reviewsDone"), 1);
+}
+
+/* ---------- an older save is migrated, not wiped ---------- */
+{
+  // A v3 save written before the Pilgrimage existed has no `pilgrim` key.
+  const s = boot({key:"ctv_save_v3", value:{
+    v:3, xp:9000, runs:12, seals:["first","recall"],
+    best:{trial:5000, endless:2000, daily:1000, practice:0, recall:0},
+    life:{correct:200, attempts:260, bestStreak:14},
+    books:{}, verse:{}, srs:{}, board:[], daily:{date:"", score:0}, set:{diff:"watchman"}
+  }});
+
+  ok("a pre-Pilgrimage save still loads", read(s, "SAVE.xp") === 9000);
+  eq("its seals survive", read(s, "SAVE.seals.length"), 2);
+  eq("its records survive", read(s, "SAVE.best.trial"), 5000);
+  eq("its settings survive", read(s, "SAVE.set.diff"), "watchman");
+  eq("it gains a blank journey", read(s, "Pilgrimage.clearedCount(SAVE.pilgrim)"), 0);
+  eq("starting at Ur", read(s, "Pilgrimage.currentSite(SAVE.pilgrim).id"), "ur");
+  eq("and a Pilgrimage best of zero", read(s, "SAVE.best.pilgrimage"), 0);
+  eq("live conditions default on", read(s, "SAVE.set.liveWeather"), true);
+}
+
+/* ---------- the atlas survives a world with no map and no network ---------- */
+{
+  const s = boot();
+  eq("Leaflet is genuinely absent here", read(s, "typeof L"), "undefined");
+  eq("so the atlas reports it has no map", read(s, "Atlas.hasMap()"), false);
+  ok("opening the atlas does not throw", (() => {
+    try { read(s, "go('atlas')"); return true; }
+    catch(e){ console.log("    " + e.message); return false; }
+  })());
+  ok("and leaving it again does not either", (() => {
+    try { read(s, "go('menu')"); return true; }
+    catch(e){ console.log("    " + e.message); return false; }
+  })());
+  eq("with no fetch, live data is simply unavailable", read(s, "typeof fetch"), "undefined");
+  ok("and a reading still comes back", read(s, "Live.readingFor(SITES[0]).tempC") > 0);
+  eq("honestly marked as not live", read(s, "Live.readingFor(SITES[0]).live"), false);
 }
 
 console.log((fail ? "FAIL" : "PASS") + " — integration · " + pass + " assertions passed" + (fail ? ", " + fail + " failed" : ""));
