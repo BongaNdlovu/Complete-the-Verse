@@ -25,7 +25,8 @@ const css   = fs.readFileSync(path.join(root, "css", "game.css"), "utf8");
 
 /* ---------- files and load order ---------- */
 ["index.html", "css/game.css", "css/atlas.css", "js/verses.js", "js/verses-extra.js",
- "js/passages.js", "js/bank.js", "js/srs.js", "js/recall.js", "js/legacy-ids.js",
+ "js/verses-more.js", "js/passages.js", "js/bank.js", "js/srs.js", "js/recall.js",
+ "js/legacy-ids.js",
  "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js", "js/live.js",
  "js/atlas.js", "js/game.js",
  "scripts/verse-qa.js", "scripts/qa-verses.js", "scripts/load-atlas.js",
@@ -41,7 +42,8 @@ const css   = fs.readFileSync(path.join(root, "css", "game.css"), "utf8");
 assert(!/unpkg\.com|cdnjs|jsdelivr|cdn\.tailwindcss/.test(index),
   "index.html pulls no script or stylesheet from a CDN");
 
-const order = ["js/verses.js", "js/verses-extra.js", "js/passages.js", "js/legacy-ids.js",
+const order = ["js/verses.js", "js/verses-extra.js", "js/verses-more.js",
+               "js/passages.js", "js/legacy-ids.js",
                "js/bank.js", "js/srs.js", "js/recall.js",
                // pilgrimage.js captures the merged VERSES array, so it has
                // to come after bank.js; atlas.js uses all of the above.
@@ -56,6 +58,9 @@ order.forEach(f => {
   assert(at > prev, f + " loads after its dependencies");
   prev = at;
 });
+/* verses-more must land before bank.js merges VERSES_MORE into VERSES. */
+assert(index.indexOf('src="js/verses-more.js"') < index.indexOf('src="js/bank.js"'),
+  "verses-more.js loads before bank.js merges it");
 
 /* ---------- audio ---------- */
 assert(game.includes("TRACKS"), "track bed map required");
@@ -70,6 +75,17 @@ const bank = loadBank();
 const V = bank.VERSES;
 
 assert(V.length >= 250, "bank holds at least 250 verses (got " + V.length + ")");
+
+/* Hand-authored expansion: Node and the browser both must see it. Without
+   this, a missing script tag would leave the pack on disk but not in play. */
+assert(Array.isArray(bank.VERSES_MORE) && bank.VERSES_MORE.length >= 50,
+  "VERSES_MORE is loaded and substantial (got " + (bank.VERSES_MORE || []).length + ")");
+const moreIds = new Set(bank.VERSES_MORE.map(v => bank.verseId(v)));
+const mergedMore = V.filter(v => moreIds.has(v.id)).length;
+assert(mergedMore === bank.VERSES_MORE.length,
+  "every VERSES_MORE entry is merged into VERSES (" + mergedMore + "/" + bank.VERSES_MORE.length + ")");
+assert(!bank.VERSES_MORE.some(v => v.r === "Job 23:10"),
+  "Job 23:10 is not duplicated in VERSES_MORE (it already lives in verses-extra)");
 
 const errored = V.filter(v => QA.auditVerse(v).some(f => f.severity === "error"));
 assert(errored.length === 0,
@@ -148,6 +164,21 @@ assert(reimported.length === 0,
   reimported.map(q => q.ref).join(", ") + ")");
 assert(quarantine.every(q => typeof q.resolved === "boolean"),
   "quarantine tracks which entries have been re-authored");
+const resolved = quarantine.filter(q => q.resolved).length;
+assert(resolved >= 50,
+  "quarantine marks re-authored entries resolved (got " + resolved + ")");
+/* Live refs in the bank must not sit open in the queue — otherwise the
+   status doc lies about work that is already done. */
+const liveRefs = new Set(V.map(v => QA.norm(v.r)));
+const falselyOpen = quarantine.filter(q => !q.resolved && liveRefs.has(QA.norm(q.ref)));
+assert(falselyOpen.length === 0,
+  "no live reference is still marked open in quarantine (" +
+  falselyOpen.slice(0, 8).map(q => q.ref).join(", ") + ")");
+const qmd = fs.readFileSync(path.join(root, "content", "QUARANTINE.md"), "utf8");
+assert(/verses-more\.js/.test(qmd),
+  "QUARANTINE.md points re-authors at verses-more.js, not only verses-extra");
+assert(new RegExp(resolved + " re-authored").test(qmd),
+  "QUARANTINE.md count matches quarantine.json resolved flags");
 
 /* ---------- modes and review systems ---------- */
 assert(game.includes('practice:{ key:"practice"'), "drill mode defined");

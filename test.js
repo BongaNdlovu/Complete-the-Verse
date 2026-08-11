@@ -9,6 +9,7 @@ const path = require("path");
 const SUITE = [
   ["content gate",   "scripts/qa-verses.js"],
   ["verse-qa logic", "verse-qa.test.js"],
+  ["verses-more",    "verses-more.test.js"],
   ["srs logic",      "srs.test.js"],
   ["recall logic",   "recall.test.js"],
   ["geo logic",      "geo.test.js"],

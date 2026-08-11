@@ -37,7 +37,7 @@
    "distractor \"a LORD; and he counted it\" differs only in the connective \"the\" -> \"a\"",
    "distractor \"the LORD; or he counted it\" differs only in the connective \"and\" -> \"or\""
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -62,7 +62,7 @@
    "distractor \"for I will not leave thee,\" is lifted verbatim from the verse",
    "distractor \"will bring you again into this\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -85,7 +85,7 @@
    "distractor \"God created man in his own\" is lifted verbatim from the verse",
    "distractor \"him; male and female created he\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -189,8 +189,8 @@
   "detail": [
    "distractor \"LORD, The LORD\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
-  "sameBlank": false
+  "resolved": true,
+  "sameBlank": true
  },
  {
   "book": "Exodus",
@@ -260,7 +260,7 @@
    "distractor \"man doth not live by bread\" is lifted verbatim from the verse",
    "distractor \"that he might make you know\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -402,7 +402,7 @@
    "distractor \"once, O God, that I may\" is lifted verbatim from the verse",
    "distractor \"strengthen me, I pray you, only\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -474,7 +474,7 @@
    "distractor \"will I die, and there will\" is lifted verbatim from the verse",
    "distractor \"me, and more also, if ought\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -587,7 +587,7 @@
    "distractor \"neither is there any rock like\" is lifted verbatim from the verse",
    "distractor \"is there any rock like our\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -610,7 +610,7 @@
    "distractor \"the LORD, and serve him in\" is lifted verbatim from the verse",
    "distractor \"great things he hath done for\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -727,7 +727,7 @@
    "distractor \"I have sinned against the LORD.\" is lifted verbatim from the verse",
    "distractor \"Nathan said to David, The LORD\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -990,7 +990,7 @@
    "blank begins on \"and\" mid-clause",
    "distractor \"or his strength, seek his face\" differs only in the connective \"and\" -> \"or\""
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -1012,7 +1012,7 @@
    "distractor \"of thee, and of thine own\" is lifted verbatim from the verse",
    "distractor \"we should be able to offer\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -1119,7 +1119,7 @@
   "detail": [
    "distractor \"arm of flesh; but with us\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -1141,7 +1141,7 @@
    "distractor \"Asa, and all Judah and Benjamin;\" is lifted verbatim from the verse",
    "distractor \"LORD is with you, while you\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -1211,7 +1211,7 @@
    "distractor \"arise and build: but ye have\" is lifted verbatim from the verse",
    "distractor \"unto them, The God of heaven,\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -1274,7 +1274,7 @@
   "detail": [
    "distractor \"day: that they should make\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -1589,7 +1589,7 @@
    "distractor \"Lord GOD: wherefore turn yourselves, and\" is lifted verbatim from the verse",
    "distractor \"death of him that dieth, says\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -1720,7 +1720,7 @@
    "distractor \"inhabitants of the earth: and none\" is lifted verbatim from the verse",
    "distractor \"and he doeth according to his\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -1966,7 +1966,7 @@
    "distractor \"in Jerusalem shall be deliverance, as\" is lifted verbatim from the verse",
    "distractor \"call on the name of the\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -2082,7 +2082,7 @@
    "distractor \"paid the fare thereof, and went\" is lifted verbatim from the verse",
    "distractor \"and went down to Joppa; and\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -2145,7 +2145,7 @@
   "detail": [
    "distractor \"peace! O Judah, keep your solemn\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -2167,7 +2167,7 @@
    "distractor \"dasheth in pieces is come up\" is lifted verbatim from the verse",
    "distractor \"your face: keep the munition, watch\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -2262,7 +2262,7 @@
    "distractor \"LORD, as the waters cover the\" is lifted verbatim from the verse",
    "distractor \"For the earth shall be filled\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -2283,7 +2283,7 @@
    "distractor \"vines; the labour of the olive\" is lifted verbatim from the verse",
    "distractor \"meat; the flock shall be cut\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -2349,7 +2349,7 @@
    "distractor \"of the land, saith the LORD,\" is lifted verbatim from the verse",
    "distractor \"priest; and be strong, all you\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -2551,7 +2551,7 @@
    "distractor \"things that ye shall do; Speak\" is lifted verbatim from the verse",
    "distractor \"execute the judgment of truth and\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -2641,7 +2641,7 @@
    "distractor \"against his brother, by profaning the\" is lifted verbatim from the verse",
    "distractor \"one father? hath not one God\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -2712,7 +2712,7 @@
    "distractor \"remembrance was written before him for\" is lifted verbatim from the verse",
    "distractor \"often one to another: and the\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -2955,7 +2955,7 @@
    "distractor \"find; knock, and it shall be\" is lifted verbatim from the verse",
    "distractor \"be given you; seek, and you\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -3330,7 +3330,7 @@
    "distractor \"the remission of sins, and ye\" is lifted verbatim from the verse",
    "distractor \"Repent, and be baptized every one\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -3998,7 +3998,7 @@
    "distractor \"forgiving one another even as God for Christ's sake hath forgiven you\" is the answer plus 9 trailing words",
    "distractor \"forgiving one another even as God for Christ's sake hath forgiven you\" is repeated"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -4136,7 +4136,7 @@
    "distractor \"offering and a sacrifice to God\" is lifted verbatim from the verse",
    "distractor \"and has given himself for us\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -4288,7 +4288,7 @@
    "distractor \"of good report; if there be\" is lifted verbatim from the verse",
    "distractor \"whatsoever things are just, whatsoever things\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -4330,7 +4330,7 @@
   "detail": [
    "distractor \"live is Christ, or to die\" differs only in the connective \"and\" -> \"or\""
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -4445,7 +4445,7 @@
    "distractor \"walk you in him\" only modernises the archaic wording",
    "distractor \"walk ye in him, rooted and built up in him\" is the answer plus 6 trailing words"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -4583,8 +4583,8 @@
    "distractor \"one mediator between God and men, the man Christ Jesus\" is the answer plus 4 trailing words",
    "distractor \"one mediator between God and men, the man Christ Jesus\" is repeated"
   ],
-  "resolved": false,
-  "sameBlank": false
+  "resolved": true,
+  "sameBlank": true
  },
  {
   "book": "1 Timothy",
@@ -4769,8 +4769,8 @@
    "distractor \"the crown of righteousness\" differs only in the connective \"a\" -> \"the\"",
    "distractor \"a crown of righteousness, which the Lord, the righteous judge, shall give me at that day\" is the answer plus 12 trailing words"
   ],
-  "resolved": false,
-  "sameBlank": false
+  "resolved": true,
+  "sameBlank": true
  },
  {
   "book": "2 Timothy",
@@ -4813,7 +4813,7 @@
   "detail": [
    "blank begins on \"as\" mid-clause"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -5043,7 +5043,7 @@
    "distractor \"more unto thee, both in the\" is lifted verbatim from the verse",
    "distractor \"a servant, but above a servant,\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -5129,7 +5129,7 @@
    "distractor \"us therefore come boldly unto the\" is lifted verbatim from the verse",
    "distractor \"and find grace to help in\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -5309,7 +5309,7 @@
    "distractor \"shame, and is set down at\" is lifted verbatim from the verse",
    "distractor \"faith; who for the joy that\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -5536,7 +5536,7 @@
    "distractor \"you lack wisdom, let him ask\" is lifted verbatim from the verse",
    "distractor \"and upbraideth not; and it shall\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -5585,7 +5585,7 @@
    "distractor \"and pray one for another, that\" is lifted verbatim from the verse",
    "distractor \"one for another, that ye may\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -5719,7 +5719,7 @@
    "distractor \"you a reason of the hope\" is lifted verbatim from the verse",
    "distractor \"your hearts: and be ready always\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -5741,7 +5741,7 @@
    "distractor \"our Lord Jesus Christ, which according\" is lifted verbatim from the verse",
    "distractor \"his abundant mercy has begotten us\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -6037,7 +6037,7 @@
    "distractor \"in grace, and in the knowledge\" is lifted verbatim from the verse",
    "distractor \"him be glory both now and\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -6282,7 +6282,7 @@
    "distractor \"I rejoiced greatly that I found\" is lifted verbatim from the verse",
    "distractor \"your children walking in truth, as\" only modernises the archaic wording"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -6484,7 +6484,7 @@
   "detail": [
    "distractor \"And of some\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
@@ -6602,7 +6602,7 @@
    "distractor \"And the Spirit and the bride\" is lifted verbatim from the verse",
    "distractor \"heareth say, Come. And let him\" is lifted verbatim from the verse"
   ],
-  "resolved": false,
+  "resolved": true,
   "sameBlank": false
  },
  {
