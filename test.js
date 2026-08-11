@@ -21,7 +21,8 @@ const SUITE = [
   ["atlas data",     "sites.test.js"],
   ["atlas view",     "atlas.test.js"],
   ["soundtrack",     "soundtrack.test.js"],
-  ["sfx",            "sfx.test.js"]
+  ["sfx",            "sfx.test.js"],
+  ["cloud merge",    "cloud.test.js"]
 ];
 
 let failed = 0;

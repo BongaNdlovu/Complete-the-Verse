@@ -92,7 +92,7 @@
           <div class="atlas-sub">Ur of the Chaldees &nbsp;→&nbsp; Patmos</div>
           <div class="atlas-progress">
             <div class="track"><i id="atlas-fill"></i></div>
-            <div class="count" id="atlas-count">0 of 29 sites</div>
+            <div class="count" id="atlas-count">0 of 36 sites</div>
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
@@ -421,6 +421,10 @@
 <script src="js/pilgrimage.js"></script>
 <script src="js/live.js"></script>
 <script src="js/atlas.js"></script>
+<!-- Supabase is vendored; cloud stays off if js/cloud-config.js has empty keys. -->
+<script src="vendor/supabase/supabase.js"></script>
+<script src="js/cloud-config.js"></script>
+<script src="js/cloud.js"></script>
 <script src="js/game.js"></script>
 </body>
 </html>

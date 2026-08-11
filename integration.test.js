@@ -306,7 +306,8 @@ eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
   // Starting a site the way the briefing card does.
   read(s, "pendingSiteId = 'ur'; startRun('pilgrimage','disciple')");
   eq("the run knows which site it is", read(s, "R.siteId"), "ur");
-  eq("the run draws six verses", read(s, "R.siteVerses.length"), 6);
+  eq("the run draws a full site", read(s, "R.siteVerses.length"),
+     read(s, "Pilgrimage.VERSES_PER_SITE"));
   eq("they come from the site's own books", read(s, "R.siteRing"), "site");
   eq("it is not a typing run", read(s, "R.typed"), false);
   eq("the clock is the site's clock",
@@ -314,14 +315,17 @@ eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
   ok("every drawn verse belongs to Ur's books",
      read(s, "(function(){var b={};Pilgrimage.site('ur').books.forEach(function(x){b[x]=1});" +
              "return R.siteVerses.every(function(v){return b[v.b]===1})})()"));
+  ok("the draw is committed to journey usedIds",
+     read(s, "SAVE.pilgrim.usedIds.length") >= read(s, "Pilgrimage.VERSES_PER_SITE"));
+  eq("pilgrimage starts lean on powers", read(s, "R.powers.illum"), 1);
+  eq("pilgrimage has no Second Wind", read(s, "R.powers.wind"), 0);
 
-  /* startRun already served the first verse, so five more calls finish
-     the site and the sixth finds the list exhausted and ends the run by
-     itself. Ending it by hand here would hide whether that automatic
-     ending actually works. */
+  /* startRun already served the first verse; the remaining need-1 calls
+     finish the list and one more ends the run by itself. */
+  const need = read(s, "Pilgrimage.VERSES_PER_SITE");
   eq("the first verse is served by starting the run", read(s, "R.siteIdx"), 1);
-  read(s, "(function(){ for(var i=0;i<5;i++){ R.correct++; R.attempts++; nextQuestion(); } })()");
-  eq("all six verses are served", read(s, "R.siteIdx"), 6);
+  read(s, "(function(){ var n=R.siteVerses.length; for(var i=1;i<n;i++){ R.correct++; R.attempts++; nextQuestion(); } })()");
+  eq("all site verses are served", read(s, "R.siteIdx"), need);
   read(s, "R.correct++; R.attempts++; nextQuestion();");
   eq("running out of verses ends the run on its own", read(s, "R.ended"), true);
 
@@ -366,7 +370,8 @@ eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
   const s = boot();
   read(s, "pendingSiteId='ur'; startRun('pilgrim-recall','disciple')");
   eq("the replay types its answers", read(s, "R.typed"), true);
-  eq("it still draws six verses", read(s, "R.siteVerses.length"), 6);
+  eq("it still draws a full site", read(s, "R.siteVerses.length"),
+     read(s, "Pilgrimage.VERSES_PER_SITE"));
   ok("it gets a clock sized for typing",
      read(s, "questionDuration()") > read(s, "Pilgrimage.clockFor(0) * R.diff.time"));
 }

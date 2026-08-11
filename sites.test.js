@@ -26,7 +26,7 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
 
 /* ---------- shape ---------- */
 {
-  eq("the road has 29 sites", S.SITES.length, 29);
+  eq("the road has 36 sites", S.SITES.length, 36);
   eq("the road has 4 arcs", S.ARCS.length, 4);
   eq("it begins at Ur", S.SITES[0].id, "ur");
   eq("it ends at Patmos", S.SITES[S.SITES.length - 1].id, "patmos");
@@ -113,12 +113,14 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
 
   // The two extremes of the journey are real and worth pinning.
   const sinai = S.SITES.find(s => s.id === "sinai");
+  const jordan = S.SITES.find(s => s.id === "jordan");
   const jericho = S.SITES.find(s => s.id === "jericho");
   eq("Sinai is the roof of the journey",
     Math.max.apply(null, S.SITES.map(s => s.elevation)), sinai.elevation);
-  eq("Jericho is its floor",
-    Math.min.apply(null, S.SITES.map(s => s.elevation)), jericho.elevation);
+  eq("the Jordan is its floor",
+    Math.min.apply(null, S.SITES.map(s => s.elevation)), jordan.elevation);
   ok("Jericho is below sea level", jericho.elevation < 0, jericho.elevation);
+  ok("the Jordan is below Jericho", jordan.elevation < jericho.elevation);
 }
 
 /* ---------- arcs ---------- */

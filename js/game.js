@@ -64,8 +64,8 @@ const DEFAULT_SAVE = {
   /* The road from Ur to Patmos. Shape is owned by pilgrimage.js —
      blankProgress() there is the authority — and stored here so a
      journey survives a reload. */
-  pilgrim:{sites:{}, lastPlayed:"", started:0},
-  set:{music:0.45, sfx:0.7, quality:"high", reduced:false, shake:true, voice:true, diff:"disciple",
+  pilgrim:{sites:{}, lastPlayed:"", started:0, usedIds:[]},
+  set:{music:0.45, sfx:0.7, quality:"high", reduced:false, shake:true, voice:true, diff:"watchman",
        tutorialDone:false, liveWeather:true, coldOpenDone:false}
 };
 let SAVE = load();
@@ -86,8 +86,9 @@ function load(){
       // key at all. Merging rather than replacing means such a player
       // simply starts the journey at Ur with everything else intact —
       // no wipe, no reset, no lost seals.
-      pilgrim:Object.assign({sites:{}, lastPlayed:"", started:0}, s.pilgrim||{}, {
-        sites:Object.assign({}, (s.pilgrim && s.pilgrim.sites) || {})
+      pilgrim:Object.assign({sites:{}, lastPlayed:"", started:0, usedIds:[]}, s.pilgrim||{}, {
+        sites:Object.assign({}, (s.pilgrim && s.pilgrim.sites) || {}),
+        usedIds: Array.isArray(s.pilgrim && s.pilgrim.usedIds) ? s.pilgrim.usedIds.slice() : []
       })
     });
     if(migrating) migrateV2(out, s);
@@ -125,7 +126,13 @@ function migrateV2(out, old){
     out.srs[id] = card;
   });
 }
-function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){} }
+function persist(){
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){}
+  /* Debounced cloud push when signed in — local write never waits on network. */
+  if(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn()){
+    Cloud.schedulePush(SAVE);
+  }
+}
 
 /* ------------------------- SRS ACCESS ------------------------- */
 function today(){ return SRS.dayNumber(); }
@@ -181,7 +188,7 @@ const SEALS = [
   {id:"road-arc1",  n:"Out of Ur",       d:"Complete the Patriarchs — Ur to Beersheba."},
   {id:"road-half",  n:"Half the Road",   d:"Complete two full arcs of the Pilgrimage."},
   {id:"road-patmos",n:"The Last Island", d:"Reach and clear Patmos."},
-  {id:"road-end",   n:"Ur to Patmos",    d:"Clear all 29 sites on the Pilgrimage."},
+  {id:"road-end",   n:"Ur to Patmos",    d:"Clear every site on the Pilgrimage."},
   /* One per arc. A site's perfect flag is sticky, so an arc can be
      perfected a site at a time — the seal rewards precision over the
      whole stretch, not one flawless sitting. */
@@ -200,31 +207,29 @@ const MODES = {
      is what routes it. `hidden:true` keeps a mode off the menu without
      hiding it from the results screen, which still needs its name. */
   pilgrimage:{ key:"pilgrimage", name:"The Pilgrimage", kick:"The long road", atlas:true,
-    desc:"Twenty-nine places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is six verses drawn from its own scripture, and clearing it opens the next stretch of road. The clock closes as you go east.",
-    tagline:"29 sites · Ur to Patmos", info:[["29","Sites"],["6","Verses each"],["14→6.5s","Clock"]] },
+    desc:"Thirty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; later sites mix typed recall. The clock closes as you go east.",
+    tagline:"36 sites · Ur to Patmos", info:[["36","Sites"],["8","Verses each"],["14→6.5s","Clock"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
-    desc:"A site you have already cleared, walked again with no options on the screen. Same place, same verses, typed out word for word.",
-    tagline:"Typed · cleared sites", info:[["6","Verses"],["Typed","No options"],["22s","Clock"]] },
-  /* The relay is opt-in and launched from an arc on the map, never from
-     the menu — it is the harder way to walk ground the site-by-site
-     campaign already lets you take at your own pace. */
+    desc:"A site you have already cleared, walked again with no options on the screen. Same place, typed out word for word.",
+    tagline:"Typed · cleared sites", info:[["8","Verses"],["Typed","No options"],["22s","Clock"]] },
+  /* Hidden campaign extras — not on the menu. */
   relay:{ key:"relay", name:"The Long Road", kick:"One unbroken walk", hidden:true,
     desc:"A whole arc in a single run. Lives carry from site to site and never come back, and the clock keeps tightening the way the road does. Sites you pass stay cleared even if the road ends you.",
     tagline:"A whole arc · shared lives", info:[["1","Run"],["Shared","Lives"],["No","Rest"]] },
-  trial:{ key:"trial", name:"The Trial", kick:"Campaign",
+  trial:{ key:"trial", name:"The Trial", kick:"Campaign", hidden:true,
     desc:"Five acts. The clock tightens with every one. Reach Act V with one life, clear its five questions, and earn the ending.",
     tagline:"5 acts · one-life finale", info:[["5","Acts"],["39+","Verses"],["14→6.5s","Clock"]] },
-  endless:{ key:"endless", name:"Endless Gauntlet", kick:"Survival",
-    desc:"One continuous run. The timer shrinks a fraction each question and never resets. Difficulty climbs through the tiers until the whole Bible is on the table. There is no finish line — only a number.",
+  endless:{ key:"endless", name:"Endless Gauntlet", kick:"Survival", hidden:true,
+    desc:"One continuous run. The timer shrinks a fraction each question and never resets.",
     tagline:"Infinite · shrinking clock", info:[["∞","Questions"],["12→4.2s","Clock"],["All 5","Tiers"]] },
   daily:{ key:"daily", name:"Daily Trial", kick:"One shot a day",
     desc:"Twenty verses, drawn by today's date. Everyone who plays today gets exactly the same twenty in exactly the same order. One recorded attempt — after that you may practise, but the score stands.",
     tagline:"20 verses · same for everyone", info:[["20","Verses"],["1","Recorded run"],["10s","Clock"]] },
-  practice:{ key:"practice", name:"The Drill", kick:"Spaced review",
-    desc:"The verses that have fallen due, most overdue first, then whatever you have never seen. Every answer reschedules the verse — get it right and it comes back later, get it wrong and it comes back tomorrow. Longer clock. Built to teach, not to crown a score.",
+  practice:{ key:"practice", name:"The Drill", kick:"Spaced review", hidden:true,
+    desc:"The verses that have fallen due, most overdue first, then whatever you have never seen.",
     tagline:"15 verses · due first", info:[["15","Verses"],["Due","Ordered by"],["12s","Clock"]] },
-  recall:{ key:"recall", name:"Recall", kick:"Type it from memory",
-    desc:"No options to choose between. The blank is empty and you fill it yourself, word for word. Typos are forgiven; the wrong words are not. This is the mode that actually puts a verse in your memory — and the hardest one in the hall.",
+  recall:{ key:"recall", name:"Recall", kick:"Type it from memory", hidden:true,
+    desc:"No options to choose between. The blank is empty and you fill it yourself, word for word.",
     tagline:"12 verses · typed", info:[["12","Verses"],["Typed","No options"],["22s","Clock"]] }
 };
 const DIFFS = {
@@ -255,7 +260,7 @@ const MOMENTUM_STEPS = [3, 5, 8, 12];
 /* ------------------------- AUDIO ------------------------- */
 const Snd = (function(){
   let ctx=null, mMus=null, mSfx=null, pad=[], started=false, avail=true, anal=null, freq=null;
-  let bed=null, trackAudio={}, trackNodes={};
+  let bed=null, trackAudio={}, trackNodes={}, duckTimer=null, sfxHold={};
   const TRACKS = {
     menu:"audio/menu.mp3",
     act1:"audio/act1.mp3",
@@ -275,16 +280,34 @@ const Snd = (function(){
     heart:"sfx/heart.mp3",
     power:"sfx/power.mp3"
   };
-  let heartAudio=null;
+  /* Ones that replace themselves so rapid re-triggers do not stack. */
+  const SFX_EXCL = { heart:1, tick:1 };
+  /* Ones that briefly duck the bed so they cut through. */
+  const SFX_DUCK = { lock:1, correct:1, wrong:1, heart:1, power:1 };
+  function duckMusic(factor, ms){
+    if(!ctx||!mMus) return;
+    const base = Math.max(0, SAVE.set.music||0);
+    const ducked = Math.max(0.01, base * (factor==null ? 0.2 : factor));
+    try{ mMus.gain.cancelScheduledValues(ctx.currentTime); }catch(e){}
+    mMus.gain.setTargetAtTime(ducked, ctx.currentTime, .05);
+    if(duckTimer) clearTimeout(duckTimer);
+    duckTimer = setTimeout(function(){
+      if(!ctx||!mMus) return;
+      mMus.gain.setTargetAtTime(SAVE.set.music, ctx.currentTime, .22);
+    }, ms||480);
+  }
   function playSfx(name){
     init();
     const src=SFX[name];
     if(!src||!avail) return false;
     try{
-      if(name==="heart" && heartAudio){ try{ heartAudio.pause(); }catch(e){} }
+      if(SFX_EXCL[name] && sfxHold[name]){
+        try{ sfxHold[name].pause(); sfxHold[name].currentTime=0; }catch(e){}
+      }
       const a=new Audio(src);
       a.volume=Math.max(0,Math.min(1,SAVE.set.sfx||0));
-      if(name==="heart") heartAudio=a;
+      if(SFX_EXCL[name]) sfxHold[name]=a;
+      if(SFX_DUCK[name]) duckMusic(name==="heart" ? 0.28 : 0.18, name==="heart" ? 280 : 520);
       const p=a.play();
       if(p&&p.catch) p.catch(()=>{});
       return true;
@@ -306,10 +329,12 @@ const Snd = (function(){
     const a = new Audio(TRACKS[name]);
     a.loop = true;
     a.preload = "auto";
+    a.volume = Math.max(0, Math.min(1, SAVE.set.music||0));
     try{
       const n = ctx.createMediaElementSource(a);
       n.connect(mMus);
       trackNodes[name] = n;
+      a.volume = 1; /* loudness owned by mMus */
     }catch(e){}
     trackAudio[name] = a;
   }
@@ -326,7 +351,11 @@ const Snd = (function(){
     ensureTrack(name);
     const a = trackAudio[name];
     if(!a) return;
+    /* Exactly one bed: stop every other track before starting this one. */
     Object.keys(trackAudio).forEach(k=>{ if(k!==name) stopTrack(k); });
+    if(trackNodes[name]) a.volume = 1;
+    else a.volume = Math.max(0, Math.min(1, SAVE.set.music||0));
+    if(!a.paused) return;
     const p = a.play();
     if(p && p.catch) p.catch(()=>{});
   }
@@ -388,7 +417,14 @@ const Snd = (function(){
       if(ctx && ctx.state==="suspended") ctx.resume();
       if(TRACKS[bed]) playTrack(bed);
     },
-    setMusic(v){ SAVE.set.music=v; if(mMus) mMus.gain.setTargetAtTime(v, ctx.currentTime, .1); },
+    setMusic(v){
+      SAVE.set.music=v;
+      if(mMus&&ctx) mMus.gain.setTargetAtTime(v, ctx.currentTime, .1);
+      /* Tracks not routed through Web Audio still need element volume. */
+      Object.keys(trackAudio).forEach(k=>{
+        if(!trackNodes[k] && trackAudio[k]) trackAudio[k].volume = Math.max(0, Math.min(1, v||0));
+      });
+    },
     setSfx(v){ SAVE.set.sfx=v; if(mSfx) mSfx.gain.setTargetAtTime(v, ctx.currentTime, .05); },
     ambience(name){
       init(); if(!ctx||!avail) return;
@@ -404,8 +440,8 @@ const Snd = (function(){
     ui(){ if(playSfx("ui")) return; tone(1320,.05,"triangle",.05); tone(1980,.04,"sine",.025,.02); },
     hover(){ if(playSfx("hover")) return; tone(1540,.03,"sine",.03); },
     tick(crit){ if(playSfx("tick")) return; tone(crit?1240:840,.045,"square",crit?.075:.03); },
-    heart(){ if(playSfx("heart")) return; tone(58,.17,"sine",.26); tone(45,.22,"sine",.19,.18); },
-    lock(){ if(playSfx("lock")) return; tone(78,.32,"square",.18,0,52); tone(42,.42,"sine",.24); noise(.2,.11,680); },
+    heart(){ if(playSfx("heart")) return; duckMusic(0.28, 280); tone(58,.17,"sine",.26); tone(45,.22,"sine",.19,.18); },
+    lock(){ if(playSfx("lock")) return; duckMusic(0.18, 520); tone(78,.32,"square",.18,0,52); tone(42,.42,"sine",.24); noise(.2,.11,680); },
     pulse(level){
       const v=.035+Math.min(4,level||0)*.014;
       tone(52,.18,"sine",v); tone(104,.07,"triangle",v*.45,.02);
@@ -416,31 +452,30 @@ const Snd = (function(){
       const target=Math.max(.05,SAVE.set.music*(1+Math.min(4,level||0)*.09));
       mMus.gain.setTargetAtTime(target,ctx.currentTime,.35);
     },
-    hush(){
-      if(!ctx||!mMus) return;
-      mMus.gain.setTargetAtTime(.015,ctx.currentTime,.06);
-      setTimeout(()=>{ if(ctx&&mMus) mMus.gain.setTargetAtTime(SAVE.set.music,ctx.currentTime,.2); },470);
-    },
+    hush(){ duckMusic(0.03, 470); },
     correct(){
       if(playSfx("correct")) return;
+      duckMusic(0.18, 520);
       [523.25,659.25,783.99,1046.5,1318.5].forEach((f,i)=>tone(f,1.6,"sine",.11,i*.04));
       tone(130.81,2.0,"triangle",.09); noise(.3,.04,3000);
     },
     wrong(){
       if(playSfx("wrong")) return;
+      duckMusic(0.18, 520);
       tone(146.83,1.1,"sawtooth",.10,0,73.4); tone(155.56,1.1,"sawtooth",.085,0,77.8);
       tone(40,1.4,"sine",.22); noise(.75,.18,420);
     },
-    act(){ [261.63,329.63,392,523.25,659.25,783.99].forEach((f,i)=>tone(f,2.4,"sine",.085,i*.12));
+    act(){ duckMusic(0.22, 900); [261.63,329.63,392,523.25,659.25,783.99].forEach((f,i)=>tone(f,2.4,"sine",.085,i*.12));
       tone(65.41,2.8,"triangle",.11); },
-    seal(){ [783.99,1046.5,1318.5,1567.98].forEach((f,i)=>tone(f,1.8,"sine",.10,i*.09)); noise(.5,.05,4200); },
-    level(){ [392,523.25,659.25,783.99,1046.5,1318.5,1567.98].forEach((f,i)=>tone(f,2.2,"sine",.09,i*.08)); },
+    seal(){ duckMusic(0.22, 700); [783.99,1046.5,1318.5,1567.98].forEach((f,i)=>tone(f,1.8,"sine",.10,i*.09)); noise(.5,.05,4200); },
+    level(){ duckMusic(0.22, 900); [392,523.25,659.25,783.99,1046.5,1318.5,1567.98].forEach((f,i)=>tone(f,2.2,"sine",.09,i*.08)); },
     power(){
       if(playSfx("power")) return;
+      duckMusic(0.18, 520);
       [880,1174.66,1567.98].forEach((f,i)=>tone(f,1.0,"sine",.08,i*.045));
     },
-    death(){ tone(110,3.4,"sine",.20,0,27.5); tone(103.8,3.4,"sawtooth",.075,0,26); noise(1.7,.2,300); },
-    victory(){ [392,493.88,587.33,783.99,987.77,1174.66].forEach((f,i)=>tone(f,3.0,"sine",.09,i*.1)); },
+    death(){ duckMusic(0.12, 1600); tone(110,3.4,"sine",.20,0,27.5); tone(103.8,3.4,"sawtooth",.075,0,26); noise(1.7,.2,300); },
+    victory(){ duckMusic(0.18, 1200); [392,493.88,587.33,783.99,987.77,1174.66].forEach((f,i)=>tone(f,3.0,"sine",.09,i*.1)); },
     spectrum(){ if(!anal) return null; try{ anal.getByteFrequencyData(freq); }catch(e){ return null; } return freq; }
   };
 })();
@@ -609,7 +644,7 @@ const SetPieces=(function(){
 
   /* The Pilgrimage fires them by PLACE, after the site's verses are kept
      — the sequence is the climax of the site rather than an interruption
-     in the middle of it, which is why the briefing's "six verses" stays
+     in the middle of it, which is why the briefing's verse count stays
      true and the finale still lands as a surprise.
 
      Each one is chosen because the place asks for it: the walls of
@@ -1201,15 +1236,24 @@ function startRun(mode, diffKey){
 
   /* A pilgrimage level is a fixed list of verses drawn from the site's
      own scripture, decided here and then played straight through. The
-     attempt count seeds the draw, so walking a site again gives you a
-     different six rather than the same six. */
+     attempt count seeds the draw, so walking a site again gives a
+     different set — and journey usedIds keep earlier sites out forever. */
   const isPilgrim = mode==="pilgrimage" || mode==="pilgrim-recall";
   let siteId = null, siteDraw = null, siteIndex = -1;
   if(isPilgrim){
     siteId = pendingSiteId || R.siteId;
     siteIndex = Pilgrimage.indexOf(siteId);
     const rec = Pilgrimage.recordOf(SAVE.pilgrim, siteId);
-    siteDraw = Pilgrimage.drawSite(siteId, {attempt: rec ? rec.attempts : 0});
+    const exclude = Pilgrimage.usedSet(SAVE.pilgrim);
+    siteDraw = Pilgrimage.drawSite(siteId, {
+      attempt: rec ? rec.attempts : 0,
+      exclude: exclude
+    });
+    /* Commit the draw immediately so a quit mid-site still consumes them. */
+    if(siteDraw && siteDraw.verses.length){
+      SAVE.pilgrim = Pilgrimage.markUsed(SAVE.pilgrim, siteDraw.verses.map(v=>v.id));
+      persist();
+    }
   }
 
   /* The relay flattens a whole arc into one queue, each entry tagged
@@ -1221,20 +1265,35 @@ function startRun(mode, diffKey){
     const arcKey = pendingArcKey || (R.relay && R.relay.arcKey);
     const list = Pilgrimage.sitesInArc(arcKey);
     const queue = [];
+    let exclude = Pilgrimage.usedSet(SAVE.pilgrim);
     list.forEach(s=>{
       const rec = Pilgrimage.recordOf(SAVE.pilgrim, s.id);
-      Pilgrimage.drawSite(s.id, {attempt: rec ? rec.attempts : 0}).verses
-        .forEach(v => queue.push({siteId:s.id, index:Pilgrimage.indexOf(s.id), v:v}));
+      const drawn = Pilgrimage.drawSite(s.id, {attempt: rec ? rec.attempts : 0, exclude: exclude});
+      drawn.verses.forEach(v => {
+        queue.push({siteId:s.id, index:Pilgrimage.indexOf(s.id), v:v});
+        exclude[v.id] = 1;
+      });
     });
+    if(queue.length){
+      SAVE.pilgrim = Pilgrimage.markUsed(SAVE.pilgrim, queue.map(e=>e.v.id));
+      persist();
+    }
     relay = {arcKey:arcKey, sites:list.map(s=>s.id), queue:queue, idx:0, banked:[], current:null};
   }
+
+  /* Pilgrimage is lean: one Selah, one Illuminate, no Second Wind.
+     Daily (and anything else) keeps the full toolkit. */
+  const leanRoad = isPilgrim || mode==="relay";
+  const startPowers = leanRoad
+    ? {selah:1, illum:1, wind:0}
+    : {selah:1, illum:2, wind:1};
 
   Object.assign(R, {
     runToken, sceneToken:0, ended:false,
     mode, diff:D, actIdx:0, qInAct:0, qTotal:0,
     score:0, disp:0, lives:D.lives, maxLives:D.lives,
     streak:0, best:0, correct:0, attempts:0, missed:[], used:new Set(),
-    powers:{selah:1, illum:2, wind:1}, usedPower:false, powersSpent:0,
+    powers:startPowers, usedPower:false, powersSpent:0,
     fast:0, sdCount:0, tiersSeen:new Set(), booksRun:new Set(),
     running:false, tEnd:0, tTotal:0, qStart:0, q:null, paused:false, locked:false, selected:null,
     actNoLoss:true, gotUnshaken:false, dailyIdx:0, daily:null, endlessBase:12000,
@@ -1418,7 +1477,17 @@ function nextQuestion(){
   if(R.mode==="daily"){ v = R.daily.list[R.dailyIdx].v; R.dailyIdx++; }
   // During a site's closing sequence the fixed list is finished, so the
   // verses come from SetPieces.draw below instead.
-  else if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece){ v = R.siteVerses[R.siteIdx]; R.siteIdx++; }
+  else if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece){
+    v = R.siteVerses[R.siteIdx]; R.siteIdx++;
+    /* Late road mixes typed recall into multiple-choice sites. */
+    if(R.mode==="pilgrim-recall") R.typed = true;
+    else if(R.mode==="pilgrimage"){
+      const pos = Pilgrimage.positionOf(R.siteIndex);
+      const n = R.siteVerses ? R.siteVerses.length : 0;
+      const typedN = pos >= 0.7 ? 3 : pos >= 0.4 ? 2 : pos >= 0.15 ? 1 : 0;
+      R.typed = n > 0 && R.siteIdx > (n - typedN);
+    }
+  }
   else if(R.mode==="relay"){
     const rl = R.relay, entry = rl.queue[rl.idx];
     // Leaving a site banks it before the next one starts.
@@ -1582,6 +1651,43 @@ function answerButtons(){
 const HEART_SVG = '<svg viewBox="0 0 24 24"><path d="M12 21.6l-1.5-1.4C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.7L12 21.6z" fill="url(#hg)"/></svg>';
 const HEART_BROKEN = '<svg viewBox="0 0 24 24"><path d="M12 21.6l-1.5-1.4C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.7L12 21.6z" fill="url(#hg)"/><path d="M12.6 4.6l-2.5 4.9 3 1.9-2.4 4.6" fill="none" stroke="#07070a" stroke-width="1.7" stroke-linejoin="round"/></svg>';
 
+/* Prefer near-miss phrases from the same book / tier over weak authored
+   distractors so English alone cannot eliminate the wrong answers. */
+function buildChoices(q, rnd){
+  const r = rnd || Math.random;
+  const correct = q.a;
+  const ban = {}; if(correct) ban[correct] = 1;
+  const picked = [];
+  function push(s){
+    if(!s || ban[s]) return false;
+    ban[s] = 1; picked.push(s); return true;
+  }
+  const words = String(correct||"").toLowerCase().split(/\W+/).filter(w=>w.length>3);
+  const cands = [];
+  (q.d||[]).forEach(d=>{ if(d && d!==correct) cands.push({s:d, score:2}); });
+  if(typeof VERSES!=="undefined"){
+    VERSES.forEach(v=>{
+      if(!v || v.id===q.id || !v.a || ban[v.a] || v.a===correct) return;
+      let score = 0;
+      if(v.b===q.b) score += 4;
+      if(Math.abs((v.t||3)-(q.t||3))<=1) score += 2;
+      const lenDiff = Math.abs(String(v.a).length - String(correct||"").length);
+      if(lenDiff<=6) score += 2; else if(lenDiff<=14) score += 1;
+      const va = String(v.a).toLowerCase();
+      if(words.some(w=>va.indexOf(w)>=0)) score += 2;
+      if(score>0) cands.push({s:v.a, score});
+    });
+  }
+  cands.sort((a,b)=> (b.score-a.score) || (r()-0.5));
+  for(let i=0;i<cands.length && picked.length<3;i++) push(cands[i].s);
+  (q.d||[]).forEach(d=>{ if(picked.length<3) push(d); });
+  while(picked.length<3){
+    const filler = "the word of the LORD";
+    if(!push(filler + (picked.length? " "+picked.length : ""))) break;
+  }
+  return shuffle([correct].concat(picked.slice(0,3)), r);
+}
+
 function renderQuestion(q, dur){
   const scene = ++R.sceneToken;
   Director.pressure(0);
@@ -1598,7 +1704,7 @@ function renderQuestion(q, dur){
   confirmBtn.textContent = SetPieces.autoLock() ? "Rapid Lock" : "Lock Answer";
   const opts = $("opts"); opts.className = "answers queued"; opts.innerHTML = "";
   const rnd = R.mode==="daily" ? R.daily.rnd : Math.random;
-  const choices = shuffle([q.a].concat(q.d), rnd);
+  const choices = buildChoices(q, rnd);
   choices.forEach((c,i)=>{
     if(i){ const ch=document.createElement("div"); ch.className="chev"; ch.innerHTML="&#8250;"; opts.appendChild(ch); }
     const b=document.createElement("button");
@@ -1729,12 +1835,20 @@ function tickTimer(now){
     w1.textContent = sec + (sec===1 ? " second remaining" : " seconds remaining");
     w1.classList.toggle("hot", sec<=5);
     Director.pressure(sec);
+    /* One pressure layer at a time — tick/pulse used to stack with heart. */
     if(left>0){
-      if(frac<=.55){ Snd.tick(sec<=5); if(sec<=5) Backdrop.hit("tick"); }
-      if(sec<=7) Snd.pulse(sec<=3?4:sec<=5?3:2);
+      if(sec<=5){
+        Snd.tick(true);
+        Backdrop.hit("tick");
+      } else if(frac<=.55){
+        Snd.tick(false);
+      } else if(sec<=7){
+        Snd.pulse(2);
+      }
     }
   }
-  if(sec<=5 && now-R.lastHeart>560){ R.lastHeart=now; Snd.heart(); doFlash("heart"); }
+  /* Heart only in the final three seconds, and slower so it does not ride on every tick. */
+  if(sec<=3 && now-R.lastHeart>720){ R.lastHeart=now; Snd.heart(); doFlash("heart"); }
   if(left<=0) timeUp();
 }
 function stopTimer(){ R.running=false; }
@@ -1803,8 +1917,9 @@ function inOverdrive(){ return (R.streak||0) >= MOMENTUM_STEPS[MOMENTUM_STEPS.le
 function overdriveReward(){
   if(R.streak !== MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] || R.overdriveGift) return;
   R.overdriveGift = true;
+  const illumCap = (R.mode==="pilgrimage"||R.mode==="pilgrim-recall"||R.mode==="relay") ? 1 : 2;
   if(R.powers.selah < 1){ R.powers.selah = 1; Director.callout("Overdrive — Selah restored"); }
-  else if(R.powers.illum < 2){ R.powers.illum++; Director.callout("Overdrive — Illuminate restored"); }
+  else if(R.powers.illum < illumCap){ R.powers.illum++; Director.callout("Overdrive — Illuminate restored"); }
   else { Director.callout("Overdrive — the clock pays double"); }
   renderPowers();
 }
@@ -2441,6 +2556,29 @@ function endRun(reason){
   checkMetaSeals();
   persist();
 
+  /* Cloud: board scores + optional pilgrimage ghost (best only). */
+  if(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn()){
+    if(dailyRecorded){
+      Cloud.submitDailyScore({
+        play_date: todayKey(),
+        score: total,
+        accuracy: Math.round(acc*100),
+        duration_ms: Math.max(0, Date.now() - (R.startedAt||Date.now())),
+        diff: R.diff.key
+      });
+    }
+    if(isPilgrim && siteCleared && total > 0){
+      const ov = Pilgrimage.overview(SAVE.pilgrim);
+      const p = ov.total ? ov.cleared / ov.total : 0;
+      Cloud.upsertGhost("pilgrimage", "road", SAVE.best.pilgrimage||total, {
+        version: 1,
+        samples: [{ t: 0, p: 0 }, { t: Math.max(0, Date.now()-(R.startedAt||Date.now())), p: p }],
+        total_ms: Math.max(0, Date.now()-(R.startedAt||Date.now())),
+        end_p: p
+      }, { siteId: R.siteId, cleared: ov.cleared, total: ov.total });
+    }
+  }
+
   renderResults({reason, total, baseScore, streakBonus, accBonus, survivalBonus, acc,
     xpGain, beforeLvl, afterInfo, isRecord, prevBest, dailyRecorded, road, siteCleared,
     firstClearBonus});
@@ -2697,7 +2835,26 @@ function renderRecords(){
 /* ------------------------- SETTINGS ------------------------- */
 function renderSettings(){
   const s=SAVE.set;
+  const cloudOn = typeof Cloud!=="undefined" && Cloud.configured();
+  const signedIn = cloudOn && Cloud.isSignedIn();
+  const who = signedIn
+    ? ((Cloud.profile() && Cloud.profile().display_name) || (Cloud.user() && Cloud.user().email) || "Signed in")
+    : "";
+  const accountBlock = !cloudOn
+    ? '<div class="setrow account"><div><label>Cloud account</label><small>Offline only — add Project URL and anon key in js/cloud-config.js (see BACKEND.md).</small></div><span class="cloud-pill dim">Local</span></div>'
+    : signedIn
+      ? '<div class="setrow account"><div><label>Cloud account</label><small>Synced as <b>'+esc(who)+'</b>. Progress pushes after each save.</small></div>'+
+        '<button class="btn ghost sm" id="cloud-signout" type="button">Sign out</button></div>'+
+        setRow("Display name","Shown on Daily and Blitz boards.",
+          '<div class="cloud-name"><input id="cloud-name" type="text" maxlength="32" value="'+esc((Cloud.profile()&&Cloud.profile().display_name)||"")+'"><button class="btn ghost sm" id="cloud-name-save" type="button">Save</button></div>')+
+        '<div class="setrow"><div><label>Sync now</label><small>Pull and merge this device with the cloud, then push.</small></div>'+
+        '<button class="btn ghost sm" id="cloud-sync" type="button">Sync</button></div>'
+      : '<div class="setrow account"><div><label>Cloud account</label><small>Sign in to sync the Pilgrimage across devices and appear on leaderboards.</small></div></div>'+
+        '<div class="setrow"><div><label>Email magic link</label><small>We email a one-tap sign-in. No password.</small></div>'+
+        '<div class="cloud-name"><input id="cloud-email" type="email" placeholder="you@example.com" autocomplete="email"><button class="btn sm" id="cloud-signin" type="button">Send link</button></div></div>';
+
   $("settings-body").innerHTML =
+    accountBlock +
     setRow("Music","Ambient drone beneath the cathedral.",
       '<input type="range" id="set-music" min="0" max="1" step="0.05" value="'+s.music+'">') +
     setRow("Sound effects","Ticks, heartbeat, the hit when you are wrong.",
@@ -2734,6 +2891,44 @@ function renderSettings(){
       });
     });
   });
+
+  const signInBtn = $("cloud-signin");
+  if(signInBtn){
+    signInBtn.addEventListener("click", async ()=>{
+      const email = ($("cloud-email") && $("cloud-email").value || "").trim();
+      if(!email){ toast("Enter an email address"); return; }
+      signInBtn.disabled = true;
+      const res = await Cloud.signInWithEmail(email);
+      signInBtn.disabled = false;
+      toast(res.ok ? "Check your email for the sign-in link" : (res.reason || "Sign-in failed"));
+    });
+  }
+  const signOutBtn = $("cloud-signout");
+  if(signOutBtn){
+    signOutBtn.addEventListener("click", async ()=>{
+      await Cloud.signOut(); Snd.ui(); renderSettings(); toast("Signed out — progress stays on this device");
+    });
+  }
+  const nameSave = $("cloud-name-save");
+  if(nameSave){
+    nameSave.addEventListener("click", async ()=>{
+      const res = await Cloud.setDisplayName(($("cloud-name") && $("cloud-name").value) || "");
+      toast(res.ok ? "Display name saved" : (res.reason || "Could not save name"));
+      if(res.ok) renderSettings();
+    });
+  }
+  const syncBtn = $("cloud-sync");
+  if(syncBtn){
+    syncBtn.addEventListener("click", async ()=>{
+      syncBtn.disabled = true;
+      const res = await Cloud.syncOnBoot(SAVE);
+      if(res.ok && res.save){ SAVE = res.save; persist(); Atlas.setProgress(SAVE.pilgrim); updatePlayerCard(); }
+      syncBtn.disabled = false;
+      toast(res.ok ? (res.merged ? "Cloud merge complete" : "Cloud save updated") : (res.reason || "Sync failed"));
+      renderSettings();
+    });
+  }
+
   /* Deliberately separate from the full erase: a player who wants to
      walk the road again from Ur should not have to give up their seals,
      their level and their whole scheduling history to do it. */
@@ -2910,6 +3105,34 @@ function loop(ts){
   Backdrop.init();
   applySettings();
   bindTutorial();
+
+  /* Cloud is optional. Init never blocks boot; merge runs in the background. */
+  if(typeof Cloud!=="undefined" && Cloud.configured()){
+    Cloud.on("onAuth", function(ev){
+      if(ev && ev.event==="SIGNED_IN"){
+        Cloud.syncOnBoot(SAVE).then(function(res){
+          if(res && res.ok && res.save){
+            SAVE = res.save; persist();
+            Atlas.setProgress(SAVE.pilgrim);
+            updatePlayerCard();
+            if(res.merged) toast("Progress merged from the cloud");
+          }
+        });
+      }
+      if(currentView==="settings") renderSettings();
+    });
+    Cloud.init().then(function(res){
+      if(res && res.ok && Cloud.isSignedIn()){
+        return Cloud.syncOnBoot(SAVE).then(function(sync){
+          if(sync && sync.ok && sync.save){
+            SAVE = sync.save; persist();
+            Atlas.setProgress(SAVE.pilgrim);
+            updatePlayerCard();
+          }
+        });
+      }
+    }).catch(function(){});
+  }
 
   const msgs = ["Opening the sacred record…","Gathering the witnesses…","Preparing the trial…",
     "Lighting the final lamp…"];

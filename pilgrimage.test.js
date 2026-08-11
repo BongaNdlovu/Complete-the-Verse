@@ -5,7 +5,7 @@
    globals, so these tests exercise the same code path the game does.
 
    The assertions that matter most are the two that protect the player:
-   a level always fills with six verses whatever the bank looks like,
+   a level always fills with a full site of verses whatever the bank looks like,
    and record() never mutates the progress it was handed. */
 const S = require("./js/sites");
 const P = require("./js/pilgrimage");
@@ -43,7 +43,7 @@ function walkTo(n){
 
 /* ---------- the road ---------- */
 {
-  eq("the journey has 29 sites", N, 29);
+  eq("the journey has 36 sites", N, 36);
   eq("indexOf finds the first site", P.indexOf("ur"), 0);
   eq("indexOf finds the last site", P.indexOf("patmos"), LAST);
   eq("indexOf reports -1 for a stranger", P.indexOf("atlantis"), -1);
@@ -231,17 +231,18 @@ function walkTo(n){
   // rather than hand back a short level.
   const excludeSite = {};
   bank.VERSES.forEach(v => { if(site.books.indexOf(v.b) >= 0) excludeSite[v.id] = 1; });
-  const widened = P.resolvePool(site, { need: 6, exclude: excludeSite });
+  const need = P.VERSES_PER_SITE;
+  const widened = P.resolvePool(site, { need: need, exclude: excludeSite });
   eq("starving the site's books falls through to the arc", widened.ring, "arc");
-  ok("the widened pool still fills a level", widened.verses.length >= 6, widened.verses.length);
+  ok("the widened pool still fills a level", widened.verses.length >= need, widened.verses.length);
 
   // Starve the whole arc and it must widen again to the testament.
   const arc = P.arc(site.arc);
   const excludeArc = {};
   bank.VERSES.forEach(v => { if(arc.books.indexOf(v.b) >= 0) excludeArc[v.id] = 1; });
-  const wider = P.resolvePool(site, { need: 6, exclude: excludeArc });
+  const wider = P.resolvePool(site, { need: need, exclude: excludeArc });
   ok("starving the arc widens past it", wider.ring === "testament" || wider.ring === "bank", wider.ring);
-  ok("it still fills a level", wider.verses.length >= 6, wider.verses.length);
+  ok("it still fills a level", wider.verses.length >= need, wider.verses.length);
 
   // Starve everything except a handful and it must still return what it
   // can rather than throwing or returning nothing.
@@ -249,7 +250,7 @@ function walkTo(n){
   bank.VERSES.slice(0, 3).forEach(v => keep[v.id] = 1);
   const excludeAll = {};
   bank.VERSES.forEach(v => { if(!keep[v.id]) excludeAll[v.id] = 1; });
-  const scraps = P.resolvePool(site, { need: 6, exclude: excludeAll });
+  const scraps = P.resolvePool(site, { need: need, exclude: excludeAll });
   eq("an impossible pool returns what is left, not nothing", scraps.verses.length, 3);
   ok("and does not throw doing it", true);
 
@@ -261,7 +262,7 @@ function walkTo(n){
 {
   const a = P.drawSite("babylon", { attempt: 0 }).verses.map(v => v.id).join(",");
   const b = P.drawSite("babylon", { attempt: 0 }).verses.map(v => v.id).join(",");
-  eq("the same attempt draws the same six", a, b);
+  eq("the same attempt draws the same set", a, b);
 
   const c = P.drawSite("babylon", { attempt: 1 }).verses.map(v => v.id).join(",");
   ok("a second visit draws differently", a !== c, { a, c });
@@ -307,7 +308,7 @@ function walkTo(n){
   // The quota must hold everywhere it can, not just at Patmos.
   const failed = P.journey().filter(s => {
     const avail = bank.VERSES.filter(v => v.b === s.books[0]).length;
-    const want = Math.min(2, avail);
+    const want = Math.min(3, avail, P.VERSES_PER_SITE);
     return P.drawSite(s.id, { attempt: 0 })
       .verses.filter(v => v.b === s.books[0]).length < want;
   });
@@ -341,7 +342,30 @@ function walkTo(n){
   const last = P.brief("patmos", walkAll());
   ok("the last site has no successor", last.next === null);
   ok("the last site is cleared on a finished road", last.cleared);
-  eq("the last site is number 29", last.ordinal, N);
+  eq("the last site is number N", last.ordinal, N);
+}
+
+/* ---------- journey-wide no-repeat ---------- */
+{
+  let exclude = {};
+  const seen = [];
+  P.journey().forEach(s => {
+    const d = P.drawSite(s.id, { attempt: 0, exclude: exclude });
+    d.verses.forEach(v => {
+      seen.push(v.id);
+      exclude[v.id] = 1;
+    });
+  });
+  eq("a full road walk never reuses a verse id", new Set(seen).size, seen.length);
+  ok("the walk still yields a real volume of verses", seen.length >= N * 4, seen.length);
+
+  const blank = P.blankProgress();
+  ok("blank progress starts with no used ids", (blank.usedIds || []).length === 0);
+  const marked = P.markUsed(blank, ["a", "b", "a"]);
+  eq("markUsed records unique ids", marked.usedIds.length, 2);
+  ok("markUsed is pure", (blank.usedIds || []).length === 0);
+  const set = P.usedSet(marked);
+  ok("usedSet exposes the marks", set.a === 1 && set.b === 1);
 }
 
 /* ---------- testament split ---------- */

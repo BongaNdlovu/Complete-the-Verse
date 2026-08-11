@@ -1,7 +1,7 @@
 /* ==================================================================
    SITES — the road from Ur to Patmos.
 
-   Twenty-nine places, in the order Scripture walks them, grouped into
+   Thirty-six places, in the order Scripture walks them, grouped into
    four arcs. This file is DATA ONLY: no DOM, no Leaflet, no fetch. The
    campaign rules live in pilgrimage.js and the rendering lives in
    atlas.js, so this can be loaded and asserted against in bare Node.
@@ -148,6 +148,20 @@ var SITES = [
     climate: { type: "mediterranean", hi: 29, lo: 17 }
   },
   {
+    id: "penuel", arc: "patriarchs", name: "PENUEL", tag: "PATRIARCHAL ROUTE",
+    coords: [32.1833, 35.6167], elevation: 50, modernCountry: "Jordan",
+    scripture: "Genesis 32:24-30 · Genesis 32:28",
+    quote: "And Jacob called the name of the place Peniel: for I have seen God face to face, and my life is preserved.",
+    quoteRef: "Genesis 32:30",
+    era: "c. 1850 BC", empire: "canaan",
+    archaeology: "The Jabbok ford approaches",
+    region: "East of Jordan", place: "The ford of the Jabbok",
+    description: "A lonely ford on the Jabbok where Jacob, returning home after twenty years, wrestled until daybreak and would not let go until he was blessed — and limped away with a new name.",
+    context: "Where Jacob becomes Israel.",
+    books: ["Genesis", "Hosea", "Hebrews", "Romans"],
+    climate: { type: "semi-arid", hi: 34, lo: 20 }
+  },
+  {
     id: "hebron", arc: "patriarchs", name: "HEBRON (MAMRE)", tag: "PATRIARCHAL ROUTE",
     coords: [31.5326, 35.0998], elevation: 930, modernCountry: "Palestine",
     scripture: "Genesis 13:18 · Genesis 23:19 · 2 Samuel 5:3",
@@ -206,6 +220,20 @@ var SITES = [
     climate: { type: "highland-desert", hi: 30, lo: 14 }
   },
   {
+    id: "rephidim", arc: "exodus", name: "REPHIDIM", tag: "EXODUS TRAIL",
+    coords: [28.7200, 33.6200], elevation: 900, modernCountry: "Egypt",
+    scripture: "Exodus 17:1-13 · Exodus 17:6",
+    quote: "Behold, I will stand before thee there upon the rock in Horeb; and thou shalt smite the rock, and there shall come water out of it.",
+    quoteRef: "Exodus 17:6",
+    era: "c. 1250 BC", empire: "egypt",
+    archaeology: "Wadi Feiran oasis approaches",
+    region: "Southern Sinai", place: "The last camp before the mountain",
+    description: "A dry station in the wilderness where the people nearly stoned Moses for water, where the rock was struck, and where Amalek was held off only while Moses' hands stayed raised.",
+    context: "Water from the rock, and the first battle.",
+    books: ["Exodus", "Numbers", "Deuteronomy", "Psalms", "1 Corinthians"],
+    climate: { type: "desert", hi: 34, lo: 18 }
+  },
+  {
     id: "kadesh", arc: "exodus", name: "KADESH BARNEA", tag: "EXODUS TRAIL",
     coords: [30.6725, 34.4269], elevation: 460, modernCountry: "Egypt",
     scripture: "Numbers 13:26 · Numbers 14:1-4 · Numbers 20:1",
@@ -247,6 +275,20 @@ var SITES = [
     books: ["Joshua", "Hebrews", "Luke", "2 Kings"],
     climate: { type: "desert", hi: 39, lo: 24 }
   },
+  {
+    id: "gilgal", arc: "exodus", name: "GILGAL", tag: "EXODUS TRAIL",
+    coords: [31.8500, 35.4800], elevation: -240, modernCountry: "Palestine",
+    scripture: "Joshua 4:19-24 · Joshua 5:9 · 1 Samuel 11:14",
+    quote: "And the LORD said unto Joshua, This day have I rolled away the reproach of Egypt from off you. Wherefore the name of the place is called Gilgal unto this day.",
+    quoteRef: "Joshua 5:9",
+    era: "c. 1210 BC", empire: "israel",
+    archaeology: "The Jordan ford camps east of Jericho",
+    region: "Jordan rift valley", place: "The first camp west of Jordan",
+    description: "The base camp after the crossing, where twelve stones from the riverbed stood as a sign, the manna ceased, and a new generation was marked for the land they had just entered.",
+    context: "Where Egypt's reproach was rolled away.",
+    books: ["Joshua", "1 Samuel", "Hosea", "Amos", "Judges"],
+    climate: { type: "desert", hi: 39, lo: 24 }
+  },
 
   /* =========================== ARC III — KINGDOM & EXILE =========================== */
   {
@@ -261,6 +303,20 @@ var SITES = [
     description: "Taken by David as the capital of a united kingdom and made the site of Solomon's Temple. Burned by Babylon in 586 BC, rebuilt after the exile, and argued over ever since.",
     context: "The heart of the kingdom.",
     books: ["2 Samuel", "1 Kings", "Psalms", "2 Chronicles", "Isaiah"],
+    climate: { type: "mediterranean", hi: 29, lo: 17 }
+  },
+  {
+    id: "shiloh", arc: "kingdom", name: "SHILOH", tag: "KINGDOM & EXILE",
+    coords: [32.0556, 35.2897], elevation: 700, modernCountry: "Palestine",
+    scripture: "Joshua 18:1 · 1 Samuel 1:3 · 1 Samuel 3:21 · Jeremiah 7:12",
+    quote: "And the whole congregation of the children of Israel assembled together at Shiloh, and set up the tabernacle of the congregation there.",
+    quoteRef: "Joshua 18:1",
+    era: "c. 1200 – 1050 BC", empire: "monarchy",
+    archaeology: "Tel Shiloh · tabernacle platform",
+    region: "Ephraim highlands", place: "The ridge road north of Bethel",
+    description: "The resting place of the tabernacle for generations, where Hannah prayed and Samuel heard his name in the night — and where the ark was lost to the Philistines when the priesthood failed.",
+    context: "Where the tabernacle stood before Zion.",
+    books: ["Joshua", "1 Samuel", "Psalms", "Jeremiah", "Judges"],
     climate: { type: "mediterranean", hi: 29, lo: 17 }
   },
   {
@@ -290,6 +346,20 @@ var SITES = [
     context: "The capital lost to Assyria.",
     books: ["1 Kings", "2 Kings", "Amos", "Hosea", "Micah"],
     climate: { type: "mediterranean", hi: 30, lo: 18 }
+  },
+  {
+    id: "megiddo", arc: "kingdom", name: "MEGIDDO", tag: "KINGDOM & EXILE",
+    coords: [32.5850, 35.1850], elevation: 150, modernCountry: "Israel",
+    scripture: "1 Kings 9:15 · 2 Kings 23:29 · 2 Chronicles 35:22 · Zechariah 12:11",
+    quote: "In his days Pharaoh-nechoh king of Egypt went up against the king of Assyria to the river Euphrates: and king Josiah went against him; and he slew him at Megiddo, when he had seen him.",
+    quoteRef: "2 Kings 23:29",
+    era: "c. 1000 – 609 BC", empire: "monarchy",
+    archaeology: "Tel Megiddo · the great gate & stables",
+    region: "Jezreel valley", place: "The pass that commands the plain",
+    description: "A fortress city on the narrow pass between the coast and the inland road — Solomonic gates, chariot cities, and the place good king Josiah fell. The valley below would later lend its name to Armageddon.",
+    context: "Where kings die at the pass.",
+    books: ["1 Kings", "2 Kings", "2 Chronicles", "Zechariah", "Judges", "Revelation"],
+    climate: { type: "mediterranean", hi: 32, lo: 19 }
   },
   {
     id: "damascus", arc: "kingdom", name: "DAMASCUS", tag: "KINGDOM & EXILE",
@@ -376,6 +446,20 @@ var SITES = [
     context: "Thirty hidden years.",
     books: ["Luke", "John", "Matthew", "Mark"],
     climate: { type: "mediterranean", hi: 31, lo: 19 }
+  },
+  {
+    id: "jordan", arc: "gospel", name: "THE JORDAN", tag: "THE GOSPEL",
+    coords: [31.8370, 35.5470], elevation: -350, modernCountry: "Palestine",
+    scripture: "Matthew 3:13-17 · Mark 1:9-11 · Luke 3:21-22 · John 1:29-34",
+    quote: "And Jesus, when he was baptized, went up straightway out of the water: and, lo, the heavens were opened unto him.",
+    quoteRef: "Matthew 3:16",
+    era: "c. AD 27", empire: "rome",
+    archaeology: "Bethany-beyond-Jordan · Qasr el-Yahud",
+    region: "Jordan rift valley", place: "The river of the crossing and the baptism",
+    description: "The same river Israel crossed into the land, and the water where John baptized — where the heavens opened, the Spirit descended, and a voice named the beloved Son before the public ministry began.",
+    context: "Where the ministry is opened from heaven.",
+    books: ["Matthew", "Mark", "Luke", "John", "Acts"],
+    climate: { type: "desert", hi: 38, lo: 22 }
   },
   {
     id: "capernaum", arc: "gospel", name: "CAPERNAUM & GALILEE", tag: "THE GOSPEL",
@@ -476,6 +560,20 @@ var SITES = [
     climate: { type: "mediterranean", hi: 32, lo: 21 }
   },
   {
+    id: "philippi", arc: "gospel", name: "PHILIPPI", tag: "THE CHURCH",
+    coords: [41.0120, 24.2860], elevation: 60, modernCountry: "Greece",
+    scripture: "Acts 16:9-14 · Acts 16:25-31 · Philippians 1:3-6 · Philippians 4:4",
+    quote: "And a vision appeared to Paul in the night; There stood a man of Macedonia, and prayed him, saying, Come over into Macedonia, and help us.",
+    quoteRef: "Acts 16:9",
+    era: "c. AD 49 – 62", empire: "rome",
+    archaeology: "The Roman forum · prison tradition · river baptism site",
+    region: "Macedonia", place: "A colony on the Via Egnatia",
+    description: "The first European landing of the gospel — a Roman colony where Lydia believed by the riverside, a jailer was baptized at midnight, and a letter later taught the church to rejoice always.",
+    context: "Where the gospel crosses into Europe.",
+    books: ["Acts", "Philippians", "1 Thessalonians", "2 Corinthians", "Romans"],
+    climate: { type: "mediterranean", hi: 31, lo: 18 }
+  },
+  {
     id: "rome", arc: "gospel", name: "ROME", tag: "THE CHURCH",
     coords: [41.8925, 12.4853], elevation: 21, modernCountry: "Italy",
     scripture: "Acts 28:30-31 · Romans 1:16 · 2 Timothy 4:7",
@@ -526,6 +624,7 @@ var ROUTES = {
       [32.9000, 35.8000], // down past the Sea of Galilee
       [32.2137, 35.2807], // Shechem
       [31.9308, 35.2211], // Bethel
+      [32.1833, 35.6167], // Penuel, east of Jordan
       [31.5326, 35.0998], // Hebron
       [31.2447, 34.8406]  // Beersheba
     ]
@@ -537,15 +636,16 @@ var ROUTES = {
       [30.7986, 31.8333], // Rameses
       [30.2000, 32.5500], // Succoth, toward the Bitter Lakes
       [29.5000, 32.9000], // the sea crossing
-      [28.7000, 33.6000], // the approach to Rephidim
       [28.5392, 33.9750], // Mount Sinai
+      [28.7200, 33.6200], // Rephidim
       [29.6000, 34.2000], // north through the wilderness of Paran
       [30.6725, 34.4269], // Kadesh Barnea
       [29.5500, 34.9500], // Ezion-geber, after the forty years
       [30.3200, 35.4400], // Edom, up the King's Highway
       [30.9000, 35.4500], // the brook Zered
       [31.7683, 35.7256], // Mount Nebo
-      [31.8711, 35.4444]  // Jericho
+      [31.8711, 35.4444], // Jericho
+      [31.8500, 35.4800]  // Gilgal
     ]
   },
   /* Ordered to match the SITE sequence, not the tidiest line on the
@@ -559,11 +659,13 @@ var ROUTES = {
     colour: "#457b9d",
     coords: [
       [31.7767, 35.2345], // Jerusalem
+      [32.0556, 35.2897], // Shiloh
       [32.0800, 34.7600], // down to the coast road at Joppa
       [32.8300, 35.0700], // north past Acco
       [33.2705, 35.2038], // Tyre
       [32.9000, 35.3000], // back inland and south
       [32.2764, 35.1897], // Samaria
+      [32.5850, 35.1850], // Megiddo
       [32.7000, 35.6000], // north-east across Galilee
       [33.2000, 36.0000], // toward the Barada
       [33.5138, 36.2765], // Damascus
@@ -582,6 +684,7 @@ var ROUTES = {
     coords: [
       [31.7042, 35.2072], // Bethlehem
       [32.7009, 35.2035], // north to Nazareth
+      [31.8370, 35.5470], // the Jordan baptism
       [32.8807, 35.5751], // Capernaum, on the lake
       [32.2000, 35.5200], // down the Jordan valley
       [31.8711, 35.4444], // past Jericho
@@ -596,8 +699,8 @@ var ROUTES = {
       [37.9395, 27.3417], // Ephesus
       [37.7000, 24.5000], // the Aegean crossing
       [37.9061, 22.8791], // Corinth
-      [38.5000, 18.5000], // west past the Ionian islands
-      [40.0000, 15.0000], // the run up the Italian coast
+      [41.0120, 24.2860], // Philippi
+      [40.0000, 18.0000], // west toward Italy
       [41.8925, 12.4853], // Rome
       [39.0000, 20.0000], // east again, into exile
       [37.3086, 26.5478]  // Patmos

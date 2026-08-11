@@ -1,15 +1,16 @@
 /* ==================================================================
    PILGRIMAGE — the campaign rules for the road from Ur to Patmos.
 
-   Twenty-nine sites, six verses each, in the order Scripture walks
+   Thirty-six sites, eight verses each, in the order Scripture walks
    them. Clear a site and it stays cleared; fail one and you lose
    nothing but that attempt. Difficulty is a function of how far along
-   the road you are, not of which mode you picked.
+   the road you are, not of which mode you picked. Verses already used
+   anywhere on the journey stay out of later draws (usedIds).
 
    The load-bearing piece here is resolvePool(). The bank holds four
-   verses for most books and a level needs six, so binding a level to
+   verses for most books and a level needs eight, so binding a level to
    "the books of this site" cannot work on its own — Emmaus is Luke,
-   and Luke is four verses. So the pool widens outward in named rings
+   and Luke is thin. So the pool widens outward in named rings
    until it can fill the level:
 
        site books -> arc books -> testament -> the whole bank
@@ -40,10 +41,10 @@ var Pilgrimage = (function () {
     "2 John":1,"3 John":1,"Jude":1,"Revelation":1
   };
 
-  var VERSES_PER_SITE = 6;
+  var VERSES_PER_SITE = 8;
   var CLOCK_OPEN = 14000;   // ms at Ur
   var CLOCK_CLOSE = 6500;   // ms at Patmos
-  var SIGNATURE_QUOTA = 2;  // slots held for the site's own book — see resolvePool
+  var SIGNATURE_QUOTA = 3;  // slots held for the site's own book — see resolvePool
 
   function attach(d) {
     if (!d) return;
@@ -99,7 +100,38 @@ var Pilgrimage = (function () {
   /* --------------------------- progress --------------------------- */
 
   function blankProgress() {
-    return { sites: {}, lastPlayed: "", started: 0 };
+    return { sites: {}, lastPlayed: "", started: 0, usedIds: [] };
+  }
+
+  /* Verse ids already seen on this journey — never offered again until
+     the road is restarted. */
+  function usedSet(progress) {
+    var set = {};
+    ((progress && progress.usedIds) || []).forEach(function (id) { set[id] = 1; });
+    return set;
+  }
+
+  function markUsed(progress, ids) {
+    var next = {
+      sites: {},
+      lastPlayed: (progress && progress.lastPlayed) || "",
+      started: (progress && progress.started) || 0,
+      usedIds: ((progress && progress.usedIds) || []).slice()
+    };
+    var old = (progress && progress.sites) || {};
+    Object.keys(old).forEach(function (k) {
+      next.sites[k] = {
+        cleared: !!old[k].cleared, best: old[k].best || 0,
+        bestAccuracy: old[k].bestAccuracy || 0, attempts: old[k].attempts || 0,
+        clearedAt: old[k].clearedAt || 0, perfect: !!old[k].perfect
+      };
+    });
+    var seen = {};
+    next.usedIds.forEach(function (id) { seen[id] = 1; });
+    (ids || []).forEach(function (id) {
+      if (id != null && !seen[id]) { seen[id] = 1; next.usedIds.push(id); }
+    });
+    return next;
   }
 
   function recordOf(progress, siteId) {
@@ -144,7 +176,8 @@ var Pilgrimage = (function () {
     var next = {
       sites: {},
       lastPlayed: siteId,
-      started: (progress && progress.started) || 0
+      started: (progress && progress.started) || 0,
+      usedIds: ((progress && progress.usedIds) || []).slice()
     };
     var old = (progress && progress.sites) || {};
     Object.keys(old).forEach(function (k) {
@@ -169,6 +202,13 @@ var Pilgrimage = (function () {
     }
     next.sites[siteId] = r;
     if (!next.started && result && result.at) next.started = result.at;
+    if (result && result.usedIds && result.usedIds.length) {
+      var seen = {};
+      next.usedIds.forEach(function (id) { seen[id] = 1; });
+      result.usedIds.forEach(function (id) {
+        if (id != null && !seen[id]) { seen[id] = 1; next.usedIds.push(id); }
+      });
+    }
     return next;
   }
 
@@ -382,6 +422,7 @@ var Pilgrimage = (function () {
     blankProgress: blankProgress, recordOf: recordOf, isCleared: isCleared,
     isUnlocked: isUnlocked, currentIndex: currentIndex, currentSite: currentSite,
     clearedCount: clearedCount, isComplete: isComplete, record: record,
+    usedSet: usedSet, markUsed: markUsed,
     arcStatus: arcStatus, overview: overview,
     resolvePool: resolvePool, drawSite: drawSite, brief: brief,
     seededRandom: seededRandom, seedFrom: seedFrom, isNT: isNT

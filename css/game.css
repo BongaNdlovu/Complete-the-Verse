@@ -345,6 +345,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 input[type=range]::-moz-range-thumb{width:13px;height:13px;background:var(--gold-hot);border:0;cursor:pointer}
 
 .footer{display:flex;gap:10px;margin-top:3vh;flex-wrap:wrap;justify-content:center}
+.cloud-pill{font-family:var(--ui);font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;
+  border:1px solid rgba(232,196,120,.35);padding:.35rem .7rem;color:var(--gold-dim)}
+.cloud-pill.dim{opacity:.55}
+.cloud-name{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.cloud-name input{min-width:min(220px,55vw);background:rgba(0,0,0,.25);border:1px solid rgba(232,196,120,.28);
+  color:var(--parch);padding:.45rem .65rem;font-family:var(--body);font-size:.92rem}
+.setrow.account{border-bottom:1px solid rgba(232,196,120,.12);padding-bottom:1.2rem;margin-bottom:.4rem}
+.setrow.account b{color:var(--gold)}
 .empty{text-align:center;color:var(--parch-dim);font-style:italic;padding:6vh 0}
 .hint{margin-top:2.4vh;font-family:var(--ui);font-size:.64rem;letter-spacing:.18em;color:#5a5546;text-transform:uppercase}
 
