@@ -17,6 +17,10 @@ In Supabase → Authentication → URL configuration:
 | Site URL | `https://complete-the-verse.vercel.app` |
 | Redirect URLs | `https://complete-the-verse.vercel.app/**` and `http://localhost:8781/**` |
 
+### Score constraints (migration 003)
+
+Run `supabase/migrations/003_score_constraints.sql` in the SQL Editor if not already applied (score/accuracy ceilings).
+
 ---
 
 ## What was added in this repo

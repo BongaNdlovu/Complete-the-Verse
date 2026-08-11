@@ -55,18 +55,19 @@ const SAVE_KEY = "ctv_save_v3";
 const LEGACY_SAVE_KEY = "ctv_save_v2";
 const DEFAULT_SAVE = {
   v:3, xp:0, runs:0,
-  best:{trial:0, endless:0, daily:0, practice:0, recall:0, pilgrimage:0, "pilgrim-recall":0},
+  best:{trial:0, endless:0, daily:0, practice:0, recall:0, pilgrimage:0, "pilgrim-recall":0, blitz:0},
   seals:[],
   life:{correct:0, attempts:0, bestStreak:0, sdBest:0, endlessBest:0, dailyDone:0, perfectActs:0,
-        typedExact:0, typedAttempts:0, reviewsDone:0, sitesCleared:0, arcsCleared:0},
-  books:{}, verse:{}, srs:{}, board:[],
+        typedExact:0, typedAttempts:0, reviewsDone:0, sitesCleared:0, arcsCleared:0, blitzBest:0},
+  books:{}, verse:{}, srs:{}, board:[], journal:[],
+  ghosts:{pilgrimage:null, blitz:null},
   daily:{date:"", score:0},
   /* The road from Ur to Patmos. Shape is owned by pilgrimage.js —
      blankProgress() there is the authority — and stored here so a
      journey survives a reload. */
   pilgrim:{sites:{}, lastPlayed:"", started:0, usedIds:[]},
   set:{music:0.45, sfx:0.7, quality:"high", reduced:false, shake:true, voice:true, diff:"watchman",
-       tutorialDone:false, liveWeather:true, coldOpenDone:false}
+       tutorialDone:false, liveWeather:true, coldOpenDone:false, quiet:false, contrast:false, haptics:true}
 };
 let SAVE = load();
 function load(){
@@ -89,7 +90,9 @@ function load(){
       pilgrim:Object.assign({sites:{}, lastPlayed:"", started:0, usedIds:[]}, s.pilgrim||{}, {
         sites:Object.assign({}, (s.pilgrim && s.pilgrim.sites) || {}),
         usedIds: Array.isArray(s.pilgrim && s.pilgrim.usedIds) ? s.pilgrim.usedIds.slice() : []
-      })
+      }),
+      journal: Array.isArray(s.journal) ? s.journal.slice(0, 40) : [],
+      ghosts: Object.assign({pilgrimage:null, blitz:null}, s.ghosts||{})
     });
     if(migrating) migrateV2(out, s);
     return out;
@@ -225,6 +228,9 @@ const MODES = {
   daily:{ key:"daily", name:"Daily Trial", kick:"One shot a day",
     desc:"Twenty verses, drawn by today's date. Everyone who plays today gets exactly the same twenty in exactly the same order. One recorded attempt — after that you may practise, but the score stands.",
     tagline:"20 verses · same for everyone", info:[["20","Verses"],["1","Recorded run"],["10s","Clock"]] },
+  blitz:{ key:"blitz", name:"Scripture Blitz", kick:"Sixty seconds",
+    desc:"A survival clock. Every correct answer adds two seconds; every miss burns four. The screen edges flare as time runs thin. How many verses can you hold?",
+    tagline:"60s · +2s / −4s", info:[["60s","Start"],["+2s","Correct"],["−4s","Miss"]] },
   practice:{ key:"practice", name:"The Drill", kick:"Spaced review", hidden:true,
     desc:"The verses that have fallen due, most overdue first, then whatever you have never seen.",
     tagline:"15 verses · due first", info:[["15","Verses"],["Due","Ordered by"],["12s","Clock"]] },
@@ -328,7 +334,7 @@ const Snd = (function(){
     if(trackAudio[name] || !ctx || !TRACKS[name]) return;
     const a = new Audio(TRACKS[name]);
     a.loop = true;
-    a.preload = "auto";
+    a.preload = "none"; /* lazy — only fetch when this bed plays */
     a.volume = Math.max(0, Math.min(1, SAVE.set.music||0));
     try{
       const n = ctx.createMediaElementSource(a);
@@ -882,11 +888,40 @@ function updatePlayerCard(){
 }
 
 /* ------------------------- MENU ------------------------- */
+function updateCloudChip(){
+  const el = $("cloud-chip");
+  if(!el) return;
+  if(typeof Cloud==="undefined" || !Cloud.configured()){
+    el.textContent = "Local only"; el.className = "cloud-chip dim"; return;
+  }
+  if(!navigator.onLine){
+    el.textContent = "Offline"; el.className = "cloud-chip warn"; return;
+  }
+  if(Cloud.isSignedIn()){
+    const who = (Cloud.profile() && Cloud.profile().display_name) || "Synced";
+    el.textContent = "☁ "+who; el.className = "cloud-chip on"; return;
+  }
+  el.textContent = "Cloud ready"; el.className = "cloud-chip";
+}
+function updateOfflineBanner(){
+  const b = $("offline-banner");
+  if(!b) return;
+  b.classList.toggle("on", !navigator.onLine);
+  b.textContent = navigator.onLine ? "" : "You are offline — progress stays on this device until you reconnect.";
+}
 function renderMenu(){
   const today = todayKey();
   const dailyDone = SAVE.daily.date === today;
   const due = dueToday();
   const road = pilgrimOverview();
+  updateCloudChip();
+  updateOfflineBanner();
+  const prog = $("menu-road-progress");
+  if(prog){
+    prog.textContent = road.complete
+      ? "Road complete · Ur to Patmos"
+      : (road.cleared+" of "+road.total+" sites · next: "+(road.current?road.current.name:"Ur"));
+  }
   $("modes").innerHTML = Object.keys(MODES).filter(k=>!MODES[k].hidden).map(k=>{
     const m = MODES[k];
     let pill = "";
@@ -1282,16 +1317,19 @@ function startRun(mode, diffKey){
   }
 
   /* Pilgrimage is lean: one Selah, one Illuminate, no Second Wind.
-     Daily (and anything else) keeps the full toolkit. */
+     Blitz: no lifelines. Daily keeps the full toolkit. */
   const leanRoad = isPilgrim || mode==="relay";
-  const startPowers = leanRoad
+  const startPowers = mode==="blitz"
+    ? {selah:0, illum:0, wind:0}
+    : leanRoad
     ? {selah:1, illum:1, wind:0}
     : {selah:1, illum:2, wind:1};
+  const blitzMs = (typeof Polish!=="undefined" && Polish.BLITZ_START_MS) || 60000;
 
   Object.assign(R, {
     runToken, sceneToken:0, ended:false,
     mode, diff:D, actIdx:0, qInAct:0, qTotal:0,
-    score:0, disp:0, lives:D.lives, maxLives:D.lives,
+    score:0, disp:0, lives: mode==="blitz" ? 99 : D.lives, maxLives: mode==="blitz" ? 99 : D.lives,
     streak:0, best:0, correct:0, attempts:0, missed:[], used:new Set(),
     powers:startPowers, usedPower:false, powersSpent:0,
     fast:0, sdCount:0, tiersSeen:new Set(), booksRun:new Set(),
@@ -1309,9 +1347,12 @@ function startRun(mode, diffKey){
     siteId: siteId, siteIndex: siteIndex, siteIdx: 0,
     siteVerses: siteDraw ? siteDraw.verses : null,
     siteRing: siteDraw ? siteDraw.ring : "",
-    relay: relay
+    relay: relay,
+    blitzEnd: mode==="blitz" ? performance.now() + blitzMs : 0,
+    ghostSamples: [{ t:0, p:0 }],
+    lastPickKey: "", lastPickAt: 0
   });
-  document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4");
+  document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4","blitz-edge","blitz-edge-2","blitz-edge-3");
   if(mode==="daily") R.daily = buildDailyList();
   renderLives();
   $("score").textContent = "0"; setMult();
@@ -1323,7 +1364,7 @@ function startRun(mode, diffKey){
   else {
     // Each arc of the road carries its own bed, so the Patriarchs and
     // the Church do not sound like the same afternoon.
-    let pal = mode==="endless" ? "act3" : mode==="practice" ? "act1" : mode==="recall" ? "act4" : "act2";
+    let pal = mode==="endless" ? "act3" : mode==="practice" ? "act1" : mode==="recall" ? "act4" : mode==="blitz" ? "act5" : "act2";
     if(isPilgrim){
       const site = Pilgrimage.site(siteId);
       const arc = site ? Pilgrimage.arc(site.arc) : null;
@@ -1411,6 +1452,10 @@ function beginAct(i){
 function questionDuration(){
   if(R.mode==="trial"){ return ACTS[R.actIdx].t * R.diff.time; }
   if(R.mode==="daily"){ return 10000 * R.diff.time; }
+  if(R.mode==="blitz"){
+    const left = Math.max(0, (R.blitzEnd || 0) - performance.now());
+    return Math.max(900, left);
+  }
   if(R.mode==="practice"){ return 12000 * R.diff.time; }
   // Typing a phrase takes far longer than picking one, so Recall gets a
   // clock sized for the work rather than the same one the pickers use.
@@ -1460,6 +1505,7 @@ function nextQuestion(){
     if(SetPieces.maybeLaunch()) return;
   }
   if(R.mode==="daily" && R.dailyIdx >= R.daily.list.length){ endRun("complete"); return; }
+  if(R.mode==="blitz" && R.blitzEnd && performance.now() >= R.blitzEnd){ endRun("death"); return; }
   if((R.mode==="practice" || R.mode==="recall") && R.qTotal >= R.practiceLen){ endRun("complete"); return; }
   /* The site's own verses are exhausted. A handful of places close with
      a set piece rather than simply ending — the sequence is the climax
@@ -1529,6 +1575,12 @@ function updateChips(){
     $("hud-round").textContent = "Daily Trial";
     $("hud-qlab").textContent = "Verse";
     $("hud-q").textContent = R.dailyIdx+" / "+R.daily.list.length;
+  } else if(R.mode==="blitz"){
+    const left = Math.max(0, Math.ceil(((R.blitzEnd||0) - performance.now())/1000));
+    $("hud-round").textContent = "Scripture Blitz";
+    $("hud-qlab").textContent = "Kept";
+    $("hud-q").textContent = String(R.correct)+" · "+left+"s";
+    paintGhostMarker();
   } else if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
     const site = Pilgrimage.site(R.siteId);
     const n = R.siteVerses ? R.siteVerses.length : 0;
@@ -1821,6 +1873,15 @@ function startTimer(dur){
 const RING_C = 2 * Math.PI * 52;   // circumference of the countdown arc
 function tickTimer(now){
   if(!R.running || R.paused) return;
+  if(R.mode==="blitz" && R.blitzEnd){
+    const bLeft = R.blitzEnd - now;
+    document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
+    const pr = typeof Polish!=="undefined" ? Polish.blitzPressure(bLeft) : 0;
+    if(pr) document.body.classList.add(pr===3?"blitz-edge-3":pr===2?"blitz-edge-2":"blitz-edge");
+    if(bLeft<=0){ timeUp(); return; }
+    /* Blitz uses one shared survival clock — refresh arm each tick. */
+    R.tEnd = R.blitzEnd; R.tTotal = Math.max(R.tTotal, typeof Polish!=="undefined"?Polish.BLITZ_START_MS:60000);
+  }
   let left = R.tEnd - now; if(left<0) left=0;
   const frac = R.tTotal ? Math.max(0, Math.min(1, left/R.tTotal)) : 0;
   const sec = Math.ceil(left/1000);
@@ -1994,7 +2055,13 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     const tierW = 1 + q.t*0.12;
     const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * tierW * SetPieces.bonus());
     R.score += gained;
+    if(R.mode==="blitz" && typeof Polish!=="undefined"){
+      const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
+      R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, true);
+    }
+    noteGhostProgress();
     Snd.correct(); Backdrop.hit("correct"); doFlash("gold");
+    if(SAVE.set.haptics!==false && typeof Polish!=="undefined") Polish.haptic("correct");
     Director.impact("correct");popScore("+"+fmt(gained)); animateScore(); setMult(true);Director.momentum(true);
     if(R.streak===5)Director.callout("Unbroken ×5");
     if(R.streak===10)Director.callout("Perfect Recall");
@@ -2005,13 +2072,67 @@ function resolveAnswer(q,choice,btn,elapsed,left){
   } else {
     const blank=$("blank"); blank.textContent=choice; blank.classList.add("bad","reveal");
     R.streak=0; setMult(); R.missed.push(q);
+    if(R.mode==="blitz" && typeof Polish!=="undefined"){
+      const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
+      R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, false);
+    }
     Director.momentum(false);Director.impact("wrong");
     Snd.wrong(); Backdrop.hit("wrong"); doFlash("red"); shakeUI(true);
+    if(SAVE.set.haptics!==false && typeof Polish!=="undefined") Polish.haptic("wrong");
+    showAnswerReveal(q);
     afterRun(520, ()=>{ if(R.q===q){ blank.textContent=q.a; blank.classList.remove("bad"); blank.classList.add("filled","reveal"); } });
-    loseLife();
+    if(R.mode==="blitz"){
+      afterRun(900, ()=>{ if(R.blitzEnd && performance.now()>=R.blitzEnd) endRun("death"); else nextQuestion(); });
+    } else {
+      loseLife();
+    }
   }
 }
+function showAnswerReveal(q){
+  const el = $("answer-reveal");
+  if(!el || !q) return;
+  el.innerHTML = '<b>'+esc(q.r)+'</b> <span>'+esc(q.a)+'</span>';
+  el.classList.add("on");
+  setTimeout(()=>el.classList.remove("on"), 2200);
+}
+function noteGhostProgress(){
+  if(typeof Polish==="undefined" || !R.startedAt) return;
+  const t = Date.now() - R.startedAt;
+  let p = 0;
+  if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
+    const n = R.siteVerses ? R.siteVerses.length : 1;
+    p = Math.min(1, (R.siteIdx||0) / n);
+  } else if(R.mode==="blitz"){
+    p = Math.min(1, (R.correct||0) / 30);
+  } else if(R.mode==="daily" && R.daily && R.daily.list){
+    p = Math.min(1, (R.dailyIdx||0) / R.daily.list.length);
+  } else {
+    p = Math.min(1, (R.qTotal||0) / 40);
+  }
+  R.ghostSamples = Polish.pushGhostSample(R.ghostSamples||[], t, p, 1500);
+  paintGhostMarker();
+}
+function paintGhostMarker(){
+  const track = $("act-track");
+  if(!track) return;
+  let ghost = track.querySelector(".ghost-mark");
+  const pb = SAVE.ghosts && (R.mode==="blitz" ? SAVE.ghosts.blitz : SAVE.ghosts.pilgrimage);
+  if(!pb || !pb.samples || !pb.samples.length){
+    if(ghost) ghost.remove();
+    return;
+  }
+  const elapsed = Date.now() - (R.startedAt||Date.now());
+  const p = typeof Polish!=="undefined" ? Polish.sampleGhost(pb.samples, elapsed) : 0;
+  if(!ghost){
+    ghost = document.createElement("i");
+    ghost.className = "ghost-mark";
+    ghost.title = "Your best run";
+    track.appendChild(ghost);
+  }
+  ghost.style.left = (Math.max(0, Math.min(1, p)) * 100) + "%";
+}
 function timeUp(){
+  if(R.mode==="blitz"){ endRun("death"); return; }
   if(R.passage) return resolvePassage();
   if(R.recon) return resolveRecon();
   stopTimer(); R.locked=true; R.selected=null; R.attempts++; recordDecision(R.tTotal); R.streak=0; setMult();
@@ -2029,6 +2150,7 @@ function timeUp(){
     });
   }
   const blank=$("blank"); blank.textContent="— time —"; blank.classList.add("bad");
+  if(q) showAnswerReveal(q);
   recordVerse(q,false);
   scheduleReview(q, {correct:false, timedOut:true});
   R.missed.push(q);
@@ -2556,6 +2678,31 @@ function endRun(reason){
   checkMetaSeals();
   persist();
 
+  /* Local PB ghosts for progress marker */
+  const survivedMs = Math.max(0, Date.now() - (R.startedAt||Date.now()));
+  if(R.ghostSamples && R.ghostSamples.length){
+    const key = R.mode==="blitz" ? "blitz" : (isPilgrim ? "pilgrimage" : null);
+    if(key){
+      const prev = SAVE.ghosts && SAVE.ghosts[key];
+      if(!prev || total >= (prev.score||0)){
+        SAVE.ghosts = SAVE.ghosts || {};
+        SAVE.ghosts[key] = { score: total, samples: R.ghostSamples, total_ms: survivedMs };
+      }
+    }
+  }
+  if(R.mode==="blitz"){
+    SAVE.life.blitzBest = Math.max(SAVE.life.blitzBest||0, R.correct||0);
+  }
+  /* Journal entry for pilgrimage */
+  if(isPilgrim && R.siteId){
+    SAVE.journal = SAVE.journal || [];
+    SAVE.journal.unshift({
+      at: todayKey(), siteId: R.siteId, cleared: !!siteCleared,
+      score: total, acc: Math.round(acc*100), name: (Pilgrimage.site(R.siteId)||{}).name||R.siteId
+    });
+    SAVE.journal = SAVE.journal.slice(0, 40);
+  }
+
   /* Cloud: board scores + optional pilgrimage ghost (best only). */
   if(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn()){
     if(dailyRecorded){
@@ -2563,7 +2710,14 @@ function endRun(reason){
         play_date: todayKey(),
         score: total,
         accuracy: Math.round(acc*100),
-        duration_ms: Math.max(0, Date.now() - (R.startedAt||Date.now())),
+        duration_ms: survivedMs,
+        diff: R.diff.key
+      });
+    }
+    if(R.mode==="blitz"){
+      Cloud.submitBlitzScore({
+        score: R.correct||0,
+        survived_ms: survivedMs,
         diff: R.diff.key
       });
     }
@@ -2572,8 +2726,8 @@ function endRun(reason){
       const p = ov.total ? ov.cleared / ov.total : 0;
       Cloud.upsertGhost("pilgrimage", "road", SAVE.best.pilgrimage||total, {
         version: 1,
-        samples: [{ t: 0, p: 0 }, { t: Math.max(0, Date.now()-(R.startedAt||Date.now())), p: p }],
-        total_ms: Math.max(0, Date.now()-(R.startedAt||Date.now())),
+        samples: R.ghostSamples || [{ t: 0, p: 0 }, { t: survivedMs, p: p }],
+        total_ms: survivedMs,
         end_p: p
       }, { siteId: R.siteId, cleared: ov.cleared, total: ov.total });
     }
@@ -2581,7 +2735,7 @@ function endRun(reason){
 
   renderResults({reason, total, baseScore, streakBonus, accBonus, survivalBonus, acc,
     xpGain, beforeLvl, afterInfo, isRecord, prevBest, dailyRecorded, road, siteCleared,
-    firstClearBonus});
+    firstClearBonus, survivedMs});
   if(afterInfo.level>beforeLvl){ setTimeout(()=>{ Snd.level(); Backdrop.hit("levelup"); toast("Level "+afterInfo.level+" — "+rankFor(afterInfo.level)); }, 1400); }
   go("results");
 }
@@ -2594,8 +2748,10 @@ function renderResults(o){
     o.reason==="complete" && R.mode==="daily" ? "The daily reading is finished" :
     o.reason==="complete" && R.mode==="practice" ? "The drill is finished" :
     o.reason==="complete" && R.mode==="recall" ? "You wrote them out from memory" :
+    R.mode==="blitz" ? "The blitz clock ran out" :
     (R.mode==="trial" && R.actIdx===4) ? "The Final Test ended the run" :
     R.mode==="endless" ? "The gauntlet closed" : "The trial is ended";
+  document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
   $("res-rank").textContent = runTitle(o.total);
   $("res-score").textContent = "0";
   const t0=performance.now();
@@ -2724,7 +2880,67 @@ function renderResults(o){
         " of " + o.road.after.total + " sites cleared";
     $("res-best").textContent = line;
   }
+
+  /* Retry failed site without map round-trip */
+  const retryBtn = $("res-retry");
+  if(retryBtn){
+    const showRetry = isPilgrim && !o.siteCleared && R.siteId;
+    retryBtn.style.display = showRetry ? "" : "none";
+    if(showRetry){
+      retryBtn.onclick = ()=>{ Snd.unlock(); Snd.ui(); pendingSiteId = R.siteId; startRun("pilgrimage", R.diff.key); };
+    }
+  }
+
+  fillResultsBoard(R.mode);
+  fillResultsInsights(R.missed[0] || R.q);
   updatePlayerCard();
+}
+function fillResultsBoard(mode){
+  const el = $("res-board");
+  if(!el) return;
+  el.innerHTML = "";
+  el.style.display = "none";
+  if(typeof Cloud==="undefined" || !Cloud.configured()) return;
+  if(mode==="daily"){
+    el.style.display = "";
+    el.innerHTML = '<div class="mtitle">Daily board</div><div class="board-loading">Loading…</div>';
+    Cloud.fetchDailyBoard(todayKey(), 10).then(rows=>{
+      if(!rows.length){ el.innerHTML = '<div class="mtitle">Daily board</div><div class="empty">No scores yet today. Be the first.</div>'; return; }
+      el.innerHTML = '<div class="mtitle">Daily board</div>' + rows.map(r=>
+        '<div class="board-row"><span class="rk">#'+r.rank+'</span><span class="nm">'+esc(r.name)+'</span><b>'+fmt(r.score)+'</b></div>'
+      ).join("");
+    });
+  } else if(mode==="blitz"){
+    el.style.display = "";
+    el.innerHTML = '<div class="mtitle">Blitz board</div><div class="board-loading">Loading…</div>';
+    Cloud.fetchBlitzBoard(10).then(rows=>{
+      if(!rows.length){ el.innerHTML = '<div class="mtitle">Blitz board</div><div class="empty">No blitz scores yet.</div>'; return; }
+      el.innerHTML = '<div class="mtitle">Blitz board</div>' + rows.map(r=>
+        '<div class="board-row"><span class="rk">#'+r.rank+'</span><span class="nm">'+esc(r.name)+'</span><b>'+fmt(r.score)+' verses</b></div>'
+      ).join("");
+    });
+  }
+}
+function fillResultsInsights(v){
+  const el = $("res-insights");
+  if(!el) return;
+  if(!v || typeof Polish==="undefined"){ el.style.display="none"; return; }
+  const info = Polish.insightForVerse(v);
+  const cross = Polish.crossRefsInBank(v, typeof VERSES!=="undefined"?VERSES:[], 3);
+  info.crossRefs = cross;
+  el.style.display = "";
+  el.innerHTML =
+    '<div class="mtitle">Scroll of Insights · '+esc(info.ref||info.book)+'</div>'+
+    '<div class="insight-grid">'+
+      '<div><b>Author</b><span>'+esc(info.author)+'</span></div>'+
+      '<div><b>Era</b><span>'+esc(info.era)+'</span></div>'+
+      '<div><b>Audience</b><span>'+esc(info.audience)+'</span></div>'+
+      '<div><b>Theme</b><span>'+esc(info.theme)+'</span></div>'+
+    '</div>'+
+    (info.roots && info.roots.length
+      ? '<div class="insight-roots">'+info.roots.map(r=>'<i>'+esc(r.w)+'</i> '+esc(r.m)).join(" · ")+'</div>'
+      : '')+
+    (cross.length ? '<div class="insight-cross">Also see: '+cross.map(esc).join(", ")+'</div>' : '');
 }
 $("res-again").addEventListener("click", ()=>{ Snd.ui(); startRun(R.mode, R.diff.key); });
 
@@ -2756,7 +2972,38 @@ function renderStudy(){
     $("study-filter").addEventListener("change", drawStudy);
     $("study-q").addEventListener("input", drawStudy);
   }
+  drawHeatmap();
+  drawJournal();
   drawStudy();
+}
+function drawHeatmap(){
+  const host = $("book-heatmap");
+  if(!host || typeof Polish==="undefined") return;
+  const matrix = Polish.heatmapMatrix(BOOKS_ORDER, VERSES, cardFor, today());
+  host.innerHTML = '<div class="mtitle">66-book mastery</div><div class="heatgrid">'+
+    matrix.map(c=>'<button type="button" class="heatcell '+esc(c.state)+'" title="'+esc(c.key)+': '+esc(c.label)+
+      ' ('+c.held+'/'+c.total+')" data-book="'+esc(c.key)+'"><span>'+esc(c.key.replace(/^[123]\s*/,"").slice(0,3))+'</span></button>').join("")+
+    '</div><div class="heatleg"><i class="mastered"></i>Mastered <i class="learning"></i>Learning <i class="due"></i>Due <i class="unseen"></i>Unseen</div>';
+  host.querySelectorAll("[data-book]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const s = $("study-book");
+      if(s){ s.value = b.dataset.book; drawStudy(); }
+      Snd.ui();
+    });
+  });
+}
+function drawJournal(){
+  const host = $("journey-journal");
+  if(!host) return;
+  const rows = SAVE.journal || [];
+  if(!rows.length){
+    host.innerHTML = '<div class="mtitle">Journey journal</div><div class="empty">Cleared sites will appear here.</div>';
+    return;
+  }
+  host.innerHTML = '<div class="mtitle">Journey journal</div>'+rows.slice(0,12).map(r=>
+    '<div class="jrow"><b>'+esc(r.name||r.siteId)+'</b><span>'+esc(r.at)+
+    (r.cleared?' · cleared':' · held')+' · '+esc(String(r.acc))+'%</span></div>'
+  ).join("");
 }
 function drawStudy(){
   const q = ($("study-q").value||"").toLowerCase().trim();
@@ -2774,10 +3021,26 @@ function drawStudy(){
   if(!list.length){ el.innerHTML='<div class="empty">Nothing here yet. Change the filter, or go earn some scars.</div>'; return; }
   el.innerHTML = list.map(v=>{
     const sch = verseScheduleLabel(v);
-    return '<div class="vcard"><div class="vr"><i><span class="tierdot" style="opacity:'+(0.35+v.t*0.13)+'"></span>'+
+    return '<div class="vcard" data-vid="'+esc(String(v.id))+'"><div class="vr"><i><span class="tierdot" style="opacity:'+(0.35+v.t*0.13)+'"></span>'+
       esc(v.r)+' · Tier '+v.t+'</i><span class="mastery '+sch.cls+'">'+esc(sch.label)+'</span></div>'+
-      '<p>'+esc(v.p)+' <em>'+esc(v.a)+'</em>'+sep(v.s)+esc(v.s)+'</p></div>';
+      '<p>'+esc(v.p)+' <em>'+esc(v.a)+'</em>'+sep(v.s)+esc(v.s)+'</p>'+
+      '<div class="vcard-insight" hidden></div></div>';
   }).join("");
+  el.querySelectorAll(".vcard").forEach(card=>{
+    card.addEventListener("click", ()=>{
+      const id = card.dataset.vid;
+      const v = VERSES.find(x=>String(x.id)===id);
+      const box = card.querySelector(".vcard-insight");
+      if(!box || !v || typeof Polish==="undefined") return;
+      if(!box.hidden){ box.hidden = true; return; }
+      const info = Polish.insightForVerse(v);
+      const cross = Polish.crossRefsInBank(v, VERSES, 3);
+      box.hidden = false;
+      box.innerHTML = '<b>'+esc(info.theme)+'</b> · '+esc(info.author)+
+        (info.roots.length?' · '+info.roots.map(r=>esc(r.w)).join(", "):'')+
+        (cross.length?' · see '+cross.map(esc).join(", "):'');
+    });
+  });
 }
 
 /* ------------------------- SEALS SCREEN ------------------------- */
@@ -2869,6 +3132,12 @@ function renderSettings(){
       seg("shake",[[true,"On"],[false,"Off"]],s.shake)) +
     setRow("Live conditions","Real current weather at each site on the Pilgrimage map. Off, or offline, it uses that place's typical climate instead — the map never waits on it.",
       seg("liveWeather",[[true,"On"],[false,"Off"]],s.liveWeather)) +
+    setRow("Quiet mode","Lowers music and softens SFX in one step.",
+      seg("quiet",[[false,"Off"],[true,"On"]],!!s.quiet)) +
+    setRow("High contrast","Stronger parchment and ink for readability.",
+      seg("contrast",[[false,"Off"],[true,"On"]],!!s.contrast)) +
+    setRow("Haptics","Short vibration on correct and wrong answers (supported devices).",
+      seg("haptics",[[true,"On"],[false,"Off"]],s.haptics!==false)) +
     '<div class="footer"><button class="btn ghost sm" id="set-road">Restart the Pilgrimage</button>' +
     '<button class="btn ghost sm" id="set-reset">Erase all progress</button></div>';
 
@@ -2949,13 +3218,22 @@ function renderSettings(){
 function applySettings(){
   const systemReduced=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
   document.body.classList.toggle("reduced", !!SAVE.set.reduced||systemReduced);
+  document.body.classList.toggle("contrast", !!SAVE.set.contrast);
   document.body.classList.remove("quality-high","quality-balanced","quality-low");
-  const quality=["high","balanced","low"].includes(SAVE.set.quality)?SAVE.set.quality:"high";
+  let quality=["high","balanced","low"].includes(SAVE.set.quality)?SAVE.set.quality:"high";
+  /* Prefer efficient profile on small/touch devices unless the player chose. */
+  if(!SAVE.set.qualityLocked && window.matchMedia && matchMedia("(max-width:720px), (pointer:coarse)").matches){
+    if(quality==="high") quality="balanced";
+  }
   document.body.classList.add("quality-"+quality);
-  Snd.setMusic(SAVE.set.music); Snd.setSfx(SAVE.set.sfx);
+  let mus = SAVE.set.music, sfx = SAVE.set.sfx;
+  if(SAVE.set.quiet){ mus = Math.min(mus, 0.12); sfx = Math.min(sfx, 0.35); }
+  Snd.setMusic(mus); Snd.setSfx(sfx);
   Live.configure({enabled: SAVE.set.liveWeather !== false});
   Director.syncFx();
   if(currentView==="play")Viz.size();
+  updateCloudChip();
+  updateOfflineBanner();
 }
 
 /* ------------------------- PAUSE ------------------------- */
@@ -3062,10 +3340,23 @@ addEventListener("keydown", e=>{
   const idx = (k>="1"&&k<="4") ? parseInt(k,10)-1 : "abcd".indexOf(k);
   if(idx >= 0){
     const b = answerButtons()[idx];
-    if(b && !b.classList.contains("burn")) b.click();
+    if(b && !b.classList.contains("burn")){
+      const key = String(idx);
+      const now = performance.now();
+      /* Double-tap same letter within 420ms locks instantly. */
+      if(R.lastPickKey===key && now-(R.lastPickAt||0)<420 && R.selected){
+        confirmAnswer();
+      } else {
+        b.click();
+        R.lastPickKey = key;
+        R.lastPickAt = now;
+      }
+    }
   }
 });
 addEventListener("resize", ()=>{ if(currentView==="play")Viz.size(); });
+addEventListener("online", ()=>{ updateOfflineBanner(); updateCloudChip(); });
+addEventListener("offline", ()=>{ updateOfflineBanner(); updateCloudChip(); });
 document.addEventListener("pointerdown", ()=>Snd.unlock(), {once:true});
 document.addEventListener("visibilitychange", ()=>{
   if(document.hidden){
@@ -3106,7 +3397,7 @@ function loop(ts){
   applySettings();
   bindTutorial();
 
-  /* Cloud is optional. Init never blocks boot; merge runs in the background. */
+  /* Cloud is optional. Lazy-load SDK; never block boot. */
   if(typeof Cloud!=="undefined" && Cloud.configured()){
     Cloud.on("onAuth", function(ev){
       if(ev && ev.event==="SIGNED_IN"){
@@ -3115,13 +3406,16 @@ function loop(ts){
             SAVE = res.save; persist();
             Atlas.setProgress(SAVE.pilgrim);
             updatePlayerCard();
+            updateCloudChip();
             if(res.merged) toast("Progress merged from the cloud");
           }
         });
       }
+      updateCloudChip();
       if(currentView==="settings") renderSettings();
     });
-    Cloud.init().then(function(res){
+    const bootCloud = Cloud.initLazy ? Cloud.initLazy() : Cloud.init();
+    bootCloud.then(function(res){
       if(res && res.ok && Cloud.isSignedIn()){
         return Cloud.syncOnBoot(SAVE).then(function(sync){
           if(sync && sync.ok && sync.save){
@@ -3129,10 +3423,13 @@ function loop(ts){
             Atlas.setProgress(SAVE.pilgrim);
             updatePlayerCard();
           }
+          updateCloudChip();
         });
       }
+      updateCloudChip();
     }).catch(function(){});
   }
+  updateOfflineBanner();
 
   const msgs = ["Opening the sacred record…","Gathering the witnesses…","Preparing the trial…",
     "Lighting the final lamp…"];

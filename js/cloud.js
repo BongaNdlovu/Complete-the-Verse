@@ -53,6 +53,37 @@ var Cloud = (function () {
     return client;
   }
 
+  /** Lazy-load vendored SDK only when cloud is configured and needed. */
+  function loadSdk() {
+    return new Promise(function (resolve) {
+      if (typeof supabase !== "undefined" && supabase.createClient) {
+        resolve(true); return;
+      }
+      if (!configured() || typeof document === "undefined") {
+        resolve(false); return;
+      }
+      var existing = document.querySelector('script[data-supabase-sdk]');
+      if (existing) {
+        existing.addEventListener("load", function () { resolve(!!(supabase && supabase.createClient)); });
+        return;
+      }
+      var s = document.createElement("script");
+      s.src = "vendor/supabase/supabase.js";
+      s.async = true;
+      s.setAttribute("data-supabase-sdk", "1");
+      s.onload = function () { resolve(!!(typeof supabase !== "undefined" && supabase.createClient)); };
+      s.onerror = function () { resolve(false); };
+      document.head.appendChild(s);
+    });
+  }
+
+  async function initLazy() {
+    if (!configured()) return { ok: false, reason: "not-configured" };
+    var ok = await loadSdk();
+    if (!ok) return { ok: false, reason: "no-sdk" };
+    return init();
+  }
+
   /* ----------------------- pure merge ----------------------- */
 
   function maxNum(a, b) {
@@ -240,7 +271,8 @@ var Cloud = (function () {
   async function setDisplayName(name) {
     var sb = ensureClient();
     if (!sb || !user) return { ok: false, reason: "signed-out" };
-    name = String(name || "").trim().slice(0, 32);
+    name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
+      ? Polish.sanitizeDisplayName(name) : String(name || "").trim().slice(0, 32);
     if (name.length < 2) return { ok: false, reason: "name-too-short" };
     var res = await sb.from("profiles").update({
       display_name: name,
@@ -270,7 +302,18 @@ var Cloud = (function () {
   async function pushSave(saveObj) {
     var sb = ensureClient();
     if (!sb || !user) return { ok: false, reason: "signed-out" };
-    var nextRev = (lastRevision || 0) + 1;
+    /* Optimistic lock: if remote moved past what we last merged, refuse blind overwrite. */
+    var peek = await sb.from("saves").select("revision, payload, client_updated_at")
+      .eq("user_id", user.id).maybeSingle();
+    var remoteRev = (peek.data && peek.data.revision) || 0;
+    if (lastRevision > 0 && remoteRev > lastRevision) {
+      return {
+        ok: false,
+        reason: "stale-revision",
+        remote: peek.data
+      };
+    }
+    var nextRev = Math.max(lastRevision || 0, remoteRev) + 1;
     var row = {
       user_id: user.id,
       payload: saveObj || {},
@@ -316,30 +359,34 @@ var Cloud = (function () {
   async function submitDailyScore(row) {
     var sb = ensureClient();
     if (!sb || !user) return { ok: false, reason: "signed-out" };
+    var c = (typeof Polish !== "undefined" && Polish.clampDailyScore)
+      ? Polish.clampDailyScore(row) : row;
     var payload = {
       user_id: user.id,
-      play_date: row.play_date,
-      score: row.score | 0,
-      accuracy: Number(row.accuracy) || 0,
-      duration_ms: row.duration_ms == null ? null : row.duration_ms | 0,
-      diff: row.diff || "watchman"
+      play_date: c.play_date,
+      score: c.score | 0,
+      accuracy: Number(c.accuracy) || 0,
+      duration_ms: c.duration_ms == null ? null : c.duration_ms | 0,
+      diff: c.diff || "watchman"
     };
     var res = await sb.from("daily_scores").upsert(payload, { onConflict: "user_id,play_date" });
     if (res.error) return { ok: false, reason: res.error.message };
-    return { ok: true };
+    return { ok: true, score: payload.score };
   }
 
   async function submitBlitzScore(row) {
     var sb = ensureClient();
     if (!sb || !user) return { ok: false, reason: "signed-out" };
+    var c = (typeof Polish !== "undefined" && Polish.clampBlitzScore)
+      ? Polish.clampBlitzScore(row) : row;
     var res = await sb.from("blitz_scores").insert({
       user_id: user.id,
-      score: row.score | 0,
-      survived_ms: row.survived_ms | 0,
-      diff: row.diff || "watchman"
+      score: c.score | 0,
+      survived_ms: c.survived_ms | 0,
+      diff: c.diff || "watchman"
     });
     if (res.error) return { ok: false, reason: res.error.message };
-    return { ok: true };
+    return { ok: true, score: c.score | 0 };
   }
 
   async function fetchDailyBoard(playDate, limit) {
@@ -353,12 +400,15 @@ var Cloud = (function () {
       .limit(limit);
     if (res.error) return [];
     return (res.data || []).map(function (r, i) {
+      var raw = (r.profiles && r.profiles.display_name) || "Pilgrim";
+      var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
+        ? (Polish.sanitizeDisplayName(raw) || "Pilgrim") : String(raw).slice(0, 32);
       return {
         rank: i + 1,
         score: r.score,
         accuracy: r.accuracy,
         diff: r.diff,
-        name: (r.profiles && r.profiles.display_name) || "Pilgrim"
+        name: name
       };
     });
   }
@@ -373,11 +423,14 @@ var Cloud = (function () {
       .limit(limit);
     if (res.error) return [];
     return (res.data || []).map(function (r, i) {
+      var raw = (r.profiles && r.profiles.display_name) || "Pilgrim";
+      var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
+        ? (Polish.sanitizeDisplayName(raw) || "Pilgrim") : String(raw).slice(0, 32);
       return {
         rank: i + 1,
         score: r.score,
         survived_ms: r.survived_ms,
-        name: (r.profiles && r.profiles.display_name) || "Pilgrim"
+        name: name
       };
     });
   }
@@ -429,6 +482,8 @@ var Cloud = (function () {
   return {
     configured: configured,
     init: init,
+    initLazy: initLazy,
+    loadSdk: loadSdk,
     mergeSave: mergeSave,
     isSignedIn: isSignedIn,
     user: sessionUser,

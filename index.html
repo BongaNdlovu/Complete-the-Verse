@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="css/atlas.css">
 </head>
 <body class="cine biblical-thriller">
+<div id="offline-banner" class="offline-banner" role="status" aria-live="polite"></div>
 <div id="backdrop"></div>
 <div id="cinematic-fx" aria-hidden="true">
   <div class="smoke-wisp one"></div><div class="smoke-wisp two"></div>
@@ -50,6 +51,8 @@
       <p style="max-width:46ch;text-align:center;color:var(--parch-dim);font-style:italic;font-size:clamp(.95rem,1.8vw,1.15rem);line-height:1.6">
         The words appear. One phrase is taken away. Complete it before the final second falls.</p>
 
+      <div class="cloud-chip dim" id="cloud-chip" aria-live="polite">Local only</div>
+      <div class="menu-road" id="menu-road-progress"></div>
       <div class="modes" id="modes"></div>
 
       <div class="subnav">
@@ -228,6 +231,7 @@
       </div>
 
       <div class="answers" id="opts"></div>
+      <div class="answer-reveal" id="answer-reveal" aria-live="polite"></div>
       <div class="assembly" id="assembly"></div>
 
       <div class="control">
@@ -276,6 +280,7 @@
       <div class="bigscore" id="res-score">0</div>
       <div class="footer res-primary">
         <button class="btn" id="res-again">Run It Back</button>
+        <button class="btn" id="res-retry" type="button" style="display:none">Retry this site</button>
         <button class="btn ghost" id="res-share" type="button" style="display:none">Share Daily</button>
         <button class="btn" id="res-next" type="button" style="display:none">On to the next site</button>
         <button class="btn ghost" id="res-road" type="button" style="display:none">Back to the road</button>
@@ -283,6 +288,8 @@
         <button class="btn ghost" data-go="menu">Main Hall</button>
       </div>
       <div class="hint" id="res-best"></div>
+      <div class="res-board" id="res-board" style="display:none"></div>
+      <div class="res-insights" id="res-insights" style="display:none"></div>
       <div class="schedule" id="res-schedule" style="display:none"></div>
       <details class="res-details" id="res-details-score">
         <summary>Score breakdown &amp; progress</summary>
@@ -319,6 +326,8 @@
           <option value="unseen">Never seen</option>
         </select>
       </div>
+      <div id="book-heatmap" class="book-heatmap"></div>
+      <div id="journey-journal" class="journey-journal"></div>
       <div class="listwrap" id="study-list"></div>
     </div>
   </section>
@@ -421,8 +430,8 @@
 <script src="js/pilgrimage.js"></script>
 <script src="js/live.js"></script>
 <script src="js/atlas.js"></script>
-<!-- Supabase is vendored; cloud stays off if js/cloud-config.js has empty keys. -->
-<script src="vendor/supabase/supabase.js"></script>
+<!-- polish helpers first; Supabase SDK loads lazily via Cloud.initLazy when configured. -->
+<script src="js/polish.js"></script>
 <script src="js/cloud-config.js"></script>
 <script src="js/cloud.js"></script>
 <script src="js/game.js"></script>
