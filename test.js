@@ -14,6 +14,9 @@ const SUITE = [
   ["recall logic",   "recall.test.js"],
   ["geo logic",      "geo.test.js"],
   ["pilgrimage",     "pilgrimage.test.js"],
+  ["characters",     "characters.test.js"],
+  ["artifacts",      "artifacts.test.js"],
+  ["menu modes",     "menu-modes.test.js"],
   ["live data",      "live.test.js"],
   ["integration",    "integration.test.js"],
   ["game structure", "game-structure.test.js"],
@@ -24,7 +27,9 @@ const SUITE = [
   ["sfx",            "sfx.test.js"],
   ["cloud merge",    "cloud.test.js"],
   ["polish helpers", "polish.test.js"],
-  ["improvements",   "improvements.test.js"]
+  ["improvements",   "improvements.test.js"],
+  ["sky3d",          "sky3d.test.js"],
+  ["gameplay polish","gameplay-polish.test.js"]
 ];
 
 let failed = 0;

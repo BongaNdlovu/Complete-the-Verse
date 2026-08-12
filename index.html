@@ -12,6 +12,13 @@
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="css/game.css">
 <link rel="stylesheet" href="css/atlas.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/three.module.min.js"
+  }
+}
+</script>
 </head>
 <body class="cine biblical-thriller">
 <div id="offline-banner" class="offline-banner" role="status" aria-live="polite"></div>
@@ -57,6 +64,7 @@
 
       <div class="subnav">
         <button class="btn ghost sm" data-go="study">Study Hall</button>
+        <button class="btn ghost sm" data-go="relics">Relics</button>
         <button class="btn ghost sm" data-go="seals">Seals</button>
         <button class="btn ghost sm" data-go="records">Records</button>
         <button class="btn ghost sm" data-go="settings">Settings</button>
@@ -128,8 +136,9 @@
         <div>
           <div class="oc-kick">The Pilgrimage</div>
           <div class="oc-title">Ur to Patmos</div>
-          <div class="oc-sub">Twenty-nine places, in the order Scripture walks them — from the city Abraham
+          <div class="oc-sub">Thirty-six places, in the order Scripture walks them — from the city Abraham
             left to the island where the last book was written.</div>
+          <div class="oc-hint">Tap to continue</div>
         </div>
       </div>
     </div>
@@ -332,6 +341,21 @@
     </div>
   </section>
 
+  <!-- ============ RELICS ============ -->
+  <section class="view" id="v-relics">
+    <div class="scrollpad" style="align-items:center">
+      <div class="panelhead">
+        <div>
+          <div class="kick">The Reliquary</div>
+          <div class="h-lg" style="margin-top:.5vh">Historical Artifacts</div>
+          <div class="hint" id="relics-count" style="margin-top:.6vh">0 of 36 recovered</div>
+        </div>
+        <button class="btn ghost sm" data-go="menu">Back</button>
+      </div>
+      <div class="listwrap"><div class="relic-grid" id="relics-grid"></div></div>
+    </div>
+  </section>
+
   <!-- ============ SEALS ============ -->
   <section class="view" id="v-seals">
     <div class="scrollpad" style="align-items:center">
@@ -349,7 +373,9 @@
       <div class="panelhead">
         <div><div class="kick">Records</div><div class="h-lg" style="margin-top:.5vh">The Chronicle</div></div>
         <div class="tabs">
-          <button class="tab on" data-rtab="board">Leaderboard</button>
+          <button class="tab on" data-rtab="board">Local</button>
+          <button class="tab" data-rtab="daily">Daily global</button>
+          <button class="tab" data-rtab="blitz">Blitz global</button>
           <button class="tab" data-rtab="life">Lifetime</button>
           <button class="tab" data-rtab="books">By Book</button>
         </div>
@@ -411,6 +437,40 @@
   </div>
 </div>
 
+<div id="character-pick" aria-modal="true" role="dialog" aria-labelledby="char-title">
+  <div class="char-panel">
+    <div class="kick">Profile</div>
+    <div class="h-lg" id="char-title" style="margin-top:1vh">Who are you on the road?</div>
+    <div class="fil"><i></i></div>
+    <p id="char-sub" style="max-width:48ch;color:var(--parch-dim);line-height:1.55;margin:0 auto;text-align:center">
+      Choose a scholar, then give them your name. Biblical figures unlock later as skins.</p>
+    <div class="char-name-row" id="char-name-row">
+      <label for="char-name">Your name</label>
+      <input id="char-name" type="text" maxlength="32" placeholder="e.g. Miriam" autocomplete="nickname">
+    </div>
+    <div class="char-grid" id="char-grid"></div>
+    <div class="footer" style="margin-top:2vh;justify-content:center">
+      <button class="btn" id="char-confirm" type="button" disabled>Enter the hall</button>
+    </div>
+  </div>
+</div>
+
+<div id="reveal-stage" aria-modal="true" role="dialog" aria-labelledby="reveal-title">
+  <div class="reveal-burst" aria-hidden="true"></div>
+  <div class="reveal-card">
+    <div class="kick" id="reveal-kicker">Relic recovered</div>
+    <div class="reveal-art" id="reveal-art"><span class="reveal-glyph">✦</span></div>
+    <div class="h-lg" id="reveal-title" style="margin-top:1.2vh">Artifact</div>
+    <div class="reveal-meta" id="reveal-meta"></div>
+    <div class="fil"><i></i></div>
+    <p class="reveal-copy" id="reveal-copy"></p>
+    <div class="reveal-ref" id="reveal-ref"></div>
+    <div class="footer" style="justify-content:center;margin-top:2vh">
+      <button class="btn" id="reveal-continue" type="button">Continue</button>
+    </div>
+  </div>
+</div>
+
 <script src="vendor/leaflet/leaflet.js"></script>
 <script src="js/verses.js"></script>
 <script src="js/verses-extra.js"></script>
@@ -428,12 +488,16 @@
 <script src="js/empires.js"></script>
 <script src="js/geo.js"></script>
 <script src="js/pilgrimage.js"></script>
+<script src="js/characters.js"></script>
+<script src="js/artifacts.js"></script>
 <script src="js/live.js"></script>
 <script src="js/atlas.js"></script>
 <!-- polish helpers first; Supabase SDK loads lazily via Cloud.initLazy when configured. -->
 <script src="js/polish.js"></script>
 <script src="js/cloud-config.js"></script>
 <script src="js/cloud.js"></script>
+<!-- Phase A living sky (optional WebGL). Must stay type=module for Three import. -->
+<script type="module" src="js/sky3d.js"></script>
 <script src="js/game.js"></script>
 </body>
 </html>

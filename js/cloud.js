@@ -408,7 +408,9 @@ var Cloud = (function () {
         score: r.score,
         accuracy: r.accuracy,
         diff: r.diff,
-        name: name
+        name: name,
+        user_id: r.user_id,
+        mine: !!(user && r.user_id === user.id)
       };
     });
   }
@@ -420,6 +422,7 @@ var Cloud = (function () {
     var res = await sb.from("blitz_scores")
       .select("score, survived_ms, diff, user_id, profiles(display_name)")
       .order("score", { ascending: false })
+      .order("survived_ms", { ascending: false })
       .limit(limit);
     if (res.error) return [];
     return (res.data || []).map(function (r, i) {
@@ -430,9 +433,67 @@ var Cloud = (function () {
         rank: i + 1,
         score: r.score,
         survived_ms: r.survived_ms,
-        name: name
+        diff: r.diff,
+        name: name,
+        user_id: r.user_id,
+        mine: !!(user && r.user_id === user.id)
       };
     });
+  }
+
+  /* Best daily score for a signed-in user on a given date (for "you" row). */
+  async function fetchMyDailyRank(playDate) {
+    var sb = ensureClient();
+    if (!sb || !user) return null;
+    var res = await sb.from("daily_scores")
+      .select("score, accuracy, diff, user_id, profiles(display_name)")
+      .eq("play_date", playDate)
+      .order("score", { ascending: false })
+      .limit(100);
+    if (res.error || !res.data) return null;
+    var rows = res.data;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].user_id === user.id) {
+        var raw = (rows[i].profiles && rows[i].profiles.display_name) || "You";
+        return {
+          rank: i + 1,
+          score: rows[i].score,
+          accuracy: rows[i].accuracy,
+          diff: rows[i].diff,
+          name: raw,
+          mine: true,
+          total: rows.length
+        };
+      }
+    }
+    return null;
+  }
+
+  async function fetchMyBlitzRank() {
+    var sb = ensureClient();
+    if (!sb || !user) return null;
+    var res = await sb.from("blitz_scores")
+      .select("score, survived_ms, diff, user_id, profiles(display_name)")
+      .order("score", { ascending: false })
+      .order("survived_ms", { ascending: false })
+      .limit(100);
+    if (res.error || !res.data) return null;
+    var rows = res.data;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].user_id === user.id) {
+        var raw = (rows[i].profiles && rows[i].profiles.display_name) || "You";
+        return {
+          rank: i + 1,
+          score: rows[i].score,
+          survived_ms: rows[i].survived_ms,
+          diff: rows[i].diff,
+          name: raw,
+          mine: true,
+          total: rows.length
+        };
+      }
+    }
+    return null;
   }
 
   /* ----------------------- ghosts ----------------------- */
@@ -499,6 +560,8 @@ var Cloud = (function () {
     submitBlitzScore: submitBlitzScore,
     fetchDailyBoard: fetchDailyBoard,
     fetchBlitzBoard: fetchBlitzBoard,
+    fetchMyDailyRank: fetchMyDailyRank,
+    fetchMyBlitzRank: fetchMyBlitzRank,
     upsertGhost: upsertGhost,
     fetchGhosts: fetchGhosts,
     on: on

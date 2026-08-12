@@ -1,7 +1,7 @@
 /* ==================================================================
-   BACKDROP — a static cinematic field. No 3D scene, no particles.
-   Deep black with a faint act-coloured wash; the vignette and grain
-   layers sit above it. Values are raw rgb triples for rgba() use.
+   BACKDROP — cinematic field under the UI. CSS wash is the baseline;
+   optional Sky3D (Three.js) deepens it when WebGL and quality allow.
+   Values are raw rgb triples for rgba() use.
    ================================================================== */
 const PALETTES = {
   menu:    {a:'138,111,52', b:'26,20,9',  c:'90,72,34'},
@@ -15,21 +15,43 @@ const PALETTES = {
 
 const Backdrop = (function(){
   let el = null;
+  let paletteName = "menu";
+  function sky(){ return (typeof window!=="undefined" && window.Sky3D) ? window.Sky3D : null; }
   function apply(name){
+    paletteName = name || "menu";
     if(!el) return;
-    const p = PALETTES[name] || PALETTES.menu;
+    const p = PALETTES[paletteName] || PALETTES.menu;
     el.style.setProperty('--bd-a', p.a);
     el.style.setProperty('--bd-b', p.b);
     el.style.setProperty('--bd-c', p.c);
+    const s = sky();
+    if(s && s.setPalette) s.setPalette(paletteName);
   }
   return {
-    init(){ el = document.getElementById('backdrop'); apply('menu'); return !!el; },
+    init(){
+      el = document.getElementById('backdrop');
+      apply('menu');
+      const s = sky();
+      if(s && s.init) s.init(el);
+      return !!el;
+    },
     palette(name){ apply(name); },
     hit(kind){
       if(!el) return;
       if(kind === 'wrong' || kind === 'death' || kind === 'levelup'){
         el.classList.remove('jolt'); void el.offsetWidth; el.classList.add('jolt');
       }
+      const s = sky();
+      if(s && s.pulse){
+        if(kind === 'correct' || kind === 'levelup') s.pulse(0.45);
+        else if(kind === 'wrong' || kind === 'death') s.pulse(0.7);
+        else if(kind === 'tick') s.pulse(0.2);
+      }
+    },
+    syncSky(){
+      const s = sky();
+      if(s && s.syncFromSettings) s.syncFromSettings();
+      if(s && s.setPalette) s.setPalette(paletteName);
     }
   };
 })();
@@ -66,8 +88,13 @@ const DEFAULT_SAVE = {
      blankProgress() there is the authority — and stored here so a
      journey survives a reload. */
   pilgrim:{sites:{}, lastPlayed:"", started:0, usedIds:[]},
+  /* Relics unlocked by first site clear. Shape owned by artifacts.js. */
+  artifacts:{unlocked:{}, seen:{}},
   set:{music:0.45, sfx:0.7, quality:"high", reduced:false, shake:true, voice:true, diff:"watchman",
-       tutorialDone:false, liveWeather:true, coldOpenDone:false, quiet:false, contrast:false, haptics:true}
+       tutorialDone:false, liveWeather:true, coldOpenDone:false, quiet:false, contrast:false, haptics:true,
+       character:"amina", scholarId:"amina", playerName:"", profileDone:false,
+       /* legacy keys kept so old saves merge cleanly */
+       characterDone:false}
 };
 let SAVE = load();
 function load(){
@@ -91,10 +118,14 @@ function load(){
         sites:Object.assign({}, (s.pilgrim && s.pilgrim.sites) || {}),
         usedIds: Array.isArray(s.pilgrim && s.pilgrim.usedIds) ? s.pilgrim.usedIds.slice() : []
       }),
+      artifacts: (typeof Artifacts !== "undefined")
+        ? Artifacts.normalize(s.artifacts)
+        : Object.assign({unlocked:{}, seen:{}}, s.artifacts||{}),
       journal: Array.isArray(s.journal) ? s.journal.slice(0, 40) : [],
       ghosts: Object.assign({pilgrimage:null, blitz:null}, s.ghosts||{})
     });
     if(migrating) migrateV2(out, s);
+    migrateProfile(out);
     return out;
   }catch(e){ return JSON.parse(JSON.stringify(DEFAULT_SAVE)); }
 }
@@ -129,6 +160,23 @@ function migrateV2(out, old){
     out.srs[id] = card;
   });
 }
+/* Scholars replace the old free Bible-figure default; keep skins if still unlocked. */
+function migrateProfile(out){
+  if(!out || !out.set) return;
+  if(out.set.characterDone && !out.set.profileDone) out.set.profileDone = true;
+  if(out.set.playerName == null) out.set.playerName = "";
+  const id = out.set.character;
+  const known = typeof Characters !== "undefined" && Characters.byId(id);
+  if(!known){
+    out.set.character = (typeof Characters !== "undefined" && Characters.defaultScholarId()) || "amina";
+    out.set.scholarId = out.set.character;
+  } else if(Characters.isScholar(known)){
+    out.set.scholarId = known.id;
+  } else if(!out.set.scholarId){
+    out.set.scholarId = Characters.defaultScholarId() || "amina";
+  }
+}
+
 function persist(){
   try{ localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){}
   /* Debounced cloud push when signed in — local write never waits on network. */
@@ -210,7 +258,7 @@ const MODES = {
      is what routes it. `hidden:true` keeps a mode off the menu without
      hiding it from the results screen, which still needs its name. */
   pilgrimage:{ key:"pilgrimage", name:"The Pilgrimage", kick:"The long road", atlas:true,
-    desc:"Thirty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; later sites mix typed recall. The clock closes as you go east.",
+    desc:"Thirty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last three of every stop are typed from memory. The clock closes as you go east.",
     tagline:"36 sites · Ur to Patmos", info:[["36","Sites"],["8","Verses each"],["14→6.5s","Clock"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, typed out word for word.",
@@ -231,11 +279,13 @@ const MODES = {
   blitz:{ key:"blitz", name:"Scripture Blitz", kick:"Sixty seconds",
     desc:"A survival clock. Every correct answer adds two seconds; every miss burns four. The screen edges flare as time runs thin. How many verses can you hold?",
     tagline:"60s · +2s / −4s", info:[["60s","Start"],["+2s","Correct"],["−4s","Miss"]] },
+  /* Hidden: Pilgrimage already trains recognition and typed recall on the road.
+     Kept in code so results labels and save keys still resolve. */
   practice:{ key:"practice", name:"The Drill", kick:"Spaced review", hidden:true,
     desc:"The verses that have fallen due, most overdue first, then whatever you have never seen.",
     tagline:"15 verses · due first", info:[["15","Verses"],["Due","Ordered by"],["12s","Clock"]] },
   recall:{ key:"recall", name:"Recall", kick:"Type it from memory", hidden:true,
-    desc:"No options to choose between. The blank is empty and you fill it yourself, word for word.",
+    desc:"No options to choose between. The blank is empty and you fill it yourself, word for word. On-screen keyboard included.",
     tagline:"12 verses · typed", info:[["12","Verses"],["Typed","No options"],["22s","Clock"]] }
 };
 const DIFFS = {
@@ -482,6 +532,15 @@ const Snd = (function(){
     },
     death(){ duckMusic(0.12, 1600); tone(110,3.4,"sine",.20,0,27.5); tone(103.8,3.4,"sawtooth",.075,0,26); noise(1.7,.2,300); },
     victory(){ duckMusic(0.18, 1200); [392,493.88,587.33,783.99,987.77,1174.66].forEach((f,i)=>tone(f,3.0,"sine",.09,i*.1)); },
+    /* Kill countdown SFX immediately (lock, pause, time-up, end of run). */
+    stopPressure(){
+      ["tick","heart"].forEach(function(name){
+        if(sfxHold[name]){
+          try{ sfxHold[name].pause(); sfxHold[name].currentTime=0; }catch(e){}
+          sfxHold[name]=null;
+        }
+      });
+    },
     spectrum(){ if(!anal) return null; try{ anal.getByteFrequencyData(freq); }catch(e){ return null; } return freq; }
   };
 })();
@@ -841,6 +900,7 @@ function go(view){
   if(view==="menu"){ Backdrop.palette("menu"); Snd.ambience("menu"); renderMenu(); }
   if(view==="results"){ Backdrop.palette("results"); Snd.ambience("results"); }
   if(view==="study") renderStudy();
+  if(view==="relics") renderRelics();
   if(view==="seals") renderSeals();
   if(view==="records") renderRecords();
   if(view==="settings") renderSettings();
@@ -867,11 +927,270 @@ document.addEventListener("pointerout", e=>{
   if(t && t===lastHoverEl) lastHoverEl=null;
 });
 
+/* ------------------------- CHARACTERS / PROFILE ------------------------- */
+function playerDisplayName(){
+  const n = (SAVE.set.playerName || "").trim();
+  return n || "Pilgrim";
+}
+function activeCharacter(){
+  if(typeof Characters === "undefined") return null;
+  return Characters.resolve(SAVE.set.character, SAVE.pilgrim);
+}
+function syncTravelerToken(){
+  if(typeof Atlas === "undefined" || !Atlas.setTraveler) return;
+  const ch = activeCharacter();
+  Atlas.setTraveler(ch ? ch.token : null);
+}
+function profileReady(){
+  return !!(SAVE.set.profileDone && (SAVE.set.playerName || "").trim().length >= 2);
+}
+function openProfileSetup(force){
+  const el = $("character-pick");
+  if(!el) return;
+  if(!force && profileReady()) return;
+  el.dataset.mode = "setup";
+  renderProfileSetup();
+  el.classList.add("on");
+}
+function openSkinPicker(){
+  const el = $("character-pick");
+  if(!el) return;
+  el.dataset.mode = "skins";
+  renderSkinPicker();
+  el.classList.add("on");
+}
+function closeCharacterPicker(){
+  const el = $("character-pick");
+  if(el) el.classList.remove("on");
+}
+function renderProfileSetup(){
+  const title = $("char-title");
+  const sub = $("char-sub");
+  const host = $("char-grid");
+  const nameRow = $("char-name-row");
+  const confirm = $("char-confirm");
+  if(title) title.textContent = "Who are you on the road?";
+  if(sub) sub.textContent = "Choose a scholar — two women, two men, four nations — then give them your name. Biblical figures unlock later as skins.";
+  if(nameRow) nameRow.classList.remove("gone");
+  if(confirm){ confirm.classList.remove("gone"); confirm.disabled = true; confirm.textContent = "Enter the hall"; }
+  const nameInput = $("char-name");
+  if(nameInput){
+    nameInput.value = SAVE.set.playerName || "";
+    nameInput.oninput = ()=>{ syncProfileConfirm(); };
+  }
+  if(!host || typeof Characters === "undefined") return;
+  const cur = SAVE.set.scholarId || Characters.defaultScholarId();
+  host.innerHTML = Characters.scholars().map(ch => {
+    const sel = ch.id === cur;
+    return '<button type="button" class="char-card'+(sel?" sel":"")+'" data-scholar="'+esc(ch.id)+'">'+
+      '<img class="char-portrait" src="'+esc(ch.portrait)+'" alt="" width="96" height="96" loading="lazy">'+
+      '<b>'+esc(ch.short)+'</b>'+
+      '<em class="char-nat">'+esc(ch.nationality)+'</em>'+
+      '<span>'+esc(ch.blurb)+'</span>'+
+      '</button>';
+  }).join("");
+  host.querySelectorAll("[data-scholar]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      SAVE.set.scholarId = b.dataset.scholar;
+      SAVE.set.character = b.dataset.scholar;
+      host.querySelectorAll(".char-card").forEach(x=>x.classList.toggle("sel", x===b));
+      Snd.ui();
+      syncTravelerToken();
+      updatePlayerCard();
+      syncProfileConfirm();
+    });
+  });
+  if(confirm){
+    confirm.onclick = ()=>{
+      const name = (nameInput && nameInput.value || "").trim();
+      if(name.length < 2){ toast("Choose a name of at least two letters"); return; }
+      commitProfile(name, SAVE.set.scholarId || Characters.defaultScholarId());
+    };
+  }
+  syncProfileConfirm();
+}
+function syncProfileConfirm(){
+  const confirm = $("char-confirm");
+  const nameInput = $("char-name");
+  if(!confirm) return;
+  const name = (nameInput && nameInput.value || "").trim();
+  const scholar = SAVE.set.scholarId || (typeof Characters !== "undefined" && Characters.defaultScholarId());
+  confirm.disabled = name.length < 2 || !scholar;
+}
+function commitProfile(name, scholarId){
+  SAVE.set.playerName = name.slice(0, 32);
+  SAVE.set.scholarId = scholarId;
+  SAVE.set.character = scholarId;
+  SAVE.set.profileDone = true;
+  SAVE.set.characterDone = true;
+  persist();
+  Snd.level();
+  syncTravelerToken();
+  updatePlayerCard();
+  closeCharacterPicker();
+  if(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn()){
+    Cloud.setDisplayName(SAVE.set.playerName).then(res=>{
+      if(res && res.ok) updateCloudChip();
+    });
+  }
+  if(currentView === "settings") renderSettings();
+  if(currentView === "menu") renderMenu();
+  toast(playerDisplayName() + " · " + ((activeCharacter()&&activeCharacter().short)||"Scholar"));
+}
+function renderSkinPicker(){
+  const title = $("char-title");
+  const sub = $("char-sub");
+  const host = $("char-grid");
+  const nameRow = $("char-name-row");
+  const confirm = $("char-confirm");
+  if(title) title.textContent = "Equip an avatar";
+  if(sub) sub.textContent = "Your scholar is always available. Biblical figures unlock as you clear arcs and sites — equip them as skins.";
+  if(nameRow) nameRow.classList.add("gone");
+  if(confirm) confirm.classList.add("gone");
+  if(!host || typeof Characters === "undefined") return;
+  const cur = SAVE.set.character || Characters.defaultId();
+  const blocks = [
+    { label: "Scholars", list: Characters.scholars() },
+    { label: "Biblical figures", list: Characters.figures() }
+  ];
+  host.innerHTML = blocks.map(block =>
+    '<div class="char-section"><div class="char-sec-label">'+esc(block.label)+'</div><div class="char-sec-grid">'+
+    block.list.map(ch => {
+      const open = Characters.isUnlocked(ch, SAVE.pilgrim);
+      const sel = open && ch.id === cur;
+      return '<button type="button" class="char-card'+(sel?" sel":"")+(open?"":" locked")+'" data-char="'+esc(ch.id)+'" '+(open?"":"disabled")+'>'+
+        '<img class="char-portrait" src="'+esc(ch.portrait)+'" alt="" width="96" height="96" loading="lazy">'+
+        '<b>'+esc(ch.short)+'</b>'+
+        '<span>'+esc(open ? ch.blurb : Characters.unlockLabel(ch))+'</span>'+
+        '</button>';
+    }).join("") + '</div></div>'
+  ).join("");
+  host.querySelectorAll("[data-char]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      if(b.disabled) return;
+      SAVE.set.character = b.dataset.char;
+      const ch = Characters.byId(b.dataset.char);
+      if(ch && Characters.isScholar(ch)) SAVE.set.scholarId = ch.id;
+      persist();
+      Snd.ui();
+      syncTravelerToken();
+      updatePlayerCard();
+      closeCharacterPicker();
+      if(currentView === "settings") renderSettings();
+      if(currentView === "menu") renderMenu();
+      toast("Equipped · " + ((activeCharacter()&&activeCharacter().short)||"Avatar"));
+    });
+  });
+}
+/* Back-compat name used by older call sites */
+function openCharacterPicker(force){
+  if(force && profileReady()) openSkinPicker();
+  else openProfileSetup(force);
+}
+
+/* ------------------------- ARTIFACT REVEAL ------------------------- */
+let pendingReveals = [];
+function queueArtifactReveal(artifact){
+  if(!artifact) return;
+  pendingReveals.push({ kind: "artifact", artifact: artifact });
+}
+function queueFigureReveal(figure){
+  if(!figure) return;
+  pendingReveals.push({ kind: "figure", figure: figure });
+}
+function flushRevealsAfterResults(){
+  if(!pendingReveals.length) return;
+  const next = pendingReveals.shift();
+  if(next.kind === "artifact") showArtifactReveal(next.artifact, ()=>flushRevealsAfterResults());
+  else if(next.kind === "figure") showFigureReveal(next.figure, ()=>flushRevealsAfterResults());
+}
+function showArtifactReveal(artifact, done){
+  const el = $("reveal-stage");
+  if(!el || !artifact){ if(done) done(); return; }
+  const img = Artifacts.imagePath(artifact);
+  $("reveal-kicker").textContent = "Relic recovered";
+  $("reveal-title").textContent = artifact.name;
+  $("reveal-meta").textContent = [artifact.era, artifact.material, artifact.find].filter(Boolean).join(" · ");
+  $("reveal-copy").textContent = artifact.detail || artifact.blurb;
+  $("reveal-ref").textContent = artifact.scripture || "";
+  const pic = $("reveal-art");
+  if(img){
+    pic.innerHTML = '<img src="'+esc(img)+'" alt="">';
+    pic.classList.remove("placeholder");
+  } else {
+    pic.innerHTML = '<span class="reveal-glyph">✦</span>';
+    pic.classList.add("placeholder");
+  }
+  el.dataset.kind = "artifact";
+  el.classList.remove("play"); void el.offsetWidth; el.classList.add("on","play");
+  Snd.level();
+  const close = ()=>{
+    el.classList.remove("on","play");
+    SAVE.artifacts = Artifacts.markSeen(SAVE.artifacts, artifact.id);
+    persist();
+    if(done) done();
+  };
+  $("reveal-continue").onclick = ()=>{ Snd.ui(); close(); };
+  setTimeout(()=>{ if(el.classList.contains("on")) close(); }, 14000);
+}
+function showFigureReveal(figure, done){
+  const el = $("reveal-stage");
+  if(!el || !figure){ if(done) done(); return; }
+  $("reveal-kicker").textContent = "Figure unlocked";
+  $("reveal-title").textContent = figure.name;
+  $("reveal-meta").textContent = Characters.unlockLabel(figure) === "Available"
+    ? "Equip this skin in Settings"
+    : "Now available as a profile skin";
+  $("reveal-copy").textContent = figure.blurb || "";
+  $("reveal-ref").textContent = "";
+  const pic = $("reveal-art");
+  pic.innerHTML = '<img src="'+esc(figure.portrait)+'" alt="">';
+  pic.classList.remove("placeholder");
+  el.dataset.kind = "figure";
+  el.classList.remove("play"); void el.offsetWidth; el.classList.add("on","play");
+  Snd.power();
+  const close = ()=>{
+    el.classList.remove("on","play");
+    if(done) done();
+  };
+  $("reveal-continue").onclick = ()=>{ Snd.ui(); close(); };
+  setTimeout(()=>{ if(el.classList.contains("on")) close(); }, 12000);
+}
+
+/* ------------------------- RELICS HALL ------------------------- */
+function renderRelics(){
+  const host = $("relics-grid");
+  if(!host || typeof Artifacts === "undefined") return;
+  const n = Artifacts.unlockedCount(SAVE.artifacts);
+  const tot = Artifacts.count();
+  const title = $("relics-count");
+  if(title) title.textContent = n + " of " + tot + " recovered";
+  host.innerHTML = Artifacts.all().map(a => {
+    const open = Artifacts.isUnlocked(SAVE.artifacts, a.id);
+    const img = Artifacts.imagePath(a);
+    const site = Pilgrimage.site(a.siteId);
+    if(!open){
+      return '<div class="relic-card locked"><div class="relic-art placeholder"><span>?</span></div>'+
+        '<b>Sealed</b><span>'+esc((site&&site.name)||a.siteId)+'</span></div>';
+    }
+    return '<button type="button" class="relic-card" data-relic="'+esc(a.id)+'">'+
+      '<div class="relic-art'+(img?"":" placeholder")+'">'+(img?'<img src="'+esc(img)+'" alt="">':'<span>✦</span>')+'</div>'+
+      '<b>'+esc(a.name)+'</b><span>'+esc(a.era)+'</span></button>';
+  }).join("");
+  host.querySelectorAll("[data-relic]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const a = Artifacts.byId(b.dataset.relic);
+      if(a) showArtifactReveal(a, null);
+    });
+  });
+}
+
 /* ------------------------- PLAYER CARD ------------------------- */
 function buildPlayerCard(){
   const d=document.createElement("div"); d.className="playercard"; d.id="playercard"; d.style.display="none";
-  d.innerHTML='<div class="pc-sigil"><b id="pc-lvl">1</b></div><div class="pc-meta">'+
-    '<div class="pc-rank" id="pc-rank">Hearer</div><div class="pc-xp"><i id="pc-xpfill"></i></div>'+
+  d.innerHTML='<div class="pc-sigil"><img id="pc-avatar" class="pc-avatar" alt=""><b id="pc-lvl">1</b></div><div class="pc-meta">'+
+    '<div class="pc-rank" id="pc-rank">Hearer</div><div class="pc-name" id="pc-name"></div>'+
+    '<div class="pc-xp"><i id="pc-xpfill"></i></div>'+
     '<div class="pc-sub" id="pc-sub">0 / 320 XP</div></div>';
   document.body.appendChild(d);
 }
@@ -880,11 +1199,22 @@ function updatePlayerCard(){
   const card = $("playercard"); if(!card) return;
   // The atlas has its own chrome in that corner, so the card stands down.
   card.style.display = (currentView==="play"||currentView==="boot"||
-                        currentView==="act"||currentView==="atlas") ? "none" : "flex";
+                        currentView==="act"||currentView==="atlas"||currentView==="relics") ? "none" : "flex";
   $("pc-lvl").textContent = li.level;
   $("pc-rank").textContent = rankFor(li.level);
   $("pc-xpfill").style.width = (li.into/li.need*100)+"%";
   $("pc-sub").textContent = fmt(li.into)+" / "+fmt(li.need)+" XP";
+  const ch = activeCharacter();
+  const av = $("pc-avatar");
+  const nm = $("pc-name");
+  if(av){
+    if(ch && ch.portrait){ av.src = ch.portrait; av.style.display = "block"; }
+    else av.style.display = "none";
+  }
+  if(nm){
+    const skin = ch ? ch.short : "";
+    nm.textContent = playerDisplayName() + (skin ? " · " + skin : "");
+  }
 }
 
 /* ------------------------- MENU ------------------------- */
@@ -985,6 +1315,7 @@ function savePilgrim(p){ SAVE.pilgrim = p; persist(); }
 
 let pendingSiteId = null;
 let pendingArcKey = null;
+let pendingUnlockId = null; /* site that just unlocked — celebrate on atlas */
 let atlasWired = false;
 
 function wireAtlas(){
@@ -1009,12 +1340,23 @@ function wireAtlas(){
 
 function openAtlas(){
   wireAtlas();
-  Atlas.seenColdOpen(!!SAVE.set.coldOpenDone);
+  const unlockId = pendingUnlockId;
+  /* Unlock ceremony owns the entrance — skip cold open so it is not buried. */
+  if(unlockId) Atlas.seenColdOpen(true);
+  else Atlas.seenColdOpen(!!SAVE.set.coldOpenDone);
+  syncTravelerToken();
   Atlas.mount(SAVE.pilgrim);
   if(!SAVE.set.coldOpenDone){ SAVE.set.coldOpenDone = true; persist(); }
-  // Live weather is a bonus, never a dependency: this promise cannot
-  // reject (see live.js) and nothing waits on it.
   if(SAVE.set.liveWeather) Atlas.loadWeather();
+  if(unlockId){
+    pendingUnlockId = null;
+    /* Let Leaflet measure the container, then fly + burst. */
+    requestAnimationFrame(function(){
+      setTimeout(function(){
+        if(typeof Atlas.celebrateUnlock==="function") Atlas.celebrateUnlock(unlockId);
+      }, 120);
+    });
+  }
 }
 
 /* ---- the real sky over the real place ----
@@ -1098,8 +1440,8 @@ function openSiteBrief(siteId, mode){
   const finale = sbMode === "pilgrimage" && SetPieces.hasSite(siteId)
     ? " · this place does not end quietly" : "";
   $("sb-hint").textContent = (sbMode === "pilgrim-recall"
-    ? "Type the missing phrase · Enter to lock · Esc pauses"
-    : "A–D or 1–4 to select · Enter to lock · S Selah · I Illuminate · Esc pauses") + finale;
+    ? "Type the missing phrase · on-screen keyboard · Enter to lock · Esc pauses"
+    : "A–D or 1–4 · last 3 typed · Enter to lock · S Selah · I Illuminate · Esc pauses") + finale;
 
   go("sitebrief");
 }
@@ -1158,11 +1500,22 @@ function bankRelaySite(siteId){
   rl.banked.push(siteId);
   rl.markCorrect = R.correct; rl.markAttempts = R.attempts;
 
+  const beforeProg = JSON.parse(JSON.stringify(SAVE.pilgrim));
   const wasCleared = Pilgrimage.isCleared(SAVE.pilgrim, siteId);
   SAVE.pilgrim = Pilgrimage.record(SAVE.pilgrim, siteId, {
     cleared:true, score:0, accuracy: a ? Math.round(c/a*100) : 100, at:Date.now()
   });
-  if(!wasCleared) SAVE.life.sitesCleared++;
+  if(!wasCleared){
+    SAVE.life.sitesCleared++;
+    if(typeof Artifacts !== "undefined"){
+      const u = Artifacts.unlockForSite(SAVE.artifacts, siteId, Date.now());
+      SAVE.artifacts = u.store;
+      if(u.firstUnlock && u.artifact) queueArtifactReveal(u.artifact);
+    }
+    if(typeof Characters !== "undefined"){
+      Characters.newlyUnlockedFigures(beforeProg, SAVE.pilgrim).forEach(queueFigureReveal);
+    }
+  }
   persist();
   const s = Pilgrimage.site(siteId);
   if(s) Director.callout(s.name + " — behind you");
@@ -1461,9 +1814,12 @@ function questionDuration(){
   // clock sized for the work rather than the same one the pickers use.
   if(R.mode==="recall"){ return 22000 * R.diff.time; }
   // The road's clock is a function of how far east you are: 14s at Ur,
-  // 6.5s at Patmos. pilgrimage.js owns the ramp.
+  // 6.5s at Patmos. pilgrimage.js owns the ramp. Typed slots on a mixed
+  // site always get a typing-sized clock (at least 20s base).
   if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
-    return siteClockMs(R.siteId, R.mode) * R.diff.time;
+    const base = siteClockMs(R.siteId, R.mode);
+    if(R.mode==="pilgrimage" && R.typed) return Math.max(20000, base) * R.diff.time;
+    return base * R.diff.time;
   }
   // The relay inherits each site's own clock as it reaches it, so the
   // road tightens inside a single run exactly as it does across many.
@@ -1525,12 +1881,12 @@ function nextQuestion(){
   // verses come from SetPieces.draw below instead.
   else if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece){
     v = R.siteVerses[R.siteIdx]; R.siteIdx++;
-    /* Late road mixes typed recall into multiple-choice sites. */
+    /* Pilgrim’s Recall is fully typed. Mixed pilgrimage always ends with
+       three typed questions (last 3 of 8) so every stop trains production. */
     if(R.mode==="pilgrim-recall") R.typed = true;
     else if(R.mode==="pilgrimage"){
-      const pos = Pilgrimage.positionOf(R.siteIndex);
       const n = R.siteVerses ? R.siteVerses.length : 0;
-      const typedN = pos >= 0.7 ? 3 : pos >= 0.4 ? 2 : pos >= 0.15 ? 1 : 0;
+      const typedN = Math.min(3, n);
       R.typed = n > 0 && R.siteIdx > (n - typedN);
     }
   }
@@ -1703,39 +2059,76 @@ function answerButtons(){
 const HEART_SVG = '<svg viewBox="0 0 24 24"><path d="M12 21.6l-1.5-1.4C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.7L12 21.6z" fill="url(#hg)"/></svg>';
 const HEART_BROKEN = '<svg viewBox="0 0 24 24"><path d="M12 21.6l-1.5-1.4C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.7L12 21.6z" fill="url(#hg)"/><path d="M12.6 4.6l-2.5 4.9 3 1.9-2.4 4.6" fill="none" stroke="#07070a" stroke-width="1.7" stroke-linejoin="round"/></svg>';
 
-/* Prefer near-miss phrases from the same book / tier over weak authored
-   distractors so English alone cannot eliminate the wrong answers. */
+/* Prefer distractors that *look* like the correct phrase so all four
+   options feel similar — length, word count, shape — and English alone
+   cannot discard the wrong ones. */
 function buildChoices(q, rnd){
   const r = rnd || Math.random;
-  const correct = q.a;
+  const correct = String(q.a||"");
   const ban = {}; if(correct) ban[correct] = 1;
   const picked = [];
   function push(s){
+    s = String(s||"").trim();
     if(!s || ban[s]) return false;
     ban[s] = 1; picked.push(s); return true;
   }
-  const words = String(correct||"").toLowerCase().split(/\W+/).filter(w=>w.length>3);
+  function wordsOf(s){ return String(s).toLowerCase().split(/\W+/).filter(Boolean); }
+  function shapeScore(cand){
+    const c = correct, a = String(cand||"");
+    if(!a || a===c) return -1;
+    let score = 0;
+    const cw = wordsOf(c), aw = wordsOf(a);
+    const lenDiff = Math.abs(a.length - c.length);
+    if(lenDiff<=2) score += 8;
+    else if(lenDiff<=5) score += 6;
+    else if(lenDiff<=10) score += 3;
+    else if(lenDiff<=16) score += 1;
+    else score -= 4;
+    const wcDiff = Math.abs(aw.length - cw.length);
+    if(wcDiff===0) score += 7;
+    else if(wcDiff===1) score += 4;
+    else if(wcDiff===2) score += 1;
+    else score -= 3;
+    /* Shared content words (not tiny glue) */
+    const content = cw.filter(w=>w.length>3);
+    content.forEach(w=>{ if(aw.indexOf(w)>=0) score += 3; });
+    /* Same opening word / article pattern */
+    if(cw[0] && aw[0] && cw[0]===aw[0]) score += 3;
+    /* Capitalisation / “the X of Y” shape */
+    if(/^the\s+/i.test(c) && /^the\s+/i.test(a)) score += 2;
+    if(/\sof\s/i.test(c) && /\sof\s/i.test(a)) score += 2;
+    if(/\sand\s/i.test(c) && /\sand\s/i.test(a)) score += 1;
+    return score;
+  }
   const cands = [];
-  (q.d||[]).forEach(d=>{ if(d && d!==correct) cands.push({s:d, score:2}); });
+  (q.d||[]).forEach(d=>{
+    if(!d || d===correct) return;
+    cands.push({ s:d, score: shapeScore(d) + 5 }); /* authored still preferred slightly */
+  });
   if(typeof VERSES!=="undefined"){
     VERSES.forEach(v=>{
-      if(!v || v.id===q.id || !v.a || ban[v.a] || v.a===correct) return;
-      let score = 0;
-      if(v.b===q.b) score += 4;
+      if(!v || v.id===q.id || !v.a || v.a===correct || ban[v.a]) return;
+      let score = shapeScore(v.a);
+      if(v.b===q.b) score += 5;
       if(Math.abs((v.t||3)-(q.t||3))<=1) score += 2;
-      const lenDiff = Math.abs(String(v.a).length - String(correct||"").length);
-      if(lenDiff<=6) score += 2; else if(lenDiff<=14) score += 1;
-      const va = String(v.a).toLowerCase();
-      if(words.some(w=>va.indexOf(w)>=0)) score += 2;
-      if(score>0) cands.push({s:v.a, score});
+      if(score>=6) cands.push({ s:v.a, score });
     });
   }
   cands.sort((a,b)=> (b.score-a.score) || (r()-0.5));
-  for(let i=0;i<cands.length && picked.length<3;i++) push(cands[i].s);
+  for(let i=0;i<cands.length && picked.length<3;i++){
+    /* Reject wildly different length after ranking */
+    const lenDiff = Math.abs(String(cands[i].s).length - correct.length);
+    if(lenDiff>22 && picked.length) continue;
+    push(cands[i].s);
+  }
   (q.d||[]).forEach(d=>{ if(picked.length<3) push(d); });
-  while(picked.length<3){
-    const filler = "the word of the LORD";
-    if(!push(filler + (picked.length? " "+picked.length : ""))) break;
+  /* Last-resort fillers that still mimic length of the blank */
+  const fillBase = correct.length>18 ? "the word of the LORD forever" :
+    correct.length>10 ? "the word of the LORD" : "the LORD";
+  let n=0;
+  while(picked.length<3 && n<6){
+    n++;
+    push(fillBase + (n>1 ? " "+n : ""));
   }
   return shuffle([correct].concat(picked.slice(0,3)), r);
 }
@@ -1779,8 +2172,55 @@ function renderQuestion(q, dur){
 }
 
 /* ------------------------- TYPED (RECALL MODE) ------------------------- */
-/* Same stage, same clock, same Lock button — the only difference is that
-   the four options are replaced by an empty line you have to fill. */
+/* Same stage, same clock, same Lock button — the four options become an
+   empty line plus an on-screen keyboard so phones do not need the OS IME. */
+const VKB_ROWS = [
+  ["q","w","e","r","t","y","u","i","o","p"],
+  ["a","s","d","f","g","h","j","k","l","'"],
+  ["z","x","c","v","b","n","m","⌫"],
+  ["space","clear"]
+];
+function buildVirtualKeyboardHtml(){
+  return '<div class="vkb" id="vkb" role="group" aria-label="On-screen keyboard">' +
+    VKB_ROWS.map(row =>
+      '<div class="vkb-row">' + row.map(k => {
+        if(k === "space") return '<button type="button" class="vkb-key wide" data-k=" ">Space</button>';
+        if(k === "clear") return '<button type="button" class="vkb-key wide danger" data-k="clear">Clear</button>';
+        if(k === "⌫") return '<button type="button" class="vkb-key" data-k="back" aria-label="Backspace">⌫</button>';
+        return '<button type="button" class="vkb-key" data-k="'+k+'">'+k.toUpperCase()+'</button>';
+      }).join("") + '</div>'
+    ).join("") +
+  '</div>';
+}
+function syncTypedLock(){
+  const input = $("typed-answer");
+  const btn = $("confirm-answer");
+  if(!input || !btn) return;
+  const has = !!(input.value && input.value.trim());
+  btn.disabled = !has;
+  btn.textContent = has ? "Lock Answer" : "Type your answer";
+}
+function typeIntoAnswer(ch){
+  const input = $("typed-answer");
+  if(!input || input.disabled || R.locked) return;
+  if(ch === "back") input.value = input.value.slice(0, -1);
+  else if(ch === "clear") input.value = "";
+  else input.value += ch;
+  syncTypedLock();
+}
+function bindVirtualKeyboard(){
+  const board = $("vkb");
+  if(!board) return;
+  board.addEventListener("click", e=>{
+    const b = e.target.closest("[data-k]");
+    if(!b) return;
+    e.preventDefault();
+    typeIntoAnswer(b.dataset.k);
+    Snd.ui();
+  });
+  /* Keep pointer events from stealing focus into a phantom OS keyboard. */
+  board.addEventListener("mousedown", e=>e.preventDefault());
+}
 function renderTypedQuestion(q, dur, scene){
   R.hintLevel = 0;
   const opts = $("opts");
@@ -1788,19 +2228,17 @@ function renderTypedQuestion(q, dur, scene){
   opts.innerHTML =
     '<div class="typewrap">' +
       '<input id="typed-answer" class="typed-input" type="text" autocomplete="off" ' +
-        'autocorrect="off" autocapitalize="off" spellcheck="false" ' +
+        'autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="none" ' +
         'aria-label="Type the missing words" placeholder="type the missing words">' +
       '<div class="typed-hint" id="typed-hint" aria-live="polite"></div>' +
+      buildVirtualKeyboardHtml() +
     '</div>';
   const input = $("typed-answer");
-  input.addEventListener("input", ()=>{
-    const btn = $("confirm-answer");
-    btn.disabled = !input.value.trim();
-    btn.textContent = input.value.trim() ? "Lock Answer" : "Type your answer";
-  });
+  input.addEventListener("input", syncTypedLock);
   input.addEventListener("keydown", e=>{
     if(e.key === "Enter"){ e.preventDefault(); confirmTyped(); }
   });
+  bindVirtualKeyboard();
   const confirmBtn = $("confirm-answer");
   confirmBtn.style.display = "";
   confirmBtn.disabled = true;
@@ -1812,6 +2250,8 @@ function renderTypedQuestion(q, dur, scene){
     if(R.q!==q || R.sceneToken!==scene || currentView!=="play") return;
     opts.classList.remove("queued"); opts.classList.add("entering");
     startTimer(dur);
+    /* Desktop: allow physical typing. Mobile: keep OS keyboard closed —
+       the on-screen board is the input surface. */
     if(!("ontouchstart" in window)) input.focus();
     afterRun(760, ()=>{ if(R.q===q && R.sceneToken===scene) opts.classList.remove("entering"); });
     Snd.lock();
@@ -1857,7 +2297,8 @@ $("confirm-answer").addEventListener("click", confirmAnswer);
 /* ------------------------- TIMER ------------------------- */
 function armTimer(dur){
   R.tTotal = dur; R.tEnd = 0; R.qStart = 0;
-  R.running = false; R.paused = false; R.lastTickSec = -1; R.lastHeart = 0;
+  R.running = false; R.paused = false; R.lastTickSec = -1; R.lastHeart = 0; R.lastHeartSec = -1;
+  if(typeof Snd!=="undefined" && Snd.stopPressure) Snd.stopPressure();
   const sec = Math.ceil(dur/1000);
   $("clock").textContent = "00:" + String(sec).padStart(2,"0");
   $("warn-1").textContent = sec + (sec===1 ? " second remaining" : " seconds remaining");
@@ -1866,7 +2307,7 @@ function armTimer(dur){
 }
 function startTimer(dur){
   R.tTotal = dur; R.tEnd = performance.now()+dur; R.qStart = performance.now();
-  R.running = true; R.paused = false; R.lastTickSec = -1; R.lastHeart = 0;
+  R.running = true; R.paused = false; R.lastTickSec = -1; R.lastHeart = 0; R.lastHeartSec = -1;
   if(document.hidden){pauseStamp=performance.now();setPaused(true);}
   else ensureLoop();
 }
@@ -1896,23 +2337,32 @@ function tickTimer(now){
     w1.textContent = sec + (sec===1 ? " second remaining" : " seconds remaining");
     w1.classList.toggle("hot", sec<=5);
     Director.pressure(sec);
-    /* One pressure layer at a time — tick/pulse used to stack with heart. */
-    if(left>0){
-      if(sec<=5){
+    /* Strict countdown SFX (whole seconds only, never mid-bar 55% ticks):
+       10–6 soft tick · 5–4 critical tick · 3–1 heartbeat only (no double stack). */
+    if(left>0 && R.mode!=="blitz"){
+      if(sec===4 || sec===5){
         Snd.tick(true);
         Backdrop.hit("tick");
-      } else if(frac<=.55){
+      } else if(sec>=6 && sec<=10){
         Snd.tick(false);
-      } else if(sec<=7){
-        Snd.pulse(2);
       }
+      /* sec 3–1: heartbeat only (below), no tick stack */
     }
   }
-  /* Heart only in the final three seconds, and slower so it does not ride on every tick. */
-  if(sec<=3 && now-R.lastHeart>720){ R.lastHeart=now; Snd.heart(); doFlash("heart"); }
+  /* Heartbeat owns the final three seconds — one pulse per second, stops on lock. */
+  if(R.running && !R.locked && !R.paused && R.mode!=="blitz" &&
+     sec>=1 && sec<=3 && left>0 && sec!==R.lastHeartSec){
+    R.lastHeartSec = sec;
+    R.lastHeart = now;
+    Snd.heart();
+    doFlash("heart");
+  }
   if(left<=0) timeUp();
 }
-function stopTimer(){ R.running=false; }
+function stopTimer(){
+  R.running=false;
+  if(typeof Snd!=="undefined" && Snd.stopPressure) Snd.stopPressure();
+}
 
 /* ------------------------- POWERS ------------------------- */
 function renderPowers(){
@@ -2640,13 +3090,31 @@ function endRun(reason){
     if(reason==="complete" && R.relay.current) bankRelaySite(R.relay.current.siteId);
     if(reason==="complete" && !hasSeal("relay")) grantSeal("relay");
   }
+  const pilgrimBefore = isPilgrim ? JSON.parse(JSON.stringify(SAVE.pilgrim)) : null;
   const road = isPilgrim ? recordSiteResult(siteCleared, total, acc) : null;
+  /* First clear opens the next place — remember it for the map ceremony. */
+  if(road && road.firstClear && siteCleared){
+    const nxt = Pilgrimage.currentSite(SAVE.pilgrim);
+    if(nxt && nxt.id !== R.siteId && Pilgrimage.isUnlocked(SAVE.pilgrim, nxt.id)){
+      pendingUnlockId = nxt.id;
+    }
+  }
   if(road && road.firstClear){
     if(!hasSeal("road-first")) grantSeal("road-first");
     if(road.after.arcs[0].complete && !hasSeal("road-arc1")) grantSeal("road-arc1");
     if(road.after.arcs.filter(a=>a.complete).length >= 2 && !hasSeal("road-half")) grantSeal("road-half");
     if(road.after.complete && !hasSeal("road-end")) grantSeal("road-end");
     if(R.siteId==="patmos" && !hasSeal("road-patmos")) grantSeal("road-patmos");
+    /* One historical artifact per first site clear. */
+    if(typeof Artifacts !== "undefined" && R.siteId){
+      const u = Artifacts.unlockForSite(SAVE.artifacts, R.siteId, Date.now());
+      SAVE.artifacts = u.store;
+      if(u.firstUnlock && u.artifact) queueArtifactReveal(u.artifact);
+    }
+  }
+  /* Biblical figure skins unlock by arc / road progress. */
+  if(isPilgrim && pilgrimBefore && typeof Characters !== "undefined"){
+    Characters.newlyUnlockedFigures(pilgrimBefore, SAVE.pilgrim).forEach(queueFigureReveal);
   }
   /* Read straight off the saved journey rather than off `road`, because
      the relay banks its sites itself and never produces a `road`.
@@ -2738,6 +3206,10 @@ function endRun(reason){
     firstClearBonus, survivedMs});
   if(afterInfo.level>beforeLvl){ setTimeout(()=>{ Snd.level(); Backdrop.hit("levelup"); toast("Level "+afterInfo.level+" — "+rankFor(afterInfo.level)); }, 1400); }
   go("results");
+  /* Reveal ceremony after the score has a moment to land. */
+  if(pendingReveals.length){
+    setTimeout(()=>flushRevealsAfterResults(), 1600);
+  }
 }
 
 function renderResults(o){
@@ -2841,17 +3313,30 @@ function renderResults(o){
     roadBtn.onclick = ()=>{ Snd.ui(); go("atlas"); };
   }
 
-  /* Straight on to the next site, without a round trip to the map. With
-     29 stops the map screen between every one of them becomes a toll
-     rather than a moment, so a player on a run can just keep walking. */
+  /* After a first clear that unlocks new ground, auto-return to the map
+     for the unlock ceremony. "On to next" still works for replaying. */
   const nextBtn=$("res-next");
   if(nextBtn){
     const nxt = isPilgrim && o.siteCleared ? Pilgrimage.currentSite(SAVE.pilgrim) : null;
     const showNext = !!(nxt && !Pilgrimage.isCleared(SAVE.pilgrim, nxt.id));
-    nextBtn.style.display = showNext ? "" : "none";
-    if(showNext){
+    const autoUnlock = !!(pendingUnlockId && o.siteCleared && o.road && o.road.firstClear);
+    nextBtn.style.display = showNext && !autoUnlock ? "" : "none";
+    if(showNext && !autoUnlock){
       nextBtn.textContent = "On to " + nxt.name.replace(/\s*\(.*\)$/, "");
       nextBtn.onclick = ()=>{ Snd.unlock(); Snd.ui(); openSiteBrief(nxt.id, "pilgrimage"); };
+    }
+    if(autoUnlock){
+      if(roadBtn){
+        roadBtn.style.display = "";
+        roadBtn.textContent = "See the road open";
+      }
+      const token = R.runToken;
+      setTimeout(function(){
+        if(R.runToken!==token) return;
+        if(currentView!=="results") return;
+        Snd.ui();
+        go("atlas");
+      }, 2200);
     }
   }
 
@@ -2895,6 +3380,12 @@ function renderResults(o){
   fillResultsInsights(R.missed[0] || R.q);
   updatePlayerCard();
 }
+function boardRowHtml(r, extra){
+  return '<div class="board-row'+(r.mine?" mine":"")+'">'+
+    '<span class="rk">#'+r.rank+'</span>'+
+    '<span class="nm">'+esc(r.name)+(r.mine?' <i class="you-pill">You</i>':'')+'</span>'+
+    '<b>'+esc(extra || fmt(r.score))+'</b></div>';
+}
 function fillResultsBoard(mode){
   const el = $("res-board");
   if(!el) return;
@@ -2903,21 +3394,47 @@ function fillResultsBoard(mode){
   if(typeof Cloud==="undefined" || !Cloud.configured()) return;
   if(mode==="daily"){
     el.style.display = "";
-    el.innerHTML = '<div class="mtitle">Daily board</div><div class="board-loading">Loading…</div>';
-    Cloud.fetchDailyBoard(todayKey(), 10).then(rows=>{
-      if(!rows.length){ el.innerHTML = '<div class="mtitle">Daily board</div><div class="empty">No scores yet today. Be the first.</div>'; return; }
-      el.innerHTML = '<div class="mtitle">Daily board</div>' + rows.map(r=>
-        '<div class="board-row"><span class="rk">#'+r.rank+'</span><span class="nm">'+esc(r.name)+'</span><b>'+fmt(r.score)+'</b></div>'
-      ).join("");
+    el.innerHTML = '<div class="mtitle">Daily board · '+esc(todayKey())+'</div><div class="board-loading">Loading…</div>';
+    Promise.all([
+      Cloud.fetchDailyBoard(todayKey(), 15),
+      Cloud.isSignedIn() ? Cloud.fetchMyDailyRank(todayKey()) : Promise.resolve(null)
+    ]).then(([rows, mine])=>{
+      if(!rows.length){
+        el.innerHTML = '<div class="mtitle">Daily board · '+esc(todayKey())+'</div>'+
+          '<div class="empty">No scores yet today. Be the first — finish a Daily Trial while signed in.</div>';
+        return;
+      }
+      let html = '<div class="mtitle">Daily board · '+esc(todayKey())+'</div>'+
+        rows.map(r=>boardRowHtml(r, fmt(r.score)+(r.accuracy!=null?' · '+Math.round(r.accuracy)+'%':''))).join("");
+      if(mine && !rows.some(r=>r.mine)){
+        html += '<div class="board-you-sep">Your rank</div>'+boardRowHtml(mine, fmt(mine.score));
+      }
+      el.innerHTML = html;
+    }).catch(()=>{
+      el.innerHTML = '<div class="mtitle">Daily board</div><div class="empty">Could not load the board. Check your connection.</div>';
     });
   } else if(mode==="blitz"){
     el.style.display = "";
     el.innerHTML = '<div class="mtitle">Blitz board</div><div class="board-loading">Loading…</div>';
-    Cloud.fetchBlitzBoard(10).then(rows=>{
-      if(!rows.length){ el.innerHTML = '<div class="mtitle">Blitz board</div><div class="empty">No blitz scores yet.</div>'; return; }
-      el.innerHTML = '<div class="mtitle">Blitz board</div>' + rows.map(r=>
-        '<div class="board-row"><span class="rk">#'+r.rank+'</span><span class="nm">'+esc(r.name)+'</span><b>'+fmt(r.score)+' verses</b></div>'
-      ).join("");
+    Promise.all([
+      Cloud.fetchBlitzBoard(15),
+      Cloud.isSignedIn() ? Cloud.fetchMyBlitzRank() : Promise.resolve(null)
+    ]).then(([rows, mine])=>{
+      if(!rows.length){
+        el.innerHTML = '<div class="mtitle">Blitz board</div><div class="empty">No blitz scores yet. Survive a Blitz run while signed in.</div>';
+        return;
+      }
+      let html = '<div class="mtitle">Blitz board</div>'+
+        rows.map(r=>{
+          const sec = r.survived_ms != null ? Math.round(r.survived_ms/1000)+'s' : '';
+          return boardRowHtml(r, fmt(r.score)+' verses'+(sec?' · '+sec:''));
+        }).join("");
+      if(mine && !rows.some(r=>r.mine)){
+        html += '<div class="board-you-sep">Your rank</div>'+boardRowHtml(mine, fmt(mine.score)+' verses');
+      }
+      el.innerHTML = html;
+    }).catch(()=>{
+      el.innerHTML = '<div class="mtitle">Blitz board</div><div class="empty">Could not load the board. Check your connection.</div>';
     });
   }
 }
@@ -3063,11 +3580,50 @@ document.querySelectorAll("[data-rtab]").forEach(b=>{
 function renderRecords(){
   const el=$("records-body");
   if(rtab==="board"){
-    if(!SAVE.board.length){ el.innerHTML='<div class="empty">No runs recorded. The chronicle is blank.</div>'; return; }
-    el.innerHTML='<div class="lb">'+SAVE.board.map((r,i)=>
+    if(!SAVE.board.length){ el.innerHTML='<div class="empty">No runs recorded on this device. The local chronicle is blank.</div>'; return; }
+    el.innerHTML='<div class="mtitle" style="color:var(--gold-dim);margin-bottom:1vh">Best runs on this device</div><div class="lb">'+SAVE.board.map((r,i)=>
       '<div class="lbrow'+(i===0?" top":"")+'"><div class="pos">'+(i+1)+'</div>'+
       '<div class="mode">'+esc(MODES[r.mode]?MODES[r.mode].name:r.mode)+' · '+esc(DIFFS[r.diff]?DIFFS[r.diff].name:r.diff)+' · '+r.acc+'%</div>'+
       '<div class="sc">'+fmt(r.score)+'</div><div class="dt">'+esc(r.date)+'</div></div>').join("")+'</div>';
+  } else if(rtab==="daily" || rtab==="blitz"){
+    const cloudOn = typeof Cloud!=="undefined" && Cloud.configured();
+    if(!cloudOn){
+      el.innerHTML='<div class="empty">Cloud boards need a configured Supabase project (see BACKEND.md). Local play still works.</div>';
+      return;
+    }
+    const title = rtab==="daily" ? "Daily global · "+todayKey() : "Blitz global";
+    el.innerHTML='<div class="mtitle">'+esc(title)+'</div><div class="board-loading">Loading…</div>';
+    const p = rtab==="daily"
+      ? Promise.all([Cloud.fetchDailyBoard(todayKey(), 25), Cloud.isSignedIn()?Cloud.fetchMyDailyRank(todayKey()):null])
+      : Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn()?Cloud.fetchMyBlitzRank():null]);
+    p.then(([rows, mine])=>{
+      if(!rows || !rows.length){
+        el.innerHTML='<div class="mtitle">'+esc(title)+'</div><div class="empty">No scores yet. Sign in and finish a run to appear here.</div>';
+        return;
+      }
+      let html = '<div class="mtitle">'+esc(title)+'</div><div class="lb global-lb">';
+      rows.forEach(r=>{
+        const extra = rtab==="daily"
+          ? fmt(r.score)+(r.accuracy!=null?' · '+Math.round(Number(r.accuracy))+'%':'')+(r.diff?' · '+esc(r.diff):'')
+          : fmt(r.score)+' verses'+(r.survived_ms!=null?' · '+Math.round(r.survived_ms/1000)+'s':'');
+        html += '<div class="lbrow'+(r.mine?" mine":"")+(r.rank===1?" top":"")+'">'+
+          '<div class="pos">'+r.rank+'</div>'+
+          '<div class="mode">'+esc(r.name)+(r.mine?' · you':'')+'</div>'+
+          '<div class="sc">'+extra+'</div></div>';
+      });
+      html += '</div>';
+      if(mine && !rows.some(r=>r.mine)){
+        html += '<div class="board-you-sep">Your best on this board</div><div class="lb global-lb">'+
+          '<div class="lbrow mine"><div class="pos">'+mine.rank+'</div><div class="mode">'+esc(mine.name)+' · you</div>'+
+          '<div class="sc">'+fmt(mine.score)+(rtab==="blitz"?' verses':'')+'</div></div></div>';
+      }
+      if(!Cloud.isSignedIn()){
+        html += '<div class="hint" style="margin-top:1.4vh">Sign in under Settings to post scores and see your rank.</div>';
+      }
+      el.innerHTML = html;
+    }).catch(()=>{
+      el.innerHTML='<div class="mtitle">'+esc(title)+'</div><div class="empty">Could not reach the board.</div>';
+    });
   } else if(rtab==="life"){
     const li=levelInfo(SAVE.xp);
     const acc = SAVE.life.attempts ? Math.round(SAVE.life.correct/SAVE.life.attempts*100) : 0;
@@ -3116,8 +3672,19 @@ function renderSettings(){
         '<div class="setrow"><div><label>Email magic link</label><small>We email a one-tap sign-in. No password.</small></div>'+
         '<div class="cloud-name"><input id="cloud-email" type="email" placeholder="you@example.com" autocomplete="email"><button class="btn sm" id="cloud-signin" type="button">Send link</button></div></div>';
 
+  const ch = activeCharacter();
+  const nameNow = playerDisplayName();
+  const profileBlock =
+    setRow("Your name", "Shown on this device and on cloud boards when signed in.",
+      '<div class="cloud-name"><input id="set-player-name" type="text" maxlength="32" value="'+esc(SAVE.set.playerName||"")+'"><button class="btn ghost sm" id="set-name-save" type="button">Save</button></div>') +
+    setRow("Avatar skin",
+      ch ? (ch.name + (Characters.isFigure(ch) ? " — biblical skin" : " — scholar") + ". Portrait on the menu; token on the map.")
+         : "Choose a scholar or an unlocked biblical figure.",
+      '<button class="btn ghost sm" id="set-character" type="button">'+(ch ? "Equip · "+esc(ch.short) : "Choose avatar")+'</button>');
+
   $("settings-body").innerHTML =
     accountBlock +
+    profileBlock +
     setRow("Music","Ambient drone beneath the cathedral.",
       '<input type="range" id="set-music" min="0" max="1" step="0.05" value="'+s.music+'">') +
     setRow("Sound effects","Ticks, heartbeat, the hit when you are wrong.",
@@ -3149,6 +3716,27 @@ function renderSettings(){
 
   $("set-music").addEventListener("input", e=>{ Snd.unlock(); Snd.setMusic(parseFloat(e.target.value)); persist(); });
   $("set-sfx").addEventListener("input", e=>{ Snd.unlock(); Snd.setSfx(parseFloat(e.target.value)); persist(); });
+  const charBtn = $("set-character");
+  if(charBtn) charBtn.addEventListener("click", ()=>{ Snd.ui(); openSkinPicker(); });
+  const nameSave = $("set-name-save");
+  if(nameSave){
+    nameSave.addEventListener("click", ()=>{
+      const raw = ($("set-player-name") && $("set-player-name").value || "").trim();
+      if(raw.length < 2){ toast("Name needs at least two letters"); return; }
+      SAVE.set.playerName = raw.slice(0, 32);
+      SAVE.set.profileDone = true;
+      persist();
+      Snd.ui();
+      updatePlayerCard();
+      if(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn()){
+        Cloud.setDisplayName(SAVE.set.playerName).then(res=>{
+          toast(res.ok ? "Name saved" : (res.reason || "Saved locally"));
+          if(res.ok){ updateCloudChip(); renderSettings(); }
+        });
+      } else toast("Name saved");
+      updatePlayerCard();
+    });
+  }
   document.querySelectorAll("[data-seg]").forEach(g=>{
     g.querySelectorAll("button").forEach(b=>{
       b.addEventListener("click", ()=>{
@@ -3178,9 +3766,9 @@ function renderSettings(){
       await Cloud.signOut(); Snd.ui(); renderSettings(); toast("Signed out — progress stays on this device");
     });
   }
-  const nameSave = $("cloud-name-save");
-  if(nameSave){
-    nameSave.addEventListener("click", async ()=>{
+  const cloudNameSave = $("cloud-name-save");
+  if(cloudNameSave){
+    cloudNameSave.addEventListener("click", async ()=>{
       const res = await Cloud.setDisplayName(($("cloud-name") && $("cloud-name").value) || "");
       toast(res.ok ? "Display name saved" : (res.reason || "Could not save name"));
       if(res.ok) renderSettings();
@@ -3231,6 +3819,7 @@ function applySettings(){
   Snd.setMusic(mus); Snd.setSfx(sfx);
   Live.configure({enabled: SAVE.set.liveWeather !== false});
   Director.syncFx();
+  if(typeof Backdrop!=="undefined" && Backdrop.syncSky) Backdrop.syncSky();
   if(currentView==="play")Viz.size();
   updateCloudChip();
   updateOfflineBanner();
@@ -3242,6 +3831,7 @@ function setPaused(v){
   R.paused = v;
   $("pause").classList.toggle("on", v);
   if(v){
+    if(typeof Snd!=="undefined" && Snd.stopPressure) Snd.stopPressure();
     const progress=R.mode==="trial" ? ACTS[R.actIdx].n+" / V"
       : (R.mode==="practice"||R.mode==="recall") ? R.qTotal+" / "+R.practiceLen
       : String(R.qTotal);
@@ -3296,13 +3886,20 @@ function shareDailyResult(total){
 
 /* ------------------------- FIRST-RUN TUTORIAL ------------------------- */
 function showTutorialIfNeeded(){
-  if(SAVE.set.tutorialDone) return;
+  if(SAVE.set.tutorialDone){
+    if(!profileReady()) openProfileSetup(true);
+    return;
+  }
   const el=$("tutorial"); if(!el) return;
   el.classList.add("on");
 }
 function finishTutorial(startPractice){
   SAVE.set.tutorialDone = true; persist();
   const el=$("tutorial"); if(el) el.classList.remove("on");
+  if(!profileReady()){
+    openProfileSetup(true);
+    return;
+  }
   if(startPractice){ Snd.unlock(); openBrief("practice"); }
 }
 function bindTutorial(){
@@ -3328,6 +3925,18 @@ addEventListener("keydown", e=>{
   if(currentView==="sitebrief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(sbMode, SAVE.set.diff); return; }
   if(currentView==="results" && (k==="enter"||k===" ")){ e.preventDefault(); startRun(R.mode, R.diff.key); return; }
   if(currentView!=="play") return;
+  /* Typed mode: route keys into the answer field even when it is not
+     focused (mobile uses the on-screen board; desktop may type either way). */
+  if(R.typed && !R.locked){
+    if(k==="enter"){ e.preventDefault(); confirmTyped(); return; }
+    if(k==="backspace"){ e.preventDefault(); typeIntoAnswer("back"); return; }
+    if(e.key === " "){ e.preventDefault(); typeIntoAnswer(" "); return; }
+    if(e.key.length === 1 && /[a-zA-Z']/.test(e.key)){
+      e.preventDefault();
+      typeIntoAnswer(e.key.toLowerCase());
+      return;
+    }
+  }
   if(k==="s"){ usePower("selah"); return; }
   if(k==="i"){ usePower("illum"); return; }
   if(k==="enter" || k===" "){

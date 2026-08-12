@@ -192,6 +192,34 @@ var Polish = (function () {
     } catch (e) { return false; }
   }
 
+  /* Pure shape score used by buildChoices (mirrored for tests). */
+  function choiceShapeScore(correct, cand) {
+    correct = String(correct || "");
+    cand = String(cand || "");
+    if (!cand || cand === correct) return -1;
+    function wordsOf(s) { return s.toLowerCase().split(/\W+/).filter(Boolean); }
+    var cw = wordsOf(correct), aw = wordsOf(cand);
+    var score = 0;
+    var lenDiff = Math.abs(cand.length - correct.length);
+    if (lenDiff <= 2) score += 8;
+    else if (lenDiff <= 5) score += 6;
+    else if (lenDiff <= 10) score += 3;
+    else if (lenDiff <= 16) score += 1;
+    else score -= 4;
+    var wcDiff = Math.abs(aw.length - cw.length);
+    if (wcDiff === 0) score += 7;
+    else if (wcDiff === 1) score += 4;
+    else if (wcDiff === 2) score += 1;
+    else score -= 3;
+    cw.filter(function (w) { return w.length > 3; }).forEach(function (w) {
+      if (aw.indexOf(w) >= 0) score += 3;
+    });
+    if (cw[0] && aw[0] && cw[0] === aw[0]) score += 3;
+    if (/^the\s+/i.test(correct) && /^the\s+/i.test(cand)) score += 2;
+    if (/\sof\s/i.test(correct) && /\sof\s/i.test(cand)) score += 2;
+    return score;
+  }
+
   return {
     MAX_DAILY_SCORE: MAX_DAILY_SCORE,
     MAX_BLITZ_SCORE: MAX_BLITZ_SCORE,
@@ -211,7 +239,8 @@ var Polish = (function () {
     insightForVerse: insightForVerse,
     crossRefsInBank: crossRefsInBank,
     BOOK_INSIGHTS: BOOK_INSIGHTS,
-    haptic: haptic
+    haptic: haptic,
+    choiceShapeScore: choiceShapeScore
   };
 })();
 

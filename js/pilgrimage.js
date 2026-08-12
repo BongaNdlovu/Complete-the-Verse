@@ -44,7 +44,15 @@ var Pilgrimage = (function () {
   var VERSES_PER_SITE = 8;
   var CLOCK_OPEN = 14000;   // ms at Ur
   var CLOCK_CLOSE = 6500;   // ms at Patmos
-  var SIGNATURE_QUOTA = 3;  // slots held for the site's own book — see resolvePool
+  var SIGNATURE_QUOTA = 4;  // slots held for the site's own book — see resolvePool
+  /* At least 5 of 8 verses from the site's book list so a stop still
+     feels like that place. Set-piece sites demand a full site-book fill
+     when the bank allows. Floor slots may re-use earlier site-book
+     verses when usedIds has emptied the narrowest ring. */
+  var SITE_BOOK_FLOOR = 0.625;
+  var FULL_PLACE_SITES = {
+    sinai: 1, jericho: 1, nineveh: 1, babylon: 1, golgotha: 1, patmos: 1
+  };
 
   function attach(d) {
     if (!d) return;
@@ -277,6 +285,37 @@ var Pilgrimage = (function () {
     return set;
   }
 
+  /* Parse "Genesis 11:31" / "1 Corinthians 13:13" → { book, chapter }. */
+  function parseQuoteRef(ref) {
+    var m = String(ref || "").match(/^((?:\d\s)?[A-Za-z]+(?:\s+[A-Za-z]+)?)\s+(\d+)/);
+    if (!m) return null;
+    return { book: m[1].replace(/\s+/g, " ").trim(), chapter: parseInt(m[2], 10) };
+  }
+
+  function verseChapter(v) {
+    var m = String(v && v.r || "").match(/\s(\d+):/);
+    return m ? parseInt(m[1], 10) : 0;
+  }
+
+  /* Place-affinity rank: same book+chapter as the site quote first,
+     then signature book, then other site books, then tier distance. */
+  function placeAffinity(v, s, target) {
+    var q = parseQuoteRef(s.quoteRef);
+    var signature = (s.books && s.books[0]) || "";
+    var bound = booksToSet(s.books);
+    var ch = verseChapter(v);
+    var score = Math.abs((v.t || 3) - target) * 10;
+    if (q && v.b === q.book && ch === q.chapter) score -= 40;
+    else if (v.b === signature) score -= 20;
+    else if (bound[v.b] === 1) score -= 10;
+    return score;
+  }
+
+  function siteFloorNeed(s, need) {
+    if (s && FULL_PLACE_SITES[s.id]) return need;
+    return Math.ceil(need * SITE_BOOK_FLOOR);
+  }
+
   /* The four rings, widest last. Each returns the verses it allows. */
   function ringsFor(s) {
     var siteBooks = booksToSet(s.books);
@@ -338,16 +377,14 @@ var Pilgrimage = (function () {
 
     var buckets = {};
     pool.forEach(function (v) {
-      var key = Math.abs((v.t || 3) - target) + ":" + affinity(v);
+      /* Coarse bucket by place affinity so chapter-linked verses rise. */
+      var key = String(placeAffinity(v, s, target));
       (buckets[key] = buckets[key] || []).push(v);
     });
 
     var out = [];
     Object.keys(buckets)
-      .sort(function (x, y) {
-        var a = x.split(":"), b = y.split(":");
-        return (a[0] - b[0]) || (a[1] - b[1]);
-      })
+      .sort(function (x, y) { return Number(x) - Number(y); })
       .forEach(function (k) { out = out.concat(shuffled(buckets[k], rnd)); });
 
     /* Reserve a small quota for the signature book.
@@ -373,6 +410,68 @@ var Pilgrimage = (function () {
     return { verses: out, ring: chosenRing.name, target: target };
   }
 
+  /* Pull at least ceil(need * SITE_BOOK_FLOOR) verses whose book is on
+     the site's list. Prefer unused (not in exclude). If unused site stock
+     is short but the bank still has enough unused verses to fill the
+     level, re-admit excluded site-book verses for the floor only — that
+     is the late-road case. A truly starved bank (fewer unused than need)
+     stays short and does not invent volume by re-using.
+     `ordered` is the full resolvePool list (not yet sliced to need). */
+  function enforceSiteFloor(s, ordered, need, exclude, rnd, target) {
+    var bound = booksToSet(s.books);
+    var floor = siteFloorNeed(s, need);
+    var signature = (s.books && s.books[0]) || "";
+
+    function rank(list) {
+      return shuffled(list.slice(), rnd).sort(function (a, b) {
+        return placeAffinity(a, s, target) - placeAffinity(b, s, target);
+      });
+    }
+
+    var unusedSite = [], unusedOther = [], reusedSite = [];
+    VERSE_BANK.forEach(function (v) {
+      if (exclude[v.id]) {
+        if (bound[v.b] === 1) reusedSite.push(v);
+        return;
+      }
+      if (bound[v.b] === 1) unusedSite.push(v);
+      else unusedOther.push(v);
+    });
+    unusedSite = rank(unusedSite);
+    unusedOther = rank(unusedOther);
+    reusedSite = rank(reusedSite);
+
+    var unusedTotal = unusedSite.length + unusedOther.length;
+    // Starved bank: return only what is still free, site books first.
+    if (unusedTotal < need) {
+      return unusedSite.concat(unusedOther).slice(0, unusedTotal);
+    }
+
+    var out = [];
+    var outIds = {};
+    function take(list, n) {
+      for (var i = 0; i < list.length && out.length < n; i++) {
+        if (!outIds[list[i].id]) {
+          out.push(list[i]);
+          outIds[list[i].id] = 1;
+        }
+      }
+    }
+
+    // Floor from unused site books, then re-admitted site books if needed.
+    take(unusedSite, floor);
+    if (out.length < floor) take(reusedSite, floor);
+    // Fill the rest: leftover unused site, then unused other, then ordered.
+    take(unusedSite, need);
+    take(unusedOther, need);
+    (ordered || []).forEach(function (v) {
+      if (out.length >= need || !v || outIds[v.id] || exclude[v.id]) return;
+      out.push(v);
+      outIds[v.id] = 1;
+    });
+    return out.slice(0, need);
+  }
+
   /* The actual level: exactly `need` verses where the bank can supply
      them, in play order. Seeded by site and attempt so a retry is a
      different draw rather than the same six again. */
@@ -384,14 +483,61 @@ var Pilgrimage = (function () {
     var i = indexOf(siteId);
     var need = opts.need || VERSES_PER_SITE;
     var rnd = opts.rnd || seededRandom(seedFrom(siteId + ":" + (opts.attempt || 0)));
+    var exclude = opts.exclude || {};
 
     var res = resolvePool(s, {
-      need: need, exclude: opts.exclude || {}, tier: opts.tier, rnd: rnd
+      need: need, exclude: exclude, tier: opts.tier, rnd: rnd
     });
-    var picked = res.verses.slice(0, need);
+    var picked = enforceSiteFloor(s, res.verses, need, exclude, rnd, res.target);
+    picked = enforceSignatureQuota(s, picked, need, exclude, rnd, res.target);
 
     // Play order is shuffled so the easiest verse is not always first.
     return { verses: shuffled(picked, rnd), ring: res.ring, target: res.target };
+  }
+
+  /* After the place floor rebuilds the list, put the signature quota back.
+     Tier-distance ranking alone can bury the book's own verses. Never
+     invent volume on a starved bank — re-admission only when unused
+     stock can already fill the level. */
+  function enforceSignatureQuota(s, picked, need, exclude, rnd, target) {
+    var signature = (s.books && s.books[0]) || "";
+    if (!signature) return picked.slice(0, need);
+    var unused = 0, avail = 0;
+    VERSE_BANK.forEach(function (v) {
+      if (v.b === signature) avail++;
+      if (!exclude[v.id]) unused++;
+    });
+    if (unused < need) return picked.slice(0, Math.min(need, picked.length));
+
+    var have = [];
+    var rest = [];
+    (picked || []).forEach(function (v) {
+      if (v.b === signature) have.push(v);
+      else rest.push(v);
+    });
+    var want = Math.min(SIGNATURE_QUOTA, need, avail);
+    if (have.length >= want) return picked.slice(0, need);
+
+    var seen = {};
+    have.forEach(function (v) { seen[v.id] = 1; });
+    var fresh = [], reused = [];
+    VERSE_BANK.forEach(function (v) {
+      if (v.b !== signature || seen[v.id]) return;
+      if (exclude[v.id]) reused.push(v);
+      else fresh.push(v);
+    });
+    function byTier(list) {
+      return shuffled(list.slice(), rnd).sort(function (a, b) {
+        return Math.abs((a.t || 3) - target) - Math.abs((b.t || 3) - target);
+      });
+    }
+    byTier(fresh).concat(byTier(reused)).forEach(function (v) {
+      if (have.length >= want) return;
+      have.push(v);
+      seen[v.id] = 1;
+    });
+    var out = have.concat(rest.filter(function (v) { return !seen[v.id]; }));
+    return out.slice(0, need);
   }
 
   /* What the briefing card shows before a site is played. */
@@ -425,7 +571,10 @@ var Pilgrimage = (function () {
     usedSet: usedSet, markUsed: markUsed,
     arcStatus: arcStatus, overview: overview,
     resolvePool: resolvePool, drawSite: drawSite, brief: brief,
-    seededRandom: seededRandom, seedFrom: seedFrom, isNT: isNT
+    seededRandom: seededRandom, seedFrom: seedFrom, isNT: isNT,
+    SITE_BOOK_FLOOR: SITE_BOOK_FLOOR, SIGNATURE_QUOTA: SIGNATURE_QUOTA,
+    FULL_PLACE_SITES: FULL_PLACE_SITES,
+    parseQuoteRef: parseQuoteRef, placeAffinity: placeAffinity, siteFloorNeed: siteFloorNeed
   };
 })();
 

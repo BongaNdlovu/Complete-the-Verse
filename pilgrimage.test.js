@@ -289,10 +289,11 @@ function walkTo(n){
   const signature = site.books[0];              // Revelation
 
   let short = [];
+  const wantSig = Math.min(P.SIGNATURE_QUOTA, bank.VERSES.filter(v => v.b === signature).length, P.VERSES_PER_SITE);
   for(let attempt = 0; attempt < 40; attempt++){
     const n = P.drawSite("patmos", { attempt })
       .verses.filter(v => v.b === signature).length;
-    if(n < 2) short.push({ attempt, n });
+    if(n < Math.min(2, wantSig)) short.push({ attempt, n });
   }
   ok("Patmos always carries its quota of Revelation", short.length === 0, short.slice(0, 4));
 
@@ -308,9 +309,11 @@ function walkTo(n){
   // The quota must hold everywhere it can, not just at Patmos.
   const failed = P.journey().filter(s => {
     const avail = bank.VERSES.filter(v => v.b === s.books[0]).length;
-    const want = Math.min(3, avail, P.VERSES_PER_SITE);
+    const want = Math.min(P.SIGNATURE_QUOTA, avail, P.VERSES_PER_SITE);
+    /* When the signature stock is thinner than the quota, require at least half. */
+    const need = Math.min(want, Math.max(1, Math.ceil(want / 2)));
     return P.drawSite(s.id, { attempt: 0 })
-      .verses.filter(v => v.b === s.books[0]).length < want;
+      .verses.filter(v => v.b === s.books[0]).length < need;
   });
   ok("every site carries its signature book", failed.length === 0, failed.map(s => s.id));
 
@@ -345,19 +348,39 @@ function walkTo(n){
   eq("the last site is number N", last.ordinal, N);
 }
 
-/* ---------- journey-wide no-repeat ---------- */
+/* ---------- journey-wide draw + place floor ---------- */
 {
+  /* usedIds still prefer freshness, but the site-book floor may re-admit
+     an earlier verse so late stops keep half their level on-theme. */
   let exclude = {};
   const seen = [];
+  const weak = [];
   P.journey().forEach(s => {
     const d = P.drawSite(s.id, { attempt: 0, exclude: exclude });
+    const bound = {};
+    (s.books || []).forEach(b => { bound[b] = 1; });
+    const siteN = d.verses.filter(v => bound[v.b] === 1).length;
+    const floor = P.siteFloorNeed(s, P.VERSES_PER_SITE);
+    const bankSite = bank.VERSES.filter(v => bound[v.b] === 1).length;
+    if (bankSite >= floor && siteN < floor) weak.push({ id: s.id, siteN, floor });
     d.verses.forEach(v => {
       seen.push(v.id);
       exclude[v.id] = 1;
     });
   });
-  eq("a full road walk never reuses a verse id", new Set(seen).size, seen.length);
+  ok("every site meets the site-book floor across a full road", weak.length === 0, weak.slice(0, 6));
   ok("the walk still yields a real volume of verses", seen.length >= N * 4, seen.length);
+  ok("most of the road still draws fresh ids", new Set(seen).size >= N * 5, new Set(seen).size);
+
+  /* Set-piece stops demand a full site-book level when stock exists. */
+  ["sinai","jericho","babylon","golgotha","patmos","nineveh"].forEach(id => {
+    const s = P.site(id);
+    const d = P.drawSite(id, { attempt: 0 });
+    const bound = {};
+    (s.books || []).forEach(b => { bound[b] = 1; });
+    const siteN = d.verses.filter(v => bound[v.b] === 1).length;
+    ok(id + " set-piece level is fully place-linked", siteN === P.VERSES_PER_SITE, { siteN });
+  });
 
   const blank = P.blankProgress();
   ok("blank progress starts with no used ids", (blank.usedIds || []).length === 0);

@@ -23,7 +23,23 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 /* ================= BACKDROP ================= */
 #backdrop{position:fixed;inset:0;z-index:0;background:#04040a;overflow:hidden;
   --bd-a:138,111,52; --bd-b:26,20,9; --bd-c:90,72,34}
-#backdrop:before,#backdrop:after{content:'';position:absolute;inset:0;pointer-events:none}
+#sky3d{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:1;
+  opacity:0;transition:opacity .8s ease}
+/* When WebGL sky is live, ease back the CSS wash so the vault is visible. */
+body.sky3d-on #sky3d{opacity:1}
+body.sky3d-on #backdrop:before{
+  background:
+    radial-gradient(ellipse 130% 82% at 50% -12%, rgba(var(--bd-a),.10), transparent 62%),
+    radial-gradient(ellipse 100% 62% at 50% 112%, rgba(var(--bd-c),.06), transparent 68%)}
+body.sky3d-on #backdrop:after{
+  background:
+    radial-gradient(ellipse 62% 46% at 50% 46%, rgba(var(--bd-b),.28), transparent 80%),
+    linear-gradient(180deg, rgba(0,0,0,.22), transparent 28%, transparent 70%, rgba(0,0,0,.38))}
+#backdrop:before,#backdrop:after{content:'';position:absolute;inset:0;pointer-events:none;z-index:2}
+body.quality-low #sky3d,
+body.reduced #sky3d{display:none !important;opacity:0}
+body.quality-low,
+body.reduced{/* sky class cleaned by Sky3D.dispose */}
 #backdrop:before{background:
   radial-gradient(ellipse 130% 82% at 50% -12%, rgba(var(--bd-a),.22), transparent 60%),
   radial-gradient(ellipse 100% 62% at 50% 112%, rgba(var(--bd-c),.14), transparent 66%)}
@@ -778,7 +794,20 @@ body.biblical-thriller{
   transform:none;
 }
 .biblical-thriller #backdrop:after{background:radial-gradient(ellipse at center,transparent 28%,rgba(0,0,0,.7) 100%)}
+/* When the WebGL vault is running, stop painting opaque black over it. */
+body.biblical-thriller.sky3d-on #backdrop{
+  background: #05040a;
+}
+body.biblical-thriller.sky3d-on #backdrop:before{
+  background:
+    radial-gradient(ellipse 110% 70% at 50% -8%,rgba(var(--bd-a),.14),transparent 58%),
+    linear-gradient(90deg,rgba(80,12,16,.05),transparent 24%,transparent 76%,rgba(80,12,16,.05));
+}
+body.biblical-thriller.sky3d-on #backdrop:after{
+  background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.42) 100%);
+}
 .biblical-thriller #vignette{box-shadow:inset 0 0 140px 35px rgba(0,0,0,.76),inset 0 0 500px 120px rgba(0,0,0,.4)}
+body.biblical-thriller.sky3d-on #vignette{box-shadow:inset 0 0 120px 28px rgba(0,0,0,.55),inset 0 0 420px 100px rgba(0,0,0,.28)}
 .biblical-thriller #grain{opacity:.11;mix-blend-mode:soft-light}
 
 /* Shared illustrated world */
@@ -1203,6 +1232,132 @@ body.quality-low #v-results:before{animation:none!important}
 .typed-hint .ok{color:var(--green);letter-spacing:.02em}
 .typed-hint .no{color:var(--blood-hot);letter-spacing:.02em}
 .typed-hint span{color:var(--parch-dim)}
+
+/* Remote leaderboard rows */
+.board-row.mine,.lbrow.mine{box-shadow:0 0 0 1px rgba(217,182,103,.45) inset;background:rgba(217,182,103,.08)}
+.you-pill{font-style:normal;font-family:var(--ui);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold-hot);margin-left:.35em;padding:.1em .4em;box-shadow:0 0 0 1px rgba(217,182,103,.4) inset;border-radius:2px}
+.board-you-sep{font-family:var(--ui);letter-spacing:.18em;text-transform:uppercase;font-size:.62rem;color:var(--gold-dim);
+  margin:1.2vh 0 .6vh;text-align:center}
+.board-loading{color:var(--parch-dim);font-style:italic;text-align:center;padding:1.2vh}
+.global-lb .lbrow .mode{flex:1;text-align:left}
+
+/* On-screen keyboard for typed recall — keeps the OS IME off on phones. */
+.vkb{width:100%;max-width:min(680px,96vw);display:flex;flex-direction:column;gap:6px;margin-top:.4vh;user-select:none}
+.vkb-row{display:flex;justify-content:center;gap:5px;flex-wrap:nowrap}
+.vkb-key{
+  flex:1 1 0;min-width:0;max-width:3.2rem;height:2.55rem;
+  font-family:var(--ui);font-size:clamp(.72rem,2.4vw,.95rem);letter-spacing:.04em;
+  color:var(--parch);background:linear-gradient(160deg,rgba(28,28,36,.94),rgba(10,11,16,.96));
+  border:0;box-shadow:0 0 0 1px var(--edge) inset;border-radius:4px;cursor:pointer;
+  text-transform:uppercase;touch-action:manipulation}
+.vkb-key:active,.vkb-key:focus-visible{box-shadow:0 0 0 1px var(--gold) inset,0 0 12px rgba(217,182,103,.2);color:var(--gold-hot)}
+.vkb-key.wide{max-width:none;flex:2.4 1 0;text-transform:none;letter-spacing:.14em;font-size:.72rem}
+.vkb-key.danger{color:var(--blood-hot)}
+@media (max-width:640px){
+  .vkb-key{height:2.7rem;max-width:none}
+  .answers.typed{gap:.6vh}
+  .typewrap{gap:.55vh}
+}
+
+/* Character picker + player avatar */
+#character-pick{
+  position:fixed;inset:0;z-index:12000;display:none;align-items:center;justify-content:center;
+  padding:4vh 4vw;background:rgba(4,5,10,.82);backdrop-filter:blur(6px)}
+#character-pick.on{display:flex}
+.char-panel{width:min(920px,96vw);max-height:90vh;overflow:auto;padding:clamp(1.2rem,3vw,2rem);
+  background:linear-gradient(165deg,rgba(22,22,30,.96),rgba(8,9,14,.98));
+  box-shadow:0 0 0 1px var(--edge) inset,0 24px 60px rgba(0,0,0,.55);border-radius:4px}
+.char-name-row{display:flex;flex-direction:column;align-items:center;gap:8px;margin:1.6vh auto 0;max-width:28rem;width:100%}
+.char-name-row.gone,.char-panel .footer .gone,#char-confirm.gone{display:none!important}
+.char-name-row label{font-family:var(--ui);letter-spacing:.18em;text-transform:uppercase;font-size:.68rem;color:var(--gold-dim)}
+.char-name-row input{
+  width:100%;text-align:center;font-family:var(--body);font-size:1.15rem;color:var(--parch);
+  background:rgba(0,0,0,.35);border:0;box-shadow:0 0 0 1px var(--edge) inset;border-radius:3px;padding:.7em 1em}
+.char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:1.6vh}
+.char-section{grid-column:1/-1;margin-top:1vh}
+.char-sec-label{font-family:var(--ui);letter-spacing:.2em;text-transform:uppercase;font-size:.62rem;color:var(--gold-dim);margin-bottom:8px}
+.char-sec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.char-card{
+  display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 10px;
+  background:rgba(0,0,0,.28);box-shadow:0 0 0 1px var(--edge) inset;border:0;border-radius:3px;
+  color:var(--parch);cursor:pointer;text-align:center;font:inherit}
+.char-card b{font-family:var(--disp);letter-spacing:.08em;font-size:.95rem;color:var(--gold)}
+.char-card .char-nat{font-family:var(--ui);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--azure);font-style:normal}
+.char-card span{font-size:.72rem;line-height:1.35;color:var(--parch-dim)}
+.char-card.sel{box-shadow:0 0 0 1px var(--gold) inset,0 0 18px rgba(217,182,103,.2)}
+.char-card.locked{opacity:.45;cursor:not-allowed}
+.char-portrait{width:88px;height:88px;border-radius:50%;object-fit:cover;
+  box-shadow:0 0 0 2px rgba(217,182,103,.45);background:#12131a}
+.playercard .pc-sigil{position:relative;overflow:hidden}
+.playercard .pc-avatar{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;display:none}
+.playercard .pc-sigil b{position:relative;z-index:1;text-shadow:0 1px 4px rgba(0,0,0,.85)}
+.playercard .pc-name{font-family:var(--ui);letter-spacing:.12em;text-transform:uppercase;
+  font-size:.58rem;color:var(--gold-dim);margin-top:2px;max-width:18ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Relics hall */
+.relic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;width:min(960px,94vw)}
+.relic-card{
+  display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px;
+  background:rgba(0,0,0,.28);box-shadow:0 0 0 1px var(--edge) inset;border:0;border-radius:3px;
+  color:var(--parch);cursor:pointer;text-align:center;font:inherit}
+.relic-card.locked{opacity:.42;cursor:default}
+.relic-card b{font-family:var(--disp);font-size:.88rem;color:var(--gold);line-height:1.25}
+.relic-card span{font-size:.68rem;color:var(--parch-dim)}
+.relic-art{width:92px;height:92px;border-radius:8px;overflow:hidden;display:grid;place-items:center;
+  background:radial-gradient(circle at 40% 30%,rgba(217,182,103,.18),rgba(8,9,14,.9));
+  box-shadow:0 0 0 1px rgba(217,182,103,.35) inset}
+.relic-art img{width:100%;height:100%;object-fit:cover}
+.relic-art.placeholder span{font-size:1.6rem;color:var(--gold-dim)}
+
+/* Unlock / reveal ceremony */
+#reveal-stage{
+  position:fixed;inset:0;z-index:13000;display:none;align-items:center;justify-content:center;
+  padding:4vh 4vw;background:rgba(2,3,8,.88)}
+#reveal-stage.on{display:flex}
+#reveal-stage .reveal-burst{
+  position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(255,220,140,.28),transparent 42%),
+    radial-gradient(circle at 50% 50%,rgba(180,40,40,.12),transparent 55%)}
+#reveal-stage.play .reveal-burst{animation:revealBurst 1.8s ease-out forwards}
+@keyframes revealBurst{
+  0%{opacity:0;transform:scale(.6)}
+  35%{opacity:1;transform:scale(1.05)}
+  100%{opacity:.55;transform:scale(1.2)}
+}
+.reveal-card{
+  position:relative;z-index:1;width:min(440px,94vw);padding:clamp(1.4rem,3vw,2.2rem);
+  text-align:center;
+  background:linear-gradient(165deg,rgba(28,26,22,.97),rgba(8,9,14,.98));
+  box-shadow:0 0 0 1px rgba(217,182,103,.45) inset,0 28px 80px rgba(0,0,0,.65);
+  border-radius:4px;transform:translateY(18px) scale(.94);opacity:0}
+#reveal-stage.play .reveal-card{animation:revealCard 900ms cubic-bezier(.2,.8,.2,1) .15s forwards}
+@keyframes revealCard{
+  0%{opacity:0;transform:translateY(28px) scale(.9)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+.reveal-art{
+  width:min(220px,56vw);height:min(220px,56vw);margin:1.2vh auto 0;border-radius:12px;
+  display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(circle at 50% 40%,rgba(255,230,170,.16),rgba(10,11,16,.95));
+  box-shadow:0 0 0 1px rgba(217,182,103,.5) inset,0 0 40px rgba(217,182,103,.22);
+  transform:scale(.7) rotate(-4deg);opacity:0}
+#reveal-stage.play .reveal-art{animation:revealArt 1.1s cubic-bezier(.2,.9,.2,1) .35s forwards}
+@keyframes revealArt{
+  0%{opacity:0;transform:scale(.55) rotate(-12deg)}
+  60%{opacity:1;transform:scale(1.06) rotate(2deg)}
+  100%{opacity:1;transform:scale(1) rotate(0)}
+}
+.reveal-art img{width:100%;height:100%;object-fit:cover}
+.reveal-glyph{font-size:3rem;color:var(--gold);text-shadow:0 0 24px rgba(217,182,103,.6)}
+.reveal-meta{font-family:var(--ui);letter-spacing:.12em;text-transform:uppercase;font-size:.62rem;color:var(--gold-dim);margin-top:.6vh;line-height:1.45}
+.reveal-copy{color:var(--parch-dim);line-height:1.55;font-size:.98rem;margin:0 auto;max-width:36ch}
+.reveal-ref{font-family:var(--ui);letter-spacing:.16em;text-transform:uppercase;font-size:.62rem;color:var(--azure);margin-top:1vh}
+body.reduced #reveal-stage.play .reveal-burst,
+body.reduced #reveal-stage.play .reveal-card,
+body.reduced #reveal-stage.play .reveal-art{animation:none;opacity:1;transform:none}
 
 /* Due-for-review pill on the menu, and the "still learning" band in the
    Study Hall, which sits between held (green) and lost (red). */

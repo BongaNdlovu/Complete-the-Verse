@@ -100,6 +100,103 @@ body.reduced .route-line { animation: none; }
 .site-marker.perfect .node-dot { box-shadow: 0 0 20px var(--gold-hot), 0 0 40px rgba(217,182,103,.5); }
 
 /* current — the one place the eye should go */
+.site-marker.unlocking .node-dot {
+  animation: unlockBurst 1.8s ease-out;
+  border-color: var(--gold-hot);
+  box-shadow: 0 0 0 0 rgba(217,182,103,.9);
+}
+.site-marker.unlocking .node-label {
+  animation: unlockLabel 1.8s ease-out;
+  border-color: var(--gold-hot);
+  color: var(--gold-hot);
+  opacity: 1;
+}
+.site-marker.unlocking .beacon {
+  display: block;
+  animation: unlockBeacon 1.8s ease-out;
+}
+@keyframes unlockBurst {
+  0% { transform: scale(.4); box-shadow: 0 0 0 0 rgba(217,182,103,.95); opacity: .4; }
+  35% { transform: scale(1.55); box-shadow: 0 0 28px 12px rgba(255,220,140,.85); opacity: 1; }
+  100% { transform: scale(1.18); box-shadow: 0 0 16px rgba(217,182,103,.7); }
+}
+@keyframes unlockLabel {
+  0% { transform: translateY(6px); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes unlockBeacon {
+  0% { transform: scale(.2); opacity: .9; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.rail-site.unlocking .nm {
+  color: var(--gold-hot);
+  text-shadow: 0 0 18px rgba(217,182,103,.9);
+  animation: unlockLabel 1.6s ease-out;
+}
+/* Standalone pilgrim marker (walks the road between sites). */
+.traveler-marker { pointer-events: none; z-index: 650 !important; }
+.traveler-node {
+  position: absolute; left: -22px; top: -48px; width: 44px; height: 52px;
+  pointer-events: none;
+}
+.traveler-token {
+  width: 44px; height: 44px; border-radius: 50%; object-fit: cover; display: block;
+  box-shadow: 0 0 0 2px var(--gold-hot), 0 0 18px rgba(217,182,103,.7);
+  background: #12131a;
+  animation: travelerIdle 2.4s ease-in-out infinite;
+}
+.traveler-shadow {
+  display: block; width: 28px; height: 8px; margin: 2px auto 0;
+  border-radius: 50%; background: rgba(0,0,0,.35);
+  filter: blur(1px);
+  animation: travelerShadow 2.4s ease-in-out infinite;
+}
+.traveler-marker.is-walking .traveler-token,
+.traveler-node.walking .traveler-token {
+  animation: travelerWalk 0.42s ease-in-out infinite;
+}
+.traveler-marker.is-walking .traveler-shadow,
+.traveler-node.walking .traveler-shadow {
+  animation: travelerShadowWalk 0.42s ease-in-out infinite;
+}
+@keyframes travelerIdle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes travelerShadow {
+  0%, 100% { transform: scale(1); opacity: .4; }
+  50% { transform: scale(.85); opacity: .28; }
+}
+@keyframes travelerWalk {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  25% { transform: translateY(-7px) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(4deg); }
+  75% { transform: translateY(-8px) rotate(0deg); }
+}
+@keyframes travelerShadowWalk {
+  0%, 100% { transform: scale(1); opacity: .45; }
+  50% { transform: scale(.65); opacity: .22; }
+}
+body.reduced .traveler-token,
+body.reduced .traveler-shadow,
+body.reduced .traveler-marker.is-walking .traveler-token,
+body.reduced .traveler-marker.is-walking .traveler-shadow {
+  animation: none !important;
+}
+
+.doss-relic{
+  display:flex;gap:12px;align-items:center;margin:1.2vh 0 1.6vh;
+  padding:10px 12px;background:rgba(0,0,0,.28);
+  box-shadow:0 0 0 1px rgba(217,182,103,.28) inset;border-radius:3px}
+.doss-relic.dim{opacity:.72}
+.doss-relic img,.doss-relic-glyph{
+  width:52px;height:52px;border-radius:8px;object-fit:cover;flex:0 0 auto;
+  display:grid;place-items:center;background:rgba(217,182,103,.12);
+  box-shadow:0 0 0 1px rgba(217,182,103,.35) inset;color:var(--gold);font-size:1.2rem}
+.doss-relic-tag{font-family:var(--ui);letter-spacing:.16em;text-transform:uppercase;font-size:.55rem;color:var(--gold-dim)}
+.doss-relic b{display:block;font-family:var(--disp);color:var(--gold);font-size:.92rem;margin:.15em 0}
+.doss-relic span{display:block;font-size:.78rem;color:var(--parch-dim);line-height:1.35}
 .site-marker.current .node-dot { border-color: var(--gold-hot); transform: scale(1.18); }
 .site-marker.current .beacon {
   position: absolute; left: -8px; top: -8px; width: 16px; height: 16px;
@@ -310,8 +407,21 @@ body.reduced .site-marker.current .beacon { animation: none; opacity: .5; }
   position: absolute; inset: 0; z-index: 560; display: grid; place-items: center;
   background: radial-gradient(ellipse at center, rgba(4,5,10,.35), rgba(2,2,4,.86));
   text-align: center; padding: 5vw; transition: opacity 1.2s ease;
+  cursor: pointer;
 }
-.atlas-open.gone { opacity: 0; pointer-events: none; }
+.atlas-open.gone {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+.atlas-open .oc-hint {
+  margin-top: 1.4em;
+  font-family: var(--ui);
+  font-size: .58rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgba(232,196,120,.55);
+}
 .atlas-open .oc-kick { font-family: var(--ui); font-size: .6rem; letter-spacing: .5em; text-transform: uppercase; color: var(--gold-dim); }
 .atlas-open .oc-title { font-family: var(--disp); font-weight: 900; text-transform: uppercase; letter-spacing: .1em;
   font-size: clamp(1.6rem, 6vw, 3.4rem); line-height: 1; color: var(--parch); margin: .5em 0; }

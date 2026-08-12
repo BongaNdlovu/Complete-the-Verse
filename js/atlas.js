@@ -46,6 +46,9 @@ var Atlas = (function () {
   var termTimer = null, noteTimer = null;
   var layers = { routes: true, empires: true, borders: false, terminator: true };
   var coldOpenDone = false;
+  var travelerToken = null;    // optional portrait token on the current site
+  var travelerMarker = null;   // separate map marker that can walk between sites
+  var walkAnim = null;
 
   var $ = function (id) { return document.getElementById(id); };
   function reduced() {
@@ -137,6 +140,10 @@ var Atlas = (function () {
         refresh();
         if (!coldOpenDone) coldOpen();
         else {
+          /* Skipping the flight still has to dismiss the title card —
+             otherwise it stays full opacity over the map forever. */
+          var card = $("atlas-open");
+          if (card) card.classList.add("gone");
           var c = Pilgrimage.currentSite(progress);
           if (c) focus(c.id, { fly: false });
         }
@@ -152,6 +159,7 @@ var Atlas = (function () {
 
   function unmount() {
     stopTerminatorClock();
+    clearTravelerMarker();
   }
 
   /* ------------------------------ routes ------------------------------ */
@@ -205,6 +213,110 @@ var Atlas = (function () {
 
   /* ------------------------------ markers ------------------------------ */
 
+  function setTraveler(url) {
+    travelerToken = url || null;
+    if (built) {
+      drawMarkers();
+      wireMarkerDom();
+      placeTravelerAtCurrent(false);
+    }
+  }
+
+  function travelerIconHtml(walking) {
+    if (!travelerToken) return "";
+    return '<div class="traveler-node' + (walking ? " walking" : "") + '">' +
+      '<img class="traveler-token" src="' + esc(travelerToken) + '" alt="" width="44" height="44">' +
+      '<i class="traveler-shadow" aria-hidden="true"></i>' +
+      '</div>';
+  }
+
+  function ensureTravelerMarker(latlng, walking) {
+    if (!hasMap() || !travelerToken) {
+      clearTravelerMarker();
+      return null;
+    }
+    var html = travelerIconHtml(!!walking);
+    var icon = L.divIcon({
+      className: "traveler-marker" + (walking ? " is-walking" : ""),
+      html: html,
+      iconSize: [0, 0],
+      iconAnchor: [0, 0]
+    });
+    if (!travelerMarker) {
+      travelerMarker = L.marker(latlng, {
+        icon: icon,
+        keyboard: false,
+        interactive: false,
+        zIndexOffset: 1200
+      }).addTo(map);
+    } else {
+      travelerMarker.setIcon(icon);
+      travelerMarker.setLatLng(latlng);
+      if (!map.hasLayer(travelerMarker)) travelerMarker.addTo(map);
+    }
+    return travelerMarker;
+  }
+
+  function clearTravelerMarker() {
+    if (walkAnim) {
+      cancelAnimationFrame(walkAnim);
+      walkAnim = null;
+    }
+    if (travelerMarker && hasMap()) {
+      try { map.removeLayer(travelerMarker); } catch (e) {}
+    }
+    travelerMarker = null;
+  }
+
+  function placeTravelerAtCurrent(walking) {
+    if (!hasMap() || !travelerToken) {
+      clearTravelerMarker();
+      return;
+    }
+    var cur = Pilgrimage.currentSite(progress);
+    if (!cur) return;
+    ensureTravelerMarker(cur.coords, !!walking);
+  }
+
+  /* Walk the token along a great-circle-ish lerp between two sites. */
+  function walkTraveler(fromId, toId, opts) {
+    opts = opts || {};
+    if (!hasMap() || !travelerToken || reduced()) {
+      placeTravelerAtCurrent(false);
+      if (opts.onDone) opts.onDone();
+      return;
+    }
+    var from = Pilgrimage.site(fromId);
+    var to = Pilgrimage.site(toId);
+    if (!from || !to) {
+      placeTravelerAtCurrent(false);
+      if (opts.onDone) opts.onDone();
+      return;
+    }
+    if (walkAnim) cancelAnimationFrame(walkAnim);
+    var duration = typeof opts.duration === "number" ? opts.duration : 1600;
+    var start = null;
+    var a = from.coords, b = to.coords;
+    ensureTravelerMarker(a, true);
+    function step(ts) {
+      if (start == null) start = ts;
+      var t = Math.min(1, (ts - start) / duration);
+      /* ease-in-out */
+      var e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      var lat = a[0] + (b[0] - a[0]) * e;
+      var lng = a[1] + (b[1] - a[1]) * e;
+      if (travelerMarker) travelerMarker.setLatLng([lat, lng]);
+      if (t < 1) {
+        walkAnim = requestAnimationFrame(step);
+      } else {
+        walkAnim = null;
+        ensureTravelerMarker(b, false);
+        if (opts.onDone) opts.onDone();
+      }
+    }
+    walkAnim = requestAnimationFrame(step);
+  }
+
   function markerHtml(site, st, ordinal) {
     /* A locked site is masked everywhere, including in the accessible
        name. Masking only the visible label would keep the road ahead
@@ -216,6 +328,8 @@ var Atlas = (function () {
       ? "Site " + ordinal + ", sealed"
       : site.name + ", site " + ordinal + (st.cleared ? ", cleared" : "");
     var mark = st.cleared ? " ✦" : "";
+    /* Traveler is drawn as its own map marker so it can walk the road;
+       site markers only show the beacon/dot. */
 
     return '<div class="node">' +
       (st.current ? '<i class="beacon"></i>' : '') +
@@ -253,6 +367,7 @@ var Atlas = (function () {
     });
 
     wireMarkerDom();
+    placeTravelerAtCurrent(false);
   }
 
   /* divIcon content is plain HTML inside the marker pane, so the click
@@ -573,10 +688,30 @@ var Atlas = (function () {
       return;
     }
 
+    var relicHtml = "";
+    if (typeof Artifacts !== "undefined") {
+      var art = Artifacts.forSite(site.id);
+      var store = (typeof SAVE !== "undefined" && SAVE.artifacts) ? SAVE.artifacts : null;
+      if (art && store && Artifacts.isUnlocked(store, art.id)) {
+        var img = Artifacts.imagePath(art);
+        relicHtml =
+          '<div class="doss-relic">' +
+            (img ? '<img src="' + esc(img) + '" alt="">' : '<span class="doss-relic-glyph">✦</span>') +
+            '<div><div class="doss-relic-tag">Relic recovered</div>' +
+            '<b>' + esc(art.name) + '</b>' +
+            '<span>' + esc(art.blurb) + '</span></div></div>';
+      } else if (art && st.cleared) {
+        relicHtml = '<div class="doss-relic dim"><span class="doss-relic-glyph">✦</span><div><div class="doss-relic-tag">Relic</div><b>' + esc(art.name) + '</b><span>Recovered on first clear</span></div></div>';
+      } else if (art) {
+        relicHtml = '<div class="doss-relic dim"><span class="doss-relic-glyph">?</span><div><div class="doss-relic-tag">Relic sealed</div><b>Unknown find</b><span>Clear this site to recover it</span></div></div>';
+      }
+    }
+
     body.innerHTML = head +
       '<div class="doss-quote">' + esc(site.quote) + '</div>' +
       '<div class="doss-ref">' + esc(site.quoteRef) + '</div>' +
       '<div class="doss-body">' + esc(site.description) + '</div>' +
+      relicHtml +
       liveRows(site) +
       profileSvg(site) +
       '<div class="doss-grid">' +
@@ -670,20 +805,30 @@ var Atlas = (function () {
     coldOpenDone = true;
     var card = $("atlas-open");
     var current = Pilgrimage.currentSite(progress);
+    var settled = false;
+
+    function finish() {
+      if (settled) return;
+      settled = true;
+      if (card) {
+        card.classList.add("gone");
+        card.removeEventListener("click", finish);
+      }
+      if (current) select(current.id, { fly: hasMap() && !reduced(), duration: 2.6 });
+    }
 
     if (reduced() || !hasMap()) {
-      if (card) card.classList.add("gone");
-      if (current) select(current.id, { fly: false });
+      finish();
       return;
     }
 
-    if (card) card.classList.remove("gone");
+    if (card) {
+      card.classList.remove("gone");
+      /* Tap anywhere on the title to skip the wait. */
+      card.addEventListener("click", finish);
+    }
     fitAll();
-
-    setTimeout(function () {
-      if (card) card.classList.add("gone");
-      if (current) select(current.id, { fly: true, duration: 2.6 });
-    }, 3400);
+    setTimeout(finish, 2800);
   }
 
   function replayColdOpen() { coldOpenDone = false; coldOpen(); }
@@ -691,6 +836,61 @@ var Atlas = (function () {
      one, so whether it has been seen is the save's business rather than
      this module's. game.js sets this from SAVE before mounting. */
   function seenColdOpen(v) { coldOpenDone = !!v; }
+
+  /* ------------------------------ unlock ceremony ------------------------------ */
+
+  /* First time a site opens on the road: fly there, break the seal on the
+     marker, open the dossier. Called after a clear when the next place unlocks. */
+  function celebrateUnlock(siteId) {
+    var site = Pilgrimage.site(siteId);
+    if (!site) return;
+    var card = $("atlas-open");
+    if (card) card.classList.add("gone");
+
+    var prev = null;
+    var idx = Pilgrimage.indexOf(siteId);
+    if (idx > 0) prev = Pilgrimage.siteAt(idx - 1);
+
+    activeId = siteId;
+    refreshMarkers();
+    renderRail();
+    showDossier(site);
+    drawEmpire(site);
+    applyLight(site);
+
+    if (hasMap()) {
+      focus(siteId, { fly: !reduced(), duration: 1.9, zoom: 8 });
+    }
+
+    /* Pilgrim walks from the last site to the newly opened one. */
+    if (prev && travelerToken) {
+      walkTraveler(prev.id, siteId, { duration: reduced() ? 0 : 1800 });
+    } else {
+      placeTravelerAtCurrent(false);
+    }
+
+    var m = markers[siteId];
+    var el = m && m.getElement ? m.getElement() : null;
+    if (el) {
+      el.classList.add("unlocking");
+      setTimeout(function () {
+        if (el) el.classList.remove("unlocking");
+      }, 2400);
+    }
+
+    /* Also flash the rail row if present */
+    var rail = document.querySelector('.rail-site[data-site="' + siteId + '"]');
+    if (rail) {
+      rail.classList.add("unlocking");
+      setTimeout(function () { rail.classList.remove("unlocking"); }, 2400);
+    }
+
+    note((site.name || "This place") + " is open", 4200);
+    sfx("power");
+    if (hooks.unlock) {
+      try { hooks.unlock(siteId); } catch (e) {}
+    }
+  }
 
   /* ------------------------------ refresh ------------------------------ */
 
@@ -722,8 +922,12 @@ var Atlas = (function () {
     mount: mount, unmount: unmount, refresh: refresh,
     setProgress: setProgress, on: on,
     select: select, focus: focus, fitAll: fitAll,
+    celebrateUnlock: celebrateUnlock,
     setLayer: setLayer, layers: function () { return layers; },
     loadWeather: loadWeather, note: note,
+    setTraveler: setTraveler,
+    walkTraveler: walkTraveler,
+    placeTravelerAtCurrent: placeTravelerAtCurrent,
     coldOpen: coldOpen, replayColdOpen: replayColdOpen, seenColdOpen: seenColdOpen,
     renderRail: renderRail, renderTools: renderTools,
     activeSite: function () { return Pilgrimage.site(activeId); },
