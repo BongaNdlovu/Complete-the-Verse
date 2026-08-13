@@ -48,7 +48,7 @@ ok("renderMenu filters hidden modes",
 
 /* Typed recall still exists on the Pilgrimage road */
 ok("pilgrimage still mixes typed questions",
-  /typedN\s*=\s*Math\.min\(3/.test(src) || /last three of every stop are typed/.test(src) ||
+  /typedN\s*=\s*Math\.min\(2/.test(src) || /last two of every stop are typed/.test(src) ||
   /R\.typed\s*=\s*n\s*>\s*0\s*&&\s*R\.siteIdx\s*>\s*\(n\s*-\s*typedN\)/.test(src));
 
 if (fail) {

@@ -20,9 +20,10 @@
 }
 </script>
 </head>
-<body class="cine biblical-thriller">
+<body class="biblical-thriller">
 <div id="offline-banner" class="offline-banner" role="status" aria-live="polite"></div>
 <div id="backdrop"></div>
+<video id="hall-bg" class="hall-bg" src="assets/hall.mp4" muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video>
 <div id="cinematic-fx" aria-hidden="true">
   <div class="smoke-wisp one"></div><div class="smoke-wisp two"></div>
 </div>
@@ -38,14 +39,32 @@
 
 <div id="app">
 
+  <!-- ============ INTRO ============ -->
+  <section class="view" id="v-intro" aria-label="Opening">
+    <video id="intro-video" class="intro-video" src="assets/intro.mp4" muted playsinline preload="auto" poster="assets/intro.jpg" disablepictureinpicture aria-hidden="true"></video>
+    <div class="intro-veil" id="intro-veil"></div>
+    <div class="intro-start" id="intro-start">
+      <div class="kick">The Scripture Trial</div>
+      <div class="h-xl">Complete<br>The Verse</div>
+      <div class="intro-hint">Tap to begin</div>
+    </div>
+    <button class="intro-skip" id="intro-skip" type="button" hidden>Skip</button>
+  </section>
+
   <!-- ============ BOOT ============ -->
   <section class="view on" id="v-boot">
-    <div class="scrollpad" style="justify-content:center">
-      <div class="bootmark"></div>
-      <div class="kick">The Scripture Trial · Preparing the record</div>
-      <div class="h-xl" style="margin-top:2vh">Complete<br>The Verse</div>
-      <div class="bootbar"><i id="boot-fill"></i></div>
+    <div class="boot-inner">
+      <div class="bootmark" aria-hidden="true"><i></i></div>
+      <div class="kick" id="boot-kick">The Scripture Trial · Preparing the record</div>
+      <div class="h-xl boot-title">Complete<br>The Verse</div>
+      <div class="fil boot-rule"><i></i></div>
+      <p class="boot-verse">The word of God is quick, and powerful, and sharper than any twoedged sword.</p>
+      <p class="boot-ref">Hebrews 4:12 · King James</p>
+      <div class="bootbar" id="boot-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Opening the record">
+        <i id="boot-fill"></i>
+      </div>
       <div id="boot-msg">Opening the sacred record…</div>
+      <div class="boot-meta">66 Books · One final answer</div>
     </div>
   </section>
 
@@ -263,7 +282,7 @@
         <button class="confirm-answer" id="confirm-answer" type="button" disabled>Lock Answer</button>
         <div class="warn">
           <b id="warn-1">14 seconds remaining</b>
-          Select a phrase, then lock it<br>Enter or Space confirms
+          <span id="warn-how">Select a phrase, then lock it<br>Enter or Space confirms</span>
         </div>
       </div>
 

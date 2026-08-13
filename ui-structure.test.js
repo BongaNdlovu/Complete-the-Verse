@@ -24,6 +24,26 @@ assert(!/<div class="ai-analysis"/.test(html), "ai-analysis must be removed from
 assert(!html.includes("Ambient neural field"), "neural ambient script must be removed");
 assert(!html.includes("Preparing the arena"), "cyber boot copy must be unified");
 assert(html.includes("Preparing the record"), "scripture boot copy must be present");
+assert(html.includes("boot-verse"), "boot screen carries a verse line");
+assert(/function playBootSequence\(/.test(game), "playBootSequence helper present");
+
+assert(html.includes('id="v-intro"'), "intro view present");
+assert(html.includes('id="intro-video"'), "intro video element present");
+assert(fs.existsSync(path.join(__dirname, "assets", "intro.mp4")), "assets/intro.mp4 exists");
+assert(fs.existsSync(path.join(__dirname, "audio", "voice", "intro-word.mp3")), "intro voice file exists");
+assert(html.includes("assets/intro.mp4"), "intro video path wired");
+assert(game.includes("audio/voice/intro-word.mp3"), "intro voice line wired");
+assert(/function beginIntroPlayback\(/.test(game), "intro playback helper present");
+assert(/function finishIntro\(/.test(game), "intro finish helper present");
+
+assert(html.includes('id="hall-bg"'), "hall background video element present");
+assert(fs.existsSync(path.join(__dirname, "assets", "hall.mp4")), "assets/hall.mp4 exists");
+assert(fs.statSync(path.join(__dirname, "assets", "hall.mp4")).size < 14 * 1024 * 1024,
+  "hall.mp4 stays under 14MB for the web pack");
+assert(html.includes("assets/hall.mp4"), "hall video is sourced in the page");
+assert(/function syncHallVideo\(/.test(game), "syncHallVideo helper present");
+assert(css.includes("body.hall-ready #hall-bg"), "hall video fades in when ready");
+assert(css.includes("body.quality-low #hall-bg"), "efficient profile hides the hall video");
 
 assert(css.includes("hud-away") || html.includes("hud-away"), "play HUD secondary chrome class required");
 assert(css.includes("#v-play .hud-away"), "CSS must hide hud-away on play");

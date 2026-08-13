@@ -25,6 +25,7 @@ const SUITE = [
   ["atlas view",     "atlas.test.js"],
   ["soundtrack",     "soundtrack.test.js"],
   ["sfx",            "sfx.test.js"],
+  ["mission voice",  "voice.test.js"],
   ["cloud merge",    "cloud.test.js"],
   ["polish helpers", "polish.test.js"],
   ["improvements",   "improvements.test.js"],

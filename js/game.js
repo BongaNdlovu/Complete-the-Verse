@@ -258,11 +258,11 @@ const MODES = {
      is what routes it. `hidden:true` keeps a mode off the menu without
      hiding it from the results screen, which still needs its name. */
   pilgrimage:{ key:"pilgrimage", name:"The Pilgrimage", kick:"The long road", atlas:true,
-    desc:"Thirty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last three of every stop are typed from memory. The clock closes as you go east.",
+    desc:"Thirty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last two of every stop are typed from memory. The clock closes as you go east.",
     tagline:"36 sites · Ur to Patmos", info:[["36","Sites"],["8","Verses each"],["14→6.5s","Clock"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, typed out word for word.",
-    tagline:"Typed · cleared sites", info:[["8","Verses"],["Typed","No options"],["22s","Clock"]] },
+    tagline:"Typed · cleared sites", info:[["8","Verses"],["Typed","No options"],["32s","Clock"]] },
   /* Hidden campaign extras — not on the menu. */
   relay:{ key:"relay", name:"The Long Road", kick:"One unbroken walk", hidden:true,
     desc:"A whole arc in a single run. Lives carry from site to site and never come back, and the clock keeps tightening the way the road does. Sites you pass stay cleared even if the road ends you.",
@@ -286,7 +286,7 @@ const MODES = {
     tagline:"15 verses · due first", info:[["15","Verses"],["Due","Ordered by"],["12s","Clock"]] },
   recall:{ key:"recall", name:"Recall", kick:"Type it from memory", hidden:true,
     desc:"No options to choose between. The blank is empty and you fill it yourself, word for word. On-screen keyboard included.",
-    tagline:"12 verses · typed", info:[["12","Verses"],["Typed","No options"],["22s","Clock"]] }
+    tagline:"12 verses · typed", info:[["12","Verses"],["Typed","No options"],["32s","Clock"]] }
 };
 const DIFFS = {
   pilgrim:{ key:"pilgrim", name:"Pilgrim", lives:4, time:1.35, score:0.75,
@@ -339,7 +339,9 @@ const Snd = (function(){
   /* Ones that replace themselves so rapid re-triggers do not stack. */
   const SFX_EXCL = { heart:1, tick:1 };
   /* Ones that briefly duck the bed so they cut through. */
-  const SFX_DUCK = { lock:1, correct:1, wrong:1, heart:1, power:1 };
+  const SFX_DUCK = { lock:1, correct:1, wrong:1, power:1 };
+  const SFX_GAIN = { hover:0.4, lock:0.68, correct:0.72, wrong:0.66, power:0.5, heart:0.85 };
+  let voiceHold=null;
   function duckMusic(factor, ms){
     if(!ctx||!mMus) return;
     const base = Math.max(0, SAVE.set.music||0);
@@ -361,13 +363,36 @@ const Snd = (function(){
         try{ sfxHold[name].pause(); sfxHold[name].currentTime=0; }catch(e){}
       }
       const a=new Audio(src);
-      a.volume=Math.max(0,Math.min(1,SAVE.set.sfx||0));
+      a.volume=Math.max(0,Math.min(1,(SAVE.set.sfx||0)*(SFX_GAIN[name]==null?0.7:SFX_GAIN[name])));
       if(SFX_EXCL[name]) sfxHold[name]=a;
-      if(SFX_DUCK[name]) duckMusic(name==="heart" ? 0.28 : 0.18, name==="heart" ? 280 : 520);
+      if(SFX_DUCK[name]) duckMusic(0.42, 380);
       const p=a.play();
       if(p&&p.catch) p.catch(()=>{});
       return true;
     }catch(e){ return false; }
+  }
+  /* Recorded mission voice. Exclusive — a new line cuts the previous. */
+  function playVoice(src, duckMs){
+    init();
+    if(!src) return false;
+    try{
+      if(voiceHold){
+        try{ voiceHold.pause(); voiceHold.currentTime=0; }catch(e){}
+        voiceHold=null;
+      }
+      const a=new Audio(src);
+      a.volume=Math.max(0,Math.min(1,SAVE.set.sfx||0));
+      voiceHold=a;
+      if(avail) duckMusic(0.2, duckMs==null?2400:duckMs);
+      const p=a.play();
+      if(p&&p.catch) p.catch(()=>{});
+      return true;
+    }catch(e){ return false; }
+  }
+  function stopVoice(){
+    if(!voiceHold) return;
+    try{ voiceHold.pause(); voiceHold.currentTime=0; }catch(e){}
+    voiceHold=null;
   }
   function init(){
     if(ctx||!avail) return;
@@ -493,10 +518,10 @@ const Snd = (function(){
       stopAllTracks();
       startOrRetunePad(CHORDS[name] || CHORDS.menu);
     },
-    ui(){ if(playSfx("ui")) return; tone(1320,.05,"triangle",.05); tone(1980,.04,"sine",.025,.02); },
+    ui(){ tone(1320,.045,"triangle",.035); tone(1980,.035,"sine",.018,.018); },
     hover(){ if(playSfx("hover")) return; tone(1540,.03,"sine",.03); },
-    tick(crit){ if(playSfx("tick")) return; tone(crit?1240:840,.045,"square",crit?.075:.03); },
-    heart(){ if(playSfx("heart")) return; duckMusic(0.28, 280); tone(58,.17,"sine",.26); tone(45,.22,"sine",.19,.18); },
+    tick(crit){ tone(crit?1180:780,.04,"square",crit?.04:.018); },
+    heart(){ if(playSfx("heart")) return; tone(58,.11,"sine",.1); tone(46,.14,"sine",.07,.1); },
     lock(){ if(playSfx("lock")) return; duckMusic(0.18, 520); tone(78,.32,"square",.18,0,52); tone(42,.42,"sine",.24); noise(.2,.11,680); },
     pulse(level){
       const v=.035+Math.min(4,level||0)*.014;
@@ -541,7 +566,9 @@ const Snd = (function(){
         }
       });
     },
-    spectrum(){ if(!anal) return null; try{ anal.getByteFrequencyData(freq); }catch(e){ return null; } return freq; }
+    spectrum(){ if(!anal) return null; try{ anal.getByteFrequencyData(freq); }catch(e){ return null; } return freq; },
+    playVoice:playVoice,
+    stopVoice:stopVoice
   };
 })();
 
@@ -580,8 +607,46 @@ const Director = (function(){
     voice=best||list.find(v=>/^en/i.test(v.lang))||null;
     return voice;
   }
+  /* Spoken line -> recorded file. Keys are lowercase, punctuation stripped. */
+  const VOICE_FILES = {
+    "the signal is live":"audio/voice/act-1-signal.mp3",
+    "the pursuit begins":"audio/voice/act-2-pursuit.mp3",
+    "blackout protocol":"audio/voice/act-3-blackout.mp3",
+    "no turning back":"audio/voice/act-4-no-turning-back.mp3",
+    "this is the final test":"audio/voice/act-5-final-test.mp3",
+    "rapid recall five verses six seconds each":"audio/voice/set-rapid.mp3",
+    "book lockdown source restricted":"audio/voice/set-lockdown.mp3",
+    "the missing passage three phrases gone lifelines offline":"audio/voice/set-missing.mp3",
+    "no second chances":"audio/voice/set-nochance.mp3",
+    "final reconstruction rebuild the passage":"audio/voice/set-reconstruct.mp3",
+    "final reconstruction rebuild the ending":"audio/voice/set-reconstruct.mp3",
+    "book lockdown the source is exodus":"audio/voice/set-sinai.mp3",
+    "the wall is fallen":"audio/voice/set-jericho.mp3",
+    "the wall is fallen rebuild what stood":"audio/voice/set-jericho.mp3",
+    "the exile three phrases gone lifelines offline":"audio/voice/set-babylon.mp3",
+    "overdrive scripture locked":"audio/voice/overdrive.mp3",
+    "one life remains":"audio/voice/one-life.mp3",
+    "the run is abandoned":"audio/voice/end-abandon.mp3",
+    "perfect recall the record is complete":"audio/voice/end-perfect.mp3",
+    "scripture mastered":"audio/voice/end-mastered.mp3",
+    "you survived the final test":"audio/voice/end-survived.mp3",
+    "the record closes prepare for another run":"audio/voice/end-defeated.mp3",
+    "the pilgrimage ur to patmos":"audio/voice/map-open.mp3",
+    "the next place is open":"audio/voice/map-unlocked.mp3",
+    "that place is still sealed":"audio/voice/map-sealed.mp3"
+  };
+  function voiceKey(text){
+    return String(text||"").toLowerCase().replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();
+  }
   function speak(text,force){
-    if(!SAVE.set.voice || !("speechSynthesis" in window) || (!force && Date.now()-lastVoice<2400)) return;
+    if(!SAVE.set.voice || (!force && Date.now()-lastVoice<2400)) return;
+    const src=VOICE_FILES[voiceKey(text)];
+    if(src && typeof Snd!=="undefined" && Snd.playVoice && Snd.playVoice(src)){
+      lastVoice=Date.now();
+      try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){}
+      return;
+    }
+    if(!("speechSynthesis" in window)) return;
     lastVoice=Date.now();
     try{
       speechSynthesis.cancel();
@@ -889,15 +954,20 @@ function go(view){
   const el = $("v-"+view); if(el) el.classList.add("on");
   currentView = view;
   // the play view supplies its own header/footer letterboxing
-  document.body.classList.toggle("cine", view==="act"||view==="boot");
+  document.body.classList.toggle("cine", view==="act");
   // Leaving the map stops its clocks; a terminator redraw on a hidden
   // view is pure waste and keeps a timer alive for the whole session.
   if(leaving==="atlas" && view!=="atlas") Atlas.unmount();
   // The site's sky belongs to the site. Anywhere else gets the game's
   // own grading back.
-  if(view!=="play") applySiteSky(null);
+  if(view!=="play"){ applySiteSky(null); document.body.classList.remove("mode-typed"); }
+  if(view==="intro"){ syncHallVideo(SAVE.set.quality); }
   if(view==="atlas"){ Backdrop.palette("menu"); Snd.ambience("menu"); openAtlas(); }
-  if(view==="menu"){ Backdrop.palette("menu"); Snd.ambience("menu"); renderMenu(); }
+  if(view==="boot"){ Backdrop.palette("menu"); syncHallVideo(SAVE.set.quality); }
+  if(view==="menu"){ Backdrop.palette("menu"); Snd.ambience("menu"); renderMenu(); syncHallVideo(SAVE.set.quality); }
+  if(view==="brief"||view==="study"||view==="seals"||view==="records"||view==="settings"||view==="relics"){
+    syncHallVideo(SAVE.set.quality);
+  }
   if(view==="results"){ Backdrop.palette("results"); Snd.ambience("results"); }
   if(view==="study") renderStudy();
   if(view==="relics") renderRelics();
@@ -1198,7 +1268,7 @@ function updatePlayerCard(){
   const li = levelInfo(SAVE.xp);
   const card = $("playercard"); if(!card) return;
   // The atlas has its own chrome in that corner, so the card stands down.
-  card.style.display = (currentView==="play"||currentView==="boot"||
+  card.style.display = (currentView==="play"||currentView==="boot"||currentView==="intro"||
                         currentView==="act"||currentView==="atlas"||currentView==="relics") ? "none" : "flex";
   $("pc-lvl").textContent = li.level;
   $("pc-rank").textContent = rankFor(li.level);
@@ -1396,14 +1466,14 @@ let sbSiteId = null, sbMode = "pilgrimage";
 function siteClockMs(siteId, mode){
   // Typed recall needs a clock sized for typing, not for picking — the
   // same reasoning the standard Recall mode uses.
-  if(mode === "pilgrim-recall") return 22000;
+  if(mode === "pilgrim-recall") return 32000;
   return Pilgrimage.clockFor(Pilgrimage.indexOf(siteId));
 }
 
 function openSiteBrief(siteId, mode){
   const b = Pilgrimage.brief(siteId, SAVE.pilgrim);
   if(!b) return;
-  if(!b.unlocked){ Atlas.note("That place is still sealed."); return; }
+  if(!b.unlocked){ Atlas.note("That place is still sealed."); Director.speak("That place is still sealed.",true); return; }
 
   sbSiteId = siteId; sbMode = mode || "pilgrimage"; pendingSiteId = siteId;
   const s = b.site, arc = b.arc, D = DIFFS[SAVE.set.diff] || DIFFS.disciple;
@@ -1441,7 +1511,7 @@ function openSiteBrief(siteId, mode){
     ? " · this place does not end quietly" : "";
   $("sb-hint").textContent = (sbMode === "pilgrim-recall"
     ? "Type the missing phrase · on-screen keyboard · Enter to lock · Esc pauses"
-    : "A–D or 1–4 · last 3 typed · Enter to lock · S Selah · I Illuminate · Esc pauses") + finale;
+    : "A–D or 1–4 · last 2 typed · Enter to lock · S Selah · I Illuminate · Esc pauses") + finale;
 
   go("sitebrief");
 }
@@ -1812,13 +1882,13 @@ function questionDuration(){
   if(R.mode==="practice"){ return 12000 * R.diff.time; }
   // Typing a phrase takes far longer than picking one, so Recall gets a
   // clock sized for the work rather than the same one the pickers use.
-  if(R.mode==="recall"){ return 22000 * R.diff.time; }
+  if(R.mode==="recall"){ return 32000 * R.diff.time; }
   // The road's clock is a function of how far east you are: 14s at Ur,
   // 6.5s at Patmos. pilgrimage.js owns the ramp. Typed slots on a mixed
   // site always get a typing-sized clock (at least 20s base).
   if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
     const base = siteClockMs(R.siteId, R.mode);
-    if(R.mode==="pilgrimage" && R.typed) return Math.max(20000, base) * R.diff.time;
+    if(R.mode==="pilgrimage" && R.typed) return Math.max(32000, base) * R.diff.time;
     return base * R.diff.time;
   }
   // The relay inherits each site's own clock as it reaches it, so the
@@ -1881,12 +1951,12 @@ function nextQuestion(){
   // verses come from SetPieces.draw below instead.
   else if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece){
     v = R.siteVerses[R.siteIdx]; R.siteIdx++;
-    /* Pilgrim’s Recall is fully typed. Mixed pilgrimage always ends with
-       three typed questions (last 3 of 8) so every stop trains production. */
+    /* Pilgrim’s Recall is fully typed. Mixed pilgrimage ends with two
+       typed questions so production is trained without dominating the stop. */
     if(R.mode==="pilgrim-recall") R.typed = true;
     else if(R.mode==="pilgrimage"){
       const n = R.siteVerses ? R.siteVerses.length : 0;
-      const typedN = Math.min(3, n);
+      const typedN = Math.min(2, n);
       R.typed = n > 0 && R.siteIdx > (n - typedN);
     }
   }
@@ -2142,11 +2212,14 @@ function renderQuestion(q, dur){
     ' <span class="blank" id="blank">&#8195;&#8195;&#8195;</span>' + sep(q.s) + highlightVerse(q.s);
   fitVerseSize((q.p||"").length+(q.a||"").length+(q.s||"").length);
   R.locked = false; R.selected = null;
+  document.body.classList.toggle("mode-typed", !!R.typed);
   if(R.typed) return renderTypedQuestion(q, dur, scene);
   const confirmBtn = $("confirm-answer");
   confirmBtn.style.display = "";
   confirmBtn.disabled = true;
   confirmBtn.textContent = SetPieces.autoLock() ? "Rapid Lock" : "Lock Answer";
+  const how=$("warn-how");
+  if(how) how.innerHTML="Select a phrase, then lock it<br>Enter or Space confirms";
   const opts = $("opts"); opts.className = "answers queued"; opts.innerHTML = "";
   const rnd = R.mode==="daily" ? R.daily.rnd : Math.random;
   const choices = buildChoices(q, rnd);
@@ -2243,6 +2316,8 @@ function renderTypedQuestion(q, dur, scene){
   confirmBtn.style.display = "";
   confirmBtn.disabled = true;
   confirmBtn.textContent = "Type your answer";
+  const how=$("warn-how");
+  if(how) how.innerHTML="Type the missing phrase<br>Enter locks the line";
   renderPowers();
   armTimer(dur);
   const entranceDelay = Math.min(1450, Math.max(520, dur*.08));
@@ -2263,14 +2338,25 @@ function confirmTyped(){
   if(!input || !input.value.trim()) return;
   answer(input.value, null);
 }
-/* Illuminate burns two wrong options — there are none here, so in Recall
-   it buys progressively more of the answer's shape instead. */
+/* Typed Illuminate never burns options. It writes a production cue into
+   the blank itself: word-lengths, then initials, then the first word. */
 function typedHint(){
-  const el = $("typed-hint");
-  if(!el || !R.q) return false;
+  if(!R.q) return false;
   R.hintLevel = Math.min(3, R.hintLevel + 1);
-  el.textContent = Recall.hint(R.q.a, R.hintLevel);
-  el.classList.add("on");
+  const cue = Recall.hint(R.q.a, R.hintLevel);
+  const blank = $("blank");
+  if(blank){
+    blank.textContent = cue;
+    blank.classList.add("hinted");
+    blank.classList.remove("filled","bad","reveal");
+  }
+  const el = $("typed-hint");
+  if(el){
+    el.textContent = R.hintLevel===1 ? "Word lengths — type the missing phrase"
+      : R.hintLevel===2 ? "First letters — complete each word"
+      : "First word given — finish the rest";
+    el.classList.add("on");
+  }
   return true;
 }
 
@@ -2373,7 +2459,7 @@ function renderPowers(){
   }
   $("powers").innerHTML =
     '<button class="pwr'+(p.selah?"":" spent")+'" data-pw="selah">Selah <em>+5s ×'+p.selah+'</em></button>'+
-    '<button class="pwr'+(p.illum?"":" spent")+'" data-pw="illum">Illuminate <em>−2 ×'+p.illum+'</em></button>'+
+    '<button class="pwr'+(p.illum?"":" spent")+'" data-pw="illum">Illuminate <em>'+(R.typed?"hint ×":"−2 ×")+p.illum+'</em></button>'+
     '<button class="pwr passive'+(p.wind?"":" spent")+'" tabindex="-1">Second Wind <em>Automatic ×'+p.wind+'</em></button>';
   $("powers").querySelectorAll("[data-pw]").forEach(b=>{
     b.addEventListener("click", ()=>usePower(b.dataset.pw));
@@ -3803,6 +3889,28 @@ function renderSettings(){
     applySettings(); updatePlayerCard(); renderSettings(); toast("All progress erased");
   });
 }
+function syncHallVideo(quality){
+  const v=$("hall-bg");
+  if(!v || typeof v.play!=="function") return;
+  const holdForIntro=currentView==="intro" || (currentView==="boot" && !introDone && introAllowed());
+  const allow=quality!=="low" && !document.body.classList.contains("reduced") && !holdForIntro;
+  if(!allow){
+    try{ v.pause(); }catch(e){}
+    document.body.classList.remove("hall-ready");
+    if(typeof Sky3D!=="undefined" && Sky3D.setEnabled) Sky3D.setEnabled(true);
+    return;
+  }
+  if(typeof Sky3D!=="undefined" && Sky3D.setEnabled) Sky3D.setEnabled(false);
+  if(!v._hallBound){
+    v._hallBound=true;
+    v.preload="auto";
+    v.addEventListener("playing", ()=>document.body.classList.add("hall-ready"));
+    v.addEventListener("stalled", ()=>{ try{ v.play(); }catch(e){} });
+  }
+  if(!v.paused) return;
+  const p=v.play();
+  if(p&&p.catch) p.catch(()=>{});
+}
 function applySettings(){
   const systemReduced=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
   document.body.classList.toggle("reduced", !!SAVE.set.reduced||systemReduced);
@@ -3814,6 +3922,7 @@ function applySettings(){
     if(quality==="high") quality="balanced";
   }
   document.body.classList.add("quality-"+quality);
+  syncHallVideo(quality);
   let mus = SAVE.set.music, sfx = SAVE.set.sfx;
   if(SAVE.set.quiet){ mus = Math.min(mus, 0.12); sfx = Math.min(sfx, 0.35); }
   Snd.setMusic(mus); Snd.setSfx(sfx);
@@ -3920,6 +4029,12 @@ addEventListener("keydown", e=>{
     else if(currentView!=="menu") go("menu");
     return;
   }
+  if(currentView==="intro"){
+    e.preventDefault();
+    if(k==="escape") finishIntro(true);
+    else beginIntroPlayback();
+    return;
+  }
   if(currentView==="menu" && (k==="enter"||k===" ")){ e.preventDefault(); Snd.unlock(); openBrief("trial"); return; }
   if(currentView==="brief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(briefMode, SAVE.set.diff); return; }
   if(currentView==="sitebrief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(sbMode, SAVE.set.diff); return; }
@@ -3999,12 +4114,106 @@ function loop(ts){
   ensureLoop();
 }
 
+/* ------------------------- INTRO ------------------------- */
+let introStarted=false, introDone=false, introReady=false;
+function introAllowed(){
+  const v=$("intro-video");
+  if(!v || typeof v.play!=="function") return false;
+  if(document.body.classList.contains("reduced")) return false;
+  if((SAVE.set.quality||"high")==="low") return false;
+  return true;
+}
+function setIntroHint(text){
+  const hint=document.querySelector("#intro-start .intro-hint");
+  if(hint) hint.textContent=text;
+}
+function beginIntroPlayback(){
+  if(introStarted || introDone || currentView!=="intro") return;
+  introStarted=true;
+  const card=$("intro-start"), skip=$("intro-skip"), stage=$("v-intro"), v=$("intro-video");
+  if(card) card.setAttribute("hidden","");
+  if(stage) stage.classList.add("playing");
+  if(skip) skip.hidden=false;
+  if(typeof Sky3D!=="undefined" && Sky3D.setEnabled) Sky3D.setEnabled(false);
+  Snd.unlock();
+  Snd.ambience("menu");
+  Snd.playVoice("audio/voice/intro-word.mp3", 13000);
+  if(v){
+    try{ v.currentTime=0; }catch(e){}
+    const p=v.play();
+    if(p&&p.catch) p.catch(function(){});
+  }
+}
+function finishIntro(skipped){
+  if(introDone) return;
+  introDone=true;
+  const v=$("intro-video"), stage=$("v-intro");
+  if(skipped && typeof Snd!=="undefined" && Snd.stopVoice) Snd.stopVoice();
+  if(stage) stage.classList.add("leaving");
+  setTimeout(()=>{
+    if(v){ try{ v.pause(); }catch(e){} }
+    if(typeof Sky3D!=="undefined" && Sky3D.setEnabled) Sky3D.setEnabled(true);
+    go("boot");
+    playBootSequence({fast:!!skipped});
+  }, skipped?280:900);
+}
+function playBootSequence(opts){
+  const fast=!!(opts&&opts.fast);
+  const msgs=["Opening the sacred record…","Gathering the witnesses…","Preparing the trial…",
+    "Lighting the final lamp…"];
+  const marks=[22,48,76,100];
+  const step=fast?320:620;
+  let i=0;
+  const fill=$("boot-fill"), msg=$("boot-msg"), bar=$("boot-bar");
+  if(fill) fill.style.width="8%";
+  if(msg) msg.textContent=msgs[0];
+  if(bar) bar.setAttribute("aria-valuenow","8");
+  const tick=setInterval(()=>{
+    i++;
+    if(fill) fill.style.width=marks[Math.min(i,marks.length-1)]+"%";
+    if(bar) bar.setAttribute("aria-valuenow",String(marks[Math.min(i,marks.length-1)]));
+    if(i<msgs.length && msg) msg.textContent=msgs[i];
+    if(i>=marks.length){
+      clearInterval(tick);
+      if(msg) msg.textContent="The record is open.";
+      setTimeout(()=>{
+        if(currentView==="boot"){
+          go("menu");
+          showTutorialIfNeeded();
+        }
+      }, fast?220:480);
+    }
+  }, step);
+}
+function armIntro(){
+  const start=$("intro-start"), skip=$("intro-skip"), v=$("intro-video");
+  if(start) start.addEventListener("click", ()=>{ Snd.ui(); beginIntroPlayback(); });
+  if(skip) skip.addEventListener("click", e=>{ e.stopPropagation(); Snd.ui(); finishIntro(true); });
+  if(!v) return;
+  v.addEventListener("ended", ()=>finishIntro(false));
+  v.addEventListener("error", ()=>{
+    setIntroHint("Tap to enter the hall");
+    if(introStarted) finishIntro(true);
+  });
+  function markReady(){
+    if(introReady) return;
+    introReady=true;
+    setIntroHint("Tap to begin");
+  }
+  v.addEventListener("canplaythrough", markReady, {once:true});
+  v.addEventListener("canplay", markReady, {once:true});
+  setIntroHint("Preparing the record…");
+  try{ v.load(); }catch(e){}
+  if(v.readyState>=3) markReady();
+}
+
 /* ------------------------- BOOT ------------------------- */
 (function boot(){
   buildPlayerCard();
   Backdrop.init();
   applySettings();
   bindTutorial();
+  armIntro();
 
   /* Cloud is optional. Lazy-load SDK; never block boot. */
   if(typeof Cloud!=="undefined" && Cloud.configured()){
@@ -4040,23 +4249,9 @@ function loop(ts){
   }
   updateOfflineBanner();
 
-  const msgs = ["Opening the sacred record…","Gathering the witnesses…","Preparing the trial…",
-    "Lighting the final lamp…"];
-  const marks=[28,58,86,100];
-  let i=0;
-  const tick = setInterval(()=>{
-    $("boot-fill").style.width = marks[i]+"%";
-    $("boot-msg").textContent = msgs[i];
-    i++;
-    if(i>=marks.length){
-      clearInterval(tick);
-      $("boot-msg").textContent = "Enter.";
-      setTimeout(()=>{
-        if(currentView==="boot"){
-          go("menu");
-          showTutorialIfNeeded();
-        }
-      }, 180);
-    }
-  }, 150);
+  if(introAllowed()){
+    go("intro");
+    return;
+  }
+  playBootSequence({fast:false});
 })();

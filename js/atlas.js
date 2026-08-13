@@ -65,6 +65,10 @@ var Atlas = (function () {
     if (typeof Snd === "undefined") return;
     try { if (Snd[name]) Snd[name](); } catch (e) {}
   }
+  function speak(text) {
+    if (typeof Director === "undefined" || !Director.speak) return;
+    try { Director.speak(text, true); } catch (e) {}
+  }
 
   /* ------------------------------ state ------------------------------ */
 
@@ -817,6 +821,7 @@ var Atlas = (function () {
       if (current) select(current.id, { fly: hasMap() && !reduced(), duration: 2.6 });
     }
 
+    speak("The pilgrimage. Ur to Patmos.");
     if (reduced() || !hasMap()) {
       finish();
       return;
@@ -886,6 +891,7 @@ var Atlas = (function () {
     }
 
     note((site.name || "This place") + " is open", 4200);
+    speak("The next place is open.");
     sfx("power");
     if (hooks.unlock) {
       try { hooks.unlock(siteId); } catch (e) {}

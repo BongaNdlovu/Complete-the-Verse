@@ -15,13 +15,10 @@ const game = fs.readFileSync(path.join(root, "js", "game.js"), "utf8");
 const css = fs.readFileSync(path.join(root, "css", "game.css"), "utf8");
 
 const SFX = [
-  { key: "ui", file: "ui.mp3" },
   { key: "hover", file: "hover.mp3" },
   { key: "lock", file: "lock.mp3" },
   { key: "correct", file: "correct.mp3" },
   { key: "wrong", file: "wrong.mp3" },
-  { key: "tick", file: "tick.mp3" },
-  { key: "heart", file: "heart.mp3" },
   { key: "power", file: "power.mp3" }
 ];
 
@@ -43,6 +40,13 @@ SFX.forEach((s) => {
   assert(new RegExp('playSfx\\("' + s.key + '"\\)').test(game), s.key + " playSfx wired");
 });
 
+// Tick/heart/ui samples are too long for per-click / per-second use (8–9s).
+// Countdown and chrome stay on short synth so they stay in time.
+["tick", "ui"].forEach((k) => {
+  assert(!new RegExp('playSfx\\("' + k + '"\\)').test(game), k + " must stay synth (sample too long)");
+});
+assert(/playSfx\("heart"\)/.test(game), "heartbeat uses the trimmed sample");
+
 // Still-synth hooks that remain to replace later
 ["act", "seal", "level", "death", "victory"].forEach((k) => {
   assert(new RegExp(k + "\\(\\)\\{").test(game) || new RegExp(k + "\\(\\)\\{ ").test(game) || game.includes(k + "(){"),
@@ -55,4 +59,4 @@ if (fails.length) {
   fails.forEach((f) => console.error(" - " + f));
   process.exit(1);
 }
-console.log("PASS — sfx · " + SFX.length + " samples wired · 5 still pending");
+console.log("PASS — sfx · " + SFX.length + " samples wired · heart beat · tick/ui synth");
