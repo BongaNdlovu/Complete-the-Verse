@@ -113,6 +113,9 @@ function makeLeaflet(log){
       on(t, fn){ (this._on = this._on || {})[t] = fn; return this; },
       setStyle(){ return this; },
       getElement(){ return this._el || (this._el = makeEl("", "div")); },
+      setIcon(i){ this._icon = i; return this; },
+      setLatLng(c){ this._latlng = c; return this; },
+      getLatLng(){ return this._latlng; },
       remove(){ this._added = false; }
     };
     return l;
@@ -126,13 +129,15 @@ function makeLeaflet(log){
         setView(c, z){ this._center = c; if(z != null) this._zoom = z; log.setView++; return this; },
         flyTo(c, z){ this._center = c; if(z != null) this._zoom = z; this._flights++; log.flyTo++; return this; },
         flyToBounds(){ this._flights++; log.fitBounds++; return this; },
+        fitBounds(){ this._flights++; log.fitBounds++; return this; },
         getZoom(){ return this._zoom; },
         setZoom(z){ this._zoom = z; return this; },
         on(t, fn){ this._on[t] = fn; return this; },
         off(){ return this; },
         removeLayer(l){ this._layers = this._layers.filter(x => x !== l); log.removed++; return this; },
         invalidateSize(){ log.invalidate++; return this; },
-        addLayer(l){ this._layers.push(l); return this; }
+        addLayer(l){ this._layers.push(l); return this; },
+        hasLayer(l){ return this._layers.indexOf(l) >= 0; }
       };
       log.maps.push(m);
       return m;

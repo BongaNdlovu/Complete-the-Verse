@@ -28,6 +28,18 @@ var Recall = (function(){
 
   function words(s){ var n = normalize(s); return n ? n.split(" ") : []; }
 
+  /* The first word where a typed answer and the verse diverge, so the
+     player is told WHICH word was wrong, not just that the line was. */
+  function wordDiff(typed, answer){
+    var tw = words(typed), aw = words(answer);
+    var max = Math.max(tw.length, aw.length);
+    for(var i = 0; i < max; i++){
+      if(tw[i] === aw[i]) continue;
+      return { index: i, typed: tw[i] || "", expected: aw[i] || "" };
+    }
+    return null;
+  }
+
   /* Levenshtein with a rolling row. Inputs here are a few dozen
      characters, so the O(n*m) is irrelevant. */
   function levenshtein(a, b){
@@ -106,7 +118,7 @@ var Recall = (function(){
   */
   function grade(typed, answer, distractors){
     var t = normalize(typed), a = normalize(answer);
-    var out = { typed: t, expected: a, distance: 0, verdict: "wrong", hint: "" };
+    var out = { typed: t, expected: a, distance: 0, verdict: "wrong", hint: "", diff: null };
     if(!t){ out.distance = a.length; out.hint = "Nothing entered."; return out; }
     if(t === a){ out.verdict = "exact"; return out; }
 
@@ -154,6 +166,7 @@ var Recall = (function(){
       out.hint = "Counted — mind the exact wording.";
       return out;
     }
+    out.diff = wordDiff(t, a);
     return out;
   }
 
@@ -174,7 +187,7 @@ var Recall = (function(){
   return {
     normalize: normalize, words: words, levenshtein: levenshtein,
     tolerance: tolerance, grade: grade, isCorrect: isCorrect, hint: hint,
-    isModernisationOf: isModernisationOf, isInflectionOf: isInflectionOf
+    isModernisationOf: isModernisationOf, isInflectionOf: isInflectionOf, wordDiff: wordDiff
   };
 })();
 

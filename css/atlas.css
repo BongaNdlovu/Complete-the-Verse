@@ -56,13 +56,13 @@
 /* ---------------------------------------------------------------- routes */
 
 .route-casing { stroke: #05060a; stroke-opacity: .8; }
-.route-line   { stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 9 13; animation: atlasDash 44s linear infinite; }
+.route-line   { stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 6 10; animation: atlasDash 44s linear infinite; }
 @keyframes atlasDash { to { stroke-dashoffset: -1200; } }
 body.reduced .route-line { animation: none; }
 
 /* The stretch already walked reads as solid gold; the road ahead stays
    dashed and dim. Progress is legible from the shape of the line alone. */
-.route-walked { stroke-dasharray: none; filter: drop-shadow(0 0 7px rgba(255,227,166,.85)); }
+.route-walked { stroke-dasharray: none; filter: drop-shadow(0 0 3px rgba(255,227,166,.55)); }
 .route-ahead  { opacity: .4; }
 
 .terminator-shape { stroke: rgba(111,182,255,.32); stroke-width: 1; fill: rgba(2,4,14,.46); pointer-events: none; }
@@ -137,50 +137,58 @@ body.reduced .route-line { animation: none; }
 /* Standalone pilgrim marker (walks the road between sites). */
 .traveler-marker { pointer-events: none; z-index: 650 !important; }
 .traveler-node {
-  position: absolute; left: -22px; top: -48px; width: 44px; height: 52px;
+  position: absolute; left: -20px; top: -72px; width: 40px; height: 80px;
   pointer-events: none;
 }
-.traveler-token {
-  width: 44px; height: 44px; border-radius: 50%; object-fit: cover; display: block;
-  box-shadow: 0 0 0 2px var(--gold-hot), 0 0 18px rgba(217,182,103,.7);
+.traveler-walker {
+  display: block; width: 40px; height: 68px;
+  background-image: url("../assets/traveler/idle.png");
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: contain;
+  filter: drop-shadow(0 0 6px rgba(217,182,103,.45));
+}
+.traveler-marker.is-walking .traveler-walker,
+.traveler-node.walking .traveler-walker {
+  background-image: url("../assets/traveler/walk.png");
+  background-size: 320px 68px;
+  background-position: 0 0;
+  animation: pilgrimWalk .72s steps(8) infinite;
+}
+.traveler-node.face-west .traveler-walker { transform: scaleX(-1); }
+.traveler-node.walking.face-west .traveler-walker {
+  animation-name: pilgrimWalkWest;
+}
+@keyframes pilgrimWalk {
+  from { background-position: 0 0; }
+  to { background-position: -320px 0; }
+}
+@keyframes pilgrimWalkWest {
+  from { background-position: 0 0; transform: scaleX(-1); }
+  to { background-position: -320px 0; transform: scaleX(-1); }
+}
+.traveler-face {
+  position: absolute; right: -4px; top: 4px;
+  width: 16px; height: 16px; border-radius: 50%; object-fit: cover;
+  box-shadow: 0 0 0 1.5px var(--gold-hot);
   background: #12131a;
-  animation: travelerIdle 2.4s ease-in-out infinite;
 }
 .traveler-shadow {
-  display: block; width: 28px; height: 8px; margin: 2px auto 0;
-  border-radius: 50%; background: rgba(0,0,0,.35);
+  display: block; width: 26px; height: 7px; margin: 0 auto;
+  border-radius: 50%; background: rgba(0,0,0,.4);
   filter: blur(1px);
-  animation: travelerShadow 2.4s ease-in-out infinite;
-}
-.traveler-marker.is-walking .traveler-token,
-.traveler-node.walking .traveler-token {
-  animation: travelerWalk 0.42s ease-in-out infinite;
 }
 .traveler-marker.is-walking .traveler-shadow,
 .traveler-node.walking .traveler-shadow {
-  animation: travelerShadowWalk 0.42s ease-in-out infinite;
-}
-@keyframes travelerIdle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-@keyframes travelerShadow {
-  0%, 100% { transform: scale(1); opacity: .4; }
-  50% { transform: scale(.85); opacity: .28; }
-}
-@keyframes travelerWalk {
-  0%, 100% { transform: translateY(0) rotate(-4deg); }
-  25% { transform: translateY(-7px) rotate(0deg); }
-  50% { transform: translateY(-2px) rotate(4deg); }
-  75% { transform: translateY(-8px) rotate(0deg); }
+  animation: travelerShadowWalk 0.36s ease-in-out infinite;
 }
 @keyframes travelerShadowWalk {
   0%, 100% { transform: scale(1); opacity: .45; }
-  50% { transform: scale(.65); opacity: .22; }
+  50% { transform: scale(.7); opacity: .22; }
 }
-body.reduced .traveler-token,
+body.reduced .traveler-walker,
 body.reduced .traveler-shadow,
-body.reduced .traveler-marker.is-walking .traveler-token,
+body.reduced .traveler-marker.is-walking .traveler-walker,
 body.reduced .traveler-marker.is-walking .traveler-shadow {
   animation: none !important;
 }

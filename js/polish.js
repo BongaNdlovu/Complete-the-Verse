@@ -12,6 +12,10 @@ var Polish = (function () {
   var BLITZ_START_MS = 60000;
   var BLITZ_CORRECT_MS = 2000;
   var BLITZ_MISS_MS = 4000;
+  /* Global pace: every stage clock gets this multiplier (playtest tuning). */
+  var PACE = 1.2;
+  /* Flat extra seconds added to every question clock, after pacing. */
+  var FLAT_ADD_MS = 5000;
 
   function clamp(n, lo, hi) {
     n = Number(n);
@@ -125,18 +129,75 @@ var Polish = (function () {
     return name.slice(0, 32);
   }
 
-  /* Book-level insight cards (MVP — not per-verse exegesis). */
+  /* Book-level insight cards — all 66 books, one card each. Kept short
+     on purpose: a line of orientation, not exegesis. */
   var BOOK_INSIGHTS = {
     Genesis: { author: "Moses (traditional)", era: "c. 1440–1400 BC / events earlier", audience: "Israel at Sinai", theme: "Beginnings, covenant, promise", roots: [{ w: "bereshith", m: "in the beginning" }, { w: "hesed", m: "covenant loyalty" }] },
     Exodus: { author: "Moses (traditional)", era: "c. 1440 BC", audience: "Israel newly free", theme: "Deliverance and law", roots: [{ w: "YHWH", m: "the LORD" }, { w: "torah", m: "instruction" }] },
+    Leviticus: { author: "Moses (traditional)", era: "c. 1440 BC", audience: "Israel at the tabernacle", theme: "Holiness and atonement", roots: [{ w: "qadosh", m: "holy, set apart" }, { w: "kopher", m: "ransom, atonement" }] },
+    Numbers: { author: "Moses (traditional)", era: "c. 1440–1400 BC", audience: "Israel in the wilderness", theme: "Wandering and faithlessness", roots: [{ w: "midbar", m: "wilderness" }, { w: "edah", m: "congregation" }] },
+    Deuteronomy: { author: "Moses (traditional)", era: "c. 1400 BC", audience: "Israel on the plains of Moab", theme: "Remember and love the LORD", roots: [{ w: "shema", m: "hear, obey" }, { w: "ahavah", m: "love" }] },
+    Joshua: { author: "Joshua and the elders (traditional)", era: "c. 1400–1370 BC", audience: "Israel entering Canaan", theme: "Faithful God, given land", roots: [{ w: "yerushah", m: "possession, inheritance" }, { w: "chazaq", m: "be strong" }] },
+    Judges: { author: "Samuel (traditional)", era: "c. 1050 BC / events c. 1370–1050", audience: "Israel before the kings", theme: "Everyone did what was right in his own eyes", roots: [{ w: "shophet", m: "judge, deliverer" }] },
+    Ruth: { author: "Unnamed (perhaps Samuel's era)", era: "c. 1000 BC / events in the judges", audience: "Israel", theme: "Loyal love in ordinary lives", roots: [{ w: "goel", m: "kinsman-redeemer" }, { w: "hesed", m: "covenant loyalty" }] },
+    "1 Samuel": { author: "Samuel, Nathan, Gad (traditional)", era: "c. 1000 BC", audience: "Israel under her first king", theme: "The heart God looks for", roots: [{ w: "mashiach", m: "anointed one" }] },
+    "2 Samuel": { author: "The prophets (traditional)", era: "c. 960 BC", audience: "Israel under David", theme: "A covenant house, a flawed king", roots: [{ w: "beth", m: "house, dynasty" }] },
+    "1 Kings": { author: "Jeremiah (traditional)", era: "c. 560 BC", audience: "Judah in exile", theme: "Wisdom, temple, and decline", roots: [{ w: "malkhut", m: "kingdom, reign" }] },
+    "2 Kings": { author: "Jeremiah (traditional)", era: "c. 560 BC", audience: "Judah in exile", theme: "The fall of both houses", roots: [{ w: "golah", m: "exile" }] },
+    "1 Chronicles": { author: "Ezra (traditional)", era: "c. 450 BC", audience: "Returned exiles", theme: "David's line, God's records", roots: [{ w: "divrei", m: "the words/acts of" }] },
+    "2 Chronicles": { author: "Ezra (traditional)", era: "c. 450 BC", audience: "Returned exiles", theme: "Revival and ruin of the temple", roots: [{ w: "chanukkah", m: "dedication" }] },
+    Ezra: { author: "Ezra (traditional)", era: "c. 457 BC", audience: "Restored Jerusalem", theme: "Rebuilding the house", roots: [{ w: "torah", m: "the Law" }, { w: "shuv", m: "return, restore" }] },
+    Nehemiah: { author: "Nehemiah (traditional)", era: "c. 445 BC", audience: "Jerusalem's wall-builders", theme: "Prayer and hard work", roots: [{ w: "chomah", m: "wall" }] },
+    Esther: { author: "Mordecai's circle (traditional)", era: "c. 470 BC", audience: "Diaspora Jews", theme: "Providence behind the scenes", roots: [{ w: "pur", m: "the lot" }] },
+    Job: { author: "Unnamed (perhaps Moses' era)", era: "Patriarchal setting", audience: "All who suffer", theme: "Trust without answers", roots: [{ w: "yireh", m: "fears" }, { w: "goel", m: "redeemer" }] },
     Psalms: { author: "David and others", era: "c. 1000–400 BC", audience: "Worshipping Israel", theme: "Prayer, praise, lament", roots: [{ w: "hesed", m: "steadfast love" }, { w: "nephesh", m: "soul / life" }] },
+    Proverbs: { author: "Solomon and others", era: "c. 950–700 BC", audience: "The young and the wise", theme: "The fear of the LORD", roots: [{ w: "chokmah", m: "wisdom" }, { w: "yirah", m: "fear, reverence" }] },
+    Ecclesiastes: { author: "The Preacher (traditional: Solomon)", era: "c. 935 BC", audience: "Those who labour under the sun", theme: "Vanity, and God's gift of today", roots: [{ w: "hevel", m: "vapour, vanity" }] },
+    "Song of Solomon": { author: "Solomon (traditional)", era: "c. 965 BC", audience: "Wedded love", theme: "Love strong as death", roots: [{ w: "dodi", m: "my beloved" }] },
     Isaiah: { author: "Isaiah", era: "c. 740–680 BC", audience: "Judah under threat", theme: "Judgment and hope", roots: [{ w: "emmanuel", m: "God with us" }] },
+    Jeremiah: { author: "Jeremiah, via Baruch", era: "c. 627–580 BC", audience: "Judah before the fall", theme: "Tears before the fire", roots: [{ w: "bakah", m: "to weep" }, { w: "berith chadashah", m: "new covenant" }] },
+    Lamentations: { author: "Jeremiah (traditional)", era: "c. 586 BC", audience: "Survivors of Jerusalem", theme: "Great is Thy faithfulness, in the ruins", roots: [{ w: "chessed", m: "mercies" }] },
+    Ezekiel: { author: "Ezekiel", era: "c. 593–571 BC", audience: "Exiles in Babylon", theme: "Dry bones and a new heart", roots: [{ w: "ruach", m: "spirit, wind, breath" }] },
+    Daniel: { author: "Daniel", era: "c. 605–530 BC", audience: "Exiles under four empires", theme: "The Most High rules", roots: [{ w: "malkut", m: "dominion" }] },
+    Hosea: { author: "Hosea", era: "c. 750–715 BC", audience: "Northern Israel", theme: "Unfailing love to the unfaithful", roots: [{ w: "hesed", m: "steadfast love" }] },
+    Joel: { author: "Joel", era: "c. 835 BC (uncertain)", audience: "Judah under locusts", theme: "The day of the LORD", roots: [{ w: "yom YHWH", m: "day of the LORD" }] },
+    Amos: { author: "Amos, the herdsman", era: "c. 760 BC", audience: "Comfortable Israel", theme: "Let justice roll", roots: [{ w: "mishpat", m: "justice" }] },
+    Obadiah: { author: "Obadiah", era: "c. 586 BC (uncertain)", audience: "Edom, and Judah wronged", theme: "Pride before a fall", roots: [{ w: "zedah", m: "pride, presumption" }] },
+    Jonah: { author: "Jonah's school (traditional)", era: "c. 760 BC", audience: "Reluctant saints", theme: "Mercy runs wider than we want", roots: [{ w: "gadol", m: "great" }] },
+    Micah: { author: "Micah", era: "c. 735–700 BC", audience: "Judah's leaders", theme: "Do justly, love mercy", roots: [{ w: "mishpat", m: "justice" }, { w: "beth-lechem", m: "house of bread" }] },
+    Nahum: { author: "Nahum", era: "c. 650 BC", audience: "Judah under Assyria's shadow", theme: "The LORD is good — and a stronghold", roots: [{ w: "machseh", m: "refuge" }] },
+    Habakkuk: { author: "Habakkuk", era: "c. 607 BC", audience: "The questioning faithful", theme: "The just shall live by faith", roots: [{ w: "emunah", m: "faithfulness" }] },
+    Zephaniah: { author: "Zephaniah", era: "c. 625 BC", audience: "Josiah's Judah", theme: "Hidden in the day of wrath", roots: [{ w: "anavim", m: "the humble" }] },
+    Haggai: { author: "Haggai", era: "c. 520 BC", audience: "Returned builders", theme: "Consider your ways", roots: [{ w: "kavod", m: "glory" }] },
+    Zechariah: { author: "Zechariah", era: "c. 520–480 BC", audience: "Restored Jerusalem", theme: "Not by might, nor by power", roots: [{ w: "ruach", m: "spirit" }] },
+    Malachi: { author: "Malachi", era: "c. 430 BC", audience: "Weary post-exiles", theme: "Honour the LORD; the Sun arises", roots: [{ w: "mattanah", m: "offering, gift" }] },
     Matthew: { author: "Matthew", era: "c. AD 60–70", audience: "Jewish believers", theme: "Jesus the Messiah-King", roots: [{ w: "basileia", m: "kingdom" }] },
+    Mark: { author: "Mark (Peter's record)", era: "c. AD 55–65", audience: "Rome and the persecuted", theme: "The Servant who acts at once", roots: [{ w: "euthys", m: "immediately" }] },
+    Luke: { author: "Luke, the physician", era: "c. AD 60", audience: "Theophilus and the nations", theme: "The Son of Man seeks the lost", roots: [{ w: "huios anthropou", m: "Son of Man" }] },
     John: { author: "John", era: "c. AD 90", audience: "Church at large", theme: "Word made flesh", roots: [{ w: "logos", m: "Word" }, { w: "agape", m: "love" }] },
-    Romans: { author: "Paul", era: "c. AD 57", audience: "Church in Rome", theme: "Gospel righteousness", roots: [{ w: "dikaiosyne", m: "righteousness" }, { w: "pistis", m: "faith" }] },
-    Revelation: { author: "John", era: "c. AD 95", audience: "Seven churches of Asia", theme: "Christ reigns; new creation", roots: [{ w: "apokalypsis", m: "unveiling" }] },
     Acts: { author: "Luke", era: "c. AD 62", audience: "Theophilus / church", theme: "Spirit and mission", roots: [{ w: "pneuma", m: "Spirit / wind" }] },
-    Hebrews: { author: "Unknown", era: "c. AD 60–70", audience: "Jewish Christians", theme: "Christ superior", roots: [{ w: "archiereus", m: "high priest" }] }
+    Romans: { author: "Paul", era: "c. AD 57", audience: "Church in Rome", theme: "Gospel righteousness", roots: [{ w: "dikaiosyne", m: "righteousness" }, { w: "pistis", m: "faith" }] },
+    "1 Corinthians": { author: "Paul", era: "c. AD 55", audience: "A divided Greek church", theme: "Christ, the wisdom and power of God", roots: [{ w: "agape", m: "charity, love" }] },
+    "2 Corinthians": { author: "Paul", era: "c. AD 56", audience: "A tested church", theme: "Strength made perfect in weakness", roots: [{ w: "paraklesis", m: "comfort" }] },
+    Galatians: { author: "Paul", era: "c. AD 48–55", audience: "Churches turning to law", theme: "Liberty, not bondage", roots: [{ w: "eleutheria", m: "freedom" }] },
+    Ephesians: { author: "Paul", era: "c. AD 60", audience: "Churches of Asia Minor", theme: "The church, God's workmanship", roots: [{ w: "poiema", m: "workmanship" }] },
+    Philippians: { author: "Paul", era: "c. AD 61", audience: "His joyful partners", theme: "Rejoice; the peace of God keeps you", roots: [{ w: "chara", m: "joy" }] },
+    Colossians: { author: "Paul", era: "c. AD 61", audience: "A church facing false wisdom", theme: "Christ is all, and in all", roots: [{ w: "pleroma", m: "fullness" }] },
+    "1 Thessalonians": { author: "Paul", era: "c. AD 51", audience: "A young, persecuted church", theme: "Watch for the Lord's coming", roots: [{ w: "parousia", m: "coming" }] },
+    "2 Thessalonians": { author: "Paul", era: "c. AD 52", audience: "An unsettled church", theme: "Stand fast; work while you wait", roots: [{ w: "steko", m: "stand fast" }] },
+    "1 Timothy": { author: "Paul", era: "c. AD 62–64", audience: "A young pastor at Ephesus", theme: "How to behave in the house of God", roots: [{ w: "didaskalia", m: "doctrine, teaching" }] },
+    "2 Timothy": { author: "Paul", era: "c. AD 67", audience: "Timothy, and every succeeding generation", theme: "Endure; keep the word", roots: [{ w: "graphē", m: "the Scripture" }] },
+    Titus: { author: "Paul", era: "c. AD 63", audience: "Crete's young churches", theme: "Sound doctrine, good works", roots: [{ w: "sōphrōn", m: "sober-minded" }] },
+    Philemon: { author: "Paul", era: "c. AD 61", audience: "A master, about his runaway", theme: "Receive him as a brother", roots: [{ w: "adelphos", m: "brother" }] },
+    Hebrews: { author: "Unknown", era: "c. AD 60–70", audience: "Jewish Christians", theme: "Christ superior", roots: [{ w: "archiereus", m: "high priest" }] },
+    James: { author: "James, the Lord's brother", era: "c. AD 45–50", audience: "Scattered believers", theme: "Faith that works", roots: [{ w: "hypomonē", m: "patience, endurance" }] },
+    "1 Peter": { author: "Peter", era: "c. AD 62–64", audience: "Suffering strangers", theme: "Living hope among the fire", roots: [{ w: "elpis", m: "living hope" }] },
+    "2 Peter": { author: "Peter", era: "c. AD 67", audience: "A church warned", theme: "Grow in grace; the day will come", roots: [{ w: "epignōsis", m: "full knowledge" }] },
+    "1 John": { author: "John the Apostle", era: "c. AD 90", audience: "Assured believers", theme: "God is light, God is love", roots: [{ w: "koinōnia", m: "fellowship" }] },
+    "2 John": { author: "The Elder (John)", era: "c. AD 90", audience: "A chosen lady and her house", theme: "Walk in truth", roots: [{ w: "alētheia", m: "truth" }] },
+    "3 John": { author: "The Elder (John)", era: "c. AD 90", audience: "Gaius, a faithful host", theme: "Fellowhelpers with the truth", roots: [{ w: "philadelphia", m: "brotherly love" }] },
+    Jude: { author: "Jude, brother of James", era: "c. AD 65", audience: "A church slipped in among", theme: "Keep yourselves in the love of God", roots: [{ w: "epagōnizomai", m: "earnestly contend" }] },
+    Revelation: { author: "John", era: "c. AD 95", audience: "Seven churches of Asia", theme: "Christ reigns; new creation", roots: [{ w: "apokalypsis", m: "unveiling" }] }
   };
 
   function insightForVerse(v) {
@@ -192,6 +253,27 @@ var Polish = (function () {
     } catch (e) { return false; }
   }
 
+  /* Overdrive "ride or bank" math (pure, shared with the tests). */
+  function overdriveBank(streak, diffScore) {
+    streak = Math.max(0, streak | 0);
+    diffScore = diffScore == null ? 1 : Number(diffScore) || 1;
+    return Math.round(streak * 60 * diffScore);
+  }
+  function overdriveRideGain(gain) {
+    return Math.round((gain || 0) * 2);
+  }
+
+  /* The one honest clock. Every surface that PRINTS a per-verse clock
+     (atlas dossier, site brief, relay brief, Trial act cards) goes
+     through this so they agree with the clock play actually uses:
+     (base × difficulty + pick pad) × PACE + FLAT_ADD_MS. */
+  function pacedClockMs(baseMs, diffTime, pickPadMs) {
+    baseMs = Number(baseMs) || 0;
+    diffTime = Number(diffTime) || 1;
+    var pad = pickPadMs == null ? 1500 : Number(pickPadMs) || 0;
+    return Math.round((baseMs * diffTime + pad) * PACE + FLAT_ADD_MS);
+  }
+
   /* Pure shape score used by buildChoices (mirrored for tests). */
   function choiceShapeScore(correct, cand) {
     correct = String(correct || "");
@@ -226,6 +308,8 @@ var Polish = (function () {
     BLITZ_START_MS: BLITZ_START_MS,
     BLITZ_CORRECT_MS: BLITZ_CORRECT_MS,
     BLITZ_MISS_MS: BLITZ_MISS_MS,
+    PACE: PACE,
+    FLAT_ADD_MS: FLAT_ADD_MS,
     clamp: clamp,
     clampDailyScore: clampDailyScore,
     clampBlitzScore: clampBlitzScore,
@@ -240,7 +324,10 @@ var Polish = (function () {
     crossRefsInBank: crossRefsInBank,
     BOOK_INSIGHTS: BOOK_INSIGHTS,
     haptic: haptic,
-    choiceShapeScore: choiceShapeScore
+    choiceShapeScore: choiceShapeScore,
+    overdriveBank: overdriveBank,
+    overdriveRideGain: overdriveRideGain,
+    pacedClockMs: pacedClockMs
   };
 })();
 

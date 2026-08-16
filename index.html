@@ -3,7 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>COMPLETE THE VERSE — A Trial of Scripture</title>
+<title>Complete the Verse — A Trial of Scripture</title>
+<meta name="description" content="A biblical-thriller verse game on the King James Version: complete the missing phrase before the clock falls, walk the 36-site pilgrimage from Ur to Patmos, and train every verse with spaced repetition.">
+<meta name="theme-color" content="#04040a">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:title" content="Complete the Verse — A Trial of Scripture">
+<meta property="og:description" content="One phrase is taken away. Complete it before the final second falls. 423 verses · 66 books · a pilgrimage from Ur to Patmos.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://complete-the-verse.vercel.app/">
+<meta property="og:image" content="https://complete-the-verse.vercel.app/assets/intro.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@300;400;600&display=swap" rel="stylesheet">
@@ -12,13 +21,6 @@
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="css/game.css">
 <link rel="stylesheet" href="css/atlas.css">
-<script type="importmap">
-{
-  "imports": {
-    "three": "./vendor/three/three.module.min.js"
-  }
-}
-</script>
 </head>
 <body class="biblical-thriller">
 <div id="offline-banner" class="offline-banner" role="status" aria-live="polite"></div>
@@ -26,6 +28,7 @@
 <video id="hall-bg" class="hall-bg" src="assets/hall.mp4" muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video>
 <div id="cinematic-fx" aria-hidden="true">
   <div class="smoke-wisp one"></div><div class="smoke-wisp two"></div>
+  <div id="site-motif"></div>
 </div>
 <div class="layer" id="vignette"></div>
 <div class="layer" id="grain"></div>
@@ -106,7 +109,7 @@
         <button class="btn" id="brief-start">Begin</button>
         <button class="btn ghost" data-go="menu">Back</button>
       </div>
-      <div class="hint">A–D or 1–4 to select &nbsp;·&nbsp; Enter to lock &nbsp;·&nbsp; S Selah &nbsp;·&nbsp; I Illuminate &nbsp;·&nbsp; Esc pause</div>
+      <div class="hint">A–D or 1–4 answers &nbsp;·&nbsp; S Selah &nbsp;·&nbsp; I Illuminate &nbsp;·&nbsp; Esc pause</div>
     </div>
   </section>
 
@@ -175,6 +178,7 @@
       </div>
       <div class="briefinfo" id="sb-info" style="margin-top:3.2vh"></div>
       <div class="brief-live" id="sb-live"></div>
+      <div class="diffs" id="sb-diffs"></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:3.6vh">
         <button class="btn" id="sb-start" type="button">Begin</button>
         <button class="btn ghost" id="sb-back" type="button">Back to the map</button>
@@ -220,8 +224,8 @@
           <div class="rail-lab">Current Streak</div>
           <div class="rail-val" id="hud-streak">0 Verses</div>
         </div>
-        <div>
-          <div class="rail-lab">Lives Remaining</div>
+        <div id="hud-lives-wrap">
+          <div class="rail-lab" id="hud-lives-lab">Lamps</div>
           <div class="heartrow" id="hud-lives"></div>
         </div>
       </div>
@@ -252,6 +256,10 @@
       <div class="act-track" id="act-track" aria-label="Run progress"></div>
 
       <div class="kjv"><b>KJV</b></div>
+      <div class="witness" id="witness" hidden>
+        <img id="witness-face" alt="">
+      </div>
+      <div id="judge-burst" aria-hidden="true"><i></i></div>
 
       <div class="verse-stage">
         <div class="verse-main" id="verse"></div>
@@ -259,7 +267,6 @@
       </div>
 
       <div class="answers" id="opts"></div>
-      <div class="answer-reveal" id="answer-reveal" aria-live="polite"></div>
       <div class="assembly" id="assembly"></div>
 
       <div class="control">
@@ -291,6 +298,12 @@
 
     <footer class="ftr"></footer>
     <canvas id="viz"></canvas>
+    <div id="lock-seal" aria-hidden="true"><i></i></div>
+    <div id="site-quote" aria-live="polite">
+      <div class="kick" id="site-quote-kicker"></div>
+      <p id="site-quote-line"></p>
+      <div class="site-quote-ref" id="site-quote-ref"></div>
+    </div>
    </div>
   </section>
 
@@ -426,9 +439,24 @@
   </div>
 </div>
 
-<div id="pause">
+<div id="overdrive-choice" role="dialog" aria-modal="true" aria-labelledby="od-title">
+  <div class="od-card">
+    <div class="kick">Overdrive</div>
+    <div class="h-lg" id="od-title" style="margin-top:1vh">The fire is yours</div>
+    <div class="fil"><i></i></div>
+    <p class="od-copy">Ride the fire — every answer pays double, but one miss costs two lamps.<br>
+      Bank the streak — cash it in and reset to a safe ×1.</p>
+    <div class="footer" style="margin-top:2.6vh">
+      <button class="btn" id="od-ride" type="button">Ride the fire</button>
+      <button class="btn ghost" id="od-bank" type="button">Bank the streak</button>
+    </div>
+    <div class="hint">Enter rides · B banks</div>
+  </div>
+</div>
+
+<div id="pause" role="dialog" aria-modal="true" aria-labelledby="pause-title">
   <div class="kick">Paused</div>
-  <div class="h-lg" style="margin-top:1.4vh">Selah</div>
+  <div class="h-lg" id="pause-title" style="margin-top:1.4vh">Selah</div>
   <div class="fil"><i></i></div>
   <div class="pause-stats" id="pause-stats"></div>
   <div class="footer">
@@ -444,7 +472,7 @@
     <div class="fil"><i></i></div>
     <ol class="tut-steps">
       <li><b>Read the verse</b> — one phrase is taken away.</li>
-      <li><b>Select A–D</b> (or tap), then <b>Lock Answer</b> / Enter.</li>
+      <li><b>Tap a phrase</b> (or press A–D / 1–4) — the tap is the answer; it locks at once.</li>
       <li><b>Lifelines:</b> S = Selah (+5s), I = Illuminate (−2 wrong).</li>
     </ol>
     <p class="tut-note"><b>The Drill</b> brings back verses on the day they fall due. <b>Recall</b> asks you
@@ -462,7 +490,7 @@
     <div class="h-lg" id="char-title" style="margin-top:1vh">Who are you on the road?</div>
     <div class="fil"><i></i></div>
     <p id="char-sub" style="max-width:48ch;color:var(--parch-dim);line-height:1.55;margin:0 auto;text-align:center">
-      Choose a scholar, then give them your name. Biblical figures unlock later as skins.</p>
+      Choose a scholar, then give them your name.</p>
     <div class="char-name-row" id="char-name-row">
       <label for="char-name">Your name</label>
       <input id="char-name" type="text" maxlength="32" placeholder="e.g. Miriam" autocomplete="nickname">
@@ -515,8 +543,6 @@
 <script src="js/polish.js"></script>
 <script src="js/cloud-config.js"></script>
 <script src="js/cloud.js"></script>
-<!-- Phase A living sky (optional WebGL). Must stay type=module for Three import. -->
-<script type="module" src="js/sky3d.js"></script>
 <script src="js/game.js"></script>
 </body>
 </html>

@@ -121,9 +121,20 @@ If you paste those two values here (anon key is public with RLS), the config fil
 
 ---
 
+## Server-trusted scores (deploy once)
+
+`supabase/functions/submit-score/index.ts` re-clamps scores and writes under the caller's own auth. The client (`js/cloud.js`) **tries this Edge Function first** on every Daily/Blitz submit and falls back to the direct RLS write if the function is unreachable, so boards keep working before you deploy it. Deploy to make the ceilings server-enforced:
+
+```bash
+supabase functions deploy submit-score --project-ref eanjhcktflbpbjkdjdej
+```
+
+After deploying, watch the Network tab: submissions should go to `/functions/v1/submit-score`.
+
+---
+
 ## Later (optional)
 
-- Edge Function to validate max scores  
 - Friend-only ghosts  
 - Weekly Blitz board  
 - Google OAuth  

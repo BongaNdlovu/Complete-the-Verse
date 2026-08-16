@@ -49,6 +49,9 @@ var Atlas = (function () {
   var travelerToken = null;    // optional portrait token on the current site
   var travelerMarker = null;   // separate map marker that can walk between sites
   var walkAnim = null;
+  var travelerAt = null;       // site id the walker last stood on
+  var travelerFacing = 1;      // 1 east / -1 west
+  var travelerLatLng = null;   // last drawn position (so a new click continues from here)
 
   var $ = function (id) { return document.getElementById(id); };
   function reduced() {
@@ -177,6 +180,75 @@ var Atlas = (function () {
     return best;
   }
 
+  /* The four arc polylines, joined in road order, with shared join
+     points dropped. This is the same geometry drawRoutes paints. */
+  function fullRoad() {
+    var pts = [];
+    var arcs = (typeof Pilgrimage !== "undefined" && Pilgrimage.arcs) ? Pilgrimage.arcs() : [];
+    var routes = typeof ROUTES !== "undefined" ? ROUTES : {};
+    arcs.forEach(function (arc) {
+      var route = routes[arc.key];
+      if (!route || !route.coords || !route.coords.length) return;
+      route.coords.forEach(function (c) {
+        var last = pts[pts.length - 1];
+        if (last && last[0] === c[0] && last[1] === c[1]) return;
+        pts.push(c);
+      });
+    });
+    return pts;
+  }
+
+  /* A walk from one pin to another that stays on the painted road,
+     including when the two sites sit in different arcs. Falls back to
+     the two pins if the route table is missing. */
+  function pathBetween(fromCoords, toCoords) {
+    if (!fromCoords || !toCoords) return [];
+    var road = fullRoad();
+    if (road.length < 2) return [fromCoords, toCoords];
+    var i = nearestWaypoint(road, fromCoords);
+    var j = nearestWaypoint(road, toCoords);
+    var slice = i <= j ? road.slice(i, j + 1) : road.slice(j, i + 1).reverse();
+    var path = [fromCoords];
+    slice.forEach(function (c) {
+      var last = path[path.length - 1];
+      if (last[0] === c[0] && last[1] === c[1]) return;
+      path.push(c);
+    });
+    var last = path[path.length - 1];
+    if (last[0] !== toCoords[0] || last[1] !== toCoords[1]) path.push(toCoords);
+    return path;
+  }
+
+  function polylineAt(path, distKm) {
+    if (!path.length) return null;
+    if (path.length === 1 || distKm <= 0) return path[0];
+    var acc = 0;
+    for (var i = 1; i < path.length; i++) {
+      var seg = Geo.haversineKm(path[i - 1], path[i]);
+      if (acc + seg >= distKm || i === path.length - 1) {
+        var t = seg < 1e-6 ? 1 : (distKm - acc) / seg;
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
+        return [
+          path[i - 1][0] + (path[i][0] - path[i - 1][0]) * t,
+          path[i - 1][1] + (path[i][1] - path[i - 1][1]) * t
+        ];
+      }
+      acc += seg;
+    }
+    return path[path.length - 1];
+  }
+
+  /* Fast enough to follow the road without waiting on it. Neighbours
+     take ~1.4s; a long hop caps at 5.2s. */
+  function durationForPath(path) {
+    var km = (typeof Geo !== "undefined" && Geo.pathLengthKm) ? Geo.pathLengthKm(path) : 0;
+    var ms = km * 24;
+    if (ms < 1400) return 1400;
+    if (ms > 5200) return 5200;
+    return ms;
+  }
+
   /* Each arc is drawn twice: the stretch already walked as a solid gold
      line, the road ahead dashed and dim. The split point is the route
      waypoint nearest the last cleared site in that arc, so the line's
@@ -201,11 +273,11 @@ var Atlas = (function () {
       function add(coords, cls, opacity) {
         if (coords.length < 2) return;
         routeLayers.push(L.polyline(coords, {
-          color: "#05060a", weight: 7, opacity: .5,
+          color: "#05060a", weight: 3.2, opacity: .45,
           className: "route-casing", interactive: false
         }).addTo(map));
         routeLayers.push(L.polyline(coords, {
-          color: route.colour, weight: 3.4, opacity: opacity,
+          color: route.colour, weight: 1.6, opacity: opacity,
           className: "route-line " + cls, interactive: false
         }).addTo(map));
       }
@@ -227,15 +299,19 @@ var Atlas = (function () {
   }
 
   function travelerIconHtml(walking) {
-    if (!travelerToken) return "";
-    return '<div class="traveler-node' + (walking ? " walking" : "") + '">' +
-      '<img class="traveler-token" src="' + esc(travelerToken) + '" alt="" width="44" height="44">' +
+    var face = travelerFacing < 0 ? " face-west" : "";
+    var token = travelerToken
+      ? '<img class="traveler-face" src="' + esc(travelerToken) + '" alt="">'
+      : "";
+    return '<div class="traveler-node' + (walking ? " walking" : "") + face + '">' +
+      '<i class="traveler-walker" aria-hidden="true"></i>' +
+      token +
       '<i class="traveler-shadow" aria-hidden="true"></i>' +
       '</div>';
   }
 
   function ensureTravelerMarker(latlng, walking) {
-    if (!hasMap() || !travelerToken) {
+    if (!hasMap()) {
       clearTravelerMarker();
       return null;
     }
@@ -273,48 +349,90 @@ var Atlas = (function () {
   }
 
   function placeTravelerAtCurrent(walking) {
-    if (!hasMap() || !travelerToken) {
+    if (!hasMap()) {
       clearTravelerMarker();
       return;
     }
-    var cur = Pilgrimage.currentSite(progress);
+    var cur = Pilgrimage.site(travelerAt) || Pilgrimage.currentSite(progress);
     if (!cur) return;
+    travelerAt = cur.id;
+    travelerLatLng = cur.coords;
     ensureTravelerMarker(cur.coords, !!walking);
   }
 
-  /* Walk the token along a great-circle-ish lerp between two sites. */
+  /* Walk the token along the painted road, not a straight cut. */
   function walkTraveler(fromId, toId, opts) {
     opts = opts || {};
-    if (!hasMap() || !travelerToken || reduced()) {
+    var to = Pilgrimage.site(toId);
+    var from = Pilgrimage.site(fromId);
+    if (!hasMap() || reduced() || opts.duration === 0) {
+      travelerAt = toId || travelerAt;
+      if (to) travelerLatLng = to.coords;
       placeTravelerAtCurrent(false);
       if (opts.onDone) opts.onDone();
       return;
     }
-    var from = Pilgrimage.site(fromId);
-    var to = Pilgrimage.site(toId);
-    if (!from || !to) {
+    if (!to) {
       placeTravelerAtCurrent(false);
+      if (opts.onDone) opts.onDone();
+      return;
+    }
+    var startPt = travelerLatLng || (from && from.coords) || to.coords;
+    if (from && from.id === to.id && !travelerLatLng) {
+      travelerAt = to.id;
+      travelerLatLng = to.coords;
+      ensureTravelerMarker(to.coords, false);
+      if (opts.onDone) opts.onDone();
+      return;
+    }
+    var path = pathBetween(startPt, to.coords);
+    if (path.length < 2) {
+      travelerAt = to.id;
+      travelerLatLng = to.coords;
+      ensureTravelerMarker(to.coords, false);
       if (opts.onDone) opts.onDone();
       return;
     }
     if (walkAnim) cancelAnimationFrame(walkAnim);
-    var duration = typeof opts.duration === "number" ? opts.duration : 1600;
+    var totalKm = Geo.pathLengthKm(path);
+    var duration = typeof opts.duration === "number" ? opts.duration : durationForPath(path);
     var start = null;
-    var a = from.coords, b = to.coords;
-    ensureTravelerMarker(a, true);
+    var lastPos = startPt;
+    travelerFacing = (to.coords[1] >= startPt[1]) ? 1 : -1;
+    travelerAt = fromId || travelerAt;
+    ensureTravelerMarker(startPt, true);
+
+    if (path.length > 2) {
+      try {
+        var bounds = L.latLngBounds(path).pad(0.2);
+        if (map.fitBounds) map.fitBounds(bounds, { animate: true, duration: 0.4 });
+        else if (map.flyToBounds) map.flyToBounds(bounds, { duration: 0.4 });
+      } catch (e) {}
+    }
+
     function step(ts) {
       if (start == null) start = ts;
       var t = Math.min(1, (ts - start) / duration);
-      /* ease-in-out */
       var e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-      var lat = a[0] + (b[0] - a[0]) * e;
-      var lng = a[1] + (b[1] - a[1]) * e;
-      if (travelerMarker) travelerMarker.setLatLng([lat, lng]);
+      var pos = polylineAt(path, totalKm * e);
+      if (pos) {
+        var face = pos[1] >= lastPos[1] ? 1 : -1;
+        if (face !== travelerFacing) {
+          travelerFacing = face;
+          ensureTravelerMarker(pos, true);
+        } else if (travelerMarker) {
+          travelerMarker.setLatLng(pos);
+        }
+        lastPos = pos;
+        travelerLatLng = pos;
+      }
       if (t < 1) {
         walkAnim = requestAnimationFrame(step);
       } else {
         walkAnim = null;
-        ensureTravelerMarker(b, false);
+        travelerAt = to.id;
+        travelerLatLng = to.coords;
+        ensureTravelerMarker(to.coords, false);
         if (opts.onDone) opts.onDone();
       }
     }
@@ -493,13 +611,25 @@ var Atlas = (function () {
   function select(siteId, opts) {
     var site = Pilgrimage.site(siteId);
     if (!site) return;
+    var st = stateOf(site);
+    var fromId = travelerAt;
     activeId = siteId;
-    focus(siteId, opts);
+    var willWalk = !st.locked && (fromId || travelerLatLng) && fromId !== siteId && !reduced();
+    focus(siteId, willWalk ? { fly: false } : opts);
     showDossier(site);
     refreshMarkers();
     renderRail();
     drawEmpire(site);
     applyLight(site);
+    if (st.locked) {
+      /* Sealed places are not walked to — the pilgrim stays on the road. */
+    } else if (willWalk) {
+      walkTraveler(fromId, siteId);
+    } else if (!walkAnim) {
+      travelerAt = siteId;
+      travelerLatLng = site.coords;
+      if (hasMap()) ensureTravelerMarker(site.coords, false);
+    }
   }
 
   function focus(siteId, opts) {
@@ -535,8 +665,10 @@ var Atlas = (function () {
         '<span>' + st.cleared + "/" + st.total + (st.perfect ? " ✦" : "") + '</span>' +
         // The relay is offered only once the arc is reachable, and it is
         // always optional — the site-by-site road is the main way through.
+        // Named after the mode, not a verb: "Walk it" read as navigation
+        // and started a whole-arc run by accident.
         (st.open ? '<button class="arc-relay" type="button" data-relay="' + esc(arc.key) +
-                   '" title="Walk the whole arc in one unbroken run">Walk it</button>' : '') +
+                   '" title="Walk the whole arc in one unbroken run — lives are shared and never return">The Long Road</button>' : '') +
         '</div>';
 
       Pilgrimage.sitesInArc(arc.key).forEach(function (site) {
@@ -576,6 +708,23 @@ var Atlas = (function () {
   }
 
   /* ------------------------------ dossier ------------------------------ */
+
+  /* The printed clock matches the site brief and the play clock: base ×
+     the player's difficulty + pad, paced, plus the flat seconds. It used
+     to print base+pad only, so the dossier promised 15.5s and the brief
+     said 23.6s for the same site. */
+  function dossClockLabel(b) {
+    var diffTime = 1;
+    try {
+      if (typeof SAVE !== "undefined" && SAVE.set && typeof DIFFS !== "undefined") {
+        diffTime = (DIFFS[SAVE.set.diff] || DIFFS.disciple).time;
+      }
+    } catch (e) {}
+    var ms = (typeof Polish !== "undefined" && Polish.pacedClockMs)
+      ? Polish.pacedClockMs(b.clockMs, diffTime, Pilgrimage.PICK_PAD_MS || 1500)
+      : b.clockMs + (Pilgrimage.PICK_PAD_MS || 1500);
+    return (ms / 1000).toFixed(1) + " s";
+  }
 
   function liveRows(site) {
     var r = Live.readingFor(site);
@@ -724,7 +873,7 @@ var Atlas = (function () {
         '<div class="doss-cell wide"><b>Archaeology</b><span>' + esc(site.archaeology) + '</span></div>' +
         '<div class="doss-cell wide"><b>Scripture</b><span>' + esc(site.scripture) + '</span></div>' +
         '<div class="doss-cell"><b>Difficulty</b><span>Tier ' + b.tier + '</span></div>' +
-        '<div class="doss-cell"><b>Clock</b><span>' + (b.clockMs / 1000).toFixed(1) + ' s</span></div>' +
+        '<div class="doss-cell"><b>Clock</b><span>' + dossClockLabel(b) + '</span></div>' +
       '</div>' +
       (st.cleared && b.record
         ? '<div class="doss-record">' +
@@ -868,8 +1017,8 @@ var Atlas = (function () {
     }
 
     /* Pilgrim walks from the last site to the newly opened one. */
-    if (prev && travelerToken) {
-      walkTraveler(prev.id, siteId, { duration: reduced() ? 0 : 1800 });
+    if (prev) {
+      walkTraveler(prev.id, siteId, reduced() ? { duration: 0 } : {});
     } else {
       placeTravelerAtCurrent(false);
     }
@@ -940,7 +1089,9 @@ var Atlas = (function () {
     hasMap: hasMap,
     /* exposed for the structure tests */
     _profileSvg: profileSvg, _markerHtml: markerHtml, _stateOf: stateOf,
-    _nearestWaypoint: nearestWaypoint
+    _nearestWaypoint: nearestWaypoint,
+    _fullRoad: fullRoad, _pathBetween: pathBetween,
+    _polylineAt: polylineAt, _durationForPath: durationForPath
   };
 })();
 

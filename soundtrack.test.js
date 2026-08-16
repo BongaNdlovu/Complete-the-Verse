@@ -71,6 +71,11 @@ assert(/function stopAllTracks\(/.test(game), "stopAllTracks helper");
 assert(/TRACKS\[bed\]/.test(game), "unlock resumes current track bed");
 assert(/if\(TRACKS\[name\]\)/.test(game), "ambience prefers TRACKS over synth pad");
 
+assert(/base<=0/.test(game) && /tension\(level\)/.test(game),
+  "tension does not revive a muted bed");
+assert(/if\(base<=0\)/.test(game) && /function duckMusic/.test(game),
+  "ducking a muted bed stays silent");
+
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");
   fails.forEach((f) => console.error(" - " + f));

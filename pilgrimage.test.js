@@ -77,6 +77,7 @@ function walkTo(n){
   eq("all five tiers are used", new Set(tiers).size, 5);
 
   eq("the clock opens at 14 seconds", P.clockFor(0), P.CLOCK_OPEN);
+  eq("pick clocks get a 1.5s pad in play", P.PICK_PAD_MS, 1500);
   eq("the clock closes at 6.5 seconds", P.clockFor(LAST), P.CLOCK_CLOSE);
   const clocks = P.journey().map((s, i) => P.clockFor(i));
   ok("the clock only ever tightens",
@@ -350,27 +351,20 @@ function walkTo(n){
 
 /* ---------- journey-wide draw + place floor ---------- */
 {
-  /* usedIds still prefer freshness, but the site-book floor may re-admit
-     an earlier verse so late stops keep half their level on-theme. */
+  /* usedIds never come back. Late sites may miss a full site-book floor
+     when that book has already been spent — they fill from unused stock. */
   let exclude = {};
   const seen = [];
-  const weak = [];
   P.journey().forEach(s => {
     const d = P.drawSite(s.id, { attempt: 0, exclude: exclude });
-    const bound = {};
-    (s.books || []).forEach(b => { bound[b] = 1; });
-    const siteN = d.verses.filter(v => bound[v.b] === 1).length;
-    const floor = P.siteFloorNeed(s, P.VERSES_PER_SITE);
-    const bankSite = bank.VERSES.filter(v => bound[v.b] === 1).length;
-    if (bankSite >= floor && siteN < floor) weak.push({ id: s.id, siteN, floor });
     d.verses.forEach(v => {
       seen.push(v.id);
       exclude[v.id] = 1;
     });
   });
-  ok("every site meets the site-book floor across a full road", weak.length === 0, weak.slice(0, 6));
+  ok("a full road never repeats a verse id", new Set(seen).size === seen.length,
+    { unique: new Set(seen).size, total: seen.length });
   ok("the walk still yields a real volume of verses", seen.length >= N * 4, seen.length);
-  ok("most of the road still draws fresh ids", new Set(seen).size >= N * 5, new Set(seen).size);
 
   /* Set-piece stops demand a full site-book level when stock exists. */
   ["sinai","jericho","babylon","golgotha","patmos","nineveh"].forEach(id => {

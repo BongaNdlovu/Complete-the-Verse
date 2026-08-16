@@ -72,6 +72,12 @@ eq("combined roster is 14", Characters.all().length, 14);
 
 {
   const p1 = walkArc("patriarchs");
+  ok("resolve never equips a figure even when unlocked",
+    Characters.resolve("abram", p1).kind === "scholar");
+}
+
+{
+  const p1 = walkArc("patriarchs");
   ok("Abram unlocks after Patriarchs", unlocked(FIGURES.find(c => c.id === "abram"), p1));
   ok("Moses still locked after Patriarchs", !unlocked(FIGURES.find(c => c.id === "moses"), p1));
 }

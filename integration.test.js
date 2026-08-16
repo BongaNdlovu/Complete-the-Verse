@@ -129,6 +129,12 @@ eq("SRS is available to the game", read(sb, "typeof SRS.schedule"), "function");
 eq("Recall is available to the game", read(sb, "typeof Recall.grade"), "function");
 eq("a fresh save has no schedule", read(sb, "Object.keys(SAVE.srs).length"), 0);
 eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
+/* The hardest difficulty must never be the silent default — a new player
+   used to meet the road on Watchman's two lives. */
+eq("a fresh save plays Disciple", read(sb, "SAVE.set.diff"), "disciple");
+eq("the printed clock matches the pure helper",
+   read(sb, "pacedClockMs(14000, 1, 1500)"), read(sb, "Math.round((14000 * 1 + 1500) * PACE + FLAT_ADD_MS)"));
+eq("the brief clock at Disciple is 23.6s", read(sb, "pacedClockMs(14000, 1, 1500)"), 23600);
 
 /* ---------- a Drill run schedules what it asks ---------- */
 {
@@ -310,13 +316,21 @@ eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
      read(s, "Pilgrimage.VERSES_PER_SITE"));
   eq("they come from the site's own books", read(s, "R.siteRing"), "site");
   eq("it is not a typing run", read(s, "R.typed"), false);
-  eq("the clock is the site's clock",
-     read(s, "questionDuration()"), read(s, "Pilgrimage.clockFor(0) * R.diff.time"));
+  eq("the clock is the site's clock plus the pick pad",
+     read(s, "questionDuration()"),
+     read(s, "Math.round((Pilgrimage.clockFor(0) * R.diff.time + Pilgrimage.PICK_PAD_MS) * PACE + FLAT_ADD_MS)"));
   ok("every drawn verse belongs to Ur's books",
      read(s, "(function(){var b={};Pilgrimage.site('ur').books.forEach(function(x){b[x]=1});" +
              "return R.siteVerses.every(function(v){return b[v.b]===1})})()"));
-  ok("the draw is committed to journey usedIds",
-     read(s, "SAVE.pilgrim.usedIds.length") >= read(s, "Pilgrimage.VERSES_PER_SITE"));
+  /* Serve-time commitment: startRun auto-serves the first verse, and
+     commits exactly that one. The other seven stay in the journey's bank
+     until they are served — quitting after one verse costs one verse,
+     not the site's whole draw. */
+  eq("starting a run commits only the verse it serves",
+     read(s, "SAVE.pilgrim.usedIds.length"), 1);
+  eq("the commit is the verse actually served", read(s, "SAVE.pilgrim.usedIds[0] === R.q.id"), true);
+  ok("the rest of the draw is still unspent",
+     read(s, "SAVE.pilgrim.usedIds.length") < read(s, "R.siteVerses.length"));
   eq("pilgrimage starts lean on powers", read(s, "R.powers.illum"), 1);
   eq("pilgrimage has no Second Wind", read(s, "R.powers.wind"), 0);
 
@@ -365,6 +379,39 @@ eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
   eq("the road still points at Ur", read(s, "Pilgrimage.currentSite(SAVE.pilgrim).id"), "ur");
 }
 
+/* ---------- quitting a site before answering anything ----------
+   The zero-answer abandon path: one verse was on the stage, so one verse
+   is spent — the draw's other seven return to the bank untouched. */
+{
+  const s = boot();
+  read(s, "pendingSiteId = 'ur'; startRun('pilgrimage','disciple')");
+  read(s, "abandonRun()");
+  eq("a zero-answer quit burns only the verse shown",
+     read(s, "SAVE.pilgrim.usedIds.length"), 1);
+  ok("the other verses stay in the bank",
+     read(s, "SAVE.pilgrim.usedIds.length") < read(s, "Pilgrimage.VERSES_PER_SITE"));
+  eq("the site records no attempt", read(s, "Pilgrimage.recordOf(SAVE.pilgrim,'ur')"), null);
+  eq("and the road still points at Ur", read(s, "Pilgrimage.currentSite(SAVE.pilgrim).id"), "ur");
+}
+
+/* ---------- a death no longer spends the day's Daily shot ----------
+   The daily is one RECORDED run, not one attempt: ending early is
+   practice, and only a finished run writes the day's score. */
+{
+  const s = boot();
+  read(s, "startRun('daily','disciple')");
+  read(s, "R.attempts = 6; R.correct = 3; R.qTotal = 6;");
+  read(s, "endRun('death')");
+  eq("a death does not record the daily", read(s, "SAVE.daily.date"), "");
+  eq("a death does not count a completed daily", read(s, "SAVE.life.dailyDone"), 0);
+
+  read(s, "startRun('daily','disciple')");
+  read(s, "R.attempts = 20; R.correct = 18; R.qTotal = 20; R.dailyIdx = 20;");
+  read(s, "endRun('complete')");
+  eq("a finished run records the daily", read(s, "SAVE.daily.date"), read(s, "todayKey()"));
+  eq("and counts it once", read(s, "SAVE.life.dailyDone"), 1);
+}
+
 /* ---------- the typed replay ---------- */
 {
   const s = boot();
@@ -385,6 +432,25 @@ eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
   const atPatmos = read(s, "questionDuration()");
   ok("the clock is tighter at the end of the road than the start", atPatmos < atUr, {atUr, atPatmos});
   eq("the last site is tier 5", read(s, "Pilgrimage.tierFor(Pilgrimage.indexOf('patmos'))"), 5);
+}
+
+/* ---------- high momentum lengthens the pick clock ---------- */
+{
+  const s = boot();
+  read(s, "pendingSiteId='ur'; startRun('pilgrimage','disciple')");
+  const cold = read(s, "questionDuration()");
+  read(s, "R.streak = 2");
+  eq("before Building the clock is only the pad", read(s, "questionDuration()"), cold);
+  read(s, "R.streak = 3");
+  const hot = read(s, "questionDuration()");
+  eq("Building adds a 20% beat", hot, Math.round((cold - 5000) * 1.2 + 5000));
+  read(s, "R.speed = true; R.streak = 3");
+  eq("Swift Lock is the short clock plus pad and Building",
+     read(s, "questionDuration()"),
+     read(s, "Math.round(Math.round(((Pilgrimage.SPEED_MS || 6000) * R.diff.time + Pilgrimage.PICK_PAD_MS) * 1.2) * PACE + FLAT_ADD_MS)"));
+  read(s, "R.speed = false; R.typed = true");
+  eq("typed clocks stay sized for typing", read(s, "questionDuration()"),
+     read(s, "Math.round(Math.max(32000, siteClockMs(R.siteId, R.mode)) * R.diff.time * PACE + FLAT_ADD_MS)"));
 }
 
 /* ---------- the Pilgrimage feeds the scheduler ---------- */

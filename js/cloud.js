@@ -356,22 +356,45 @@ var Cloud = (function () {
 
   /* ----------------------- scores ----------------------- */
 
+  /* Server-trusted path first: the submit-score Edge Function re-clamps
+     and writes under the caller's own auth (see supabase/functions/).
+     If the function is not deployed (or the network fails), fall back to
+     the direct RLS write so boards keep working during rollout. */
+  async function submitViaEdge(kind, payload) {
+    var sb = ensureClient();
+    if (!sb || !sb.functions || typeof sb.functions.invoke !== "function") {
+      return { ok: false, reason: "no-edge" };
+    }
+    try {
+      var res = await sb.functions.invoke("submit-score", {
+        body: Object.assign({ kind: kind }, payload)
+      });
+      if (res && res.error) return { ok: false, reason: res.error.message || "edge-error" };
+      if (res && res.data && res.data.error) return { ok: false, reason: res.data.error };
+      return { ok: true, via: "edge" };
+    } catch (e) {
+      return { ok: false, reason: "edge-unreachable" };
+    }
+  }
+
   async function submitDailyScore(row) {
     var sb = ensureClient();
     if (!sb || !user) return { ok: false, reason: "signed-out" };
     var c = (typeof Polish !== "undefined" && Polish.clampDailyScore)
       ? Polish.clampDailyScore(row) : row;
     var payload = {
-      user_id: user.id,
       play_date: c.play_date,
       score: c.score | 0,
       accuracy: Number(c.accuracy) || 0,
       duration_ms: c.duration_ms == null ? null : c.duration_ms | 0,
-      diff: c.diff || "watchman"
+      diff: c.diff || "disciple"
     };
-    var res = await sb.from("daily_scores").upsert(payload, { onConflict: "user_id,play_date" });
+    var edge = await submitViaEdge("daily", payload);
+    if (edge.ok) return { ok: true, score: payload.score, via: "edge" };
+    /* Edge unavailable — direct write (still RLS-scoped to this user). */
+    var res = await sb.from("daily_scores").upsert(Object.assign({ user_id: user.id }, payload), { onConflict: "user_id,play_date" });
     if (res.error) return { ok: false, reason: res.error.message };
-    return { ok: true, score: payload.score };
+    return { ok: true, score: payload.score, via: "direct" };
   }
 
   async function submitBlitzScore(row) {
@@ -379,14 +402,16 @@ var Cloud = (function () {
     if (!sb || !user) return { ok: false, reason: "signed-out" };
     var c = (typeof Polish !== "undefined" && Polish.clampBlitzScore)
       ? Polish.clampBlitzScore(row) : row;
-    var res = await sb.from("blitz_scores").insert({
-      user_id: user.id,
+    var payload = {
       score: c.score | 0,
       survived_ms: c.survived_ms | 0,
-      diff: c.diff || "watchman"
-    });
+      diff: c.diff || "disciple"
+    };
+    var edge = await submitViaEdge("blitz", payload);
+    if (edge.ok) return { ok: true, score: payload.score, via: "edge" };
+    var res = await sb.from("blitz_scores").insert(Object.assign({ user_id: user.id }, payload));
     if (res.error) return { ok: false, reason: res.error.message };
-    return { ok: true, score: c.score | 0 };
+    return { ok: true, score: payload.score, via: "direct" };
   }
 
   async function fetchDailyBoard(playDate, limit) {

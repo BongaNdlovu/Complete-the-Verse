@@ -1,6 +1,5 @@
 /* ==================================================================
-   BACKDROP — cinematic field under the UI. CSS wash is the baseline;
-   optional Sky3D (Three.js) deepens it when WebGL and quality allow.
+   BACKDROP — cinematic field under the UI. CSS wash only.
    Values are raw rgb triples for rgba() use.
    ================================================================== */
 const PALETTES = {
@@ -15,44 +14,29 @@ const PALETTES = {
 
 const Backdrop = (function(){
   let el = null;
-  let paletteName = "menu";
-  function sky(){ return (typeof window!=="undefined" && window.Sky3D) ? window.Sky3D : null; }
   function apply(name){
-    paletteName = name || "menu";
     if(!el) return;
-    const p = PALETTES[paletteName] || PALETTES.menu;
+    const p = PALETTES[name] || PALETTES.menu;
     el.style.setProperty('--bd-a', p.a);
     el.style.setProperty('--bd-b', p.b);
     el.style.setProperty('--bd-c', p.c);
-    const s = sky();
-    if(s && s.setPalette) s.setPalette(paletteName);
   }
   return {
     init(){
       el = document.getElementById('backdrop');
       apply('menu');
-      const s = sky();
-      if(s && s.init) s.init(el);
       return !!el;
     },
     palette(name){ apply(name); },
     hit(kind){
       if(!el) return;
-      if(kind === 'wrong' || kind === 'death' || kind === 'levelup'){
+      /* Play-stage misses sit on an opaque .stage; a backdrop jolt
+         there is invisible. Only end-of-run / act beats show it. */
+      if(kind === 'death' || kind === 'levelup'){
         el.classList.remove('jolt'); void el.offsetWidth; el.classList.add('jolt');
       }
-      const s = sky();
-      if(s && s.pulse){
-        if(kind === 'correct' || kind === 'levelup') s.pulse(0.45);
-        else if(kind === 'wrong' || kind === 'death') s.pulse(0.7);
-        else if(kind === 'tick') s.pulse(0.2);
-      }
     },
-    syncSky(){
-      const s = sky();
-      if(s && s.syncFromSettings) s.syncFromSettings();
-      if(s && s.setPalette) s.setPalette(paletteName);
-    }
+    syncSky(){}
   };
 })();
 
@@ -71,6 +55,14 @@ function mulberry32(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0;
 function todayKey(d){ d=d||new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function seedFromString(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
 const fmt = n => Math.round(n).toLocaleString();
+/* 33 references appear twice in the bank (two blanks on one verse). Ids
+   protect nothing there, so every draw path also excludes by reference —
+   the same verse must never surface twice in one run. */
+const refKey = v => String(v && v.r || "").toLowerCase();
+function poolSansRepeatRefs(pool){
+  const out = pool.filter(v=>!R.usedRefs.has(refKey(v)));
+  return out.length ? out : pool;   /* a drained tier relaxes the rule rather than stall */
+}
 
 /* ------------------------- SAVE ------------------------- */
 const SAVE_KEY = "ctv_save_v3";
@@ -90,9 +82,11 @@ const DEFAULT_SAVE = {
   pilgrim:{sites:{}, lastPlayed:"", started:0, usedIds:[]},
   /* Relics unlocked by first site clear. Shape owned by artifacts.js. */
   artifacts:{unlocked:{}, seen:{}},
-  set:{music:0.45, sfx:0.7, quality:"high", reduced:false, shake:true, voice:true, diff:"watchman",
+  set:{music:0.45, sfx:0.7, quality:"high", qualityLocked:false, reduced:false, shake:true, voice:true, diff:"disciple",
        tutorialDone:false, liveWeather:true, coldOpenDone:false, quiet:false, contrast:false, haptics:true,
+       singleTap:true,
        character:"amina", scholarId:"amina", playerName:"", profileDone:false,
+       vkb:false,
        /* legacy keys kept so old saves merge cleanly */
        characterDone:false}
 };
@@ -160,7 +154,7 @@ function migrateV2(out, old){
     out.srs[id] = card;
   });
 }
-/* Scholars replace the old free Bible-figure default; keep skins if still unlocked. */
+/* Scholars only — Bible-figure skins are retired. Keep the scholar they picked. */
 function migrateProfile(out){
   if(!out || !out.set) return;
   if(out.set.characterDone && !out.set.profileDone) out.set.profileDone = true;
@@ -172,8 +166,9 @@ function migrateProfile(out){
     out.set.scholarId = out.set.character;
   } else if(Characters.isScholar(known)){
     out.set.scholarId = known.id;
-  } else if(!out.set.scholarId){
-    out.set.scholarId = Characters.defaultScholarId() || "amina";
+  } else {
+    if(!out.set.scholarId) out.set.scholarId = Characters.defaultScholarId() || "amina";
+    out.set.character = out.set.scholarId;
   }
 }
 
@@ -196,6 +191,18 @@ function reviewVerse(q, opts){
   return SAVE.srs[q.id];
 }
 function dueToday(){ return SRS.dueCount(VERSES, cardFor, today()); }
+
+/* ------------------------- ROAD VERSE LEDGER -------------------------
+   A journey verse is spent when it is actually served, not when the run
+   opens — quitting a site you never answered must not burn its draw. */
+function commitSiteVerse(v){
+  if(!v || !v.id) return;
+  if(!(R.mode==="pilgrimage" || R.mode==="pilgrim-recall" || R.mode==="relay")) return;
+  if(R.siteCommitted[v.id]) return;
+  R.siteCommitted[v.id] = 1;
+  SAVE.pilgrim = Pilgrimage.markUsed(SAVE.pilgrim, [v.id]);
+  persist();
+}
 
 /* ------------------------- PROGRESSION ------------------------- */
 function xpNeeded(l){ return Math.round(320 * Math.pow(l, 1.32)); }
@@ -259,7 +266,7 @@ const MODES = {
      hiding it from the results screen, which still needs its name. */
   pilgrimage:{ key:"pilgrimage", name:"The Pilgrimage", kick:"The long road", atlas:true,
     desc:"Thirty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last two of every stop are typed from memory. The clock closes as you go east.",
-    tagline:"36 sites · Ur to Patmos", info:[["36","Sites"],["8","Verses each"],["14→6.5s","Clock"]] },
+    tagline:"36 sites · Ur to Patmos", info:[["36","Sites"],["8","Verses each"],["23.6→14.6s","Clock"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, typed out word for word.",
     tagline:"Typed · cleared sites", info:[["8","Verses"],["Typed","No options"],["32s","Clock"]] },
@@ -267,23 +274,27 @@ const MODES = {
   relay:{ key:"relay", name:"The Long Road", kick:"One unbroken walk", hidden:true,
     desc:"A whole arc in a single run. Lives carry from site to site and never come back, and the clock keeps tightening the way the road does. Sites you pass stay cleared even if the road ends you.",
     tagline:"A whole arc · shared lives", info:[["1","Run"],["Shared","Lives"],["No","Rest"]] },
-  trial:{ key:"trial", name:"The Trial", kick:"Campaign", hidden:true,
+  /* Trial, Endless and the Drill are back on the menu: hiding them left
+     six Trial-only seals and the Endless seal with no public path, and
+     the Drill is the only mode that serves SRS-due verses. The menu
+     order below (MENU_ORDER) puts the Pilgrimage first. */
+  trial:{ key:"trial", name:"The Trial", kick:"Campaign",
     desc:"Five acts. The clock tightens with every one. Reach Act V with one life, clear its five questions, and earn the ending.",
-    tagline:"5 acts · one-life finale", info:[["5","Acts"],["39+","Verses"],["14→6.5s","Clock"]] },
-  endless:{ key:"endless", name:"Endless Gauntlet", kick:"Survival", hidden:true,
+    tagline:"5 acts · one-life finale", info:[["5","Acts"],["39+","Verses"],["23.6→14.6s","Clock"]] },
+  endless:{ key:"endless", name:"Endless Gauntlet", kick:"Survival",
     desc:"One continuous run. The timer shrinks a fraction each question and never resets.",
-    tagline:"Infinite · shrinking clock", info:[["∞","Questions"],["12→4.2s","Clock"],["All 5","Tiers"]] },
+    tagline:"Infinite · shrinking clock", info:[["∞","Questions"],["13.5→5.7s","Clock"],["All 5","Tiers"]] },
   daily:{ key:"daily", name:"Daily Trial", kick:"One shot a day",
-    desc:"Twenty verses, drawn by today's date. Everyone who plays today gets exactly the same twenty in exactly the same order. One recorded attempt — after that you may practise, but the score stands.",
-    tagline:"20 verses · same for everyone", info:[["20","Verses"],["1","Recorded run"],["10s","Clock"]] },
+    desc:"Twenty verses, drawn by today's date. Everyone who plays today gets exactly the same twenty in exactly the same order. Your first finished run sets the day's score — a run that ends early does not count, and after the score stands you may practise.",
+    tagline:"20 verses · same for everyone", info:[["20","Verses"],["1","Recorded run"],["18.8s","Clock"]] },
   blitz:{ key:"blitz", name:"Scripture Blitz", kick:"Sixty seconds",
     desc:"A survival clock. Every correct answer adds two seconds; every miss burns four. The screen edges flare as time runs thin. How many verses can you hold?",
     tagline:"60s · +2s / −4s", info:[["60s","Start"],["+2s","Correct"],["−4s","Miss"]] },
-  /* Hidden: Pilgrimage already trains recognition and typed recall on the road.
-     Kept in code so results labels and save keys still resolve. */
-  practice:{ key:"practice", name:"The Drill", kick:"Spaced review", hidden:true,
+  /* The Drill serves the spaced-repetition queue — it is the game's
+     learning loop and belongs on the menu, not behind the tutorial. */
+  practice:{ key:"practice", name:"The Drill", kick:"Spaced review",
     desc:"The verses that have fallen due, most overdue first, then whatever you have never seen.",
-    tagline:"15 verses · due first", info:[["15","Verses"],["Due","Ordered by"],["12s","Clock"]] },
+    tagline:"15 verses · due first", info:[["15","Verses"],["Due","Ordered by"],["13.5s","Clock"]] },
   recall:{ key:"recall", name:"Recall", kick:"Type it from memory", hidden:true,
     desc:"No options to choose between. The blank is empty and you fill it yourself, word for word. On-screen keyboard included.",
     tagline:"12 verses · typed", info:[["12","Verses"],["Typed","No options"],["32s","Clock"]] }
@@ -312,6 +323,11 @@ const ACTS = [
    The meter is now a readout of the multiplier rather than a second
    scale that happens to look like it. */
 const MOMENTUM_STEPS = [3, 5, 8, 12];
+/* Global pace: +20% on every stage clock. Lives in polish.js so the
+   tests can pin it. */
+const PACE = (typeof Polish!=="undefined" && Polish.PACE) || 1.2;
+/* Flat +5s on every question clock, after pacing and difficulty. */
+const FLAT_ADD_MS = (typeof Polish!=="undefined" && Polish.FLAT_ADD_MS) || 5000;
 
 /* ------------------------- AUDIO ------------------------- */
 const Snd = (function(){
@@ -345,13 +361,18 @@ const Snd = (function(){
   function duckMusic(factor, ms){
     if(!ctx||!mMus) return;
     const base = Math.max(0, SAVE.set.music||0);
-    const ducked = Math.max(0.01, base * (factor==null ? 0.2 : factor));
     try{ mMus.gain.cancelScheduledValues(ctx.currentTime); }catch(e){}
+    /* Music at 0 must stay at 0 — a 1% duck floor was leaking the bed. */
+    if(base<=0){
+      mMus.gain.setTargetAtTime(0, ctx.currentTime, .05);
+      return;
+    }
+    const ducked = Math.max(0, base * (factor==null ? 0.2 : factor));
     mMus.gain.setTargetAtTime(ducked, ctx.currentTime, .05);
     if(duckTimer) clearTimeout(duckTimer);
     duckTimer = setTimeout(function(){
       if(!ctx||!mMus) return;
-      mMus.gain.setTargetAtTime(SAVE.set.music, ctx.currentTime, .22);
+      mMus.gain.setTargetAtTime(SAVE.set.music||0, ctx.currentTime, .22);
     }, ms||480);
   }
   function playSfx(name){
@@ -530,10 +551,14 @@ const Snd = (function(){
     },
     tension(level){
       if(!ctx||!mMus) return;
-      const target=Math.max(.05,SAVE.set.music*(1+Math.min(4,level||0)*.09));
+      const base=Math.max(0,SAVE.set.music||0);
+      /* Off means off. The old .05 floor brought the bed back after mute. */
+      if(base<=0){ mMus.gain.setTargetAtTime(0,ctx.currentTime,.08); return; }
+      const target=base*(1+Math.min(4,level||0)*.09);
       mMus.gain.setTargetAtTime(target,ctx.currentTime,.35);
     },
     hush(){ duckMusic(0.03, 470); },
+    selah(ms){ duckMusic(0.6, ms == null ? 5000 : ms); },
     correct(){
       if(playSfx("correct")) return;
       duckMusic(0.18, 520);
@@ -639,6 +664,7 @@ const Director = (function(){
     return String(text||"").toLowerCase().replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();
   }
   function speak(text,force){
+    if(!text) return;
     if(!SAVE.set.voice || (!force && Date.now()-lastVoice<2400)) return;
     const src=VOICE_FILES[voiceKey(text)];
     if(src && typeof Snd!=="undefined" && Snd.playVoice && Snd.playVoice(src)){
@@ -707,8 +733,9 @@ const Director = (function(){
   function impact(kind){
     const cls=kind==="correct"?"correct-impact":"wrong-impact";
     document.body.classList.remove(cls);void document.body.offsetWidth;document.body.classList.add(cls);
-    setTimeout(()=>document.body.classList.remove(cls),720);
+    setTimeout(()=>document.body.classList.remove(cls),800);
     beat(kind==="correct"?"correct":"wrong");
+    if(kind==="correct"||kind==="wrong") showJudgeBurst(kind==="correct"?"up":"down");
   }
   function syncFx(){
     const fx=$("cinematic-fx");if(!fx)return;
@@ -732,12 +759,16 @@ const Director = (function(){
     let key,title,copy,voice;
     if(o.reason==="abandon"){
       key="defeated";title="Abandoned";copy="The run ends by your hand. The score still stands in the record.";voice="The run is abandoned.";
-    }else if((o.reason==="complete"&&acc===1)||(reachedFinal&&R.correct>=48&&acc>=.96)){
+    }else if(o.reason==="death"){
+      key="defeated";title="The Record Closes";copy="The hall grows still, but the words remain. Study the missed passages and return.";voice="The record closes. Prepare for another run.";
+    }else if(o.reason==="complete"&&acc===1){
       key="perfect";title="Perfect Run";copy="Every phrase held. The completed record stands illuminated.";voice="Perfect recall. The record is complete.";
-    }else if(acc>=.9&&R.correct>=15){
+    }else if(o.reason==="complete"&&acc>=.9&&R.correct>=8){
       key="mastered";title="Scripture Mastered";copy="The hall answers with light. Your strongest run has become part of the chronicle.";voice="Scripture mastered.";
-    }else if(reachedFinal||acc>=.7||o.reason==="complete"){
+    }else if(o.reason==="complete"&&R.mode==="trial"&&reachedFinal){
       key="survived";title="The Dawn Breaks";copy="You crossed the final threshold. The mission continues with the words you kept.";voice="You survived the final test.";
+    }else if(o.reason==="complete"){
+      key="survived";title="The Record Stands";copy="The run is finished. The words you kept remain in the chronicle.";voice="The record closes. Prepare for another run.";
     }else{
       key="defeated";title="The Record Closes";copy="The hall grows still, but the words remain. Study the missed passages and return.";voice="The record closes. Prepare for another run.";
     }
@@ -756,7 +787,7 @@ const SetPieces=(function(){
   /* The five sequences, keyed so both campaigns can reference the same
      definition rather than each keeping its own copy. */
   const DEFS={
-    rapid:{id:"rapid",title:"Rapid Recall",rule:"Five short verses. Six seconds each. Answers lock on selection.",count:5,duration:6000,auto:true,code:"Velocity sequence",voice:"Rapid recall. Five verses. Six seconds each."},
+    rapid:{id:"rapid",title:"Rapid Recall",rule:"Five short verses on a fast clock. Answers lock on selection.",count:5,duration:6000,auto:true,code:"Velocity sequence",voice:"Rapid recall. Five verses. Six seconds each."},
     lockdown:{id:"lockdown",title:"Book Lockdown",rule:"Three transmissions from one Bible book. Hold the source.",count:3,duration:8500,sameBook:true,code:"Source restricted",voice:"Book lockdown. Source restricted."},
     missing:{id:"missing",title:"The Missing Passage",rule:"One passage, three phrases torn out. Lifelines are offline until it is whole.",count:3,duration:24000,passage:true,noPowers:true,code:"Blackout protocol",voice:"The missing passage. Three phrases gone. Lifelines offline."},
     nochance:{id:"nochance",title:"No Second Chances",rule:"One difficult verse. Triple reward. No lifeline can change the result.",count:1,duration:7000,noPowers:true,reward:3,code:"Red-line decision",voice:"No second chances."},
@@ -804,6 +835,7 @@ const SetPieces=(function(){
     document.body.classList.remove("setpiece-active");
     Director.callout("Sequence complete");
     R.setpiece=null;
+    if(R.siteId && typeof applySiteSky==="function") applySiteSky(R.siteId);
   }
 
   /* Shared launch. `over` carries the per-site overrides. */
@@ -819,6 +851,7 @@ const SetPieces=(function(){
     $("setpiece-rule").textContent=d.rule;
     $("setpiece-count").textContent=d.count+"-part special sequence";
     $("setpiece-card").classList.add("on");
+    if(R.siteId && typeof applySiteSky==="function") applySiteSky(R.siteId);
     Snd.act();Director.speak(d.voice,true);
     afterRun(2300, ()=>{
       if(!R.setpiece || R.setpiece.id!==d.id) return;
@@ -833,6 +866,8 @@ const SetPieces=(function(){
     if(R.mode!=="trial"||R.setpiece)return false;
     const slot=TRIAL.find(x=>x.act===R.actIdx&&x.after===R.qInAct&&!R.setpieceDone.has(DEFS[x.use].id));
     if(!slot)return false;
+    R.typed = false;
+    document.body.classList.remove("mode-typed");
     return launch(DEFS[slot.use]);
   }
 
@@ -845,6 +880,8 @@ const SetPieces=(function(){
     if(!slot)return false;
     const base=DEFS[slot.use];
     if(R.setpieceDone.has(base.id))return false;
+    R.typed = false;
+    document.body.classList.remove("mode-typed");
     return launch(base, {
       book:slot.book||null,
       code:slot.code||base.code,
@@ -854,6 +891,14 @@ const SetPieces=(function(){
 
   function hasSite(siteId){ return !!SITES[siteId]; }
   function siteTitle(siteId){ return SITES[siteId] ? DEFS[SITES[siteId].use].title : ""; }
+  /* What the site brief needs to say up front: which finale closes this
+     stop and how many verses it adds, so the road is predictable. */
+  function siteFinale(siteId){
+    const slot=SITES[siteId];
+    if(!slot) return null;
+    const base=DEFS[slot.use];
+    return { title:base.title, count:base.count };
+  }
   /* On the road, a sequence should still sound like the place it is
      happening in — a Rapid Recall at Nineveh drawing from Philippians
      would undo the whole point of binding levels to sites. So a
@@ -875,8 +920,9 @@ const SetPieces=(function(){
     const s=R.setpiece;if(!s)return drawVerse(tier);
     let v;
     if(s.sameBook&&s.book){
-      let pool=VERSES.filter(x=>x.b===s.book&&!R.used.has(x.id));
-      if(!pool.length)pool=VERSES.filter(x=>x.b===s.book);
+      // Never repeat a verse the site already used — if the book is
+      // drained, fall back to the site pool (which also excludes used).
+      const pool=poolSansRepeatRefs(VERSES.filter(x=>x.b===s.book&&!R.used.has(x.id)));
       v=pool.length?pool[Math.floor(Math.random()*pool.length)]:drawBound(tier);
       R.used.add(v.id);
     }else{
@@ -887,12 +933,12 @@ const SetPieces=(function(){
     if(s.remaining<=0)s.finishing=true;
     return v;
   }
-  function duration(base){return R.setpiece?R.setpiece.duration:base}
+  function duration(base){return R.setpiece?Math.round(R.setpiece.duration*PACE+FLAT_ADD_MS):base}
   function bonus(){return R.setpiece&&R.setpiece.reward?R.setpiece.reward:1}
   function noPowers(){return !!(R.setpiece&&R.setpiece.noPowers)}
   function autoLock(){return !!(R.setpiece&&R.setpiece.auto)}
   function label(){return R.setpiece?R.setpiece.title:""}
-  return {cleanup,maybeLaunch,maybeLaunchSite,hasSite,siteTitle,
+  return {cleanup,maybeLaunch,maybeLaunchSite,hasSite,siteTitle,siteFinale,
           draw,duration,bonus,noPowers,autoLock,label};
 })();
 
@@ -1004,7 +1050,7 @@ function playerDisplayName(){
 }
 function activeCharacter(){
   if(typeof Characters === "undefined") return null;
-  return Characters.resolve(SAVE.set.character, SAVE.pilgrim);
+  return Characters.resolve(SAVE.set.scholarId || SAVE.set.character, SAVE.pilgrim);
 }
 function syncTravelerToken(){
   if(typeof Atlas === "undefined" || !Atlas.setTraveler) return;
@@ -1040,7 +1086,7 @@ function renderProfileSetup(){
   const nameRow = $("char-name-row");
   const confirm = $("char-confirm");
   if(title) title.textContent = "Who are you on the road?";
-  if(sub) sub.textContent = "Choose a scholar — two women, two men, four nations — then give them your name. Biblical figures unlock later as skins.";
+  if(sub) sub.textContent = "Choose a scholar, then give them your name.";
   if(nameRow) nameRow.classList.remove("gone");
   if(confirm){ confirm.classList.remove("gone"); confirm.disabled = true; confirm.textContent = "Enter the hall"; }
   const nameInput = $("char-name");
@@ -1113,34 +1159,25 @@ function renderSkinPicker(){
   const host = $("char-grid");
   const nameRow = $("char-name-row");
   const confirm = $("char-confirm");
-  if(title) title.textContent = "Equip an avatar";
-  if(sub) sub.textContent = "Your scholar is always available. Biblical figures unlock as you clear arcs and sites — equip them as skins.";
+  if(title) title.textContent = "Choose your avatar";
+  if(sub) sub.textContent = "Your scholar is the avatar on the road. Pick who you travel as.";
   if(nameRow) nameRow.classList.add("gone");
   if(confirm) confirm.classList.add("gone");
   if(!host || typeof Characters === "undefined") return;
-  const cur = SAVE.set.character || Characters.defaultId();
-  const blocks = [
-    { label: "Scholars", list: Characters.scholars() },
-    { label: "Biblical figures", list: Characters.figures() }
-  ];
-  host.innerHTML = blocks.map(block =>
-    '<div class="char-section"><div class="char-sec-label">'+esc(block.label)+'</div><div class="char-sec-grid">'+
-    block.list.map(ch => {
-      const open = Characters.isUnlocked(ch, SAVE.pilgrim);
-      const sel = open && ch.id === cur;
-      return '<button type="button" class="char-card'+(sel?" sel":"")+(open?"":" locked")+'" data-char="'+esc(ch.id)+'" '+(open?"":"disabled")+'>'+
-        '<img class="char-portrait" src="'+esc(ch.portrait)+'" alt="" width="96" height="96" loading="lazy">'+
-        '<b>'+esc(ch.short)+'</b>'+
-        '<span>'+esc(open ? ch.blurb : Characters.unlockLabel(ch))+'</span>'+
-        '</button>';
-    }).join("") + '</div></div>'
-  ).join("");
+  const cur = SAVE.set.scholarId || SAVE.set.character || Characters.defaultId();
+  host.innerHTML = Characters.scholars().map(ch => {
+    const sel = ch.id === cur;
+    return '<button type="button" class="char-card'+(sel?" sel":"")+'" data-char="'+esc(ch.id)+'">'+
+      '<img class="char-portrait" src="'+esc(ch.portrait)+'" alt="" width="96" height="96" loading="lazy">'+
+      '<b>'+esc(ch.short)+'</b>'+
+      '<em class="char-nat">'+esc(ch.nationality)+'</em>'+
+      '<span>'+esc(ch.blurb)+'</span>'+
+      '</button>';
+  }).join("");
   host.querySelectorAll("[data-char]").forEach(b=>{
     b.addEventListener("click", ()=>{
-      if(b.disabled) return;
       SAVE.set.character = b.dataset.char;
-      const ch = Characters.byId(b.dataset.char);
-      if(ch && Characters.isScholar(ch)) SAVE.set.scholarId = ch.id;
+      SAVE.set.scholarId = b.dataset.char;
       persist();
       Snd.ui();
       syncTravelerToken();
@@ -1148,7 +1185,7 @@ function renderSkinPicker(){
       closeCharacterPicker();
       if(currentView === "settings") renderSettings();
       if(currentView === "menu") renderMenu();
-      toast("Equipped · " + ((activeCharacter()&&activeCharacter().short)||"Avatar"));
+      toast("Avatar · " + ((activeCharacter()&&activeCharacter().short)||"Scholar"));
     });
   });
 }
@@ -1164,15 +1201,12 @@ function queueArtifactReveal(artifact){
   if(!artifact) return;
   pendingReveals.push({ kind: "artifact", artifact: artifact });
 }
-function queueFigureReveal(figure){
-  if(!figure) return;
-  pendingReveals.push({ kind: "figure", figure: figure });
-}
-function flushRevealsAfterResults(){
-  if(!pendingReveals.length) return;
+function flushRevealsAfterResults(done){
+  if(!pendingReveals.length){ if(done) done(); return; }
   const next = pendingReveals.shift();
-  if(next.kind === "artifact") showArtifactReveal(next.artifact, ()=>flushRevealsAfterResults());
-  else if(next.kind === "figure") showFigureReveal(next.figure, ()=>flushRevealsAfterResults());
+  const cont = ()=>flushRevealsAfterResults(done);
+  if(next.kind === "artifact") showArtifactReveal(next.artifact, cont);
+  else cont();
 }
 function showArtifactReveal(artifact, done){
   const el = $("reveal-stage");
@@ -1202,29 +1236,6 @@ function showArtifactReveal(artifact, done){
   };
   $("reveal-continue").onclick = ()=>{ Snd.ui(); close(); };
   setTimeout(()=>{ if(el.classList.contains("on")) close(); }, 14000);
-}
-function showFigureReveal(figure, done){
-  const el = $("reveal-stage");
-  if(!el || !figure){ if(done) done(); return; }
-  $("reveal-kicker").textContent = "Figure unlocked";
-  $("reveal-title").textContent = figure.name;
-  $("reveal-meta").textContent = Characters.unlockLabel(figure) === "Available"
-    ? "Equip this skin in Settings"
-    : "Now available as a profile skin";
-  $("reveal-copy").textContent = figure.blurb || "";
-  $("reveal-ref").textContent = "";
-  const pic = $("reveal-art");
-  pic.innerHTML = '<img src="'+esc(figure.portrait)+'" alt="">';
-  pic.classList.remove("placeholder");
-  el.dataset.kind = "figure";
-  el.classList.remove("play"); void el.offsetWidth; el.classList.add("on","play");
-  Snd.power();
-  const close = ()=>{
-    el.classList.remove("on","play");
-    if(done) done();
-  };
-  $("reveal-continue").onclick = ()=>{ Snd.ui(); close(); };
-  setTimeout(()=>{ if(el.classList.contains("on")) close(); }, 12000);
 }
 
 /* ------------------------- RELICS HALL ------------------------- */
@@ -1309,6 +1320,10 @@ function updateOfflineBanner(){
   b.classList.toggle("on", !navigator.onLine);
   b.textContent = navigator.onLine ? "" : "You are offline — progress stays on this device until you reconnect.";
 }
+/* What the menu offers, in order: the campaign first, the daily and the
+   blitz beside it, the long-form modes after. Anything not listed but
+   not hidden would still render (appended after these). */
+const MENU_ORDER = ["pilgrimage", "daily", "blitz", "trial", "endless", "practice"];
 function renderMenu(){
   const today = todayKey();
   const dailyDone = SAVE.daily.date === today;
@@ -1322,7 +1337,8 @@ function renderMenu(){
       ? "Road complete · Ur to Patmos"
       : (road.cleared+" of "+road.total+" sites · next: "+(road.current?road.current.name:"Ur"));
   }
-  $("modes").innerHTML = Object.keys(MODES).filter(k=>!MODES[k].hidden).map(k=>{
+  const keys = MENU_ORDER.concat(Object.keys(MODES).filter(k=>MENU_ORDER.indexOf(k)<0));
+  $("modes").innerHTML = keys.filter(k=>MODES[k] && !MODES[k].hidden).map(k=>{
     const m = MODES[k];
     let pill = "";
     if(k==="daily") pill = dailyDone
@@ -1441,13 +1457,42 @@ function openAtlas(){
    difficulty — a player cannot plan around the wind in Iraq, and losing
    a run to it would be unfair in a way no amount of atmosphere pays
    for. */
+let plateTimer = 0;
+function applySitePlate(siteId){
+  const b = document.body;
+  const next = siteId || "";
+  const prev = b.getAttribute("data-site") || "";
+  const motif = $("site-motif");
+  if(plateTimer){ clearTimeout(plateTimer); plateTimer = 0; }
+  function stamp(){
+    if(next) b.setAttribute("data-site", next);
+    else b.removeAttribute("data-site");
+    if(motif) motif.style.opacity = "";
+  }
+  if(!motif || next === prev || b.classList.contains("reduced")){
+    stamp();
+    return;
+  }
+  motif.style.opacity = "0";
+  plateTimer = setTimeout(stamp, 280);
+}
+
 function applySiteSky(siteId){
   const b = document.body;
   ["sky-night","sky-twilight","sky-golden","sky-day",
-   "wx-dust","wx-rain","wx-storm","wx-haze","wx-snow"].forEach(c=>b.classList.remove(c));
-  if(!siteId) return;
+   "wx-dust","wx-rain","wx-storm","wx-haze","wx-snow",
+   "motif-sand","motif-smoke","motif-river","motif-sea",
+   "motif-ash","motif-olive","motif-dust","motif-stars","motif-hall"]
+    .forEach(c=>b.classList.remove(c));
+  if(!siteId){
+    applySitePlate("");
+    return;
+  }
   const site = Pilgrimage.site(siteId);
-  if(!site) return;
+  if(!site){
+    applySitePlate("");
+    return;
+  }
 
   const now = new Date();
   const sun = Geo.sunPosition(now, site.coords[0], site.coords[1]);
@@ -1458,6 +1503,7 @@ function applySiteSky(siteId){
   const r = Live.readingFor(site);
   const key = r && r.sky ? r.sky.key : "clear";
   if(key !== "clear" && key !== "cloud") b.classList.add("wx-" + key);
+  applySitePlate(siteId);
 }
 
 /* ---- the briefing card for one site ---- */
@@ -1477,7 +1523,8 @@ function openSiteBrief(siteId, mode){
 
   sbSiteId = siteId; sbMode = mode || "pilgrimage"; pendingSiteId = siteId;
   const s = b.site, arc = b.arc, D = DIFFS[SAVE.set.diff] || DIFFS.disciple;
-  const secs = (siteClockMs(siteId, sbMode) * D.time / 1000).toFixed(1);
+  const pad = (sbMode==="pilgrim-recall") ? 0 : pickPadMs();
+  const secsLabel = (pacedClockMs(siteClockMs(siteId, sbMode), D.time, pad) / 1000).toFixed(1);
 
   $("sb-arc").textContent = arc ? arc.n + " · " + arc.name : s.tag;
   $("sb-name").textContent = s.name;
@@ -1488,7 +1535,7 @@ function openSiteBrief(siteId, mode){
     [b.ordinal + " / " + b.total, "Site on the road"],
     [String(b.verses), sbMode === "pilgrim-recall" ? "Verses, typed" : "Verses"],
     [TIER_NAMES[b.tier] || "Foundation", "Difficulty"],
-    [secs + "s", "Per verse"],
+    [secsLabel + "s", "Per verse"],
     [String(D.lives), "Lives"]
   ].map(i=>'<div class="bi"><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("");
 
@@ -1505,15 +1552,38 @@ function openSiteBrief(siteId, mode){
 
   $("sb-start").textContent = sbMode === "pilgrim-recall" ? "Type it from memory" : (b.cleared ? "Walk it again" : "Begin");
 
-  /* Named as a warning, not a spoiler: the player should know this stop
-     ends differently and find out how when it arrives. */
-  const finale = sbMode === "pilgrimage" && SetPieces.hasSite(siteId)
-    ? " · this place does not end quietly" : "";
+  /* Named up front, not a spoiler: the player should know this stop ends
+     with an extra sequence and exactly how many verses it adds. */
+  const fin = sbMode === "pilgrimage" ? SetPieces.siteFinale(siteId) : null;
+  const finale = fin
+    ? " · closes with " + fin.title + " — " + fin.count + " more verses" : "";
   $("sb-hint").textContent = (sbMode === "pilgrim-recall"
-    ? "Type the missing phrase · on-screen keyboard · Enter to lock · Esc pauses"
-    : "A–D or 1–4 · last 2 typed · Enter to lock · S Selah · I Illuminate · Esc pauses") + finale;
+    ? "Type the missing phrase · Keyboard if you want the board · Enter to lock · Esc pauses"
+    : "A–D or 1–4 or tap to answer · last 2 typed · S Selah · I Illuminate · Esc pauses") + finale;
 
+  renderSiteDiffs();
   go("sitebrief");
+}
+
+/* The road deserves the same difficulty choice the brief always had —
+   before this, a site started on whatever the global setting held, with
+   no way to see or change it at the point of play. */
+function renderSiteDiffs(){
+  const host = $("sb-diffs");
+  if(!host) return;
+  if(sbMode !== "relay" && sbMode !== "pilgrimage" && sbMode !== "pilgrim-recall"){ host.innerHTML = ""; return; }
+  host.innerHTML = Object.keys(DIFFS).map(k=>{
+    const d = DIFFS[k], sel = SAVE.set.diff===k ? " sel" : "";
+    return '<button class="diff'+sel+'" data-diff="'+k+'" type="button"><b>'+esc(d.name)+'</b>'+
+      '<span>'+d.lives+' lives · clock ×'+d.time.toFixed(2)+'</span></button>';
+  }).join("");
+  host.querySelectorAll("[data-diff]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      SAVE.set.diff = b.dataset.diff; persist(); Snd.ui();
+      if(sbMode==="relay") openRelayBrief(pendingArcKey);
+      else openSiteBrief(sbSiteId, sbMode);
+    });
+  });
 }
 
 /* ---- the briefing for a whole arc walked in one run ----
@@ -1531,7 +1601,7 @@ function openRelayBrief(arcKey){
   const D = DIFFS[SAVE.set.diff] || DIFFS.disciple;
   const first = Pilgrimage.indexOf(sites[0].id);
   const last  = Pilgrimage.indexOf(sites[sites.length-1].id);
-  const secs  = i => (Pilgrimage.clockFor(i) * D.time / 1000).toFixed(1);
+  const secs  = i => (pacedClockMs(Pilgrimage.clockFor(i), D.time, Pilgrimage.PICK_PAD_MS || 1500) / 1000).toFixed(1);
 
   $("sb-arc").textContent = arc.n + " · " + arc.name;
   $("sb-name").textContent = "The Long Road";
@@ -1549,6 +1619,7 @@ function openRelayBrief(arcKey){
   $("sb-live").innerHTML = "";
   $("sb-start").textContent = "Walk it";
   $("sb-hint").textContent = "Lives do not come back · every site you pass stays cleared, even if the road ends you";
+  renderSiteDiffs();
   go("sitebrief");
 }
 
@@ -1570,7 +1641,6 @@ function bankRelaySite(siteId){
   rl.banked.push(siteId);
   rl.markCorrect = R.correct; rl.markAttempts = R.attempts;
 
-  const beforeProg = JSON.parse(JSON.stringify(SAVE.pilgrim));
   const wasCleared = Pilgrimage.isCleared(SAVE.pilgrim, siteId);
   SAVE.pilgrim = Pilgrimage.record(SAVE.pilgrim, siteId, {
     cleared:true, score:0, accuracy: a ? Math.round(c/a*100) : 100, at:Date.now()
@@ -1581,9 +1651,6 @@ function bankRelaySite(siteId){
       const u = Artifacts.unlockForSite(SAVE.artifacts, siteId, Date.now());
       SAVE.artifacts = u.store;
       if(u.firstUnlock && u.artifact) queueArtifactReveal(u.artifact);
-    }
-    if(typeof Characters !== "undefined"){
-      Characters.newlyUnlockedFigures(beforeProg, SAVE.pilgrim).forEach(queueFigureReveal);
     }
   }
   persist();
@@ -1626,14 +1693,14 @@ function invalidateRun(){
 }
 function drawVerse(tier, rnd){
   const r = rnd || Math.random;
-  let pool = BY_TIER[tier].filter(v=>!R.used.has(v.id));
+  let pool = poolSansRepeatRefs(BY_TIER[tier].filter(v=>!R.used.has(v.id)));
   if(!pool.length){ R.used.clear(); pool = BY_TIER[tier].slice(); }
   const v = pool[Math.floor(r()*pool.length)];
   R.used.add(v.id);
   return v;
 }
 function drawEndlessVerse(tier){
-  let pool=BY_TIER[tier].filter(v=>!R.used.has(v.id));
+  let pool=poolSansRepeatRefs(BY_TIER[tier].filter(v=>!R.used.has(v.id)));
   if(!pool.length){
     BY_TIER[tier].forEach(v=>R.used.delete(v.id));
     pool=BY_TIER[tier].slice();
@@ -1656,7 +1723,7 @@ function drawEndlessVerse(tier){
    The queue is built once at the start of the run so the session is a
    coherent list rather than a fresh weighted roll each question. */
 function buildReviewQueue(len){
-  const pool = VERSES.filter(v => !R.used.has(v.id));
+  const pool = poolSansRepeatRefs(VERSES.filter(v => !R.used.has(v.id)));
   return SRS.buildQueue(pool.length ? pool : VERSES.slice(), cardFor, today(), len,
     list => shuffle(list));
 }
@@ -1679,10 +1746,10 @@ function buildDailyList(){
   const pattern = [1,1,2,2,2,3,3,3,3,3,4,4,4,4,5,5,5,5,5,5];
   const used = new Set(), out = [];
   pattern.forEach(t=>{
-    let pool = BY_TIER[t].filter(v=>!used.has(v.id));
+    let pool = poolSansRepeatRefs(BY_TIER[t].filter(v=>!used.has(v.id)));
     if(!pool.length) pool = BY_TIER[t].slice();
     const v = pool[Math.floor(rnd()*pool.length)];
-    used.add(v.id); out.push({v:v, rnd:rnd});
+    used.add(v.id); R.usedRefs.add(refKey(v)); out.push({v:v, rnd:rnd});
   });
   return {list:out, rnd:rnd};
 }
@@ -1707,11 +1774,9 @@ function startRun(mode, diffKey){
       attempt: rec ? rec.attempts : 0,
       exclude: exclude
     });
-    /* Commit the draw immediately so a quit mid-site still consumes them. */
-    if(siteDraw && siteDraw.verses.length){
-      SAVE.pilgrim = Pilgrimage.markUsed(SAVE.pilgrim, siteDraw.verses.map(v=>v.id));
-      persist();
-    }
+    /* Verses are committed as they are SERVED (commitSiteVerse below), not
+     here. Burning the whole draw at startRun meant backing out of a brief
+     you never answered still spent the site's eight verses forever. */
   }
 
   /* The relay flattens a whole arc into one queue, each entry tagged
@@ -1732,10 +1797,6 @@ function startRun(mode, diffKey){
         exclude[v.id] = 1;
       });
     });
-    if(queue.length){
-      SAVE.pilgrim = Pilgrimage.markUsed(SAVE.pilgrim, queue.map(e=>e.v.id));
-      persist();
-    }
     relay = {arcKey:arcKey, sites:list.map(s=>s.id), queue:queue, idx:0, banked:[], current:null};
   }
 
@@ -1753,13 +1814,15 @@ function startRun(mode, diffKey){
     runToken, sceneToken:0, ended:false,
     mode, diff:D, actIdx:0, qInAct:0, qTotal:0,
     score:0, disp:0, lives: mode==="blitz" ? 99 : D.lives, maxLives: mode==="blitz" ? 99 : D.lives,
-    streak:0, best:0, correct:0, attempts:0, missed:[], used:new Set(),
+    streak:0, best:0, correct:0, attempts:0, missed:[], used:new Set(), usedRefs:new Set(),
+    siteCommitted:{},
     powers:startPowers, usedPower:false, powersSpent:0,
     fast:0, sdCount:0, tiersSeen:new Set(), booksRun:new Set(),
     running:false, tEnd:0, tTotal:0, qStart:0, q:null, paused:false, locked:false, selected:null,
     actNoLoss:true, gotUnshaken:false, dailyIdx:0, daily:null, endlessBase:12000,
     startedAt:Date.now(), lastTickSec:-1, lastHeart:0, pressureStage:-1,
     setpiece:null, setpieceDone:new Set(), oneLifeCalled:false, overdriveGift:false,
+    overdriveRide:false, overdriveOffered:false, armorUsed:false, speed:false,
     passage:null, recon:null, usedPass:new Set(), adaptivePick:"",
     decisionMs:0, timedDecisions:0, fastestMs:Infinity,
     actStartAttempts:0, actStartCorrect:0,
@@ -1773,11 +1836,13 @@ function startRun(mode, diffKey){
     relay: relay,
     blitzEnd: mode==="blitz" ? performance.now() + blitzMs : 0,
     ghostSamples: [{ t:0, p:0 }],
-    lastPickKey: "", lastPickAt: 0
+    lastPickKey: "", lastPickAt: 0,
+    quoteShown: false
   });
   document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4","blitz-edge","blitz-edge-2","blitz-edge-3");
   if(mode==="daily") R.daily = buildDailyList();
   renderLives();
+  syncWitness();
   $("score").textContent = "0"; setMult();
   Director.momentum(false);
   renderPowers();
@@ -1805,6 +1870,7 @@ function startRun(mode, diffKey){
       : MODES[mode].name;
     // The play view wears the sky the site is actually under.
     applySiteSky(isPilgrim ? siteId : mode==="relay" ? relay.sites[0] : null);
+    if(!(isPilgrim || mode==="relay")) applySitePlate("hall");
     go("play"); nextQuestion();
   }
 }
@@ -1846,7 +1912,9 @@ function beginAct(i){
   $("act-num").textContent = A.n;
   $("act-name").textContent = A.name;
   $("act-sub").textContent = A.sub;
-  const secs = (A.t * R.diff.time / 1000).toFixed(1);
+  /* The act card prints the same clock play uses — it used to omit the
+     pace multiplier and the flat seconds, promising ~14s and giving ~20. */
+  const secs = (pacedClockMs(A.t, R.diff.time, Pilgrimage.PICK_PAD_MS || 1500) / 1000).toFixed(1);
   $("act-meta").textContent = A.q+" verses · "+secs+" seconds each"
     +(i===4 ? " · one life" : "");
   $("hud-round").textContent = A.name;
@@ -1867,37 +1935,64 @@ function beginAct(i){
     if(actEl) actEl.classList.remove("departing");
     document.body.classList.add("play-enter");
     go("play");
+    if(R.mode==="trial") applySitePlate("hall");
     nextQuestion();
     afterRun(820, ()=>document.body.classList.remove("play-enter"));
   });
 }
 
+/* High momentum used to grant extra time only at an 8-streak, so an
+   8-verse site never saw it. From Building (3) onward the pick clock
+   gets 20%. Every pick clock also gets a flat extra beat. Typed, Blitz,
+   and set-pieces keep the clocks they already own. */
+function pickPadMs(){
+  return (typeof Pilgrimage !== "undefined" && Pilgrimage.PICK_PAD_MS) || 1500;
+}
+/* One clock to print on every surface. Mirrors Polish.pacedClockMs; the
+   local fallback keeps loads without polish.js (the test sandbox) honest. */
+function pacedClockMs(base, diffTime, pad){
+  if(typeof Polish !== "undefined" && Polish.pacedClockMs) return Polish.pacedClockMs(base, diffTime, pad);
+  return Math.round((base * diffTime + (pad == null ? 1500 : pad)) * PACE + FLAT_ADD_MS);
+}
+function pickClockMs(ms){
+  if(!ms || R.typed || R.mode==="blitz" || R.mode==="recall" || R.mode==="pilgrim-recall") return ms;
+  return ms + pickPadMs();
+}
+function momentumClockMs(ms){
+  if(!ms || R.typed || R.mode==="blitz") return ms;
+  if((R.streak||0) >= MOMENTUM_STEPS[0]) return Math.round(ms * 1.2);
+  return ms;
+}
+function playClockMs(ms){
+  return Math.round(momentumClockMs(pickClockMs(ms)) * PACE + FLAT_ADD_MS);
+}
 function questionDuration(){
-  if(R.mode==="trial"){ return ACTS[R.actIdx].t * R.diff.time; }
-  if(R.mode==="daily"){ return 10000 * R.diff.time; }
+  if(R.mode==="trial"){ return playClockMs(ACTS[R.actIdx].t * R.diff.time); }
+  if(R.mode==="daily"){ return playClockMs(10000 * R.diff.time); }
   if(R.mode==="blitz"){
     const left = Math.max(0, (R.blitzEnd || 0) - performance.now());
     return Math.max(900, left);
   }
-  if(R.mode==="practice"){ return 12000 * R.diff.time; }
+  if(R.mode==="practice"){ return playClockMs(12000 * R.diff.time); }
   // Typing a phrase takes far longer than picking one, so Recall gets a
   // clock sized for the work rather than the same one the pickers use.
-  if(R.mode==="recall"){ return 32000 * R.diff.time; }
+  if(R.mode==="recall"){ return Math.round(32000 * R.diff.time * PACE + FLAT_ADD_MS); }
   // The road's clock is a function of how far east you are: 14s at Ur,
   // 6.5s at Patmos. pilgrimage.js owns the ramp. Typed slots on a mixed
   // site always get a typing-sized clock (at least 20s base).
   if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
+    if(R.speed) return playClockMs((Pilgrimage.SPEED_MS || 6000) * R.diff.time);
     const base = siteClockMs(R.siteId, R.mode);
-    if(R.mode==="pilgrimage" && R.typed) return Math.max(32000, base) * R.diff.time;
-    return base * R.diff.time;
+    if(R.mode==="pilgrimage" && R.typed) return Math.round(Math.max(32000, base) * R.diff.time * PACE + FLAT_ADD_MS);
+    return playClockMs(base * R.diff.time);
   }
   // The relay inherits each site's own clock as it reaches it, so the
   // road tightens inside a single run exactly as it does across many.
   if(R.mode==="relay"){
     const cur = R.relay && R.relay.current;
-    return Pilgrimage.clockFor(cur ? cur.index : 0) * R.diff.time;
+    return playClockMs(Pilgrimage.clockFor(cur ? cur.index : 0) * R.diff.time);
   }
-  return Math.max(4200, R.endlessBase - R.qTotal*180) * R.diff.time;
+  return playClockMs(Math.max(4200, R.endlessBase - R.qTotal*180) * R.diff.time);
 }
 function currentTier(){
   if(R.mode==="trial") return ACTS[R.actIdx].tier;
@@ -1952,12 +2047,19 @@ function nextQuestion(){
   else if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece){
     v = R.siteVerses[R.siteIdx]; R.siteIdx++;
     /* Pilgrim’s Recall is fully typed. Mixed pilgrimage ends with two
-       typed questions so production is trained without dominating the stop. */
-    if(R.mode==="pilgrim-recall") R.typed = true;
+       typed questions so production is trained without dominating the
+       stop. Late arcs also drop a typed recall mid-site (the road gets
+       busier east), and every site carries one swift 3-second round so
+       the body is not eight copies of the same tap. */
+    const vi = R.siteIdx - 1;
+    if(R.mode==="pilgrim-recall"){ R.typed = true; R.speed = false; }
     else if(R.mode==="pilgrimage"){
       const n = R.siteVerses ? R.siteVerses.length : 0;
       const typedN = Math.min(2, n);
-      R.typed = n > 0 && R.siteIdx > (n - typedN);
+      const arcKey = R.siteId ? (Pilgrimage.site(R.siteId)||{}).arc : null;
+      const mixed = arcKey ? Pilgrimage.mixedTypedSlot(vi, n, arcKey) : false;
+      R.typed = (n > 0 && vi >= (n - typedN)) || mixed;
+      R.speed = Pilgrimage.speedSlot(vi, n);
     }
   }
   else if(R.mode==="relay"){
@@ -1976,13 +2078,96 @@ function nextQuestion(){
   else if(R.mode==="practice" || R.mode==="recall"){ v = drawReviewVerse(); }
   else v = R.mode==="endless"&&!R.setpiece ? drawEndlessVerse(currentTier()) : SetPieces.draw(currentTier());
 
-  R.q = v; if(!R.setpiece) R.qInAct++; R.qTotal++;
+  R.q = v; R.usedRefs.add(refKey(v)); commitSiteVerse(v);
+  if(!R.setpiece) R.qInAct++; R.qTotal++;
   R.tiersSeen.add(v.t);
   if(R.mode==="trial" && R.actIdx===4) R.sdCount++;
-  renderQuestion(v, SetPieces.duration(questionDuration()));
+  const dur = SetPieces.duration(questionDuration());
   updateChips();
+  if(maybePlaySiteQuote(v, dur)) return;
+  witnessLook(false);
+  renderQuestion(v, dur);
 }
 
+function maybePlaySiteQuote(v, dur){
+  if((R.mode!=="pilgrimage" && R.mode!=="pilgrim-recall") || R.setpiece) return false;
+  if(R.siteIdx!==1 || R.quoteShown) return false;
+  const site = Pilgrimage.site(R.siteId);
+  if(!site || !site.quote) return false;
+  R.quoteShown = true;
+  if(document.body.classList.contains("reduced")) return false;
+  showSiteQuote(site, function(){ witnessLook(false); renderQuestion(v, dur); });
+  return true;
+}
+function hideSiteQuote(){
+  const el = $("site-quote");
+  if(!el) return;
+  el._done = true;
+  if(el._timer){ clearInterval(el._timer); el._timer = null; }
+  el.classList.remove("on");
+  el.onclick = null;
+}
+function showSiteQuote(site, done){
+  const el = $("site-quote");
+  const line = $("site-quote-line");
+  if(!el || !line){ if(done) done(); return; }
+  const text = String(site.quote || "");
+  const kick = $("site-quote-kicker");
+  const ref = $("site-quote-ref");
+  if(kick) kick.textContent = site.name || "";
+  if(ref) ref.textContent = site.quoteRef || "";
+  line.textContent = "";
+  el.classList.add("on");
+  el._done = false;
+  let i = 0;
+  const step = Math.max(16, Math.min(40, 1600 / Math.max(1, text.length)));
+  el._timer = setInterval(function(){
+    i++;
+    line.textContent = text.slice(0, i);
+    if(i >= text.length){ clearInterval(el._timer); el._timer = null; }
+  }, step);
+  function finish(){
+    if(el._done) return;
+    el._done = true;
+    if(el._timer){ clearInterval(el._timer); el._timer = null; }
+    el.classList.remove("on");
+    el.onclick = null;
+    if(done) done();
+  }
+  el.onclick = finish;
+  afterRun(Math.max(2400, text.length * step + 800), finish);
+}
+function syncWitness(){
+  const el = $("witness"), img = $("witness-face");
+  if(!el || !img) return;
+  const ch = typeof activeCharacter === "function" ? activeCharacter() : null;
+  if(!R || R.mode==="blitz" || !ch || !(ch.token || ch.portrait)){
+    el.hidden = true;
+    return;
+  }
+  img.src = ch.token || ch.portrait;
+  img.alt = ch.short || ch.name || "";
+  img.onerror = function(){ if(ch.portrait && img.src.indexOf(ch.portrait) < 0) img.src = ch.portrait; };
+  el.hidden = false;
+  el.classList.remove("look");
+}
+function witnessLook(down){
+  const el = $("witness");
+  if(el) el.classList.toggle("look", !!down);
+}
+/* Full-screen judge burst — same sprite-sheet steps() as the map walker.
+   Plays once, never takes hits, skipped under reduced motion. */
+function showJudgeBurst(kind){
+  const el = $("judge-burst");
+  if(!el) return;
+  if(SAVE.set.reduced) return;
+  if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  el.classList.remove("on","up","down");
+  void el.offsetWidth;
+  el.classList.add("on", kind==="down" ? "down" : "up");
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){ el.classList.remove("on","up","down"); }, 920);
+}
 function updateChips(){
   const tier = R.q ? R.q.t : currentTier();
   const diffEl = $("hud-diff");
@@ -1993,7 +2178,7 @@ function updateChips(){
     const A=ACTS[R.actIdx];
     $("hud-round").textContent = R.setpiece
       ? SetPieces.label()+(R.setpiece.sameBook&&R.setpiece.book?" · "+R.setpiece.book:"") : A.name;
-    $("hud-qlab").textContent = A.q===Infinity ? "Verse" : "Verse";
+    $("hud-qlab").textContent = "Verse";
     $("hud-q").textContent = R.setpiece
       ? (R.setpiece.count-R.setpiece.remaining)+" / "+R.setpiece.count
       : A.q===Infinity ? String(R.qInAct) : R.qInAct+" / "+A.q;
@@ -2087,6 +2272,8 @@ function updateActTrack(){
     }).join("");
     el.setAttribute("aria-label","Endless distance "+R.qTotal);
   }
+  const n = el.children.length || 1;
+  el.style.gridTemplateColumns = "repeat("+n+",minmax(20px,1fr))";
 }
 
 /* ------------------------- BROADCAST HUD HELPERS ------------------------- */
@@ -2128,6 +2315,7 @@ function answerButtons(){
 }
 const HEART_SVG = '<svg viewBox="0 0 24 24"><path d="M12 21.6l-1.5-1.4C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.7L12 21.6z" fill="url(#hg)"/></svg>';
 const HEART_BROKEN = '<svg viewBox="0 0 24 24"><path d="M12 21.6l-1.5-1.4C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.7L12 21.6z" fill="url(#hg)"/><path d="M12.6 4.6l-2.5 4.9 3 1.9-2.4 4.6" fill="none" stroke="#07070a" stroke-width="1.7" stroke-linejoin="round"/></svg>';
+const LAMP_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 14.2c0 2.6 1.8 4.6 4 4.6s4-2 4-4.6c0-2.2-1.5-3.3-2.8-4.2V8.2h1.8V6.6H9v1.6h1.8v1.8C9.5 10.9 8 12 8 14.2z" fill="url(#hg)"/><path class="lamp-flame" d="M12 3.2c.7 1.1 1.1 1.8.7 2.7-.5.2-1.2-.4-1.6-1.1.5-.2 1-.8.9-1.6z" fill="#ffe3a6"/></svg>';
 
 /* Prefer distractors that *look* like the correct phrase so all four
    options feel similar — length, word count, shape — and English alone
@@ -2192,13 +2380,19 @@ function buildChoices(q, rnd){
     push(cands[i].s);
   }
   (q.d||[]).forEach(d=>{ if(picked.length<3) push(d); });
-  /* Last-resort fillers that still mimic length of the blank */
+  /* Last resort: real answers from the bank, nearest in length. The old
+     numbered fakes ("the word of the LORD 2") looked broken on screen. */
+  if(picked.length<3 && typeof VERSES!=="undefined"){
+    VERSES.filter(x=>x && x.a && x.a!==correct && !ban[x.a])
+      .sort((a,b)=>Math.abs(a.a.length-correct.length)-Math.abs(b.a.length-correct.length))
+      .slice(0,6).forEach(x=>{ if(picked.length<3) push(x.a); });
+  }
   const fillBase = correct.length>18 ? "the word of the LORD forever" :
     correct.length>10 ? "the word of the LORD" : "the LORD";
   let n=0;
-  while(picked.length<3 && n<6){
+  while(picked.length<3 && n<3){
     n++;
-    push(fillBase + (n>1 ? " "+n : ""));
+    push(fillBase);
   }
   return shuffle([correct].concat(picked.slice(0,3)), r);
 }
@@ -2211,15 +2405,26 @@ function renderQuestion(q, dur){
   $("verse").innerHTML = highlightVerse(q.p) +
     ' <span class="blank" id="blank">&#8195;&#8195;&#8195;</span>' + sep(q.s) + highlightVerse(q.s);
   fitVerseSize((q.p||"").length+(q.a||"").length+(q.s||"").length);
+  /* A light entrance on each new verse so question-to-question feels
+     like a handoff, not a hard swap. */
+  const verseEl = $("verse");
+  if(verseEl && !document.body.classList.contains("reduced")){
+    verseEl.classList.remove("q-in"); void verseEl.offsetWidth; verseEl.classList.add("q-in");
+  }
   R.locked = false; R.selected = null;
   document.body.classList.toggle("mode-typed", !!R.typed);
+  document.body.classList.toggle("speed-round", !!R.speed);
   if(R.typed) return renderTypedQuestion(q, dur, scene);
   const confirmBtn = $("confirm-answer");
   confirmBtn.style.display = "";
   confirmBtn.disabled = true;
-  confirmBtn.textContent = SetPieces.autoLock() ? "Rapid Lock" : "Lock Answer";
+  confirmBtn.textContent = SetPieces.autoLock() ? "Rapid Lock"
+    : (R.speed ? "Swift Lock"
+    : (SAVE.set.singleTap === false ? "Lock Answer" : "One-tap answer"));
   const how=$("warn-how");
-  if(how) how.innerHTML="Select a phrase, then lock it<br>Enter or Space confirms";
+  if(how) how.innerHTML = (SAVE.set.singleTap === false)
+    ? "Select a phrase, then lock it<br>Enter or Space confirms"
+    : "Tap a phrase to answer";
   const opts = $("opts"); opts.className = "answers queued"; opts.innerHTML = "";
   const rnd = R.mode==="daily" ? R.daily.rnd : Math.random;
   const choices = buildChoices(q, rnd);
@@ -2228,10 +2433,12 @@ function renderQuestion(q, dur){
     const b=document.createElement("button");
     b.className="ans"; b.dataset.val=c;
     b.setAttribute("aria-pressed","false");
-    b.innerHTML='<span class="ltr">'+LETTERS[i]+'.</span>'+esc(c);
+    b.innerHTML='<span class="ans-float"><span class="ltr">'+LETTERS[i]+'.</span>'+esc(c)+'</span>';
+    b.style.setProperty("--drift-delay", (i * 0.85) + "s");
     b.addEventListener("click", ()=>pickAnswer(c,b));
     opts.appendChild(b);
   });
+  if(!SetPieces.autoLock() && !document.body.classList.contains("reduced")) opts.classList.add("drift");
   renderPowers();
   armTimer(dur);
   const entranceDelay=R.setpiece?180:Math.min(1450,Math.max(520,dur*.12));
@@ -2250,7 +2457,7 @@ function renderQuestion(q, dur){
 const VKB_ROWS = [
   ["q","w","e","r","t","y","u","i","o","p"],
   ["a","s","d","f","g","h","j","k","l","'"],
-  ["z","x","c","v","b","n","m","⌫"],
+  ["z","x","c","v","b","n","m","-","⌫"],
   ["space","clear"]
 ];
 function buildVirtualKeyboardHtml(){
@@ -2294,15 +2501,33 @@ function bindVirtualKeyboard(){
   /* Keep pointer events from stealing focus into a phantom OS keyboard. */
   board.addEventListener("mousedown", e=>e.preventDefault());
 }
+function setVkbOpen(on, persistIt){
+  SAVE.set.vkb = !!on;
+  if(persistIt !== false) persist();
+  const board = $("vkb");
+  const input = $("typed-answer");
+  const tog = $("vkb-toggle");
+  if(board) board.classList.toggle("on", SAVE.set.vkb);
+  if(tog){
+    tog.setAttribute("aria-pressed", SAVE.set.vkb ? "true" : "false");
+    tog.textContent = SAVE.set.vkb ? "Hide keyboard" : "Keyboard";
+  }
+  if(input) input.setAttribute("inputmode", SAVE.set.vkb ? "none" : "text");
+}
 function renderTypedQuestion(q, dur, scene){
   R.hintLevel = 0;
   const opts = $("opts");
   opts.className = "answers typed queued";
   opts.innerHTML =
     '<div class="typewrap">' +
-      '<input id="typed-answer" class="typed-input" type="text" autocomplete="off" ' +
-        'autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="none" ' +
-        'aria-label="Type the missing words" placeholder="type the missing words">' +
+      '<div class="type-row">' +
+        '<input id="typed-answer" class="typed-input" type="text" autocomplete="off" ' +
+          'autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" ' +
+          'aria-label="Type the missing words" placeholder="type the missing words">' +
+        '<button type="button" class="typed-pwr" data-pw="selah">Selah</button>' +
+        '<button type="button" class="typed-pwr" data-pw="illum">Illuminate</button>' +
+        '<button type="button" class="vkb-toggle" id="vkb-toggle" aria-pressed="false" aria-controls="vkb">Keyboard</button>' +
+      '</div>' +
       '<div class="typed-hint" id="typed-hint" aria-live="polite"></div>' +
       buildVirtualKeyboardHtml() +
     '</div>';
@@ -2312,6 +2537,12 @@ function renderTypedQuestion(q, dur, scene){
     if(e.key === "Enter"){ e.preventDefault(); confirmTyped(); }
   });
   bindVirtualKeyboard();
+  opts.querySelectorAll("[data-pw]").forEach(b=>{
+    b.addEventListener("click", ()=>{ Snd.ui(); usePower(b.dataset.pw); });
+  });
+  const tog = $("vkb-toggle");
+  if(tog) tog.addEventListener("click", ()=>{ Snd.ui(); setVkbOpen(!SAVE.set.vkb); });
+  setVkbOpen(!!SAVE.set.vkb, false);
   const confirmBtn = $("confirm-answer");
   confirmBtn.style.display = "";
   confirmBtn.disabled = true;
@@ -2360,7 +2591,9 @@ function typedHint(){
   return true;
 }
 
-/* Select first, then confirm. Rapid Recall deliberately auto-locks. */
+/* Single-tap answers by default — the tap IS the answer. Rapid Recall has
+   always auto-locked; the rest of the game now does too, unless the player
+   opts back into select-then-lock under Settings. */
 function pickAnswer(val, btn){
   if(!R.running || R.paused || R.locked) return;
   answerButtons().forEach(b=>{b.classList.remove("sel");b.setAttribute("aria-pressed","false");});
@@ -2368,10 +2601,13 @@ function pickAnswer(val, btn){
   btn.setAttribute("aria-pressed","true");
   R.selected = {val, btn};
   const confirm=$("confirm-answer");
+  if(SetPieces.autoLock() || SAVE.set.singleTap !== false){
+    answer(val, btn);
+    return;
+  }
   confirm.disabled = false;
   confirm.textContent = "Lock "+LETTERS[Math.max(0,answerButtons().indexOf(btn))];
   Snd.ui();
-  if(SetPieces.autoLock()) answer(val, btn);
 }
 function confirmAnswer(){
   if(R.typed) return confirmTyped();
@@ -2392,7 +2628,9 @@ function armTimer(dur){
   $("ring-arc").style.strokeDashoffset = "0";
 }
 function startTimer(dur){
-  R.tTotal = dur; R.tEnd = performance.now()+dur; R.qStart = performance.now();
+  const extra = R.pendingSelah||0;
+  R.pendingSelah = 0;
+  R.tTotal = dur + extra; R.tEnd = performance.now()+dur+extra; R.qStart = performance.now();
   R.running = true; R.paused = false; R.lastTickSec = -1; R.lastHeart = 0; R.lastHeartSec = -1;
   if(document.hidden){pauseStamp=performance.now();setPaused(true);}
   else ensureLoop();
@@ -2428,7 +2666,6 @@ function tickTimer(now){
     if(left>0 && R.mode!=="blitz"){
       if(sec===4 || sec===5){
         Snd.tick(true);
-        Backdrop.hit("tick");
       } else if(sec>=6 && sec<=10){
         Snd.tick(false);
       }
@@ -2448,6 +2685,7 @@ function tickTimer(now){
 function stopTimer(){
   R.running=false;
   if(typeof Snd!=="undefined" && Snd.stopPressure) Snd.stopPressure();
+  if(typeof Director!=="undefined" && Director.pressure) Director.pressure(0);
 }
 
 /* ------------------------- POWERS ------------------------- */
@@ -2466,11 +2704,16 @@ function renderPowers(){
   });
 }
 function usePower(kind){
-  if(!R.running || R.paused) return;
+  if(R.paused || R.locked) return;
+  const armed = R.running || (!!R.tTotal && !R.ended);
+  if(!armed) return;
   if(SetPieces.noPowers()){ toast("Lifelines are offline for this sequence"); return; }
   if(kind==="selah" && R.powers.selah){
     R.powers.selah--; R.usedPower=true; R.powersSpent++; R.tEnd += 5000; R.tTotal += 5000;
-    Snd.power(); doFlash("gold"); toast("Selah — five seconds granted");
+    R.pendingSelah = (R.pendingSelah||0) + 5000;
+    Snd.power();
+    if(Snd.selah) Snd.selah(5000);
+    doFlash("gold"); toast("Selah — five seconds granted");
   } else if(kind==="illum" && R.powers.illum){
     if(!R.q){ toast("Illuminate needs a verse on the stage"); return; }
     if(R.typed){
@@ -2506,10 +2749,9 @@ function multiplier(){
   if(R.mode==="trial" && R.actIdx===4) m += 2;
   return m;
 }
-/* Overdrive is the top of the meter. It used to be pure spectacle — the
-   loudest state in the game did nothing a quieter one did not. Now it
-   pays: the clock bonus doubles while it holds, and reaching it once in
-   a run hands back a spent lifeline. */
+/* Overdrive is the top of the meter. Reaching it stops the run and asks
+   the player to ride or bank; choosing to ride doubles every answer's
+   score while it holds and hands back a spent lifeline. */
 function inOverdrive(){ return (R.streak||0) >= MOMENTUM_STEPS[MOMENTUM_STEPS.length-1]; }
 function overdriveReward(){
   if(R.streak !== MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] || R.overdriveGift) return;
@@ -2517,9 +2759,61 @@ function overdriveReward(){
   const illumCap = (R.mode==="pilgrimage"||R.mode==="pilgrim-recall"||R.mode==="relay") ? 1 : 2;
   if(R.powers.selah < 1){ R.powers.selah = 1; Director.callout("Overdrive — Selah restored"); }
   else if(R.powers.illum < illumCap){ R.powers.illum++; Director.callout("Overdrive — Illuminate restored"); }
-  else { Director.callout("Overdrive — the clock pays double"); }
+  else { Director.callout("Overdrive — the meter is full"); }
   renderPowers();
 }
+/* Correct answers chain fast; wrong answers keep the long pause so the
+   miss can teach. The hotter the streak, the tighter the snap. */
+function correctAdvance(){
+  if(SetPieces.autoLock()) return 720;
+  return (R.streak >= MOMENTUM_STEPS[2]) ? 650 : 800;
+}
+
+/* The Overdrive moment. Reaching the top of the momentum meter used to
+   silently hand out a reward; now it stops the run and makes the player
+   choose — ride (double pay, a miss costs two lamps) or bank (cash the
+   streak, reset to ×1). The clock is stopped so it cannot bleed while
+   the choice is on screen, and a timeout banks by default so the game
+   can never deadlock. */
+function offerOverdriveChoice(){
+  if(R.overdriveOffered || R.ended) return;
+  R.overdriveOffered = true;
+  const el = $("overdrive-choice");
+  if(!el){ resolveOverdrive("ride"); return; }
+  stopTimer();
+  R.running = false;
+  document.body.classList.add("od-open");
+  el.classList.add("on");
+  Snd.power(); doFlash("gold");
+  clearTimeout(R._odTimer);
+  R._odTimer = setTimeout(function(){
+    const c = $("overdrive-choice");
+    if(c && c.classList.contains("on")) resolveOverdrive("bank");
+  }, 9000);
+}
+function resolveOverdrive(choice){
+  if(R.ended) return;
+  clearTimeout(R._odTimer);
+  const el = $("overdrive-choice");
+  if(el) el.classList.remove("on");
+  document.body.classList.remove("od-open");
+  if(choice === "bank"){
+    const bank = (typeof Polish!=="undefined" && Polish.overdriveBank)
+      ? Polish.overdriveBank(R.streak, R.diff.score)
+      : Math.round(R.streak * 60 * R.diff.score);
+    R.score += bank;
+    R.streak = 0; setMult(); Director.momentum(false);
+    popScore("+"+fmt(bank)); toast("Overdrive banked — "+fmt(bank)+" added");
+    Snd.power();
+  } else {
+    R.overdriveRide = true;
+    overdriveReward();
+    Director.callout("Riding the fire — double pay, double risk");
+    Snd.power(); doFlash("gold");
+  }
+  nextQuestion();
+}
+
 function setMult(pop){
   const m=multiplier(), el=$("mult");
   el.textContent="×"+m;
@@ -2586,50 +2880,62 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     R.correct++; R.streak++; R.best=Math.max(R.best,R.streak);
     R.booksRun.add(q.b);
     if(elapsed < 1500) R.fast++;
-    overdriveReward();
-    const timeBonus = Math.round(left / R.tTotal * 140 * (inOverdrive() ? 2 : 1));
+    // The "double pay" is no longer automatic — it only holds while the
+    // player is riding the fire, a choice made at the Overdrive moment.
+    const riding = R.overdriveRide && inOverdrive();
+    const timeBonus = Math.round(left / R.tTotal * 140);
     const tierW = 1 + q.t*0.12;
-    const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * tierW * SetPieces.bonus());
+    const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * tierW * SetPieces.bonus() * (riding ? 2 : 1));
     R.score += gained;
     if(R.mode==="blitz" && typeof Polish!=="undefined"){
       const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
       R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, true);
     }
     noteGhostProgress();
-    Snd.correct(); Backdrop.hit("correct"); doFlash("gold");
+    Snd.correct(); doFlash("gold");
     if(SAVE.set.haptics!==false && typeof Polish!=="undefined") Polish.haptic("correct");
-    Director.impact("correct");popScore("+"+fmt(gained)); animateScore(); setMult(true);Director.momentum(true);
+    Director.impact("correct"); animateScore(); setMult(true);Director.momentum(true);
     if(R.streak===5)Director.callout("Unbroken ×5");
     if(R.streak===10)Director.callout("Perfect Recall");
     if(R.streak>=10 && !hasSeal("recall")) grantSeal("recall");
     if(R.streak>=20 && !hasSeal("flame")) grantSeal("flame");
     if(R.fast>=10 && !hasSeal("swift")) grantSeal("swift");
-    afterRun(SetPieces.autoLock()?720:1450, nextQuestion);
+    // The Overdrive moment: reaching the top of the meter pauses the run
+    // and asks the player to ride (double pay, double risk) or bank.
+    if(R.streak === MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] && !R.setpiece && R.mode!=="blitz"){
+      afterRun(700, offerOverdriveChoice);
+      return;
+    }
+    afterRun(correctAdvance(), nextQuestion);
   } else {
-    const blank=$("blank"); blank.textContent=choice; blank.classList.add("bad","reveal");
+    // Riding the fire turns a miss into two lost lamps — the risk that
+    // paid for the double reward. Capture before the streak resets.
+    const wasRiding = R.overdriveRide && inOverdrive();
+    R.overdriveRide = false;
     R.streak=0; setMult(); R.missed.push(q);
     if(R.mode==="blitz" && typeof Polish!=="undefined"){
       const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
       R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, false);
     }
     Director.momentum(false);Director.impact("wrong");
-    Snd.wrong(); Backdrop.hit("wrong"); doFlash("red"); shakeUI(true);
+    Snd.wrong(); doFlash("red"); shakeUI(true);
     if(SAVE.set.haptics!==false && typeof Polish!=="undefined") Polish.haptic("wrong");
-    showAnswerReveal(q);
-    afterRun(520, ()=>{ if(R.q===q){ blank.textContent=q.a; blank.classList.remove("bad"); blank.classList.add("filled","reveal"); } });
+    markBlankScar(choice, q.a);
+    witnessLook(true);
     if(R.mode==="blitz"){
       afterRun(900, ()=>{ if(R.blitzEnd && performance.now()>=R.blitzEnd) endRun("death"); else nextQuestion(); });
     } else {
-      loseLife();
+      loseLife(wasRiding ? 2 : 1);
     }
   }
 }
-function showAnswerReveal(q){
-  const el = $("answer-reveal");
-  if(!el || !q) return;
-  el.innerHTML = '<b>'+esc(q.r)+'</b> <span>'+esc(q.a)+'</span>';
-  el.classList.add("on");
-  setTimeout(()=>el.classList.remove("on"), 2200);
+function markBlankScar(wrong, right){
+  const blank = $("blank");
+  if(!blank) return;
+  blank.classList.remove("filled","bad","hinted");
+  blank.classList.add("scar","reveal");
+  blank.innerHTML = '<s class="scar-miss">'+esc(wrong == null || wrong === "" ? "—" : wrong)+'</s>'+
+    '<em class="scar-true">'+esc(right || "")+'</em>';
 }
 function noteGhostProgress(){
   if(typeof Polish==="undefined" || !R.startedAt) return;
@@ -2685,19 +2991,29 @@ function timeUp(){
       if(b.dataset.val===q.a) b.classList.add("right"); else b.classList.add("mute");
     });
   }
-  const blank=$("blank"); blank.textContent="— time —"; blank.classList.add("bad");
-  if(q) showAnswerReveal(q);
+  if(q) markBlankScar("— time —", q.a);
+  witnessLook(true);
   recordVerse(q,false);
   scheduleReview(q, {correct:false, timedOut:true});
   R.missed.push(q);
-  Director.impact("wrong");Snd.wrong(); Backdrop.hit("wrong"); doFlash("red"); shakeUI(true);
-  afterRun(520, ()=>{ if(R.q===q){ blank.textContent=q.a; blank.classList.remove("bad"); blank.classList.add("filled","reveal"); } });
+  Director.impact("wrong");Snd.wrong(); doFlash("red"); shakeUI(true);
   loseLife();
 }
-function loseLife(){
+function loseLife(count){
+  count = count || 1;
+  /* A recovered relic shields the road once per site: the miss still
+     costs the streak, but the lamp holds. */
+  const onRoad = R.mode==="pilgrimage" || R.mode==="pilgrim-recall" || R.mode==="relay";
+  if(onRoad && count===1 && !R.armorUsed && typeof Artifacts!=="undefined" && Artifacts.unlockedCount(SAVE.artifacts) > 0){
+    R.armorUsed = true;
+    toast("Relic shield — one miss absorbed");
+    Snd.power();
+    afterRun(1200, nextQuestion);
+    return;
+  }
   R.actNoLoss = false;
-  R.lives = Math.max(0, R.lives-1);
-  renderLives(true);
+  R.lives = Math.max(0, R.lives - count);
+  renderLives(count);
   if(R.lives===1 && !R.oneLifeCalled){ R.oneLifeCalled=true; Director.speak("One life remains.",true); }
   if(R.lives<=0){
     const finalAct = R.mode==="trial" && R.actIdx===4;
@@ -2711,15 +3027,25 @@ function loseLife(){
   }
   afterRun(SetPieces.autoLock()?950:1900, nextQuestion);
 }
-function renderLives(justLost){
+function renderLives(lost){
+  lost = lost || 0;
   const el=$("hud-lives"); if(!el) return;
+  const wrap=$("hud-lives-wrap");
+  const lab=$("hud-lives-lab");
+  if(R.mode==="blitz"){
+    if(wrap) wrap.style.display="none";
+    el.innerHTML="";
+    return;
+  }
+  if(wrap) wrap.style.display="";
+  if(lab) lab.textContent="Lamps";
   const n = R.maxLives;
   let html = "";
   for(let i=0;i<n;i++){
     const alive = i < R.lives;
     const last  = alive && R.lives===1;
-    const broke = justLost && !alive && i===R.lives;
-    html += '<span class="hrt'+(alive?"":" gone")+(last?" last":"")+(broke?" break":"")+'">'+(last?HEART_BROKEN:HEART_SVG)+'</span>';
+    const broke = lost && !alive && i>=R.lives && i < R.lives+lost;
+    html += '<span class="hrt lamp'+(alive?"":" gone")+(last?" last":"")+(broke?" break":"")+'">'+LAMP_SVG+'</span>';
   }
   html += '<b>'+R.lives+'</b>';
   el.innerHTML = html;
@@ -2740,6 +3066,15 @@ function scheduleReview(q, outcome){
   const card = reviewVerse(q, outcome);
   R.rescheduled.push({ r:q.r, ivl:card.ivl, correct:!!outcome.correct });
 }
+/* Turn a word-level diff into a sentence: which word was wrong, not just
+   that the line was. */
+function diffSentence(diff){
+  if(!diff) return "";
+  const t=diff.typed, e=diff.expected;
+  if(!t && e) return 'You left out “'+esc(e)+'”. ';
+  if(t && !e) return '“'+esc(t)+'” is not in the verse. ';
+  return 'You wrote “'+esc(t)+'” — the verse says “'+esc(e)+'”. ';
+}
 /* Show what was typed against what the verse says. Being told you were
    "wrong" without seeing the gap teaches nothing. */
 function renderTypedVerdict(g){
@@ -2751,7 +3086,7 @@ function renderTypedVerdict(g){
     g.verdict === "exact"   ? '<b class="ok">Word for word.</b>' :
     g.verdict === "close"   ? '<b class="ok">Counted.</b> <span>The verse reads “'+esc(R.q.a)+'”.</span>' :
     g.verdict === "modernised" ? '<b class="no">Not the wording.</b> <span>'+esc(g.hint)+' The verse reads “'+esc(R.q.a)+'”.</span>' :
-                              '<b class="no">Not this one.</b> <span>The verse reads “'+esc(R.q.a)+'”.</span>';
+                              '<b class="no">Not this one.</b> <span>'+diffSentence(g.diff)+'The verse reads “'+esc(R.q.a)+'”.</span>';
 }
 
 /* ==================================================================
@@ -2760,9 +3095,12 @@ function renderTypedVerdict(g){
    and at most a single life lost however many parts go wrong.
    ================================================================== */
 function drawPassage(){
+  const prefer = R.setpiece && (R.setpiece.book || (R.siteId && (Pilgrimage.site(R.siteId)||{}).books||[])[0]);
   let pool = PASSAGES.filter(p=>!R.usedPass.has(p.id));
   if(!pool.length){ R.usedPass.clear(); pool = PASSAGES.slice(); }
-  const p = pool[Math.floor(Math.random()*pool.length)];
+  const bound = prefer ? pool.filter(p=>p.b===prefer) : [];
+  const pick = bound.length ? bound : pool;
+  const p = pick[Math.floor(Math.random()*pick.length)];
   R.usedPass.add(p.id);
   return p;
 }
@@ -3030,12 +3368,12 @@ function finishSequence(o){
   if(o.right){
     const gained = Math.round(o.base * o.right * multiplier() * R.diff.score * SetPieces.bonus());
     R.score += gained;
-    popScore("+"+fmt(gained)); animateScore();
+    animateScore();
   }
   if(perfect){
     R.correct++; R.streak++; R.best = Math.max(R.best, R.streak);
     R.booksRun.add(o.book);
-    Snd.correct(); Backdrop.hit("correct"); doFlash("gold");
+    Snd.correct(); doFlash("gold");
     Director.callout(SetPieces.label()+" restored");
     setMult(true); Director.momentum(true);
     afterRun(1700, nextQuestion);
@@ -3046,7 +3384,7 @@ function finishSequence(o){
       const full = passage.parts.map(x=>typeof x==="string" ? x : x.a).join("");
       R.missed.push({r:passage.r,p:"",a:full,s:""});
     }
-    Director.momentum(false); Snd.wrong(); Backdrop.hit("wrong");
+    Director.momentum(false); Snd.wrong();
     Director.callout(o.right ? o.right+" of "+o.total+" restored" : "The passage is lost");
     loseLife();
   }
@@ -3087,8 +3425,9 @@ function grantSeal(id){
   if(hasSeal(id)) return;
   SAVE.seals.push(id); persist();
   const s = SEALS.find(x=>x.id===id);
-  pendingSeals.push(s);
-  Snd.seal(); toast("Seal unlocked — "+s.n);
+  if(!s) return;
+  pendingSeals.push(Object.assign({announced: !R.ended}, s));
+  if(!R.ended){ Snd.seal(); toast("Seal unlocked — "+s.n); }
 }
 function checkMetaSeals(){
   const li = levelInfo(SAVE.xp);
@@ -3112,6 +3451,7 @@ function endRun(reason){
   R.ended = true;
   invalidateRun();
   clearSequence();
+  hideSiteQuote();
   document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7");
   R.setpiece=null;
   const reachedV = (R.mode==="trial" && R.actIdx>=4);
@@ -3176,7 +3516,6 @@ function endRun(reason){
     if(reason==="complete" && R.relay.current) bankRelaySite(R.relay.current.siteId);
     if(reason==="complete" && !hasSeal("relay")) grantSeal("relay");
   }
-  const pilgrimBefore = isPilgrim ? JSON.parse(JSON.stringify(SAVE.pilgrim)) : null;
   const road = isPilgrim ? recordSiteResult(siteCleared, total, acc) : null;
   /* First clear opens the next place — remember it for the map ceremony. */
   if(road && road.firstClear && siteCleared){
@@ -3198,10 +3537,6 @@ function endRun(reason){
       if(u.firstUnlock && u.artifact) queueArtifactReveal(u.artifact);
     }
   }
-  /* Biblical figure skins unlock by arc / road progress. */
-  if(isPilgrim && pilgrimBefore && typeof Characters !== "undefined"){
-    Characters.newlyUnlockedFigures(pilgrimBefore, SAVE.pilgrim).forEach(queueFigureReveal);
-  }
   /* Read straight off the saved journey rather than off `road`, because
      the relay banks its sites itself and never produces a `road`.
      Checked on every finish, not only a first clear: perfecting an arc
@@ -3216,7 +3551,10 @@ function endRun(reason){
   if(isRecord) SAVE.best[R.mode] = total;
 
   let dailyRecorded = false;
-  if(R.mode==="daily" && SAVE.daily.date !== todayKey()){
+  /* Only a finished run spends the day's shot. A death or an abandon is
+     practice: locking the day because a run ended early punished exactly
+     the mis-tap the mode cannot guard against. */
+  if(R.mode==="daily" && reason==="complete" && SAVE.daily.date !== todayKey()){
     SAVE.daily = {date:todayKey(), score:total};
     SAVE.life.dailyDone++; dailyRecorded = true;
   }
@@ -3290,16 +3628,10 @@ function endRun(reason){
   renderResults({reason, total, baseScore, streakBonus, accBonus, survivalBonus, acc,
     xpGain, beforeLvl, afterInfo, isRecord, prevBest, dailyRecorded, road, siteCleared,
     firstClearBonus, survivedMs});
-  if(afterInfo.level>beforeLvl){ setTimeout(()=>{ Snd.level(); Backdrop.hit("levelup"); toast("Level "+afterInfo.level+" — "+rankFor(afterInfo.level)); }, 1400); }
   go("results");
-  /* Reveal ceremony after the score has a moment to land. */
-  if(pendingReveals.length){
-    setTimeout(()=>flushRevealsAfterResults(), 1600);
-  }
 }
 
 function renderResults(o){
-  Director.ending(o);
   $("res-kick").textContent =
     o.reason==="abandon" ? "The run was abandoned" :
     o.reason==="complete" && R.mode==="trial" ? "The Final Test is complete" :
@@ -3312,12 +3644,6 @@ function renderResults(o){
   document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
   $("res-rank").textContent = runTitle(o.total);
   $("res-score").textContent = "0";
-  const t0=performance.now();
-  (function count(t){
-    const k=Math.min(1,(t-t0)/1200), e=1-Math.pow(1-k,3);
-    $("res-score").textContent = fmt(o.total*e);
-    if(k<1) requestAnimationFrame(count);
-  })(t0);
 
   $("res-breakdown").innerHTML =
     row("Verses kept", fmt(o.baseScore)) +
@@ -3361,11 +3687,9 @@ function renderResults(o){
   $("xp-lvl").textContent = "Level "+o.afterInfo.level+" · "+rankFor(o.afterInfo.level);
   $("xp-gain").textContent = "+"+fmt(o.xpGain)+" XP";
   $("xp-fill").style.width = "0%";
-  setTimeout(()=>{ $("xp-fill").style.width = (o.afterInfo.into/o.afterInfo.need*100)+"%"; }, 260);
-
-  $("res-seals").innerHTML = pendingSeals.map(s=>
-    '<div class="sealwin"><b>'+esc(s.n)+'</b><span>'+esc(s.d)+'</span></div>').join("");
+  const seals = pendingSeals.slice();
   pendingSeals = [];
+  $("res-seals").innerHTML = "";
 
   const m=$("res-missed");
   if(R.missed.length){
@@ -3402,10 +3726,10 @@ function renderResults(o){
   /* After a first clear that unlocks new ground, auto-return to the map
      for the unlock ceremony. "On to next" still works for replaying. */
   const nextBtn=$("res-next");
+  const autoUnlock = !!(pendingUnlockId && isPilgrim && o.siteCleared && o.road && o.road.firstClear);
   if(nextBtn){
     const nxt = isPilgrim && o.siteCleared ? Pilgrimage.currentSite(SAVE.pilgrim) : null;
     const showNext = !!(nxt && !Pilgrimage.isCleared(SAVE.pilgrim, nxt.id));
-    const autoUnlock = !!(pendingUnlockId && o.siteCleared && o.road && o.road.firstClear);
     nextBtn.style.display = showNext && !autoUnlock ? "" : "none";
     if(showNext && !autoUnlock){
       nextBtn.textContent = "On to " + nxt.name.replace(/\s*\(.*\)$/, "");
@@ -3416,13 +3740,6 @@ function renderResults(o){
         roadBtn.style.display = "";
         roadBtn.textContent = "See the road open";
       }
-      const token = R.runToken;
-      setTimeout(function(){
-        if(R.runToken!==token) return;
-        if(currentView!=="results") return;
-        Snd.ui();
-        go("atlas");
-      }, 2200);
     }
   }
 
@@ -3438,7 +3755,7 @@ function renderResults(o){
   }
   if(isPilgrim && o.road){
     const site = Pilgrimage.site(R.siteId);
-    const nxt = Pilgrimage.currentSite(o.road.after ? SAVE.pilgrim : SAVE.pilgrim);
+    const nxt = Pilgrimage.currentSite(SAVE.pilgrim);
     $("res-kick").textContent = o.siteCleared
       ? (site ? site.name + " is behind you" : "The site is cleared")
       : (site ? site.name + " holds" : "The site holds");
@@ -3465,6 +3782,83 @@ function renderResults(o){
   fillResultsBoard(R.mode);
   fillResultsInsights(R.missed[0] || R.q);
   updatePlayerCard();
+  playResultsSequence(o, seals, autoUnlock);
+}
+
+function afterResults(delay, fn){
+  const token = R.runToken;
+  return setTimeout(function(){
+    if(R.runToken!==token || currentView!=="results") return;
+    fn();
+  }, delay);
+}
+function countUpScore(total){
+  const el = $("res-score");
+  if(!el) return;
+  const t0 = performance.now();
+  (function count(t){
+    if(currentView!=="results") return;
+    const k = Math.min(1, (t-t0)/1200), e = 1-Math.pow(1-k,3);
+    el.textContent = fmt(total*e);
+    if(k<1) requestAnimationFrame(count);
+  })(t0);
+}
+function presentSeal(s){
+  if(!s) return;
+  const row = $("res-seals");
+  if(row){
+    const el = document.createElement("div");
+    el.className = "sealwin";
+    el.innerHTML = "<b>"+esc(s.n)+"</b><span>"+esc(s.d)+"</span>";
+    row.appendChild(el);
+  }
+  if(!s.announced){
+    Snd.seal();
+    toast("Seal unlocked — "+s.n);
+  }
+}
+function playResultsSequence(o, seals, autoUnlock){
+  seals = seals || [];
+  const quiet = !!(SAVE.set.reduced || document.body.classList.contains("reduced"));
+  const beat = quiet ? 180 : 900;
+  let t = 0;
+
+  afterResults(t, function(){ Director.ending(o); });
+  t += quiet ? 240 : 2200;
+
+  afterResults(t, function(){ countUpScore(o.total); });
+  t += quiet ? 400 : 1400;
+
+  afterResults(t, function(){
+    const fill = $("xp-fill");
+    if(fill && o.afterInfo) fill.style.width = (o.afterInfo.into/o.afterInfo.need*100)+"%";
+  });
+  t += quiet ? 180 : 700;
+
+  seals.forEach(function(s, i){
+    afterResults(t + i*beat, function(){ presentSeal(s); });
+  });
+  t += seals.length * beat + (seals.length ? 280 : 0);
+
+  if(o.afterInfo && o.afterInfo.level > o.beforeLvl){
+    afterResults(t, function(){
+      Snd.level(); Backdrop.hit("levelup");
+      toast("Level "+o.afterInfo.level+" — "+rankFor(o.afterInfo.level));
+    });
+    t += quiet ? 280 : 1400;
+  }
+
+  afterResults(t, function(){
+    function finish(){
+      if(!autoUnlock) return;
+      afterResults(quiet ? 200 : 900, function(){
+        Snd.ui();
+        go("atlas");
+      });
+    }
+    if(pendingReveals.length) flushRevealsAfterResults(finish);
+    else finish();
+  });
 }
 function boardRowHtml(r, extra){
   return '<div class="board-row'+(r.mine?" mine":"")+'">'+
@@ -3763,10 +4157,10 @@ function renderSettings(){
   const profileBlock =
     setRow("Your name", "Shown on this device and on cloud boards when signed in.",
       '<div class="cloud-name"><input id="set-player-name" type="text" maxlength="32" value="'+esc(SAVE.set.playerName||"")+'"><button class="btn ghost sm" id="set-name-save" type="button">Save</button></div>') +
-    setRow("Avatar skin",
-      ch ? (ch.name + (Characters.isFigure(ch) ? " — biblical skin" : " — scholar") + ". Portrait on the menu; token on the map.")
-         : "Choose a scholar or an unlocked biblical figure.",
-      '<button class="btn ghost sm" id="set-character" type="button">'+(ch ? "Equip · "+esc(ch.short) : "Choose avatar")+'</button>');
+    setRow("Avatar",
+      ch ? (ch.name + " — your scholar. Portrait on the menu; token on the map.")
+         : "Choose a scholar.",
+      '<button class="btn ghost sm" id="set-character" type="button">'+(ch ? "Change · "+esc(ch.short) : "Choose avatar")+'</button>');
 
   $("settings-body").innerHTML =
     accountBlock +
@@ -3791,6 +4185,8 @@ function renderSettings(){
       seg("contrast",[[false,"Off"],[true,"On"]],!!s.contrast)) +
     setRow("Haptics","Short vibration on correct and wrong answers (supported devices).",
       seg("haptics",[[true,"On"],[false,"Off"]],s.haptics!==false)) +
+    setRow("Single-tap answers","Answer the moment you tap a phrase. Off restores select-then-lock.",
+      seg("singleTap",[[true,"On"],[false,"Off"]],s.singleTap!==false)) +
     '<div class="footer"><button class="btn ghost sm" id="set-road">Restart the Pilgrimage</button>' +
     '<button class="btn ghost sm" id="set-reset">Erase all progress</button></div>';
 
@@ -3828,7 +4224,9 @@ function renderSettings(){
       b.addEventListener("click", ()=>{
         const key=g.dataset.seg; let v=b.dataset.val;
         if(v==="true") v=true; else if(v==="false") v=false;
-        SAVE.set[key]=v; persist(); Snd.ui();
+        SAVE.set[key]=v;
+        if(key==="quality") SAVE.set.qualityLocked=true;
+        persist(); Snd.ui();
         g.querySelectorAll("button").forEach(x=>x.classList.toggle("on", x===b));
         applySettings();
       });
@@ -3897,10 +4295,8 @@ function syncHallVideo(quality){
   if(!allow){
     try{ v.pause(); }catch(e){}
     document.body.classList.remove("hall-ready");
-    if(typeof Sky3D!=="undefined" && Sky3D.setEnabled) Sky3D.setEnabled(true);
     return;
   }
-  if(typeof Sky3D!=="undefined" && Sky3D.setEnabled) Sky3D.setEnabled(false);
   if(!v._hallBound){
     v._hallBound=true;
     v.preload="auto";
@@ -3938,7 +4334,8 @@ function applySettings(){
 function setPaused(v){
   if(currentView!=="play") return;
   R.paused = v;
-  $("pause").classList.toggle("on", v);
+  const pauseEl = $("pause");
+  if(pauseEl) pauseEl.classList.toggle("on", v);
   if(v){
     if(typeof Snd!=="undefined" && Snd.stopPressure) Snd.stopPressure();
     const progress=R.mode==="trial" ? ACTS[R.actIdx].n+" / V"
@@ -3951,6 +4348,10 @@ function setPaused(v){
       '<div><b>'+acc+'</b><span>Accuracy</span></div>'+
       '<div><b>'+progress+'</b><span>'+(R.mode==="trial"?"Act":R.mode==="practice"?"Drill":R.mode==="recall"?"Recall":"Distance")+'</span></div>';
     stopLoop();
+    /* A dialog that opens should take focus — keyboard players land on
+       Resume instead of whatever they last answered with. */
+    const resume = $("pause-resume");
+    if(resume && resume.focus) resume.focus();
   }else ensureLoop();
 }
 let pauseStamp=0;
@@ -3965,6 +4366,7 @@ function abandonRun(){
   if(!R.attempts){
     invalidateRun();
     clearSequence();
+    hideSiteQuote();
     R.setpiece = null;
     pendingSeals = [];
     $("setpiece-card").classList.remove("on");
@@ -4021,6 +4423,20 @@ function bindTutorial(){
 addEventListener("keydown", e=>{
   const k = e.key.toLowerCase();
   if(document.activeElement && /input|select|textarea/i.test(document.activeElement.tagName)) return;
+  const odEl = $("overdrive-choice");
+  if(odEl && odEl.classList.contains("on")){
+    if(k==="enter"){ e.preventDefault(); resolveOverdrive("ride"); return; }
+    if(k==="b" || k==="escape"){ e.preventDefault(); resolveOverdrive("bank"); return; }
+    return;
+  }
+  const quoteEl = $("site-quote");
+  if(quoteEl && quoteEl.classList.contains("on")){
+    if(k==="escape"||k==="enter"||k===" "){
+      e.preventDefault();
+      if(typeof quoteEl.onclick==="function") quoteEl.onclick();
+    }
+    return;
+  }
   // Escape walks back one step rather than always jumping to the hall:
   // a site briefing belongs to the map, so it returns there.
   if(k==="escape"){
@@ -4035,13 +4451,25 @@ addEventListener("keydown", e=>{
     else beginIntroPlayback();
     return;
   }
-  if(currentView==="menu" && (k==="enter"||k===" ")){ e.preventDefault(); Snd.unlock(); openBrief("trial"); return; }
+  if(currentView==="menu" && (k==="enter"||k===" ")){
+    e.preventDefault(); Snd.unlock();
+    /* Enter opens the first mode the menu actually shows — never a
+       hidden one. Launching hidden Trial from an Enter tap was a bug. */
+    const first = MENU_ORDER.filter(x=>MODES[x] && !MODES[x].hidden)[0] || "pilgrimage";
+    if(MODES[first].atlas) go("atlas"); else openBrief(first);
+    return;
+  }
   if(currentView==="brief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(briefMode, SAVE.set.diff); return; }
   if(currentView==="sitebrief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(sbMode, SAVE.set.diff); return; }
   if(currentView==="results" && (k==="enter"||k===" ")){ e.preventDefault(); startRun(R.mode, R.diff.key); return; }
   if(currentView!=="play") return;
   /* Typed mode: route keys into the answer field even when it is not
      focused (mobile uses the on-screen board; desktop may type either way). */
+  if((e.ctrlKey||e.altKey||e.metaKey) && (k==="s"||k==="i")){
+    e.preventDefault();
+    usePower(k==="s"?"selah":"illum");
+    return;
+  }
   if(R.typed && !R.locked){
     if(k==="enter"){ e.preventDefault(); confirmTyped(); return; }
     if(k==="backspace"){ e.preventDefault(); typeIntoAnswer("back"); return; }
@@ -4134,7 +4562,6 @@ function beginIntroPlayback(){
   if(card) card.setAttribute("hidden","");
   if(stage) stage.classList.add("playing");
   if(skip) skip.hidden=false;
-  if(typeof Sky3D!=="undefined" && Sky3D.setEnabled) Sky3D.setEnabled(false);
   Snd.unlock();
   Snd.ambience("menu");
   Snd.playVoice("audio/voice/intro-word.mp3", 13000);
@@ -4152,7 +4579,6 @@ function finishIntro(skipped){
   if(stage) stage.classList.add("leaving");
   setTimeout(()=>{
     if(v){ try{ v.pause(); }catch(e){} }
-    if(typeof Sky3D!=="undefined" && Sky3D.setEnabled) Sky3D.setEnabled(true);
     go("boot");
     playBootSequence({fast:!!skipped});
   }, skipped?280:900);
@@ -4214,6 +4640,11 @@ function armIntro(){
   applySettings();
   bindTutorial();
   armIntro();
+
+  /* Overdrive ride-or-bank choice buttons. */
+  const odRide = $("od-ride"), odBank = $("od-bank");
+  if(odRide) odRide.addEventListener("click", ()=>{ Snd.ui(); resolveOverdrive("ride"); });
+  if(odBank) odBank.addEventListener("click", ()=>{ Snd.ui(); resolveOverdrive("bank"); });
 
   /* Cloud is optional. Lazy-load SDK; never block boot. */
   if(typeof Cloud!=="undefined" && Cloud.configured()){

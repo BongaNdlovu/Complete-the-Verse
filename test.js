@@ -30,7 +30,11 @@ const SUITE = [
   ["polish helpers", "polish.test.js"],
   ["improvements",   "improvements.test.js"],
   ["sky3d",          "sky3d.test.js"],
-  ["gameplay polish","gameplay-polish.test.js"]
+  ["gameplay polish","gameplay-polish.test.js"],
+  ["excitement",     "excitement.test.js"],
+  ["answering",      "answering.test.js"],
+  ["motion",         "motion.test.js"],
+  ["fixes",          "fixes.test.js"]
 ];
 
 let failed = 0;

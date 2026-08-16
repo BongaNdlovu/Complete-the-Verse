@@ -1,8 +1,11 @@
 /* Menu mode visibility — what the main hall offers.
 
-   Practice (Drill) and standalone Recall stay in the code for save keys
-   and results labels, but must not appear on the menu: Pilgrimage already
-   covers recognition + typed recall on the road. */
+   The menu shows the Pilgrimage first, then Daily, Blitz, Trial, Endless
+   and the Drill. Hiding Trial/Endless left seven seals with no public
+   path, and hiding the Drill hid the only mode that serves SRS-due
+   verses. Standalone Recall, Pilgrim's Recall and the relay stay off the
+   menu: the road covers typed recall, and the relay is a deliberate
+   detour reached from the map. */
 const fs = require("fs");
 const path = require("path");
 
@@ -27,13 +30,13 @@ function modeBlock(key) {
   return m ? m[1] : "";
 }
 
-const publicModes = ["pilgrimage", "daily", "blitz"];
-const hiddenModes = ["practice", "recall", "trial", "endless", "relay", "pilgrim-recall"];
+const publicModes = ["pilgrimage", "daily", "blitz", "trial", "endless", "practice"];
+const hiddenModes = ["recall", "relay", "pilgrim-recall"];
 
 publicModes.forEach(k => {
   const b = modeBlock(k);
   ok(k + " is defined", b.length > 0);
-  ok(k + " is not hidden on the menu", !/\bhidden:\s*true\b/.test(b));
+  ok(k + " is on the menu", !/\bhidden:\s*true\b/.test(b));
 });
 
 hiddenModes.forEach(k => {
@@ -42,9 +45,22 @@ hiddenModes.forEach(k => {
   ok(k + " is hidden from the menu", /\bhidden:\s*true\b/.test(b));
 });
 
-/* renderMenu must filter on .hidden */
+/* The menu renders in a fixed order with the campaign first. */
+ok("MENU_ORDER puts the Pilgrimage first",
+  /const MENU_ORDER = \["pilgrimage"/.test(src));
+ok("MENU_ORDER lists every public mode",
+  ["daily","blitz","trial","endless","practice"].every(k =>
+    new RegExp("const MENU_ORDER = \\[[^\\]]*" + k).test(src)));
+
+/* renderMenu must still filter on .hidden */
 ok("renderMenu filters hidden modes",
-  /Object\.keys\(MODES\)\.filter\(k\s*=>\s*!MODES\[k\]\.hidden\)/.test(src));
+  /keys\.filter\(k=>MODES\[k\]\s*&&\s*!MODES\[k\]\.hidden\)/.test(src));
+
+/* Enter on the menu must open a mode the menu actually shows. */
+ok("menu Enter routes through MENU_ORDER, not a hidden mode",
+  /MENU_ORDER\.filter\(x=>MODES\[x\]\s*&&\s*!MODES\[x\]\.hidden\)\[0\]/.test(src));
+ok("menu Enter no longer opens the hidden Trial directly",
+  !/openBrief\("trial"\); return;/.test(src));
 
 /* Typed recall still exists on the Pilgrimage road */
 ok("pilgrimage still mixes typed questions",

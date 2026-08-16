@@ -47,8 +47,8 @@ const order = ["js/verses.js", "js/verses-extra.js", "js/verses-more.js",
                "js/bank.js", "js/srs.js", "js/recall.js",
                // pilgrimage.js captures the merged VERSES array, so it has
                // to come after bank.js; atlas.js uses all of the above.
-               "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js",
-               "js/live.js", "js/atlas.js", "js/game.js"];
+               "js/sites.js", "js/empires.js", "js/geo.js",
+               "js/pilgrimage.js", "js/live.js", "js/atlas.js", "js/game.js"];
 assert(index.indexOf("vendor/leaflet/leaflet.js") < index.indexOf('src="js/atlas.js"'),
   "Leaflet loads before the atlas that uses it");
 let prev = -1;

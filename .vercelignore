@@ -1,0 +1,13 @@
+# Keep the Vercel deploy payload lean — the game ships only what the
+# browser needs. Node tooling, local reports, content tooling and the
+# unused backup audio never reach production.
+node_modules/
+audio/_orig_backup/
+content/
+*.test.js
+test.js
+scripts/
+*.md
+.git/
+.gitignore
+.DS_Store

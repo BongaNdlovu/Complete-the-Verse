@@ -458,9 +458,8 @@ var Pilgrimage = (function () {
       }
     }
 
-    // Floor from unused site books, then re-admitted site books if needed.
+    // Floor from unused site books only — used verses stay used.
     take(unusedSite, floor);
-    if (out.length < floor) take(reusedSite, floor);
     // Fill the rest: leftover unused site, then unused other, then ordered.
     take(unusedSite, need);
     take(unusedOther, need);
@@ -470,6 +469,20 @@ var Pilgrimage = (function () {
       outIds[v.id] = 1;
     });
     return out.slice(0, need);
+  }
+
+  /* Same reference, two bank rows — treat either id as already used. */
+  function expandExclude(exclude) {
+    var set = {};
+    Object.keys(exclude || {}).forEach(function (id) { set[id] = 1; });
+    var refs = {};
+    VERSE_BANK.forEach(function (v) {
+      if (set[v.id] && v.r) refs[String(v.r).toLowerCase()] = 1;
+    });
+    VERSE_BANK.forEach(function (v) {
+      if (v.r && refs[String(v.r).toLowerCase()]) set[v.id] = 1;
+    });
+    return set;
   }
 
   /* The actual level: exactly `need` verses where the bank can supply
@@ -483,7 +496,7 @@ var Pilgrimage = (function () {
     var i = indexOf(siteId);
     var need = opts.need || VERSES_PER_SITE;
     var rnd = opts.rnd || seededRandom(seedFrom(siteId + ":" + (opts.attempt || 0)));
-    var exclude = opts.exclude || {};
+    var exclude = expandExclude(opts.exclude || {});
 
     var res = resolvePool(s, {
       need: need, exclude: exclude, tier: opts.tier, rnd: rnd
@@ -520,18 +533,17 @@ var Pilgrimage = (function () {
 
     var seen = {};
     have.forEach(function (v) { seen[v.id] = 1; });
-    var fresh = [], reused = [];
+    var fresh = [];
     VERSE_BANK.forEach(function (v) {
-      if (v.b !== signature || seen[v.id]) return;
-      if (exclude[v.id]) reused.push(v);
-      else fresh.push(v);
+      if (v.b !== signature || seen[v.id] || exclude[v.id]) return;
+      fresh.push(v);
     });
     function byTier(list) {
       return shuffled(list.slice(), rnd).sort(function (a, b) {
         return Math.abs((a.t || 3) - target) - Math.abs((b.t || 3) - target);
       });
     }
-    byTier(fresh).concat(byTier(reused)).forEach(function (v) {
+    byTier(fresh).forEach(function (v) {
       if (have.length >= want) return;
       have.push(v);
       seen[v.id] = 1;
@@ -558,6 +570,35 @@ var Pilgrimage = (function () {
     };
   }
 
+  /* ---------------- pace & variety (excitement pass) ---------------- */
+
+  /* One swift question inside every site body, so a stop is not
+     eight copies of the same tap. The slot lands mid-site. Play adds
+     PICK_PAD_MS on top of SPEED_MS. */
+  var SPEED_SLOT = 3;
+  var SPEED_MS = 6000;
+  /* Extra beat on every pick clock. Typed / Blitz / set-pieces skip it. */
+  var PICK_PAD_MS = 1500;
+  function speedSlot(i, total) {
+    total = total || VERSES_PER_SITE;
+    return i === Math.min(SPEED_SLOT, Math.max(0, total - 1));
+  }
+
+  /* The two late arcs mix a typed recall into the body of the site (not
+     just the closing pair) — the road gets busier the further east it
+     runs, mirroring the tightening clock. */
+  function barrageArc(arcKey) {
+    var idx = -1;
+    for (var i = 0; i < ARC_LIST.length; i++) if (ARC_LIST[i].key === arcKey) idx = i;
+    return idx >= 2;
+  }
+  var MIXED_SLOT = 5;
+  function mixedTypedSlot(i, total, arcKey) {
+    if (!barrageArc(arcKey)) return false;
+    total = total || VERSES_PER_SITE;
+    return i === Math.min(MIXED_SLOT, total - 1);
+  }
+
   return {
     VERSES_PER_SITE: VERSES_PER_SITE,
     CLOCK_OPEN: CLOCK_OPEN, CLOCK_CLOSE: CLOCK_CLOSE,
@@ -574,7 +615,9 @@ var Pilgrimage = (function () {
     seededRandom: seededRandom, seedFrom: seedFrom, isNT: isNT,
     SITE_BOOK_FLOOR: SITE_BOOK_FLOOR, SIGNATURE_QUOTA: SIGNATURE_QUOTA,
     FULL_PLACE_SITES: FULL_PLACE_SITES,
-    parseQuoteRef: parseQuoteRef, placeAffinity: placeAffinity, siteFloorNeed: siteFloorNeed
+    parseQuoteRef: parseQuoteRef, placeAffinity: placeAffinity, siteFloorNeed: siteFloorNeed,
+    SPEED_SLOT: SPEED_SLOT, SPEED_MS: SPEED_MS, PICK_PAD_MS: PICK_PAD_MS, MIXED_SLOT: MIXED_SLOT,
+    speedSlot: speedSlot, barrageArc: barrageArc, mixedTypedSlot: mixedTypedSlot
   };
 })();
 

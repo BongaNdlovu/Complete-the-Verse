@@ -38,7 +38,8 @@ assert(!/<script src="vendor\/supabase\/supabase\.js">/.test(index), "supabase n
 
 /* modes & UI */
 assert(/blitz:\s*\{\s*key:"blitz"/.test(game), "Scripture Blitz mode defined");
-assert(/hidden:true/.test(game) && /trial:\{ key:"trial"/.test(game), "trial still hidden");
+assert(/trial:\{ key:"trial"/.test(game), "trial mode defined");
+assert(!/trial:\{ key:"trial", kick:"Campaign", hidden:true/.test(game), "trial is on the menu — hidden modes left seals unreachable");
 assert(/id="cloud-chip"/.test(index), "cloud status chip");
 assert(/id="offline-banner"/.test(index), "offline banner");
 assert(/id="res-board"/.test(index), "results leaderboard host");
@@ -46,13 +47,13 @@ assert(/id="res-insights"/.test(index), "insights host");
 assert(/id="res-retry"/.test(index), "retry site button");
 assert(/id="book-heatmap"/.test(index), "book heatmap host");
 assert(/id="journey-journal"/.test(index), "journey journal host");
-assert(/id="answer-reveal"/.test(index), "answer reveal toast");
+assert(!/id="answer-reveal"/.test(index), "answer-reveal panel removed — blank scar teaches inline");
 assert(/id="menu-road-progress"/.test(index), "menu road progress");
 assert(/fillResultsBoard/.test(game), "results board filler");
 assert(/fillResultsInsights/.test(game), "results insights filler");
 assert(/drawHeatmap/.test(game), "heatmap drawer");
 assert(/drawJournal/.test(game), "journal drawer");
-assert(/showAnswerReveal/.test(game), "answer reveal helper");
+assert(!/showAnswerReveal/.test(game), "showAnswerReveal removed with the duplicate panel");
 assert(/paintGhostMarker/.test(game), "ghost marker painter");
 assert(/Double-tap same letter/.test(game) || /lastPickKey/.test(game), "double-tap lock");
 assert(/quiet/.test(game) && /contrast/.test(game) && /haptics/.test(game), "quiet/contrast/haptics settings");
@@ -65,7 +66,11 @@ assert(/ghost-mark/.test(css), "ghost mark CSS");
 assert(/bookMastery/.test(polish), "bookMastery export");
 assert(/blitzAdjustMs/.test(polish), "blitzAdjustMs export");
 assert(/insightForVerse/.test(polish), "insightForVerse export");
+assert(/pacedClockMs/.test(polish), "pacedClockMs export — one clock for every surface");
 assert(fs.existsSync(path.join(root, "supabase", "functions", "submit-score", "index.ts")), "edge function scaffold");
+/* Scores go through the edge function first, direct write only as fallback. */
+assert(/functions\.invoke\("submit-score"/.test(cloud), "cloud submits via the edge function");
+assert(/via: "edge"/.test(cloud) && /via: "direct"/.test(cloud), "edge-first with direct fallback");
 
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");

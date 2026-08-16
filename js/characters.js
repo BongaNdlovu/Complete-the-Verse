@@ -1,9 +1,9 @@
 /* ==================================================================
-   CHARACTERS — player scholars (start) + unlockable Bible skins.
+   CHARACTERS — player scholars (the only playable avatars).
 
    Scholars are ordinary students of Scripture: always free, named by
-   the player. Biblical figures unlock as equipable skins (profile +
-   map token) as the road is walked.
+   the player. Biblical figure records remain in the module for older
+   saves; they are not equipable.
 
    Art: assets/characters/<id>/{portrait,token}.png
    ================================================================== */
@@ -107,7 +107,7 @@ var SCHOLARS = [
   }
 ];
 
-/* Biblical figures — collectible skins. Not free at start. */
+/* Biblical figures — kept for older saves. Not equipable. */
 var BIBLE_FIGURES = [
   {
     id: "abram",
@@ -246,6 +246,7 @@ var Characters = (function () {
 
   function resolve(id, progress) {
     var ch = byId(id);
+    if (ch && isFigure(ch)) ch = null;
     if (ch && isUnlocked(ch, progress)) return ch;
     for (var i = 0; i < SCHOLAR_LIST.length; i++) {
       if (isUnlocked(SCHOLAR_LIST[i], progress)) return SCHOLAR_LIST[i];

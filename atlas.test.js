@@ -31,6 +31,14 @@ function open(opts){
   return a;
 }
 function cleanup(){ opened.forEach(a => { try { a.Atlas.unmount(); } catch(e){} }); }
+function siteMarkerCount(a){
+  return a.log.markers.filter(m => {
+    const opts = m._args && m._args[1];
+    const icon = opts && opts.icon;
+    const cls = (icon && icon._icon && icon._icon.className) || "";
+    return cls.indexOf("traveler") < 0;
+  }).length;
+}
 
 /* Clear the first n sites. */
 function walkTo(P, n){
@@ -50,7 +58,7 @@ function walkTo(P, n){
   ok("the satellite plate is laid down", a.log.tiles.length >= 1);
   ok("the imagery comes from a real tile service",
     a.log.tiles.some(t => /^https:\/\//.test(t._args[0])));
-  eq("one marker per site", a.log.markers.length, a.SITES.length);
+  eq("one marker per site", siteMarkerCount(a), a.SITES.length);
   ok("the routes are drawn", a.log.lines.length > 0);
 
   /* A Leaflet map built inside a display:none view measures 0x0 and
@@ -65,7 +73,7 @@ function walkTo(P, n){
   // or a second set of markers would stack pins on every visit.
   a.Atlas.mount(a.Pilgrimage.blankProgress());
   eq("mounting twice does not build a second map", a.log.maps.length, 1);
-  eq("nor does it duplicate the markers", a.log.markers.length, a.SITES.length);
+  eq("nor does it duplicate the markers", siteMarkerCount(a), a.SITES.length);
   ok("but it does re-measure again", a.log.invalidate >= 2);
 }
 
@@ -355,6 +363,46 @@ function walkTo(P, n){
   const idx = legs.map(s => a.Atlas._nearestWaypoint(coords, s.coords));
   ok("waypoints advance with the journey",
     idx.every((v, i) => i === 0 || v >= idx[i - 1]), idx);
+}
+
+/* ---------- pilgrim follows the painted road ---------- */
+{
+  const a = open();
+  const P = a.Pilgrimage;
+  const ur = P.site("ur").coords;
+  const haran = P.site("haran").coords;
+  const beersheba = P.site("beersheba").coords;
+  const road = a.Atlas._fullRoad();
+  ok("the joined road is longer than one arc", road.length > a.ROUTES.patriarchs.coords.length);
+
+  const forth = a.Atlas._pathBetween(ur, haran);
+  const back = a.Atlas._pathBetween(haran, ur);
+  ok("Ur→Haran uses intermediate waypoints, not a cut", forth.length > 3, forth.length);
+  eq("the walk starts on Ur", forth[0][0], ur[0]);
+  eq("the walk ends on Haran", forth[forth.length - 1][0], haran[0]);
+  eq("the return trip has the same number of vertices", back.length, forth.length);
+  eq("the return trip starts on Haran", back[0][0], haran[0]);
+
+  const long = a.Atlas._pathBetween(ur, beersheba);
+  ok("a longer hop has more road than Ur→Haran", long.length > forth.length, { long: long.length, forth: forth.length });
+
+  const mid = a.Atlas._polylineAt(forth, 0);
+  const end = a.Atlas._polylineAt(forth, 1e9);
+  eq("distance 0 is the start", mid[0], ur[0]);
+  eq("past the end is the last vertex", end[0], haran[0]);
+
+  const shortMs = a.Atlas._durationForPath(forth);
+  const longMs = a.Atlas._durationForPath(long);
+  ok("a short hop is at least 1.4s", shortMs >= 1400, shortMs);
+  ok("a short hop is well under the old 5.5s crawl", shortMs < 5500, shortMs);
+  ok("a longer hop takes longer or hits the cap", longMs >= shortMs, { longMs, shortMs });
+  ok("no hop exceeds 5.2s", longMs <= 5200, longMs);
+
+  const src = require("fs").readFileSync(require("path").join(__dirname, "js", "atlas.js"), "utf8");
+  ok("select walks along pathBetween, not a two-point lerp",
+    /pathBetween\(startPt, to\.coords\)/.test(src));
+  ok("select does not fly the camera away from a walking pilgrim",
+    /willWalk \? \{ fly: false \}/.test(src));
 }
 
 /* ---------- an untouched map does no work ---------- */

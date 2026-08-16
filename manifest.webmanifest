@@ -1,0 +1,15 @@
+{
+  "name": "Complete the Verse — A Trial of Scripture",
+  "short_name": "Complete the Verse",
+  "description": "Complete the missing phrase before the clock falls. 423 KJV verses, 66 books, a 36-site pilgrimage from Ur to Patmos.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#04040a",
+  "theme_color": "#04040a",
+  "icons": [
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
