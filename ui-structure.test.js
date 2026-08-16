@@ -8,7 +8,10 @@ const path = require("path");
 const file = path.join(__dirname, "index.html");
 const html = fs.readFileSync(file, "utf8");
 const css = fs.readFileSync(path.join(__dirname, "css", "game.css"), "utf8");
-const game = fs.readFileSync(path.join(__dirname, "js", "game.js"), "utf8");
+/* The engine is split across module files; static checks read the
+   concatenation through the one shared list (scripts/engine-source.js). */
+const { readEngine } = require("./scripts/engine-source");
+const game = readEngine(__dirname);
 const fails = [];
 
 function assert(cond, msg) {

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How Complete the Verse works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Barlow+Condensed:wght@400;600&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070706;--card:#12110f;--gold:#d5ad62;--hot:#ffe6ad;--ink:#efe8d8;--mute:#9a9182;
+  --red:#9a2a28;--line:#3d3424;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:20px/1.45 "EB Garamond",Georgia,serif}
+.page{max-width:1080px;margin:0 auto;padding:36px 20px 90px}
+header{text-align:center;padding:36px 0 28px}
+.kick{font-family:"Barlow Condensed",sans-serif;letter-spacing:.36em;text-transform:uppercase;
+  font-size:.7rem;color:var(--gold);margin-bottom:12px}
+h1{font-family:Cinzel,Georgia,serif;font-size:clamp(2rem,6vw,3.3rem);line-height:1.05}
+.sub{max-width:36ch;margin:14px auto 0;color:var(--mute);font-style:italic}
+nav{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:26px 0 10px}
+nav a{font-family:"Barlow Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;
+  font-size:.75rem;color:var(--hot);text-decoration:none;border:1px solid var(--line);padding:.4em .75em}
+nav a:hover{background:rgba(213,173,98,.12)}
+section{padding:42px 0 8px}
+h2{font-family:Cinzel,serif;text-align:center;font-size:1.55rem;color:var(--hot);margin-bottom:8px}
+.hint{text-align:center;color:var(--mute);max-width:42ch;margin:0 auto 22px}
+.row{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:10px}
+.box{background:var(--card);border:1px solid var(--line);padding:14px 16px;min-width:120px;
+  text-align:center;max-width:220px}
+.box strong{display:block;font-family:Cinzel,serif;font-size:.95rem;color:var(--hot);margin-bottom:4px}
+.box em{font-style:normal;color:var(--mute);font-size:.9rem}
+.box.gold{border-color:var(--gold);background:#1a1610}
+.box.red{border-color:#6a2420}
+.arrow{align-self:center;color:var(--gold);font-size:1.6rem;line-height:1;padding:0 2px}
+.down{display:flex;flex-direction:column;align-items:center;gap:8px}
+.varr{color:var(--gold);font-size:1.4rem}
+.lane{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px}
+.lane .box{max-width:none;text-align:left}
+.big{width:100%;max-width:none}
+.split{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:start}
+@media (max-width:720px){
+  .split{grid-template-columns:1fr}
+  .arrow.mid{transform:rotate(90deg);text-align:center}
+}
+ol.plain{max-width:40ch;margin:0 auto;padding-left:1.2em;color:var(--mute)}
+.road{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:800px){.road{grid-template-columns:1fr 1fr}}
+.arc{border-top:4px solid var(--gold);padding-top:8px}
+.arc h3{font-family:Cinzel,serif;font-size:.95rem;margin-bottom:8px}
+.arc ul{list-style:none}
+.arc li{font-size:.92rem;padding:3px 0;border-bottom:1px dotted var(--line)}
+.arc li b{color:var(--gold)}
+.dots{display:flex;justify-content:center;gap:6px;margin:10px 0 4px;flex-wrap:wrap}
+.dot{width:28px;height:28px;border-radius:50%;background:#2a2418;border:2px solid var(--gold);
+  display:grid;place-items:center;font-family:"Barlow Condensed",sans-serif;font-size:.7rem;color:var(--hot)}
+.dot.on{background:var(--gold);color:#1a1208}
+.meter{height:10px;background:#1c1812;border:1px solid var(--line);margin:8px auto;max-width:280px;position:relative}
+.meter i{display:block;height:100%;width:66%;background:linear-gradient(90deg,#6e1718,var(--gold),#fff0bd)}
+.yes{color:#8fd9a4} .no{color:#e08a84}
+footer{text-align:center;color:var(--mute);margin-top:48px;font-size:.95rem}
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <div class="kick">A picture of the game · no code needed</div>
+  <h1>How Complete<br>the Verse works</h1>
+  <p class="sub">A quiz on the King James Bible. One phrase is missing. You finish it before the clock runs out. This page is a map of what happens when you play.</p>
+  <nav>
+    <a href="#story">The path</a>
+    <a href="#turn">One question</a>
+    <a href="#right">Right or wrong</a>
+    <a href="#clock">Time</a>
+    <a href="#road">The long road</a>
+    <a href="#rooms">The hall</a>
+  </nav>
+</header>
+
+<section id="story">
+  <h2>The path through the hall</h2>
+  <p class="hint">You always walk the same rooms, in this order. Arrows are the way forward.</p>
+  <div class="down">
+    <div class="box gold"><strong>Opening film</strong><em>Tap to enter</em></div>
+    <div class="varr">↓</div>
+    <div class="box"><strong>Choose who you are</strong><em>Pick a scholar. Give them your name. This face stays with you.</em></div>
+    <div class="varr">↓</div>
+    <div class="box gold"><strong>The main hall</strong><em>Choose how you want to play</em></div>
+  </div>
+
+  <div class="lane" style="margin-top:18px">
+    <div class="box gold"><strong>The Pilgrimage</strong><em>The main journey. A map of 36 real places, Ur to Patmos.</em></div>
+    <div class="box"><strong>The Trial</strong><em>Five acts that get harder. Last act: one life.</em></div>
+    <div class="box"><strong>Endless</strong><em>Keep going until the clock eats you.</em></div>
+    <div class="box"><strong>Daily</strong><em>The same 20 verses for everyone today.</em></div>
+    <div class="box"><strong>Blitz</strong><em>One shared minute. Right answers buy time.</em></div>
+    <div class="box"><strong>The Drill</strong><em>Verses you are due to review, like flashcards.</em></div>
+  </div>
+
+  <div class="down" style="margin-top:18px">
+    <div class="varr">↓  if you chose the Pilgrimage</div>
+    <div class="row">
+      <div class="box"><strong>The map</strong><em>A small walker follows the gold road to the next city.</em></div>
+      <span class="arrow">→</span>
+      <div class="box"><strong>The briefing</strong><em>Name of the place, how long you get, how many lamps.</em></div>
+      <span class="arrow">→</span>
+      <div class="box gold"><strong>The verse</strong><em>Play begins.</em></div>
+    </div>
+    <div class="varr">↓  after the run</div>
+    <div class="box"><strong>The record</strong><em>Score, what you missed, a relic if you cleared a new place, then back to the map.</em></div>
+  </div>
+</section>
+
+<section id="turn">
+  <h2>One question, pictured</h2>
+  <p class="hint">Every turn looks like this, whether you are in Ur or in the Trial.</p>
+  <div class="down">
+    <div class="box big" style="max-width:520px">
+      <strong>A verse appears with a hole in it</strong>
+      <em>“In the beginning God created the ______”</em>
+    </div>
+    <div class="varr">↓</div>
+    <div class="box"><strong>A clock starts</strong><em>A ring around Lock counts down.</em></div>
+    <div class="varr">↓</div>
+    <div class="row">
+      <div class="box"><strong>Usually</strong><em>Four floating answers. Tap one, then Lock — or tap once if single-tap is on.</em></div>
+      <div class="box"><strong>Sometimes</strong><em>No answers. You type the missing words. Last two verses of every city work this way.</em></div>
+    </div>
+    <div class="varr">↓</div>
+    <div class="box gold"><strong>You lock it in</strong></div>
+  </div>
+</section>
+
+<section id="right">
+  <h2>What happens next</h2>
+  <p class="hint">The game splits. Right and wrong feel different on purpose.</p>
+  <div class="split">
+    <div>
+      <div class="box gold big"><strong class="yes">You were right</strong></div>
+      <div class="down" style="margin-top:10px">
+        <div class="box"><strong>The hole fills</strong><em>The true words appear in the verse.</em></div>
+        <div class="varr">↓</div>
+        <div class="box"><strong>A gold flash</strong></div>
+        <div class="varr">↓</div>
+        <div class="box"><strong>A large figure gives a thumbs-up</strong><em>Short animation, then he fades.</em></div>
+        <div class="varr">↓</div>
+        <div class="box"><strong>Your score climbs</strong><em>On the number in the corner — not a second flying number.</em></div>
+        <div class="varr">↓</div>
+        <div class="box"><strong>Momentum rises</strong>
+          <div class="dots">
+            <span class="dot">1</span><span class="dot">2</span><span class="dot on">3</span>
+            <span class="dot">5</span><span class="dot">8</span><span class="dot">12</span>
+          </div>
+          <em>3 Building · 5 Unbroken · 8 Locked · 12 Overdrive</em>
+        </div>
+        <div class="varr">↓</div>
+        <div class="box"><strong>Next verse</strong><em>A little quicker if you are on a hot streak.</em></div>
+      </div>
+    </div>
+    <div class="arrow mid">or</div>
+    <div>
+      <div class="box red big"><strong class="no">You were wrong</strong></div>
+      <div class="down" style="margin-top:10px">
+        <div class="box"><strong>The hole becomes a scar</strong><em>Your word is struck through. The true word sits beside it. That is how you learn.</em></div>
+        <div class="varr">↓</div>
+        <div class="box"><strong>A red flash and a shake</strong></div>
+        <div class="varr">↓</div>
+        <div class="box"><strong>The same figure gives a thumbs-down</strong></div>
+        <div class="varr">↓</div>
+        <div class="box"><strong>Your small portrait looks away</strong></div>
+        <div class="varr">↓</div>
+        <div class="box"><strong>A lamp goes out</strong><em>Those are your lives. If a relic shields you, the lamp stays and you only see a small toast.</em></div>
+        <div class="varr">↓</div>
+        <div class="box"><strong>Momentum drops to nothing</strong>
+          <div class="meter"><i style="width:0"></i></div>
+        </div>
+        <div class="varr">↓</div>
+        <div class="box"><strong>Next verse</strong><em>After a longer pause, so you can read the scar.</em></div>
+      </div>
+    </div>
+  </div>
+  <p class="hint" style="margin-top:22px">You do not get two copies of the answer. It is only written once, in the verse itself.</p>
+</section>
+
+<section id="clock">
+  <h2>How much time you get</h2>
+  <p class="hint">Later places are tighter. A hot streak gives a little more. Typing always gets a long clock.</p>
+  <div class="row" style="margin-bottom:16px">
+    <div class="box"><strong>Start of the road</strong><em>About 24 seconds to pick</em></div>
+    <span class="arrow">→</span>
+    <div class="box"><strong>End of the road</strong><em>About 15 seconds to pick</em></div>
+  </div>
+  <div class="lane">
+    <div class="box"><strong>Three right in a row</strong><em>The next pick clock grows by about a fifth. That starts at “Building.”</em></div>
+    <div class="box"><strong>The swift verse</strong><em>One shorter question in the middle of each city. Still long enough to read.</em></div>
+    <div class="box"><strong>When you type</strong><em>About half a minute. The last two verses of every city, and Recall.</em></div>
+    <div class="box"><strong>Special rounds</strong><em>Rapid Recall and the like use their own clocks. They do not steal the extra time.</em></div>
+  </div>
+  <h3 style="text-align:center;font-family:Cinzel;color:var(--gold);margin:22px 0 10px">Help you can spend</h3>
+  <div class="row">
+    <div class="box"><strong>Selah</strong><em>+5 seconds. The music ducks.</em></div>
+    <div class="box"><strong>Illuminate</strong><em>Burns two wrong answers, or hints if you are typing.</em></div>
+    <div class="box"><strong>Second Wind</strong><em>Saves you once when the last lamp dies. Not on the final Trial act.</em></div>
+  </div>
+</section>
+
+<section id="road">
+  <h2>The long road</h2>
+  <p class="hint">Thirty-six real places. Clear a city and it stays cleared. Fail and you only lose that try. A gold walker follows the route between them.</p>
+  <div class="road">
+    <div class="arc">
+      <h3>I · The Patriarchs</h3>
+      <ul>
+        <li>Ur</li><li>Haran</li><li>Shechem</li><li>Bethel</li>
+        <li>Penuel</li><li>Hebron</li><li>Beersheba</li>
+      </ul>
+    </div>
+    <div class="arc">
+      <h3>II · The Exodus</h3>
+      <ul>
+        <li>Goshen</li><li>Sinai <b>· law given</b></li><li>Rephidim</li><li>Kadesh</li>
+        <li>Nebo</li><li>Jericho <b>· walls fall</b></li><li>Gilgal</li>
+      </ul>
+    </div>
+    <div class="arc">
+      <h3>III · Kingdom &amp; Exile</h3>
+      <ul>
+        <li>Jerusalem</li><li>Shiloh</li><li>Tyre</li><li>Samaria</li><li>Megiddo</li>
+        <li>Damascus</li><li>Nineveh <b>· rapid</b></li><li>Babylon <b>· exile</b></li><li>Susa</li>
+      </ul>
+    </div>
+    <div class="arc">
+      <h3>IV · Gospel &amp; Church</h3>
+      <ul>
+        <li>Bethlehem</li><li>Nazareth</li><li>The Jordan</li><li>Capernaum</li>
+        <li>Golgotha <b>· one shot</b></li><li>Emmaus</li><li>Damascus Road</li>
+        <li>Antioch</li><li>Ephesus</li><li>Corinth</li><li>Philippi</li>
+        <li>Rome</li><li>Patmos <b>· the last word</b></li>
+      </ul>
+    </div>
+  </div>
+  <p class="hint" style="margin-top:18px">Bold stops are special rounds — a unique rule for that place, not a random surprise in the middle of the eight verses.</p>
+</section>
+
+<section id="rooms">
+  <h2>The rest of the hall</h2>
+  <div class="lane">
+    <div class="box"><strong>Who you are</strong><em>Eight scholars. You pick one face. That token sits on the map and on the verse stage. Biblical heroes are not skins.</em></div>
+    <div class="box"><strong>Relics</strong><em>Clear a city for the first time and you recover one object from that place. They live in a cabinet, not a 3D vault.</em></div>
+    <div class="box"><strong>Seals</strong><em>Badges for first run, long streaks, finishing an arc, walking without rest.</em></div>
+    <div class="box"><strong>Study</strong><em>Verses you missed, waiting to be learned again.</em></div>
+    <div class="box"><strong>Music</strong><em>The slider to zero means silence. The game used to leak a whisper. That is fixed.</em></div>
+    <div class="box"><strong>What this is not</strong><em>Not 3D. Not a film you cannot read. The verse always stays readable.</em></div>
+  </div>
+</section>
+
+<footer>
+  This page is only a picture. It is not the game.<br>
+  Open <strong>index.html</strong> or start the local server to play.
+</footer>
+</div>
+</body>
+</html>

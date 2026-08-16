@@ -19,7 +19,10 @@ function ok(name, cond, extra) {
   else { fail++; console.log("  FAIL " + name + (extra !== undefined ? "  -> " + JSON.stringify(extra) : "")); }
 }
 
-const game  = fs.readFileSync(path.join(root, "js", "game.js"), "utf8");
+/* The engine is split across module files; static checks read the
+   concatenation through the one shared list (scripts/engine-source.js). */
+const { readEngine } = require("./scripts/engine-source");
+const game = readEngine(__dirname);
 const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const atlas = fs.readFileSync(path.join(root, "js", "atlas.js"), "utf8");
 const cloud = fs.readFileSync(path.join(root, "js", "cloud.js"), "utf8");

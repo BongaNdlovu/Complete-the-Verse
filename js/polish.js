@@ -299,6 +299,7 @@ var Polish = (function () {
     if (cw[0] && aw[0] && cw[0] === aw[0]) score += 3;
     if (/^the\s+/i.test(correct) && /^the\s+/i.test(cand)) score += 2;
     if (/\sof\s/i.test(correct) && /\sof\s/i.test(cand)) score += 2;
+    if (/\sand\s/i.test(correct) && /\sand\s/i.test(cand)) score += 1;
     return score;
   }
 

@@ -9,7 +9,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const src = fs.readFileSync(path.join(__dirname, "js", "game.js"), "utf8");
+const { readEngine } = require("./scripts/engine-source");
+const src = readEngine(__dirname);
 
 let pass = 0, fail = 0;
 function ok(name, cond, extra) {

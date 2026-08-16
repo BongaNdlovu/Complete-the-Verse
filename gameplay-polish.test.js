@@ -10,7 +10,10 @@ const root = __dirname;
 const fails = [];
 function assert(cond, msg) { if (!cond) fails.push(msg); }
 
-const game = fs.readFileSync(path.join(root, "js", "game.js"), "utf8");
+/* The engine is split across module files; static checks read the
+   concatenation through the one shared list (scripts/engine-source.js). */
+const { readEngine } = require("./scripts/engine-source");
+const game = readEngine(__dirname);
 const atlas = fs.readFileSync(path.join(root, "js", "atlas.js"), "utf8");
 const css = fs.readFileSync(path.join(root, "css", "atlas.css"), "utf8");
 const gameCss = fs.readFileSync(path.join(root, "css", "game.css"), "utf8");

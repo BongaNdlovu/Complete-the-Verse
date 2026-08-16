@@ -25,7 +25,7 @@
 <body class="biblical-thriller">
 <div id="offline-banner" class="offline-banner" role="status" aria-live="polite"></div>
 <div id="backdrop"></div>
-<video id="hall-bg" class="hall-bg" src="assets/hall.mp4" muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video>
+<video id="hall-bg" class="hall-bg" src="assets/hall.mp4" muted loop playsinline preload="none" disablepictureinpicture aria-hidden="true"></video>
 <div id="cinematic-fx" aria-hidden="true">
   <div class="smoke-wisp one"></div><div class="smoke-wisp two"></div>
   <div id="site-motif"></div>
@@ -44,7 +44,7 @@
 
   <!-- ============ INTRO ============ -->
   <section class="view" id="v-intro" aria-label="Opening">
-    <video id="intro-video" class="intro-video" src="assets/intro.mp4" muted playsinline preload="auto" poster="assets/intro.jpg" disablepictureinpicture aria-hidden="true"></video>
+      <video id="intro-video" class="intro-video" src="assets/intro.mp4" muted playsinline preload="none" poster="assets/intro.jpg" disablepictureinpicture aria-hidden="true"></video>
     <div class="intro-veil" id="intro-veil"></div>
     <div class="intro-start" id="intro-start">
       <div class="kick">The Scripture Trial</div>
@@ -543,6 +543,19 @@
 <script src="js/polish.js"></script>
 <script src="js/cloud-config.js"></script>
 <script src="js/cloud.js"></script>
+<!-- Engine modules split from game.js along its natural seams. They
+     define one global each and may only reference game.js bindings at
+     runtime, never at parse time — the load order below is required. -->
+<script src="js/util.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/director.js"></script>
+<script src="js/setpieces.js"></script>
+<script src="js/viz.js"></script>
+<script src="js/typed.js"></script>
+<script src="js/sequences.js"></script>
+<script src="js/panels.js"></script>
+<script src="js/results.js"></script>
+<script src="js/briefs.js"></script>
 <script src="js/game.js"></script>
 </body>
 </html>

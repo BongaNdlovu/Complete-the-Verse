@@ -10,7 +10,8 @@ const fails = [];
 function assert(cond, msg) { if (!cond) fails.push(msg); }
 
 const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
-const game = fs.readFileSync(path.join(root, "js", "game.js"), "utf8");
+const { readEngine } = require("./scripts/engine-source");
+const game = readEngine(root);
 const css = fs.readFileSync(path.join(root, "css", "game.css"), "utf8");
 
 assert(!/type="importmap"/.test(index), "no Three.js import map");

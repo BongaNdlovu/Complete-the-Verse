@@ -19,6 +19,7 @@ const SUITE = [
   ["menu modes",     "menu-modes.test.js"],
   ["live data",      "live.test.js"],
   ["integration",    "integration.test.js"],
+  ["engine modules", "engine-modules.test.js"],
   ["game structure", "game-structure.test.js"],
   ["ui structure",   "ui-structure.test.js"],
   ["atlas data",     "sites.test.js"],

@@ -4,6 +4,7 @@
 node_modules/
 audio/_orig_backup/
 content/
+docs/
 *.test.js
 test.js
 scripts/

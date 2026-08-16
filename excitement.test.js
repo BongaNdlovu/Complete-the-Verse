@@ -21,7 +21,10 @@ const fails = [];
 function assert(cond, msg) { if (!cond) fails.push(msg); }
 function eq(name, got, want) { assert(got === want, name + " (got " + JSON.stringify(got) + ", want " + JSON.stringify(want) + ")"); }
 
-const game = fs.readFileSync(path.join(root, "js", "game.js"), "utf8");
+/* The engine is split across module files; static checks read the
+   concatenation through the one shared list (scripts/engine-source.js). */
+const { readEngine } = require("./scripts/engine-source");
+const game = readEngine(__dirname);
 const pilgrimSrc = fs.readFileSync(path.join(root, "js", "pilgrimage.js"), "utf8");
 const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const css = fs.readFileSync(path.join(root, "css", "game.css"), "utf8");

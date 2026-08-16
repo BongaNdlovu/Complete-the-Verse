@@ -16,7 +16,8 @@ function assert(cond, msg) { if (!cond) fails.push(msg); }
 
 const gameCss = fs.readFileSync(path.join(root, "css", "game.css"), "utf8");
 const atlasCss = fs.readFileSync(path.join(root, "css", "atlas.css"), "utf8");
-const game = fs.readFileSync(path.join(root, "js", "game.js"), "utf8");
+const { readEngine } = require("./scripts/engine-source");
+const game = readEngine(root);
 const atlas = fs.readFileSync(path.join(root, "js", "atlas.js"), "utf8");
 const css = gameCss + "\n" + atlasCss;
 
