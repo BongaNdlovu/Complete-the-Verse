@@ -37,6 +37,14 @@ const good = Polish.choiceShapeScore("the word of the LORD", "the fear of the LO
 const bad = Polish.choiceShapeScore("the word of the LORD", "x");
 assert(good > bad, "similar phrases score higher than short junk (" + good + " vs " + bad + ")");
 assert(Polish.choiceShapeScore("living soul", "living soul") < 0, "identical rejected");
+{
+  const likes = Polish.lookalikePhrases("still small voice", ["mighty rushing wind","great and strong wind","still waters"], 6);
+  assert(likes.length > 0, "lookalikes are produced");
+  assert(likes.every(s => s.split(/\s+/).length === 3), "lookalikes keep the word count");
+  assert(likes.indexOf("still small voice") < 0, "lookalikes are not the answer");
+}
+assert(/similarEnough/.test(game), "buildChoices prefers same-shaped phrases");
+assert(/function spillOil/.test(game), "a miss spills oil");
 
 /* --- unlock ceremony --- */
 assert(/km \* 24/.test(atlas) && /ms < 1400/.test(atlas) && /ms > 5200/.test(atlas),

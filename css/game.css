@@ -618,7 +618,7 @@ body.reduced .hrt.lamp.last .lamp-flame,body.reduced .hrt.lamp.break{animation:n
   width:min(1260px,94vw);margin-top:clamp(18px,3.6vh,46px);z-index:3}
 .chev{flex:0 0 auto;display:grid;place-items:center;width:clamp(14px,1.8vw,30px);
   font-size:clamp(.7rem,1.1vw,1rem);color:rgba(200,168,102,.42);user-select:none}
-.ans{flex:1 1 0;min-width:0;position:relative;padding:clamp(.62em,1.35vh,1.02em) clamp(.5em,1.1vw,1.1em);
+.ans{flex:1 1 0;min-width:0;min-height:4.4em;display:flex;align-items:center;justify-content:center;position:relative;padding:clamp(.62em,1.35vh,1.02em) clamp(.5em,1.1vw,1.1em);
   font-family:var(--body);font-size:clamp(.74rem,1.28vw,1.15rem);color:#ddd6c6;letter-spacing:.012em;
   text-align:center;line-height:1.24;
   background:linear-gradient(180deg,#31353d 0%,#1b1e24 5%,#101318 48%,#0a0c10 96%,#2a2e36 100%);

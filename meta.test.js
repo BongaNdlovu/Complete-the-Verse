@@ -29,6 +29,8 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
   eq("exact pays one more", Meta.oilForCorrect(0, true), 3);
   eq("streak 3 pays an extra", Meta.oilForCorrect(3, false), 3);
   ok("xp tick grows with streak", Meta.xpTick(3, 8) > Meta.xpTick(3, 0));
+  eq("a cold miss costs more than a cold keep", Meta.oilForMiss(0), 4);
+  ok("a hot miss costs more than a hot keep", Meta.oilForMiss(6) > Meta.oilForCorrect(6, true));
 }
 
 {

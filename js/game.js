@@ -1056,24 +1056,40 @@ function buildChoices(q, rnd){
     ? (cand => Polish.choiceShapeScore(correct, cand))
     : (cand => (cand && cand !== correct) ? 1 : -1);
   const cands = [];
+  const wantWords = correct.trim().split(/\s+/).filter(Boolean).length;
+  function similarEnough(s){
+    const t = String(s||"");
+    const wc = t.trim().split(/\s+/).filter(Boolean).length;
+    const lenDiff = Math.abs(t.length - correct.length);
+    return Math.abs(wc - wantWords) <= 1 && lenDiff <= 12;
+  }
   (q.d||[]).forEach(d=>{
     if(!d || d===correct) return;
-    cands.push({ s:d, score: shapeScore(d) + 5 }); /* authored still preferred slightly */
+    cands.push({ s:d, score: shapeScore(d) + (similarEnough(d) ? 8 : 5) });
   });
+  if(typeof Polish!=="undefined" && Polish.lookalikePhrases && typeof VERSES!=="undefined"){
+    Polish.lookalikePhrases(correct, VERSES.map(v=>v && v.a), 8).forEach(s=>{
+      cands.push({ s:s, score: shapeScore(s) + 6 });
+    });
+  }
   if(typeof VERSES!=="undefined"){
     VERSES.forEach(v=>{
       if(!v || v.id===q.id || !v.a || v.a===correct || ban[v.a]) return;
       let score = shapeScore(v.a);
       if(v.b===q.b) score += 5;
       if(Math.abs((v.t||3)-(q.t||3))<=1) score += 2;
+      if(similarEnough(v.a)) score += 6;
       if(score>=6) cands.push({ s:v.a, score });
     });
   }
   cands.sort((a,b)=> (b.score-a.score) || (r()-0.5));
   for(let i=0;i<cands.length && picked.length<3;i++){
-    /* Reject wildly different length after ranking */
+    if(!similarEnough(cands[i].s) && picked.length) continue;
+    push(cands[i].s);
+  }
+  for(let i=0;i<cands.length && picked.length<3;i++){
     const lenDiff = Math.abs(String(cands[i].s).length - correct.length);
-    if(lenDiff>22 && picked.length) continue;
+    if(lenDiff>16 && picked.length) continue;
     push(cands[i].s);
   }
   (q.d||[]).forEach(d=>{ if(picked.length<3) push(d); });
@@ -1484,6 +1500,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     // paid for the double reward. Capture before the streak resets.
     const wasRiding = R.overdriveRide && inOverdrive();
     R.overdriveRide = false;
+    spillOil(R.streak||0);
     R.streak=0; setMult(); R.missed.push(q);
     if(R.mode==="blitz" && typeof Polish!=="undefined"){
       const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
@@ -1552,7 +1569,9 @@ function timeUp(){
   if(R.mode==="blitz"){ presentRunEnd("timeout-death"); return; }
   if(R.passage) return resolvePassage();
   if(R.recon) return resolveRecon();
-  stopTimer(); R.locked=true; R.selected=null; R.attempts++; recordDecision(R.tTotal); R.streak=0; setMult();
+  stopTimer(); R.locked=true; R.selected=null; R.attempts++; recordDecision(R.tTotal);
+  spillOil(R.streak||0);
+  R.streak=0; setMult();
   $("confirm-answer").disabled = true;
   $("confirm-answer").textContent = "Time Expired";
   Director.momentum(false);Director.pressure(0);
@@ -1660,6 +1679,16 @@ function popScore(t){
 function toast(t){
   const p=document.createElement("div"); p.className="toast"; p.textContent=t;
   document.body.appendChild(p); setTimeout(()=>p.remove(),2700);
+}
+function spillOil(streak){
+  if(typeof Meta==="undefined" || !Meta.oilForMiss) return 0;
+  const take = Math.min(SAVE.oil||0, Meta.oilForMiss(streak));
+  if(!take) return 0;
+  SAVE.oil = (SAVE.oil||0) - take;
+  persist();
+  if(typeof updatePlayerCard==="function") updatePlayerCard();
+  toast("The oil spilled — −"+take);
+  return take;
 }
 function payCorrect(graded){
   const exact = !!(graded && graded.verdict === "exact") || !R.typed;

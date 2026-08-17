@@ -303,6 +303,42 @@ var Polish = (function () {
     return score;
   }
 
+  /* Near-miss phrases: same word count, one content word swapped for a
+     similar-length word from the bank. Options then share a silhouette. */
+  var LOOKALIKE_SKIP = {
+    thee:1, thou:1, ye:1, thy:1, thine:1, you:1, your:1, yours:1,
+    the:1, and:1, of:1, to:1, in:1, a:1, an:1, for:1, with:1
+  };
+  function lookalikePhrases(answer, pool, need){
+    need = need || 6;
+    var words = String(answer || "").trim().split(/\s+/).filter(Boolean);
+    var out = [], seen = {};
+    seen[String(answer || "")] = 1;
+    if(words.length < 2) return out;
+    var alts = [];
+    (pool || []).forEach(function(p){
+      String(p || "").split(/\s+/).forEach(function(w){
+        if(w.length < 3 || LOOKALIKE_SKIP[w.toLowerCase()]) return;
+        alts.push(w);
+      });
+    });
+    words.forEach(function(w, i){
+      if(w.length < 3 || LOOKALIKE_SKIP[w.toLowerCase()]) return;
+      alts.forEach(function(alt){
+        if(alt.toLowerCase() === w.toLowerCase()) return;
+        if(Math.abs(alt.length - w.length) > 2) return;
+        var next = words.slice();
+        next[i] = alt;
+        var phrase = next.join(" ");
+        if(seen[phrase]) return;
+        seen[phrase] = 1;
+        out.push(phrase);
+      });
+    });
+    out.sort(function(a, b){ return choiceShapeScore(answer, b) - choiceShapeScore(answer, a); });
+    return out.slice(0, need);
+  }
+
   function describeModeClock(modeKey, diffKey) {
     /* Watchman clock only. Do not look up the live difficulty table —
        game.js calls this while parsing MODES, before that table exists. */
@@ -356,6 +392,7 @@ var Polish = (function () {
     BOOK_INSIGHTS: BOOK_INSIGHTS,
     haptic: haptic,
     choiceShapeScore: choiceShapeScore,
+    lookalikePhrases: lookalikePhrases,
     overdriveBank: overdriveBank,
     overdriveRideGain: overdriveRideGain,
     pacedClockMs: pacedClockMs,

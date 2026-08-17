@@ -38,6 +38,11 @@ var Meta = (function(){
     return 2 + Math.floor((streak || 0) / 3) + (exact ? 1 : 0);
   }
 
+  /* A miss costs more than one keep paid, and more while the streak is hot. */
+  function oilForMiss(streak){
+    return 4 + Math.floor((streak || 0) / 2);
+  }
+
   function xpTick(tier, streak){
     return 8 + (Number(tier) || 1) * 2 + Math.min(12, Number(streak) || 0);
   }
@@ -72,7 +77,7 @@ var Meta = (function(){
     RANK_CAP: RANK_CAP, RANKS: RANKS, OIL_COST: OIL_COST,
     ACT_VI_LEVEL: ACT_VI_LEVEL, ACT_VI_SEAL: ACT_VI_SEAL,
     xpNeeded: xpNeeded, levelInfo: levelInfo, rankFor: rankFor,
-    oilForCorrect: oilForCorrect, xpTick: xpTick,
+    oilForCorrect: oilForCorrect, oilForMiss: oilForMiss, xpTick: xpTick,
     actVIUnlocked: actVIUnlocked, trialActCount: trialActCount,
     canSpendOil: canSpendOil, spendOil: spendOil,
     relicUnveiled: relicUnveiled
