@@ -86,5 +86,15 @@ P.journey().forEach(s => {
 const shipArt = ARTIFACTS.filter(a => a.hasArt);
 eq("every relic is illustrated", shipArt.length, ARTIFACTS.length);
 
+{
+  const Meta = require("./js/meta");
+  const gated = ARTIFACTS.filter(a => a.requiresRank);
+  ok("some relics are veiled behind a rank", gated.length >= 3);
+  gated.forEach(a => {
+    ok(a.id + " is veiled at rank 1", !Meta.relicUnveiled(a, 1));
+    ok(a.id + " unveils at its rank", Meta.relicUnveiled(a, a.requiresRank));
+  });
+}
+
 if(fail){ console.log("FAIL — artifacts · " + pass + " passed · " + fail + " failed"); process.exit(1); }
 console.log("PASS — artifacts · " + pass + " assertions · relics=" + Artifacts.count() + " · art=" + shipArt.length);

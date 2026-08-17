@@ -44,16 +44,20 @@ ok("act cards print the real clock",
 ok("the atlas dossier prints the same formula",
    /dossClockLabel/.test(atlas) && /pacedClockMs\(b\.clockMs, diffTime/.test(atlas));
 ok("the dossier reads the player's difficulty",
-   /DIFFS\[SAVE\.set\.diff\]/.test(atlas));
+   /resolveDiff\(SAVE\.set\.diff\)/.test(atlas));
 
 function eq(name, got, want) { ok(name, got === want, { got, want }); }
 
-/* §2.1 — default difficulty and the site-brief picker. */
-ok("a fresh save defaults to Disciple",
-   /diff:"disciple"/.test(game) && !/diff:"watchman"/.test(game));
-ok("the site brief renders a difficulty picker", /function renderSiteDiffs/.test(game));
-ok("the picker lives under the site brief", /id="sb-diffs"/.test(index));
-ok("picking a difficulty refreshes the brief", /openSiteBrief\(sbSiteId, sbMode\)/.test(game));
+/* §2.1 — one ordeal: Watchman. No picker. */
+ok("a fresh save defaults to Watchman",
+   /diff:"watchman"/.test(game) && !/diff:"disciple"/.test(game));
+ok("Pilgrim and Disciple are not playable diffs",
+   !/pilgrim:\{ key:"pilgrim"/.test(game) && !/disciple:\{ key:"disciple"/.test(game));
+ok("Watchman is the only DIFFS entry", /const DIFFS = \{[\s\S]*?watchman:/.test(game));
+ok("old difficulty keys resolve to Watchman", /function resolveDiff/.test(game));
+ok("the site brief no longer offers a difficulty picker",
+   /host\.innerHTML = ""/.test(game) && /function renderSiteDiffs/.test(game));
+ok("the site brief host is still in the markup", /id="sb-diffs"/.test(index));
 
 /* §2.2 — the daily is spent by finishing, not by dying. */
 ok("only a completed run records the daily",

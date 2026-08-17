@@ -406,7 +406,7 @@ var Cloud = (function () {
       score: c.score | 0,
       accuracy: Number(c.accuracy) || 0,
       duration_ms: c.duration_ms == null ? null : c.duration_ms | 0,
-      diff: c.diff || "disciple"
+      diff: c.diff || "watchman"
     };
     var edge = await submitViaEdge("daily", payload);
     if (edge.ok) {
@@ -428,7 +428,7 @@ var Cloud = (function () {
     var payload = {
       score: c.score | 0,
       survived_ms: c.survived_ms | 0,
-      diff: c.diff || "disciple"
+      diff: c.diff || "watchman"
     };
     var edge = await submitViaEdge("blitz", payload);
     if (edge.ok) {

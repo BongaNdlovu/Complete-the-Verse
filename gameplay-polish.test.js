@@ -96,17 +96,14 @@ require("./js/sites").SITES.forEach(function(s){
 });
 assert(/setAttribute\("data-site"/.test(game), "play view stamps data-site for the plate");
 
-/* --- optional on-screen keyboard --- */
-assert(/id="vkb-toggle"/.test(game), "typed questions offer a Keyboard control");
-assert(/function setVkbOpen/.test(game), "setVkbOpen toggles the board");
-assert(/vkb:false/.test(game), "new saves start with the board hidden");
-assert(/inputmode", SAVE\.set\.vkb \? "none" : "text"/.test(game) ||
-  /inputmode", SAVE.set.vkb \? "none" : "text"/.test(game),
-  "open board suppresses the OS IME; closed board allows it");
-assert(/"-"/.test(game) && /⌫/.test(game), "board includes hyphen and backspace");
-assert(/\.vkb\.on/.test(gameCss), "board is shown only when .on");
-assert(!/@media \(hover:none\) and \(pointer:coarse\)\{\s*\.vkb\{display:flex\}/.test(gameCss),
-  "touch devices no longer force the board open");
+/* --- assemble (replaces free typing) --- */
+assert(/id="asm-bank"/.test(game), "assemble questions offer a word bank");
+assert(/id="asm-slots"/.test(game), "assemble questions offer drop slots");
+assert(/Assemble\.build/.test(game), "the bank is built from the verse");
+assert(/function confirmTyped/.test(game), "Lock still confirms an assembled phrase");
+assert(/Drag or tap the words/.test(game) || /Place the missing words/.test(game),
+  "the player is told to place words, not type them");
+assert(/\.asm-tile/.test(gameCss) && /\.asm-slot/.test(gameCss), "assemble tiles are styled");
 
 /* --- cinematic drift (visual only) --- */
 assert(/ans-float/.test(game) && /ans-float/.test(gameCss), "choice text floats inside a still hit box");

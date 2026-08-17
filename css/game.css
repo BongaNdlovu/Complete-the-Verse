@@ -226,6 +226,7 @@ body.reduced .bootmark{animation:none}
   transition:.2s;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
 .diff:hover{box-shadow:0 0 0 1px var(--gold) inset;transform:translateY(-3px)}
 .diff.sel{box-shadow:0 0 0 2px var(--gold) inset,0 0 44px -14px var(--gold);background:linear-gradient(158deg,rgba(52,42,20,.8),rgba(10,9,7,.9))}
+.diff.locked,.diff.locked:hover{pointer-events:none;cursor:default;transform:none}
 .diff b{display:block;font-family:var(--disp);letter-spacing:.22em;text-transform:uppercase;
   font-size:.9rem;color:var(--gold-hot);margin-bottom:.5em}
 .diff span{font-size:.88rem;color:var(--parch-dim);line-height:1.45;display:block}
@@ -1676,4 +1677,64 @@ body.reduced #reveal-stage.play .reveal-art{animation:none;opacity:1;transform:n
   .relic-grid{gap:16px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
   .reveal-card{padding:clamp(1.6rem,4vw,2.4rem) 1.4rem}
   .reveal-art{width:min(260px,70vw);height:min(260px,70vw);margin-top:2vh;margin-bottom:1.4vh}
+}
+
+/* Assemble — word bank in place of free typing */
+.asm-hidden{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px}
+.asm-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;width:100%;margin:.4vh 0}
+.asm-slot{
+  min-width:3.2em;min-height:2.2em;padding:.35em .7em;font-family:var(--body);
+  font-size:clamp(.95rem,2vw,1.2rem);color:var(--parch);
+  background:linear-gradient(158deg,rgba(20,20,26,.86),rgba(6,7,11,.92));
+  box-shadow:0 0 0 1px var(--edge) inset;border-radius:3px}
+.asm-slot.empty{color:var(--gold-dim);opacity:.55}
+.asm-slot.full{color:var(--gold-hot);box-shadow:0 0 0 1px rgba(217,182,103,.45) inset}
+.asm-bank{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;width:100%;margin:.3vh 0 .2vh}
+.asm-tile{
+  padding:.4em .75em;font-family:var(--body);font-size:clamp(.9rem,1.9vw,1.12rem);
+  color:var(--parch);background:rgba(40,28,12,.82);
+  box-shadow:0 0 0 1px rgba(213,173,98,.45) inset;border-radius:3px;cursor:pointer}
+.asm-tile:focus-visible,.asm-tile:active{box-shadow:0 0 0 1px var(--gold) inset,0 0 16px rgba(217,182,103,.2)}
+.asm-tile.burn{opacity:.28;pointer-events:none;text-decoration:line-through}
+.asm-tile.dragging,.asm-slot.dragging{opacity:.45}
+.pc-oil{font-family:var(--ui);letter-spacing:.16em;text-transform:uppercase;font-size:.58rem;color:var(--gold);margin-top:.25em}
+.pwr.oil-buy em{color:var(--gold)}
+
+/* Rightward wipe between judged answers */
+.wipe-right{position:fixed;inset:0;z-index:9000;pointer-events:none;opacity:0}
+.wipe-right.on{opacity:1}
+.wipe-right .sheet{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,#050308 0%,#1a1208 42%,#3a2410 100%);
+  box-shadow:inset 0 0 80px rgba(0,0,0,.55);
+  transform:translateX(-100%)}
+.wipe-right.on .sheet{animation:wipeRight 750ms cubic-bezier(.42,0,.2,1) forwards}
+@keyframes wipeRight{
+  0%{transform:translateX(-100%)}
+  46%{transform:translateX(0)}
+  100%{transform:translateX(100%)}
+}
+body.reduced .wipe-right.on .sheet{animation:none;transform:translateX(100%)}
+body.wiping #v-play .stage{animation:stageDrift 750ms cubic-bezier(.42,0,.2,1) both}
+@keyframes stageDrift{
+  0%{transform:translateX(0)}
+  50%{transform:translateX(-8%)}
+  100%{transform:translateX(0)}
+}
+body.reduced.wiping #v-play .stage{animation:none}
+
+/* Dedicated break / dead-end screens */
+.state-panel{
+  position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;
+  background:rgba(4,4,10,.72)}
+.state-panel.on{display:flex}
+.state-card{
+  width:min(520px,92vw);padding:clamp(1.6rem,4vw,2.6rem) 1.6rem 1.8rem;
+  background:var(--panel);box-shadow:0 0 0 1px var(--edge) inset,0 24px 80px rgba(0,0,0,.55);
+  text-align:center;border-radius:3px}
+.state-body{color:var(--parch-dim);line-height:1.6;font-size:1.02rem;max-width:42ch;margin:0 auto}
+
+@media (max-width:600px){
+  .typed-input{font-size:clamp(.95rem,4.4vw,1.2rem);padding:.75em .8em}
+  .asm-tile,.asm-slot{min-height:2.5em}
 }

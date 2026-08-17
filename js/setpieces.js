@@ -87,6 +87,10 @@ const SetPieces=(function(){
     return true;
   }
 
+  function wouldLaunch(){
+    if(R.mode!=="trial"||R.setpiece)return false;
+    return !!TRIAL.find(x=>x.act===R.actIdx&&x.after===R.qInAct&&!R.setpieceDone.has(DEFS[x.use].id));
+  }
   function maybeLaunch(){
     if(R.mode!=="trial"||R.setpiece)return false;
     const slot=TRIAL.find(x=>x.act===R.actIdx&&x.after===R.qInAct&&!R.setpieceDone.has(DEFS[x.use].id));
@@ -99,12 +103,17 @@ const SetPieces=(function(){
   /* Called once, when a site's verses are all answered. Returns false at
      every site that has no sequence, which is most of them — a finale at
      every stop would stop being a finale. */
-  function maybeLaunchSite(){
+  function wouldLaunchSite(){
     if(R.mode!=="pilgrimage"||R.setpiece)return false;
     const slot=SITES[R.siteId];
     if(!slot)return false;
     const base=DEFS[slot.use];
-    if(R.setpieceDone.has(base.id))return false;
+    return !R.setpieceDone.has(base.id);
+  }
+  function maybeLaunchSite(){
+    if(!wouldLaunchSite())return false;
+    const slot=SITES[R.siteId];
+    const base=DEFS[slot.use];
     R.typed = false;
     document.body.classList.remove("mode-typed");
     return launch(base, {
@@ -163,7 +172,7 @@ const SetPieces=(function(){
   function noPowers(){return !!(R.setpiece&&R.setpiece.noPowers)}
   function autoLock(){return !!(R.setpiece&&R.setpiece.auto)}
   function label(){return R.setpiece?R.setpiece.title:""}
-  return {cleanup,maybeLaunch,maybeLaunchSite,hasSite,siteTitle,siteFinale,
+  return {cleanup,wouldLaunch,wouldLaunchSite,maybeLaunch,maybeLaunchSite,hasSite,siteTitle,siteFinale,
           draw,duration,bonus,noPowers,autoLock,label};
 })();
 

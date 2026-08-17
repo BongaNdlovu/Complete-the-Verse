@@ -30,6 +30,7 @@ const eq = (name, got, want) => ok(name, got === want, {got, want});
    order checks (engine-modules.test.js). */
 const PREFIX = ["js/verses.js","js/verses-extra.js","js/passages.js","js/legacy-ids.js",
                "js/bank.js","js/srs.js","js/recall.js",
+               "js/assemble.js","js/meta.js","js/flow.js",
                "js/sites.js","js/empires.js","js/geo.js","js/pilgrimage.js",
                "js/live.js","js/atlas.js"];
 const FILES = PREFIX.concat(ENGINE_FILES);
@@ -58,12 +59,26 @@ eq("SRS is available to the game", read(sb, "typeof SRS.schedule"), "function");
 eq("Recall is available to the game", read(sb, "typeof Recall.grade"), "function");
 eq("a fresh save has no schedule", read(sb, "Object.keys(SAVE.srs).length"), 0);
 eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
-/* The hardest difficulty must never be the silent default — a new player
-   used to meet the road on Watchman's two lives. */
-eq("a fresh save plays Disciple", read(sb, "SAVE.set.diff"), "disciple");
+/* One ordeal. A new player meets Watchman: two lamps, clock ×0.85. */
+eq("a fresh save plays Watchman", read(sb, "SAVE.set.diff"), "watchman");
 eq("the printed clock matches the pure helper",
    read(sb, "pacedClockMs(14000, 1, 1500)"), read(sb, "Math.round((14000 * 1 + 1500) * PACE + FLAT_ADD_MS)"));
-eq("the brief clock at Disciple is 23.6s", read(sb, "pacedClockMs(14000, 1, 1500)"), 23600);
+eq("the Disciple-era helper still prints 23.6s at ×1", read(sb, "pacedClockMs(14000, 1, 1500)"), 23600);
+eq("Watchman clock is ×0.85", read(sb, "resolveDiff().time"), 0.85);
+eq("Watchman has two lamps", read(sb, "resolveDiff().lives"), 2);
+eq("Watchman score is unboosted", read(sb, "resolveDiff().score"), 1);
+read(sb, "startRun('practice','disciple')");
+eq("a Disciple startRun is Watchman", read(sb, "R.diff.key"), "watchman");
+eq("a Disciple startRun gets two lamps", read(sb, "R.lives"), 2);
+read(sb, "invalidateRun();");
+{
+  const migrated = boot({key:"ctv_save_v3", value:{
+    v:3, xp:0, runs:0, seals:[],
+    best:{}, life:{}, books:{}, verse:{}, srs:{}, board:[],
+    daily:{date:"", score:0}, set:{diff:"disciple"}
+  }});
+  eq("an old Disciple save becomes Watchman", read(migrated, "SAVE.set.diff"), "watchman");
+}
 
 /* ---------- a Drill run schedules what it asks ---------- */
 {
@@ -536,6 +551,31 @@ eq("the brief clock at Disciple is 23.6s", read(sb, "pacedClockMs(14000, 1, 1500
     books:{}, verse:{}, srs:{}, board:[], daily:{date:"", score:0}, set:{diff:"disciple"}
   }});
   eq("composite blitz best falls back to life.blitzBest", read(s, "SAVE.best.blitz"), 14);
+}
+
+/* ---------- assemble, oil, Act VI gate, wipe ---------- */
+{
+  const s = boot();
+  eq("a fresh save has five trial acts", read(s, "trialActs().length"), 5);
+  eq("Act VI is closed until the gate", read(s, "Meta.actVIUnlocked(SAVE)"), false);
+  read(s, "SAVE.seals.push('sd15'); SAVE.xp = 400000;");
+  ok("Act VI opens at rank 20 plus the Act V seal", read(s, "Meta.actVIUnlocked(SAVE)"));
+  eq("an unlocked save lists six acts", read(s, "trialActs().length"), 6);
+
+  read(s, "startRun('recall','disciple'); R.q = drawReviewVerse(); renderTypedQuestion(R.q, 22000, R.sceneToken);");
+  ok("assemble builds a bank", read(s, "!!R.assemble && R.assemble.bank.length > R.assemble.target.length"));
+  ok("the hidden field is still present", read(s, "!!document.getElementById('typed-answer')"));
+
+  const s2 = boot();
+  read(s2, "startRun('practice','disciple'); R.q = VERSES[0]; R.tTotal=12000; R.qStart=0; R.running=true; R.locked=false;");
+  const oilBefore = read(s2, "SAVE.oil||0");
+  read(s2, "resolveAnswer(R.q, R.q.a, null, 2000, 10000)");
+  ok("a correct answer pays oil", read(s2, "SAVE.oil") > oilBefore);
+  ok("a correct answer pays in-run XP", read(s2, "SAVE.xp") > 0);
+
+  eq("a mid-run question should wipe", read(s2, "Flow.shouldWipe(wipeContext())"), true);
+  read(s2, "R.ended = true");
+  eq("an ended run does not wipe", read(s2, "Flow.shouldWipe(wipeContext())"), false);
 }
 
 function finishSuite(err){

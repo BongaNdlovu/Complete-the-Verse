@@ -304,7 +304,7 @@ var Polish = (function () {
   }
 
   function describeModeClock(modeKey, diffKey) {
-    var t = diffKey === "pilgrim" ? 1.35 : diffKey === "watchman" ? 0.72 : 1;
+    var t = (typeof DIFFS !== "undefined" && DIFFS.watchman && DIFFS.watchman.time) || 0.85;
     var pad = 1500;
     function sec(base, pickPad) {
       return (pacedClockMs(base, t, pickPad) / 1000).toFixed(1);

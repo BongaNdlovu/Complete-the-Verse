@@ -27,6 +27,7 @@ VERSES.push(...VERSES_EXTRA);
    that script runs. Guarded so the bank still loads if the file is
    absent. */
 if(typeof VERSES_MORE !== "undefined") VERSES.push(...VERSES_MORE);
+if(typeof VERSES_ASCENT !== "undefined") VERSES.push(...VERSES_ASCENT);
 
 const BY_TIER = {1:[],2:[],3:[],4:[],5:[]};
 const BY_ID = {};
@@ -50,5 +51,6 @@ const LEGACY_IDS = (typeof LEGACY_ID_TABLE !== "undefined") ? LEGACY_ID_TABLE : 
 if(typeof module !== "undefined" && module.exports){
   module.exports = { VERSES, VERSES_EXTRA,
     VERSES_MORE: (typeof VERSES_MORE !== "undefined") ? VERSES_MORE : [],
+    VERSES_ASCENT: (typeof VERSES_ASCENT !== "undefined") ? VERSES_ASCENT : [],
     PASSAGES, BY_TIER, BY_ID, BOOKS_ORDER, verseId, LEGACY_IDS };
 }

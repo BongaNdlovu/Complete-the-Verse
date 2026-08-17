@@ -28,7 +28,8 @@ const css   = fs.readFileSync(path.join(root, "css", "game.css"), "utf8");
 
 /* ---------- files and load order ---------- */
 ["index.html", "css/game.css", "css/atlas.css", "js/verses.js", "js/verses-extra.js",
- "js/verses-more.js", "js/passages.js", "js/bank.js", "js/srs.js", "js/recall.js",
+ "js/verses-more.js", "js/verses-ascent.js", "js/assemble.js", "js/meta.js", "js/flow.js",
+ "js/passages.js", "js/bank.js", "js/srs.js", "js/recall.js",
  "js/legacy-ids.js",
  "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js", "js/live.js",
  "js/atlas.js", "js/game.js",
@@ -46,6 +47,7 @@ assert(!/unpkg\.com|cdnjs|jsdelivr|cdn\.tailwindcss/.test(index),
   "index.html pulls no script or stylesheet from a CDN");
 
 const order = ["js/verses.js", "js/verses-extra.js", "js/verses-more.js",
+               "js/verses-ascent.js",
                "js/passages.js", "js/legacy-ids.js",
                "js/bank.js", "js/srs.js", "js/recall.js",
                // pilgrimage.js captures the merged VERSES array, so it has
@@ -64,6 +66,14 @@ order.forEach(f => {
 /* verses-more must land before bank.js merges VERSES_MORE into VERSES. */
 assert(index.indexOf('src="js/verses-more.js"') < index.indexOf('src="js/bank.js"'),
   "verses-more.js loads before bank.js merges it");
+assert(index.indexOf('src="js/verses-ascent.js"') < index.indexOf('src="js/bank.js"'),
+  "verses-ascent.js loads before bank.js merges it");
+assert(index.indexOf('src="js/assemble.js"') < index.indexOf('src="js/typed.js"'),
+  "assemble.js loads before the assemble renderer");
+assert(index.indexOf('src="js/meta.js"') < index.indexOf('src="js/game.js"'),
+  "meta.js loads before game.js");
+assert(index.indexOf('src="js/flow.js"') < index.indexOf('src="js/game.js"'),
+  "flow.js loads before game.js");
 
 /* ---------- audio ---------- */
 assert(game.includes("TRACKS"), "track bed map required");
@@ -83,6 +93,8 @@ assert(V.length >= 250, "bank holds at least 250 verses (got " + V.length + ")")
    this, a missing script tag would leave the pack on disk but not in play. */
 assert(Array.isArray(bank.VERSES_MORE) && bank.VERSES_MORE.length >= 50,
   "VERSES_MORE is loaded and substantial (got " + (bank.VERSES_MORE || []).length + ")");
+assert(Array.isArray(bank.VERSES_ASCENT) && bank.VERSES_ASCENT.length >= 150,
+  "VERSES_ASCENT is loaded and substantial (got " + (bank.VERSES_ASCENT || []).length + ")");
 const moreIds = new Set(bank.VERSES_MORE.map(v => bank.verseId(v)));
 const mergedMore = V.filter(v => moreIds.has(v.id)).length;
 assert(mergedMore === bank.VERSES_MORE.length,
@@ -192,10 +204,17 @@ assert(game.includes('R.mode==="recall"'), "recall wired into the run loop");
 assert(game.includes("SRS.buildQueue"), "drill order comes from the scheduler");
 assert(game.includes("function scheduleReview"), "answers reschedule the verse");
 assert(game.includes("SRS.schedule"), "scheduler invoked");
-assert(game.includes("function renderTypedQuestion"), "typed question renderer present");
-assert(game.includes("Recall.grade"), "typed answers are graded");
-assert(game.includes("q.d)"), "typed grading receives the verse's distractors");
-assert(game.includes("function typedHint"), "Illuminate adapted for typing");
+assert(game.includes("function renderTypedQuestion"), "assemble question renderer present");
+assert(game.includes("Recall.grade"), "assembled answers are graded");
+assert(game.includes("q.d)"), "assemble grading receives the verse's distractors");
+assert(game.includes("function typedHint"), "Illuminate adapted for assemble");
+assert(game.includes("function queueAdvance"), "question advance goes through the wipe gate");
+assert(game.includes("function playWipe"), "rightward wipe helper present");
+assert(game.includes("function showState"), "dedicated state screens present");
+assert(game.includes("function trialActs"), "Act VI is gated off the trial list");
+assert(index.includes('id="wipe-right"'), "wipe overlay is in the markup");
+assert(index.includes('id="state-panel"'), "state panel is in the markup");
+assert(index.includes('id="asm-bank"') || game.includes('id="asm-bank"'), "assemble bank is rendered");
 assert(game.includes("dueToday"), "due count surfaced");
 
 assert(game.includes('endRun("abandon")'), "abandon records via endRun");

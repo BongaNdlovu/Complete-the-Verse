@@ -61,9 +61,15 @@ function renderRelics(){
     const open = Artifacts.isUnlocked(SAVE.artifacts, a.id);
     const img = Artifacts.imagePath(a);
     const site = Pilgrimage.site(a.siteId);
+    const lvl = levelInfo(SAVE.xp).level;
+    const unveiled = typeof Meta==="undefined" || Meta.relicUnveiled(a, lvl);
     if(!open){
       return '<div class="relic-card locked"><div class="relic-art placeholder"><span>?</span></div>'+
         '<b>Sealed</b><span>'+esc((site&&site.name)||a.siteId)+'</span></div>';
+    }
+    if(!unveiled){
+      return '<div class="relic-card locked"><div class="relic-art placeholder"><span>veil</span></div>'+
+        '<b>Veiled</b><span>Reach '+esc(rankFor(a.requiresRank))+' to unveil</span></div>';
     }
     return '<button type="button" class="relic-card" data-relic="'+esc(a.id)+'">'+
       '<div class="relic-art'+(img?"":" placeholder")+'">'+(img?'<img src="'+esc(img)+'" alt="">':'<span>✦</span>')+'</div>'+
@@ -83,7 +89,8 @@ function buildPlayerCard(){
   d.innerHTML='<div class="pc-sigil"><img id="pc-avatar" class="pc-avatar" alt=""><b id="pc-lvl">1</b></div><div class="pc-meta">'+
     '<div class="pc-rank" id="pc-rank">Hearer</div><div class="pc-name" id="pc-name"></div>'+
     '<div class="pc-xp"><i id="pc-xpfill"></i></div>'+
-    '<div class="pc-sub" id="pc-sub">0 / 320 XP</div></div>';
+    '<div class="pc-sub" id="pc-sub">0 / 320 XP</div>'+
+    '<div class="pc-oil" id="pc-oil">0 oil</div></div>';
   document.body.appendChild(d);
 }
 function updatePlayerCard(){
@@ -96,6 +103,8 @@ function updatePlayerCard(){
   $("pc-rank").textContent = rankFor(li.level);
   $("pc-xpfill").style.width = (li.into/li.need*100)+"%";
   $("pc-sub").textContent = fmt(li.into)+" / "+fmt(li.need)+" XP";
+  const oilEl = $("pc-oil");
+  if(oilEl) oilEl.textContent = (SAVE.oil||0)+" oil";
   const ch = activeCharacter();
   const av = $("pc-avatar");
   const nm = $("pc-name");
@@ -243,7 +252,7 @@ function renderRecords(){
     if(!SAVE.board.length){ el.innerHTML='<div class="empty">No runs recorded on this device. The local chronicle is blank.</div>'; return; }
     el.innerHTML='<div class="mtitle" style="color:var(--gold-dim);margin-bottom:1vh">Best runs on this device</div><div class="lb">'+SAVE.board.map((r,i)=>
       '<div class="lbrow'+(i===0?" top":"")+'"><div class="pos">'+(i+1)+'</div>'+
-      '<div class="mode">'+esc(MODES[r.mode]?MODES[r.mode].name:r.mode)+' · '+esc(DIFFS[r.diff]?DIFFS[r.diff].name:r.diff)+' · '+r.acc+'%</div>'+
+      '<div class="mode">'+esc(MODES[r.mode]?MODES[r.mode].name:r.mode)+' · '+esc((typeof resolveDiff==="function"?resolveDiff(r.diff):DIFFS.watchman).name)+' · '+r.acc+'%</div>'+
       '<div class="sc">'+fmt(r.score)+'</div><div class="dt">'+esc(r.date)+'</div></div>').join("")+'</div>';
   } else if(rtab==="daily" || rtab==="blitz"){
     const cloudOn = typeof Cloud!=="undefined" && Cloud.configured();
@@ -447,7 +456,14 @@ function renderSettings(){
       const res = await Cloud.syncOnBoot(SAVE);
       if(res.ok && res.save){ SAVE = res.save; persist(); Atlas.setProgress(SAVE.pilgrim); updatePlayerCard(); }
       syncBtn.disabled = false;
-      toast(res.ok ? (res.merged ? "Cloud merge complete" : "Cloud save updated") : (res.reason || "Sync failed"));
+      if(!res.ok && typeof showState==="function"){
+        showState("cloud-fail", {
+          onPrimary: function(){ hideState(); },
+          onSecondary: function(){ hideState(); if(syncBtn) syncBtn.click(); }
+        });
+      } else {
+        toast(res.ok ? (res.merged ? "Cloud merge complete" : "Cloud save updated") : (res.reason || "Sync failed"));
+      }
       renderSettings();
     });
   }

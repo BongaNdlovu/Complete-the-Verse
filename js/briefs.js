@@ -287,14 +287,13 @@ function openBrief(mode){
   go("brief");
 }
 function renderDiffs(){
-  $("diffs").innerHTML = Object.keys(DIFFS).map(k=>{
-    const d = DIFFS[k], sel = SAVE.set.diff===k ? " sel" : "";
-    return '<button class="diff'+sel+'" data-diff="'+k+'"><b>'+esc(d.name)+'</b><span>'+esc(d.desc)+'</span>'+
-      '<span class="stats">'+d.lives+' lives · clock ×'+d.time.toFixed(2)+' · score ×'+d.score.toFixed(2)+'</span></button>';
-  }).join("");
-  $("diffs").querySelectorAll("[data-diff]").forEach(b=>{
-    b.addEventListener("click",()=>{ SAVE.set.diff=b.dataset.diff; persist(); Snd.ui(); renderDiffs(); });
-  });
+  const d = resolveDiff(SAVE.set.diff);
+  const label = $("brief-difflabel");
+  if(label) label.textContent = "The ordeal";
+  const host = $("diffs");
+  if(!host) return;
+  host.innerHTML = '<div class="diff sel locked"><b>'+esc(d.name)+'</b><span>'+esc(d.desc)+'</span>'+
+    '<span class="stats">'+d.lives+' lamps · clock ×'+d.time.toFixed(2)+'</span></div>';
 }
 $("brief-start").addEventListener("click", ()=>{ Snd.unlock(); startRun(briefMode, SAVE.set.diff); });
 
@@ -430,7 +429,7 @@ function openSiteBrief(siteId, mode){
   if(!b.unlocked){ Atlas.note("That place is still sealed."); Director.speak("That place is still sealed.",true); return; }
 
   sbSiteId = siteId; sbMode = mode || "pilgrimage"; pendingSiteId = siteId;
-  const s = b.site, arc = b.arc, D = DIFFS[SAVE.set.diff] || DIFFS.disciple;
+  const s = b.site, arc = b.arc, D = resolveDiff(SAVE.set.diff);
   const pad = (sbMode==="pilgrim-recall") ? 0 : pickPadMs();
   const secsLabel = (pacedClockMs(siteClockMs(siteId, sbMode), D.time, pad) / 1000).toFixed(1);
 
@@ -441,7 +440,7 @@ function openSiteBrief(siteId, mode){
 
   $("sb-info").innerHTML = [
     [b.ordinal + " / " + b.total, "Site on the road"],
-    [String(b.verses), sbMode === "pilgrim-recall" ? "Verses, typed" : "Verses"],
+    [String(b.verses), sbMode === "pilgrim-recall" ? "Verses, assembled" : "Verses"],
     [TIER_NAMES[b.tier] || "Foundation", "Difficulty"],
     [secsLabel + "s", "Per verse"],
     [String(D.lives), "Lives"]
@@ -458,7 +457,7 @@ function openSiteBrief(siteId, mode){
     [s.elevation + " m", "Elevation"]
   ].map(i=>'<div class="bl"><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("");
 
-  $("sb-start").textContent = sbMode === "pilgrim-recall" ? "Type it from memory" : (b.cleared ? "Walk it again" : "Begin");
+  $("sb-start").textContent = sbMode === "pilgrim-recall" ? "Assemble it from memory" : (b.cleared ? "Walk it again" : "Begin");
 
   /* Named up front, not a spoiler: the player should know this stop ends
      with an extra sequence and exactly how many verses it adds. */
@@ -467,7 +466,7 @@ function openSiteBrief(siteId, mode){
     ? " · closes with " + fin.title + " — " + fin.count + " more verses" : "";
   $("sb-hint").textContent = (sbMode === "pilgrim-recall"
     ? "Type the missing phrase · Keyboard if you want the board · Enter to lock · Esc pauses"
-    : "A–D or 1–4 or tap to answer · last 2 typed · S Selah · I Illuminate · Esc pauses") + finale;
+    : "A–D or 1–4 or tap to answer · last 2 assembled · S Selah · I Illuminate · Esc pauses") + finale;
 
   renderSiteDiffs();
   go("sitebrief");
@@ -478,20 +477,7 @@ function openSiteBrief(siteId, mode){
    no way to see or change it at the point of play. */
 function renderSiteDiffs(){
   const host = $("sb-diffs");
-  if(!host) return;
-  if(sbMode !== "relay" && sbMode !== "pilgrimage" && sbMode !== "pilgrim-recall"){ host.innerHTML = ""; return; }
-  host.innerHTML = Object.keys(DIFFS).map(k=>{
-    const d = DIFFS[k], sel = SAVE.set.diff===k ? " sel" : "";
-    return '<button class="diff'+sel+'" data-diff="'+k+'" type="button"><b>'+esc(d.name)+'</b>'+
-      '<span>'+d.lives+' lives · clock ×'+d.time.toFixed(2)+'</span></button>';
-  }).join("");
-  host.querySelectorAll("[data-diff]").forEach(b=>{
-    b.addEventListener("click", ()=>{
-      SAVE.set.diff = b.dataset.diff; persist(); Snd.ui();
-      if(sbMode==="relay") openRelayBrief(pendingArcKey);
-      else openSiteBrief(sbSiteId, sbMode);
-    });
-  });
+  if(host) host.innerHTML = "";
 }
 
 /* ---- the briefing for a whole arc walked in one run ----
@@ -506,7 +492,7 @@ function openRelayBrief(arcKey){
 
   pendingArcKey = arcKey; sbSiteId = null; sbMode = "relay";
   const sites = Pilgrimage.sitesInArc(arcKey);
-  const D = DIFFS[SAVE.set.diff] || DIFFS.disciple;
+  const D = resolveDiff(SAVE.set.diff);
   const first = Pilgrimage.indexOf(sites[0].id);
   const last  = Pilgrimage.indexOf(sites[sites.length-1].id);
   const secs  = i => (pacedClockMs(Pilgrimage.clockFor(i), D.time, Pilgrimage.PICK_PAD_MS || 1500) / 1000).toFixed(1);
@@ -686,6 +672,12 @@ function finishIntro(skipped){
   }, skipped?280:900);
 }
 function playBootSequence(opts){
+  if(typeof VERSES==="undefined" || !VERSES.length){
+    if(typeof showState==="function") showState("load-fail", {
+      onPrimary: function(){ location.reload(); }
+    });
+    return;
+  }
   const fast=!!(opts&&opts.fast);
   const msgs=["Opening the sacred record…","Gathering the witnesses…","Preparing the trial…",
     "Lighting the final lamp…"];

@@ -67,6 +67,8 @@ function endRun(reason){
   if(total>=25000) grantSeal("score25");
   if(total>=50000) grantSeal("score50");
   if(trialWon) grantSeal("sd15");
+  if(trialWon && R.actIdx>=5) grantSeal("remnant");
+  if(trialWon && R.actIdx>=5 && R.diff.key==="watchman") grantSeal("act6-watch");
   if(R.mode==="endless" && R.qTotal>=40) grantSeal("end40");
   if(trialWon && !R.usedPower) grantSeal("nocrutch");
   if(trialWon && R.missed.length===0) grantSeal("flawless");
@@ -213,11 +215,13 @@ function endRun(reason){
 function renderResults(o){
   $("res-kick").textContent =
     o.reason==="abandon" ? "The run was abandoned" :
+    o.reason==="complete" && R.mode==="trial" && R.actIdx>=5 ? "The Remnant is complete" :
     o.reason==="complete" && R.mode==="trial" ? "The Final Test is complete" :
     o.reason==="complete" && R.mode==="daily" ? "The daily reading is finished" :
     o.reason==="complete" && R.mode==="practice" ? "The drill is finished" :
     o.reason==="complete" && R.mode==="recall" ? "You wrote them out from memory" :
     R.mode==="blitz" ? "The blitz clock ran out" :
+    (R.mode==="trial" && R.actIdx>=5) ? "The Remnant ended the run" :
     (R.mode==="trial" && R.actIdx===4) ? "The Final Test ended the run" :
     R.mode==="endless" ? "The gauntlet closed" : "The trial is ended";
   document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");

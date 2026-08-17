@@ -1,136 +1,32 @@
 /* ==================================================================
-   TYPED MODE — on-screen keyboard, typed rendering, grading verdicts.
+   ASSEMBLE MODE — drag or tap the missing words into the blank.
 
-   Split out of game.js along its natural seams. Classic script:
-   defines one global (no module system), executed before game.js,
-   referenced from it at RUNTIME only — nothing here may touch a
-   game.js binding while this file parses.
+   Replaces free typing. Same stage, same clock, same Lock button.
+   Classic script: defines globals, executed before game.js, referenced
+   from it at RUNTIME only.
    ================================================================== */
 
-/* ------------------------- TYPED (RECALL MODE) ------------------------- */
-/* Same stage, same clock, same Lock button — the four options become an
-   empty line plus an on-screen keyboard so phones do not need the OS IME. */
-const VKB_ROWS = [
-  ["q","w","e","r","t","y","u","i","o","p"],
-  ["a","s","d","f","g","h","j","k","l","'"],
-  ["z","x","c","v","b","n","m","-","⌫"],
-  ["space","clear"]
-];
-function buildVirtualKeyboardHtml(){
-  return '<div class="vkb" id="vkb" role="group" aria-label="On-screen keyboard">' +
-    VKB_ROWS.map(row =>
-      '<div class="vkb-row">' + row.map(k => {
-        if(k === "space") return '<button type="button" class="vkb-key wide" data-k=" ">Space</button>';
-        if(k === "clear") return '<button type="button" class="vkb-key wide danger" data-k="clear">Clear</button>';
-        if(k === "⌫") return '<button type="button" class="vkb-key" data-k="back" aria-label="Backspace">⌫</button>';
-        return '<button type="button" class="vkb-key" data-k="'+k+'">'+k.toUpperCase()+'</button>';
-      }).join("") + '</div>'
-    ).join("") +
-  '</div>';
-}
 function syncTypedLock(){
-  const input = $("typed-answer");
   const btn = $("confirm-answer");
-  if(!input || !btn) return;
-  const has = !!(input.value && input.value.trim());
-  btn.disabled = !has;
-  btn.textContent = has ? "Lock Answer" : "Type your answer";
+  if(!btn) return;
+  const ready = R.assemble && typeof Assemble !== "undefined" && Assemble.isFilled(R.assemble);
+  btn.disabled = !ready;
+  btn.textContent = ready ? "Lock Answer" : "Place the words";
 }
-function typeIntoAnswer(ch){
-  const input = $("typed-answer");
-  if(!input || input.disabled || R.locked) return;
-  if(ch === "back") input.value = input.value.slice(0, -1);
-  else if(ch === "clear") input.value = "";
-  else input.value += ch;
-  syncTypedLock();
-}
-function bindVirtualKeyboard(){
-  const board = $("vkb");
-  if(!board) return;
-  board.addEventListener("click", e=>{
-    const b = e.target.closest("[data-k]");
-    if(!b) return;
-    e.preventDefault();
-    typeIntoAnswer(b.dataset.k);
-    Snd.ui();
-  });
-  /* Keep pointer events from stealing focus into a phantom OS keyboard. */
-  board.addEventListener("mousedown", e=>e.preventDefault());
-}
-function setVkbOpen(on, persistIt){
-  SAVE.set.vkb = !!on;
-  if(persistIt !== false) persist();
-  const board = $("vkb");
-  const input = $("typed-answer");
-  const tog = $("vkb-toggle");
-  if(board) board.classList.toggle("on", SAVE.set.vkb);
-  if(tog){
-    tog.setAttribute("aria-pressed", SAVE.set.vkb ? "true" : "false");
-    tog.textContent = SAVE.set.vkb ? "Hide keyboard" : "Keyboard";
-  }
-  if(input) input.setAttribute("inputmode", SAVE.set.vkb ? "none" : "text");
-}
-function renderTypedQuestion(q, dur, scene){
-  R.hintLevel = 0;
-  const opts = $("opts");
-  opts.className = "answers typed queued";
-  opts.innerHTML =
-    '<div class="typewrap">' +
-      '<div class="type-row">' +
-        '<input id="typed-answer" class="typed-input" type="text" autocomplete="off" ' +
-          'autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" ' +
-          'aria-label="Type the missing words" placeholder="type the missing words">' +
-        '<button type="button" class="typed-pwr" data-pw="selah">Selah</button>' +
-        '<button type="button" class="typed-pwr" data-pw="illum">Illuminate</button>' +
-        '<button type="button" class="vkb-toggle" id="vkb-toggle" aria-pressed="false" aria-controls="vkb">Keyboard</button>' +
-      '</div>' +
-      '<div class="typed-hint" id="typed-hint" aria-live="polite"></div>' +
-      buildVirtualKeyboardHtml() +
-    '</div>';
-  const input = $("typed-answer");
-  input.addEventListener("input", syncTypedLock);
-  input.addEventListener("keydown", e=>{
-    if(e.key === "Enter"){ e.preventDefault(); confirmTyped(); }
-  });
-  bindVirtualKeyboard();
-  opts.querySelectorAll("[data-pw]").forEach(b=>{
-    b.addEventListener("click", ()=>{ Snd.ui(); usePower(b.dataset.pw); });
-  });
-  const tog = $("vkb-toggle");
-  if(tog) tog.addEventListener("click", ()=>{ Snd.ui(); setVkbOpen(!SAVE.set.vkb); });
-  setVkbOpen(!!SAVE.set.vkb, false);
-  const confirmBtn = $("confirm-answer");
-  confirmBtn.style.display = "";
-  confirmBtn.disabled = true;
-  confirmBtn.textContent = "Type your answer";
-  const how=$("warn-how");
-  if(how) how.innerHTML="Type the missing phrase<br>Enter locks the line";
-  renderPowers();
-  armTimer(dur);
-  const entranceDelay = Math.min(1450, Math.max(520, dur*.08));
-  afterRun(entranceDelay, ()=>{
-    if(R.q!==q || R.sceneToken!==scene || currentView!=="play") return;
-    opts.classList.remove("queued"); opts.classList.add("entering");
-    startTimer(dur);
-    /* Desktop: allow physical typing. Mobile: keep OS keyboard closed —
-       the on-screen board is the input surface. */
-    if(!("ontouchstart" in window)) input.focus();
-    afterRun(760, ()=>{ if(R.q===q && R.sceneToken===scene) opts.classList.remove("entering"); });
-    Snd.lock();
-  });
-}
+
 function confirmTyped(){
   if(!R.running || R.paused || R.locked) return;
+  if(!R.assemble || typeof Assemble === "undefined" || !Assemble.isFilled(R.assemble)) return;
+  const phrase = Assemble.join(R.assemble.placed);
   const input = $("typed-answer");
-  if(!input || !input.value.trim()) return;
-  answer(input.value, null);
+  if(input) input.value = phrase;
+  answer(phrase, null);
 }
-/* Typed Illuminate never burns options. It writes a production cue into
-   the blank itself: word-lengths, then initials, then the first word. */
+
 function typedHint(){
   if(!R.q) return false;
   R.hintLevel = Math.min(3, R.hintLevel + 1);
-  const cue = Recall.hint(R.q.a, R.hintLevel);
+  const cue = (typeof Recall !== "undefined") ? Recall.hint(R.q.a, R.hintLevel) : "";
   const blank = $("blank");
   if(blank){
     blank.textContent = cue;
@@ -139,17 +35,146 @@ function typedHint(){
   }
   const el = $("typed-hint");
   if(el){
-    el.textContent = R.hintLevel===1 ? "Word lengths — type the missing phrase"
-      : R.hintLevel===2 ? "First letters — complete each word"
+    el.textContent = R.hintLevel===1 ? "Word lengths — place the missing phrase"
+      : R.hintLevel===2 ? "First letters — finish each word"
       : "First word given — finish the rest";
     el.classList.add("on");
+  }
+  if(R.assemble && R.hintLevel === 1){
+    const fake = (R.assemble.bank || []).find(t => t.dest < 0);
+    if(fake){
+      const node = document.querySelector('.asm-tile[data-id="'+fake.id+'"]');
+      if(node) node.classList.add("burn");
+    }
   }
   return true;
 }
 
+function renderAssembleBank(){
+  const bank = $("asm-bank");
+  const slots = $("asm-slots");
+  if(!bank || !slots || !R.assemble || typeof Assemble === "undefined") return;
+  const left = Assemble.remaining(R.assemble);
+  bank.innerHTML = "";
+  left.forEach(t => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "asm-tile";
+    b.dataset.id = t.id;
+    b.draggable = true;
+    b.textContent = t.word;
+    bank.appendChild(b);
+  });
+  slots.innerHTML = "";
+  R.assemble.placed.forEach((t, i) => {
+    const el = document.createElement("button");
+    el.type = "button";
+    el.className = "asm-slot" + (t ? " full" : " empty");
+    el.dataset.slot = String(i);
+    el.textContent = t ? t.word : "—";
+    if(t){ el.dataset.id = t.id; el.draggable = true; }
+    slots.appendChild(el);
+  });
+  const hidden = $("typed-answer");
+  if(hidden) hidden.value = Assemble.join(R.assemble.placed);
+  syncTypedLock();
+}
 
-/* Turn a word-level diff into a sentence: which word was wrong, not just
-   that the line was. */
+function bindAssembleBoard(){
+  const wrap = $("asm-wrap");
+  if(!wrap || wrap.dataset.bound) return;
+  wrap.dataset.bound = "1";
+  wrap.addEventListener("click", e => {
+    if(!R.assemble || !R.running || R.paused || R.locked) return;
+    const tile = e.target.closest(".asm-tile");
+    if(tile && !tile.classList.contains("burn")){
+      Assemble.place(R.assemble, tile.dataset.id);
+      Snd.ui();
+      renderAssembleBank();
+      return;
+    }
+    const slot = e.target.closest(".asm-slot.full");
+    if(slot){
+      Assemble.unplace(R.assemble, +slot.dataset.slot);
+      Snd.ui();
+      renderAssembleBank();
+    }
+  });
+  wrap.addEventListener("dragstart", e => {
+    const el = e.target.closest("[data-id]");
+    if(!el || !R.assemble || R.locked){ e.preventDefault(); return; }
+    R.assemble.drag = el.dataset.id;
+    el.classList.add("dragging");
+    try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", el.dataset.id); } catch (err) {}
+  });
+  wrap.addEventListener("dragend", e => {
+    const el = e.target.closest("[data-id]");
+    if(el) el.classList.remove("dragging");
+    if(R.assemble) R.assemble.drag = null;
+  });
+  wrap.addEventListener("dragover", e => {
+    if(e.target.closest(".asm-slot")){ e.preventDefault(); }
+  });
+  wrap.addEventListener("drop", e => {
+    const slot = e.target.closest(".asm-slot");
+    if(!slot || !R.assemble || !R.assemble.drag) return;
+    e.preventDefault();
+    Assemble.place(R.assemble, R.assemble.drag, +slot.dataset.slot);
+    R.assemble.drag = null;
+    Snd.ui();
+    renderAssembleBank();
+  });
+}
+
+function renderTypedQuestion(q, dur, scene){
+  R.hintLevel = 0;
+  const rnd = R.mode==="daily" ? R.daily.rnd : Math.random;
+  R.assemble = (typeof Assemble !== "undefined")
+    ? Assemble.build(q.a, q.d, rnd)
+    : { target:[], bank:[], placed:[] };
+  const opts = $("opts");
+  opts.className = "answers typed queued";
+  opts.innerHTML =
+    '<div class="typewrap" id="asm-wrap">'+
+      '<div class="type-row">'+
+        '<input id="typed-answer" class="typed-input asm-hidden" type="text" autocomplete="off" '+
+          'autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="none" '+
+          'aria-label="Assemble the missing words" readonly tabindex="-1">'+
+        '<button type="button" class="typed-pwr" data-pw="selah">Selah</button>'+
+        '<button type="button" class="typed-pwr" data-pw="illum">Illuminate</button>'+
+      '</div>'+
+      '<div class="asm-slots" id="asm-slots" role="list" aria-label="The missing phrase"></div>'+
+      '<div class="asm-bank" id="asm-bank" role="list" aria-label="Word bank"></div>'+
+      '<div class="typed-hint" id="typed-hint" aria-live="polite">Drag or tap the words into order</div>'+
+    '</div>';
+  bindAssembleBoard();
+  renderAssembleBank();
+  const input = $("typed-answer");
+  if(input){
+    input.addEventListener("keydown", e=>{
+      if(e.key === "Enter"){ e.preventDefault(); confirmTyped(); }
+    });
+  }
+  opts.querySelectorAll("[data-pw]").forEach(b=>{
+    b.addEventListener("click", ()=>{ Snd.ui(); usePower(b.dataset.pw); });
+  });
+  const confirmBtn = $("confirm-answer");
+  confirmBtn.style.display = "";
+  syncTypedLock();
+  const how=$("warn-how");
+  if(how) how.innerHTML="Place the missing words<br>Enter locks the line";
+  renderPowers();
+  armTimer(dur);
+  const entranceDelay = Math.min(1450, Math.max(520, dur*.08));
+  afterRun(entranceDelay, ()=>{
+    if(R.q!==q || R.sceneToken!==scene || currentView!=="play") return;
+    opts.classList.remove("queued"); opts.classList.add("entering");
+    startTimer(dur);
+    afterRun(760, ()=>{ if(R.q===q && R.sceneToken===scene) opts.classList.remove("entering"); });
+    Snd.lock();
+  });
+}
+
 function diffSentence(diff){
   if(!diff) return "";
   const t=diff.typed, e=diff.expected;
@@ -157,12 +182,13 @@ function diffSentence(diff){
   if(t && !e) return '“'+esc(t)+'” is not in the verse. ';
   return 'You wrote “'+esc(t)+'” — the verse says “'+esc(e)+'”. ';
 }
-/* Show what was typed against what the verse says. Being told you were
-   "wrong" without seeing the gap teaches nothing. */
+
 function renderTypedVerdict(g){
   const el = $("typed-hint"); if(!el) return;
   const input = $("typed-answer");
   if(input){ input.disabled = true; input.classList.add(Recall.isCorrect(g.verdict) ? "right" : "bad"); }
+  document.querySelectorAll(".asm-slot").forEach(s => { s.disabled = true; });
+  document.querySelectorAll(".asm-tile").forEach(s => { s.disabled = true; });
   el.classList.add("on", "verdict");
   el.innerHTML =
     g.verdict === "exact"   ? '<b class="ok">Word for word.</b>' :
@@ -170,4 +196,3 @@ function renderTypedVerdict(g){
     g.verdict === "modernised" ? '<b class="no">Not the wording.</b> <span>'+esc(g.hint)+' The verse reads “'+esc(R.q.a)+'”.</span>' :
                               '<b class="no">Not this one.</b> <span>'+diffSentence(g.diff)+'The verse reads “'+esc(R.q.a)+'”.</span>';
 }
-

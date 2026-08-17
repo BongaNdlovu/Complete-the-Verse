@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Complete the Verse — A Trial of Scripture</title>
-<meta name="description" content="A biblical-thriller verse game on the King James Version: complete the missing phrase before the clock falls, walk the 46-site pilgrimage from Ur to Patmos, and train every verse with spaced repetition.">
+<meta name="description" content="A biblical-thriller verse game on the King James Version: complete the missing phrase before the clock falls, walk the 46-site pilgrimage from Ur to Patmos, and train every verse with spaced repetition. Assemble from memory. A sixth act waits.">
 <meta name="theme-color" content="#04040a">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
 <meta property="og:title" content="Complete the Verse — A Trial of Scripture">
-<meta property="og:description" content="One phrase is taken away. Complete it before the final second falls. 579 verses · 66 books · a pilgrimage from Ur to Patmos.">
+<meta property="og:description" content="One phrase is taken away. Complete it before the final second falls. 776 verses · 66 books · a pilgrimage from Ur to Patmos.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://complete-the-verse.vercel.app/">
 <meta property="og:image" content="https://complete-the-verse.vercel.app/assets/intro.jpg">
@@ -106,7 +106,7 @@
       <div class="fil"><i></i></div>
       <p id="brief-desc" style="max-width:52ch;text-align:center;color:var(--parch-dim);line-height:1.62;font-size:1.02rem"></p>
       <div class="briefinfo" id="brief-info" style="margin-top:3vh"></div>
-      <div class="h-sm" id="brief-difflabel" style="margin-top:2.6vh">Choose your ordeal</div>
+      <div class="h-sm" id="brief-difflabel" style="margin-top:2.6vh">The ordeal</div>
       <div class="diffs" id="diffs"></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
         <button class="btn" id="brief-start">Begin</button>
@@ -446,6 +446,19 @@
   </div>
 </div>
 
+<div id="wipe-right" class="wipe-right" aria-hidden="true"><i class="sheet"></i></div>
+<div id="state-panel" class="state-panel" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="state-title">
+  <div class="state-card">
+    <div class="kick" id="state-kick">The record</div>
+    <div class="h-lg" id="state-title" style="margin-top:1vh">A break in the line</div>
+    <div class="fil"><i></i></div>
+    <p class="state-body" id="state-body"></p>
+    <div class="footer" style="margin-top:2.6vh">
+      <button class="btn" id="state-primary" type="button">Continue</button>
+      <button class="btn ghost" id="state-secondary" type="button">Return</button>
+    </div>
+  </div>
+</div>
 <div id="overdrive-choice" role="dialog" aria-modal="true" aria-labelledby="od-title">
   <div class="od-card">
     <div class="kick">Overdrive</div>
@@ -483,7 +496,7 @@
       <li><b>Lifelines:</b> S = Selah (+5s), I = Illuminate (−2 wrong).</li>
     </ol>
     <p class="tut-note"><b>The Pilgrimage</b> is your 46-site journey across the biblical world.
-      Along the road you will master spaced repetition and typed recall. Esc pauses any run.</p>
+      Along the road you will master spaced repetition and assembled recall. Esc pauses any run.</p>
     <div class="footer">
       <button class="btn" id="tut-go" type="button">Walk to Ur</button>
       <button class="btn ghost" id="tut-drill" type="button">Try the Drill</button>
@@ -529,11 +542,15 @@
 <script src="js/verses.js"></script>
 <script src="js/verses-extra.js"></script>
 <script src="js/verses-more.js"></script>
+<script src="js/verses-ascent.js"></script>
 <script src="js/passages.js"></script>
 <script src="js/legacy-ids.js"></script>
 <script src="js/bank.js"></script>
 <script src="js/srs.js"></script>
 <script src="js/recall.js"></script>
+<script src="js/assemble.js"></script>
+<script src="js/meta.js"></script>
+<script src="js/flow.js"></script>
 <!-- The Pilgrimage. sites/empires are data; geo and live are pure
      helpers; pilgrimage holds the campaign rules and must load after
      bank.js because it captures the merged VERSES array; atlas draws

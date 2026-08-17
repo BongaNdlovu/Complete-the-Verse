@@ -77,21 +77,20 @@ assert(/function fitVerseSize\(len\)/.test(game), "fitVerseSize helper required"
 assert(game.includes("vlen-md") && game.includes("vlen-lg") && game.includes("vlen-xl"), "verse length tier classes required");
 assert(css.includes(".verse-main.vlen-md") && css.includes(".verse-main.vlen-xl"), "CSS verse length tiers required");
 
-/* ---------- Recall mode: the typed answer replaces the four options ---------- */
-assert(game.includes('id="typed-answer"'), "typed answer input is rendered");
+/* ---------- Recall mode: the missing phrase is assembled, not typed ---------- */
+assert(game.includes('id="typed-answer"'), "hidden assembled-answer field is rendered");
 assert(game.includes('autocomplete="off"') && game.includes('spellcheck="false"'),
-  "typed input must not autocomplete or spellcheck the answer away");
-assert(game.includes('autocapitalize="off"') && game.includes('autocorrect="off"'),
-  "mobile keyboards must not rewrite the answer");
-assert(game.includes('aria-label="Type the missing words"'), "typed input is labelled for screen readers");
+  "the hidden field must not autocomplete or spellcheck the answer away");
+assert(game.includes('id="asm-bank"') && game.includes('id="asm-slots"'),
+  "assemble bank and slots are rendered");
+assert(game.includes('aria-label="Assemble the missing words"') || game.includes('aria-label="The missing phrase"'),
+  "assemble surface is labelled for screen readers");
 assert(game.includes('aria-live="polite"'), "the verdict is announced");
-assert(css.includes(".typed-input"), "typed input styled");
-assert(css.includes(".typed-input:focus"), "typed input has a visible focus state");
-assert(css.includes(".typed-input.right") && css.includes(".typed-input.bad"),
-  "typed input shows right and wrong states");
-assert(css.includes(".typed-hint"), "typed hint/verdict styled");
-assert(/@media \(max-width:600px\)[\s\S]*\.typed-input/.test(css),
-  "typed input has a mobile size");
+assert(css.includes(".asm-bank") && css.includes(".asm-slot") && css.includes(".asm-tile"),
+  "assemble bank, slots and tiles are styled");
+assert(css.includes(".typed-hint"), "hint/verdict styled");
+assert(/@media \(max-width:600px\)[\s\S]*\.asm-/.test(css) || /@media \(max-width:600px\)[\s\S]*\.typed-input/.test(css),
+  "assemble has a mobile size");
 
 /* The verdict must always show the exact wording — being marked wrong
    without seeing the verse teaches nothing. */

@@ -31,6 +31,7 @@ const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
 {
   const PREFIX = ["js/verses.js","js/verses-extra.js","js/passages.js","js/legacy-ids.js",
                   "js/bank.js","js/srs.js","js/recall.js",
+                  "js/assemble.js","js/meta.js","js/flow.js",
                   "js/sites.js","js/empires.js","js/geo.js","js/pilgrimage.js",
                   "js/live.js","js/atlas.js"];
   const modules = ENGINE_FILES.filter(f => f !== "js/game.js");
@@ -52,7 +53,10 @@ const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
     ok("director defines Director", t("Director") === "object");
     ok("set-pieces define SetPieces", t("SetPieces") === "object");
     ok("viz defines Viz", t("Viz") === "object");
-    ok("typed defines the on-screen keyboard builder", t("buildVirtualKeyboardHtml") === "function");
+    ok("assemble defines the bank builder", t("Assemble") === "object");
+    ok("meta defines the climb helpers", t("Meta") === "object");
+    ok("flow defines the handoff contract", t("Flow") === "object");
+    ok("typed defines the assemble renderer", t("renderTypedQuestion") === "function");
     ok("typed defines the verdict renderer", t("renderTypedVerdict") === "function");
     ok("sequences defines passage play", t("startPassage") === "function");
     ok("sequences defines reconstruction play", t("startReconstruct") === "function");

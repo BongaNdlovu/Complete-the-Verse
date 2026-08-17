@@ -1,0 +1,125 @@
+/* ==================================================================
+   ASSEMBLE — drag (or tap) the missing phrase into order.
+
+   Harder than four options, easier than free typing. Pure functions so
+   the bank, the grader and the tests share one set of rules. The DOM
+   lives in typed.js; this file must not touch it.
+   ================================================================== */
+var Assemble = (function(){
+
+  var PAD = ["selah","amen","covenant","mercy","altar","host"," ram","forever","truth","zion"].map(function(w){ return w.trim(); });
+
+  function words(s){
+    return String(s == null ? "" : s).trim().split(/\s+/).filter(Boolean);
+  }
+
+  function keyOf(w){
+    return String(w || "").toLowerCase().replace(/[^a-z0-9']/g, "");
+  }
+
+  function fakeCount(n){
+    if(n <= 2) return 2;
+    return 3;
+  }
+
+  function distractorWords(distractors, taken){
+    var out = [];
+    (distractors || []).forEach(function(d){
+      words(d).forEach(function(w){
+        var k = keyOf(w);
+        if(!k || taken[k]) return;
+        if(out.indexOf(w) < 0) out.push(w);
+      });
+    });
+    return out;
+  }
+
+  function shuffle(arr, rng){
+    var a = arr.slice(), i, j, t;
+    rng = rng || Math.random;
+    for(i = a.length - 1; i > 0; i--){
+      j = Math.floor(rng() * (i + 1));
+      t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  /* Build a bank: every target word plus 2–3 fakes drawn from the
+     verse's own distractors (so the fakes are wrong about Scripture,
+     not random English). Deterministic when `rng` is. */
+  function build(answer, distractors, rng){
+    var target = words(answer);
+    var taken = {};
+    target.forEach(function(w){ taken[keyOf(w)] = 1; });
+    var fakes = distractorWords(distractors, taken);
+    var need = fakeCount(target.length);
+    var i = 0;
+    while(fakes.length < need && i < PAD.length){
+      var p = PAD[i++];
+      if(!taken[keyOf(p)] && fakes.indexOf(p) < 0) fakes.push(p);
+    }
+    fakes = shuffle(fakes, rng).slice(0, need);
+    var bank = target.map(function(w, idx){
+      return { id: "t" + idx, word: w, dest: idx };
+    }).concat(fakes.map(function(w, idx){
+      return { id: "f" + idx, word: w, dest: -1 };
+    }));
+    return {
+      target: target,
+      bank: shuffle(bank, rng),
+      placed: target.map(function(){ return null; })
+    };
+  }
+
+  function tileById(state, id){
+    var i;
+    for(i = 0; i < state.bank.length; i++) if(state.bank[i].id === id) return state.bank[i];
+    return null;
+  }
+
+  function unplace(state, slot){
+    if(!state || slot < 0 || slot >= state.placed.length) return state;
+    state.placed[slot] = null;
+    return state;
+  }
+
+  function place(state, bankId, slot){
+    if(!state) return state;
+    var tile = tileById(state, bankId);
+    if(!tile) return state;
+    var already = state.placed.indexOf(tile);
+    if(already >= 0) state.placed[already] = null;
+    if(slot == null || slot < 0){
+      slot = state.placed.indexOf(null);
+    }
+    if(slot < 0 || slot >= state.placed.length) return state;
+    if(state.placed[slot]) state.placed[slot] = null;
+    state.placed[slot] = tile;
+    return state;
+  }
+
+  function join(placed){
+    return (placed || []).map(function(p){ return p && p.word ? p.word : ""; })
+      .filter(Boolean).join(" ");
+  }
+
+  function isFilled(state){
+    return !!(state && state.placed && state.placed.length && state.placed.every(Boolean));
+  }
+
+  function remaining(state){
+    if(!state) return [];
+    var used = {};
+    state.placed.forEach(function(p){ if(p) used[p.id] = 1; });
+    return state.bank.filter(function(t){ return !used[t.id]; });
+  }
+
+  return {
+    words: words, keyOf: keyOf, fakeCount: fakeCount,
+    build: build, place: place, unplace: unplace,
+    join: join, isFilled: isFilled, remaining: remaining,
+    shuffle: shuffle, tileById: tileById
+  };
+})();
+
+if(typeof module !== "undefined" && module.exports) module.exports = Assemble;

@@ -5,7 +5,7 @@
 distractors are not.** Nothing here is lost — each row is a verse worth including
 once someone writes a real blank and three real distractors for it.
 
-**190 re-authored · 106 still open.**
+**203 re-authored · 93 still open.**
 Run `node scripts/quarantine-status.js` to refresh these counts.
 
 ## How to re-author one
@@ -25,11 +25,11 @@ overwrites. Then re-run the gate.
 
 ## Still open, by rule
 
-- `recycled` — 88
-- `mid-clause` — 56
-- `register-swap` — 27
-- `containment` — 9
-- `function-swap` — 8
+- `recycled` — 77
+- `mid-clause` — 49
+- `register-swap` — 22
+- `containment` — 8
+- `function-swap` — 6
 - `duplicate-option` — 3
 
 ## Genesis (3)
@@ -141,10 +141,8 @@ overwrites. Then re-run the gate.
 - **Micah 6:6** (tier 4) — blank was `the high God? shall I come`  
   _recycled_
 
-## Habakkuk (3)
+## Habakkuk (2)
 
-- **Habakkuk 2:20** (tier 3) — blank was `in his holy temple: let all`  
-  _mid-clause, recycled_
 - **Habakkuk 3:18** (tier 3) — blank was `in the LORD, I will joy`  
   _mid-clause, recycled, function-swap_
 - **Habakkuk 1:5** (tier 4) — blank was `will work a work in your`  
@@ -162,23 +160,17 @@ overwrites. Then re-run the gate.
 - **Haggai 2:7** (tier 5) — blank was `all nations shall come: and I`  
   _recycled_
 
-## Malachi (3)
+## Malachi (2)
 
-- **Malachi 3:1** (tier 3) — blank was `seek, shall suddenly come to his`  
-  _mid-clause, recycled_
 - **Malachi 1:6** (tier 4) — blank was `a master, where is my fear?`  
   _recycled_
 - **Malachi 4:5** (tier 4) — blank was `Elijah the prophet before the coming`  
   _mid-clause, recycled_
 
-## John (3)
+## John (1)
 
-- **John 14:1** (tier 1) — blank was `troubled: ye believe in God, believe`  
-  _register-swap_
 - **John 1:12** (tier 2) — blank was `become the sons of God, even`  
   _mid-clause, recycled_
-- **John 6:35** (tier 2) — blank was `I am the bread of life:`  
-  _recycled_
 
 ## 2 Corinthians (3)
 
@@ -189,25 +181,17 @@ overwrites. Then re-run the gate.
 - **2 Corinthians 11:14** (tier 5) — blank was `himself is transformed into an angel`  
   _mid-clause_
 
-## Galatians (4)
+## Galatians (2)
 
 - **Galatians 6:7** (tier 3) — blank was `not mocked: for whatsoever a man`  
   _recycled_
 - **Galatians 5:13** (tier 3) — blank was `called unto liberty; only use not`  
   _recycled, register-swap_
-- **Galatians 5:16** (tier 3) — blank was `the Spirit, and ye shall not`  
-  _recycled, register-swap_
-- **Galatians 6:2** (tier 3) — blank was `so fulfil the law of Christ.`  
-  _recycled, function-swap_
 
-## Philippians (5)
+## Philippians (3)
 
 - **Philippians 4:19** (tier 2) — blank was `his riches in glory by Christ`  
   _recycled_
-- **Philippians 2:5** (tier 4) — blank was `you, which was also in Christ`  
-  _mid-clause_
-- **Philippians 3:14** (tier 4) — blank was `the prize of the high calling`  
-  _mid-clause, recycled, function-swap_
 - **Philippians 2:8** (tier 4) — blank was `he humbled himself, and became obedient`  
   _mid-clause, recycled_
 - **Philippians 3:10** (tier 4) — blank was `of his resurrection, and the fellowship`  
@@ -259,14 +243,8 @@ overwrites. Then re-run the gate.
 - **Philemon 1:9** (tier 5) — blank was `beseech thee, being such an one`  
   _recycled, register-swap_
 
-## Hebrews (16)
+## Hebrews (13)
 
-- **Hebrews 10:23** (tier 2) — blank was `the profession of our faith without`  
-  _mid-clause, recycled_
-- **Hebrews 11:6** (tier 2) — blank was `to God must believe that he`  
-  _mid-clause, recycled_
-- **Hebrews 13:5** (tier 2) — blank was `he hath said, I will never`  
-  _recycled, register-swap_
 - **Hebrews 10:25** (tier 3) — blank was `manner of some is; but exhorting`  
   _recycled_
 - **Hebrews 3:8** (tier 3) — blank was `in the provocation, in the day`  
@@ -294,10 +272,8 @@ overwrites. Then re-run the gate.
 - **Hebrews 2:18** (tier 5) — blank was `suffered being tempted, he is able`  
   _recycled_
 
-## James (4)
+## James (3)
 
-- **James 4:8** (tier 3) — blank was `to you. Cleanse your hands, ye`  
-  _mid-clause, recycled, register-swap_
 - **James 2:26** (tier 4) — blank was `faith without works is dead`  
   _recycled_
 - **James 3:1** (tier 4) — blank was `many masters, knowing that we shall`  
@@ -337,7 +313,7 @@ overwrites. Then re-run the gate.
 - **Jude 1:6** (tier 5) — blank was `habitation, he hath reserved in everlasting`  
   _recycled, register-swap_
 
-## Revelation (6)
+## Revelation (5)
 
 - **Revelation 1:5** (tier 3) — blank was `and the prince of the kings`  
   _mid-clause, recycled_
@@ -345,8 +321,6 @@ overwrites. Then re-run the gate.
   _recycled_
 - **Revelation 21:6** (tier 3) — blank was `and the end. I will give`  
   _mid-clause, recycled_
-- **Revelation 2:10** (tier 4) — blank was `be thou faithful unto death`  
-  _recycled, register-swap, containment_
 - **Revelation 1:17** (tier 4) — blank was `he laid his right hand upon`  
   _mid-clause, recycled_
 - **Revelation 2:4** (tier 4) — blank was `thou hast left thy first love.`  

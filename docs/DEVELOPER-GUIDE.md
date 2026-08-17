@@ -40,7 +40,7 @@ content/            verse QA data (quarantine.json, legacy-order.json) —
                     tooling only, excluded from the Vercel deploy
 scripts/            dev server + content QA/generation scripts
 supabase/           migrations + edge function (see BACKEND-EVALUATION.md)
-*.test.js + test.js 30 test suites (see §10)
+*.test.js + test.js 34 test suites (see §10)
 ```
 
 ---
@@ -311,7 +311,7 @@ abandon scores ×0.85. XP = round(total/12 + correct×14 + 300 if finished)
 ### 8.1 Shape
 
 Every verse: `{ r:"Ref", b:"Book", t:1-5 tier, p:"prefix", a:"answer",
-s:"suffix", d:[authored distractors] }`. 579 verses · 66 books ·
+s:"suffix", d:[authored distractors] }`. 776 verses · 66 books ·
 27 passages. `fullVerse(v) = p + " " + a + sep(s) + s`.
 
 ### 8.2 Identity and duplicates
@@ -369,7 +369,7 @@ bank answers nearest in length — numbered fakes were removed.
 
 ## 10. Testing — the three styles (know which one you are writing)
 
-`node test.js` runs 30 suites in a fixed order: content gate → pure
+`node test.js` runs 34 suites in a fixed order: content gate → pure
 logic → integration sandbox → structural/static suites.
 
 1. **Pure requires** (`srs.test.js`, `recall.test.js`, `geo.test.js`,
@@ -383,7 +383,7 @@ logic → integration sandbox → structural/static suites.
    actual runs: `startRun`, `nextQuestion`, `resolveAnswer`, `endRun`,
    save migrations, daily one-shot, serve-time usedIds. Gotchas:
    - the sandbox omits `verses-more.js` → `VERSES.length === 305` there
-     (579 verses in the browser). Assert against what the sandbox loads.
+     (776 verses in the browser). Assert against what the sandbox loads.
    - it omits `polish.js`/`cloud.js` → game.js's `typeof`-guarded
      fallbacks are load-bearing. If you made game.js call
      `Polish.foo()` unguarded, this suite is what catches it.
