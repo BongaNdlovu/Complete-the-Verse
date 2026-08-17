@@ -112,6 +112,12 @@ function commitProfile(name, scholarId){
       if(res && res.ok) updateCloudChip();
     });
   }
+  if(pendingPostTutorialAction){
+    const act = pendingPostTutorialAction;
+    pendingPostTutorialAction = null;
+    runTutorialAction(act);
+    return;
+  }
   if(currentView === "settings") renderSettings();
   if(currentView === "menu") renderMenu();
   toast(playerDisplayName() + " · " + ((activeCharacter()&&activeCharacter().short)||"Scholar"));
@@ -166,12 +172,13 @@ function updateCloudChip(){
   if(typeof Cloud==="undefined" || !Cloud.configured()){
     el.textContent = "Local only"; el.className = "cloud-chip dim"; return;
   }
-  if(!navigator.onLine){
+  if(typeof navigator !== "undefined" && navigator.onLine === false){
     el.textContent = "Offline"; el.className = "cloud-chip warn"; return;
   }
   if(Cloud.isSignedIn()){
     const who = (Cloud.profile() && Cloud.profile().display_name) || "Synced";
-    el.textContent = "☁ "+who; el.className = "cloud-chip on"; return;
+    const trust = (typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct") ? " (Honor system)" : "";
+    el.textContent = "☁ "+who+trust; el.className = "cloud-chip on"; return;
   }
   el.textContent = "Cloud ready"; el.className = "cloud-chip";
 }
@@ -181,10 +188,33 @@ function updateOfflineBanner(){
   b.classList.toggle("on", !navigator.onLine);
   b.textContent = navigator.onLine ? "" : "You are offline — progress stays on this device until you reconnect.";
 }
-/* What the menu offers, in order: the campaign first, the daily and the
-   blitz beside it, the long-form modes after. Anything not listed but
-   not hidden would still render (appended after these). */
+/* What the menu offers, grouped into four sections: The Road, Today,
+   Practice, and Challenges. Anything not listed but not hidden renders
+   in a fallback card grid without orphans. */
+const MENU_GROUPS = [
+  { name: "The Road",   modes: ["pilgrimage"] },
+  { name: "Today",      modes: ["daily"] },
+  { name: "Practice",   modes: ["practice"] },
+  { name: "Challenges", modes: ["blitz", "trial", "endless"] }
+];
 const MENU_ORDER = ["pilgrimage", "daily", "blitz", "trial", "endless", "practice"];
+
+function renderModeCard(k, due, dailyDone, road){
+  const m = MODES[k];
+  if(!m || m.hidden) return "";
+  let pill = "";
+  if(k==="daily") pill = dailyDone
+    ? '<span class="pill done">Done · '+fmt(SAVE.daily.score)+'</span>'
+    : '<span class="pill">Today</span>';
+  else if(k==="practice" && due) pill = '<span class="pill due">'+fmt(due)+' due</span>';
+  else if(k==="pilgrimage") pill = road.complete
+    ? '<span class="pill done">Road walked</span>'
+    : '<span class="pill">'+road.cleared+' / '+road.total+'</span>';
+  else if(SAVE.best[k]) pill = '<span class="pill">Best '+fmt(SAVE.best[k])+'</span>';
+  return '<button class="mode" data-mode="'+k+'">'+pill+'<b>'+esc(m.name)+'</b><p>'+esc(m.desc)+'</p>'+
+    '<span class="tagline">'+esc(m.tagline)+'</span></button>';
+}
+
 function renderMenu(){
   const today = todayKey();
   const dailyDone = SAVE.daily.date === today;
@@ -198,21 +228,38 @@ function renderMenu(){
       ? "Road complete · Ur to Patmos"
       : (road.cleared+" of "+road.total+" sites · next: "+(road.current?road.current.name:"Ur"));
   }
-  const keys = MENU_ORDER.concat(Object.keys(MODES).filter(k=>MENU_ORDER.indexOf(k)<0));
-  $("modes").innerHTML = keys.filter(k=>MODES[k] && !MODES[k].hidden).map(k=>{
-    const m = MODES[k];
-    let pill = "";
-    if(k==="daily") pill = dailyDone
-      ? '<span class="pill done">Done · '+fmt(SAVE.daily.score)+'</span>'
-      : '<span class="pill">Today</span>';
-    else if(k==="practice" && due) pill = '<span class="pill due">'+fmt(due)+' due</span>';
-    else if(k==="pilgrimage") pill = road.complete
-      ? '<span class="pill done">Road walked</span>'
-      : '<span class="pill">'+road.cleared+' / '+road.total+'</span>';
-    else if(SAVE.best[k]) pill = '<span class="pill">Best '+fmt(SAVE.best[k])+'</span>';
-    return '<button class="mode" data-mode="'+k+'">'+pill+'<b>'+esc(m.name)+'</b><p>'+esc(m.desc)+'</p>'+
-      '<span class="tagline">'+esc(m.tagline)+'</span></button>';
+  const reviewBtn = $("menu-review-due");
+  const reviewBar = $("menu-review-bar");
+  if(reviewBtn){
+    if(due > 0){
+      if(reviewBar) reviewBar.style.display = "";
+      reviewBtn.style.display = "";
+      reviewBtn.textContent = "Review " + due + " due";
+      reviewBtn.onclick = ()=>{ Snd.unlock(); startRun("practice", SAVE.set.diff); };
+    } else {
+      if(reviewBar) reviewBar.style.display = "none";
+      reviewBtn.style.display = "none";
+    }
+  }
+  const rendered = new Set();
+  let groupsHtml = MENU_GROUPS.map(g => {
+    const visibleModes = g.modes.filter(k => MODES[k] && !MODES[k].hidden);
+    if(!visibleModes.length) return "";
+    visibleModes.forEach(k => rendered.add(k));
+    return '<div class="mode-group">' +
+      '<div class="mode-group-head">' + esc(g.name) + '</div>' +
+      '<div class="mode-group-cards">' +
+      visibleModes.map(k => renderModeCard(k, due, dailyDone, road)).join("") +
+      '</div></div>';
   }).join("");
+
+  const orphans = Object.keys(MODES).filter(k => !rendered.has(k) && !MODES[k].hidden);
+  if(orphans.length){
+    groupsHtml += '<div class="mode-group"><div class="mode-group-cards">' +
+      orphans.map(k => renderModeCard(k, due, dailyDone, road)).join("") +
+      '</div></div>';
+  }
+  $("modes").innerHTML = groupsHtml;
   $("modes").querySelectorAll("[data-mode]").forEach(b=>{
     b.addEventListener("click",()=>{
       Snd.unlock(); Snd.ui();
@@ -543,6 +590,7 @@ function recordSiteResult(cleared, total, acc){
 
 
 /* ------------------------- FIRST-RUN TUTORIAL ------------------------- */
+let pendingPostTutorialAction = null;
 function showTutorialIfNeeded(){
   if(SAVE.set.tutorialDone){
     if(!profileReady()) openProfileSetup(true);
@@ -551,19 +599,30 @@ function showTutorialIfNeeded(){
   const el=$("tutorial"); if(!el) return;
   el.classList.add("on");
 }
-function finishTutorial(startPractice){
+function runTutorialAction(action){
+  if(action === "pilgrimage" || action === "ur" || action === true){
+    Snd.unlock();
+    go("atlas");
+  } else if(action === "practice" || action === "drill"){
+    Snd.unlock();
+    openBrief("practice");
+  }
+}
+function finishTutorial(action){
   SAVE.set.tutorialDone = true; persist();
   const el=$("tutorial"); if(el) el.classList.remove("on");
   if(!profileReady()){
+    pendingPostTutorialAction = action;
     openProfileSetup(true);
     return;
   }
-  if(startPractice){ Snd.unlock(); openBrief("practice"); }
+  runTutorialAction(action);
 }
 function bindTutorial(){
-  const skip=$("tut-skip"), goBtn=$("tut-go");
+  const skip=$("tut-skip"), goBtn=$("tut-go"), drillBtn=$("tut-drill");
   if(skip) skip.addEventListener("click", ()=>{ Snd.ui(); finishTutorial(false); });
-  if(goBtn) goBtn.addEventListener("click", ()=>{ Snd.ui(); finishTutorial(true); });
+  if(drillBtn) drillBtn.addEventListener("click", ()=>{ Snd.ui(); finishTutorial("practice"); });
+  if(goBtn) goBtn.addEventListener("click", ()=>{ Snd.ui(); finishTutorial("pilgrimage"); });
 }
 
 

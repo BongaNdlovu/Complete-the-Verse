@@ -26,8 +26,8 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
 
 /* ---------- shape ---------- */
 {
-  eq("the road has 36 sites", S.SITES.length, 36);
-  eq("the road has 4 arcs", S.ARCS.length, 4);
+  eq("the road has 46 sites", S.SITES.length, 46);
+  eq("the road has 5 arcs", S.ARCS.length, 5);
   eq("it begins at Ur", S.SITES[0].id, "ur");
   eq("it ends at Patmos", S.SITES[S.SITES.length - 1].id, "patmos");
 
@@ -106,6 +106,13 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
   const apart = Geo.haversineKm(zion.coords, golg.coords);
   ok("Zion and Golgotha are distinct points", apart > 0.3, apart);
   ok("Zion and Golgotha are in the same city", apart < 2, apart);
+
+  const moriah = S.SITES.find(s => s.id === "moriah");
+  const fromZion = Geo.haversineKm(zion.coords, moriah.coords);
+  const fromGolg = Geo.haversineKm(golg.coords, moriah.coords);
+  ok("Moriah is distinct from Zion", fromZion > 0.3, fromZion);
+  ok("Moriah is distinct from Golgotha", fromGolg > 0.3, fromGolg);
+  ok("Moriah is still on the Jerusalem ridge", fromZion < 3, fromZion);
 
   ok("elevations are plausible",
     S.SITES.every(s => s.elevation > -450 && s.elevation < 3000),

@@ -430,5 +430,136 @@ eq("the brief clock at Disciple is 23.6s", read(sb, "pacedClockMs(14000, 1, 1500
   eq("honestly marked as not live", read(s, "Live.readingFor(SITES[0]).live"), false);
 }
 
-console.log((fail ? "FAIL" : "PASS") + " — integration · " + pass + " assertions passed" + (fail ? ", " + fail + " failed" : ""));
-process.exit(fail ? 1 : 0);
+/* ---------- blitz record uses verses, not total score ---------- */
+{
+  const s = boot();
+  read(s, "var submitted = null; Cloud = { configured: ()=>true, isSignedIn: ()=>true, schedulePush: ()=>{}, submitBlitzScore: p => { submitted = p; }, fetchBlitzBoard: ()=>Promise.resolve([]), fetchMyBlitzRank: ()=>Promise.resolve(null) };");
+  read(s, "startRun('blitz','disciple'); R.correct = 14; R.attempts = 15; R.score = 5200;");
+  read(s, "endRun('complete')");
+  eq("blitz SAVE.best records verses", read(s, "SAVE.best.blitz"), 14);
+  eq("blitz SAVE.life.blitzBest records verses", read(s, "SAVE.life.blitzBest"), 14);
+  eq("blitz cloud submission sends verses", read(s, "submitted && submitted.score"), 14);
+  ok("blitz res-best mentions verses", read(s, "document.getElementById('res-best').textContent.indexOf('0 verses') >= 0"));
+
+  read(s, "startRun('blitz','disciple'); R.correct = 10; R.attempts = 12; R.score = 3600;");
+  read(s, "endRun('complete')");
+  eq("blitz SAVE.best retains previous higher best", read(s, "SAVE.best.blitz"), 14);
+  ok("blitz res-best displays current best in verses", read(s, "document.getElementById('res-best').textContent.indexOf('Scripture Blitz best — 14 verses') >= 0"));
+}
+
+/* ---------- board and cloud chip show Honor system on direct fallback ---------- */
+{
+  const s = boot();
+  read(s, "Cloud = { configured: ()=>true, isSignedIn: ()=>true, user: ()=>({id:'u1'}), profile: ()=>({display_name:'Pilgrim'}), lastSubmitVia: ()=>'direct', schedulePush: ()=>{}, fetchDailyBoard: ()=>Promise.resolve([]), fetchMyDailyRank: ()=>Promise.resolve(null), fetchBlitzBoard: ()=>Promise.resolve([]), fetchMyBlitzRank: ()=>Promise.resolve(null) };");
+  read(s, "fillResultsBoard('blitz'); updateCloudChip();");
+  ok("res-board shows Honor system when via direct", read(s, "document.getElementById('res-board').innerHTML.indexOf('Honor system') >= 0"));
+  ok("cloud-chip shows Honor system when via direct", read(s, "document.getElementById('cloud-chip').textContent.indexOf('Honor system') >= 0"));
+
+  read(s, "Cloud.lastSubmitVia = ()=>'edge';");
+  read(s, "fillResultsBoard('blitz'); updateCloudChip();");
+  ok("res-board omits Honor system when via edge", read(s, "document.getElementById('res-board').innerHTML.indexOf('Honor system') < 0"));
+  ok("cloud-chip omits Honor system when via edge", read(s, "document.getElementById('cloud-chip').textContent.indexOf('Honor system') < 0"));
+}
+
+/* ---------- tutorial CTA is Walk to Ur and routes to atlas ---------- */
+{
+  const s = boot();
+  const html = require("fs").readFileSync("index.html", "utf8");
+  ok("tutorial has Walk to Ur CTA", html.indexOf("Walk to Ur") >= 0);
+  ok("tutorial has Try the Drill secondary CTA", html.indexOf("Try the Drill") >= 0);
+  read(s, "SAVE.set.profileDone = true; SAVE.set.playerName = 'Tester';");
+  read(s, "finishTutorial('pilgrimage');");
+  eq("finishTutorial with pilgrimage routes to atlas", read(s, "currentView"), "atlas");
+  read(s, "finishTutorial('practice');");
+  eq("finishTutorial with practice routes to practice brief", read(s, "currentView==='brief' && briefMode==='practice'"), true);
+}
+
+/* ---------- review action buttons on menu, results, and study hall ---------- */
+{
+  const s = boot();
+  // With 0 due items
+  read(s, "renderMenu(); renderStudy();");
+  ok("menu-review-due hidden when 0 due", read(s, "document.getElementById('menu-review-due') ? document.getElementById('menu-review-due').style.display === 'none' : false"));
+  ok("study-review-due hidden when 0 due", read(s, "document.getElementById('study-review-due') ? document.getElementById('study-review-due').style.display === 'none' : false"));
+
+  // With due items
+  read(s, "SAVE.srs = {}; SAVE.srs[VERSES[0].id] = { reps: 1, due: today() - 1, last: today() - 2, ef: 2.5, ivl: 1, lapses: 0 };");
+  read(s, "renderMenu(); renderStudy();");
+  ok("menu-review-due visible when due > 0", read(s, "document.getElementById('menu-review-due').style.display !== 'none'"));
+  ok("menu-review-due text contains due count", read(s, "document.getElementById('menu-review-due').textContent.indexOf('Review 1 due') >= 0"));
+  ok("study-review-due visible when due > 0", read(s, "document.getElementById('study-review-due').style.display !== 'none'"));
+
+  // Results screen with missed verses
+  read(s, "startRun('practice','disciple'); R.missed = [{ verse: VERSES[0], pick: 'wrong' }, { verse: VERSES[1], pick: 'wrong' }];");
+  read(s, "endRun('complete');");
+  ok("res-review-missed visible when missed > 0", read(s, "document.getElementById('res-review-missed').style.display !== 'none'"));
+  read(s, "document.getElementById('res-review-missed').onclick();");
+  eq("clicking res-review-missed starts practice with seeded queue", read(s, "R.mode==='practice' && R.practiceLen===2"), true);
+
+  // Set-piece failures are passage stubs with no bank id.
+  read(s, "startRun('practice','disciple'); R.missed = [{r:'1 Kings 18:36-39',p:'',a:'the whole passage',s:''}];");
+  read(s, "endRun('complete');");
+  ok("res-review-missed hidden when only passage stubs", read(s, "document.getElementById('res-review-missed').style.display === 'none'"));
+
+  read(s, "startRun('practice','disciple'); R.missed = [{ verse: VERSES[0], pick: 'wrong' }, {r:'1 Kings 18:36-39',p:'',a:'the whole passage',s:''}];");
+  read(s, "endRun('complete');");
+  ok("res-review-missed visible when a bank verse was also missed", read(s, "document.getElementById('res-review-missed').style.display !== 'none'"));
+  read(s, "document.getElementById('res-review-missed').onclick();");
+  eq("review queue drops passage stubs", read(s, "R.practiceLen"), 1);
+  eq("the served review verse is the bank miss", read(s, "R.q && R.q.id"), read(s, "VERSES[0].id"));
+}
+
+/* ---------- old composite Blitz PBs migrate to verse units ---------- */
+{
+  const s = boot({key:"ctv_save_v3", value:{
+    v:3, xp:0, runs:1, seals:[],
+    best:{trial:0, endless:0, daily:0, practice:0, recall:0, pilgrimage:0, blitz:5200},
+    life:{correct:0, attempts:0, bestStreak:0, blitzBest:0},
+    ghosts:{blitz:{score:5200, samples:[{t:0,p:0}], total_ms:1000}, pilgrimage:null},
+    books:{}, verse:{}, srs:{}, board:[], daily:{date:"", score:0}, set:{diff:"disciple"}
+  }});
+  eq("old composite blitz best is not kept as verses", read(s, "SAVE.best.blitz"), 0);
+  eq("old-scale blitz ghost is dropped", read(s, "SAVE.ghosts.blitz"), null);
+  read(s, "startRun('blitz','disciple'); R.correct = 14; R.attempts = 15; R.score = 5200;");
+  read(s, "endRun('complete')");
+  eq("14-verse run becomes the blitz record", read(s, "SAVE.best.blitz"), 14);
+  ok("results do not advertise 5,200 verses",
+    read(s, "document.getElementById('res-best').textContent.indexOf('5,200') < 0"));
+}
+
+{
+  const s = boot({key:"ctv_save_v3", value:{
+    v:3, xp:0, runs:2, seals:[],
+    best:{trial:0, endless:0, daily:0, practice:0, recall:0, pilgrimage:0, blitz:5200},
+    life:{correct:14, attempts:16, bestStreak:8, blitzBest:14},
+    ghosts:{blitz:{score:5200, samples:[{t:0,p:0}], total_ms:1000}, pilgrimage:null},
+    books:{}, verse:{}, srs:{}, board:[], daily:{date:"", score:0}, set:{diff:"disciple"}
+  }});
+  eq("composite blitz best falls back to life.blitzBest", read(s, "SAVE.best.blitz"), 14);
+}
+
+function finishSuite(err){
+  if(err){
+    fail++;
+    console.log("  FAIL async honor test  -> " + (err && err.stack || err));
+  }
+  console.log((fail ? "FAIL" : "PASS") + " — integration · " + pass + " assertions passed" + (fail ? ", " + fail + " failed" : ""));
+  process.exit(fail ? 1 : 0);
+}
+
+/* Honor-system label is painted only after the async submit sets lastSubmitVia. */
+(async () => {
+  const s = boot();
+  read(s, "var __via = null; Cloud = { configured: ()=>true, isSignedIn: ()=>true, user: ()=>({id:'u1'}), profile: ()=>({display_name:'Pilgrim'}), lastSubmitVia: ()=>__via, schedulePush: ()=>{}, submitBlitzScore: function(){ return Promise.resolve().then(function(){ __via = 'direct'; return {ok:true, via:'direct'}; }); }, fetchBlitzBoard: ()=>Promise.resolve([]), fetchMyBlitzRank: ()=>Promise.resolve(null) };");
+  read(s, "startRun('blitz','disciple'); R.correct = 5; R.attempts = 5; endRun('complete');");
+  ok("honor tag omitted before submit settles",
+    read(s, "document.getElementById('res-board').innerHTML.indexOf('Honor system') < 0"));
+  await new Promise(r => setImmediate(r));
+  ok("honor tag appears after submit settles",
+    read(s, "document.getElementById('res-board').innerHTML.indexOf('Honor system') >= 0"));
+  finishSuite();
+})().catch(finishSuite);
+
+
+
+

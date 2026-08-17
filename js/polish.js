@@ -303,6 +303,34 @@ var Polish = (function () {
     return score;
   }
 
+  function describeModeClock(modeKey, diffKey) {
+    var t = diffKey === "pilgrim" ? 1.35 : diffKey === "watchman" ? 0.72 : 1;
+    var pad = 1500;
+    function sec(base, pickPad) {
+      return (pacedClockMs(base, t, pickPad) / 1000).toFixed(1);
+    }
+    switch (modeKey) {
+      case "trial":
+      case "pilgrimage":
+      case "relay":
+        return sec(14000, pad) + "→" + sec(6500, pad) + "s";
+      case "endless":
+        return sec(12000, pad) + "→" + sec(4200, pad) + "s";
+      case "daily":
+        return sec(10000, pad) + "s";
+      case "practice":
+        return sec(12000, pad) + "s";
+      case "recall":
+        return sec(32000, 0) + "s";
+      case "pilgrim-recall":
+        return sec(14000, 0) + "→" + sec(6500, 0) + "s";
+      case "blitz":
+        return "60s";
+      default:
+        return "";
+    }
+  }
+
   return {
     MAX_DAILY_SCORE: MAX_DAILY_SCORE,
     MAX_BLITZ_SCORE: MAX_BLITZ_SCORE,
@@ -328,7 +356,8 @@ var Polish = (function () {
     choiceShapeScore: choiceShapeScore,
     overdriveBank: overdriveBank,
     overdriveRideGain: overdriveRideGain,
-    pacedClockMs: pacedClockMs
+    pacedClockMs: pacedClockMs,
+    describeModeClock: describeModeClock
   };
 })();
 

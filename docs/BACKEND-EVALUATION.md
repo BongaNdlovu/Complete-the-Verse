@@ -161,10 +161,11 @@ upserts on (user_id, play_date); blitz inserts.
 - ✅ Identity is established server-side; a forged user_id in the body
   is ignored (the function uses `user.id` from the verified session).
 - ✅ Fallback keeps boards alive pre-deployment; DB CHECKs (003) remain
-  the final guard either way.
+  the final guard either way. UI marks "Honor system" whenever scores
+  are accepted via the direct RLS fallback.
 - ⚠️ **Not yet deployed** (needs one `supabase functions deploy` — see
   BACKEND.md §"Server-trusted scores"). Until then all submissions use
-  the direct path.
+  the direct path (labeled "Honor system" in the UI).
 - ⚠️ The function trusts any under-ceiling value (no plausibility
   model). Full anti-cheat would validate score/accuracy/duration
   consistency (e.g. score vs verses-possible); documented as accepted

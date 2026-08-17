@@ -196,8 +196,10 @@ body.reduced .bootmark{animation:none}
   box-shadow:0 0 0 1px var(--edge) inset;backdrop-filter:blur(9px);transition:.2s;font-size:.95rem;color:var(--gold)}
 .iconbtn:hover{box-shadow:0 0 0 1px var(--gold) inset;background:rgba(217,182,103,.12)}
 
-.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;
-  width:min(1080px,92vw);margin-top:4.2vh}
+.modes{display:flex;flex-direction:column;gap:24px;width:min(1080px,92vw);margin-top:3.6vh}
+.mode-group{display:flex;flex-direction:column;gap:10px}
+.mode-group-head{font-family:var(--ui);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-dim);padding-left:.2em}
+.mode-group-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
 .mode{position:relative;text-align:left;padding:1.7em 1.55em 1.55em;overflow:hidden;
   background:var(--panel);box-shadow:0 0 0 1px var(--edge) inset;backdrop-filter:blur(7px);
   clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px));
@@ -1178,8 +1180,14 @@ body[data-site="penuel"] #site-motif:after{background:radial-gradient(ellipse 40
 body[data-site="hebron"] #site-motif:before{background:radial-gradient(ellipse 46% 40% at 50% 88%,rgba(110,90,40,.12),transparent 70%)}
 body[data-site="hebron"] #site-motif:after{background:radial-gradient(circle at 30% 80%,rgba(80,100,40,.08),transparent 24%)}
 body[data-site="beersheba"] #site-motif:before{background:radial-gradient(circle at 50% 78%,rgba(200,170,90,.1) 0 8%,transparent 9% 100%),repeating-linear-gradient(108deg,transparent 0 30px,rgba(200,160,80,.05) 30px 31px);animation:motifDrift 28s linear infinite}
+body[data-site="moriah"] #site-motif:before{background:radial-gradient(ellipse 36% 28% at 50% 42%,rgba(213,173,98,.1),transparent 70%),radial-gradient(1px 1px at 62% 18%,rgba(255,230,180,.4),transparent)}
+body[data-site="dothan"] #site-motif:before{background:radial-gradient(ellipse 28% 22% at 50% 78%,rgba(40,40,30,.16),transparent 70%),repeating-linear-gradient(100deg,transparent 0 26px,rgba(160,130,80,.05) 26px 27px)}
+body[data-site="midian"] #site-motif:before{background:radial-gradient(ellipse 30% 40% at 50% 18%,rgba(220,90,30,.12),transparent 70%);animation:motifLift 14s ease-in-out infinite alternate}
+body[data-site="midian"] #site-motif:after{background:radial-gradient(circle at 50% 16%,rgba(255,180,70,.1),transparent 16%)}
 body[data-site="goshen"] #site-motif:before{background:linear-gradient(90deg,transparent 0 20%,rgba(60,110,70,.1) 50%,transparent 80%);animation:motifWash 14s ease-in-out infinite alternate}
 body[data-site="goshen"] #site-motif:after{background:linear-gradient(180deg,transparent 70%,rgba(40,80,50,.08))}
+body[data-site="yam-suph"] #site-motif:before{background:linear-gradient(180deg,transparent 40%,rgba(40,80,120,.14) 100%);animation:motifWash 10s ease-in-out infinite alternate}
+body[data-site="yam-suph"] #site-motif:after{background:radial-gradient(ellipse 90% 24% at 50% 100%,rgba(70,130,160,.12),transparent 70%)}
 body[data-site="sinai"] #site-motif:before{background:radial-gradient(ellipse 40% 50% at 50% 0%,rgba(220,80,30,.14),transparent 70%),radial-gradient(ellipse 50% 40% at 50% 110%,rgba(40,20,10,.16),transparent 70%);animation:motifLift 13s ease-in-out infinite alternate}
 body[data-site="sinai"] #site-motif:after{background:radial-gradient(circle at 50% 8%,rgba(255,180,80,.12),transparent 18%)}
 body[data-site="rephidim"] #site-motif:before{background:linear-gradient(110deg,rgba(160,130,80,.08),transparent 40%,rgba(70,110,140,.08) 100%);animation:motifDrift 22s linear infinite reverse}
@@ -1189,13 +1197,21 @@ body[data-site="nebo"] #site-motif:before{background:linear-gradient(180deg,rgba
 body[data-site="jericho"] #site-motif:before{background:repeating-linear-gradient(90deg,transparent 0 16px,rgba(180,140,80,.06) 16px 17px);animation:motifFall 16s linear infinite}
 body[data-site="jericho"] #site-motif:after{background:linear-gradient(180deg,transparent 60%,rgba(90,70,40,.1))}
 body[data-site="gilgal"] #site-motif:before{background:repeating-radial-gradient(circle at 50% 80%,transparent 0 18px,rgba(200,170,90,.06) 18px 19px);animation:motifSpin 48s linear infinite}
+body[data-site="harod"] #site-motif:before{background:radial-gradient(ellipse 40% 18% at 50% 86%,rgba(60,90,140,.12),transparent 70%),repeating-linear-gradient(94deg,transparent 0 22px,rgba(180,70,40,.05) 22px 23px)}
+body[data-site="zorah"] #site-motif:before{background:linear-gradient(160deg,rgba(180,150,90,.08),transparent 48%,rgba(80,70,40,.08))}
+body[data-site="gibeah"] #site-motif:before{background:radial-gradient(ellipse 40% 46% at 50% 50%,rgba(40,10,10,.14),transparent 72%)}
+body[data-site="mizpah"] #site-motif:before{background:radial-gradient(ellipse 30% 20% at 50% 30%,rgba(200,170,90,.1),transparent 70%),repeating-linear-gradient(0deg,transparent 0 28px,rgba(180,160,110,.05) 28px 29px)}
 body[data-site="jerusalem"] #site-motif:before{background:radial-gradient(ellipse 50% 40% at 50% 46%,rgba(213,173,98,.1),transparent 70%)}
 body[data-site="jerusalem"] #site-motif:after{background:linear-gradient(180deg,rgba(213,173,98,.05),transparent 28%)}
 body[data-site="shiloh"] #site-motif:before{background:linear-gradient(90deg,rgba(180,160,110,.08),transparent 18%,transparent 82%,rgba(180,160,110,.08));animation:motifWash 18s ease-in-out infinite alternate}
 body[data-site="tyre"] #site-motif:before{background:radial-gradient(ellipse 90% 28% at 50% 108%,rgba(90,50,110,.1),transparent 70%),radial-gradient(ellipse 80% 24% at 50% 100%,rgba(60,110,150,.12),transparent 70%);animation:motifWash 11s ease-in-out infinite alternate}
 body[data-site="samaria"] #site-motif:before{background:linear-gradient(160deg,rgba(120,80,50,.1),transparent 46%,rgba(80,60,40,.08))}
+body[data-site="carmel"] #site-motif:before{background:radial-gradient(ellipse 40% 36% at 50% 20%,rgba(220,80,30,.12),transparent 70%);animation:motifLift 12s ease-in-out infinite alternate}
+body[data-site="carmel"] #site-motif:after{background:radial-gradient(circle at 50% 12%,rgba(255,170,60,.1),transparent 18%)}
 body[data-site="megiddo"] #site-motif:before{background:repeating-linear-gradient(176deg,transparent 0 12px,rgba(180,70,50,.05) 12px 13px);animation:motifFall 14s linear infinite}
 body[data-site="megiddo"] #site-motif:after{background:linear-gradient(180deg,transparent 50%,rgba(80,20,15,.1))}
+body[data-site="lachish"] #site-motif:before{background:repeating-linear-gradient(168deg,transparent 0 14px,rgba(140,70,40,.06) 14px 15px);animation:motifFall 18s linear infinite}
+body[data-site="lachish"] #site-motif:after{background:linear-gradient(180deg,transparent 58%,rgba(80,40,20,.1))}
 body[data-site="damascus"] #site-motif:before{background:linear-gradient(90deg,rgba(50,110,90,.08),transparent 30%,transparent 70%,rgba(50,90,120,.08));animation:motifWash 13s ease-in-out infinite alternate}
 body[data-site="nineveh"] #site-motif:before{background:repeating-linear-gradient(0deg,transparent 0 42px,rgba(80,70,50,.06) 42px 43px),linear-gradient(180deg,transparent 60%,rgba(50,70,90,.1));animation:motifDrift 40s linear infinite}
 body[data-site="babylon"] #site-motif:before{background:linear-gradient(180deg,transparent 42%,rgba(50,90,120,.12) 100%);animation:motifWash 10s ease-in-out infinite alternate}

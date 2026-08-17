@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Complete the Verse — A Trial of Scripture</title>
-<meta name="description" content="A biblical-thriller verse game on the King James Version: complete the missing phrase before the clock falls, walk the 36-site pilgrimage from Ur to Patmos, and train every verse with spaced repetition.">
+<meta name="description" content="A biblical-thriller verse game on the King James Version: complete the missing phrase before the clock falls, walk the 46-site pilgrimage from Ur to Patmos, and train every verse with spaced repetition.">
 <meta name="theme-color" content="#04040a">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
 <meta property="og:title" content="Complete the Verse — A Trial of Scripture">
-<meta property="og:description" content="One phrase is taken away. Complete it before the final second falls. 423 verses · 66 books · a pilgrimage from Ur to Patmos.">
+<meta property="og:description" content="One phrase is taken away. Complete it before the final second falls. 579 verses · 66 books · a pilgrimage from Ur to Patmos.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://complete-the-verse.vercel.app/">
 <meta property="og:image" content="https://complete-the-verse.vercel.app/assets/intro.jpg">
@@ -82,6 +82,9 @@
 
       <div class="cloud-chip dim" id="cloud-chip" aria-live="polite">Local only</div>
       <div class="menu-road" id="menu-road-progress"></div>
+      <div id="menu-review-bar" style="display:none;margin:1.2vh auto;text-align:center">
+        <button class="btn sm" id="menu-review-due" type="button">Review due</button>
+      </div>
       <div class="modes" id="modes"></div>
 
       <div class="subnav">
@@ -125,7 +128,7 @@
           <div class="atlas-sub">Ur of the Chaldees &nbsp;→&nbsp; Patmos</div>
           <div class="atlas-progress">
             <div class="track"><i id="atlas-fill"></i></div>
-            <div class="count" id="atlas-count">0 of 36 sites</div>
+            <div class="count" id="atlas-count">0 of 46 sites</div>
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
@@ -158,7 +161,7 @@
         <div>
           <div class="oc-kick">The Pilgrimage</div>
           <div class="oc-title">Ur to Patmos</div>
-          <div class="oc-sub">Thirty-six places, in the order Scripture walks them — from the city Abraham
+          <div class="oc-sub">Forty-six places, in the order Scripture walks them — from the city Abraham
             left to the island where the last book was written.</div>
           <div class="oc-hint">Tap to continue</div>
         </div>
@@ -322,6 +325,7 @@
       <div class="footer res-primary">
         <button class="btn" id="res-again">Run It Back</button>
         <button class="btn" id="res-retry" type="button" style="display:none">Retry this site</button>
+        <button class="btn" id="res-review-missed" type="button" style="display:none">Review missed verses</button>
         <button class="btn ghost" id="res-share" type="button" style="display:none">Share Daily</button>
         <button class="btn" id="res-next" type="button" style="display:none">On to the next site</button>
         <button class="btn ghost" id="res-road" type="button" style="display:none">Back to the road</button>
@@ -354,7 +358,10 @@
     <div class="scrollpad" style="align-items:center">
       <div class="panelhead">
         <div><div class="kick">Study Hall</div><div class="h-lg" style="margin-top:.5vh">The Whole Counsel</div></div>
-        <button class="btn ghost sm" data-go="menu">Back</button>
+        <div style="display:flex;gap:.6rem;align-items:center">
+          <button class="btn sm" id="study-review-due" type="button" style="display:none">Review due</button>
+          <button class="btn ghost sm" data-go="menu">Back</button>
+        </div>
       </div>
       <div class="searchbar">
         <input id="study-q" placeholder="Search text, book or reference…" spellcheck="false">
@@ -380,7 +387,7 @@
         <div>
           <div class="kick">The Reliquary</div>
           <div class="h-lg" style="margin-top:.5vh">Historical Artifacts</div>
-          <div class="hint" id="relics-count" style="margin-top:.6vh">0 of 36 recovered</div>
+          <div class="hint" id="relics-count" style="margin-top:.6vh">0 of 46 recovered</div>
         </div>
         <button class="btn ghost sm" data-go="menu">Back</button>
       </div>
@@ -475,11 +482,11 @@
       <li><b>Tap a phrase</b> (or press A–D / 1–4) — the tap is the answer; it locks at once.</li>
       <li><b>Lifelines:</b> S = Selah (+5s), I = Illuminate (−2 wrong).</li>
     </ol>
-    <p class="tut-note"><b>The Drill</b> brings back verses on the day they fall due. <b>Recall</b> asks you
-      to type them out with no options at all. Esc pauses any run.</p>
+    <p class="tut-note"><b>The Pilgrimage</b> is your 46-site journey across the biblical world.
+      Along the road you will master spaced repetition and typed recall. Esc pauses any run.</p>
     <div class="footer">
-      <button class="btn" id="tut-go" type="button">Start the Drill</button>
-      <button class="btn ghost" id="tut-skip" type="button">Enter the hall</button>
+      <button class="btn" id="tut-go" type="button">Walk to Ur</button>
+      <button class="btn ghost" id="tut-drill" type="button">Try the Drill</button>
     </div>
   </div>
 </div>

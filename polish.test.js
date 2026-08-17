@@ -79,5 +79,30 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
   ok("cross refs found", cross.length >= 1);
 }
 
+/* mode clock descriptions — must be pacedClockMs, not invented seconds */
+{
+  const pad = 1500;
+  const range = (open, close, t, pickPad) =>
+    (Polish.pacedClockMs(open, t, pickPad) / 1000).toFixed(1) + "→" +
+    (Polish.pacedClockMs(close, t, pickPad) / 1000).toFixed(1) + "s";
+  const one = (base, t, pickPad) =>
+    (Polish.pacedClockMs(base, t, pickPad) / 1000).toFixed(1) + "s";
+
+  eq("describeModeClock trial disciple", Polish.describeModeClock("trial", "disciple"), range(14000, 6500, 1, pad));
+  eq("describeModeClock pilgrimage disciple", Polish.describeModeClock("pilgrimage", "disciple"), "23.6→14.6s");
+  eq("describeModeClock pilgrimage matches pacedClockMs",
+    Polish.describeModeClock("pilgrimage", "disciple"), range(14000, 6500, 1, pad));
+  ok("describeModeClock pilgrimage does not invent 19.6→11.1s",
+    Polish.describeModeClock("pilgrimage", "disciple").indexOf("19.6") < 0);
+  eq("describeModeClock endless disciple", Polish.describeModeClock("endless", "disciple"), range(12000, 4200, 1, pad));
+  eq("describeModeClock daily disciple", Polish.describeModeClock("daily", "disciple"), one(10000, 1, pad));
+  eq("describeModeClock blitz disciple", Polish.describeModeClock("blitz", "disciple"), "60s");
+  eq("describeModeClock practice disciple", Polish.describeModeClock("practice", "disciple"), one(12000, 1, pad));
+  eq("describeModeClock recall disciple", Polish.describeModeClock("recall", "disciple"), one(32000, 1, 0));
+  eq("describeModeClock daily pilgrim is pacedClockMs",
+    Polish.describeModeClock("daily", "pilgrim"), one(10000, 1.35, pad));
+}
+
 console.log((fail ? "FAIL" : "PASS") + " — polish · " + pass + " assertions" + (fail ? " · " + fail + " FAILED" : ""));
 process.exit(fail ? 1 : 0);
+

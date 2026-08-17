@@ -74,5 +74,42 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
   eq("empty remote keeps local xp", onlyLocal.xp, 3);
 }
 
+{
+  const local = {
+    v: 3, xp: 1, seals: [],
+    best: { blitz: 14 },
+    life: { blitzBest: 14 },
+    books: {}, verse: {}, srs: { keep: true },
+    pilgrim: { sites: {}, usedIds: [] },
+    set: {}, daily: {}, board: []
+  };
+  const remote = {
+    v: 3, xp: 1, seals: [],
+    best: { blitz: 5200 },
+    life: { blitzBest: 0 },
+    books: {}, verse: {}, srs: { keep: true },
+    pilgrim: { sites: {}, usedIds: [] },
+    set: {}, daily: {}, board: []
+  };
+  const m = Cloud.mergeSave(local, remote);
+  eq("mergeSave does not re-poison blitz with old composite", m.best.blitz, 14);
+}
+
+/* trust label on submit via */
+{
+  eq("trust label for direct is Honor system", Cloud.trustLabel("direct"), "Honor system");
+  eq("trust label for edge is not Honor system", Cloud.trustLabel("edge"), "Trusted");
+  eq("trust label for null is empty", Cloud.trustLabel(null), "");
+
+  Cloud.setLastSubmitVia("direct");
+  eq("lastSubmitVia reports direct", Cloud.lastSubmitVia(), "direct");
+  ok("trustLabel matches direct", Cloud.trustLabel(Cloud.lastSubmitVia()).indexOf("Honor system") >= 0);
+
+  Cloud.setLastSubmitVia("edge");
+  eq("lastSubmitVia reports edge", Cloud.lastSubmitVia(), "edge");
+  ok("edge does not show Honor system", Cloud.trustLabel(Cloud.lastSubmitVia()).indexOf("Honor system") < 0);
+}
+
 console.log((fail ? "FAIL" : "PASS") + " — cloud · " + pass + " assertions passed" + (fail ? " · " + fail + " FAILED" : ""));
 process.exit(fail ? 1 : 0);
+

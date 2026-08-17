@@ -43,7 +43,7 @@ function walkTo(n){
 
 /* ---------- the road ---------- */
 {
-  eq("the journey has 36 sites", N, 36);
+  eq("the journey has 46 sites", N, 46);
   eq("indexOf finds the first site", P.indexOf("ur"), 0);
   eq("indexOf finds the last site", P.indexOf("patmos"), LAST);
   eq("indexOf reports -1 for a stranger", P.indexOf("atlantis"), -1);
@@ -51,7 +51,7 @@ function walkTo(n){
   eq("site() is null for a stranger", P.site("atlantis"), null);
   eq("siteAt is null past the end", P.siteAt(999), null);
 
-  eq("arcs are all present", P.arcs().length, 4);
+  eq("arcs are all present", P.arcs().length, 5);
   ok("sitesInArc partitions the road",
     P.arcs().reduce((n, a) => n + P.sitesInArc(a.key).length, 0) === N);
 }
@@ -367,6 +367,16 @@ function walkTo(n){
   ok("the walk still yields a real volume of verses", seen.length >= N * 4, seen.length);
 
   /* Set-piece stops demand a full site-book level when stock exists. */
+  /* 8 target key sites draw full 8/8 site-specific verses */
+  ["ur","sinai","jericho","jerusalem","golgotha","emmaus","corinth","patmos"].forEach(id => {
+    const s = P.site(id);
+    const d = P.drawSite(id, { attempt: 0, exclude: {} });
+    const bound = {};
+    (s.books || []).forEach(b => { bound[b] = 1; });
+    const siteN = d.verses.filter(v => bound[v.b] === 1).length;
+    ok(id + " draws 8 site-specific verses", siteN === P.VERSES_PER_SITE, { siteN, want: P.VERSES_PER_SITE });
+  });
+
   ["sinai","jericho","babylon","golgotha","patmos","nineveh"].forEach(id => {
     const s = P.site(id);
     const d = P.drawSite(id, { attempt: 0 });

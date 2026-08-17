@@ -33,14 +33,14 @@ css/game.css        play/menu/results styling + film FX
 css/atlas.css       the pilgrimage map view
 vendor/leaflet/     Leaflet 1.9.4 (map — vendored, never CDN)
 vendor/supabase/    supabase-js 2.112.3 (lazy-loaded only when configured)
-assets/             art (36 relics, 8 scholars × portrait+token, judge sheets…)
+assets/             art (46 relics, 8 scholars × portrait+token, judge sheets…)
 audio/              7 music beds · audio/voice/ 24 narration clips
 sfx/                8 effect samples
 content/            verse QA data (quarantine.json, legacy-order.json) —
                     tooling only, excluded from the Vercel deploy
 scripts/            dev server + content QA/generation scripts
 supabase/           migrations + edge function (see BACKEND-EVALUATION.md)
-*.test.js + test.js 28 test suites (see §10)
+*.test.js + test.js 30 test suites (see §10)
 ```
 
 ---
@@ -59,12 +59,12 @@ js/legacy-ids.js    → LEGACY_ID_TABLE (v2 index → v3 id map)
 js/bank.js          → merges the three packs, assigns ids, builds BY_TIER/BY_ID
 js/srs.js           → spaced repetition (pure)
 js/recall.js        → typed-answer grader (pure)
-js/sites.js         → SITES + ARCS data (the 36-stop journey)
+js/sites.js         → SITES + ARCS data (the 46-stop journey)
 js/empires.js       → historical empire polygons for the map
 js/geo.js           → solar math, compass, sun/moon (pure)
 js/pilgrimage.js    → campaign rules (pure; captures merged VERSES at parse)
 js/characters.js    → 8 scholars + retired Bible figures for old saves
-js/artifacts.js     → 36 relics, unlock rules (pure-ish)
+js/artifacts.js     → 46 relics, unlock rules (pure-ish)
 js/live.js          → weather fetch/cache + authored climate fallback (pure-ish)
 js/atlas.js         → the Leaflet map view
 js/polish.js        → pure helpers (clamps, PACE, insights, ghosts)
@@ -89,14 +89,14 @@ js/game.js          → the engine; must be last (everything above is in scope)
 | `js/game.js` | 4,650 | engine | everything below in §4–§6 |
 | `js/pilgrimage.js` | 625 | **pure** | site order, unlocking, clocks, verse pools, progress records |
 | `js/atlas.js` | 1,100 | view | Leaflet map, rail, dossier, layers, unlock ceremony |
-| `js/sites.js` / `js/empires.js` | 732/111 | data | 36 sites with coords/quotes/books/eras; empire polygons |
+| `js/sites.js` / `js/empires.js` | 732/111 | data | 46 sites with coords/quotes/books/eras; empire polygons |
 | `js/srs.js` | 165 | **pure** | SM-2 scheduler, day numbers, queue builder |
 | `js/recall.js` | 195 | **pure** | typed grading (exact/close/modernised/wrong), hints |
 | `js/polish.js` | 340 | **pure** | clamps, PACE/FLAT clock constants, `pacedClockMs`, heatmap, ghosts, 66 book insights |
 | `js/live.js` | 300 | pure-ish | Open-Meteo fetch + 15-min cache + authored climate normals |
 | `js/geo.js` | 280 | **pure** | sun position/times, moon phase, solar clock, compass |
 | `js/characters.js` | 290 | data | 8 equipable scholars; Bible figures kept only for save compat |
-| `js/artifacts.js` | 325 | pure-ish | 36 relics; `unlockForSite` returns a **new** store |
+| `js/artifacts.js` | 325 | pure-ish | 46 relics; `unlockForSite` returns a **new** store |
 | `js/cloud.js` | 640 | client | auth, mergeSave, save push/pull, boards, edge-first score submit |
 | `js/bank.js` | 55 | data | merges verse packs, assigns stable ids |
 
@@ -214,7 +214,7 @@ which re-renders the brief on change.
 
 ### 6.2 The Pilgrimage (campaign)
 
-- 36 sites × 8 verses, gated linearly: a site unlocks when the previous
+- 46 sites × 8 verses, gated linearly: a site unlocks when the previous
   is cleared (`Pilgrimage.isUnlocked`).
 - **Draw rings** (`resolvePool`): site books → arc books → testament →
   whole bank; the narrowest ring that can fill 8 wins. Then tier-distance
@@ -311,7 +311,7 @@ abandon scores ×0.85. XP = round(total/12 + correct×14 + 300 if finished)
 ### 8.1 Shape
 
 Every verse: `{ r:"Ref", b:"Book", t:1-5 tier, p:"prefix", a:"answer",
-s:"suffix", d:[authored distractors] }`. 423 verses · 66 books ·
+s:"suffix", d:[authored distractors] }`. 579 verses · 66 books ·
 27 passages. `fullVerse(v) = p + " " + a + sep(s) + s`.
 
 ### 8.2 Identity and duplicates
@@ -369,7 +369,7 @@ bank answers nearest in length — numbered fakes were removed.
 
 ## 10. Testing — the three styles (know which one you are writing)
 
-`node test.js` runs 28 suites in a fixed order: content gate → pure
+`node test.js` runs 30 suites in a fixed order: content gate → pure
 logic → integration sandbox → structural/static suites.
 
 1. **Pure requires** (`srs.test.js`, `recall.test.js`, `geo.test.js`,
@@ -383,7 +383,7 @@ logic → integration sandbox → structural/static suites.
    actual runs: `startRun`, `nextQuestion`, `resolveAnswer`, `endRun`,
    save migrations, daily one-shot, serve-time usedIds. Gotchas:
    - the sandbox omits `verses-more.js` → `VERSES.length === 305` there
-     (423 in the browser). Assert against what the sandbox loads.
+     (579 verses in the browser). Assert against what the sandbox loads.
    - it omits `polish.js`/`cloud.js` → game.js's `typeof`-guarded
      fallbacks are load-bearing. If you made game.js call
      `Polish.foo()` unguarded, this suite is what catches it.

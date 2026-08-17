@@ -35,7 +35,8 @@ const SUITE = [
   ["excitement",     "excitement.test.js"],
   ["answering",      "answering.test.js"],
   ["motion",         "motion.test.js"],
-  ["fixes",          "fixes.test.js"]
+  ["fixes",          "fixes.test.js"],
+  ["metadata",       "metadata.test.js"]
 ];
 
 let failed = 0;

@@ -113,9 +113,10 @@ function endRun(reason){
       if(a.perfect && !hasSeal("arc-"+a.key)) grantSeal("arc-"+a.key);
     });
   }
-  const isRecord = total > (SAVE.best[R.mode]||0);
+  const recordScore = R.mode==="blitz" ? (R.correct||0) : total;
+  const isRecord = recordScore > (SAVE.best[R.mode]||0);
   const prevBest = SAVE.best[R.mode]||0;
-  if(isRecord) SAVE.best[R.mode] = total;
+  if(isRecord) SAVE.best[R.mode] = recordScore;
 
   let dailyRecorded = false;
   /* Only a finished run spends the day's shot. A death or an abandon is
@@ -143,9 +144,10 @@ function endRun(reason){
     const key = R.mode==="blitz" ? "blitz" : (isPilgrim ? "pilgrimage" : null);
     if(key){
       const prev = SAVE.ghosts && SAVE.ghosts[key];
-      if(!prev || total >= (prev.score||0)){
+      const ghostScore = R.mode==="blitz" ? (R.correct||0) : total;
+      if(!prev || ghostScore >= (prev.score||0)){
         SAVE.ghosts = SAVE.ghosts || {};
-        SAVE.ghosts[key] = { score: total, samples: R.ghostSamples, total_ms: survivedMs };
+        SAVE.ghosts[key] = { score: ghostScore, samples: R.ghostSamples, total_ms: survivedMs };
       }
     }
   }
@@ -162,23 +164,33 @@ function endRun(reason){
     SAVE.journal = SAVE.journal.slice(0, 40);
   }
 
-  /* Cloud: board scores + optional pilgrimage ghost (best only). */
+  /* Cloud: board scores + optional pilgrimage ghost (best only).
+     lastSubmitVia is only set after the async submit settles, so the
+     Honor-system tag is painted from the promise, not this tick. */
+  function refreshSubmitTrust(){
+    if(currentView!=="results") return;
+    fillResultsBoard(R.mode);
+    if(typeof updateCloudChip==="function") updateCloudChip();
+  }
+  function trackSubmit(p){
+    if(p && typeof p.then==="function") p.then(refreshSubmitTrust, refreshSubmitTrust);
+  }
   if(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn()){
     if(dailyRecorded){
-      Cloud.submitDailyScore({
+      trackSubmit(Cloud.submitDailyScore({
         play_date: todayKey(),
         score: total,
         accuracy: Math.round(acc*100),
         duration_ms: survivedMs,
         diff: R.diff.key
-      });
+      }));
     }
     if(R.mode==="blitz"){
-      Cloud.submitBlitzScore({
+      trackSubmit(Cloud.submitBlitzScore({
         score: R.correct||0,
         survived_ms: survivedMs,
         diff: R.diff.key
-      });
+      }));
     }
     if(isPilgrim && siteCleared && total > 0){
       const ov = Pilgrimage.overview(SAVE.pilgrim);
@@ -269,8 +281,13 @@ function renderResults(o){
   if(missedPanel) missedPanel.open = R.missed.length > 0;
 
   let best = "";
-  if(o.isRecord) best = "New "+MODES[R.mode].name+" record — previous "+fmt(o.prevBest);
-  else best = MODES[R.mode].name+" best — "+fmt(SAVE.best[R.mode]||0);
+  if(R.mode==="blitz"){
+    if(o.isRecord) best = "New "+MODES[R.mode].name+" record — previous "+fmt(o.prevBest)+" verses";
+    else best = MODES[R.mode].name+" best — "+fmt(SAVE.best[R.mode]||0)+" verses";
+  } else {
+    if(o.isRecord) best = "New "+MODES[R.mode].name+" record — previous "+fmt(o.prevBest);
+    else best = MODES[R.mode].name+" best — "+fmt(SAVE.best[R.mode]||0);
+  }
   if(R.mode==="daily" && !o.dailyRecorded) best += " · today's score already recorded (practice run)";
   $("res-best").textContent = best;
   const shareBtn=$("res-share");
@@ -343,6 +360,19 @@ function renderResults(o){
     retryBtn.style.display = showRetry ? "" : "none";
     if(showRetry){
       retryBtn.onclick = ()=>{ Snd.unlock(); Snd.ui(); pendingSiteId = R.siteId; startRun("pilgrimage", R.diff.key); };
+    }
+  }
+
+  /* Review missed verses action */
+  const reviewMissedBtn = $("res-review-missed");
+  if(reviewMissedBtn){
+    const missedVerses = reviewableMissed(R.missed);
+    reviewMissedBtn.style.display = missedVerses.length ? "" : "none";
+    if(missedVerses.length){
+      reviewMissedBtn.onclick = ()=>{
+        Snd.unlock();
+        startRun("practice", SAVE.set.diff, { queue: missedVerses });
+      };
     }
   }
 
@@ -427,6 +457,21 @@ function playResultsSequence(o, seals, autoUnlock){
     else finish();
   });
 }
+/* Set-piece failures are pushed as {r,p,a,s} with no bank id. Those
+   cannot start a Drill question (recordVerse would key SAVE.verse[undefined]). */
+function reviewableMissed(missed){
+  const out = [];
+  const seen = {};
+  (missed||[]).forEach(m=>{
+    const cand = m && (m.verse || m);
+    if(!cand || !cand.id) return;
+    const v = (typeof BY_ID!=="undefined" && BY_ID[cand.id]) || cand;
+    if(!v || !v.id || v.a==null || seen[v.id]) return;
+    seen[v.id] = 1;
+    out.push(v);
+  });
+  return out;
+}
 function boardRowHtml(r, extra){
   return '<div class="board-row'+(r.mine?" mine":"")+'">'+
     '<span class="rk">#'+r.rank+'</span>'+
@@ -439,19 +484,21 @@ function fillResultsBoard(mode){
   el.innerHTML = "";
   el.style.display = "none";
   if(typeof Cloud==="undefined" || !Cloud.configured()) return;
+  const trustTag = (typeof Cloud!=="undefined" && typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct")
+    ? ' <span class="trust-pill">(Honor system)</span>' : '';
   if(mode==="daily"){
     el.style.display = "";
-    el.innerHTML = '<div class="mtitle">Daily board · '+esc(todayKey())+'</div><div class="board-loading">Loading…</div>';
+    el.innerHTML = '<div class="mtitle">Daily board · '+esc(todayKey())+trustTag+'</div><div class="board-loading">Loading…</div>';
     Promise.all([
       Cloud.fetchDailyBoard(todayKey(), 15),
       Cloud.isSignedIn() ? Cloud.fetchMyDailyRank(todayKey()) : Promise.resolve(null)
     ]).then(([rows, mine])=>{
       if(!rows.length){
-        el.innerHTML = '<div class="mtitle">Daily board · '+esc(todayKey())+'</div>'+
+        el.innerHTML = '<div class="mtitle">Daily board · '+esc(todayKey())+trustTag+'</div>'+
           '<div class="empty">No scores yet today. Be the first — finish a Daily Trial while signed in.</div>';
         return;
       }
-      let html = '<div class="mtitle">Daily board · '+esc(todayKey())+'</div>'+
+      let html = '<div class="mtitle">Daily board · '+esc(todayKey())+trustTag+'</div>'+
         rows.map(r=>boardRowHtml(r, fmt(r.score)+(r.accuracy!=null?' · '+Math.round(r.accuracy)+'%':''))).join("");
       if(mine && !rows.some(r=>r.mine)){
         html += '<div class="board-you-sep">Your rank</div>'+boardRowHtml(mine, fmt(mine.score));
@@ -462,16 +509,16 @@ function fillResultsBoard(mode){
     });
   } else if(mode==="blitz"){
     el.style.display = "";
-    el.innerHTML = '<div class="mtitle">Blitz board</div><div class="board-loading">Loading…</div>';
+    el.innerHTML = '<div class="mtitle">Blitz board'+trustTag+'</div><div class="board-loading">Loading…</div>';
     Promise.all([
       Cloud.fetchBlitzBoard(15),
       Cloud.isSignedIn() ? Cloud.fetchMyBlitzRank() : Promise.resolve(null)
     ]).then(([rows, mine])=>{
       if(!rows.length){
-        el.innerHTML = '<div class="mtitle">Blitz board</div><div class="empty">No blitz scores yet. Survive a Blitz run while signed in.</div>';
+        el.innerHTML = '<div class="mtitle">Blitz board'+trustTag+'</div><div class="empty">No blitz scores yet. Survive a Blitz run while signed in.</div>';
         return;
       }
-      let html = '<div class="mtitle">Blitz board</div>'+
+      let html = '<div class="mtitle">Blitz board'+trustTag+'</div>'+
         rows.map(r=>{
           const sec = r.survived_ms != null ? Math.round(r.survived_ms/1000)+'s' : '';
           return boardRowHtml(r, fmt(r.score)+' verses'+(sec?' · '+sec:''));

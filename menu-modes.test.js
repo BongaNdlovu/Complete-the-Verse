@@ -55,7 +55,8 @@ ok("MENU_ORDER lists every public mode",
 
 /* renderMenu must still filter on .hidden */
 ok("renderMenu filters hidden modes",
-  /keys\.filter\(k=>MODES\[k\]\s*&&\s*!MODES\[k\]\.hidden\)/.test(src));
+  /g\.modes\.filter\(k\s*=>\s*MODES\[k\]\s*&&\s*!MODES\[k\]\.hidden\)/.test(src) ||
+  /keys\.filter\(k\s*=>\s*MODES\[k\]\s*&&\s*!MODES\[k\]\.hidden\)/.test(src));
 
 /* Enter on the menu must open a mode the menu actually shows. */
 ok("menu Enter routes through MENU_ORDER, not a hidden mode",
@@ -67,6 +68,13 @@ ok("menu Enter no longer opens the hidden Trial directly",
 ok("pilgrimage still mixes typed questions",
   /typedN\s*=\s*Math\.min\(2/.test(src) || /last two of every stop are typed/.test(src) ||
   /R\.typed\s*=\s*n\s*>\s*0\s*&&\s*R\.siteIdx\s*>\s*\(n\s*-\s*typedN\)/.test(src));
+
+/* Menu hall grouping — 4 distinct sections */
+ok("MENU_GROUPS defines The Road, Today, Practice, Challenges",
+  /The Road/.test(src) && /Today/.test(src) && /Practice/.test(src) && /Challenges/.test(src));
+ok("MENU_GROUPS covers all 6 public modes without orphans",
+  ["pilgrimage", "daily", "practice", "blitz", "trial", "endless"].every(k =>
+    new RegExp("modes:\\s*\\[[^\\]]*\"" + k + "\"").test(src)));
 
 if (fail) {
   console.log("FAIL — menu modes · " + pass + " passed · " + fail + " failed");

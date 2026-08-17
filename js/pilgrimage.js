@@ -1,7 +1,7 @@
 /* ==================================================================
    PILGRIMAGE — the campaign rules for the road from Ur to Patmos.
 
-   Thirty-six sites, eight verses each, in the order Scripture walks
+   Forty-six sites, eight verses each, in the order Scripture walks
    them. Clear a site and it stays cleared; fail one and you lose
    nothing but that attempt. Difficulty is a function of how far along
    the road you are, not of which mode you picked. Verses already used

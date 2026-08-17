@@ -22,7 +22,7 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
 function walkArc(key){
   let p = P.blankProgress();
   // clear all prior arcs too so isUnlocked on later arcs is honest
-  const order = ["patriarchs","exodus","kingdom","gospel"];
+  const order = ["patriarchs","exodus","judges","kingdom","gospel"];
   for(const k of order){
     P.sitesInArc(k).forEach(s => {
       p = P.record(p, s.id, { cleared: true, score: 50, accuracy: 90, at: 1 });

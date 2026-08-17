@@ -355,8 +355,8 @@ function walkTo(P, n){
   const coords = a.ROUTES.patriarchs.coords;
 
   eq("the first waypoint is nearest Ur", a.Atlas._nearestWaypoint(coords, P.site("ur").coords), 0);
-  eq("the last waypoint is nearest Beersheba",
-    a.Atlas._nearestWaypoint(coords, P.site("beersheba").coords), coords.length - 1);
+  eq("the last waypoint is nearest Dothan",
+    a.Atlas._nearestWaypoint(coords, P.site("dothan").coords), coords.length - 1);
 
   // The split index must advance as sites are cleared, never jump back.
   const legs = P.sitesInArc("patriarchs");

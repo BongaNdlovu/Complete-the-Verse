@@ -138,6 +138,17 @@ function renderStudy(){
     $("study-filter").addEventListener("change", drawStudy);
     $("study-q").addEventListener("input", drawStudy);
   }
+  const reviewBtn = $("study-review-due");
+  const due = typeof dueToday === "function" ? dueToday() : 0;
+  if(reviewBtn){
+    if(due > 0){
+      reviewBtn.style.display = "";
+      reviewBtn.textContent = "Review " + due + " due";
+      reviewBtn.onclick = ()=>{ Snd.unlock(); startRun("practice", SAVE.set.diff); };
+    } else {
+      reviewBtn.style.display = "none";
+    }
+  }
   drawHeatmap();
   drawJournal();
   drawStudy();
@@ -240,17 +251,19 @@ function renderRecords(){
       el.innerHTML='<div class="empty">Cloud boards need a configured Supabase project (see BACKEND.md). Local play still works.</div>';
       return;
     }
-    const title = rtab==="daily" ? "Daily global · "+todayKey() : "Blitz global";
-    el.innerHTML='<div class="mtitle">'+esc(title)+'</div><div class="board-loading">Loading…</div>';
+    const trustTag = (typeof Cloud!=="undefined" && typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct")
+      ? ' <span class="trust-pill">(Honor system)</span>' : '';
+    const title = (rtab==="daily" ? "Daily global · "+todayKey() : "Blitz global") + trustTag;
+    el.innerHTML='<div class="mtitle">'+title+'</div><div class="board-loading">Loading…</div>';
     const p = rtab==="daily"
       ? Promise.all([Cloud.fetchDailyBoard(todayKey(), 25), Cloud.isSignedIn()?Cloud.fetchMyDailyRank(todayKey()):null])
       : Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn()?Cloud.fetchMyBlitzRank():null]);
     p.then(([rows, mine])=>{
       if(!rows || !rows.length){
-        el.innerHTML='<div class="mtitle">'+esc(title)+'</div><div class="empty">No scores yet. Sign in and finish a run to appear here.</div>';
+        el.innerHTML='<div class="mtitle">'+title+'</div><div class="empty">No scores yet. Sign in and finish a run to appear here.</div>';
         return;
       }
-      let html = '<div class="mtitle">'+esc(title)+'</div><div class="lb global-lb">';
+      let html = '<div class="mtitle">'+title+'</div><div class="lb global-lb">';
       rows.forEach(r=>{
         const extra = rtab==="daily"
           ? fmt(r.score)+(r.accuracy!=null?' · '+Math.round(Number(r.accuracy))+'%':'')+(r.diff?' · '+esc(r.diff):'')

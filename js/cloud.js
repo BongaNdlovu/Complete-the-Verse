@@ -17,6 +17,7 @@ var Cloud = (function () {
   var user = null;
   var profile = null;
   var lastRevision = 0;
+  var lastSubmitVia = null;
   var pushTimer = null;
   var hooks = { onAuth: null, onSync: null, onError: null };
 
@@ -165,12 +166,30 @@ var Cloud = (function () {
     return out;
   }
 
+  /* Old Blitz records stored composite totals (thousands). Verse counts
+     stay well below this; a value above it that is not already life.blitzBest
+     is the old unit and must be rewritten, or max() re-poisons a migrated local. */
+  var BLITZ_VERSE_CEILING = 200;
+  function migrateBlitzUnits(out) {
+    if (!out) return out;
+    out.best = out.best || {};
+    out.life = out.life || {};
+    var best = Number(out.best.blitz) || 0;
+    var verses = Number(out.life.blitzBest) || 0;
+    if (best > BLITZ_VERSE_CEILING && best !== verses) out.best.blitz = verses;
+    if (out.ghosts && out.ghosts.blitz) {
+      var gs = Number(out.ghosts.blitz.score) || 0;
+      if (gs > BLITZ_VERSE_CEILING && gs !== (Number(out.best.blitz) || 0)) out.ghosts.blitz = null;
+    }
+    return out;
+  }
+
   function mergeSave(local, remote) {
     local = local || {};
     remote = remote || {};
     // Empty remote → local wins entirely.
     if (!remote || (!remote.pilgrim && !remote.best && !remote.srs)) {
-      return JSON.parse(JSON.stringify(local));
+      return migrateBlitzUnits(JSON.parse(JSON.stringify(local)));
     }
     var out = JSON.parse(JSON.stringify(local));
     out.v = Math.max(local.v || 3, remote.v || 3);
@@ -202,7 +221,7 @@ var Cloud = (function () {
     out.set = Object.assign({}, remote.set || {}, local.set || {});
     out.board = (local.board && local.board.length) ? local.board
       : (remote.board || []);
-    return out;
+    return migrateBlitzUnits(out);
   }
 
   /* ----------------------- auth ----------------------- */
@@ -390,10 +409,14 @@ var Cloud = (function () {
       diff: c.diff || "disciple"
     };
     var edge = await submitViaEdge("daily", payload);
-    if (edge.ok) return { ok: true, score: payload.score, via: "edge" };
+    if (edge.ok) {
+      lastSubmitVia = "edge";
+      return { ok: true, score: payload.score, via: "edge" };
+    }
     /* Edge unavailable — direct write (still RLS-scoped to this user). */
     var res = await sb.from("daily_scores").upsert(Object.assign({ user_id: user.id }, payload), { onConflict: "user_id,play_date" });
     if (res.error) return { ok: false, reason: res.error.message };
+    lastSubmitVia = "direct";
     return { ok: true, score: payload.score, via: "direct" };
   }
 
@@ -408,9 +431,13 @@ var Cloud = (function () {
       diff: c.diff || "disciple"
     };
     var edge = await submitViaEdge("blitz", payload);
-    if (edge.ok) return { ok: true, score: payload.score, via: "edge" };
+    if (edge.ok) {
+      lastSubmitVia = "edge";
+      return { ok: true, score: payload.score, via: "edge" };
+    }
     var res = await sb.from("blitz_scores").insert(Object.assign({ user_id: user.id }, payload));
     if (res.error) return { ok: false, reason: res.error.message };
+    lastSubmitVia = "direct";
     return { ok: true, score: payload.score, via: "direct" };
   }
 
@@ -561,6 +588,11 @@ var Cloud = (function () {
     });
   }
 
+  function trustLabel(via) {
+    if (!via) return "";
+    return via === "direct" ? "Honor system" : "Trusted";
+  }
+
   function on(evt, fn) {
     if (evt in hooks) hooks[evt] = fn;
   }
@@ -583,6 +615,9 @@ var Cloud = (function () {
     syncOnBoot: syncOnBoot,
     submitDailyScore: submitDailyScore,
     submitBlitzScore: submitBlitzScore,
+    lastSubmitVia: function () { return lastSubmitVia; },
+    setLastSubmitVia: function (v) { lastSubmitVia = v; },
+    trustLabel: trustLabel,
     fetchDailyBoard: fetchDailyBoard,
     fetchBlitzBoard: fetchBlitzBoard,
     fetchMyDailyRank: fetchMyDailyRank,

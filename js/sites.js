@@ -1,8 +1,8 @@
 /* ==================================================================
    SITES — the road from Ur to Patmos.
 
-   Thirty-six places, in the order Scripture walks them, grouped into
-   four arcs. This file is DATA ONLY: no DOM, no Leaflet, no fetch. The
+   Forty-six places, in the order Scripture walks them, grouped into
+   five arcs. This file is DATA ONLY: no DOM, no Leaflet, no fetch. The
    campaign rules live in pilgrimage.js and the rendering lives in
    atlas.js, so this can be loaded and asserted against in bare Node.
 
@@ -55,8 +55,18 @@ var ARCS = [
     books: ["Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Psalms", "Hebrews"]
   },
   {
-    key: "kingdom",
+    key: "judges",
     n: "III",
+    name: "The Judges",
+    sub: "There is no king. Deliverers rise and fall, and every man does what is right in his own eyes.",
+    colour: "#a3543d",
+    pal: "act3",
+    era: "c. 1200 – 1020 BC",
+    books: ["Judges", "Ruth", "1 Samuel", "Psalms", "Hebrews"]
+  },
+  {
+    key: "kingdom",
+    n: "IV",
     name: "Kingdom & Exile",
     sub: "The throne rises, the prophets warn, the walls come down, and the people are carried east.",
     colour: "#457b9d",
@@ -72,7 +82,7 @@ var ARCS = [
   },
   {
     key: "gospel",
-    n: "IV",
+    n: "V",
     name: "The Gospel & The Church",
     sub: "The Word is made flesh, the tomb is emptied, and the message runs to the edge of the empire.",
     colour: "#e9d6a8",
@@ -189,8 +199,50 @@ var SITES = [
     books: ["Genesis", "1 Kings", "Amos", "Joshua"],
     climate: { type: "desert", hi: 34, lo: 20 }
   },
+  {
+    id: "moriah", arc: "patriarchs", name: "THE LAND OF MORIAH", tag: "PATRIARCHAL ROUTE",
+    coords: [31.7738, 35.2372], elevation: 740, modernCountry: "Israel",
+    scripture: "Genesis 22:2 · Genesis 22:14 · Hebrews 11:17 · 2 Chronicles 3:1",
+    quote: "And Abraham called the name of that place Jehovahjireh: as it is said to this day, In the mount of the LORD it shall be seen.",
+    quoteRef: "Genesis 22:14",
+    era: "c. 1870 BC", empire: "canaan",
+    archaeology: "Temple Mount · the threshing floor of Araunah",
+    region: "Judean mountains", place: "The ridge that would become Zion",
+    description: "The mountain Abraham climbed with the knife and the wood, and came down with his son still alive. Later generations built the Temple on this same ridge — Scripture returns to a place centuries later, and this one it never leaves.",
+    context: "Where the ram was caught in the thicket.",
+    books: ["Genesis", "Hebrews", "James", "2 Chronicles"],
+    climate: { type: "mediterranean", hi: 29, lo: 17 }
+  },
+  {
+    id: "dothan", arc: "patriarchs", name: "DOTHAN", tag: "PATRIARCHAL ROUTE",
+    coords: [32.4139, 35.2394], elevation: 347, modernCountry: "Palestine",
+    scripture: "Genesis 37:17-28 · 2 Kings 6:13-17",
+    quote: "And they took him, and cast him into a pit: and the pit was empty, there was no water in it.",
+    quoteRef: "Genesis 37:24",
+    era: "c. 1700 BC · 850 BC", empire: "canaan",
+    archaeology: "Tell Dothan",
+    region: "Northern Samaria", place: "The pasture road toward the Jezreel",
+    description: "A cistern town on the north road where Joseph's brothers sold him, and where, centuries later, Elisha's servant saw the mountain full of horses and chariots of fire. The pit and the opened eyes belong to the same ground.",
+    context: "Where a brother was sold, and a servant saw.",
+    books: ["Genesis", "2 Kings", "Psalms", "Acts"],
+    climate: { type: "mediterranean", hi: 30, lo: 18 }
+  },
 
   /* ============================== ARC II — THE EXODUS ============================== */
+  {
+    id: "midian", arc: "exodus", name: "MIDIAN", tag: "EXODUS TRAIL",
+    coords: [28.4860, 35.0080], elevation: 220, modernCountry: "Saudi Arabia",
+    scripture: "Exodus 3:1-5 · Exodus 3:14 · Acts 7:30",
+    quote: "And he said, Draw not nigh hither: put off thy shoes from off thy feet, for the place whereon thou standest is holy ground.",
+    quoteRef: "Exodus 3:5",
+    era: "c. 1280 BC", empire: "egypt",
+    archaeology: "Magha'ir Shu'ayb · the oasis of Al-Bad'",
+    region: "Northwest Arabia", place: "The wilderness east of the Gulf of Aqaba",
+    description: "The far country Moses fled to after he killed the Egyptian, where he kept Jethro's flock and turned aside to a bush that burned and was not consumed. The Exodus begins not in the brickyards, but with a shepherd taking off his shoes.",
+    context: "The bush, and the name I AM.",
+    books: ["Exodus", "Acts", "Hebrews", "Numbers"],
+    climate: { type: "desert", hi: 38, lo: 24 }
+  },
   {
     id: "goshen", arc: "exodus", name: "GOSHEN (RAMESES)", tag: "EXODUS TRAIL",
     coords: [30.7986, 31.8333], elevation: 10, modernCountry: "Egypt",
@@ -204,6 +256,20 @@ var SITES = [
     context: "Four hundred years of waiting, and one night of leaving.",
     books: ["Exodus", "Genesis", "Psalms", "Acts"],
     climate: { type: "desert", hi: 36, lo: 22 }
+  },
+  {
+    id: "yam-suph", arc: "exodus", name: "YAM SUPH (THE SEA)", tag: "EXODUS TRAIL",
+    coords: [29.5200, 32.8800], elevation: 2, modernCountry: "Egypt",
+    scripture: "Exodus 14:21-22 · Exodus 15:1 · Hebrews 11:29",
+    quote: "And Moses stretched out his hand over the sea; and the LORD caused the sea to go back by a strong east wind all that night, and made the sea dry land, and the waters were divided.",
+    quoteRef: "Exodus 14:21",
+    era: "c. 1250 BC", empire: "egypt",
+    archaeology: "The Bitter Lakes corridor · traditional sea crossing",
+    region: "Eastern Egypt", place: "The reed sea between delta and wilderness",
+    description: "The water that opened for a nation on foot and closed on the chariots that followed. Whether the crossing was the Bitter Lakes or a gulf further south, this is the night Israel stopped being slaves and started being a people.",
+    context: "Dry land through the sea.",
+    books: ["Exodus", "Hebrews", "Psalms", "Isaiah"],
+    climate: { type: "desert", hi: 35, lo: 22 }
   },
   {
     id: "sinai", arc: "exodus", name: "MOUNT SINAI (HOREB)", tag: "EXODUS TRAIL",
@@ -290,7 +356,65 @@ var SITES = [
     climate: { type: "desert", hi: 39, lo: 24 }
   },
 
-  /* =========================== ARC III — KINGDOM & EXILE =========================== */
+  /* =========================== ARC III — THE JUDGES =========================== */
+  {
+    id: "harod", arc: "judges", name: "THE SPRING OF HAROD", tag: "THE JUDGES",
+    coords: [32.5506, 35.3570], elevation: 15, modernCountry: "Israel",
+    scripture: "Judges 7:1-7 · Judges 7:20",
+    quote: "And the LORD said unto Gideon, By the three hundred men that lapped will I save you, and deliver the Midianites into thine hand.",
+    quoteRef: "Judges 7:7",
+    era: "c. 1150 BC", empire: "israel",
+    archaeology: "Ma'ayan Harod · the foot of Mount Gilboa",
+    region: "Jezreel valley", place: "The spring under Gilboa",
+    description: "The water where Gideon sent home the fearful and then the kneelers, until three hundred men who lapped like dogs were left to face a host like locusts. Pitchers, torches, and a shout — The sword of the LORD, and of Gideon.",
+    context: "Where a host was thinned to three hundred.",
+    books: ["Judges", "Hebrews", "Psalms", "1 Samuel"],
+    climate: { type: "mediterranean", hi: 33, lo: 20 }
+  },
+  {
+    id: "zorah", arc: "judges", name: "ZORAH & TIMNAH", tag: "THE JUDGES",
+    coords: [31.7747, 34.9856], elevation: 280, modernCountry: "Israel",
+    scripture: "Judges 13:2 · Judges 16:28-30",
+    quote: "And Samson called unto the LORD, and said, O Lord GOD, remember me, I pray thee, and strengthen me, I pray thee, only this once, O God.",
+    quoteRef: "Judges 16:28",
+    era: "c. 1100 BC", empire: "israel",
+    archaeology: "Tel Tzora · Tel Batash (Timnah)",
+    region: "The Shephelah", place: "The Philistine border hills",
+    description: "The ridge where a Nazirite was born, and the valley where he tore a lion, loved a Philistine, and at the last pulled a house down on himself. Strength and ruin share the same few miles of lowland.",
+    context: "Where strength was a vow, and then a prayer.",
+    books: ["Judges", "Hebrews", "1 Samuel", "Psalms"],
+    climate: { type: "mediterranean", hi: 31, lo: 18 }
+  },
+  {
+    id: "gibeah", arc: "judges", name: "GIBEAH OF BENJAMIN", tag: "THE JUDGES",
+    coords: [31.8236, 35.2308], elevation: 838, modernCountry: "Israel",
+    scripture: "Judges 19:14 · Judges 21:25 · 1 Samuel 10:26",
+    quote: "In those days there was no king in Israel: every man did that which was right in his own eyes.",
+    quoteRef: "Judges 21:25",
+    era: "c. 1100 – 1010 BC", empire: "israel",
+    archaeology: "Tell el-Ful",
+    region: "Benjamin highlands", place: "The hill just north of Jerusalem",
+    description: "The town that closes the book of Judges in horror, and later becomes Saul's capital. Between the outrage and the crown the refrain is the same: there was no king, and every man did what was right in his own eyes.",
+    context: "The last darkness before a king.",
+    books: ["Judges", "1 Samuel", "Hosea", "Psalms"],
+    climate: { type: "mediterranean", hi: 29, lo: 17 }
+  },
+  {
+    id: "mizpah", arc: "judges", name: "MIZPAH", tag: "THE JUDGES",
+    coords: [31.8850, 35.2167], elevation: 784, modernCountry: "Palestine",
+    scripture: "1 Samuel 7:5-12 · Judges 20:1 · Jeremiah 40:6",
+    quote: "Then Samuel took a stone, and set it between Mizpeh and Shen, and called the name of it Ebenezer, saying, Hitherto hath the LORD helped us.",
+    quoteRef: "1 Samuel 7:12",
+    era: "c. 1050 – 580 BC", empire: "israel",
+    archaeology: "Tell en-Nasbeh",
+    region: "Benjamin highlands", place: "The watchtower north of Gibeah",
+    description: "The assembly ground of the tribes, where Israel gathered against Benjamin, and where Samuel later set a stone and named it Ebenezer. The Judges end here; the kingdom is asked for on this ridge.",
+    context: "Hitherto hath the LORD helped us.",
+    books: ["1 Samuel", "Judges", "Psalms", "Jeremiah"],
+    climate: { type: "mediterranean", hi: 29, lo: 17 }
+  },
+
+  /* =========================== ARC IV — KINGDOM & EXILE =========================== */
   {
     id: "jerusalem", arc: "kingdom", name: "JERUSALEM (ZION)", tag: "KINGDOM & EXILE",
     coords: [31.7767, 35.2345], elevation: 754, modernCountry: "Israel",
@@ -348,6 +472,20 @@ var SITES = [
     climate: { type: "mediterranean", hi: 30, lo: 18 }
   },
   {
+    id: "carmel", arc: "kingdom", name: "MOUNT CARMEL", tag: "KINGDOM & EXILE",
+    coords: [32.6725, 35.0880], elevation: 482, modernCountry: "Israel",
+    scripture: "1 Kings 18:21-39 · 1 Kings 18:38 · James 5:17",
+    quote: "Then the fire of the LORD fell, and consumed the burnt sacrifice, and the wood, and the stones, and the dust, and licked up the water that was in the trench.",
+    quoteRef: "1 Kings 18:38",
+    era: "c. 860 BC", empire: "monarchy",
+    archaeology: "El-Muhraqa · the Carmel ridge",
+    region: "The Carmel range", place: "The high ridge above the sea road",
+    description: "The mountain where Elijah rebuilt an altar in twelve stones, soaked it three times, and called down fire in front of four hundred and fifty prophets of Baal. How long halt ye between two opinions, he asked, and the fire answered.",
+    context: "The God that answereth by fire.",
+    books: ["1 Kings", "James", "Malachi", "2 Kings"],
+    climate: { type: "mediterranean", hi: 30, lo: 20 }
+  },
+  {
     id: "megiddo", arc: "kingdom", name: "MEGIDDO", tag: "KINGDOM & EXILE",
     coords: [32.5850, 35.1850], elevation: 150, modernCountry: "Israel",
     scripture: "1 Kings 9:15 · 2 Kings 23:29 · 2 Chronicles 35:22 · Zechariah 12:11",
@@ -359,6 +497,20 @@ var SITES = [
     description: "A fortress city on the narrow pass between the coast and the inland road — Solomonic gates, chariot cities, and the place good king Josiah fell. The valley below would later lend its name to Armageddon.",
     context: "Where kings die at the pass.",
     books: ["1 Kings", "2 Kings", "2 Chronicles", "Zechariah", "Judges", "Revelation"],
+    climate: { type: "mediterranean", hi: 32, lo: 19 }
+  },
+  {
+    id: "lachish", arc: "kingdom", name: "LACHISH", tag: "KINGDOM & EXILE",
+    coords: [31.5654, 34.8492], elevation: 250, modernCountry: "Israel",
+    scripture: "2 Kings 18:13-17 · Isaiah 36:1-2 · 2 Chronicles 32:9",
+    quote: "Now in the fourteenth year of king Hezekiah did Sennacherib king of Assyria come up against all the fenced cities of Judah, and took them.",
+    quoteRef: "2 Kings 18:13",
+    era: "c. 701 BC", empire: "assyria",
+    archaeology: "Tel Lachish · the Assyrian siege ramp",
+    region: "The Shephelah of Judah", place: "Judah's second city",
+    description: "The fortress Sennacherib took while Hezekiah watched from Jerusalem. The siege ramp still leans against the tell, and the palace reliefs in Nineveh show the same ramp from the other side — a city remembered by the army that broke it.",
+    context: "Where Assyria came up against Judah.",
+    books: ["2 Kings", "Isaiah", "2 Chronicles", "Jeremiah"],
     climate: { type: "mediterranean", hi: 32, lo: 19 }
   },
   {
@@ -626,16 +778,25 @@ var ROUTES = {
       [31.9308, 35.2211], // Bethel
       [32.1833, 35.6167], // Penuel, east of Jordan
       [31.5326, 35.0998], // Hebron
-      [31.2447, 34.8406]  // Beersheba
+      [31.2447, 34.8406], // Beersheba
+      [31.4000, 35.0000], // north up the ridge
+      [31.7738, 35.2372], // Moriah
+      [32.0500, 35.2300], // the watershed road north
+      [32.2137, 35.2807], // past Shechem
+      [32.4139, 35.2394]  // Dothan
     ]
   },
   exodus: {
     label: "The Exodus",
     colour: "#e76f51",
     coords: [
-      [30.7986, 31.8333], // Rameses
+      [28.4860, 35.0080], // Midian
+      [28.8000, 34.2000], // west toward the Sinai
+      [29.5000, 33.2000], // across the peninsula
+      [30.4000, 32.2000], // toward the delta
+      [30.7986, 31.8333], // Rameses / Goshen
       [30.2000, 32.5500], // Succoth, toward the Bitter Lakes
-      [29.5000, 32.9000], // the sea crossing
+      [29.5200, 32.8800], // Yam Suph
       [28.5392, 33.9750], // Mount Sinai
       [28.7200, 33.6200], // Rephidim
       [29.6000, 34.2000], // north through the wilderness of Paran
@@ -646,6 +807,19 @@ var ROUTES = {
       [31.7683, 35.7256], // Mount Nebo
       [31.8711, 35.4444], // Jericho
       [31.8500, 35.4800]  // Gilgal
+    ]
+  },
+  judges: {
+    label: "The Judges",
+    colour: "#a3543d",
+    coords: [
+      [32.5506, 35.3570], // Harod
+      [32.4000, 35.2000], // down the Jezreel
+      [32.1000, 35.0500], // the western approach
+      [31.7747, 34.9856], // Zorah
+      [31.7800, 35.1200], // east toward the ridge
+      [31.8236, 35.2308], // Gibeah
+      [31.8850, 35.2167]  // Mizpah
     ]
   },
   /* Ordered to match the SITE sequence, not the tidiest line on the
@@ -665,7 +839,11 @@ var ROUTES = {
       [33.2705, 35.2038], // Tyre
       [32.9000, 35.3000], // back inland and south
       [32.2764, 35.1897], // Samaria
+      [32.6725, 35.0880], // Carmel
       [32.5850, 35.1850], // Megiddo
+      [32.0000, 35.0000], // south through the hills
+      [31.5654, 34.8492], // Lachish
+      [31.8000, 35.2000], // back toward the ridge
       [32.7000, 35.6000], // north-east across Galilee
       [33.2000, 36.0000], // toward the Barada
       [33.5138, 36.2765], // Damascus

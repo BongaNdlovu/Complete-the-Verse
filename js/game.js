@@ -57,6 +57,7 @@ function load(){
     });
     if(migrating) migrateV2(out, s);
     migrateProfile(out);
+    migrateBlitzUnits(out);
     return out;
   }catch(e){ return JSON.parse(JSON.stringify(DEFAULT_SAVE)); }
 }
@@ -107,6 +108,25 @@ function migrateProfile(out){
     if(!out.set.scholarId) out.set.scholarId = Characters.defaultScholarId() || "amina";
     out.set.character = out.set.scholarId;
   }
+}
+
+/* Old Blitz records stored composite totals (thousands). Verse counts
+   stay well below this; a value above it that is not already life.blitzBest
+   is the old unit and must be rewritten. Ceiling lives inside the
+   function because load() runs at parse time, before later consts. */
+function migrateBlitzUnits(out){
+  if(!out) return out;
+  const ceiling = 200;
+  out.best = out.best || {};
+  out.life = out.life || {};
+  const best = Number(out.best.blitz) || 0;
+  const verses = Number(out.life.blitzBest) || 0;
+  if(best > ceiling && best !== verses) out.best.blitz = verses;
+  if(out.ghosts && out.ghosts.blitz){
+    const gs = Number(out.ghosts.blitz.score) || 0;
+    if(gs > ceiling && gs !== (Number(out.best.blitz)||0)) out.ghosts.blitz = null;
+  }
+  return out;
 }
 
 function persist(){
@@ -180,20 +200,28 @@ const SEALS = [
   {id:"life500", n:"Scribe's Hand",      d:"500 correct answers, all-time."},
   {id:"ironman", n:"Iron Sharpeneth",    d:"Complete the Trial on Watchman difficulty."},
   {id:"road-first", n:"Get Thee Out",    d:"Clear your first site on the Pilgrimage."},
-  {id:"road-arc1",  n:"Out of Ur",       d:"Complete the Patriarchs — Ur to Beersheba."},
+  {id:"road-arc1",  n:"Out of Ur",       d:"Complete the Patriarchs — Ur to Dothan."},
   {id:"road-half",  n:"Half the Road",   d:"Complete two full arcs of the Pilgrimage."},
   {id:"road-patmos",n:"The Last Island", d:"Reach and clear Patmos."},
   {id:"road-end",   n:"Ur to Patmos",    d:"Clear every site on the Pilgrimage."},
   /* One per arc. A site's perfect flag is sticky, so an arc can be
      perfected a site at a time — the seal rewards precision over the
      whole stretch, not one flawless sitting. */
-  {id:"arc-patriarchs",n:"Faith of Abraham", d:"Keep every verse at every site from Ur to Beersheba."},
-  {id:"arc-exodus",    n:"Out of Egypt",     d:"Keep every verse at every site from Goshen to Jericho."},
+  {id:"arc-patriarchs",n:"Faith of Abraham", d:"Keep every verse at every site from Ur to Dothan."},
+  {id:"arc-exodus",    n:"Out of Egypt",     d:"Keep every verse at every site from Midian to Gilgal."},
+  {id:"arc-judges",    n:"No King in Israel",d:"Keep every verse at every site from Harod to Mizpah."},
   {id:"arc-kingdom",   n:"By the Rivers",    d:"Keep every verse at every site from Jerusalem to Susa."},
   {id:"arc-gospel",    n:"To the Ends",      d:"Keep every verse at every site from Bethlehem to Patmos."},
   {id:"relay",         n:"Without Rest",     d:"Walk a whole arc in one unbroken run."}
 ];
 function hasSeal(id){ return SAVE.seals.indexOf(id) >= 0; }
+
+/* Printed clock on a mode card. Always Polish.pacedClockMs via
+   describeModeClock so the hall cannot invent a second set of numbers. */
+function modeClockLabel(mode){
+  if(typeof Polish!=="undefined" && Polish.describeModeClock) return Polish.describeModeClock(mode);
+  return "";
+}
 
 /* ------------------------- MODES / DIFFICULTY / ACTS ------------------------- */
 const MODES = {
@@ -202,11 +230,11 @@ const MODES = {
      is what routes it. `hidden:true` keeps a mode off the menu without
      hiding it from the results screen, which still needs its name. */
   pilgrimage:{ key:"pilgrimage", name:"The Pilgrimage", kick:"The long road", atlas:true,
-    desc:"Thirty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last two of every stop are typed from memory. The clock closes as you go east.",
-    tagline:"36 sites · Ur to Patmos", info:[["36","Sites"],["8","Verses each"],["23.6→14.6s","Clock"]] },
+    desc:"Forty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last two of every stop are typed from memory. The clock closes as you go east.",
+    tagline:"46 sites · Ur to Patmos", info:[["46","Sites"],["8","Verses each"],[modeClockLabel("pilgrimage"),"Clock"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, typed out word for word.",
-    tagline:"Typed · cleared sites", info:[["8","Verses"],["Typed","No options"],["32s","Clock"]] },
+    tagline:"Typed · cleared sites", info:[["8","Verses"],["Typed","No options"],[modeClockLabel("pilgrim-recall"),"Clock"]] },
   /* Hidden campaign extras — not on the menu. */
   relay:{ key:"relay", name:"The Long Road", kick:"One unbroken walk", hidden:true,
     desc:"A whole arc in a single run. Lives carry from site to site and never come back, and the clock keeps tightening the way the road does. Sites you pass stay cleared even if the road ends you.",
@@ -217,24 +245,24 @@ const MODES = {
      order below (MENU_ORDER) puts the Pilgrimage first. */
   trial:{ key:"trial", name:"The Trial", kick:"Campaign",
     desc:"Five acts. The clock tightens with every one. Reach Act V with one life, clear its five questions, and earn the ending.",
-    tagline:"5 acts · one-life finale", info:[["5","Acts"],["39+","Verses"],["23.6→14.6s","Clock"]] },
+    tagline:"5 acts · one-life finale", info:[["5","Acts"],["39+","Verses"],[modeClockLabel("trial"),"Clock"]] },
   endless:{ key:"endless", name:"Endless Gauntlet", kick:"Survival",
     desc:"One continuous run. The timer shrinks a fraction each question and never resets.",
-    tagline:"Infinite · shrinking clock", info:[["∞","Questions"],["13.5→5.7s","Clock"],["All 5","Tiers"]] },
+    tagline:"Infinite · shrinking clock", info:[["∞","Questions"],[modeClockLabel("endless"),"Clock"],["All 5","Tiers"]] },
   daily:{ key:"daily", name:"Daily Trial", kick:"One shot a day",
     desc:"Twenty verses, drawn by today's date. Everyone who plays today gets exactly the same twenty in exactly the same order. Your first finished run sets the day's score — a run that ends early does not count, and after the score stands you may practise.",
-    tagline:"20 verses · same for everyone", info:[["20","Verses"],["1","Recorded run"],["18.8s","Clock"]] },
+    tagline:"20 verses · same for everyone", info:[["20","Verses"],["1","Recorded run"],[modeClockLabel("daily"),"Clock"]] },
   blitz:{ key:"blitz", name:"Scripture Blitz", kick:"Sixty seconds",
     desc:"A survival clock. Every correct answer adds two seconds; every miss burns four. The screen edges flare as time runs thin. How many verses can you hold?",
-    tagline:"60s · +2s / −4s", info:[["60s","Start"],["+2s","Correct"],["−4s","Miss"]] },
+    tagline:"60s · +2s / −4s", info:[[modeClockLabel("blitz"),"Start"],["+2s","Correct"],["−4s","Miss"]] },
   /* The Drill serves the spaced-repetition queue — it is the game's
      learning loop and belongs on the menu, not behind the tutorial. */
   practice:{ key:"practice", name:"The Drill", kick:"Spaced review",
     desc:"The verses that have fallen due, most overdue first, then whatever you have never seen.",
-    tagline:"15 verses · due first", info:[["15","Verses"],["Due","Ordered by"],["13.5s","Clock"]] },
+    tagline:"15 verses · due first", info:[["15","Verses"],["Due","Ordered by"],[modeClockLabel("practice"),"Clock"]] },
   recall:{ key:"recall", name:"Recall", kick:"Type it from memory", hidden:true,
     desc:"No options to choose between. The blank is empty and you fill it yourself, word for word. On-screen keyboard included.",
-    tagline:"12 verses · typed", info:[["12","Verses"],["Typed","No options"],["32s","Clock"]] }
+    tagline:"12 verses · typed", info:[["12","Verses"],["Typed","No options"],[modeClockLabel("recall"),"Clock"]] }
 };
 const DIFFS = {
   pilgrim:{ key:"pilgrim", name:"Pilgrim", lives:4, time:1.35, score:0.75,
@@ -391,7 +419,7 @@ function buildDailyList(){
   return {list:out, rnd:rnd};
 }
 
-function startRun(mode, diffKey){
+function startRun(mode, diffKey, options){
   const D = DIFFS[diffKey] || DIFFS.disciple;
   const runToken = (R.runToken||0) + 1;
   pendingSeals = [];
@@ -463,7 +491,8 @@ function startRun(mode, diffKey){
     passage:null, recon:null, usedPass:new Set(), adaptivePick:"",
     decisionMs:0, timedDecisions:0, fastestMs:Infinity,
     actStartAttempts:0, actStartCorrect:0,
-    practiceLen: mode==="practice" ? 15 : mode==="recall" ? 12
+    practiceLen: (options && options.queue && options.queue.length) ? options.queue.length
+               : mode==="practice" ? 15 : mode==="recall" ? 12
                : isPilgrim ? siteDraw.verses.length : 0,
     typed: mode==="recall" || mode==="pilgrim-recall", hintLevel:0, queue:null,
     typedExact:0, typedClose:0, rescheduled:[],
@@ -484,7 +513,13 @@ function startRun(mode, diffKey){
   Director.momentum(false);
   renderPowers();
   updateActTrack();
-  if(mode==="practice" || mode==="recall") R.queue = buildReviewQueue(R.practiceLen + 12);
+  if(mode==="practice" || mode==="recall"){
+    if(options && options.queue && options.queue.length){
+      R.queue = options.queue.slice();
+    } else {
+      R.queue = buildReviewQueue(R.practiceLen + 12);
+    }
+  }
   if(mode==="trial"){ beginAct(0); }
   else {
     // Each arc of the road carries its own bed, so the Patriarchs and
