@@ -355,6 +355,8 @@ function go(view){
   if(view==="records") renderRecords();
   if(view==="settings") renderSettings();
   updatePlayerCard();   // shows/hides the player card and top-right icons per view
+  document.body.classList.toggle("view-play", view==="play");
+  if(typeof Director!=="undefined" && Director.syncFx) Director.syncFx();
   if(view==="play") ensureLoop(); else if(!(plan && plan.stopLoop===false)) stopLoop();
 }
 document.addEventListener("click", e=>{

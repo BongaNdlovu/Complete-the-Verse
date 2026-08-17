@@ -115,6 +115,14 @@ frames.forEach((kf) => {
   assert(!layout, kf.name + " does not animate layout edges");
 });
 
+assert(/@keyframes emberFall/.test(css), "embers fall rather than rise");
+assert(!/@keyframes emberRise/.test(css), "old rising ember cycle is gone");
+assert(/@keyframes emberFlicker/.test(css), "embers flicker like cooling fire");
+assert(/className="ember"/.test(game) || /className="ember"\+/.test(game),
+  "ember nodes are still spawned by the director");
+assert(/view-play/.test(game) && /view-play/.test(css),
+  "play view densifies the fire");
+
 /* --- looping motion dies under reduced --- */
 const reducedHooks = [
   ["#grain", "grain"],

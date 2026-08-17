@@ -193,16 +193,23 @@ const Director = (function(){
   function syncFx(){
     const fx=$("cinematic-fx");if(!fx)return;
     const profile=SAVE.set.quality||"high";
-    const count=profile==="high"?14:profile==="balanced"?6:0;
+    const playing=typeof currentView!=="undefined" && currentView==="play";
+    const count=profile==="high"?(playing?22:12):profile==="balanced"?(playing?10:6):0;
+    const mark=count+":"+(playing?"p":"h");
     const current=fx.querySelectorAll(".ember");
-    if(current.length===count)return;
+    if(current.length===count && fx.dataset.emberMark===mark) return;
+    fx.dataset.emberMark=mark;
     current.forEach(e=>e.remove());
     for(let i=0;i<count;i++){
-      const e=document.createElement("i");e.className="ember";
-      e.style.left=(2+Math.random()*96)+"%";
-      e.style.setProperty("--dur",(7+Math.random()*8)+"s");
-      e.style.setProperty("--delay",(-Math.random()*12)+"s");
-      e.style.setProperty("--drift",(-70+Math.random()*140)+"px");
+      const e=document.createElement("i");
+      const roll=Math.random();
+      e.className="ember"+(roll>0.72?" spark":roll<0.22?" coal":"");
+      e.style.left=(3+Math.random()*94)+"%";
+      e.style.setProperty("--size",(1.5+Math.random()*3.1)+"px");
+      e.style.setProperty("--dur",(9+Math.random()*9)+"s");
+      e.style.setProperty("--delay",(-Math.random()*16)+"s");
+      e.style.setProperty("--drift",(-48+Math.random()*96)+"px");
+      e.style.setProperty("--sway",(-36+Math.random()*72)+"px");
       fx.appendChild(e);
     }
   }
