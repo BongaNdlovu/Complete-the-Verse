@@ -304,7 +304,9 @@ var Polish = (function () {
   }
 
   function describeModeClock(modeKey, diffKey) {
-    var t = (typeof DIFFS !== "undefined" && DIFFS.watchman && DIFFS.watchman.time) || 0.85;
+    /* Watchman clock only. Do not look up the live difficulty table —
+       game.js calls this while parsing MODES, before that table exists. */
+    var t = 0.85;
     var pad = 1500;
     function sec(base, pickPad) {
       return (pacedClockMs(base, t, pickPad) / 1000).toFixed(1);

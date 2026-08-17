@@ -937,6 +937,7 @@ function updateChips(){
   $("hud-streak").textContent = R.streak + (R.streak===1 ? " Verse" : " Verses");
   $("hud-accuracy").textContent = R.attempts ? Math.round(R.correct/R.attempts*100)+"%" : "—";
   updateActTrack();
+  updateCandle();
 }
 
 function updateActTrack(){
@@ -1851,6 +1852,44 @@ function abandonRun(){
   endRun("abandon");
 }
 $("pause-quit").addEventListener("click", abandonRun);
+function candleProgress(){
+  if(!R) return 0;
+  let denom = 8;
+  if(R.mode==="trial"){
+    const acts = trialActs();
+    denom = acts.reduce((n,a)=>n+(a.q||0),0) || 39;
+  } else if(R.mode==="daily") denom = (R.daily && R.daily.list && R.daily.list.length) || 20;
+  else if(R.mode==="practice" || R.mode==="recall") denom = R.practiceLen || 15;
+  else if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall") denom = (R.siteVerses && R.siteVerses.length) || 8;
+  else if(R.mode==="relay" && R.relay) denom = R.relay.queue.length || 8;
+  else if(R.mode==="blitz") denom = 20;
+  else denom = 30;
+  const through = Math.min(1, (R.correct||0) / denom);
+  const streak = Math.min(1, (R.streak||0) / 12);
+  return Math.max(0, Math.min(1, through * 0.75 + streak * 0.25));
+}
+function updateCandle(){
+  const el = $("play-candle");
+  if(!el) return;
+  const heat = candleProgress();
+  el.style.setProperty("--heat", String(heat));
+  el.classList.toggle("lit", !!(R && (R.qTotal || R.correct)));
+  el.classList.toggle("hot", heat >= 0.62);
+  el.classList.toggle("blaze", heat >= 0.88);
+}
+function quitPlay(){
+  if(R.ended || currentView!=="play") return;
+  if(!R.paused && R.running){
+    pauseStamp = performance.now();
+    setPaused(true);
+  }
+  if(R.attempts && !confirm("Leave this run? It will be recorded as abandoned.")){
+    if(R.paused) togglePause();
+    return;
+  }
+  Snd.ui();
+  abandonRun();
+}
 
 function shareDailyResult(total){
   const text = "Complete the Verse — Daily Trial "+todayKey()+"\nScore: "+fmt(total)+
@@ -2006,6 +2045,8 @@ function loop(ts){
   armIntro();
 
   bindStatePanel();
+  const playQuit = $("play-quit");
+  if(playQuit) playQuit.addEventListener("click", quitPlay);
   /* Overdrive ride-or-bank choice buttons. */
   const odRide = $("od-ride"), odBank = $("od-bank");
   if(odRide) odRide.addEventListener("click", ()=>{ Snd.ui(); resolveOverdrive("ride"); });

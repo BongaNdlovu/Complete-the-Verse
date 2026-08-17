@@ -2,6 +2,8 @@
  * Pure polish helpers — security clamps, heatmap, blitz, ghost, insights.
  * Run: node polish.test.js
  */
+const fs = require("fs");
+const path = require("path");
 const Polish = require("./js/polish");
 
 let pass = 0, fail = 0;
@@ -103,6 +105,14 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
     Polish.describeModeClock("daily", "disciple"), one(10000, t, pad));
   eq("legacy pilgrim key uses the Watchman clock",
     Polish.describeModeClock("daily", "pilgrim"), one(10000, t, pad));
+}
+
+{
+  const src = fs.readFileSync(path.join(__dirname, "js", "polish.js"), "utf8");
+  const block = src.match(/function describeModeClock\([\s\S]*?\n  \}/);
+  ok("describeModeClock source is extractable", !!block);
+  ok("describeModeClock does not read DIFFS (TDZ during game.js parse)",
+     block && !/\bDIFFS\b/.test(block[0]));
 }
 
 console.log((fail ? "FAIL" : "PASS") + " — polish · " + pass + " assertions" + (fail ? " · " + fail + " FAILED" : ""));

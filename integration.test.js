@@ -67,6 +67,10 @@ eq("the Disciple-era helper still prints 23.6s at ×1", read(sb, "pacedClockMs(1
 eq("Watchman clock is ×0.85", read(sb, "resolveDiff().time"), 0.85);
 eq("Watchman has two lamps", read(sb, "resolveDiff().lives"), 2);
 eq("Watchman score is unboosted", read(sb, "resolveDiff().score"), 1);
+eq("quitPlay is wired", read(sb, "typeof quitPlay"), "function");
+eq("a cold candle is dark", read(sb, "candleProgress()"), 0);
+read(sb, "R.mode='trial'; R.correct=20; R.streak=12; R.qTotal=20;");
+ok("kept verses and a streak heat the candle", read(sb, "candleProgress()") > 0.4);
 read(sb, "startRun('practice','disciple')");
 eq("a Disciple startRun is Watchman", read(sb, "R.diff.key"), "watchman");
 eq("a Disciple startRun gets two lamps", read(sb, "R.lives"), 2);

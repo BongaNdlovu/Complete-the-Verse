@@ -115,13 +115,15 @@ frames.forEach((kf) => {
   assert(!layout, kf.name + " does not animate layout edges");
 });
 
-assert(/@keyframes emberFall/.test(css), "embers fall rather than rise");
-assert(!/@keyframes emberRise/.test(css), "old rising ember cycle is gone");
-assert(/@keyframes emberFlicker/.test(css), "embers flicker like cooling fire");
-assert(/className="ember"/.test(game) || /className="ember"\+/.test(game),
-  "ember nodes are still spawned by the director");
-assert(/view-play/.test(game) && /view-play/.test(css),
-  "play view densifies the fire");
+assert(/@keyframes candleFlicker/.test(css), "the play candle flame flickers");
+assert(!/@keyframes emberFall/.test(css) && !/@keyframes emberRise/.test(css),
+  "play no longer runs a falling-ember cycle");
+assert(/function updateCandle/.test(game) && /function quitPlay/.test(game),
+  "play candle heat and quit are wired");
+assert(/id="play-candle"/.test(fs.readFileSync(path.join(root, "index.html"), "utf8")),
+  "play candle is in the markup");
+assert(/id="play-quit"/.test(fs.readFileSync(path.join(root, "index.html"), "utf8")),
+  "play quit is in the markup");
 
 /* --- looping motion dies under reduced --- */
 const reducedHooks = [
@@ -134,7 +136,8 @@ const reducedHooks = [
   [".ember", "embers"],
   [".smoke-wisp", "smoke"],
   [".ring.crit", "ring pulse"],
-  [".verse-stage:after", "trial sweep"]
+  [".verse-stage:after", "trial sweep"],
+  [".play-candle", "play candle flame"]
 ];
 const reducedSelectors = [...css.matchAll(/body\.reduced[^{]*\{/g)].map((m) => m[0]);
 reducedHooks.forEach(([hook, name]) => {

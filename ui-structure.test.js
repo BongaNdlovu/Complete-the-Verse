@@ -59,6 +59,8 @@ assert(html.includes('id="hud-accuracy"'), "accuracy id kept for JS updates");
 assert(html.includes('id="hud-lives"'), "lives remain on play HUD");
 assert(html.includes('id="score"'), "score remains on play HUD");
 assert(html.includes('id="confirm-answer"'), "Lock Answer control required");
+assert(html.includes('id="play-quit"'), "play view offers a Quit control");
+assert(html.includes('id="play-candle"'), "play view offers the progress candle");
 
 assert(css.includes("min-height:52px"), "mobile Lock CTA min-height 52px");
 assert(css.includes("font-size:.78rem"), "mobile Lock CTA readable font size");
