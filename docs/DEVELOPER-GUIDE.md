@@ -3,20 +3,20 @@
 Everything a developer needs to work in this codebase, including the
 details that are hard to find because they live in comments, in test
 files, or in the gap between modules. Written against the tree as of
-2026-08-16 (after the assessment fixes pass).
+2026-08-18 (after the code organisation and coffee pilgrimage pass).
 
 Companion documents: `docs/SECURITY-EVALUATION.md` (trust model, audit
 checklist), `docs/BACKEND-EVALUATION.md` (Supabase schema, sync, failure
-modes), `ASSESSMENT-REPORT.md` (state of the product), `BACKEND.md`
-(setup runbook for the Supabase project).
+modes), `docs/reports/ASSESSMENT-REPORT.md` (state of the product), `docs/BACKEND.md`
+(setup runbook for the Supabase project), `docs/CODE-ORGANISATION.md`.
 
 ---
 
 ## 1. What this project is
 
 A **static, zero-build web game** — King James Version verse completion
-framed as a biblical thriller. One `index.html`, ~20 plain-JS files, two
-CSS files, vendored libraries. It must run:
+framed as a biblical thriller and geographical pilgrimage. One `index.html`,
+modular plain-JS files, CSS files, vendored libraries. It must run:
 
 1. from **disk** (`file://`) with no network at all,
 2. from any static host (production: Vercel),
@@ -24,23 +24,25 @@ CSS files, vendored libraries. It must run:
    blocks boot or play.
 
 There is no bundler, no framework, no package installation needed to
-play. `node test.js` is the only tooling gate.
+play. `node test.js` (or `npm test`) is the only tooling gate.
 
 ```
 index.html          the single page — all views are <section class="view">s
+README.md           repository entry point
+test.js             root test runner (runs all 36 test suites)
 js/*.js             see module map below (loaded as classic <script>, globals)
-css/game.css        play/menu/results styling + film FX
-css/atlas.css       the pilgrimage map view
+css/*.css           game styling, film FX, and atlas map
 vendor/leaflet/     Leaflet 1.9.4 (map — vendored, never CDN)
 vendor/supabase/    supabase-js 2.112.3 (lazy-loaded only when configured)
 assets/             art (46 relics, 8 scholars × portrait+token, judge sheets…)
 audio/              7 music beds · audio/voice/ 24 narration clips
 sfx/                8 effect samples
-content/            verse QA data (quarantine.json, legacy-order.json) —
-                    tooling only, excluded from the Vercel deploy
+content/            verse QA data (quarantine.json, legacy-order.json)
 scripts/            dev server + content QA/generation scripts
 supabase/           migrations + edge function (see BACKEND-EVALUATION.md)
-*.test.js + test.js 34 test suites (see §10)
+test/*.test.js      37 test suites (see §10)
+docs/               living documentation and runbooks
+docs/reports/       archived snapshot reports
 ```
 
 ---
@@ -54,11 +56,15 @@ vendor/leaflet/leaflet.js
 js/verses.js        → defines VERSES (core), BOOKS_ORDER, verseId inputs
 js/verses-extra.js  → VERSES_EXTRA (generated — see §8.3)
 js/verses-more.js   → VERSES_MORE (hand-authored)
+js/verses-ascent.js → VERSES_ASCENT (ascent pool)
 js/passages.js      → PASSAGES (multi-blank passages), BOOKS_ORDER helper data
 js/legacy-ids.js    → LEGACY_ID_TABLE (v2 index → v3 id map)
-js/bank.js          → merges the three packs, assigns ids, builds BY_TIER/BY_ID
+js/bank.js          → merges verse packs, assigns ids, builds BY_TIER/BY_ID
 js/srs.js           → spaced repetition (pure)
 js/recall.js        → typed-answer grader (pure)
+js/assemble.js      → word-tile assembly logic (pure)
+js/meta.js          → meta progression, rank math
+js/flow.js          → state transitions and modal flows
 js/sites.js         → SITES + ARCS data (the 46-stop journey)
 js/empires.js       → historical empire polygons for the map
 js/geo.js           → solar math, compass, sun/moon (pure)
@@ -70,7 +76,20 @@ js/atlas.js         → the Leaflet map view
 js/polish.js        → pure helpers (clamps, PACE, insights, ghosts)
 js/cloud-config.js  → CLOUD_CONFIG (url + anon key, or empty)
 js/cloud.js         → Supabase client, lazy SDK loader
-js/game.js          → the engine; must be last (everything above is in scope)
+js/util.js          → common string/DOM helpers
+js/audio.js         → Snd audio subsystem (Web Audio + synthesized sound)
+js/director.js      → presentation, voice, callouts, momentum
+js/setpieces.js     → special set-piece sequences
+js/viz.js           → spectrum canvas and visualizer
+js/typed.js         → typed recall UI and on-screen keyboard
+js/sequences.js     → cutscene and passage sequence flows
+js/panels.js        → UI dialogs, settings, player card
+js/cinematic.js     → procedural vector art, Seventh Lamp, combo stamps
+js/results.js       → run completion, scoring, habit streak, XP
+js/diag.js          → diagnostics ring buffer, error logging, telemetry dump
+js/briefs.js        → boot sequence, mode briefs, cold launch
+js/play.js          → stage clocks, live question timer, answering, life loss
+js/game.js          → the engine orchestrator (everything above is in scope)
 ```
 
 **Constraints that are easy to break:**
@@ -86,12 +105,24 @@ js/game.js          → the engine; must be last (everything above is in scope)
 
 | File | Lines (approx) | Kind | Owns |
 |---|---|---|---|
-| `js/game.js` | 4,650 | engine | everything below in §4–§6 |
-| `js/pilgrimage.js` | 625 | **pure** | site order, unlocking, clocks, verse pools, progress records |
+| `js/game.js` | 1,200 | engine | save layer, modes, router, run orchestration |
+| `js/play.js` | 550 | engine | stage clocks, live question timer, answering, life loss |
+| `js/diag.js` | 90 | engine | session diagnostics ring buffer, error listener, dump export |
+| `js/briefs.js` | 740 | engine | boot sequence, mode briefs, cold launch |
+| `js/results.js` | 610 | engine | end of run, scoring, habit streak, results view |
+| `js/panels.js` | 650 | engine | settings, player card, records, journal dialogs |
+| `js/director.js` | 550 | engine | voice narration, callouts, momentum classes, ending stages |
+| `js/cinematic.js` | 270 | engine | procedural vector art, Seventh Lamp, combo stamps |
+| `js/setpieces.js` | 420 | engine | special milestone set-piece sequences |
+| `js/audio.js` | 410 | engine | Web Audio sound synthesizers, sample player |
+| `js/pilgrimage.js` | 750 | **pure** | site order, unlocking, clocks, verse pools, progress records |
 | `js/atlas.js` | 1,100 | view | Leaflet map, rail, dossier, layers, unlock ceremony |
 | `js/sites.js` / `js/empires.js` | 732/111 | data | 46 sites with coords/quotes/books/eras; empire polygons |
 | `js/srs.js` | 165 | **pure** | SM-2 scheduler, day numbers, queue builder |
 | `js/recall.js` | 195 | **pure** | typed grading (exact/close/modernised/wrong), hints |
+| `js/assemble.js` | 130 | **pure** | word-tile assembly tokenization and slots |
+| `js/meta.js` | 120 | **pure** | XP curves, rank titles, meta progression |
+| `js/flow.js` | 150 | **pure** | UI state machine and modal flows |
 | `js/polish.js` | 340 | **pure** | clamps, PACE/FLAT clock constants, `pacedClockMs`, heatmap, ghosts, 66 book insights |
 | `js/live.js` | 300 | pure-ish | Open-Meteo fetch + 15-min cache + authored climate normals |
 | `js/geo.js` | 280 | **pure** | sun position/times, moon phase, solar clock, compass |
@@ -105,19 +136,24 @@ Node — that is what makes the logic suites possible.
 
 ---
 
-## 4. The engine (`game.js`) — internal structure
+## 4. The engine — structure and architecture
 
-`game.js` is one file but has clear seams. Top to bottom:
+The engine is loaded via `ENGINE_FILES` in strict dependency order:
 
-1. **`Backdrop`** — CSS palette wash per act (PALETTES map), jolt on death/levelup.
-2. **Save layer** — `SAVE_KEY = "ctv_save_v3"`, v2 legacy read, `DEFAULT_SAVE`, `load()`, `migrateV2()`, `migrateProfile()`, `persist()` (writes localStorage, then debounced cloud push ~1.5 s if signed in).
-3. **Progression math** — `xpNeeded(l) = round(320·l^1.32)`, RANKS, RUN_TITLES, SEALS (29).
-4. **`Snd`** — WebAudio + element audio. See §7.
-5. **`Director`** — presentation: voice (recorded file → TTS fallback), callouts, pressure/momentum body classes, act/set-piece FX, `ending()` staging.
-6. **`SetPieces`** — the five special sequences (§6.3).
-7. **`Viz`** — the 56-bar spectrum canvas (idle sine animation, real FFT when audio routed).
-8. **Router `go(view)`** — one `.on` class per view; entering `atlas` mounts it, leaving unmounts; entering `play` starts the RAF loop.
-9. **Profile / relics / player card** renderers.
+1. **`js/util.js`** — DOM query, string formatting, sanitization.
+2. **`js/audio.js`** (`Snd`) — Web Audio synthesis and element audio.
+3. **`js/director.js`** (`Director`, `Backdrop`) — presentation: voice, callouts, body classes, ending stages.
+4. **`js/setpieces.js`** (`SetPieces`) — milestone set pieces.
+5. **`js/viz.js`** (`Viz`) — spectrum canvas visualizer.
+6. **`js/typed.js`** — typed recall UI and on-screen keyboard.
+7. **`js/sequences.js`** — multi-blank passages and reconstruct cutscenes.
+8. **`js/panels.js`** — player card, settings, records, journal.
+9. **`js/cinematic.js`** (`Cinematic`) — Seventh Lamp reward, combo celebrations.
+10. **`js/results.js`** — end of run, scoring bonuses, habit streak tracker, XP.
+11. **`js/diag.js`** (`Diag`) — session diagnostics ring buffer, error logging, telemetry dump.
+12. **`js/briefs.js`** — boot sequence, mode briefs, cold launch into Ur.
+13. **`js/play.js`** — stage clocks, live question timer, answering, life loss.
+14. **`js/game.js`** — save layer, modes, router `go(view)`, run orchestration.
 10. **Menu + brief + site brief + relay brief** (§6.1).
 11. **Run state `R` + startRun/questionDuration/nextQuestion** (§5).
 12. **Play rendering** — choices, typed mode + on-screen keyboard, timer ring, powers, answering, passage/reconstruct engines, FX helpers.
@@ -369,7 +405,7 @@ bank answers nearest in length — numbered fakes were removed.
 
 ## 10. Testing — the three styles (know which one you are writing)
 
-`node test.js` runs 34 suites in a fixed order: content gate → pure
+`node test.js` runs 37 suites in a fixed order: content gate → pure
 logic → integration sandbox → structural/static suites.
 
 1. **Pure requires** (`srs.test.js`, `recall.test.js`, `geo.test.js`,

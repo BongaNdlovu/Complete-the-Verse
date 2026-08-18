@@ -2,3 +2,5 @@ node_modules/
 audio/_orig_backup/
 *.log
 .DS_Store
+.claude/
+

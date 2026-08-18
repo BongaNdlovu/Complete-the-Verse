@@ -1,3 +1,9 @@
 {
+  "name": "complete-the-verse",
+  "private": true,
+  "scripts": {
+    "test": "node test.js",
+    "start": "node scripts/dev-server.js"
+  },
   "dependencies": {}
 }

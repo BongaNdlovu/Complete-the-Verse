@@ -378,7 +378,8 @@ function renderSettings(){
       seg("haptics",[[true,"On"],[false,"Off"]],s.haptics!==false)) +
     setRow("Single-tap answers","Answer the moment you tap a phrase. Off restores select-then-lock.",
       seg("singleTap",[[true,"On"],[false,"Off"]],s.singleTap!==false)) +
-    '<div class="footer"><button class="btn ghost sm" id="set-road">Restart the Pilgrimage</button>' +
+    '<div class="footer"><button class="btn ghost sm" id="set-diag">Copy diagnostics</button>' +
+    '<button class="btn ghost sm" id="set-road">Restart the Pilgrimage</button>' +
     '<button class="btn ghost sm" id="set-reset">Erase all progress</button></div>';
 
   function setRow(l,sub,ctrl){ return '<div class="setrow"><div><label>'+esc(l)+'</label><small>'+esc(sub)+'</small></div>'+ctrl+'</div>'; }
@@ -389,6 +390,24 @@ function renderSettings(){
 
   $("set-music").addEventListener("input", e=>{ Snd.unlock(); Snd.setMusic(parseFloat(e.target.value)); persist(); });
   $("set-sfx").addEventListener("input", e=>{ Snd.unlock(); Snd.setSfx(parseFloat(e.target.value)); persist(); });
+  const diagBtn = $("set-diag");
+  if(diagBtn){
+    diagBtn.addEventListener("click", ()=>{
+      Snd.ui();
+      if(typeof Diag !== "undefined" && typeof Diag.dump === "function"){
+        const dumpText = Diag.dump();
+        if(typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(dumpText).then(()=>{
+            if(typeof toast === "function") toast("Diagnostics copied to clipboard");
+          }).catch(()=>{
+            if(typeof toast === "function") toast("Could not write to clipboard");
+          });
+        } else {
+          if(typeof toast === "function") toast("Clipboard unavailable");
+        }
+      }
+    });
+  }
   const charBtn = $("set-character");
   if(charBtn) charBtn.addEventListener("click", ()=>{ Snd.ui(); openSkinPicker(); });
   const nameSave = $("set-name-save");

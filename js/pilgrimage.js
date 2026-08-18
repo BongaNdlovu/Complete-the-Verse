@@ -498,14 +498,40 @@ var Pilgrimage = (function () {
     var rnd = opts.rnd || seededRandom(seedFrom(siteId + ":" + (opts.attempt || 0)));
     var exclude = expandExclude(opts.exclude || {});
 
-    var res = resolvePool(s, {
-      need: need, exclude: exclude, tier: opts.tier, rnd: rnd
-    });
-    var picked = enforceSiteFloor(s, res.verses, need, exclude, rnd, res.target);
-    picked = enforceSignatureQuota(s, picked, need, exclude, rnd, res.target);
+    var dueList = [];
+    if (opts.dueVerses && Array.isArray(opts.dueVerses) && opts.dueVerses.length) {
+      var maxDue = Math.min(2, Math.floor(need / 4));
+      for (var d = 0; d < opts.dueVerses.length && dueList.length < maxDue; d++) {
+        var dv = opts.dueVerses[d];
+        if (dv && dv.id && !exclude[dv.id]) {
+          dueList.push(dv);
+          exclude[dv.id] = 1;
+        }
+      }
+    }
 
-    // Play order is shuffled so the easiest verse is not always first.
-    return { verses: shuffled(picked, rnd), ring: res.ring, target: res.target };
+    var poolNeed = Math.max(1, need - dueList.length);
+    var res = resolvePool(s, {
+      need: poolNeed, exclude: exclude, tier: opts.tier, rnd: rnd
+    });
+    var picked = enforceSiteFloor(s, res.verses, poolNeed, exclude, rnd, res.target);
+    picked = enforceSignatureQuota(s, picked, poolNeed, exclude, rnd, res.target);
+
+    // Fold due verses into the early/mid beats (1-5), ensuring variety
+    var combined = picked.slice();
+    if (dueList.length > 0) {
+      for (var di = 0; di < dueList.length; di++) {
+        var insertPos = Math.min(di * 2 + 1, combined.length);
+        combined.splice(insertPos, 0, dueList[di]);
+      }
+    }
+
+    return {
+      verses: shuffled(combined, rnd),
+      ring: res.ring,
+      target: res.target,
+      dueFolded: dueList.length
+    };
   }
 
   /* After the place floor rebuilds the list, put the signature quota back.
@@ -587,16 +613,89 @@ var Pilgrimage = (function () {
   /* The two late arcs mix a typed recall into the body of the site (not
      just the closing pair) — the road gets busier the further east it
      runs, mirroring the tightening clock. */
+  var MIXED_SLOT = 5;
   function barrageArc(arcKey) {
     var idx = -1;
     for (var i = 0; i < ARC_LIST.length; i++) if (ARC_LIST[i].key === arcKey) idx = i;
     return idx >= 2;
   }
-  var MIXED_SLOT = 5;
   function mixedTypedSlot(i, total, arcKey) {
     if (!barrageArc(arcKey)) return false;
     total = total || VERSES_PER_SITE;
     return i === Math.min(MIXED_SLOT, total - 1);
+  }
+
+  /* ---------------- dynamic read + think clock scaling ---------------- */
+
+  /* Scale think-time to the road (shrinking east); scale read-time to the verse length.
+     Word reading estimate is ~220ms per word with a 3.2s minimum read floor. */
+  function verseWordCount(v) {
+    if (!v) return 20;
+    var text = (v.q || "") + " " + (v.a || "") + " " + (v.r || "");
+    var words = text.trim().split(/\s+/).filter(Boolean);
+    return Math.max(10, words.length || 20);
+  }
+
+  function verseClockFor(siteIndex, v, opts) {
+    opts = opts || {};
+    var pos = positionOf(siteIndex);
+    // Think time shrinks from 8.5s at Ur down to 2.5s at Patmos
+    var thinkMs = 8500 - pos * 6000;
+    var words = verseWordCount(v);
+    var readMs = Math.max(3200, words * 230);
+    var pad = opts.pad != null ? opts.pad : PICK_PAD_MS;
+    var raw = readMs + thinkMs + pad;
+    return Math.round(raw / 100) * 100;
+  }
+
+  function isClimaxSite(siteId) {
+    return !!FULL_PLACE_SITES[siteId];
+  }
+
+  /* ---------------- spiral progression (post-Patmos) ---------------- */
+
+  function spiralPass(progress) {
+    if (!progress) return 1;
+    if (typeof progress.pass === "number" && progress.pass >= 1) return progress.pass;
+    var cleared = clearedCount(progress);
+    return Math.max(1, Math.floor(cleared / SITE_LIST.length) + 1);
+  }
+
+  function passStandard(pass) {
+    pass = pass || 1;
+    if (pass === 1) {
+      return {
+        pass: 1,
+        title: "The Pilgrim",
+        desc: "Recognition with one final prove-it. Ur to Patmos.",
+        typedCount: 1,
+        coldClockMultiplier: 1.0
+      };
+    } else if (pass === 2) {
+      return {
+        pass: 2,
+        title: "The Watchman",
+        desc: "Memory tightening. Assembled recall and colder think times.",
+        typedCount: 3,
+        coldClockMultiplier: 0.85
+      };
+    } else {
+      return {
+        pass: pass,
+        title: "The Scribe",
+        desc: "The road from memory. Pure assembled production.",
+        typedCount: 8,
+        coldClockMultiplier: 0.72
+      };
+    }
+  }
+
+  function advanceSpiral(progress) {
+    var next = blankProgress();
+    var currentP = spiralPass(progress);
+    next.pass = currentP + 1;
+    next.started = Date.now();
+    return next;
   }
 
   return {
@@ -614,10 +713,12 @@ var Pilgrimage = (function () {
     resolvePool: resolvePool, drawSite: drawSite, brief: brief,
     seededRandom: seededRandom, seedFrom: seedFrom, isNT: isNT,
     SITE_BOOK_FLOOR: SITE_BOOK_FLOOR, SIGNATURE_QUOTA: SIGNATURE_QUOTA,
-    FULL_PLACE_SITES: FULL_PLACE_SITES,
+    FULL_PLACE_SITES: FULL_PLACE_SITES, isClimaxSite: isClimaxSite,
     parseQuoteRef: parseQuoteRef, placeAffinity: placeAffinity, siteFloorNeed: siteFloorNeed,
     SPEED_SLOT: SPEED_SLOT, SPEED_MS: SPEED_MS, PICK_PAD_MS: PICK_PAD_MS, MIXED_SLOT: MIXED_SLOT,
-    speedSlot: speedSlot, barrageArc: barrageArc, mixedTypedSlot: mixedTypedSlot
+    speedSlot: speedSlot, barrageArc: barrageArc, mixedTypedSlot: mixedTypedSlot,
+    verseClockFor: verseClockFor, verseWordCount: verseWordCount,
+    spiralPass: spiralPass, passStandard: passStandard, advanceSpiral: advanceSpiral
   };
 })();
 

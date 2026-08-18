@@ -115,6 +115,45 @@ function endRun(reason){
       if(a.perfect && !hasSeal("arc-"+a.key)) grantSeal("arc-"+a.key);
     });
   }
+  // ---- habit streak ----
+  if(isPilgrim && (finished || siteCleared)){
+    if(!SAVE.habit) SAVE.habit = { count: 0, lastDate: "", lastDay: 0, best: 0, history: {} };
+    const todayD = (typeof SRS !== "undefined" && SRS.dayNumber) ? SRS.dayNumber() : Math.floor(Date.now() / 86400000);
+    const prevD = SAVE.habit.lastDay || (SAVE.habit.lastDate ? ((typeof SRS !== "undefined" && SRS.dayNumber) ? SRS.dayNumber(new Date(SAVE.habit.lastDate)) : 0) : 0);
+    
+    if(prevD === todayD){
+      // Already recorded today
+    } else if(prevD === todayD - 1){
+      SAVE.habit.count = (SAVE.habit.count || 0) + 1;
+      SAVE.habit.lastDay = todayD;
+      SAVE.habit.lastDate = todayKey();
+    } else {
+      SAVE.habit.count = 1;
+      SAVE.habit.lastDay = todayD;
+      SAVE.habit.lastDate = todayKey();
+    }
+    SAVE.habit.best = Math.max(SAVE.habit.best || 0, SAVE.habit.count);
+    if(!SAVE.habit.history) SAVE.habit.history = {};
+    SAVE.habit.history[todayKey()] = 1;
+
+    if(SAVE.habit.count >= 7 && !hasSeal("seventh-lamp")){
+      grantSeal("seventh-lamp");
+      if(typeof Cinematic !== "undefined" && Cinematic.playSeventhLamp){
+        Cinematic.playSeventhLamp({ streak: SAVE.habit.count });
+      }
+    } else if(SAVE.habit.count >= 14 && !hasSeal("streak14")){
+      grantSeal("streak14");
+      if(typeof Cinematic !== "undefined" && Cinematic.playSeventhLamp){
+        Cinematic.playSeventhLamp({ streak: 14 });
+      }
+    } else if(SAVE.habit.count >= 30 && !hasSeal("streak30")){
+      grantSeal("streak30");
+      if(typeof Cinematic !== "undefined" && Cinematic.playSeventhLamp){
+        Cinematic.playSeventhLamp({ streak: 30 });
+      }
+    }
+  }
+
   const recordScore = R.mode==="blitz" ? (R.correct||0) : total;
   const isRecord = recordScore > (SAVE.best[R.mode]||0);
   const prevBest = SAVE.best[R.mode]||0;
@@ -298,6 +337,18 @@ function renderResults(o){
   if(shareBtn){
     shareBtn.style.display = R.mode==="daily" ? "" : "none";
     shareBtn.onclick = ()=>shareDailyResult(o.total);
+  }
+
+  const habitEl = $("res-habit-streak");
+  if(habitEl){
+    const hCount = (SAVE.habit && SAVE.habit.count) || 0;
+    let lampsHtml = "";
+    for(let l = 1; l <= 7; l++){
+      const lit = l <= hCount;
+      lampsHtml += '<i class="h-lamp ' + (lit ? 'lit' : 'dim') + (l === 7 ? ' sabbath' : '') + '" title="Day ' + l + '"></i>';
+    }
+    habitEl.innerHTML = '<div class="h-label">Habit Streak · <b>' + hCount + ' Day' + (hCount === 1 ? '' : 's') + '</b></div><div class="h-row">' + lampsHtml + '</div>';
+    habitEl.style.display = "";
   }
 
   /* On the road, the results screen reports where you are rather than

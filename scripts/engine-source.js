@@ -27,8 +27,11 @@ const ENGINE_FILES = [
   "js/typed.js",
   "js/sequences.js",
   "js/panels.js",
+  "js/cinematic.js",
   "js/results.js",
+  "js/diag.js",
   "js/briefs.js",
+  "js/play.js",
   "js/game.js"
 ];
 

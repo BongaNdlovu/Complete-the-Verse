@@ -192,10 +192,7 @@ function updateOfflineBanner(){
    Practice, and Challenges. Anything not listed but not hidden renders
    in a fallback card grid without orphans. */
 const MENU_GROUPS = [
-  { name: "The Road",   modes: ["pilgrimage"] },
-  { name: "Today",      modes: ["daily"] },
-  { name: "Practice",   modes: ["practice"] },
-  { name: "Challenges", modes: ["blitz", "trial", "endless"] }
+  { name: "The Road",   modes: ["pilgrimage"] }
 ];
 const MENU_ORDER = ["pilgrimage", "daily", "blitz", "trial", "endless", "practice"];
 
@@ -698,8 +695,9 @@ function playBootSequence(opts){
       if(msg) msg.textContent="The record is open.";
       setTimeout(()=>{
         if(currentView==="boot"){
-          go("menu");
-          showTutorialIfNeeded();
+          const cur = (typeof Pilgrimage !== "undefined" && Pilgrimage.currentSite) ? Pilgrimage.currentSite(SAVE.pilgrim) : null;
+          pendingSiteId = (cur && cur.id) || "ur";
+          startRun("pilgrimage", SAVE.set.diff);
         }
       }, fast?220:480);
     }

@@ -53,6 +53,20 @@ var Flow = (function(){
       body: "Time ended the run. The words remain. The record of the attempt is kept.",
       primary: "See the record",
       secondary: ""
+    },
+    "save-corrupt": {
+      kick: "Corrupted Record",
+      title: "The save on this device would not open",
+      body: "A copy of the unreadable record has been held in backup storage. Continuing starts a fresh local record.",
+      primary: "Continue with new record",
+      secondary: "Copy diagnostics"
+    },
+    "save-blocked": {
+      kick: "Storage Blocked",
+      title: "Progress could not be saved to disk",
+      body: "The lamps are still burning on screen, but this device refused to write the record (private browsing, quota, or blocked storage).",
+      primary: "Continue playing",
+      secondary: "Copy diagnostics"
     }
   };
 
