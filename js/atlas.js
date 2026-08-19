@@ -993,7 +993,14 @@ var Atlas = (function () {
         card.classList.add("gone");
         card.removeEventListener("click", finish);
       }
-      if (current) select(current.id, { fly: hasMap() && !reduced(), duration: 2.6 });
+      if (current) {
+        select(current.id, { fly: hasMap() && !reduced(), duration: 2.6 });
+        if (Pilgrimage.clearedCount(progress) === 0) {
+          setTimeout(function () {
+            openJourneyVignette("ur");
+          }, reduced() ? 300 : 2600);
+        }
+      }
     }
 
     speak("The pilgrimage. Ur to Patmos.");

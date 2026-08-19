@@ -441,6 +441,20 @@ function openSiteBrief(siteId, mode){
   $("sb-quote").textContent = s.quote;
   $("sb-ref").textContent = s.quoteRef;
 
+  const vig = (typeof Pilgrimage !== "undefined" && Pilgrimage.vignette) ? Pilgrimage.vignette(siteId) : null;
+  const heroWrap = $("sb-hero-media");
+  const heroImg = $("sb-hero-img");
+  if(heroWrap && heroImg && vig && vig.image){
+    heroImg.src = vig.image;
+    heroImg.onerror = function(){
+      if(vig.fallback) heroImg.src = vig.fallback;
+      else heroWrap.style.display = "none";
+    };
+    heroWrap.style.display = "block";
+  } else if(heroWrap){
+    heroWrap.style.display = "none";
+  }
+
   $("sb-info").innerHTML = [
     [b.ordinal + " / " + b.total, "Site on the road"],
     [String(b.verses), sbMode === "pilgrim-recall" ? "Verses, assembled" : "Verses"],
