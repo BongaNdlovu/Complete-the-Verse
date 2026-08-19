@@ -1570,6 +1570,13 @@ function loop(ts){
   bindStatePanel();
   const playQuit = $("play-quit");
   if(playQuit) playQuit.addEventListener("click", quitPlay);
+  const confirmBtn = $("confirm-answer");
+  if(confirmBtn){
+    confirmBtn.addEventListener("click", function(){
+      if(R.typed && typeof confirmTyped === "function") confirmTyped();
+      else if(typeof confirmAnswer === "function") confirmAnswer();
+    });
+  }
   /* Overdrive ride-or-bank choice buttons. */
   const odRide = $("od-ride"), odBank = $("od-bank");
   if(odRide) odRide.addEventListener("click", ()=>{ Snd.ui(); resolveOverdrive("ride"); });

@@ -1004,25 +1004,44 @@ body.reduced #reveal-stage.play .reveal-art{animation:none;opacity:1;transform:n
 
 /* Assemble — word bank in place of free typing */
 .asm-hidden{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px}
-.asm-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;width:100%;margin:.4vh 0}
+.asm-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;width:100%;margin:.6vh 0 .4vh}
 .asm-slot{
-  min-width:3.2em;min-height:2.2em;padding:.35em .7em;font-family:var(--body);
+  min-width:3.6em;min-height:2.4em;padding:.4em .85em;font-family:var(--body);
   font-size:clamp(.95rem,2vw,1.2rem);color:var(--parch);
-  background:linear-gradient(158deg,rgba(20,20,26,.86),rgba(6,7,11,.92));
-  box-shadow:0 0 0 1px var(--edge) inset;border-radius:3px;
-  touch-action:none;user-select:none;-webkit-user-select:none}
-.asm-slot.empty{color:var(--gold-dim);opacity:.55}
-.asm-slot.full{color:var(--gold-hot);box-shadow:0 0 0 1px rgba(217,182,103,.45) inset}
-.asm-bank{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;width:100%;margin:.3vh 0 .2vh}
+  background:linear-gradient(158deg,rgba(20,20,26,.88),rgba(6,7,11,.94));
+  box-shadow:0 0 0 1px var(--edge) inset,0 2px 6px rgba(0,0,0,.4);border-radius:4px;
+  touch-action:none;user-select:none;-webkit-user-select:none;
+  transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s ease,background .18s ease}
+.asm-slot.empty{color:var(--gold-dim);opacity:.5;border:1px dashed rgba(217,182,103,.3)}
+.asm-slot.full{color:var(--gold-hot);box-shadow:0 0 0 1px rgba(217,182,103,.5) inset,0 2px 8px rgba(0,0,0,.5);cursor:grab}
+.asm-slot.full:hover{transform:translateY(-2px);box-shadow:0 0 0 1px var(--gold) inset,0 0 12px rgba(217,182,103,.25)}
+.asm-bank{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;width:100%;margin:.4vh 0 .3vh}
 .asm-tile{
-  padding:.4em .75em;font-family:var(--body);font-size:clamp(.9rem,1.9vw,1.12rem);
-  color:var(--parch);background:rgba(40,28,12,.82);
-  box-shadow:0 0 0 1px rgba(213,173,98,.45) inset;border-radius:3px;cursor:grab;
-  touch-action:none;user-select:none;-webkit-user-select:none}
-.asm-tile:focus-visible,.asm-tile:active{box-shadow:0 0 0 1px var(--gold) inset,0 0 16px rgba(217,182,103,.2)}
-.asm-tile.burn{opacity:.28;pointer-events:none;text-decoration:line-through}
-.asm-tile.dragging,.asm-slot.dragging{opacity:.45}
-.asm-slot.drop-target{color:var(--gold-hot);box-shadow:0 0 0 1px var(--gold-hot) inset,0 0 20px rgba(217,182,103,.3)}
+  padding:.42em .88em;font-family:var(--body);font-size:clamp(.92rem,1.9vw,1.15rem);
+  color:var(--parch);background:linear-gradient(165deg,rgba(48,34,18,.9),rgba(24,18,10,.95));
+  box-shadow:0 0 0 1px rgba(213,173,98,.5) inset,0 4px 10px rgba(0,0,0,.5);border-radius:4px;cursor:grab;
+  touch-action:none;user-select:none;-webkit-user-select:none;
+  transition:transform .15s cubic-bezier(.2,.8,.2,1),box-shadow .15s ease,opacity .15s ease}
+.asm-tile:hover{transform:translateY(-2px);box-shadow:0 0 0 1px var(--gold) inset,0 6px 14px rgba(217,182,103,.28);color:var(--gold-hot)}
+.asm-tile:active,.asm-tile:focus-visible{box-shadow:0 0 0 1px var(--gold) inset,0 0 18px rgba(217,182,103,.35)}
+.asm-tile.burn{opacity:.25;pointer-events:none;text-decoration:line-through;filter:grayscale(0.8)}
+.asm-tile.dragging,.asm-slot.dragging{opacity:.35;transform:scale(.92)}
+.asm-slot.drop-target{
+  color:var(--gold-hot);
+  background:rgba(217,182,103,.2);
+  box-shadow:0 0 0 2px var(--gold-hot) inset,0 0 24px rgba(217,182,103,.45);
+  transform:scale(1.1)}
+.asm-drag-avatar{
+  position:fixed;pointer-events:none;z-index:15000;
+  padding:.42em .92em;font-family:var(--body);
+  font-size:clamp(1rem,2.1vw,1.25rem);
+  color:var(--gold-hot);
+  background:linear-gradient(165deg,rgba(56,38,18,.98),rgba(20,14,8,.99));
+  box-shadow:0 0 0 2px var(--gold-hot) inset,0 16px 36px rgba(0,0,0,.85),0 0 28px rgba(217,182,103,.6);
+  border-radius:5px;
+  transform:translate(-50%,-50%) rotate(4deg) scale(1.12);
+  will-change:transform,left,top;
+  cursor:grabbing}
 .pc-oil{font-family:var(--ui);letter-spacing:.16em;text-transform:uppercase;font-size:.58rem;color:var(--gold);margin-top:.25em}
 .pwr.oil-buy em{color:var(--gold)}
 

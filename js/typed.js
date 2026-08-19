@@ -12,6 +12,7 @@ function syncTypedLock(){
   const ready = R.assemble && typeof Assemble !== "undefined" && Assemble.isFilled(R.assemble);
   btn.disabled = !ready;
   btn.textContent = ready ? "Lock Answer" : "Place the words";
+  btn.classList.toggle("ready", ready);
 }
 
 function syncTypedPowerButtons(){
@@ -29,8 +30,6 @@ function syncTypedPowerButtons(){
 function bindTypedPowerButtons(opts){
   if(!opts || opts.dataset.typedPowersBound) return;
   opts.dataset.typedPowersBound = "1";
-  /* Delegation survives the innerHTML refresh that redraws the bank after
-     every drop, and keeps power clicks out of the drag board's handlers. */
   opts.addEventListener("click", function(e){
     const b = e.target.closest && e.target.closest(".typed-pwr[data-pw]");
     if(!b || b.disabled) return;
@@ -43,7 +42,10 @@ function bindTypedPowerButtons(opts){
 
 function confirmTyped(){
   if(!R.running || R.paused || R.locked) return;
-  if(!R.assemble || typeof Assemble === "undefined" || !Assemble.isFilled(R.assemble)) return;
+  if(!R.assemble || typeof Assemble === "undefined" || !Assemble.isFilled(R.assemble)){
+    if(typeof toast === "function") toast("Place all words into the phrase before locking");
+    return;
+  }
   const phrase = Assemble.join(R.assemble.placed);
   const input = $("typed-answer");
   if(input) input.value = phrase;
@@ -103,7 +105,7 @@ function renderAssembleBank(){
     el.dataset.slot = String(i);
     el.textContent = t ? t.word : "—";
     el.setAttribute("role", "listitem");
-    el.setAttribute("aria-label", t ? "Placed word " + t.word + ". Press Enter to remove." : "Empty phrase slot " + (i + 1));
+    el.setAttribute("aria-label", t ? "Placed word " + t.word + ". Tap to remove." : "Empty phrase slot " + (i + 1));
     if(t){ el.dataset.id = t.id; el.draggable = true; el.setAttribute("aria-grabbed", "true"); }
     slots.appendChild(el);
   });
@@ -116,9 +118,11 @@ function bindAssembleBoard(){
   const wrap = $("asm-wrap");
   if(!wrap || wrap.dataset.bound) return;
   wrap.dataset.bound = "1";
+
   function canInteract(){
     return !!(R.assemble && R.running && !R.paused && !R.locked);
   }
+
   function slotAt(e){
     let node = e && e.target;
     if(typeof document.elementFromPoint === "function" && e && Number.isFinite(e.clientX) && Number.isFinite(e.clientY)){
@@ -126,54 +130,107 @@ function bindAssembleBoard(){
     }
     return node && node.closest ? node.closest(".asm-slot") : null;
   }
+
+  function bankAt(e){
+    let node = e && e.target;
+    if(typeof document.elementFromPoint === "function" && e && Number.isFinite(e.clientX) && Number.isFinite(e.clientY)){
+      node = document.elementFromPoint(e.clientX, e.clientY) || node;
+    }
+    return node && node.closest ? node.closest(".asm-bank") : null;
+  }
+
   function clearPointer(){
     const state = R.assemble;
     const p = state && state.pointer;
     if(!p) return;
+    if(p.avatar){ try { p.avatar.remove(); } catch(err){} }
     if(p.source) p.source.classList.remove("dragging");
     document.querySelectorAll(".asm-slot.drop-target").forEach(function(s){ s.classList.remove("drop-target"); });
-    if(p.source && p.source.releasePointerCapture){
-      try{ p.source.releasePointerCapture(p.pointerId); }catch(err){}
-    }
     state.pointer = null;
   }
-  /* Pointer Events are the primary drag path. They work for touch, pen and
-     mouse, while the click and native drag handlers below remain fallbacks. */
+
+  /* Pointer Events: Smooth realistic drag with floating avatar and slot preview */
   wrap.addEventListener("pointerdown", function(e){
     if(!canInteract() || (e.pointerType === "mouse" && e.button !== 0)) return;
     const el = e.target.closest && e.target.closest(".asm-tile,.asm-slot.full");
     if(!el || el.classList.contains("burn") || !el.dataset.id) return;
-    R.assemble.pointer = {id:el.dataset.id, source:el, pointerId:e.pointerId, x:e.clientX, y:e.clientY, moved:false};
-    el.classList.add("dragging");
-    if(el.setPointerCapture){
-      try{ el.setPointerCapture(e.pointerId); }catch(err){}
-    }
+    const isSlot = el.classList.contains("asm-slot");
+    const sourceSlot = isSlot ? +el.dataset.slot : -1;
+    const tileObj = Assemble.tileById(R.assemble, el.dataset.id);
+    R.assemble.pointer = {
+      id: el.dataset.id,
+      word: tileObj ? tileObj.word : el.textContent,
+      source: el,
+      sourceSlot: sourceSlot,
+      pointerId: e.pointerId,
+      x: e.clientX,
+      y: e.clientY,
+      avatar: null,
+      moved: false
+    };
   });
-  wrap.addEventListener("pointermove", function(e){
+
+  window.addEventListener("pointermove", function(e){
     const p = R.assemble && R.assemble.pointer;
     if(!p || p.pointerId !== e.pointerId) return;
-    const moved = Math.abs(e.clientX-p.x) > 6 || Math.abs(e.clientY-p.y) > 6;
-    if(!moved && !p.moved) return;
-    p.moved = true;
-    e.preventDefault();
-    const target = slotAt(e);
-    document.querySelectorAll(".asm-slot.drop-target").forEach(function(s){ s.classList.remove("drop-target"); });
-    if(target) target.classList.add("drop-target");
+    const dist = Math.hypot(e.clientX - p.x, e.clientY - p.y);
+    if(dist > 5){
+      p.moved = true;
+      e.preventDefault();
+      if(!p.avatar && typeof document.createElement === "function"){
+        p.source.classList.add("dragging");
+        const av = document.createElement("div");
+        av.className = "asm-drag-avatar";
+        av.textContent = p.word;
+        document.body.appendChild(av);
+        p.avatar = av;
+      }
+      if(p.avatar){
+        p.avatar.style.left = e.clientX + "px";
+        p.avatar.style.top = e.clientY + "px";
+      }
+      const target = slotAt(e);
+      document.querySelectorAll(".asm-slot.drop-target").forEach(function(s){ s.classList.remove("drop-target"); });
+      if(target) target.classList.add("drop-target");
+    }
   });
-  wrap.addEventListener("pointerup", function(e){
+
+  window.addEventListener("pointerup", function(e){
     const state = R.assemble, p = state && state.pointer;
     if(!p || p.pointerId !== e.pointerId) return;
-    const moved = p.moved, id = p.id, target = slotAt(e);
+    const moved = p.moved, id = p.id, sourceSlot = p.sourceSlot;
+    const target = slotAt(e);
+    const inBank = bankAt(e);
     clearPointer();
-    if(!moved) return; /* let the accessible click path place the word */
-    state.suppressClickUntil = Date.now() + 600;
-    if(canInteract() && target){
-      Assemble.place(state, id, +target.dataset.slot);
+    if(!moved) return; /* Accessible click / tap fallback handles in-place taps */
+
+    state.suppressClickUntil = Date.now() + 400;
+    if(!canInteract()) return;
+
+    if(target){
+      const destSlot = +target.dataset.slot;
+      if(sourceSlot >= 0 && sourceSlot !== destSlot && state.placed[destSlot]){
+        // Swap existing placed word with dragged word
+        const existing = state.placed[destSlot];
+        const current = state.placed[sourceSlot];
+        state.placed[destSlot] = current;
+        state.placed[sourceSlot] = existing;
+      } else {
+        Assemble.place(state, id, destSlot);
+      }
+      Snd.ui();
+      renderAssembleBank();
+    } else if(sourceSlot >= 0 && inBank){
+      // Dragged from slot back into the bank
+      Assemble.unplace(state, sourceSlot);
       Snd.ui();
       renderAssembleBank();
     }
   });
-  wrap.addEventListener("pointercancel", clearPointer);
+
+  window.addEventListener("pointercancel", clearPointer);
+
+  /* Tap / Click fallback */
   wrap.addEventListener("click", e => {
     if(!canInteract()) return;
     if(R.assemble.suppressClickUntil && Date.now() < R.assemble.suppressClickUntil){
@@ -194,6 +251,7 @@ function bindAssembleBoard(){
       renderAssembleBank();
     }
   });
+
   wrap.addEventListener("keydown", function(e){
     if(!canInteract() || (e.key !== "Enter" && e.key !== " ")) return;
     const tile = e.target.closest && e.target.closest(".asm-tile");
@@ -209,30 +267,6 @@ function bindAssembleBoard(){
       Snd.ui();
       renderAssembleBank();
     }
-  });
-  wrap.addEventListener("dragstart", e => {
-    const el = e.target.closest("[data-id]");
-    if(!el || !R.assemble || R.locked || R.assemble.pointer){ e.preventDefault(); return; }
-    R.assemble.drag = el.dataset.id;
-    el.classList.add("dragging");
-    try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", el.dataset.id); } catch (err) {}
-  });
-  wrap.addEventListener("dragend", e => {
-    const el = e.target.closest("[data-id]");
-    if(el) el.classList.remove("dragging");
-    if(R.assemble) R.assemble.drag = null;
-  });
-  wrap.addEventListener("dragover", e => {
-    if(e.target.closest(".asm-slot")){ e.preventDefault(); }
-  });
-  wrap.addEventListener("drop", e => {
-    const slot = e.target.closest(".asm-slot");
-    if(!slot || !R.assemble || !R.assemble.drag) return;
-    e.preventDefault();
-    Assemble.place(R.assemble, R.assemble.drag, +slot.dataset.slot);
-    R.assemble.drag = null;
-    Snd.ui();
-    renderAssembleBank();
   });
 }
 
@@ -267,10 +301,13 @@ function renderTypedQuestion(q, dur, scene){
     });
   }
   const confirmBtn = $("confirm-answer");
-  confirmBtn.style.display = "";
+  if(confirmBtn){
+    confirmBtn.style.display = "";
+    confirmBtn.onclick = confirmTyped;
+  }
   syncTypedLock();
   const how=$("warn-how");
-  if(how) how.innerHTML="Place the missing words<br>Enter locks the line";
+  if(how) how.innerHTML="Place the missing words<br>Lock Answer or Enter confirms";
   renderPowers();
   syncTypedPowerButtons();
   armTimer(dur);
