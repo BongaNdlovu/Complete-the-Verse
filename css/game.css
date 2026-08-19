@@ -86,7 +86,7 @@ body.quality-low #hall-bg,body.reduced #hall-bg{display:none!important;opacity:0
 .view.on>*{animation:vIn .7s cubic-bezier(.16,.84,.28,1) both}
 @keyframes vIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 body.reduced .view.on>*{animation:none}
-.scrollpad{flex:1;overflow-y:auto;padding:calc(var(--safe-t) + 18px) 5vw 7vh;display:flex;flex-direction:column;align-items:center;gap:0}
+.scrollpad{flex:1;overflow-y:auto;padding:calc(var(--safe-t) + 24px) 5vw 8vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;width:100%;box-sizing:border-box}
 
 /* ---------- typography ---------- */
 .kick{font-family:var(--disp);font-size:clamp(.55rem,1.05vw,.74rem);letter-spacing:.62em;text-indent:.62em;
@@ -181,10 +181,12 @@ body.reduced .boot-inner{animation:none}
 body.reduced .bootmark{animation:none}
 
 /* ================= MENU ================= */
-#v-menu .scrollpad{justify-content:center;padding-top:calc(var(--safe-t) + 78px)}
-.playercard{position:fixed;top:calc(var(--safe-t) + 8px);left:3.4vw;z-index:12;
-  display:flex;align-items:center;gap:14px;padding:.7em 1.3em .7em .8em;
-  background:var(--panel);box-shadow:0 0 0 1px var(--edge) inset;backdrop-filter:blur(9px);
+#v-menu .scrollpad{justify-content:flex-start;padding-top:calc(var(--safe-t) + 28px);padding-bottom:10vh}
+.menu-brand{display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:760px;margin-bottom:1.5vh}
+.menu-subtitle{max-width:48ch;text-align:center;color:var(--parch-dim);font-style:italic;font-size:clamp(.95rem,1.8vw,1.15rem);line-height:1.6;margin:0 auto}
+.playercard{position:fixed;top:calc(var(--safe-t) + 12px);left:max(16px, 3.4vw);z-index:12;
+  display:flex;align-items:center;gap:14px;padding:.65em 1.25em .65em .8em;
+  background:var(--panel);box-shadow:0 0 0 1px var(--edge) inset,0 12px 32px rgba(0,0,0,.6);backdrop-filter:blur(12px);
   clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%)}
 .pc-sigil{width:44px;height:44px;display:grid;place-items:center;position:relative;
   background:conic-gradient(from 45deg,var(--gold-deep),var(--gold-hot),var(--gold-deep));
@@ -201,9 +203,10 @@ body.reduced .bootmark{animation:none}
   box-shadow:0 0 0 1px var(--edge) inset;backdrop-filter:blur(9px);transition:.2s;font-size:.95rem;color:var(--gold)}
 .iconbtn:hover{box-shadow:0 0 0 1px var(--gold) inset;background:rgba(217,182,103,.12)}
 
-.modes{display:flex;flex-direction:column;gap:24px;width:min(1080px,92vw);margin-top:3.6vh}
-.mode-group{display:flex;flex-direction:column;gap:10px}
-.mode-group-head{font-family:var(--ui);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-dim);padding-left:.2em}
+.modes{display:flex;flex-direction:column;gap:28px;width:min(1080px,92vw);margin-top:2.4vh}
+.mode-group{display:flex;flex-direction:column;gap:12px}
+.mode-group-head{font-family:var(--disp);font-size:.78rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);padding-left:.2em;display:flex;align-items:center;gap:10px}
+.mode-group-head:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(217,182,103,.35),transparent)}
 .mode-group-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
 .mode{position:relative;text-align:left;padding:1.7em 1.55em 1.55em;overflow:hidden;
   background:var(--panel);box-shadow:0 0 0 1px var(--edge) inset;backdrop-filter:blur(7px);
@@ -222,10 +225,15 @@ body.reduced .bootmark{animation:none}
   text-transform:uppercase;padding:.35em .7em;background:rgba(217,182,103,.14);color:var(--gold-hot);
   box-shadow:0 0 0 1px var(--edge) inset}
 .mode .pill.done{background:rgba(95,209,138,.14);color:var(--green)}
-.subnav{display:flex;gap:12px;margin-top:3.6vh;flex-wrap:wrap;justify-content:center}
+.subnav{display:flex;gap:12px;margin-top:4vh;flex-wrap:wrap;justify-content:center}
+
+@media (max-width:900px){
+  .playercard{position:static;margin:0 auto 1.5rem auto;width:min(100%, 360px)}
+  #v-menu .scrollpad{padding-top:calc(var(--safe-t) + 16px)}
+}
 
 /* ================= BRIEF ================= */
-#v-brief .scrollpad{justify-content:center}
+#v-brief .scrollpad{justify-content:flex-start;padding-top:calc(var(--safe-t) + 28px)}
 .diffs{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;width:min(820px,92vw);margin:3vh 0}
 .diff{text-align:left;padding:1.3em 1.2em;background:var(--panel);box-shadow:0 0 0 1px var(--edge) inset;
   transition:.2s;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}

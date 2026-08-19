@@ -138,11 +138,10 @@ function buildPlayerCard(){
   document.body.appendChild(d);
 }
 function updatePlayerCard(){
-  const li = levelInfo(SAVE.xp);
   const card = $("playercard"); if(!card) return;
-  // The atlas has its own chrome in that corner, so the card stands down.
-  card.style.display = (currentView==="play"||currentView==="boot"||currentView==="intro"||
-                        currentView==="act"||currentView==="atlas"||currentView==="relics") ? "none" : "flex";
+  // Player card belongs on the Main Hall menu and stands down elsewhere to prevent chrome collision.
+  card.style.display = (currentView === "menu") ? "flex" : "none";
+  const li = levelInfo(SAVE.xp);
   $("pc-lvl").textContent = li.level;
   $("pc-rank").textContent = rankFor(li.level);
   $("pc-xpfill").style.width = (li.into/li.need*100)+"%";
