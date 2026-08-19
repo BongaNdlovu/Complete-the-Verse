@@ -178,19 +178,38 @@ const sb = bootGame();
   ok("Dossier contains clickable relic inspect trigger", bodyHtml.includes("data-inspect-relic"));
 }
 
-/* 9. STUDY HALL, SEALS, AND RECORDS VIEWS */
+/* 9. STUDY HALL, SEALS, AND RECORDS VIEWS & PLAYER CARD DISPLAY */
 {
   exec(sb, 'go("study");');
   eq("Study hall view active", read(sb, "currentView"), "study");
+  eq("Player card hidden on study hall", read(sb, '$("playercard").style.display'), "none");
+
+  exec(sb, 'go("relics");');
+  eq("Relics view active", read(sb, "currentView"), "relics");
+  eq("Player card hidden on relics hall", read(sb, '$("playercard").style.display'), "none");
 
   exec(sb, 'go("seals");');
   eq("Seals view active", read(sb, "currentView"), "seals");
+  eq("Player card hidden on seals view", read(sb, '$("playercard").style.display'), "none");
 
   exec(sb, 'go("records");');
   eq("Records view active", read(sb, "currentView"), "records");
+  eq("Player card hidden on records view", read(sb, '$("playercard").style.display'), "none");
 
   exec(sb, 'go("settings");');
   eq("Settings view active", read(sb, "currentView"), "settings");
+  eq("Player card hidden on settings view", read(sb, '$("playercard").style.display'), "none");
+
+  exec(sb, 'go("menu");');
+  eq("Menu view active", read(sb, "currentView"), "menu");
+  eq("Player card displayed on main menu", read(sb, '$("playercard").style.display'), "flex");
+}
+
+/* 10. WRONG ANSWER AUDIO & FLASH */
+{
+  exec(sb, 'startRun("pilgrimage", "watchman");');
+  exec(sb, 'resolveAnswer(R.q, "WRONG_ANSWER_TEXT", null, 1200, 4000);');
+  eq("Lives drop on wrong answer (when shield is used)", read(sb, "R.missed.length"), 1);
 }
 
 /* SUMMARY */

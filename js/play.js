@@ -578,7 +578,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
       const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
       R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, true);
     }
-    noteGhostProgress(); Director.impact("correct"); animateScore(); setMult(true);Director.momentum(true);
+    noteGhostProgress(); Director.impact("correct"); Snd.correct(); animateScore(); setMult(true);Director.momentum(true);
     if(typeof Cinematic !== "undefined" && (R.streak === 3 || R.streak === 5 || R.streak === 8 || R.streak === 12)){
       if(Cinematic.event) Cinematic.event("streak", {streak:R.streak, mult:multiplier()});
       else Cinematic.showComboStamp(R.streak, multiplier());

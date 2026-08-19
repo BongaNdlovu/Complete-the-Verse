@@ -306,3 +306,8 @@ const Snd = (function(){
     stopVoice:stopVoice
   };
 })();
+
+if(typeof window !== "undefined"){
+  window.addEventListener("pointerdown", function(){ if(typeof Snd !== "undefined" && Snd.unlock) Snd.unlock(); }, { passive: true });
+  window.addEventListener("keydown", function(){ if(typeof Snd !== "undefined" && Snd.unlock) Snd.unlock(); }, { passive: true });
+}
