@@ -346,34 +346,259 @@ function buildChoices(q, rnd){
   return shuffle([correct].concat(picked.slice(0,3)), r);
 }
 
-function renderQuestion(q, dur){
-  const scene = ++R.sceneToken;
-  Director.pressure(0);
-  $("ref").textContent = q.r + " — KJV";
-  // blank is a fixed width so the length of the answer is never a clue
-  $("verse").innerHTML = highlightVerse(q.p) +
-    ' <span class="blank" id="blank">&#8195;&#8195;&#8195;</span>' + sep(q.s) + highlightVerse(q.s);
-  fitVerseSize((q.p||"").length+(q.a||"").length+(q.s||"").length);
-  /* A light entrance on each new verse so question-to-question feels
-     like a handoff, not a hard swap. */
-  const verseEl = $("verse");
-  if(verseEl && !document.body.classList.contains("reduced")){
-    verseEl.classList.remove("q-in"); void verseEl.offsetWidth; verseEl.classList.add("q-in");
+function syncCinematicBackdrop(){
+  const el = $("cine-parallax-img");
+  if(!el) return;
+  const siteId = R.siteId || (R.q && typeof Pilgrimage!=="undefined" && Pilgrimage.siteForBook ? (Pilgrimage.siteForBook(R.q.b)||{}).id : null) || "ur";
+  const vig = (typeof Pilgrimage !== "undefined" && Pilgrimage.vignette) ? Pilgrimage.vignette(siteId) : null;
+  const imgUrl = vig ? vig.image : ("assets/journey/" + siteId + ".png");
+  el.style.backgroundImage = 'url("' + imgUrl + '"), url("assets/journey/ur.png")';
+}
+
+function clearOtherStages(){
+  const duel = $("duel-stage"); if(duel) duel.style.display = "none";
+  const cloze = $("cloze-stage"); if(cloze) cloze.style.display = "none";
+  const asm = $("assembly"); if(asm) asm.className = "assembly";
+  const opts = $("opts"); if(opts) { opts.style.display = ""; opts.style.opacity = ""; opts.style.pointerEvents = ""; }
+  const blank = $("blank"); if(blank) blank.classList.remove("fade-dissolve");
+  const oldFadeBar = $("fade-bar"); if(oldFadeBar) oldFadeBar.remove();
+}
+
+function selectPilgrimageMechanic(idx, q){
+  if(!q || R.typed) return null;
+  if(idx === 2) return "strike";
+  if(idx === 3) return "cloze";
+  if(idx === 5) return "duel";
+  if(idx === 6) return "fade";
+  return null;
+}
+
+/* ================= 1. FALSEHOOD STRIKE (ERROR PURGE) ================= */
+function renderStrikeQuestion(q, dur, scene){
+  $("confirm-answer").style.display = "none";
+  const how = $("warn-how");
+  if(how) how.innerHTML = "Strike the Falsehood<br>Tap the corrupted word in the verse";
+
+  const words = (q.a || "").trim().split(/\s+/).filter(Boolean);
+  const targetIdx = Math.floor(Math.random() * words.length);
+  const correctWord = words[targetIdx] || "Word";
+  const dWords = (q.d && q.d[0] ? q.d[0] : "falsehood stone darkness dust").split(/\s+/).filter(Boolean);
+  const fakeWord = dWords[Math.floor(Math.random() * dWords.length)] || "darkness";
+
+  const fullWords = ((q.p ? q.p + " " : "") + (q.a || "") + (q.s ? " " + q.s : "")).trim().split(/\s+/);
+  let replaced = false;
+  const corruptFullWords = fullWords.map(w => {
+    const cleanW = w.toLowerCase().replace(/[^a-z]/g, "");
+    const cleanTarget = correctWord.toLowerCase().replace(/[^a-z]/g, "");
+    if(!replaced && cleanW === cleanTarget){
+      replaced = true;
+      return fakeWord;
+    }
+    return w;
+  });
+
+  $("verse").innerHTML = corruptFullWords.map((w, idx) => {
+    const isCorrupt = (w === fakeWord);
+    return '<span class="strike-word' + (isCorrupt ? ' corrupt-target' : '') + '" data-idx="' + idx + '" data-corrupt="' + (isCorrupt ? '1' : '0') + '">' + esc(w) + '</span>';
+  }).join(" ");
+
+  fitVerseSize(corruptFullWords.join(" ").length);
+  $("opts").style.display = "none";
+  renderPowers();
+  armTimer(dur);
+  startTimer(dur);
+
+  $("verse").querySelectorAll(".strike-word").forEach(el => {
+    el.addEventListener("click", function(){
+      if(R.locked || !R.running || R.paused) return;
+      const isCorrupt = el.dataset.corrupt === "1";
+      if(isCorrupt){
+        R.locked = true;
+        stopTimer();
+        el.classList.add("strike-shattered");
+        Snd.lock();
+        setTimeout(() => {
+          el.textContent = correctWord;
+          el.classList.remove("strike-shattered", "corrupt-target");
+          el.classList.add("strike-restored");
+          resolveAnswer(q, q.a, null, performance.now() - R.qStart, Math.max(0, R.tEnd - performance.now()));
+        }, 360);
+      } else {
+        Snd.wrong();
+        doFlash("red");
+        shakeUI(true);
+        loseLife(1);
+      }
+    });
+  });
+}
+
+/* ================= 2. SCRIBE'S RAPID CLOZE (1-2-3 TAP) ================= */
+function renderClozeQuestion(q, dur, scene){
+  $("confirm-answer").style.display = "none";
+  const how = $("warn-how");
+  if(how) how.innerHTML = "1-2-3 Rapid Cloze<br>Tap missing words in sequence";
+
+  const words = (q.a || "").trim().split(/\s+/).filter(Boolean);
+  let filled = [];
+
+  const clozeStage = $("cloze-stage");
+  clozeStage.style.display = "flex";
+  clozeStage.innerHTML = '<div class="cloze-slots" id="cloze-slots"></div><div class="cloze-bank" id="cloze-bank"></div>';
+  $("opts").style.display = "none";
+
+  function renderSlots(){
+    const host = $("cloze-slots");
+    if(!host) return;
+    host.innerHTML = words.map((w, i) => {
+      const isFilled = filled[i] !== undefined;
+      const isActive = i === filled.length;
+      return '<div class="cloze-slot' + (isFilled ? ' filled' : '') + (isActive ? ' active' : '') + '" data-slot="' + i + '">' +
+        (isFilled ? esc(filled[i]) : '[ ' + (i + 1) + '. ___ ]') + '</div>';
+    }).join("");
+
+    host.querySelectorAll(".cloze-slot.filled").forEach(sl => {
+      sl.addEventListener("click", () => {
+        const slotIdx = Number(sl.dataset.slot);
+        filled.splice(slotIdx, 1);
+        Snd.ui();
+        renderSlots();
+        renderBank();
+      });
+    });
   }
-  R.locked = false; R.selected = null;
-  document.body.classList.toggle("mode-typed", !!R.typed);
-  document.body.classList.toggle("speed-round", !!R.speed);
-  if(R.typed) return renderTypedQuestion(q, dur, scene);
+
+  const distractors = (q.d || []).join(" ").split(/\s+/).filter(Boolean);
+  const bankPool = shuffle(words.concat(distractors.slice(0, Math.max(2, 6 - words.length))));
+
+  function renderBank(){
+    const host = $("cloze-bank");
+    if(!host) return;
+    host.innerHTML = bankPool.map((w, i) => {
+      const countInFilled = filled.filter(x => x === w).length;
+      const countInBank = bankPool.filter(x => x === w).length;
+      const spent = countInFilled >= countInBank;
+      return '<button type="button" class="cloze-chip' + (spent ? ' spent' : '') + '" data-word="' + esc(w) + '">' + esc(w) + '</button>';
+    }).join("");
+
+    host.querySelectorAll(".cloze-chip:not(.spent)").forEach(chip => {
+      chip.addEventListener("click", () => {
+        if(filled.length < words.length){
+          filled.push(chip.dataset.word);
+          Snd.ui();
+          renderSlots();
+          renderBank();
+          if(filled.length === words.length){
+            const answerStr = filled.join(" ");
+            answer(answerStr, null);
+          }
+        }
+      });
+    });
+  }
+
+  renderSlots();
+  renderBank();
+  renderPowers();
+  armTimer(dur);
+  startTimer(dur);
+}
+
+/* ================= 3. TRUE SCRIPTURE DUEL (LEFT VS RIGHT) ================= */
+function renderDuelQuestion(q, dur, scene){
+  $("confirm-answer").style.display = "none";
+  const how = $("warn-how");
+  if(how) how.innerHTML = "True Scripture Duel<br>Select the true King James reading";
+
+  const duelStage = $("duel-stage");
+  duelStage.style.display = "grid";
+  $("opts").style.display = "none";
+
+  const trueVerse = (q.p ? q.p + " " : "") + (q.a || "") + (q.s ? " " + q.s : "");
+  const fakePhrase = (q.d && q.d[0]) ? q.d[0] : "the shadow of the deep";
+  const fakeVerse = (q.p ? q.p + " " : "") + fakePhrase + (q.s ? " " + q.s : "");
+
+  const isLeftTrue = Math.random() < 0.5;
+  const leftText = isLeftTrue ? trueVerse : fakeVerse;
+  const rightText = isLeftTrue ? fakeVerse : trueVerse;
+
+  duelStage.innerHTML = 
+    '<div class="duel-card" id="duel-left" data-val="' + esc(isLeftTrue ? q.a : fakePhrase) + '">' +
+      '<div class="duel-tag">Reading Alpha (← / A / 1)</div>' +
+      '<p class="duel-verse-text">' + highlightVerse(leftText) + '</p>' +
+    '</div>' +
+    '<div class="duel-card" id="duel-right" data-val="' + esc(!isLeftTrue ? q.a : fakePhrase) + '">' +
+      '<div class="duel-tag">Reading Beta (→ / D / 2)</div>' +
+      '<p class="duel-verse-text">' + highlightVerse(rightText) + '</p>' +
+    '</div>';
+
+  function handlePick(btn, chosenVal){
+    if(R.locked || !R.running || R.paused) return;
+    const ok = (chosenVal === q.a);
+    btn.classList.add(ok ? "correct" : "wrong");
+    answer(chosenVal, btn);
+  }
+
+  const leftCard = $("duel-left");
+  const rightCard = $("duel-right");
+  leftCard.addEventListener("click", () => handlePick(leftCard, leftCard.dataset.val));
+  rightCard.addEventListener("click", () => handlePick(rightCard, rightCard.dataset.val));
+
+  renderPowers();
+  armTimer(dur);
+  startTimer(dur);
+}
+
+/* ================= 4. FADE-TO-MEMORY (DISSOLVING ECHO) ================= */
+function renderFadeQuestion(q, dur, scene){
+  const how = $("warn-how");
+  if(how) how.innerHTML = "Fade-to-Memory<br>Commit verse before words dissolve";
+
+  const fullText = (q.p ? q.p + " " : "") + '<span class="blank" id="blank">' + esc(q.a) + '</span>' + (q.s ? " " + q.s : "");
+  $("verse").innerHTML = fullText;
+  fitVerseSize(fullText.length);
+
+  $("opts").style.opacity = "0";
+  $("opts").style.pointerEvents = "none";
+
+  let count = 3;
+  const countdownEl = document.createElement("div");
+  countdownEl.className = "fade-countdown-bar";
+  countdownEl.id = "fade-bar";
+  countdownEl.textContent = "Memorize: " + count + "s";
+  const stageEl = $("verse-stage");
+  if(stageEl) stageEl.prepend(countdownEl);
+
+  const echoTimer = setInterval(() => {
+    count--;
+    if(count > 0){
+      countdownEl.textContent = "Memorize: " + count + "s";
+    } else {
+      clearInterval(echoTimer);
+      countdownEl.remove();
+      const blank = $("blank");
+      if(blank){
+        blank.textContent = "\u2003\u2003\u2003";
+        blank.classList.add("fade-dissolve");
+      }
+      $("opts").style.opacity = "";
+      $("opts").style.pointerEvents = "";
+      renderStandardChoices(q, dur, scene);
+    }
+  }, 1000);
+
+  renderPowers();
+  armTimer(dur);
+  startTimer(dur);
+}
+
+function renderStandardChoices(q, dur, scene){
   const confirmBtn = $("confirm-answer");
   confirmBtn.style.display = "";
   confirmBtn.disabled = true;
   confirmBtn.textContent = SetPieces.autoLock() ? "Rapid Lock"
     : (R.speed ? "Swift Lock"
     : (SAVE.set.singleTap === false ? "Lock Answer" : "One-tap answer"));
-  const how=$("warn-how");
-  if(how) how.innerHTML = (SAVE.set.singleTap === false)
-    ? "Select a phrase, then lock it<br>Enter or Space confirms"
-    : "Tap a phrase to answer";
   const opts = $("opts"); opts.className = "answers queued"; opts.innerHTML = "";
   const rnd = R.mode==="daily" ? R.daily.rnd : Math.random;
   const choices = buildChoices(q, rnd);
@@ -388,16 +613,54 @@ function renderQuestion(q, dur){
     opts.appendChild(b);
   });
   if(!SetPieces.autoLock() && !document.body.classList.contains("reduced")) opts.classList.add("drift");
-  renderPowers();
-  armTimer(dur);
   const entranceDelay=R.setpiece?180:Math.min(1450,Math.max(520,dur*.12));
   afterRun(entranceDelay, ()=>{
     if(R.q!==q || R.sceneToken!==scene || currentView!=="play")return;
     opts.classList.remove("queued");opts.classList.add("entering");
-    startTimer(dur);
     afterRun(760, ()=>{ if(R.q===q && R.sceneToken===scene) opts.classList.remove("entering"); });
     Snd.lock();
   });
+}
+
+function renderQuestion(q, dur){
+  const scene = ++R.sceneToken;
+  Director.pressure(0);
+  syncCinematicBackdrop();
+  clearOtherStages();
+  $("ref").textContent = q.r + " — KJV";
+  
+  const mechanic = q.mechanic || R.mechanic || (R.mode === "pilgrimage" ? selectPilgrimageMechanic(R.qIdx, q) : null);
+  R.currentMechanic = mechanic;
+
+  if(mechanic === "strike") return renderStrikeQuestion(q, dur, scene);
+  if(mechanic === "cloze") return renderClozeQuestion(q, dur, scene);
+  if(mechanic === "duel") return renderDuelQuestion(q, dur, scene);
+  if(mechanic === "fade") return renderFadeQuestion(q, dur, scene);
+
+  // blank is a fixed width so the length of the answer is never a clue
+  $("verse").innerHTML = highlightVerse(q.p) +
+    ' <span class="blank" id="blank">&#8195;&#8195;&#8195;</span>' + sep(q.s) + highlightVerse(q.s);
+  fitVerseSize((q.p||"").length+(q.a||"").length+(q.s||"").length);
+  /* A light entrance on each new verse so question-to-question feels
+     like a handoff, not a hard swap. */
+  const verseEl = $("verse");
+  if(verseEl && !document.body.classList.contains("reduced")){
+    verseEl.classList.remove("q-in"); void verseEl.offsetWidth; verseEl.classList.add("q-in");
+  }
+  R.locked = false; R.selected = null;
+  document.body.classList.toggle("mode-typed", !!R.typed);
+  document.body.classList.toggle("speed-round", !!R.speed);
+  if(R.typed) return renderTypedQuestion(q, dur, scene);
+  
+  const how=$("warn-how");
+  if(how) how.innerHTML = (SAVE.set.singleTap === false)
+    ? "Select a phrase, then lock it<br>Enter or Space confirms"
+    : "Tap a phrase to answer";
+
+  renderStandardChoices(q, dur, scene);
+  renderPowers();
+  armTimer(dur);
+  startTimer(dur);
 }
 
 function pickAnswer(val, btn){

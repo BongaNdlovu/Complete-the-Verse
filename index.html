@@ -212,6 +212,13 @@
   <section class="view" id="v-play">
    <div class="cine-wrap">
 
+    <!-- ============ CINEMATIC PARALLAX STORY BACKDROP ============ -->
+    <div class="cine-backdrop-parallax" id="cine-parallax-bg" aria-hidden="true">
+      <div class="cine-parallax-img" id="cine-parallax-img"></div>
+      <div class="cine-parallax-veil"></div>
+      <div class="cine-parallax-grain"></div>
+    </div>
+
     <header class="hdr">
       <div class="hdr-side l">
         <div class="hdr-lab">Question Difficulty</div>
@@ -270,13 +277,15 @@
       </div>
       <div id="judge-burst" aria-hidden="true"><i></i></div>
 
-      <div class="verse-stage">
+      <div class="verse-stage" id="verse-stage">
         <div class="verse-main" id="verse"></div>
         <div class="ref-line"><i></i><span id="ref">&nbsp;</span><i></i></div>
       </div>
 
       <div class="answers" id="opts"></div>
       <div class="assembly" id="assembly"></div>
+      <div class="cloze-stage" id="cloze-stage" style="display:none"></div>
+      <div class="duel-stage" id="duel-stage" style="display:none"></div>
 
       <div class="control">
         <div class="ring" id="ring">

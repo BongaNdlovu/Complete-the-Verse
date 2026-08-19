@@ -1497,6 +1497,18 @@ addEventListener("keydown", e=>{
       return;
     }
   }
+  if(R.currentMechanic === "duel"){
+    if(k === "arrowleft" || k === "a" || k === "1"){
+      e.preventDefault();
+      const leftBtn = $("duel-left"); if(leftBtn) leftBtn.click();
+      return;
+    }
+    if(k === "arrowright" || k === "d" || k === "2"){
+      e.preventDefault();
+      const rightBtn = $("duel-right"); if(rightBtn) rightBtn.click();
+      return;
+    }
+  }
   if(k==="s"){ usePower("selah"); return; }
   if(k==="i"){ usePower("illum"); return; }
   if(k==="enter" || k===" "){

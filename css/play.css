@@ -744,3 +744,232 @@ body.reduced .biblical-thriller .verse-stage:after{animation:none}
   .biblical-thriller .verse-main.vlen-xl{font-size:clamp(.86rem,4.4vw,1.22rem)}
   .biblical-thriller .verse-stage:before{font-size:.5rem;letter-spacing:.2em}
 }
+
+/* ================= CINEMATIC PARALLAX BACKDROP (OPTION C) ================= */
+.cine-backdrop-parallax {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.cine-parallax-img {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.32;
+  filter: saturate(1.15) brightness(0.85);
+  animation: cineKenBurns 34s ease-in-out infinite alternate;
+  transition: opacity 1.2s ease, filter 1.2s ease;
+  transform: translateZ(0);
+}
+@keyframes cineKenBurns {
+  0% { transform: scale(1) translate(0, 0); }
+  50% { transform: scale(1.07) translate(-1.8%, 1.2%); }
+  100% { transform: scale(1.03) translate(1.6%, -1%); }
+}
+body.reduced .cine-parallax-img,
+body.motion-calm .cine-parallax-img {
+  animation: none;
+}
+.cine-parallax-veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 85% 75% at 50% 45%, rgba(10, 8, 4, 0.74) 0%, rgba(4, 3, 2, 0.94) 86%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.cine-parallax-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background-image: radial-gradient(rgba(217, 182, 103, 0.35) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mix-blend-mode: overlay;
+}
+
+/* ================= 1. FALSEHOOD STRIKE (ERROR PURGE) ================= */
+.strike-word {
+  display: inline-block;
+  padding: .05em .28em;
+  margin: 0 .08em;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform .15s, background .2s, box-shadow .2s, color .2s;
+  position: relative;
+}
+.strike-word:hover {
+  transform: translateY(-2px) scale(1.04);
+  background: rgba(217, 182, 103, 0.18);
+  box-shadow: 0 0 0 1px var(--gold-hot) inset;
+  color: var(--gold-hot);
+}
+.strike-word.corrupt-target {
+  border-bottom: 2px dashed rgba(224, 36, 44, 0.65);
+}
+.strike-shattered {
+  animation: strikeShatter .6s cubic-bezier(.16, .84, .28, 1) forwards;
+  color: var(--crimson-hot) !important;
+  text-decoration: line-through;
+}
+@keyframes strikeShatter {
+  0% { transform: scale(1.25); filter: drop-shadow(0 0 12px rgba(224,36,44,0.9)); }
+  50% { transform: scale(0.85) rotate(-6deg); opacity: .6; }
+  100% { transform: scale(1) rotate(0); opacity: .4; }
+}
+.strike-restored {
+  animation: strikeRestore .7s cubic-bezier(.16, .84, .28, 1) forwards;
+  color: var(--gold-hot) !important;
+  font-weight: 700;
+}
+@keyframes strikeRestore {
+  0% { opacity: 0; transform: scale(1.4); filter: drop-shadow(0 0 18px var(--gold-hot)); }
+  100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 8px rgba(217,182,103,0.5)); }
+}
+
+/* ================= 2. SCRIBE'S RAPID CLOZE (1-2-3 TAP) ================= */
+.cloze-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min(840px, 92vw);
+  margin-top: 2vh;
+  z-index: 3;
+}
+.cloze-slots {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.cloze-slot {
+  min-width: 110px;
+  padding: .55em 1.2em;
+  background: var(--panel);
+  box-shadow: 0 0 0 1px var(--edge) inset;
+  border-radius: 4px;
+  font-family: var(--disp);
+  font-size: .88rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--parch-dim);
+  text-align: center;
+  transition: .2s;
+  cursor: pointer;
+}
+.cloze-slot.active {
+  box-shadow: 0 0 0 2px var(--gold-hot) inset, 0 0 20px rgba(217,182,103,0.4);
+  color: var(--gold-hot);
+}
+.cloze-slot.filled {
+  color: var(--gold);
+  background: rgba(217,182,103,0.12);
+  box-shadow: 0 0 0 1px var(--gold) inset;
+}
+.cloze-bank {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+.cloze-chip {
+  padding: .9em 1.2em;
+  font-family: var(--body);
+  font-size: 1rem;
+  color: var(--parch);
+  background: linear-gradient(180deg, #221c12, #141008);
+  box-shadow: 0 0 0 1px var(--edge) inset;
+  border-radius: 4px;
+  transition: transform .15s, box-shadow .2s;
+  cursor: pointer;
+}
+.cloze-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px var(--gold-hot) inset, 0 10px 24px rgba(0,0,0,0.6);
+  color: var(--gold-hot);
+}
+.cloze-chip.spent {
+  opacity: .25;
+  pointer-events: none;
+  filter: grayscale(1);
+}
+
+/* ================= 3. TRUE SCRIPTURE DUEL (LEFT VS RIGHT) ================= */
+.duel-stage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: min(940px, 94vw);
+  margin-top: 2vh;
+  z-index: 3;
+}
+.duel-card {
+  position: relative;
+  padding: 1.8rem 1.6rem;
+  background: radial-gradient(ellipse at 50% 0%, #241c0e, #100c06 82%);
+  box-shadow: 0 0 0 1px var(--edge) inset, 0 16px 42px rgba(0,0,0,0.7);
+  border-radius: 6px;
+  text-align: left;
+  transition: transform .2s, box-shadow .25s, border-color .25s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.duel-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 2px var(--gold-hot) inset, 0 20px 54px rgba(217,182,103,0.45);
+}
+.duel-tag {
+  font-family: var(--disp);
+  font-size: .72rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 1rem;
+}
+.duel-verse-text {
+  font-family: var(--body);
+  font-size: clamp(.94rem, 1.6vw, 1.12rem);
+  line-height: 1.6;
+  color: var(--parch);
+  margin: 0;
+}
+.duel-card.correct {
+  box-shadow: 0 0 0 2px var(--green) inset, 0 0 36px rgba(95,209,138,0.5);
+  background: radial-gradient(ellipse at 50% 0%, #153822, #07150c 82%);
+}
+.duel-card.wrong {
+  box-shadow: 0 0 0 2px var(--crimson-hot) inset, 0 0 36px rgba(224,36,44,0.5);
+  background: radial-gradient(ellipse at 50% 0%, #3d1418, #180507 82%);
+  opacity: .5;
+}
+
+/* ================= 4. FADE-TO-MEMORY (DISSOLVING ECHO) ================= */
+.fade-countdown-bar {
+  font-family: var(--disp);
+  font-size: .78rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--gold-hot);
+  margin-bottom: 1vh;
+  animation: fadePulse 1s ease-in-out infinite;
+}
+@keyframes fadePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .6; transform: scale(.97); }
+}
+.fade-dissolve {
+  animation: dissolveText 1.2s ease-out forwards;
+}
+@keyframes dissolveText {
+  0% { opacity: 1; filter: blur(0); }
+  50% { opacity: 0.5; filter: blur(3px) brightness(1.3); transform: translateY(-4px); }
+  100% { opacity: 0; filter: blur(8px); transform: translateY(-10px); }
+}
+
