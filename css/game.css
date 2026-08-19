@@ -43,6 +43,8 @@ body.reduced #backdrop.jolt{animation:none}
   animation:gr .85s steps(3) infinite;transition:opacity .35s ease}
 @keyframes gr{0%{transform:translate(0,0)}33%{transform:translate(-38px,24px)}66%{transform:translate(28px,-32px)}100%{transform:translate(0,0)}}
 body.reduced #grain{animation:none;opacity:.08}
+body.motion-calm #grain{animation:none;opacity:.05}
+body.motion-calm #backdrop.jolt{animation:none}
 .cbar{position:fixed;left:0;right:0;height:0;background:#000;z-index:30;transition:height .8s cubic-bezier(.7,0,.2,1)}
 .cbar.top{top:0}.cbar.bot{bottom:0}
 body.cine .cbar{height:5.4vh}
@@ -58,6 +60,9 @@ body.cine .cbar{height:5.4vh}
 @keyframes flw{0%{opacity:.9}100%{opacity:0}}
 @keyframes heartFlash{0%{opacity:.92}55%{opacity:.55}100%{opacity:0}}
 body.reduced #flash.heart{animation:none;opacity:0}
+body.motion-calm #flash.gold,body.motion-calm #flash.red,body.motion-calm #flash.violet{animation-duration:.32s}
+body.motion-calm #flash.heart{animation:none;opacity:0}
+.study-list,.vcard,.vcard p,.res-details,.breakdown,.breakdown p,.missed,.missed-item,.doss-quote,.doss-body,.brief-quote{user-select:text!important;-webkit-user-select:text!important}
 
 /* ================= APP ================= */
 #hall-bg{position:fixed;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;

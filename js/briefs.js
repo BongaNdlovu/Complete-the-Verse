@@ -175,6 +175,9 @@ function updateCloudChip(){
   if(typeof navigator !== "undefined" && navigator.onLine === false){
     el.textContent = "Offline"; el.className = "cloud-chip warn"; return;
   }
+  if(typeof Cloud.isSyncing === "function" && Cloud.isSyncing()){
+    el.textContent = "Syncing…"; el.className = "cloud-chip syncing"; return;
+  }
   if(Cloud.isSignedIn()){
     const who = (Cloud.profile() && Cloud.profile().display_name) || "Synced";
     const trust = (typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct") ? " (Honor system)" : "";

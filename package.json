@@ -3,7 +3,9 @@
   "private": true,
   "scripts": {
     "test": "node test.js",
-    "start": "node scripts/dev-server.js"
+    "start": "node scripts/dev-server.js",
+    "optimise-media": "node scripts/optimise-media.js",
+    "optimize-media": "node scripts/optimise-media.js"
   },
   "dependencies": {}
 }

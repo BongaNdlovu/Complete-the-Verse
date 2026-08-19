@@ -125,7 +125,7 @@ assert(/id="play-candle"/.test(fs.readFileSync(path.join(ROOT, "index.html"), "u
 assert(/id="play-quit"/.test(fs.readFileSync(path.join(ROOT, "index.html"), "utf8")),
   "play quit is in the markup");
 
-/* --- looping motion dies under reduced --- */
+/* --- looping motion dies under reduced & motion-calm --- */
 const reducedHooks = [
   ["#grain", "grain"],
   ["lamp-flame", "lamp flicker"],
@@ -145,9 +145,19 @@ reducedHooks.forEach(([hook, name]) => {
     name + " (" + hook + ") is killed under reduced motion");
 });
 
+const calmSelectors = [...css.matchAll(/body\.motion-calm[^{]*\{/g)].map((m) => m[0]);
+["#grain", ".route-line", ".traveler-walker", ".site-marker.current .beacon"].forEach((hook) => {
+  assert(calmSelectors.some((s) => s.indexOf(hook) >= 0),
+    hook + " is suppressed under body.motion-calm");
+});
+
+/* --- map walker sprite dimensions --- */
+assert(/\.traveler-walker\s*\{[^}]*height:\s*72px/.test(css), "walker rendered height is 72px (matching 269x479 aspect ratio)");
+assert(/background-size:\s*320px 72px/.test(css), "walker background-size is 320px 72px");
+
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");
   fails.forEach((f) => console.error(" - " + f));
   process.exit(1);
 }
-console.log("PASS — motion · overlays fade · plates ease · " + frames.length + " keyframes closed");
+console.log("PASS — motion · overlays fade · plates ease · calm & reduced tiers verified · " + frames.length + " keyframes closed");

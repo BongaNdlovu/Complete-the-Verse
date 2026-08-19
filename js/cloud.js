@@ -19,6 +19,7 @@ var Cloud = (function () {
   var lastRevision = 0;
   var lastSubmitVia = null;
   var pushTimer = null;
+  var syncing = false;
   var hooks = { onAuth: null, onSync: null, onError: null };
 
   function cfg() {
@@ -307,46 +308,56 @@ var Cloud = (function () {
   async function pullSave() {
     var sb = ensureClient();
     if (!sb || !user) return null;
-    var res = await sb.from("saves").select("payload, revision, client_updated_at")
-      .eq("user_id", user.id).maybeSingle();
-    if (res.error) {
-      emit("onError", { message: res.error.message });
-      return null;
+    syncing = true;
+    try {
+      var res = await sb.from("saves").select("payload, revision, client_updated_at")
+        .eq("user_id", user.id).maybeSingle();
+      if (res.error) {
+        emit("onError", { message: res.error.message });
+        return null;
+      }
+      if (!res.data) return null;
+      lastRevision = res.data.revision || 0;
+      return res.data;
+    } finally {
+      syncing = false;
     }
-    if (!res.data) return null;
-    lastRevision = res.data.revision || 0;
-    return res.data;
   }
 
   async function pushSave(saveObj) {
     var sb = ensureClient();
     if (!sb || !user) return { ok: false, reason: "signed-out" };
-    /* Optimistic lock: if remote moved past what we last merged, refuse blind overwrite. */
-    var peek = await sb.from("saves").select("revision, payload, client_updated_at")
-      .eq("user_id", user.id).maybeSingle();
-    var remoteRev = (peek.data && peek.data.revision) || 0;
-    if (lastRevision > 0 && remoteRev > lastRevision) {
-      return {
-        ok: false,
-        reason: "stale-revision",
-        remote: peek.data
+    syncing = true;
+    try {
+      /* Optimistic lock: if remote moved past what we last merged, refuse blind overwrite. */
+      var peek = await sb.from("saves").select("revision, payload, client_updated_at")
+        .eq("user_id", user.id).maybeSingle();
+      var remoteRev = (peek.data && peek.data.revision) || 0;
+      if (lastRevision > 0 && remoteRev > lastRevision) {
+        return {
+          ok: false,
+          reason: "stale-revision",
+          remote: peek.data
+        };
+      }
+      var nextRev = Math.max(lastRevision || 0, remoteRev) + 1;
+      var row = {
+        user_id: user.id,
+        payload: saveObj || {},
+        revision: nextRev,
+        client_updated_at: new Date().toISOString()
       };
+      var res = await sb.from("saves").upsert(row, { onConflict: "user_id" });
+      if (res.error) {
+        emit("onError", { message: res.error.message });
+        return { ok: false, reason: res.error.message };
+      }
+      lastRevision = nextRev;
+      emit("onSync", { direction: "push", revision: nextRev });
+      return { ok: true, revision: nextRev };
+    } finally {
+      syncing = false;
     }
-    var nextRev = Math.max(lastRevision || 0, remoteRev) + 1;
-    var row = {
-      user_id: user.id,
-      payload: saveObj || {},
-      revision: nextRev,
-      client_updated_at: new Date().toISOString()
-    };
-    var res = await sb.from("saves").upsert(row, { onConflict: "user_id" });
-    if (res.error) {
-      emit("onError", { message: res.error.message });
-      return { ok: false, reason: res.error.message };
-    }
-    lastRevision = nextRev;
-    emit("onSync", { direction: "push", revision: nextRev });
-    return { ok: true, revision: nextRev };
   }
 
   function schedulePush(saveObj) {
@@ -361,16 +372,21 @@ var Cloud = (function () {
   /** Merge remote into local SAVE object; caller assigns + persist(). */
   async function syncOnBoot(localSave) {
     if (!isSignedIn()) return { ok: false, reason: "signed-out", save: localSave };
-    var remote = await pullSave();
-    if (!remote || !remote.payload || !Object.keys(remote.payload).length) {
-      await pushSave(localSave);
-      return { ok: true, save: localSave, merged: false };
+    syncing = true;
+    try {
+      var remote = await pullSave();
+      if (!remote || !remote.payload || !Object.keys(remote.payload).length) {
+        await pushSave(localSave);
+        return { ok: true, save: localSave, merged: false };
+      }
+      var merged = mergeSave(localSave, remote.payload);
+      lastRevision = remote.revision || lastRevision;
+      await pushSave(merged);
+      emit("onSync", { direction: "pull-merge", revision: lastRevision });
+      return { ok: true, save: merged, merged: true };
+    } finally {
+      syncing = false;
     }
-    var merged = mergeSave(localSave, remote.payload);
-    lastRevision = remote.revision || lastRevision;
-    await pushSave(merged);
-    emit("onSync", { direction: "pull-merge", revision: lastRevision });
-    return { ok: true, save: merged, merged: true };
   }
 
   /* ----------------------- scores ----------------------- */
@@ -624,6 +640,7 @@ var Cloud = (function () {
     fetchMyBlitzRank: fetchMyBlitzRank,
     upsertGhost: upsertGhost,
     fetchGhosts: fetchGhosts,
+    isSyncing: function () { return syncing; },
     on: on
   };
 })();

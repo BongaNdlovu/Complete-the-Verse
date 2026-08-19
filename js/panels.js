@@ -57,24 +57,33 @@ function renderRelics(){
   const tot = Artifacts.count();
   const title = $("relics-count");
   if(title) title.textContent = n + " of " + tot + " recovered";
-  host.innerHTML = Artifacts.all().map(a => {
-    const open = Artifacts.isUnlocked(SAVE.artifacts, a.id);
-    const img = Artifacts.imagePath(a);
-    const site = Pilgrimage.site(a.siteId);
-    const lvl = levelInfo(SAVE.xp).level;
-    const unveiled = typeof Meta==="undefined" || Meta.relicUnveiled(a, lvl);
-    if(!open){
-      return '<div class="relic-card locked"><div class="relic-art placeholder"><span>?</span></div>'+
-        '<b>Sealed</b><span>'+esc((site&&site.name)||a.siteId)+'</span></div>';
-    }
-    if(!unveiled){
-      return '<div class="relic-card locked"><div class="relic-art placeholder"><span>veil</span></div>'+
-        '<b>Veiled</b><span>Reach '+esc(rankFor(a.requiresRank))+' to unveil</span></div>';
-    }
-    return '<button type="button" class="relic-card" data-relic="'+esc(a.id)+'">'+
-      '<div class="relic-art'+(img?"":" placeholder")+'">'+(img?'<img src="'+esc(img)+'" alt="">':'<span>✦</span>')+'</div>'+
-      '<b>'+esc(a.name)+'</b><span>'+esc(a.era)+'</span></button>';
-  }).join("");
+  if(n === 0){
+    host.innerHTML = '<div class="empty relics-empty" style="grid-column:1/-1;padding:2vh 1vw;text-align:center;color:var(--parch-dim)">No relics recovered yet — walk the road from Ur to Patmos to uncover sacred artifacts.</div>' +
+      Artifacts.all().map(a => {
+        const site = Pilgrimage.site(a.siteId);
+        return '<div class="relic-card locked"><div class="relic-art placeholder"><span>?</span></div>'+
+          '<b>Sealed</b><span>'+esc((site&&site.name)||a.siteId)+'</span></div>';
+      }).join("");
+  } else {
+    host.innerHTML = Artifacts.all().map(a => {
+      const open = Artifacts.isUnlocked(SAVE.artifacts, a.id);
+      const img = Artifacts.imagePath(a);
+      const site = Pilgrimage.site(a.siteId);
+      const lvl = levelInfo(SAVE.xp).level;
+      const unveiled = typeof Meta==="undefined" || Meta.relicUnveiled(a, lvl);
+      if(!open){
+        return '<div class="relic-card locked"><div class="relic-art placeholder"><span>?</span></div>'+
+          '<b>Sealed</b><span>'+esc((site&&site.name)||a.siteId)+'</span></div>';
+      }
+      if(!unveiled){
+        return '<div class="relic-card locked"><div class="relic-art placeholder"><span>veil</span></div>'+
+          '<b>Veiled</b><span>Reach '+esc(rankFor(a.requiresRank))+' to unveil</span></div>';
+      }
+      return '<button type="button" class="relic-card" data-relic="'+esc(a.id)+'">'+
+        '<div class="relic-art'+(img?"":" placeholder")+'">'+(img?'<img src="'+esc(img)+'" alt="'+esc(a.name)+'" loading="lazy" decoding="async">':'<span>✦</span>')+'</div>'+
+        '<b>'+esc(a.name)+'</b><span>'+esc(a.era)+'</span></button>';
+    }).join("");
+  }
   host.querySelectorAll("[data-relic]").forEach(b=>{
     b.addEventListener("click", ()=>{
       const a = Artifacts.byId(b.dataset.relic);
@@ -204,7 +213,13 @@ function drawStudy(){
     return true;
   }).sort((a,b)=> (order[a.b]-order[b.b]) || (a.t-b.t));
   const el = $("study-list");
-  if(!list.length){ el.innerHTML='<div class="empty">Nothing here yet. Change the filter, or go earn some scars.</div>'; return; }
+  if(!list.length){
+    const msg = (f==="due")
+      ? "No verses due for review — your memory is clear. Walk new ground on the road."
+      : "Nothing here yet. Change the filter, or go earn some scars.";
+    el.innerHTML='<div class="empty">'+msg+'</div>';
+    return;
+  }
   el.innerHTML = list.map(v=>{
     const sch = verseScheduleLabel(v);
     return '<div class="vcard" data-vid="'+esc(String(v.id))+'"><div class="vr"><i><span class="tierdot" style="opacity:'+(0.35+v.t*0.13)+'"></span>'+
@@ -232,7 +247,10 @@ function drawStudy(){
 /* ------------------------- SEALS SCREEN ------------------------- */
 function renderSeals(){
   $("seals-title").textContent = "Seals — "+SAVE.seals.length+" / "+SEALS.length;
-  $("sealgrid").innerHTML = SEALS.map(s=>
+  const emptyBanner = (!SAVE.seals || !SAVE.seals.length)
+    ? '<div class="empty seals-empty" style="grid-column:1/-1;padding:2vh 1vw;text-align:center;color:var(--parch-dim)">No seals unlocked yet — step onto the road to earn your first honor.</div>'
+    : '';
+  $("sealgrid").innerHTML = emptyBanner + SEALS.map(s=>
     '<div class="seal'+(hasSeal(s.id)?" got":"")+'"><div class="ic"></div><b>'+esc(s.n)+'</b><span>'+esc(s.d)+'</span></div>'
   ).join("");
 }
@@ -364,8 +382,8 @@ function renderSettings(){
       seg("voice",[[true,"On"],[false,"Off"]],s.voice)) +
     setRow("Visual quality","Choose the effects profile that best matches this device.",
       seg("quality",[["high","Cinematic"],["balanced","Balanced"],["low","Efficient"]],s.quality||"high")) +
-    setRow("Reduced motion","Stops film grain, pulsing and screen shake.",
-      seg("reduced",[[false,"Off"],[true,"On"]],s.reduced)) +
+    setRow("Motion intensity","Motion level for effects, grain and ambient loops.",
+      seg("motion",[["full","Full"],["calm","Calm"],["reduced","Reduced"]],s.motion||(s.reduced?"reduced":"full"))) +
     setRow("Screen shake","The kick when you lose a life.",
       seg("shake",[[true,"On"],[false,"Off"]],s.shake)) +
     setRow("Live conditions","Real current weather at each site on the Pilgrimage map. Off, or offline, it uses that place's typical climate instead — the map never waits on it.",
@@ -435,6 +453,8 @@ function renderSettings(){
         const key=g.dataset.seg; let v=b.dataset.val;
         if(v==="true") v=true; else if(v==="false") v=false;
         SAVE.set[key]=v;
+        if(key==="motion"){ SAVE.set.reduced = (v === "reduced"); }
+        if(key==="reduced"){ SAVE.set.motion = v ? "reduced" : "full"; }
         if(key==="quality") SAVE.set.qualityLocked=true;
         persist(); Snd.ui();
         g.querySelectorAll("button").forEach(x=>x.classList.toggle("on", x===b));
@@ -528,7 +548,11 @@ function syncHallVideo(quality){
 }
 function applySettings(){
   const systemReduced=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
-  document.body.classList.toggle("reduced", !!SAVE.set.reduced||systemReduced);
+  const motionMode = SAVE.set.motion || (SAVE.set.reduced ? "reduced" : "full");
+  const isReduced = motionMode === "reduced" || systemReduced || !!SAVE.set.reduced;
+  const isCalm = motionMode === "calm" && !isReduced;
+  document.body.classList.toggle("reduced", isReduced);
+  document.body.classList.toggle("motion-calm", isCalm);
   document.body.classList.toggle("contrast", !!SAVE.set.contrast);
   document.body.classList.remove("quality-high","quality-balanced","quality-low");
   let quality=["high","balanced","low"].includes(SAVE.set.quality)?SAVE.set.quality:"high";

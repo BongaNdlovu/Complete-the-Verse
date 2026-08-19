@@ -22,7 +22,7 @@ const DEFAULT_SAVE = {
   pilgrim:{sites:{}, lastPlayed:"", started:0, usedIds:[]},
   /* Relics unlocked by first site clear. Shape owned by artifacts.js. */
   artifacts:{unlocked:{}, seen:{}},
-  set:{music:0.45, sfx:0.7, quality:"high", qualityLocked:false, reduced:false, shake:true, voice:true, diff:"watchman",
+  set:{music:0.45, sfx:0.7, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"watchman",
        tutorialDone:false, liveWeather:true, coldOpenDone:false, quiet:false, contrast:false, haptics:true,
        singleTap:true,
        character:"amina", scholarId:"amina", playerName:"", profileDone:false,
@@ -1586,6 +1586,15 @@ function loop(ts){
     }).catch(function(){});
   }
   updateOfflineBanner();
+
+  document.addEventListener("visibilitychange", function(){
+    if(document.hidden){
+      const v = $("hall-bg");
+      if(v && typeof v.pause === "function") try{ v.pause(); }catch(e){}
+    } else {
+      if(typeof applySettings === "function") applySettings();
+    }
+  });
 
   if(introAllowed()){
     go("intro");

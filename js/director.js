@@ -183,6 +183,25 @@ const Director = (function(){
     document.body.classList.add(cls);
     setTimeout(()=>document.body.classList.remove(cls), kind==="act"?980:640);
   }
+  function showJudgeBurst(kind){
+    if(typeof SAVE!=="undefined" && SAVE.set && (SAVE.set.reduced || (SAVE.set.motion && SAVE.set.motion!=="full"))) return;
+    const systemReduced=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+    if(systemReduced) return;
+    let el = document.getElementById("judge-burst");
+    if(!el){
+      el = document.createElement("div");
+      el.id = "judge-burst";
+      el.setAttribute("aria-hidden", "true");
+      el.innerHTML = "<i></i>";
+      const wrap = document.querySelector("#v-play .cine-wrap") || document.getElementById("v-play") || document.body;
+      wrap.appendChild(el);
+    }
+    el.className = "on " + (kind==="up"?"up":"down");
+    clearTimeout(el._burstTimer);
+    el._burstTimer = setTimeout(function(){
+      el.className = "";
+    }, 900);
+  }
   function impact(kind){
     const cls=kind==="correct"?"correct-impact":"wrong-impact";
     document.body.classList.remove(cls);void document.body.offsetWidth;document.body.classList.add(cls);

@@ -263,6 +263,13 @@ body.reduced .ring.crit{animation:none}
   box-shadow:0 0 0 2px rgba(0,0,0,.82),inset 0 0 18px rgba(255,219,141,.08),0 12px 30px -16px #000;
   clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
   transition:filter .2s,transform .18s,box-shadow .2s,opacity .2s}
+.confirm-answer:not(:disabled){animation:lockReadyPulse 1.8s ease-in-out infinite}
+@keyframes lockReadyPulse{
+  0%,100%{box-shadow:0 0 0 2px rgba(0,0,0,.82),inset 0 0 18px rgba(255,219,141,.08),0 12px 30px -16px #000}
+  50%{box-shadow:0 0 0 2px rgba(0,0,0,.82),inset 0 0 22px rgba(255,219,141,.24),0 0 32px -8px rgba(225,183,99,.55)}
+}
+body.reduced .confirm-answer:not(:disabled),
+body.motion-calm .confirm-answer:not(:disabled){animation:none}
 .confirm-answer:not(:disabled):hover,.recon-confirm:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.18);
   box-shadow:0 0 0 2px rgba(0,0,0,.82),inset 0 0 24px rgba(255,219,141,.14),0 0 34px -10px rgba(225,183,99,.68)}
 .confirm-answer:disabled,.recon-confirm:disabled{opacity:.3;filter:saturate(.25);cursor:not-allowed}
@@ -431,8 +438,13 @@ body.reduced #judge-burst,body.reduced #judge-burst i{animation:none!important;v
 .res-details>summary{font-family:var(--ui);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
   color:var(--gold);cursor:pointer;padding:.7em 0;list-style:none}
 .res-details>summary::-webkit-details-marker{display:none}
+.res-details>summary::marker{display:none;content:""}
 .res-details>summary:before{content:"+ ";color:var(--gold-dim)}
 .res-details[open]>summary:before{content:"– "}
+.res-details[open] .breakdown,.res-details[open] .stats,.res-details[open] .xpbar,.res-details[open] .sealsrow,.res-details[open] .missed{
+  animation:resSectionFade .32s cubic-bezier(.16,.84,.28,1) both}
+@keyframes resSectionFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+body.reduced .res-details[open] .breakdown,body.reduced .res-details[open] .stats,body.motion-calm .res-details[open] .breakdown{animation:none}
 .res-details .breakdown,.res-details .stats,.res-details .xpbar,.res-details .sealsrow,.res-details .missed{
   width:100%;max-height:none}
 .res-primary{margin:1.6vh 0 1vh}
