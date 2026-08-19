@@ -698,6 +698,23 @@ var Pilgrimage = (function () {
     return next;
   }
 
+  function vignette(siteId) {
+    if (typeof VIGNETTES !== "undefined" && VIGNETTES && VIGNETTES[siteId]) {
+      return VIGNETTES[siteId];
+    }
+    var s = site(siteId);
+    if (!s) return null;
+    return {
+      figure: "Pilgrim",
+      title: "Arrival at " + s.name,
+      quote: s.quote,
+      ref: s.quoteRef,
+      narrative: s.description,
+      image: "assets/journey/" + s.id + ".png",
+      fallback: "assets/journey/ur.png"
+    };
+  }
+
   return {
     VERSES_PER_SITE: VERSES_PER_SITE,
     CLOCK_OPEN: CLOCK_OPEN, CLOCK_CLOSE: CLOCK_CLOSE,
@@ -718,7 +735,8 @@ var Pilgrimage = (function () {
     SPEED_SLOT: SPEED_SLOT, SPEED_MS: SPEED_MS, PICK_PAD_MS: PICK_PAD_MS, MIXED_SLOT: MIXED_SLOT,
     speedSlot: speedSlot, barrageArc: barrageArc, mixedTypedSlot: mixedTypedSlot,
     verseClockFor: verseClockFor, verseWordCount: verseWordCount,
-    spiralPass: spiralPass, passStandard: passStandard, advanceSpiral: advanceSpiral
+    spiralPass: spiralPass, passStandard: passStandard, advanceSpiral: advanceSpiral,
+    vignette: vignette, vignettes: function () { return typeof VIGNETTES !== "undefined" ? VIGNETTES : {}; }
   };
 })();
 

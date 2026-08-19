@@ -864,11 +864,16 @@ var Atlas = (function () {
       ? '<div class="doss-seal-wrap" style="display:flex;justify-content:center;margin:1.4vh 0 .6vh"><div class="doss-seal-stamp wax-seal-stamp stamped"></div></div>'
       : "";
 
+    var vignetteBtnHtml = (!st.locked)
+      ? '<div style="margin:1vh 0"><button class="btn ghost sm doss-vignette-btn" type="button" data-view-vignette="' + esc(site.id) + '">✦ View Journey Milestone</button></div>'
+      : "";
+
     body.innerHTML = head +
       sealStampHtml +
       '<div class="doss-quote">' + esc(site.quote) + '</div>' +
       '<div class="doss-ref">' + esc(site.quoteRef) + '</div>' +
       '<div class="doss-body">' + esc(site.description) + '</div>' +
+      vignetteBtnHtml +
       relicHtml +
       liveRows(site) +
       profileSvg(site) +
@@ -894,6 +899,13 @@ var Atlas = (function () {
           var a = Artifacts.byId(btn.dataset.inspectRelic);
           if (a) openRelicInspect(a);
         }
+      });
+    });
+
+    body.querySelectorAll("[data-view-vignette]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        sfx("ui");
+        openJourneyVignette(btn.dataset.viewVignette);
       });
     });
 
@@ -1037,6 +1049,11 @@ var Atlas = (function () {
       placeTravelerAtCurrent(false);
     }
 
+    /* Open the story vignette milestone artwork after the traveler completes the walk */
+    setTimeout(function () {
+      openJourneyVignette(siteId);
+    }, reduced() ? 300 : 1800);
+
     var m = markers[siteId];
     var el = m && m.getElement ? m.getElement() : null;
     if (el) {
@@ -1059,6 +1076,89 @@ var Atlas = (function () {
     if (hooks.unlock) {
       try { hooks.unlock(siteId); } catch (e) {}
     }
+  }
+
+  /* ------------------------------ story vignette modal ------------------------------ */
+
+  function openJourneyVignette(siteId) {
+    bindJourneyVignette();
+    var site = Pilgrimage.site(siteId);
+    if (!site) return;
+    var vig = (typeof Pilgrimage !== "undefined" && Pilgrimage.vignette) ? Pilgrimage.vignette(siteId) : null;
+    var modal = $("journey-vignette-modal");
+    if (!modal) return;
+
+    var title = vig ? vig.title : ("Arrival at " + site.name);
+    var quote = vig ? vig.quote : site.quote;
+    var ref = (vig ? vig.ref : site.quoteRef) + " — " + site.name;
+    var narrative = vig ? vig.narrative : site.description;
+    var era = site.era || "Antiquity";
+    var imgUrl = vig ? vig.image : ("assets/journey/" + site.id + ".png");
+
+    var arcMeta = (typeof Pilgrimage !== "undefined" && Pilgrimage.arc) ? Pilgrimage.arc(site.arc) : null;
+    var arcName = arcMeta ? (arcMeta.n + " · " + arcMeta.name) : "The Pilgrimage Road";
+
+    var imgEl = $("jv-img");
+    if (imgEl) {
+      imgEl.src = imgUrl;
+      imgEl.onerror = function () {
+        if (vig && vig.fallback) imgEl.src = vig.fallback;
+        else imgEl.src = "assets/journey/ur.png";
+      };
+    }
+
+    if ($("jv-kick")) $("jv-kick").textContent = "The Pilgrimage Road · " + arcName;
+    if ($("jv-era")) $("jv-era").textContent = era;
+    if ($("jv-title")) $("jv-title").textContent = title;
+    if ($("jv-ref")) $("jv-ref").textContent = ref;
+    if ($("jv-quote")) $("jv-quote").textContent = '"' + quote + '"';
+    if ($("jv-narrative")) $("jv-narrative").textContent = narrative;
+
+    modal.hidden = false;
+    modal.classList.remove("on");
+    void modal.offsetWidth;
+    modal.classList.add("on");
+
+    if (typeof Snd !== "undefined" && Snd.seal) Snd.seal();
+
+    if (modal._autoTimer) clearTimeout(modal._autoTimer);
+    modal._autoTimer = setTimeout(function () {
+      closeJourneyVignette();
+    }, 6500);
+  }
+
+  function closeJourneyVignette() {
+    var modal = $("journey-vignette-modal");
+    if (!modal || modal.hidden) return;
+    if (modal._autoTimer) { clearTimeout(modal._autoTimer); modal._autoTimer = null; }
+    modal.classList.remove("on");
+    setTimeout(function () {
+      if (!modal.classList.contains("on")) modal.hidden = true;
+    }, 350);
+  }
+
+  var vignetteBound = false;
+  function bindJourneyVignette() {
+    if (vignetteBound) return;
+    vignetteBound = true;
+    var modal = $("journey-vignette-modal");
+    var closeBtn = $("jv-close");
+    var contBtn = $("jv-continue");
+    if (closeBtn) closeBtn.addEventListener("click", function () { closeJourneyVignette(); });
+    if (contBtn) contBtn.addEventListener("click", function () { closeJourneyVignette(); });
+    if (modal) {
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal) closeJourneyVignette();
+      });
+    }
+    document.addEventListener("keydown", function (e) {
+      if (modal && !modal.hidden && modal.classList.contains("on")) {
+        if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          closeJourneyVignette();
+        }
+      }
+    });
   }
 
   /* ------------------------------ refresh ------------------------------ */
@@ -1092,6 +1192,7 @@ var Atlas = (function () {
     setProgress: setProgress, on: on,
     select: select, focus: focus, fitAll: fitAll,
     celebrateUnlock: celebrateUnlock,
+    openVignette: openJourneyVignette, closeVignette: closeJourneyVignette,
     setLayer: setLayer, layers: function () { return layers; },
     loadWeather: loadWeather, note: note,
     setTraveler: setTraveler,

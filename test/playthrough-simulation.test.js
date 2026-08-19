@@ -176,6 +176,15 @@ const sb = bootGame();
   const bodyHtml = read(sb, '$("atlas-doss-body").innerHTML');
   ok("Dossier contains red wax seal for cleared site", bodyHtml.includes("wax-seal-stamp"));
   ok("Dossier contains clickable relic inspect trigger", bodyHtml.includes("data-inspect-relic"));
+  ok("Dossier contains clickable journey vignette trigger", bodyHtml.includes("data-view-vignette"));
+
+  // Open Ur Story Vignette
+  exec(sb, 'Atlas.openVignette("ur");');
+  const jvModal = read(sb, '$("journey-vignette-modal")');
+  ok("Journey vignette modal opens", jvModal && jvModal.classList.contains("on"));
+  eq("Vignette title is Abram Departs Ur", read(sb, '$("jv-title").textContent'), "Abram Departs Ur");
+  ok("Vignette image points to journey artwork", read(sb, '$("jv-img").src').includes("assets/journey/ur.png"));
+  exec(sb, 'Atlas.closeVignette();');
 }
 
 /* 9. STUDY HALL, SEALS, AND RECORDS VIEWS & PLAYER CARD DISPLAY */
