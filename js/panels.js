@@ -87,9 +87,44 @@ function renderRelics(){
   host.querySelectorAll("[data-relic]").forEach(b=>{
     b.addEventListener("click", ()=>{
       const a = Artifacts.byId(b.dataset.relic);
-      if(a) showArtifactReveal(a, null);
+      if(a) openRelicInspect(a);
     });
   });
+}
+
+function openRelicInspect(a){
+  if(!a) return;
+  const modal = $("relic-inspect-modal");
+  if(!modal) return;
+  const img = Artifacts.imagePath(a);
+  const site = Pilgrimage.site(a.siteId);
+  const imgEl = $("inspect-img");
+  if(imgEl){
+    if(img){ imgEl.src = img; imgEl.alt = a.name || ""; imgEl.style.display = "block"; }
+    else imgEl.style.display = "none";
+  }
+  const title = $("inspect-title"); if(title) title.textContent = a.name || "Sacred Relic";
+  const meta = $("inspect-meta"); if(meta) meta.textContent = [a.era, a.material, a.find].filter(Boolean).join(" · ");
+  const copy = $("inspect-copy"); if(copy) copy.textContent = a.detail || a.blurb || "";
+  const siteEl = $("inspect-site"); if(siteEl) siteEl.textContent = (site && site.name) ? site.name + " (" + site.arc + ")" : (a.siteId || "—");
+  const eraEl = $("inspect-era"); if(eraEl) eraEl.textContent = a.era || "—";
+  const matEl = $("inspect-mat"); if(matEl) matEl.textContent = a.material || "—";
+  const findEl = $("inspect-find"); if(findEl) findEl.textContent = a.find || "—";
+  const scripEl = $("inspect-scripture"); if(scripEl) scripEl.textContent = a.scripture || "—";
+
+  modal.removeAttribute("hidden");
+  modal.classList.remove("on");
+  void modal.offsetWidth;
+  modal.classList.add("on");
+  Snd.ui();
+
+  const close = function(){
+    modal.classList.remove("on");
+    setTimeout(()=>{ modal.setAttribute("hidden", ""); }, 400);
+  };
+  const closeBtn = $("inspect-close"); if(closeBtn) closeBtn.onclick = close;
+  const doneBtn = $("inspect-done"); if(doneBtn) doneBtn.onclick = close;
+  modal.onclick = function(e){ if(e.target === modal) close(); };
 }
 
 /* ------------------------- PLAYER CARD ------------------------- */

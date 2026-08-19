@@ -1,10 +1,10 @@
 # Complete the Verse — Code organisation
 
 **Date:** 2026-08-18  
-**Status:** **Executed and Verified (all 37 test suites green)**  
+**Status:** **Executed and Verified (all 39 test suites green)**
 **Scope:** directory layout, file size and seams, first-read understandability, how errors surface.  
 **Not in scope:** product design, verse quality, whether the game is worth $8–12.  
-**Evidence this session:** line counts from a walk of every text file (excluding `node_modules`, `vendor`, `assets`, `audio`, `sfx`); `index.html` script order; `scripts/engine-source.js`; `js/flow.js` state table; all 37 test suites passing under `test/`.
+**Evidence this session:** line counts from a walk of every text file (excluding `node_modules`, `vendor`, `assets`, `audio`, `sfx`); `index.html` script order; `scripts/engine-source.js`; `js/flow.js` state table; all 39 test suites passing under `test/`.
 
 ---
 
@@ -41,7 +41,7 @@ Load order is not folklore. `index.html` lists the scripts. `scripts/engine-sour
 
 **The repo root is the problem.** Measured this session: **54 text files at root, 9,164 lines.** Of those:
 
-- **36 `*.test.js` files + `test.js`** (5,872 lines) sit next to `index.html`. They belong in `test/`.
+- **39 `*.test.js` files + `test.js`** sit next to `index.html`. They belong in `test/`.
 - **12 report markdown files** (`ASSESSMENT-REPORT.md`, `CHANGES-REPORT.md`, `EXCITEMENT-REPORT.md`, …) sit next to the game. They belong in `docs/reports/` or an archive. Several contradict each other and the current tree (the assessment still says `game.js` is 4,612 lines and there is no favicon; both are stale).
 - **`architecture.html`** is a player-facing explainer, not architecture. Fine to keep; it should not be mistaken for the code map. The code map is `docs/DEVELOPER-GUIDE.md`.
 - **`BACKEND.md`** is a runbook. It should live under `docs/` with the other backend writing.
@@ -96,13 +96,13 @@ Text files over ~800 lines, with a verdict.
 - Almost every `js/` file opens with a block comment that says what the file owns and what it must not do. `pilgrimage.js`, `bank.js`, `flow.js`, `engine-source.js`, `test-shim.js` are teaching documents, not decoration.
 - Pure modules (`srs.js`, `recall.js`, `geo.js`, `pilgrimage.js`, `polish.js`) have no DOM, return new objects, and `module.exports` for Node. You can read them without the game running.
 - `architecture.html` explains the *player* loop without code.
-- `node test.js` is one command, 36 suites, names that match jobs (`recall logic`, `pilgrimage`, `cloud merge`).
+- `node test.js` is one command, 39 suites, names that match jobs (`recall logic`, `pilgrimage`, `cloud merge`).
 
 ### If they just clone the repo
 
 **No.**
 
-1. There is no README. The first screen is 36 test files and 12 autopsy reports.
+1. The first screen is 39 test files and 12 autopsy reports.
 2. The document that *should* be the map (`docs/DEVELOPER-GUIDE.md`) is two splits behind the tree.
 3. Globals + script tags mean “who owns `R`?” is a grep, not an import. That is a constraint of `file://`, but nobody writes it on the front door.
 4. `game.js` still mixes save migration, mode tables, the router, and the live question. A newcomer looking for “where does a wrong answer go?” has to scroll a 2,100-line file even though the header says only “modes, progression, meta, UI.”
@@ -133,7 +133,7 @@ A 20-line README that says only this would change the first hour.
 
 ### What is good — errors the suite can see
 
-- `node test.js` runs 36 named suites. A failure prints `FAIL <name>` plus stdout/stderr. You know *which job* broke.
+- `node test.js` runs 39 named suites. A failure prints `FAIL <name>` plus stdout/stderr. You know *which job* broke.
 - Logic suites are pure. If SM-2 or typed grading is wrong, you do not need a browser.
 - `integration.test.js` boots the real engine against `scripts/test-shim.js` and drives runs. Wiring bugs (forgot to persist, scheduled the previous verse) can be caught.
 - `engine-modules.test.js` catches the split’s own bug class: a module that touches `game.js` at parse time.

@@ -47,14 +47,14 @@ const engineSrc = readEngine(ROOT);
     /startRun\("pilgrimage"/.test(engineSrc));
   ok("Boot does not route straight to menu",
     !/if\(currentView==="boot"\)\{\s*go\("menu"\);/i.test(engineSrc));
-  ok("Legacy modes are hidden from public menu",
-    /daily:\{\s*key:"daily"[^}]*hidden:true/.test(engineSrc) &&
-    /trial:\{\s*key:"trial"[^}]*hidden:true/.test(engineSrc) &&
-    /blitz:\{\s*key:"blitz"[^}]*hidden:true/.test(engineSrc) &&
-    /endless:\{\s*key:"endless"[^}]*hidden:true/.test(engineSrc) &&
-    /practice:\{\s*key:"practice"[^}]*hidden:true/.test(engineSrc));
-  ok("Pilgrimage is the only public road mode in MENU_GROUPS",
-    /MENU_GROUPS\s*=\s*\[\s*\{\s*name:\s*"The Road",\s*modes:\s*\["pilgrimage"\]\s*\}\s*\]/.test(engineSrc));
+  ok("core modes are discoverable from the public menu",
+    /daily:\{\s*key:"daily"(?![^}]*hidden:true)/.test(engineSrc) &&
+    /trial:\{\s*key:"trial"(?![^}]*hidden:true)/.test(engineSrc) &&
+    /blitz:\{\s*key:"blitz"(?![^}]*hidden:true)/.test(engineSrc) &&
+    /endless:\{\s*key:"endless"(?![^}]*hidden:true)/.test(engineSrc) &&
+    /practice:\{\s*key:"practice"(?![^}]*hidden:true)/.test(engineSrc));
+  ok("MENU_GROUPS keeps the Pilgrimage first and adds useful paths",
+    /MENU_GROUPS\s*=\s*\[[\s\S]*The Road[\s\S]*pilgrimage[\s\S]*Today[\s\S]*daily[\s\S]*Practice[\s\S]*recall[\s\S]*Challenges/.test(engineSrc));
 }
 
 /* ==================================================================

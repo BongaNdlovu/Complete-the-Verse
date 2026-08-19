@@ -56,9 +56,119 @@ function questionDuration(){
   return playClockMs(Math.max(4200, R.endlessBase - R.qTotal*180) * R.diff.time);
 }
 
+/* ------------------------- FIRST-RUN ONBOARDING ------------------------- */
+const TUTORIAL_QUESTIONS = [
+  {id:"tutorial-psalm-23-1",b:"Psalms",r:"Psalm 23:1",t:1,
+   p:"The LORD is my shepherd; I",a:"shall not want",s:".",
+   d:["shall not fear","shall not faint","shall not wander"]},
+  {id:"tutorial-philippians-4-13",b:"Philippians",r:"Philippians 4:13",t:1,
+   p:"I can do all things through Christ which",a:"strengtheneth me",s:".",
+   d:["keepeth me","comforteth me","teacheth me"]},
+  {id:"tutorial-psalm-118-24",b:"Psalms",r:"Psalm 118:24",t:1,
+   p:"This is the day which the LORD hath made; we will",a:"rejoice and be glad in it",s:".",
+   d:["sing and give thanks","stand and praise his name","remember and be glad"]}
+];
+const TUTORIAL_GUIDE = [
+  "Choose the phrase that completes the verse. A tap is enough.",
+  "Try a lifeline if you need help. Selah adds time; Illuminate removes falsehoods.",
+  "This one is assembled recall: drag the words into the slots, or tap them in order."
+];
+const TUTORIAL_VOICE = [
+  "Lesson one. Choose the phrase that completes the verse.",
+  "Lesson two. Lifelines are available when you need a hand.",
+  "Lesson three. Drag the missing words into order, then lock the answer."
+];
+
+function updateTutorialGuide(index, result){
+  const guide=$("tutorial-guide"), step=$("tutorial-step"), copy=$("tutorial-copy");
+  if(!guide) return;
+  guide.hidden=false;
+  if(step) step.textContent="First light · Lesson "+(index+1)+" of "+TUTORIAL_QUESTIONS.length;
+  if(copy) copy.textContent=result || TUTORIAL_GUIDE[index] || TUTORIAL_GUIDE[0];
+}
+
+function startTutorialRun(){
+  const token=(R.runToken||0)+1;
+  invalidateRun();
+  Object.assign(R,{
+    runToken:token, sceneToken:0, ended:false, mode:"tutorial", diff:resolveDiff("watchman"),
+    q:null, qTotal:0, qInAct:0, score:0, disp:0, lives:3, maxLives:3,
+    streak:0, best:0, correct:0, attempts:0, missed:[], used:new Set(), usedRefs:new Set(),
+    powers:{selah:1,illum:1,wind:0}, usedPower:false, qUsedPower:false, powersSpent:0,
+    running:false, paused:false, locked:false, selected:null, tEnd:0, tTotal:0, qStart:0,
+    tutorial:{index:-1,total:TUTORIAL_QUESTIONS.length,correct:0,attempts:0},
+    typed:false, hintLevel:0, pendingSelah:0, setpiece:null, speed:false,
+    tiersSeen:new Set(), booksRun:new Set(), rescheduled:[], decisionMs:0, timedDecisions:0,
+    fastestMs:Infinity, lastTickSec:-1, lastHeart:0, pressureStage:-1
+  });
+  document.body.classList.add("onboarding");
+  document.body.classList.remove("mode-typed","speed-round");
+  Backdrop.palette("menu");
+  Snd.ambience("menu");
+  go("play");
+  tutorialNextQuestion();
+}
+
+function tutorialNextQuestion(){
+  if(R.mode!=="tutorial" || R.ended) return;
+  const index=++R.tutorial.index;
+  if(index>=R.tutorial.total){ completeTutorialRun(); return; }
+  const q=TUTORIAL_QUESTIONS[index];
+  R.q=q; R.qTotal=index+1; R.qInAct=index+1; R.typed=index===2; R.speed=false;
+  R.hintLevel=0; R.qUsedPower=false; R.locked=false; R.selected=null;
+  updateTutorialGuide(index);
+  updateChips(); updateActTrack(); renderQuestion(q, index===2?30000:22000);
+  if(typeof Director!=="undefined" && Director.speak) Director.speak(TUTORIAL_VOICE[index], true);
+}
+
+function resolveTutorialAnswer(q, choice, btn){
+  if(R.q!==q || R.mode!=="tutorial") return;
+  let graded=null, ok=false;
+  if(R.typed){
+    graded=Recall.grade(choice||"", q.a, q.d);
+    ok=Recall.isCorrect(graded.verdict);
+    renderTypedVerdict(graded);
+  }else{
+    ok=choice===q.a;
+    answerButtons().forEach(function(b){
+      b.classList.remove("sel");
+      if(b.dataset.val===q.a) b.classList.add("right");
+      else if(b===btn) b.classList.add("bad");
+      else b.classList.add("mute");
+    });
+  }
+  const blank=$("blank");
+  if(blank){ blank.textContent=q.a; blank.classList.add("filled","reveal"); }
+  R.tutorial.attempts++;
+  if(ok) R.tutorial.correct++;
+  updateTutorialGuide(R.tutorial.index, ok ? "Good. The lesson continues." : "That is all right. The verse reads: "+q.a);
+  if(ok) Snd.correct(); else Snd.wrong();
+  if(typeof Director!=="undefined" && Director.impact) Director.impact(ok?"correct":"wrong");
+  afterRun(1050, tutorialNextQuestion);
+}
+
+function completeTutorialRun(){
+  if(R.ended) return;
+  R.ended=true; R.running=false; R.locked=true;
+  stopTimer();
+  const guide=$("tutorial-guide");
+  if(guide) guide.hidden=true;
+  document.body.classList.remove("onboarding","mode-typed","speed-round");
+  SAVE.set.tutorialDone=true;
+  persist();
+  go("menu");
+  if(typeof profileReady==="function" && !profileReady()){
+    setTimeout(function(){ if(currentView==="menu") openProfileSetup(true); }, 240);
+  }
+}
+
 /* ------------------------- QUESTION ADVANCE ------------------------- */
 function nextQuestion(){
   clearSequence();
+  if(R.mode==="tutorial"){ tutorialNextQuestion(); return; }
+  /* Power use is a learning signal for this question, not merely for the
+     whole run. The run-level flag remains for achievements and results. */
+  R.qUsedPower=false;
   if(R.setpiece && R.setpiece.finishing) SetPieces.cleanup();
   if(R.mode==="trial"){
     const acts = trialActs();
@@ -414,6 +524,10 @@ function recordDecision(ms){
 
 function resolveAnswer(q,choice,btn,elapsed,left){
   if(R.q!==q)return;
+  if(R.mode==="tutorial"){
+    resolveTutorialAnswer(q, choice, btn);
+    return;
+  }
   R.attempts++;
   recordDecision(elapsed);
 
@@ -443,7 +557,9 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     correct: ok,
     near: graded ? (graded.verdict === "close" || graded.verdict === "modernised") : false,
     fraction: R.tTotal ? Math.min(1, elapsed / R.tTotal) : 0.5,
-    usedPower: R.hintLevel > 0
+    usedPower: !!R.qUsedPower,
+    cueLevel: R.hintLevel || 0,
+    mode: R.typed ? "assembly" : "choice"
   });
   if(ok){
     const blank=$("blank"); blank.textContent=q.a; blank.classList.add("filled","reveal");
@@ -464,7 +580,8 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     }
     noteGhostProgress(); Director.impact("correct"); animateScore(); setMult(true);Director.momentum(true);
     if(typeof Cinematic !== "undefined" && (R.streak === 3 || R.streak === 5 || R.streak === 8 || R.streak === 12)){
-      Cinematic.showComboStamp(R.streak, multiplier());
+      if(Cinematic.event) Cinematic.event("streak", {streak:R.streak, mult:multiplier()});
+      else Cinematic.showComboStamp(R.streak, multiplier());
     }
     if(R.streak===5)Director.callout("Unbroken ×5");
     if(R.streak===10)Director.callout("Perfect Recall");
@@ -474,7 +591,10 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     // The Overdrive moment: reaching the top of the meter pauses the run
     // and asks the player to ride (double pay, double risk) or bank.
     if(R.streak === MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] && !R.setpiece && R.mode!=="blitz"){
-      if(typeof Cinematic !== "undefined") Cinematic.showOverdriveEntrance();
+      if(typeof Cinematic !== "undefined"){
+        if(Cinematic.event) Cinematic.event("overdrive");
+        else Cinematic.showOverdriveEntrance();
+      }
       afterRun(700, offerOverdriveChoice);
       return;
     }
@@ -484,7 +604,8 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     // paid for the double reward. Capture before the streak resets.
     const wasRiding = R.overdriveRide && inOverdrive();
     if(R.streak >= 3 && typeof Cinematic !== "undefined"){
-      Cinematic.showComboCollapse();
+      if(Cinematic.event) Cinematic.event("miss");
+      else Cinematic.showComboCollapse();
     }
     R.overdriveRide = false;
     spillOil(R.streak||0);
@@ -559,6 +680,14 @@ function timeUp(){
   if(R.mode==="blitz"){ presentRunEnd("timeout-death"); return; }
   if(R.passage) return resolvePassage();
   if(R.recon) return resolveRecon();
+  if(R.mode==="tutorial"){
+    stopTimer();
+    R.locked=true;
+    $("confirm-answer").disabled=true;
+    $("confirm-answer").textContent="Lesson continues";
+    resolveTutorialAnswer(R.q, "", null);
+    return;
+  }
   stopTimer(); R.locked=true; R.selected=null; R.attempts++; recordDecision(R.tTotal);
   spillOil(R.streak||0);
   R.streak=0; setMult();
@@ -578,7 +707,10 @@ function timeUp(){
   if(q) markBlankScar("— time —", q.a);
   witnessLook(true);
   recordVerse(q,false);
-  scheduleReview(q, {correct:false, timedOut:true});
+  scheduleReview(q, {
+    correct:false, timedOut:true, usedPower:!!R.qUsedPower,
+    cueLevel:R.hintLevel||0, mode:R.typed ? "assembly" : "choice"
+  });
   R.missed.push(q);
   Director.impact("wrong");Snd.wrong(); doFlash("red"); shakeUI(true);
   loseLife();

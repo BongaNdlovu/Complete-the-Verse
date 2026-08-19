@@ -8,6 +8,19 @@
 
 var Cinematic = (function () {
 
+  /* One focal beat at a time keeps the hall dramatic instead of noisy. A
+     higher-priority event may interrupt a lower one; ordinary combo stamps
+     cannot interrupt a ceremony, a miss collapse, or Overdrive. */
+  var beatGate = { until: 0, priority: 0 };
+  var BEAT_PRIORITY = { site: 20, combo: 30, collapse: 80, overdrive: 90, ceremony: 100 };
+  function allowBeat(kind, duration) {
+    var now = Date.now();
+    var priority = BEAT_PRIORITY[kind] || 10;
+    if (now < beatGate.until && priority < beatGate.priority) return false;
+    beatGate = { until: now + (duration || 700), priority: priority };
+    return true;
+  }
+
   /* ------------------------- WEB AUDIO SYNTH ------------------------- */
   function getAudioCtx() {
     if (typeof Snd !== "undefined" && Snd._ctx) return Snd._ctx;
@@ -92,6 +105,7 @@ var Cinematic = (function () {
   /* ------------------------- SEVENTH LAMP CINEMATIC ------------------------- */
   function playSeventhLamp(opts, onDone) {
     opts = opts || {};
+    if (!allowBeat("ceremony", 1800)) return;
     var count = opts.streak || 7;
     var overlay = document.getElementById("seventh-lamp-cinematic");
     if (!overlay) {
@@ -138,8 +152,11 @@ var Cinematic = (function () {
     overlay.classList.add("on");
     playSabbathChime();
 
-    if (typeof Snd !== "undefined" && Snd.playVoice) {
-      try { Snd.playVoice("audio/voice/the-remnant.mp3", 6000); } catch (e) {}
+    /* This ceremony once pointed at an asset that is not shipped. Route it
+       through the Director so authored audio can be added later without a
+       silent 404 today; the Director's TTS fallback still speaks the line. */
+    if (typeof Director !== "undefined" && Director.speak) {
+      try { Director.speak("The seventh lamp remains.", true); } catch (e) {}
     }
 
     var dismiss = document.getElementById("sl-dismiss");
@@ -179,6 +196,7 @@ var Cinematic = (function () {
   /* ------------------------- IN-RUN COMBO STAMPS ------------------------- */
   function showComboStamp(streak, mult) {
     if (streak < 3) return;
+    if (!allowBeat("combo", 1100)) return;
     var container = document.getElementById("combo-stamp-overlay");
     if (!container) {
       container = document.createElement("div");
@@ -206,6 +224,7 @@ var Cinematic = (function () {
 
   /* ------------------------- MISS COLLAPSE VISUAL ------------------------- */
   function showComboCollapse() {
+    if (!allowBeat("collapse", 700)) return;
     playExtinguishHiss();
     var flash = document.getElementById("combo-collapse-flash");
     if (!flash) {
@@ -224,6 +243,7 @@ var Cinematic = (function () {
 
   /* ------------------------- OVERDRIVE ENTRANCE EVENT ------------------------- */
   function showOverdriveEntrance() {
+    if (!allowBeat("overdrive", 1600)) return;
     var od = document.createElement("div");
     od.className = "overdrive-entrance-banner";
     od.innerHTML =
@@ -240,6 +260,7 @@ var Cinematic = (function () {
 
   /* ------------------------- COLD PLACE TOAST ------------------------- */
   function showColdPlaceToast(siteName, arcName) {
+    if (!allowBeat("site", 1800)) return;
     var toast = document.getElementById("cold-place-toast");
     if (!toast) {
       toast = document.createElement("div");
@@ -258,12 +279,23 @@ var Cinematic = (function () {
     }, 1800);
   }
 
+  function event(kind, payload) {
+    payload = payload || {};
+    if (kind === "streak") return showComboStamp(payload.streak || 0, payload.mult || 1);
+    if (kind === "miss") return showComboCollapse();
+    if (kind === "overdrive") return showOverdriveEntrance();
+    if (kind === "site") return showColdPlaceToast(payload.siteName, payload.arcName);
+    if (kind === "ceremony") return playSeventhLamp(payload, payload.onDone);
+    return false;
+  }
+
   return {
     playSeventhLamp: playSeventhLamp,
     showComboStamp: showComboStamp,
     showComboCollapse: showComboCollapse,
     showOverdriveEntrance: showOverdriveEntrance,
     showColdPlaceToast: showColdPlaceToast,
+    event: event,
     playSabbathChime: playSabbathChime,
     playExtinguishHiss: playExtinguishHiss
   };

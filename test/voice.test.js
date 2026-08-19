@@ -48,6 +48,13 @@ assert(/function playVoice\(src/.test(game), "playVoice helper present");
 assert(/playVoice:playVoice/.test(game), "playVoice exported on Snd");
 assert(/Snd\.playVoice/.test(game), "speak() prefers recorded files");
 
+/* Every shipped voice reference must resolve. This catches direct Snd calls
+   that bypass Director's map and previously left a missing MP3 in production. */
+const voiceRefs = [...game.matchAll(/audio\/voice\/([^"']+)/g)].map(m => m[1]);
+voiceRefs.forEach(file => {
+  assert(fs.existsSync(path.join(ROOT, "audio", "voice", file)), "missing referenced voice/" + file);
+});
+
 LINES.forEach((line) => {
   const abs = path.join(ROOT, "audio", "voice", line.file);
   assert(fs.existsSync(abs), "missing audio/voice/" + line.file);

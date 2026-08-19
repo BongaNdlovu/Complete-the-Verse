@@ -848,11 +848,11 @@ var Atlas = (function () {
       if (art && store && Artifacts.isUnlocked(store, art.id)) {
         var img = Artifacts.imagePath(art);
         relicHtml =
-          '<div class="doss-relic">' +
+          '<button type="button" class="doss-relic clickable" data-inspect-relic="' + esc(art.id) + '" style="width:100%;text-align:left;background:rgba(217,182,103,.08);border:1px solid rgba(217,182,103,.35);cursor:pointer;border-radius:4px;display:flex;align-items:center;gap:10px;padding:8px 10px;color:inherit;font:inherit">' +
             (img ? '<img src="' + esc(img) + '" alt="">' : '<span class="doss-relic-glyph">✦</span>') +
-            '<div><div class="doss-relic-tag">Relic recovered</div>' +
+            '<div><div class="doss-relic-tag">Relic recovered · Tap to inspect</div>' +
             '<b>' + esc(art.name) + '</b>' +
-            '<span>' + esc(art.blurb) + '</span></div></div>';
+            '<span>' + esc(art.blurb) + '</span></div></button>';
       } else if (art && st.cleared) {
         relicHtml = '<div class="doss-relic dim"><span class="doss-relic-glyph">✦</span><div><div class="doss-relic-tag">Relic</div><b>' + esc(art.name) + '</b><span>Recovered on first clear</span></div></div>';
       } else if (art) {
@@ -860,7 +860,12 @@ var Atlas = (function () {
       }
     }
 
+    var sealStampHtml = st.cleared
+      ? '<div class="doss-seal-wrap" style="display:flex;justify-content:center;margin:1.4vh 0 .6vh"><div class="doss-seal-stamp wax-seal-stamp stamped"></div></div>'
+      : "";
+
     body.innerHTML = head +
+      sealStampHtml +
       '<div class="doss-quote">' + esc(site.quote) + '</div>' +
       '<div class="doss-ref">' + esc(site.quoteRef) + '</div>' +
       '<div class="doss-body">' + esc(site.description) + '</div>' +
@@ -882,6 +887,15 @@ var Atlas = (function () {
             '<div><b>' + b.record.attempts + '</b><span>Visits</span></div>' +
           '</div>'
         : "");
+
+    body.querySelectorAll("[data-inspect-relic]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (typeof openRelicInspect === "function" && typeof Artifacts !== "undefined") {
+          var a = Artifacts.byId(btn.dataset.inspectRelic);
+          if (a) openRelicInspect(a);
+        }
+      });
+    });
 
     renderDossActions(site, b, st);
   }

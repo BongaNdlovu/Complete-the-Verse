@@ -1009,17 +1009,20 @@ body.reduced #reveal-stage.play .reveal-art{animation:none;opacity:1;transform:n
   min-width:3.2em;min-height:2.2em;padding:.35em .7em;font-family:var(--body);
   font-size:clamp(.95rem,2vw,1.2rem);color:var(--parch);
   background:linear-gradient(158deg,rgba(20,20,26,.86),rgba(6,7,11,.92));
-  box-shadow:0 0 0 1px var(--edge) inset;border-radius:3px}
+  box-shadow:0 0 0 1px var(--edge) inset;border-radius:3px;
+  touch-action:none;user-select:none;-webkit-user-select:none}
 .asm-slot.empty{color:var(--gold-dim);opacity:.55}
 .asm-slot.full{color:var(--gold-hot);box-shadow:0 0 0 1px rgba(217,182,103,.45) inset}
 .asm-bank{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;width:100%;margin:.3vh 0 .2vh}
 .asm-tile{
   padding:.4em .75em;font-family:var(--body);font-size:clamp(.9rem,1.9vw,1.12rem);
   color:var(--parch);background:rgba(40,28,12,.82);
-  box-shadow:0 0 0 1px rgba(213,173,98,.45) inset;border-radius:3px;cursor:pointer}
+  box-shadow:0 0 0 1px rgba(213,173,98,.45) inset;border-radius:3px;cursor:grab;
+  touch-action:none;user-select:none;-webkit-user-select:none}
 .asm-tile:focus-visible,.asm-tile:active{box-shadow:0 0 0 1px var(--gold) inset,0 0 16px rgba(217,182,103,.2)}
 .asm-tile.burn{opacity:.28;pointer-events:none;text-decoration:line-through}
 .asm-tile.dragging,.asm-slot.dragging{opacity:.45}
+.asm-slot.drop-target{color:var(--gold-hot);box-shadow:0 0 0 1px var(--gold-hot) inset,0 0 20px rgba(217,182,103,.3)}
 .pc-oil{font-family:var(--ui);letter-spacing:.16em;text-transform:uppercase;font-size:.58rem;color:var(--gold);margin-top:.25em}
 .pwr.oil-buy em{color:var(--gold)}
 
@@ -1166,3 +1169,244 @@ body.reduced.wiping #v-play .stage{animation:none}
 .res-habit-streak .h-lamp{display:inline-block;width:14px;height:24px;border-radius:8px 8px 3px 3px;background:#352718;box-shadow:0 0 0 1px rgba(212,156,61,.3) inset;transition:all .4s}
 .res-habit-streak .h-lamp.lit{background:#ffd05b;box-shadow:0 0 12px rgba(255,210,90,.9),0 0 0 1px #fff inset}
 .res-habit-streak .h-lamp.sabbath{border:1px solid #ffba3b}
+
+/* ================= PHYSICAL PARCHMENT & BRASS FRAMING ================= */
+.brass-corners {
+  position: relative;
+}
+.brass-corners::before,
+.brass-corners::after {
+  content: '';
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  pointer-events: none;
+  z-index: 6;
+  background-repeat: no-repeat;
+  background-size: 26px 26px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26' fill='none'%3E%3Cpath d='M2 24V2h22' stroke='%23d9b667' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M6 20V6h14' stroke='%238a7239' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='6' cy='6' r='2' fill='%23ffe3a6'/%3E%3Cpath d='M2 2L10 10' stroke='%23d9b667' stroke-width='1'/%3E%3C/svg%3E");
+  opacity: .82;
+  transition: opacity .3s ease, filter .3s ease;
+}
+.brass-corners::before {
+  top: 8px;
+  left: 8px;
+}
+.brass-corners::after {
+  bottom: 8px;
+  right: 8px;
+  transform: rotate(180deg);
+}
+.brass-corners:hover::before,
+.brass-corners:hover::after {
+  opacity: 1;
+  filter: drop-shadow(0 0 5px rgba(217,182,103,.6));
+}
+
+/* Illuminated drop-caps on Act titles, briefing quotes, and dossier quotes */
+.actname::first-letter,
+.brief-quote::first-letter,
+.doss-quote::first-letter {
+  font-family: var(--disp);
+  font-size: 1.4em;
+  font-weight: 700;
+  color: var(--gold-hot);
+  text-shadow: 0 0 14px rgba(217,182,103,.6);
+  padding-right: 0.04em;
+}
+
+/* ================= RELIC GOLD-LEAF SHIMMER ================= */
+.reveal-art,
+.inspect-art {
+  position: relative;
+  overflow: hidden;
+}
+.reveal-art::after,
+.inspect-art::after {
+  content: '';
+  position: absolute;
+  inset: -120%;
+  background: linear-gradient(
+    115deg,
+    transparent 38%,
+    rgba(255, 235, 170, 0.4) 48%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 235, 170, 0.4) 52%,
+    transparent 62%
+  );
+  pointer-events: none;
+  transform: translateX(-120%) rotate(25deg);
+  opacity: 0;
+}
+#reveal-stage.play .reveal-art::after,
+.relic-inspect-modal.on .inspect-art::after {
+  animation: goldFoilSweep 1.6s cubic-bezier(.2,.8,.2,1) .5s forwards;
+}
+@keyframes goldFoilSweep {
+  0% { transform: translateX(-120%) rotate(25deg); opacity: 0; }
+  25% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateX(120%) rotate(25deg); opacity: 0; }
+}
+
+/* ================= RELIC INSPECT MODAL ================= */
+.relic-inspect-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 13500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 4vw;
+  background: rgba(2,3,8,.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .4s ease, visibility .4s;
+}
+.relic-inspect-modal.on {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.inspect-card {
+  position: relative;
+  z-index: 2;
+  width: min(520px, 94vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: clamp(1.6rem, 3.2vw, 2.4rem);
+  text-align: center;
+  background: linear-gradient(165deg, rgba(28,26,22,.98), rgba(8,9,14,.99));
+  box-shadow: 0 0 0 1px rgba(217,182,103,.5) inset, 0 32px 90px rgba(0,0,0,.75);
+  border-radius: 4px;
+  transform: translateY(16px) scale(.96);
+  transition: transform .45s cubic-bezier(.16,.84,.28,1);
+}
+.relic-inspect-modal.on .inspect-card {
+  transform: translateY(0) scale(1);
+}
+.inspect-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  font-family: var(--ui);
+  font-size: 1.1rem;
+  color: var(--parch-dim);
+  border: 1px solid var(--edge);
+  border-radius: 3px;
+  background: rgba(6,7,11,.75);
+  cursor: pointer;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.inspect-close:hover {
+  color: var(--gold-hot);
+  border-color: var(--gold);
+  background: rgba(217,182,103,.15);
+}
+.inspect-art {
+  width: min(300px, 68vw);
+  height: min(300px, 68vw);
+  margin: 1.6vh auto 1.2vh;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 40%, rgba(255,230,170,.18), rgba(10,11,16,.96));
+  box-shadow: 0 0 0 1px rgba(217,182,103,.55) inset, 0 0 44px rgba(217,182,103,.25);
+}
+.inspect-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+.inspect-meta {
+  font-family: var(--ui);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  font-size: .68rem;
+  color: var(--gold-dim);
+  margin-top: .6vh;
+}
+.inspect-copy {
+  color: var(--parch);
+  line-height: 1.6;
+  font-size: 1rem;
+  margin: 1.2vh auto;
+  max-width: 44ch;
+  user-select: text;
+}
+.inspect-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--edge);
+  margin: 1.4vh 0;
+  text-align: left;
+}
+.inspect-cell {
+  background: rgba(6,7,11,.92);
+  padding: .7em .8em;
+}
+.inspect-cell b {
+  display: block;
+  font-family: var(--ui);
+  font-size: .62rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #8f8975;
+  margin-bottom: .3em;
+}
+.inspect-cell span {
+  font-family: var(--ui);
+  font-size: .8rem;
+  letter-spacing: .06em;
+  color: var(--parch);
+}
+.inspect-cell.wide {
+  grid-column: 1 / -1;
+}
+
+/* ================= RED WAX SEAL STAMP VFX ================= */
+.wax-seal-stamp {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #d83a3f 0%, #8a1216 65%, #460608 100%);
+  box-shadow: 0 6px 18px rgba(0,0,0,.75), inset 0 2px 4px rgba(255,180,180,.45), inset 0 -3px 6px rgba(0,0,0,.65);
+  display: grid;
+  place-items: center;
+  border: 2px dashed rgba(255,200,120,.25);
+  transform: rotate(-12deg);
+}
+.wax-seal-stamp::before {
+  content: 'SEALED';
+  font-family: var(--disp);
+  font-size: .58rem;
+  font-weight: 900;
+  letter-spacing: .18em;
+  color: #ffe3a6;
+  text-shadow: 0 1px 3px rgba(0,0,0,.9), 0 0 8px rgba(255,227,166,.45);
+}
+.wax-seal-stamp.stamped {
+  animation: waxSealStamp .65s cubic-bezier(.16,.84,.28,1) forwards;
+}
+@keyframes waxSealStamp {
+  0% { transform: scale(2.4) rotate(-35deg); opacity: 0; filter: blur(4px); }
+  60% { transform: scale(.92) rotate(-14deg); opacity: 1; filter: none; }
+  80% { transform: scale(1.05) rotate(-10deg); }
+  100% { transform: scale(1) rotate(-12deg); }
+}
+body.reduced .wax-seal-stamp.stamped,
+body.motion-calm .wax-seal-stamp.stamped {
+  animation: none;
+  transform: rotate(-12deg);
+}

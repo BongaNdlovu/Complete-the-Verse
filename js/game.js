@@ -178,6 +178,14 @@ function reviewVerse(q, opts){
   const prev = SAVE.srs[q.id];
   const quality = SRS.gradeAnswer(opts);
   SAVE.srs[q.id] = SRS.schedule(prev, quality, today());
+  /* Keep the learning evidence beside the interval. The scheduler remains
+     pure, while Study Hall and future adaptive draws can distinguish a
+     fluent answer from a cued or slow one without rewriting old saves. */
+  SAVE.srs[q.id].lastQuality = quality;
+  SAVE.srs[q.id].lastMode = opts && opts.mode || (R.typed ? "assembly" : "choice");
+  SAVE.srs[q.id].lastFraction = opts && typeof opts.fraction === "number" ? opts.fraction : null;
+  SAVE.srs[q.id].lastCueLevel = opts && opts.cueLevel || 0;
+  SAVE.srs[q.id].lastNear = !!(opts && opts.near);
   SAVE.life.reviewsDone++;
   return SAVE.srs[q.id];
 }
@@ -279,26 +287,27 @@ const MODES = {
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, assembled word for word.",
     tagline:"Assemble · cleared sites", info:[["8","Verses"],["Assemble","No options"],[modeClockLabel("pilgrim-recall"),"Clock"]] },
-  /* Hidden campaign extras and legacy modes — player meets the road, not a menu. */
+  /* Relay and Pilgrim's Recall stay contextual to an atlas-selected arc or
+     cleared site; the rest of the modes are discoverable from the hall. */
   relay:{ key:"relay", name:"The Long Road", kick:"One unbroken walk", hidden:true,
     desc:"A whole arc in a single run. Lives carry from site to site and never come back, and the clock keeps tightening the way the road does. Sites you pass stay cleared even if the road ends you.",
     tagline:"A whole arc · shared lives", info:[["1","Run"],["Shared","Lives"],["No","Rest"]] },
-  trial:{ key:"trial", name:"The Trial", kick:"Campaign", hidden:true,
+  trial:{ key:"trial", name:"The Trial", kick:"Campaign",
     desc:"Five acts. The clock tightens with every one. Reach Act V with one life, clear its five questions, and earn the ending. A sixth act waits for those who have already been through the fire.",
     tagline:"5 acts · one-life finale", info:[["5","Acts"],["39+","Verses"],[modeClockLabel("trial"),"Clock"]] },
-  endless:{ key:"endless", name:"Endless Gauntlet", kick:"Survival", hidden:true,
+  endless:{ key:"endless", name:"Endless Gauntlet", kick:"Survival",
     desc:"One continuous run. The timer shrinks a fraction each question and never resets.",
     tagline:"Infinite · shrinking clock", info:[["∞","Questions"],[modeClockLabel("endless"),"Clock"],["All 5","Tiers"]] },
-  daily:{ key:"daily", name:"Daily Trial", kick:"One shot a day", hidden:true,
+  daily:{ key:"daily", name:"Daily Trial", kick:"One shot a day",
     desc:"Twenty verses, drawn by today's date. Everyone who plays today gets exactly the same twenty in exactly the same order. Your first finished run sets the day's score — a run that ends early does not count, and after the score stands you may practise.",
     tagline:"20 verses · same for everyone", info:[["20","Verses"],["1","Recorded run"],[modeClockLabel("daily"),"Clock"]] },
-  blitz:{ key:"blitz", name:"Scripture Blitz", kick:"Sixty seconds", hidden:true,
+  blitz:{ key:"blitz", name:"Scripture Blitz", kick:"Sixty seconds",
     desc:"A survival clock. Every correct answer adds two seconds; every miss burns four. The screen edges flare as time runs thin. How many verses can you hold?",
     tagline:"60s · +2s / −4s", info:[[modeClockLabel("blitz"),"Start"],["+2s","Correct"],["−4s","Miss"]] },
-  practice:{ key:"practice", name:"The Drill", kick:"Spaced review", hidden:true,
+  practice:{ key:"practice", name:"The Drill", kick:"Spaced review",
     desc:"The verses that have fallen due, most overdue first, then whatever you have never seen.",
     tagline:"15 verses · due first", info:[["15","Verses"],["Due","Ordered by"],[modeClockLabel("practice"),"Clock"]] },
-  recall:{ key:"recall", name:"Recall", kick:"Assemble it from memory", hidden:true,
+  recall:{ key:"recall", name:"Recall", kick:"Assemble it from memory",
     desc:"No options to choose between. The missing words sit in a bank with a few fakes. Place them in order.",
     tagline:"12 verses · assemble", info:[["12","Verses"],["Assemble","No options"],[modeClockLabel("recall"),"Clock"]] }
 };
@@ -564,7 +573,7 @@ function startRun(mode, diffKey, options){
     score:0, disp:0, lives: mode==="blitz" ? 99 : D.lives, maxLives: mode==="blitz" ? 99 : D.lives,
     streak:0, best:0, correct:0, attempts:0, missed:[], used:new Set(), usedRefs:new Set(),
     siteCommitted:{},
-    powers:startPowers, usedPower:false, powersSpent:0,
+    powers:startPowers, usedPower:false, qUsedPower:false, powersSpent:0,
     fast:0, sdCount:0, tiersSeen:new Set(), booksRun:new Set(),
     running:false, tEnd:0, tTotal:0, qStart:0, q:null, paused:false, locked:false, selected:null,
     actNoLoss:true, gotUnshaken:false, dailyIdx:0, daily:null, endlessBase:12000,
@@ -840,6 +849,10 @@ function updateChips(){
     $("hud-round").textContent = (R.mode==="recall" ? "Recall · " : "Drill · ")+(R.adaptivePick||"Spaced review");
     $("hud-qlab").textContent = R.mode==="recall" ? "Typed" : "Drill";
     $("hud-q").textContent = R.qTotal+" / "+R.practiceLen;
+  } else if(R.mode==="tutorial"){
+    $("hud-round").textContent = "First light";
+    $("hud-qlab").textContent = "Lesson";
+    $("hud-q").textContent = R.tutorial ? (R.tutorial.index+1)+" / "+R.tutorial.total : "1 / 3";
   } else {
     $("hud-round").textContent = "Endless · "+(R.adaptivePick||"Adaptive Recall");
     $("hud-qlab").textContent = "Adaptive Verse";
@@ -894,6 +907,14 @@ function updateActTrack(){
       return '<div class="act-step'+(pct>=100?" done":pct>0?" current":"")+'"><i style="width:'+pct+'%"></i><span>'+mark+'</span></div>';
     }).join("");
     el.setAttribute("aria-label",(R.mode==="recall"?"Recall ":"Drill ")+R.qTotal+" of "+R.practiceLen);
+  }else if(R.mode==="tutorial"){
+    const total = R.tutorial ? R.tutorial.total : 3;
+    const current = R.tutorial ? R.tutorial.index : 0;
+    el.innerHTML = Array.from({length:total},(_,i)=>{
+      const done=i<current, active=i===current;
+      return '<div class="act-step'+(done?" done":"")+(active?" current":"")+'"><i style="width:'+(done?100:active?55:0)+'%"></i><span>'+(i+1)+'</span></div>';
+    }).join("");
+    el.setAttribute("aria-label","Tutorial lesson "+(current+1)+" of "+total);
   }else{
     const marks=[5,10,20,30,40];
     el.innerHTML=marks.map((mark,i)=>{
@@ -961,6 +982,7 @@ function renderPowers(){
   $("powers").querySelectorAll("[data-pw]").forEach(b=>{
     b.addEventListener("click", ()=>usePower(b.dataset.pw));
   });
+  if(typeof syncTypedPowerButtons === "function") syncTypedPowerButtons();
 }
 function usePower(kind){
   if(R.paused || R.locked) return;
@@ -968,7 +990,7 @@ function usePower(kind){
   if(!armed) return;
   if(SetPieces.noPowers()){ toast("Lifelines are offline for this sequence"); return; }
   if(kind==="selah" && R.powers.selah){
-    R.powers.selah--; R.usedPower=true; R.powersSpent++; R.tEnd += 5000; R.tTotal += 5000;
+    R.powers.selah--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++; R.tEnd += 5000; R.tTotal += 5000;
     R.pendingSelah = (R.pendingSelah||0) + 5000;
     Snd.power();
     if(Snd.selah) Snd.selah(5000);
@@ -977,7 +999,7 @@ function usePower(kind){
     if(!R.q){ toast("Illuminate needs a verse on the stage"); return; }
     if(R.typed){
       if(R.hintLevel >= 3){ toast("Nothing further to illuminate"); return; }
-      R.powers.illum--; R.usedPower=true; R.powersSpent++;
+      R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
       typedHint();
       Snd.power(); doFlash("violet");
       toast(R.hintLevel===1 ? "Illuminate — the shape of the words"
@@ -987,7 +1009,7 @@ function usePower(kind){
     }
     const wrong = answerButtons().filter(b=>b.dataset.val!==R.q.a && !b.classList.contains("burn"));
     if(wrong.length<2) return;
-    R.powers.illum--; R.usedPower=true; R.powersSpent++;
+    R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
     const burned = shuffle(wrong).slice(0,2);
     burned.forEach(b=>b.classList.add("burn"));
     if(R.selected && burned.indexOf(R.selected.btn)>=0){

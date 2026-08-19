@@ -13,7 +13,7 @@ Static King James Bible memory ordeal and geographical pilgrimage from Ur to Pat
 
 ## How to Test
 
-Run the full automated test suite (36 suites):
+Run the full automated test suite (39 suites):
 
 ```bash
 npm test

@@ -193,10 +193,15 @@ assert(game.includes("Live.configure"), "live conditions follow the setting");
 assert(game.includes('seg("liveWeather"'), "live conditions can be switched off");
 assert(game.includes('id="set-road"') || game.includes("set-road"),
   "the journey can be restarted without erasing everything else");
+assert(html.includes('id="relic-inspect-modal"'), "relic inspect modal is present in markup");
+assert(html.includes('id="inspect-art"'), "inspect art container is in the modal");
+assert(css.includes(".brass-corners"), "brass corners framing is defined in CSS");
+assert(css.includes(".wax-seal-stamp"), "wax seal stamp is defined in CSS");
+assert(/function openRelicInspect\(/.test(game), "openRelicInspect helper is wired");
 
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");
   fails.forEach((f) => console.error(" - " + f));
   process.exit(1);
 }
-console.log("PASS — index.html UI structure checks · atlas wired");
+console.log("PASS — index.html UI structure checks · atlas & inspect modal wired");

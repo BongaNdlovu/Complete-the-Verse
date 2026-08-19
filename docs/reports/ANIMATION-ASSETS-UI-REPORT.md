@@ -32,7 +32,7 @@ None of these break play. All of them are finish quality: they are what a player
 
 ## 1. Animations — what should be improved
 
-### 1.1 (BUG) Map walker sprite sheet is off-spec — visible glitch
+### 1.1 (FIXED) Map walker sprite sheet frame loop
 
 `assets/traveler/walk.png` is **2152×479**, i.e. **8 cells of 269×479**.
 
@@ -40,36 +40,31 @@ The CSS (`css/atlas.css` 151–168) ships:
 
 ```css
 background-image: url("../assets/traveler/walk.png");
-background-size: 320px 68px;          /* wrong: stretches cells to 40×68  */
-animation: pilgrimWalk .72s steps(8) infinite;
+background-size: 320px 72px;          /* display scale: 8 × 40×72 cells */
+animation: pilgrimWalk .72s steps(7) infinite;
 ...
 @keyframes pilgrimWalk {
   from { background-position: 0 0; }
-  to   { background-position: -320px 0; }
+  to   { background-position: -280px 0; }
 }
 ```
 
-Two independent defects:
+The shipped display size is an intentional downscale of the 269×479 source cells into a 40×72 walker. The actual defect was the off-by-one loop: `steps(8)` and `-320px` advanced one frame beyond the eight-cell sheet. The CSS now uses seven transitions and ends on the seventh offset (`-7 × 40px`).
 
-- **Wrong `background-size`.** 2152px wide ÷ 8 frames = 269px, but the CSS fakes a 320px-wide sheet (40px cells). Every frame is horizontally squashed ≈ 40/269, and a wasted 7% of the width is never drawn.
-- **Off-by-one `steps(8)`.** An 8-frame sheet needs `steps(7)` ending at `-7 × cell`, or the sheet must be 9 cells. With `steps(8)` carrying the position all the way to `-320px`, the final interpolation lands **one cell past the last frame** — the walker blinks out for one frame every loop before snapping back.
-
-**Fix:**
+**Applied fix:**
 
 ```css
 .traveler-marker.is-walking .traveler-walker,
 .traveler-node.walking .traveler-walker {
-  background-size: 2152px 479px;       /* 8 × 269 */
+  background-size: 320px 72px;         /* display scale: 8 × 40×72 */
   animation: pilgrimWalk .72s steps(7) infinite;
 }
 @keyframes pilgrimWalk {
   from { background-position: 0 0; }
-  to   { background-position: -1883px 0; }   /* 7 × 269 */
+  to   { background-position: -280px 0; }    /* 7 × 40 */
 }
 /* pilgrimWalkWest mirrors the same values with scaleX(-1) */
 ```
-
-Also confirm the walker container is actually 40×68 (a 269×479 source drawn at 40×68 is a 1:1.78 → 1:1.7 aspect change — close, but a clean downscale to an exact 40×72 or 44×78 cell would remove the last 2% of squash).
 
 ### 1.2 Judge burst — one-shot 5 MB, and two poses only
 
@@ -172,7 +167,7 @@ Not new systems — single-token additions:
 ### 2.4 Audio specifics
 
 - `audio/` is loaded eagerly enough that five ~2 MB acts pressure low-end devices before a single verse is played. Confirm `audio.js` streams acts on demand; if it preloads all five, stop.
-- The mission voice is **still `speechSynthesis`** (device TTS). This is a P1 in the prior report and remains the single largest audio-quality gap: one authored baritone vs thirteen device voices. The 21-line ElevenLabs list is already specified — this is a recording/authoring task, not a code task.
+- Mission voice now prefers the authored recordings in `audio/voice/` and falls back to device TTS when browser playback is blocked. The remaining audio-quality gap is content authoring: several tutorial and ceremony prompts still need dedicated recorded lines rather than fallback speech.
 - SFX are appropriately small and themed. Only `.tick.mp3` is 0.27 MB (fine); consider a single consolidated `ui` sprite with seek offsets to cut 8 HTTP requests to one.
 
 ---
@@ -225,7 +220,7 @@ These are used for *info the player may need* (arc status, live reading state, r
 
 | # | Task | Effort | Impact |
 |---|---|---|---|
-| 1 | **Fix walker sprite CSS** (1.1) | 20 min | Bug — immediately visible |
+| 1 | **Fix walker sprite CSS** (1.1) | **Done** | Bug — immediately visible |
 | 2 | **Re-encode judge burst to WebP** (2.2-2) | 1 h | 3.6 MB off |
 | 3 | **Downscale artifacts + character tokens** (2.2-3/4) | 2–3 h | 15 MB off |
 | 4 | **Add Motion: Calm tier** (1.3) | 1–2 h | Feel/battery |

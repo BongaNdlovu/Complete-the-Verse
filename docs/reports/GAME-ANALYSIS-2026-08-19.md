@@ -14,7 +14,7 @@
 |---|---|---|
 | Concept & identity | A | "Memory as pilgrimage" is coherent, atmospheric, and rare |
 | Code architecture | B+ | Clean layering, zero-build discipline; `game.js` is a 1,500-line god-file |
-| Test coverage | A- | 37 suites, ~1,000+ assertions, all passing |
+| Test coverage | A- | 38 suites, ~1,000+ assertions, all passing |
 | Gameplay depth | B | Strong core loop; difficulty curve is a cliff, not a curve |
 | Content volume | B+ | 579 verses, 66 books, 5 arcs, 22 sites, 37 seals |
 | UX & onboarding | B- | Beautiful but punishing; several modes are effectively undiscoverable |
@@ -22,6 +22,17 @@
 | Security & privacy | B+ | RLS-protected Supabase, no secrets beyond anon key; no CSP |
 | Documentation | A- | Excellent docs/ and plans/ culture |
 | Release engineering | C+ | No CI, no versioning, no analytics, no error tracking |
+
+### Follow-up implementation pass
+
+This pass addressed the highest-impact first-run and playability defects found
+in the review: first launch now teaches the game through three easy,
+non-scoring lessons (tap, lifeline, assemble/drag) before opening the menu;
+assemble-mode lifelines use delegated controls that survive bank redraws; and
+recorded voice playback now exposes rejected audio so speech fallback is not
+silently cancelled. A missing direct voice-file reference in the Seventh Lamp
+ceremony was also routed through the Director. The full regression suite now
+contains 38 passing suites, including an onboarding state test.
 
 ---
 
@@ -202,7 +213,7 @@ As detailed in §2.2: Daily, Blitz, Trial, Endless, and Recall are all `hidden:t
 
 ## 8. Test & QA Assessment
 
-- **37 suites, all passing** (verified by running `node test.js`).
+- **38 suites, all passing** (verified by running `node test.js`).
 - Coverage spans: metadata (66 books, 579 verses), SRS math, flow, UI structure, e2e DOM smoke tests, sound, motion, quarantine, cloud, voice, menu modes, gameplay polish, improvements, fixes.
 - **Gaps:** no visual regression, no performance budget tests, no cloud integration tests against a real Supabase project (mocked), no i18n (n/a), no coverage measurement.
 - **The `test.js` runner is custom** — fine, but consider migrating to `node --test` for zero-dependency structured output and better failure isolation.
@@ -245,7 +256,7 @@ As detailed in §2.2: Daily, Blitz, Trial, Endless, and Recall are all `hidden:t
 
 ## 10. Conclusion
 
-Complete the Verse is a **serious, disciplined, distinctive piece of work**. The zero-build philosophy, 37-suite test culture, quarantine pipeline, and graceful-degradation patterns are better than many commercial codebases. The "memory as pilgrimage" identity is coherent from code to copy to art direction.
+Complete the Verse is a **serious, disciplined, distinctive piece of work**. The zero-build philosophy, 38-suite test culture, quarantine pipeline, and graceful-degradation patterns are better than many commercial codebases. The "memory as pilgrimage" identity is coherent from code to copy to art direction.
 
 Its three real problems are: **(1) five of eight modes are unreachable**, **(2) the difficulty system is stubbed to a single punishing setting**, and **(3) the orchestrator file has grown into a god-file**. All three are fixable in weeks, not months — and the first two are nearly one-liners.
 

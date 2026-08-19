@@ -116,24 +116,30 @@ const Director = (function(){
   function voiceKey(text){
     return String(text||"").toLowerCase().replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();
   }
-  function speak(text,force){
-    if(!text) return;
-    if(!SAVE.set.voice || (!force && Date.now()-lastVoice<2400)) return;
-    const src=VOICE_FILES[voiceKey(text)];
-    if(src && typeof Snd!=="undefined" && Snd.playVoice && Snd.playVoice(src)){
-      lastVoice=Date.now();
-      try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){}
-      return;
-    }
+  function speakFallback(text){
     if(!("speechSynthesis" in window)) return;
-    lastVoice=Date.now();
     try{
       speechSynthesis.cancel();
       const u=new SpeechSynthesisUtterance(text);
       u.voice=bestVoice();
-      u.rate=.84;u.pitch=.76;u.volume=Math.min(1,.78*(SAVE.set.sfx||.7));
+      u.rate=.84;u.pitch=.76;u.volume=Math.min(1,.78*(SAVE.set.sfx==null?.7:SAVE.set.sfx));
       speechSynthesis.speak(u);
     }catch(e){}
+  }
+  function speak(text,force){
+    if(!text) return;
+    if(!SAVE.set.voice || (!force && Date.now()-lastVoice<2400)) return;
+    const src=VOICE_FILES[voiceKey(text)];
+    if(src && typeof Snd!=="undefined" && Snd.playVoice){
+      lastVoice=Date.now();
+      const played=Snd.playVoice(src, 2400, function(){ speakFallback(text); });
+      if(played){
+        try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){}
+        return;
+      }
+    }
+    lastVoice=Date.now();
+    speakFallback(text);
   }
   function callout(text){
     const p=document.createElement("div");p.className="mission-callout";p.textContent=text;
@@ -242,4 +248,3 @@ const Director = (function(){
   }
   return {speak,callout,setAct,pressure,momentum,beat,impact,syncFx,ending};
 })();
-

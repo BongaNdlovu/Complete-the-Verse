@@ -195,7 +195,10 @@ function updateOfflineBanner(){
    Practice, and Challenges. Anything not listed but not hidden renders
    in a fallback card grid without orphans. */
 const MENU_GROUPS = [
-  { name: "The Road",   modes: ["pilgrimage"] }
+  { name: "The Road",   modes: ["pilgrimage"] },
+  { name: "Today",      modes: ["daily"] },
+  { name: "Practice",   modes: ["practice", "recall"] },
+  { name: "Challenges", modes: ["blitz", "trial", "endless"] }
 ];
 const MENU_ORDER = ["pilgrimage", "daily", "blitz", "trial", "endless", "practice"];
 
@@ -582,6 +585,10 @@ function showTutorialIfNeeded(){
     if(!profileReady()) openProfileSetup(true);
     return;
   }
+  if(typeof startTutorialRun === "function"){
+    startTutorialRun();
+    return;
+  }
   const el=$("tutorial"); if(!el) return;
   el.classList.add("on");
 }
@@ -698,9 +705,12 @@ function playBootSequence(opts){
       if(msg) msg.textContent="The record is open.";
       setTimeout(()=>{
         if(currentView==="boot"){
-          const cur = (typeof Pilgrimage !== "undefined" && Pilgrimage.currentSite) ? Pilgrimage.currentSite(SAVE.pilgrim) : null;
-          pendingSiteId = (cur && cur.id) || "ur";
-          startRun("pilgrimage", SAVE.set.diff);
+          if(!SAVE.set.tutorialDone && typeof startTutorialRun === "function"){
+            startTutorialRun();
+          }else{
+            go("menu");
+            if(typeof profileReady==="function" && !profileReady()) openProfileSetup(true);
+          }
         }
       }, fast?220:480);
     }
@@ -731,4 +741,3 @@ function armIntro(){
   setIntroHint("Tap to begin");
   if(v.readyState>=3) markReady();
 }
-

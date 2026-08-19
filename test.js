@@ -16,6 +16,7 @@ const SUITE = [
   ["event flow", "test/flow.test.js"],
   ["srs logic", "test/srs.test.js"],
   ["recall logic", "test/recall.test.js"],
+  ["onboarding", "test/onboarding.test.js"],
   ["geo logic", "test/geo.test.js"],
   ["pilgrimage", "test/pilgrimage.test.js"],
   ["characters", "test/characters.test.js"],
@@ -38,11 +39,13 @@ const SUITE = [
   ["gameplay polish", "test/gameplay-polish.test.js"],
   ["excitement", "test/excitement.test.js"],
   ["answering", "test/answering.test.js"],
+  ["interaction", "test/interaction-contract.test.js"],
   ["motion", "test/motion.test.js"],
   ["fixes", "test/fixes.test.js"],
   ["metadata", "test/metadata.test.js"],
   ["coffee pilgrim", "test/coffee-pilgrimage.test.js"],
   ["e2e elements", "test/e2e-game-elements.test.js"],
+  ["simulation", "test/playthrough-simulation.test.js"],
   ["diag", "test/diag.test.js"]
 ];
 

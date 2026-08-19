@@ -154,7 +154,7 @@ body:not(:has(#v-atlas.on)) .route-line { animation-play-state: paused; }
   background-image: url("../assets/traveler/walk.png");
   background-size: 320px 72px;
   background-position: 0 0;
-  animation: pilgrimWalk .72s steps(8) infinite;
+  animation: pilgrimWalk .72s steps(7) infinite;
   will-change: transform, background-position;
 }
 .traveler-node.face-west .traveler-walker { transform: scaleX(-1); }
@@ -163,11 +163,11 @@ body:not(:has(#v-atlas.on)) .route-line { animation-play-state: paused; }
 }
 @keyframes pilgrimWalk {
   from { background-position: 0 0; }
-  to { background-position: -320px 0; }
+  to { background-position: -280px 0; }
 }
 @keyframes pilgrimWalkWest {
   from { background-position: 0 0; transform: scaleX(-1); }
-  to { background-position: -320px 0; transform: scaleX(-1); }
+  to { background-position: -280px 0; transform: scaleX(-1); }
 }
 .traveler-face {
   position: absolute; right: -4px; top: 4px;

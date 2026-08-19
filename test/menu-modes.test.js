@@ -24,18 +24,19 @@ function ok(name, cond, extra) {
 
 /* Pull a MODE entry block from const MODES = { ... } */
 function modeBlock(key) {
-  const modesMatch = src.match(/const MODES = \{([\s\S]*?)\n\};/);
+  const modesMatch = src.match(/const MODES = \{([\s\S]*?)\n\s*\};/);
   const modesSrc = modesMatch ? modesMatch[1] : src;
-  const esc = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const re = new RegExp(
-    "(?:\"?" + esc + "\"?)\\s*:\\s*\\{([\\s\\S]*?\\})\\s*(?:,|\\})"
-  );
-  const m = modesSrc.match(re);
-  return m ? m[1] : "";
+  const markers = ["\n  " + key + ":", "\n  \"" + key + "\":", "\n" + key + ":", "\n\"" + key + "\":"];
+  let start = -1, marker = "";
+  markers.some(function(m){ const i = modesSrc.indexOf(m); if(i < 0) return false; start = i + m.length; marker = m; return true; });
+  if(start < 0) return "";
+  const rest = modesSrc.slice(start);
+  const next = rest.slice(1).search(/\n\s*\"?[A-Za-z0-9-]+\"?\s*:\s*\{/);
+  return next < 0 ? rest : rest.slice(0, next + 1);
 }
 
-const publicModes = ["pilgrimage"];
-const hiddenModes = ["daily", "blitz", "trial", "endless", "practice", "recall", "relay", "pilgrim-recall"];
+const publicModes = ["pilgrimage", "daily", "blitz", "trial", "endless", "practice", "recall"];
+const hiddenModes = ["relay", "pilgrim-recall"];
 
 publicModes.forEach(k => {
   const b = modeBlock(k);
@@ -66,11 +67,14 @@ ok("menu Enter routes through MENU_ORDER, not a hidden mode",
 ok("menu Enter no longer opens the hidden Trial directly",
   !/openBrief\("trial"\); return;/.test(src));
 
-/* Typed recall still exists on the Pilgrimage road */
+/* Typed recall still exists on the Pilgrimage road and as a discoverable
+   dedicated practice mode. */
 ok("pilgrimage still mixes typed questions",
   /typedN\s*=\s*Math\.min\(2/.test(src) || /last two of every stop are typed/.test(src) ||
   /R\.typed\s*=\s*n\s*>\s*0\s*&&\s*R\.siteIdx\s*>\s*\(n\s*-\s*typedN\)/.test(src) ||
   /isLastBeat/.test(src));
+ok("Recall is surfaced as a practice mode",
+  /Practice[\s\S]*modes: \["practice", "recall"\]/.test(src));
 
 /* Menu hall grouping — The Road */
 ok("MENU_GROUPS defines The Road",

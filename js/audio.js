@@ -35,7 +35,7 @@ const Snd = (function(){
   /* Ones that briefly duck the bed so they cut through. */
   const SFX_DUCK = { lock:1, correct:1, wrong:1, power:1 };
   const SFX_GAIN = { hover:0.4, lock:0.68, correct:0.72, wrong:0.66, power:0.5, heart:0.85 };
-  let voiceHold=null;
+  let voiceHold=null, pendingVoice=null;
   function duckMusic(factor, ms){
     if(!ctx||!mMus) return;
     const base = Math.max(0, SAVE.set.music||0);
@@ -71,24 +71,51 @@ const Snd = (function(){
     }catch(e){ return false; }
   }
   /* Recorded mission voice. Exclusive — a new line cuts the previous. */
-  function playVoice(src, duckMs){
-    init();
-    if(!src) return false;
+  function attemptVoice(src, duckMs, onFail){
+    function notifyVoiceFailure(){
+      if(!onFail) return;
+      setTimeout(function(){
+        /* A newer prompt owns the channel; do not let an older rejected
+           promise speak over it. */
+        if(pendingVoice && pendingVoice.src===src && !voiceHold) onFail();
+      }, 0);
+    }
     try{
       if(voiceHold){
         try{ voiceHold.pause(); voiceHold.currentTime=0; }catch(e){}
         voiceHold=null;
       }
       const a=new Audio(src);
-      a.volume=Math.max(0,Math.min(1,SAVE.set.sfx||0));
+      a.preload="auto";
+      a.volume=Math.max(0,Math.min(1,SAVE.set.sfx==null?0.7:SAVE.set.sfx));
       voiceHold=a;
       if(avail) duckMusic(0.2, duckMs==null?2400:duckMs);
       const p=a.play();
-      if(p&&p.catch) p.catch(()=>{});
+      if(p&&p.catch) p.catch(function(){
+        if(voiceHold===a) voiceHold=null;
+        pendingVoice={src:src,duckMs:duckMs,onFail:onFail};
+        /* Let Director finish cancelling any already-speaking line before
+           the fallback starts; otherwise the fallback is cancelled too. */
+        notifyVoiceFailure();
+      });
+      a.addEventListener("ended", function(){ if(voiceHold===a) voiceHold=null; });
       return true;
-    }catch(e){ return false; }
+    }catch(e){
+      pendingVoice={src:src,duckMs:duckMs,onFail:onFail};
+      notifyVoiceFailure();
+      return false;
+    }
+  }
+  /* Return playback failures to the caller. Swallowing an autoplay
+     rejection here used to silence both recorded voice and TTS fallback. */
+  function playVoice(src, duckMs, onFail){
+    init();
+    if(!src || (SAVE.set && SAVE.set.voice===false)) return false;
+    pendingVoice=null;
+    return attemptVoice(src, duckMs, onFail);
   }
   function stopVoice(){
+    pendingVoice=null;
     if(!voiceHold) return;
     try{ voiceHold.pause(); voiceHold.currentTime=0; }catch(e){}
     voiceHold=null;
@@ -196,6 +223,11 @@ const Snd = (function(){
       init();
       if(ctx && ctx.state==="suspended") ctx.resume();
       if(TRACKS[bed]) playTrack(bed);
+      if(pendingVoice){
+        const next=pendingVoice;
+        pendingVoice=null;
+        attemptVoice(next.src, next.duckMs, next.onFail);
+      }
     },
     setMusic(v){
       SAVE.set.music=v;
@@ -274,4 +306,3 @@ const Snd = (function(){
     stopVoice:stopVoice
   };
 })();
-

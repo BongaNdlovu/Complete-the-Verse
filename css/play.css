@@ -285,6 +285,19 @@ body.motion-calm .confirm-answer:not(:disabled){animation:none}
 .pwr.passive:hover{color:#c9b98e;background:rgba(8,9,12,.72);box-shadow:0 0 0 1px rgba(200,168,102,.28) inset}
 .pwr em{font-style:normal;opacity:.62;margin-left:.4em}
 
+#tutorial-guide{position:absolute;left:50%;top:clamp(72px,10vh,112px);z-index:7;
+  width:min(540px,calc(100% - 32px));transform:translateX(-50%);padding:.7rem 1rem;
+  text-align:center;background:rgba(8,9,12,.88);border:1px solid rgba(213,173,98,.42);
+  box-shadow:0 12px 34px rgba(0,0,0,.28);pointer-events:none}
+#tutorial-guide[hidden]{display:none}
+.tutorial-guide-kicker{font-family:var(--ui);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-hot)}
+.tutorial-guide-copy{margin-top:.28rem;color:var(--parch);font-size:clamp(.82rem,1.5vw,1rem);line-height:1.35}
+body.onboarding .play-quit{display:none}
+body.onboarding .powerbar{z-index:8}
+body.onboarding .stage{box-shadow:inset 0 0 0 1px rgba(213,173,98,.16)}
+body.onboarding .typed-pwr{min-height:44px;cursor:pointer}
+.typed-pwr:disabled{opacity:.3;filter:saturate(.35);cursor:not-allowed}
+
 .play-quit{
   position:absolute;top:calc(var(--hdr-h) + 10px);right:clamp(12px,2.2vw,28px);z-index:6;
   min-height:44px;padding:.55em 1.15em;font-family:var(--ui);letter-spacing:.22em;
