@@ -86,7 +86,7 @@ const Snd = (function(){
         voiceHold=null;
       }
       const a=new Audio(src);
-      a.preload="auto";
+      a.preload="metadata";
       a.volume=Math.max(0,Math.min(1,SAVE.set.sfx==null?0.7:SAVE.set.sfx));
       voiceHold=a;
       if(avail) duckMusic(0.2, duckMs==null?2400:duckMs);

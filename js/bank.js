@@ -29,6 +29,10 @@ VERSES.push(...VERSES_EXTRA);
 if(typeof VERSES_MORE !== "undefined") VERSES.push(...VERSES_MORE);
 if(typeof VERSES_ASCENT !== "undefined") VERSES.push(...VERSES_ASCENT);
 
+/* The canonical key is plural. Normalize the legacy singular rows once at
+   the bank boundary so filters, maps, and lifetime stats agree. */
+VERSES.forEach(v => { if(v.b === "Psalm") v.b = "Psalms"; });
+
 const BY_TIER = {1:[],2:[],3:[],4:[],5:[]};
 const BY_ID = {};
 VERSES.forEach(v => {

@@ -71,6 +71,22 @@ var Assemble = (function(){
     };
   }
 
+  /* Fade-to-Memory reconstructs the complete passage.  The challenge is
+     ordering every word, so adding distractors would make punctuation and
+     long verses noisy rather than clearer.  Keep this separate from build()
+     so the normal Assemble mode retains its authored false-word bank. */
+  function buildExact(answer, rng){
+    var target = words(answer);
+    var bank = target.map(function(w, idx){
+      return { id: "t" + idx, word: w, dest: idx };
+    });
+    return {
+      target: target,
+      bank: shuffle(bank, rng),
+      placed: target.map(function(){ return null; })
+    };
+  }
+
   function tileById(state, id){
     var i;
     for(i = 0; i < state.bank.length; i++) if(state.bank[i].id === id) return state.bank[i];
@@ -116,7 +132,7 @@ var Assemble = (function(){
 
   return {
     words: words, keyOf: keyOf, fakeCount: fakeCount,
-    build: build, place: place, unplace: unplace,
+    build: build, buildExact: buildExact, place: place, unplace: unplace,
     join: join, isFilled: isFilled, remaining: remaining,
     shuffle: shuffle, tileById: tileById
   };

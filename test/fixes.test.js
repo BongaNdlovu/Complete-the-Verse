@@ -98,11 +98,14 @@ ok("the daily list records references as it draws", /R\.usedRefs\.add\(refKey\(v
 ok("the rail relay reads as a destination, not a command",
    />The Long Road<\/button>/.test(atlas) && !/>Walk it<\/button>/.test(atlas));
 
-/* §3.2 — edge-first score submission. */
+/* §3.2 — trusted-edge-only score submission. */
 ok("scores try the edge function first",
    /await submitViaEdge\("daily", payload\)/.test(cloud) &&
    /await submitViaEdge\("blitz", payload\)/.test(cloud));
-ok("a direct RLS write remains as the fallback", /via: "direct"/.test(cloud));
+ok("trusted board writes fail closed when the edge function is unavailable",
+   /trusted-submit-unavailable/.test(cloud) &&
+   !/from\("daily_scores"\)\.upsert/.test(cloud) &&
+   !/from\("blitz_scores"\)\.insert/.test(cloud));
 
 /* §4.1 — the dead payload is gone. */
 ok("no vendored three.js", !fs.existsSync(path.join(ROOT, "vendor", "three")));

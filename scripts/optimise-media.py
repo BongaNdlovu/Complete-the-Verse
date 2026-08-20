@@ -4,6 +4,7 @@ Resizes and compresses images to production dimensions:
 - Artifacts: 512x512 max (saves ~14MB)
 - Character Portraits: 512x512 max (saves ~2MB)
 - Character Tokens: 128x128 max (saves ~3MB)
+- Journey scenes: 1024x768 max (keeps milestone scenes sharp without shipping source-size PNGs)
 - Judge burst sheets: Optimized PNG
 """
 import os
@@ -35,6 +36,14 @@ def optimize_image(filepath, max_size, quality=85):
     except Exception as e:
         print(f"Error processing {filepath}: {e}", file=sys.stderr)
 
+def write_webp(source, target, quality=82):
+    try:
+        with Image.open(source) as img:
+            img.save(target, format="WEBP", quality=quality, method=6)
+        print(f"WebP: {os.path.relpath(target, BASE_DIR)} -> {os.path.getsize(target)//1024}KB")
+    except Exception as e:
+        print(f"Error writing {target}: {e}", file=sys.stderr)
+
 def main():
     print("--- Starting Asset Optimization ---")
     
@@ -57,8 +66,19 @@ def main():
                     optimize_image(p, (512, 512))
                 elif f.lower() == "token.png":
                     optimize_image(p, (128, 128))
-    
-    # 3. Judge Sheets -> Optimize PNG
+
+    # 3. Journey scenes are shown in a responsive milestone frame; 1024px is
+    # enough for the largest treatment without shipping source-size PNGs.
+    journey_dir = os.path.join(ASSETS_DIR, "journey")
+    print(f"\nProcessing Journey scenes in {journey_dir}...")
+    if os.path.exists(journey_dir):
+        for f in os.listdir(journey_dir):
+            if f.lower().endswith(".png"):
+                source = os.path.join(journey_dir, f)
+                optimize_image(source, (1024, 768))
+                write_webp(source, os.path.splitext(source)[0] + ".webp")
+
+    # 4. Judge Sheets -> Optimize PNG
     judge_dir = os.path.join(ASSETS_DIR, "judge")
     print(f"\nProcessing Judge sheets in {judge_dir}...")
     if os.path.exists(judge_dir):

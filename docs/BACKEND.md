@@ -123,10 +123,10 @@ If you paste those two values here (anon key is public with RLS), the config fil
 
 ## Server-trusted scores (deploy once)
 
-`supabase/functions/submit-score/index.ts` re-clamps scores and writes under the caller's own auth. The client (`js/cloud.js`) **tries this Edge Function first** on every Daily/Blitz submit and falls back to the direct RLS write if the function is unreachable, so boards keep working before you deploy it. Deploy to make the ceilings server-enforced:
+`supabase/functions/submit-score/index.ts` re-clamps scores, rate-limits submissions, and writes under the caller's own auth. The client (`js/cloud.js`) **requires this Edge Function** for every Daily/Blitz submit and fails closed if it is unreachable, so untrusted browser writes cannot enter the boards. Deploy to enable trusted submissions:
 
 ```bash
-supabase functions deploy submit-score --project-ref eanjhcktflbpbjkdjdej
+supabase functions deploy submit-score --project-ref eanjhcktflbpbjkdjtej
 ```
 
 After deploying, watch the Network tab: submissions should go to `/functions/v1/submit-score`.

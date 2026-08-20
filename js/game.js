@@ -5,12 +5,12 @@
 const SAVE_KEY = "ctv_save_v3";
 const LEGACY_SAVE_KEY = "ctv_save_v2";
 const DEFAULT_SAVE = {
-  v:3, xp:0, oil:0, runs:0,
+  v:3, xp:0, oil:0, illumReserve:0, runs:0,
   best:{trial:0, endless:0, daily:0, practice:0, recall:0, pilgrimage:0, "pilgrim-recall":0, blitz:0},
   seals:[],
   life:{correct:0, attempts:0, bestStreak:0, sdBest:0, endlessBest:0, dailyDone:0, perfectActs:0,
         typedExact:0, typedAttempts:0, reviewsDone:0, sitesCleared:0, arcsCleared:0, blitzBest:0,
-        oilSpent:0, oilEarned:0},
+        oilSpent:0, oilEarned:0, quickRewards:0, quickRewardXP:0, quickRewardOil:0, illumRewards:0},
   books:{}, verse:{}, srs:{}, board:[], journal:[],
   ghosts:{pilgrimage:null, blitz:null},
   daily:{date:"", score:0},
@@ -424,6 +424,8 @@ function invalidateRun(){
   R.runToken = (R.runToken||0) + 1;
   R.sceneToken = (R.sceneToken||0) + 1;
   stopTimer();
+  if(typeof clearQuestionMechanicTimers === "function") clearQuestionMechanicTimers();
+  R.strike = null;
 }
 function drawVerse(tier, rnd){
   const r = rnd || Math.random;
@@ -565,6 +567,8 @@ function startRun(mode, diffKey, options){
     : leanRoad
     ? {selah:1, illum:1, wind:0}
     : {selah:1, illum:2, wind:1};
+  const reservedIlluminate = Math.min(2, Math.max(0, Number(SAVE.illumReserve)||0));
+  startPowers.illum += reservedIlluminate;
   const blitzMs = (typeof Polish!=="undefined" && Polish.BLITZ_START_MS) || 60000;
 
   Object.assign(R, {
@@ -587,7 +591,7 @@ function startRun(mode, diffKey, options){
                : mode==="practice" ? 15 : mode==="recall" ? 12
                : isPilgrim ? siteDraw.verses.length : 0,
     typed: mode==="recall" || mode==="pilgrim-recall", hintLevel:0, queue:null,
-    typedExact:0, typedClose:0, rescheduled:[],
+    typedExact:0, typedClose:0, rescheduled:[], strike:null,
     siteId: siteId, siteIndex: siteIndex, siteIdx: 0,
     siteVerses: siteDraw ? siteDraw.verses : null,
     siteRing: siteDraw ? siteDraw.ring : "",
@@ -595,7 +599,11 @@ function startRun(mode, diffKey, options){
     blitzEnd: mode==="blitz" ? performance.now() + blitzMs : 0,
     ghostSamples: [{ t:0, p:0 }],
     lastPickKey: "", lastPickAt: 0,
-    quoteShown: false, assemble: null
+    quoteShown: false, assemble: null,
+    quickRewards: (typeof QuickRewards !== "undefined" && QuickRewards.pick)
+      ? QuickRewards.pick(mode, runToken + (SAVE.runs||0)) : [],
+    quickRewardAnnounced: new Set(), quickResult: null,
+    reservedIlluminate: reservedIlluminate
   });
   document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4","blitz-edge","blitz-edge-2","blitz-edge-3");
   if(mode==="daily") R.daily = buildDailyList();
@@ -604,6 +612,7 @@ function startRun(mode, diffKey, options){
   $("score").textContent = "0"; setMult();
   Director.momentum(false);
   renderPowers();
+  renderQuickRewards();
   updateActTrack();
   if(mode==="practice" || mode==="recall"){
     if(options && options.queue && options.queue.length){
@@ -616,6 +625,7 @@ function startRun(mode, diffKey, options){
       return;
     }
   }
+  claimIlluminateReserve();
   if(mode==="trial"){ beginAct(0); }
   else {
     // Each arc of the road carries its own bed, so the Patriarchs and
@@ -641,6 +651,14 @@ function startRun(mode, diffKey, options){
     if(!(isPilgrim || mode==="relay")) applySitePlate("hall");
     go("play"); nextQuestion();
   }
+}
+
+function claimIlluminateReserve(){
+  const n = Math.min(2, Math.max(0, Number(R.reservedIlluminate)||0));
+  if(!n) return;
+  SAVE.illumReserve = Math.max(0, (Number(SAVE.illumReserve)||0) - n);
+  R.reservedIlluminate = 0;
+  persist();
 }
 
 function beginAct(i){
@@ -967,6 +985,24 @@ const LAMP_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 14.2c0
 
 
 /* ------------------------- POWERS ------------------------- */
+function illuminateLabel(){
+  if(R.currentMechanic === "fade") return R.fadePhase === "memorize" ? "after memory" : "next word";
+  if(R.currentMechanic === "strike") return "narrow the zone";
+  if(R.currentMechanic === "cloze") return "reveal next word";
+  if(R.currentMechanic === "duel") return "reveal KJV cue";
+  if(R.typed) return "hint";
+  return "burn 2 wrong";
+}
+
+function illuminateBlocked(){
+  if(R.currentMechanic === "fade" && R.fadePhase === "memorize") return true;
+  if(R.currentMechanic === "strike") return !!(R.strike && R.strike.illuminated);
+  if(R.currentMechanic === "cloze") return !!(R.cloze && R.cloze.filled.length >= R.cloze.words.length);
+  if(R.currentMechanic === "duel") return !!(R.duel && R.duel.illuminated);
+  if(R.typed) return R.hintLevel >= 3;
+  return false;
+}
+
 function renderPowers(){
   const p=R.powers; if(!p) return;
   if(SetPieces.noPowers()){
@@ -974,21 +1010,69 @@ function renderPowers(){
     return;
   }
   const oil = SAVE.oil||0;
+  const memoryLock = R.currentMechanic === "fade" && R.fadePhase === "memorize";
+  const illumBlocked = illuminateBlocked();
+  const illumDisabled = !p.illum || illumBlocked;
+  const selahDisabled = !p.selah || memoryLock;
   $("powers").innerHTML =
-    '<button class="pwr'+(p.selah?"":" spent")+'" data-pw="selah">Selah <em>+5s ×'+p.selah+'</em></button>'+
-    '<button class="pwr'+(p.illum?"":" spent")+'" data-pw="illum">Illuminate <em>'+(R.typed?"hint ×":"−2 ×")+p.illum+'</em></button>'+
-    '<button class="pwr oil-buy'+(oil>=((typeof Meta!=="undefined"&&Meta.OIL_COST.selah)||8)?"":" spent")+'" data-pw="oil-selah">Anoint Selah <em>'+oil+' oil</em></button>'+
+    '<button type="button" class="pwr'+(selahDisabled?" spent":"")+'" data-pw="selah"'+(selahDisabled?' disabled="disabled"':'')+' title="Selah adds five seconds to the active phase">Selah <em>+5s ×'+p.selah+'</em></button>'+
+    '<button type="button" class="pwr'+(!p.illum?" spent":illumBlocked?" unavailable":"")+'" data-pw="illum"'+(illumDisabled?' disabled="disabled"':'')+' title="Illuminate: '+illuminateLabel()+'">Illuminate <em>'+illuminateLabel()+' ×'+p.illum+'</em></button>'+
+    '<button type="button" class="pwr oil-buy'+(oil>=((typeof Meta!=="undefined"&&Meta.OIL_COST.selah)||8)?"":" spent")+'" data-pw="oil-selah">Anoint Selah <em>'+oil+' oil</em></button>'+
     '<button class="pwr passive'+(p.wind?"":" spent")+'" tabindex="-1">Second Wind <em>Automatic ×'+p.wind+'</em></button>';
   $("powers").querySelectorAll("[data-pw]").forEach(b=>{
     b.addEventListener("click", ()=>usePower(b.dataset.pw));
   });
   if(typeof syncTypedPowerButtons === "function") syncTypedPowerButtons();
 }
+
+function renderQuickRewards(){
+  const host = $("quick-rewards");
+  if(!host) return;
+  const goals = R.quickRewards || [];
+  if(!goals.length || !R.q && !R.running){ host.innerHTML = ""; return; }
+  host.innerHTML = goals.map(g=>{
+    const p = (typeof QuickRewards !== "undefined") ? QuickRewards.progress(g, R) : {value:0,target:g.target,complete:false};
+    const announced = R.quickRewardAnnounced && R.quickRewardAnnounced.has(g.id);
+    const cls = p.complete ? " done" : announced ? " ready" : "";
+    const current = g.type === "clean" || g.type === "noPower"
+      ? (p.complete ? "READY" : "RUN END")
+      : p.value + "/" + p.target;
+    return '<div class="quick-reward'+cls+'" title="'+esc(g.desc)+'">'+
+      '<b>'+esc(g.name)+'<i>'+esc(quickRewardPayout(g))+'</i></b>'+
+      '<span>'+esc(current)+' · '+esc(g.desc)+'</span></div>';
+  }).join("");
+}
+
+function quickRewardPayout(g){
+  if(!g) return "";
+  return "+"+(g.xp||0)+" XP"+
+    (g.oil ? " Â· +"+g.oil+" oil" : "")+
+    (g.illuminate ? " Â· +"+g.illuminate+" Illuminate" : "");
+}
+
+function updateQuickRewards(){
+  if(typeof QuickRewards === "undefined" || !R.quickRewards) return;
+  let changed = false;
+  R.quickRewards.forEach(g=>{
+    if(QuickRewards.progress(g, R).complete && !R.quickRewardAnnounced.has(g.id)){
+      R.quickRewardAnnounced.add(g.id);
+      changed = true;
+      if(typeof Snd !== "undefined" && Snd.power) Snd.power();
+      if(typeof toast === "function") toast("Quick reward ready — "+g.name+" banks at run end");
+    }
+  });
+  renderQuickRewards();
+}
+
 function usePower(kind){
   if(R.paused || R.locked) return;
   const armed = R.running || (!!R.tTotal && !R.ended);
   if(!armed) return;
   if(SetPieces.noPowers()){ toast("Lifelines are offline for this sequence"); return; }
+  if(R.currentMechanic === "fade" && R.fadePhase === "memorize" && (kind === "selah" || kind === "illum")){
+    toast("Powers become available after the 30-second memory phase");
+    return;
+  }
   if(kind==="selah" && R.powers.selah){
     R.powers.selah--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++; R.tEnd += 5000; R.tTotal += 5000;
     R.pendingSelah = (R.pendingSelah||0) + 5000;
@@ -997,7 +1081,20 @@ function usePower(kind){
     doFlash("gold"); toast("Selah — five seconds granted");
   } else if(kind==="illum" && R.powers.illum){
     if(!R.q){ toast("Illuminate needs a verse on the stage"); return; }
-    if(R.typed){
+    if(R.currentMechanic === "fade" && R.fadePhase === "memorize"){
+      toast("Illuminate becomes available after the 30-second memory phase");
+      return;
+    }
+    let handled = false;
+    if(R.currentMechanic === "strike" && typeof illuminateStrike === "function"){
+      handled = illuminateStrike();
+    } else if(R.currentMechanic === "cloze" && typeof illuminateCloze === "function"){
+      handled = illuminateCloze();
+    } else if(R.currentMechanic === "duel" && typeof illuminateDuel === "function"){
+      handled = illuminateDuel();
+    } else if(R.currentMechanic === "fade" && typeof illuminateAssembly === "function"){
+      handled = illuminateAssembly();
+    } else if(R.typed){
       if(R.hintLevel >= 3){ toast("Nothing further to illuminate"); return; }
       R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
       typedHint();
@@ -1005,6 +1102,11 @@ function usePower(kind){
       toast(R.hintLevel===1 ? "Illuminate — the shape of the words"
           : R.hintLevel===2 ? "Illuminate — first letters" : "Illuminate — the first word");
       renderPowers();
+      return;
+    }
+    if(handled){
+      R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
+      Snd.power(); doFlash("violet"); renderPowers();
       return;
     }
     const wrong = answerButtons().filter(b=>b.dataset.val!==R.q.a && !b.classList.contains("burn"));
@@ -1596,6 +1698,14 @@ function loop(ts){
 
   /* Cloud is optional. Lazy-load SDK; never block boot. */
   if(typeof Cloud!=="undefined" && Cloud.configured()){
+    Cloud.on("onSync", function(){
+      updateCloudChip();
+      if(currentView==="settings") renderSettings();
+    });
+    Cloud.on("onError", function(){
+      updateCloudChip();
+      if(currentView==="settings") renderSettings();
+    });
     Cloud.on("onAuth", function(ev){
       if(ev && ev.event==="SIGNED_IN"){
         Cloud.syncOnBoot(SAVE).then(function(res){

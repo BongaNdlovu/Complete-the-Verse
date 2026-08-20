@@ -183,7 +183,7 @@ const sb = bootGame();
   const jvModal = read(sb, '$("journey-vignette-modal")');
   ok("Journey vignette modal opens", jvModal && jvModal.classList.contains("on"));
   eq("Vignette title is Abram Departs Ur", read(sb, '$("jv-title").textContent'), "Abram Departs Ur");
-  ok("Vignette image points to journey artwork", read(sb, '$("jv-img").src').includes("assets/journey/ur.png"));
+  ok("Vignette image points to optimized journey artwork", read(sb, '$("jv-img").src').includes("assets/journey/ur.webp"));
   exec(sb, 'Atlas.closeVignette();');
 }
 

@@ -301,7 +301,7 @@ var Atlas = (function () {
   function travelerIconHtml(walking) {
     var face = travelerFacing < 0 ? " face-west" : "";
     var token = travelerToken
-      ? '<img class="traveler-face" src="' + esc(travelerToken) + '" alt="">'
+      ? '<img class="traveler-face" src="' + esc(travelerToken) + '" alt="" loading="lazy" decoding="async">'
       : "";
     return '<div class="traveler-node' + (walking ? " walking" : "") + face + '">' +
       '<i class="traveler-walker" aria-hidden="true"></i>' +
@@ -849,7 +849,7 @@ var Atlas = (function () {
         var img = Artifacts.imagePath(art);
         relicHtml =
           '<button type="button" class="doss-relic clickable" data-inspect-relic="' + esc(art.id) + '" style="width:100%;text-align:left;background:rgba(217,182,103,.08);border:1px solid rgba(217,182,103,.35);cursor:pointer;border-radius:4px;display:flex;align-items:center;gap:10px;padding:8px 10px;color:inherit;font:inherit">' +
-            (img ? '<img src="' + esc(img) + '" alt="">' : '<span class="doss-relic-glyph">✦</span>') +
+            (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : '<span class="doss-relic-glyph">✦</span>') +
             '<div><div class="doss-relic-tag">Relic recovered · Tap to inspect</div>' +
             '<b>' + esc(art.name) + '</b>' +
             '<span>' + esc(art.blurb) + '</span></div></button>';
@@ -1110,7 +1110,7 @@ var Atlas = (function () {
       imgEl.src = imgUrl;
       imgEl.onerror = function () {
         if (vig && vig.fallback) imgEl.src = vig.fallback;
-        else imgEl.src = "assets/journey/ur.png";
+        else imgEl.src = "assets/journey/ur.webp";
       };
     }
 

@@ -13,10 +13,10 @@
    ================================================================== */
 
 var CLOUD_CONFIG = {
-  /* Project ref eanjhcktflbpbjkdjtej — dashboard:
-     https://supabase.com/dashboard/project/eanjhcktflbpbjkdjtej */
-  url: "https://eanjhcktflbpbjkdjtej.supabase.co",
-  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhbmpoY2t0ZmxicGJqa2RqdGVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NTc2NjUsImV4cCI6MjEwMjAzMzY2NX0.GExfRAn-wPI0glZymuEF0FliKCF1u7ubsTWM_QCNSbY"
+  /* Project ref fgwfniblkuozxlbgytfk — dashboard:
+     https://supabase.com/dashboard/project/fgwfniblkuozxlbgytfk */
+  url: "https://fgwfniblkuozxlbgytfk.supabase.co",
+  anonKey: "sb_publishable_HCTg_41unUkwNVZwrSIEYg_8QDo4Fu0"
 };
 
 if (typeof module !== "undefined" && module.exports) {

@@ -30,7 +30,7 @@ function showArtifactReveal(artifact, done){
   $("reveal-ref").textContent = artifact.scripture || "";
   const pic = $("reveal-art");
   if(img){
-    pic.innerHTML = '<img src="'+esc(img)+'" alt="">';
+    pic.innerHTML = '<img src="'+esc(img)+'" alt="" loading="lazy" decoding="async">';
     pic.classList.remove("placeholder");
   } else {
     pic.innerHTML = '<span class="reveal-glyph">✦</span>';
@@ -329,10 +329,12 @@ function renderRecords(){
         const extra = rtab==="daily"
           ? fmt(r.score)+(r.accuracy!=null?' · '+Math.round(Number(r.accuracy))+'%':'')+(r.diff?' · '+esc(r.diff):'')
           : fmt(r.score)+' verses'+(r.survived_ms!=null?' · '+Math.round(r.survived_ms/1000)+'s':'');
-        html += '<div class="lbrow'+(r.mine?" mine":"")+(r.rank===1?" top":"")+'">'+
+        html += '<div class="lbrow'+(r.mine?" mine":"")+(r.rank===1?" top":"")+'" data-score-id="'+esc(r.id||"")+'" data-score-board="'+rtab+'">'+
           '<div class="pos">'+r.rank+'</div>'+
           '<div class="mode">'+esc(r.name)+(r.mine?' · you':'')+'</div>'+
-          '<div class="sc">'+extra+'</div></div>';
+          '<div class="sc">'+extra+'</div>'+
+          (Cloud.isSignedIn() && r.id ? '<button type="button" class="board-report" data-report-score="'+esc(r.id)+'">Report</button>' : '')+
+          '</div>';
       });
       html += '</div>';
       if(mine && !rows.some(r=>r.mine)){
@@ -344,6 +346,7 @@ function renderRecords(){
         html += '<div class="hint" style="margin-top:1.4vh">Sign in under Settings to post scores and see your rank.</div>';
       }
       el.innerHTML = html;
+      bindLeaderboardReports(el, rtab);
     }).catch(()=>{
       el.innerHTML='<div class="mtitle">'+esc(title)+'</div><div class="empty">Could not reach the board.</div>';
     });
@@ -358,6 +361,8 @@ function renderRecords(){
       box(fmt(SAVE.best.trial),"Trial best")+box(fmt(SAVE.best.endless),"Endless best")+
       box(fmt(SAVE.best.daily),"Daily best")+box(SAVE.life.sdBest,"Final Test best")+
       box(SAVE.life.endlessBest,"Longest gauntlet")+box(SAVE.life.dailyDone,"Dailies completed")+
+      box(SAVE.life.quickRewards||0,"Quick rewards banked")+
+      box(SAVE.life.illumRewards||0,"Illuminate earned")+
       box(Pilgrimage.clearedCount(SAVE.pilgrim)+" / "+Pilgrimage.count(),"Sites cleared")+
       box(fmt(SAVE.best.pilgrimage),"Pilgrimage best")+
       box(SAVE.seals.length+" / "+SEALS.length,"Seals")+
@@ -372,6 +377,20 @@ function renderRecords(){
       rows.map(r=>'<div class="bb"><i>'+esc(r.b)+'</i><div class="bar"><u style="width:'+(r.p*100)+'%"></u></div>'+
       '<b>'+Math.round(r.p*100)+'%</b></div>').join("")+'</div>';
   }
+}
+
+function bindLeaderboardReports(host, board){
+  if(!host || typeof Cloud==="undefined" || !Cloud.reportScore) return;
+  host.querySelectorAll("[data-report-score]").forEach(function(btn){
+    btn.addEventListener("click", async function(){
+      const reason = window.prompt("Why should this score be reviewed? (8–500 characters)");
+      if(reason == null) return;
+      btn.disabled = true;
+      const res = await Cloud.reportScore(board, btn.dataset.reportScore, reason);
+      btn.disabled = false;
+      toast(res.ok ? "Report submitted for moderation" : (res.reason || "Report could not be submitted"));
+    });
+  });
 }
 
 /* ------------------------- SETTINGS ------------------------- */
@@ -606,4 +625,3 @@ function applySettings(){
   updateCloudChip();
   updateOfflineBanner();
 }
-

@@ -912,63 +912,63 @@ var VIGNETTES = {
     quote: "And they went forth with them from Ur of the Chaldees, to go into the land of Canaan.",
     ref: "Genesis 11:31",
     narrative: "Leaving the shadow of the great ziggurat behind, Abram sets out with his household into the desert on the strength of an unseen promise.",
-    image: "assets/journey/ur.png", fallback: "assets/artifacts/ziggurat-ur.png"
+    image: "assets/journey/ur.webp", fallback: "assets/artifacts/ziggurat-ur.png"
   },
   haran: {
     figure: "Abram", title: "The Call at Haran",
     quote: "Get thee out of thy country, and from thy kindred, and from thy father's house, unto a land that I will shew thee.",
     ref: "Genesis 12:1",
     narrative: "At the crossroads of the northern trade routes, the voice of the Almighty calls Abram southwest into the unknown.",
-    image: "assets/journey/haran.png", fallback: "assets/artifacts/beehive-haran.png"
+    image: "assets/journey/haran.webp", fallback: "assets/artifacts/beehive-haran.png"
   },
   shechem: {
     figure: "Abram", title: "The First Altar in Canaan",
     quote: "Unto thy seed will I give this land: and there builded he an altar unto the LORD.",
     ref: "Genesis 12:7",
     narrative: "Standing between the heights of Ebal and Gerizim, Abram builds an altar of stone to mark the land of promise.",
-    image: "assets/journey/shechem.png", fallback: "assets/artifacts/well-shechem.png"
+    image: "assets/journey/shechem.webp", fallback: "assets/artifacts/well-shechem.png"
   },
   bethel: {
     figure: "Jacob", title: "Jacob's Ladder",
     quote: "Surely the LORD is in this place; and I knew it not.",
     ref: "Genesis 28:16",
     narrative: "Fleeing into the night with a stone for a pillow, Jacob beholds angels ascending and descending a stairway to heaven.",
-    image: "assets/journey/bethel.png", fallback: "assets/artifacts/stone-bethel.png"
+    image: "assets/journey/bethel.webp", fallback: "assets/artifacts/stone-bethel.png"
   },
   penuel: {
     figure: "Jacob", title: "The Wrestling at Penuel",
     quote: "I will not let thee go, except thou bless me.",
     ref: "Genesis 32:26",
     narrative: "At the solitary ford of the Jabbok, Jacob wrestles through the night and limps into the sunrise bearing the name Israel.",
-    image: "assets/journey/penuel.png", fallback: "assets/artifacts/ford-penuel.png"
+    image: "assets/journey/penuel.webp", fallback: "assets/artifacts/ford-penuel.png"
   },
   hebron: {
     figure: "Abraham", title: "The Oaks of Mamre",
     quote: "Then Abram removed his tent, and came and dwelt in the plain of Mamre, which is in Hebron.",
     ref: "Genesis 13:18",
     narrative: "Beneath the ancient terebinth trees, Abraham pitches his tent and acquires the burial cave of Machpelah for his seed.",
-    image: "assets/journey/hebron.png", fallback: "assets/artifacts/cave-hebron.png"
+    image: "assets/journey/hebron.webp", fallback: "assets/artifacts/cave-hebron.png"
   },
   beersheba: {
     figure: "Abraham", title: "The Well of Beersheba",
     quote: "Wherefore he called that place Beersheba; because there they sware both of them.",
     ref: "Genesis 21:31",
     narrative: "At the edge of the southern desert, Abraham plants a tamarisk tree and calls on the name of the everlasting God.",
-    image: "assets/journey/beersheba.png", fallback: "assets/artifacts/altar-beersheba.png"
+    image: "assets/journey/beersheba.webp", fallback: "assets/artifacts/altar-beersheba.png"
   },
   moriah: {
     figure: "Abraham", title: "The Mount of Moriah",
     quote: "God will provide himself a lamb for a burnt offering, my son.",
     ref: "Genesis 22:8",
     narrative: "Ascending the silent ridge with wood and fire, Abraham's faith is proved as a ram caught in the thicket is offered instead.",
-    image: "assets/journey/moriah.png", fallback: "assets/artifacts/thicket-moriah.png"
+    image: "assets/journey/moriah.webp", fallback: "assets/artifacts/thicket-moriah.png"
   },
   dothan: {
     figure: "Joseph", title: "The Pit of Dothan",
     quote: "Come now therefore, and let us slay him, and cast him into some pit.",
     ref: "Genesis 37:20",
     narrative: "Stripped of his coat of many colours, young Joseph is cast into an empty cistern before being sold into Egyptian bondage.",
-    image: "assets/journey/dothan.png", fallback: "assets/artifacts/pit-dothan.png"
+    image: "assets/journey/dothan.webp", fallback: "assets/artifacts/pit-dothan.png"
   },
   goshen: {
     figure: "Moses", title: "The Brickmakers of Goshen",

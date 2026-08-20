@@ -29,7 +29,7 @@ play. `node test.js` (or `npm test`) is the only tooling gate.
 ```
 index.html          the single page — all views are <section class="view">s
 README.md           repository entry point
-test.js             root test runner (runs all 40 test suites)
+test.js             root test runner (runs all 45 test suites)
 js/*.js             see module map below (loaded as classic <script>, globals)
 css/*.css           game styling, film FX, and atlas map
 vendor/leaflet/     Leaflet 1.9.4 (map — vendored, never CDN)
@@ -40,7 +40,7 @@ sfx/                8 effect samples
 content/            verse QA data (quarantine.json, legacy-order.json)
 scripts/            dev server + content QA/generation scripts
 supabase/           migrations + edge function (see BACKEND-EVALUATION.md)
-test/*.test.js      40 test suites (see §10)
+test/*.test.js      45 registered test suites (see §10)
 docs/               living documentation and runbooks
 docs/reports/       archived snapshot reports
 ```
@@ -128,7 +128,7 @@ js/game.js          → the engine orchestrator (everything above is in scope)
 | `js/geo.js` | 280 | **pure** | sun position/times, moon phase, solar clock, compass |
 | `js/characters.js` | 290 | data | 8 equipable scholars; Bible figures kept only for save compat |
 | `js/artifacts.js` | 325 | pure-ish | 46 relics; `unlockForSite` returns a **new** store |
-| `js/cloud.js` | 640 | client | auth, mergeSave, save push/pull, boards, edge-first score submit |
+| `js/cloud.js` | 640 | client | auth, mergeSave, save push/pull, boards, trusted-edge score submit |
 | `js/bank.js` | 55 | data | merges verse packs, assigns stable ids |
 
 "Pure" = no DOM, no storage, returns new objects, `module.exports` in
@@ -397,15 +397,16 @@ bank answers nearest in length — numbered fakes were removed.
   bests max), SRS card = more reps then later review, daily = higher
   score for the same date. Push uses an optimistic revision lock —
   a remote revision ahead of the last merge refuses the blind overwrite.
-- Score submission is **edge-first**: `functions.invoke("submit-score")`
-  (server-side clamps, caller's auth) with a direct RLS write as
-  fallback so boards work before the function is deployed.
+- Score submission is **trusted-edge-only**: `functions.invoke("submit-score")`
+  applies server-side clamps, rate limits, and caller auth. If it fails,
+  the browser does not write directly to leaderboard tables; local records
+  remain available and the UI reports the unavailable board state.
 
 ---
 
 ## 10. Testing — the three styles (know which one you are writing)
 
-`node test.js` runs 40 suites in a fixed order: content gate → pure
+`node test.js` runs 45 suites in a fixed order: content gate → pure
 logic → integration sandbox → structural/static suites.
 
 1. **Pure requires** (`srs.test.js`, `recall.test.js`, `geo.test.js`,

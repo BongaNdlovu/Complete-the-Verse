@@ -171,9 +171,24 @@ function endRun(reason){
   SAVE.board.sort((a,b)=>b.score-a.score);
   SAVE.board = SAVE.board.slice(0,10);
 
-  // ---- xp ----
+  // ---- quick rewards + xp ----
+  const quickRewardResult = (typeof QuickRewards !== "undefined" && QuickRewards.resolve)
+    ? QuickRewards.resolve(R.quickRewards || [], R, reason)
+    : {goals:[],completed:[],paid:[],xp:0,oil:0,illuminate:0,settled:false};
+  R.quickResult = quickRewardResult;
   const beforeLvl = levelInfo(SAVE.xp).level;
-  const xpGain = Math.round(total/12 + R.correct*14 + (finished?300:0));
+  const xpGain = Math.round(total/12 + R.correct*14 + (finished?300:0) + quickRewardResult.xp);
+  if(quickRewardResult.oil){
+    SAVE.oil = (SAVE.oil||0) + quickRewardResult.oil;
+    SAVE.life.oilEarned = (SAVE.life.oilEarned||0) + quickRewardResult.oil;
+  }
+  if(quickRewardResult.illuminate){
+    SAVE.illumReserve = (Number(SAVE.illumReserve)||0) + quickRewardResult.illuminate;
+    SAVE.life.illumRewards = (SAVE.life.illumRewards||0) + quickRewardResult.illuminate;
+  }
+  SAVE.life.quickRewards = (SAVE.life.quickRewards||0) + quickRewardResult.paid.length;
+  SAVE.life.quickRewardXP = (SAVE.life.quickRewardXP||0) + quickRewardResult.xp;
+  SAVE.life.quickRewardOil = (SAVE.life.quickRewardOil||0) + quickRewardResult.oil;
   SAVE.xp += xpGain;
   const afterInfo = levelInfo(SAVE.xp);
   checkMetaSeals();
@@ -214,7 +229,15 @@ function endRun(reason){
     if(typeof updateCloudChip==="function") updateCloudChip();
   }
   function trackSubmit(p){
-    if(p && typeof p.then==="function") p.then(refreshSubmitTrust, refreshSubmitTrust);
+    if(p && typeof p.then==="function") p.then(function(res){
+      if(res && res.ok === false && typeof toast === "function"){
+        toast("Leaderboard unavailable — your local record is safe");
+      }
+      refreshSubmitTrust();
+    }, function(){
+      if(typeof toast === "function") toast("Leaderboard unavailable — your local record is safe");
+      refreshSubmitTrust();
+    });
   }
   if(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn()){
     if(dailyRecorded){
@@ -247,7 +270,7 @@ function endRun(reason){
 
   renderResults({reason, total, baseScore, streakBonus, accBonus, survivalBonus, acc,
     xpGain, beforeLvl, afterInfo, isRecord, prevBest, dailyRecorded, road, siteCleared,
-    firstClearBonus, survivedMs});
+    firstClearBonus, survivedMs, quickRewards:quickRewardResult});
   go("results");
 }
 
@@ -274,6 +297,7 @@ function renderResults(o){
     row(R.mode==="trial" ? "Acts survived" : R.mode==="endless" ? "Distance"
         : R.mode==="relay" ? "Sites walked" : "Verses answered", "+"+fmt(o.survivalBonus)) +
     (o.firstClearBonus ? row("New ground — first clear", "+"+fmt(o.firstClearBonus)) : "") +
+    (o.quickRewards && o.quickRewards.xp ? row("Quick rewards", "+"+fmt(o.quickRewards.xp)+" XP") : "") +
     '<div class="brow tot"><span>Final</span><b>'+fmt(o.total)+'</b></div>';
   function row(a,b){ return '<div class="brow"><span>'+esc(a)+'</span><b>'+esc(b)+'</b></div>'; }
 
@@ -309,6 +333,28 @@ function renderResults(o){
   $("xp-lvl").textContent = "Level "+o.afterInfo.level+" · "+rankFor(o.afterInfo.level);
   $("xp-gain").textContent = "+"+fmt(o.xpGain)+" XP";
   $("xp-fill").style.width = "0%";
+  const quickEl = $("res-quick");
+  if(quickEl){
+    const qr = o.quickRewards || {goals:[],paid:[],xp:0,oil:0,settled:false};
+    const paid = new Set((qr.paid||[]).map(g=>g.id));
+    quickEl.innerHTML = qr.goals && qr.goals.length
+      ? '<div class="quick-result-title">Quick rewards Â· '+(qr.settled ? (paid.size+" banked") : "run not banked")+'</div>'+
+        '<div class="quick-result-grid">'+qr.goals.map(g=>{
+          const done = paid.has(g.id);
+          const progress = (typeof QuickRewards !== "undefined")
+            ? QuickRewards.progress(g, Object.assign({}, R, {quickSettling:qr.settled}))
+            : {value:0,target:g.target};
+          const value = g.type==="clean" || g.type==="noPower"
+            ? (done ? "Complete" : "Not banked")
+            : progress.value+"/"+progress.target;
+          const payout = (typeof quickRewardPayout === "function")
+            ? quickRewardPayout(g)
+            : ("+"+g.xp+" XP"+(g.oil?" Â· +"+g.oil+" oil":"")+(g.illuminate?" Â· +"+g.illuminate+" Illuminate":""));
+          return '<div class="quick-result-item'+(done?" done":"")+'"><b>'+esc(g.name)+'</b><span>'+esc(done ? payout : value+" Â· "+g.desc)+'</span></div>';
+        }).join("")+'</div>'
+      : '<div class="quick-result-title">Quick rewards</div><div class="hint">No contracts were assigned.</div>';
+    quickEl.style.display = "";
+  }
   const seals = pendingSeals.slice();
   pendingSeals = [];
   $("res-seals").innerHTML = "";
@@ -609,4 +655,3 @@ function fillResultsInsights(v){
     (cross.length ? '<div class="insight-cross">Also see: '+cross.map(esc).join(", ")+'</div>' : '');
 }
 $("res-again").addEventListener("click", ()=>{ Snd.ui(); startRun(R.mode, R.diff.key); });
-

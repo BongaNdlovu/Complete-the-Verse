@@ -71,5 +71,12 @@ const rng = (function(){ let i = 0; return function(){ i = (i * 9301 + 49297) % 
   eq("same rng same bank order", a.bank.map(t => t.id).join(","), b.bank.map(t => t.id).join(","));
 }
 
+{
+  const st = Assemble.buildExact("And the earth was without form and void.", () => 0.1);
+  eq("exact assembly preserves the complete passage", st.target.join(" "), "And the earth was without form and void.");
+  eq("exact assembly has no false words", st.bank.length, st.target.length);
+  ok("exact assembly still shuffles the word bank", st.bank.map(t => t.word).join(" ") !== st.target.join(" "));
+}
+
 console.log((fail ? "FAIL" : "PASS") + " — assemble · " + pass + " assertions passed" + (fail ? ", " + fail + " failed" : ""));
 process.exit(fail ? 1 : 0);

@@ -56,7 +56,15 @@ const Director = (function(){
   function clearBody(prefixes){
     [...document.body.classList].forEach(c=>{ if(prefixes.some(p=>c.indexOf(p)===0)) document.body.classList.remove(c); });
   }
-  let voice=null, voiceTried=false;
+  let voice=null, voiceTried=false, captionTimer=null;
+  function caption(text){
+    const el = typeof $ === "function" ? $("voice-caption") : document.getElementById("voice-caption");
+    if(!el) return;
+    el.textContent = String(text || "");
+    el.classList.add("on");
+    clearTimeout(captionTimer);
+    captionTimer = setTimeout(function(){ el.classList.remove("on"); }, 5600);
+  }
   /* Rank what the device offers: named baritones first, then accent, then locale.
      Anything non-English scores below zero and is never used. */
   function scoreVoice(v){
@@ -128,6 +136,7 @@ const Director = (function(){
   }
   function speak(text,force){
     if(!text) return;
+    caption(text);
     if(!SAVE.set.voice || (!force && Date.now()-lastVoice<2400)) return;
     const src=VOICE_FILES[voiceKey(text)];
     if(src && typeof Snd!=="undefined" && Snd.playVoice){
@@ -246,5 +255,5 @@ const Director = (function(){
     $("ending-title").textContent=title;$("ending-copy").textContent=copy;
     setTimeout(()=>speak(voice,true),900);
   }
-  return {speak,callout,setAct,pressure,momentum,beat,impact,syncFx,ending};
+  return {speak,caption,callout,setAct,pressure,momentum,beat,impact,syncFx,ending};
 })();

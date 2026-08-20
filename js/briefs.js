@@ -178,6 +178,11 @@ function updateCloudChip(){
   if(typeof Cloud.isSyncing === "function" && Cloud.isSyncing()){
     el.textContent = "Syncing…"; el.className = "cloud-chip syncing"; return;
   }
+  if(typeof Cloud.lastError === "function" && Cloud.lastError()){
+    el.textContent = "Sync error"; el.className = "cloud-chip warn";
+    el.title = Cloud.lastError();
+    return;
+  }
   if(Cloud.isSignedIn()){
     const who = (Cloud.profile() && Cloud.profile().display_name) || "Synced";
     const trust = (typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct") ? " (Honor system)" : "";
@@ -673,6 +678,9 @@ function beginIntroPlayback(){
   if(skip) skip.hidden=false;
   Snd.unlock();
   Snd.ambience("menu");
+  if(typeof Director!=="undefined" && Director.caption){
+    Director.caption("The word of God is quick, and powerful, and sharper than any twoedged sword.");
+  }
   Snd.playVoice("audio/voice/intro-word.mp3", 13000);
   if(v){
     try{ v.currentTime=0; }catch(e){}

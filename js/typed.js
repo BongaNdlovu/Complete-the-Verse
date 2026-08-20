@@ -6,12 +6,25 @@
    from it at RUNTIME only.
    ================================================================== */
 
+function assemblyTargetFor(q){
+  if(typeof R !== "undefined" && R.currentMechanic === "fade" && R.fadeAssembly && R.fadeAssembly.target){
+    return R.fadeAssembly.target;
+  }
+  return q && q.a ? q.a : "";
+}
+
+function isFadeAssembly(){
+  return !!(typeof R !== "undefined" && R.currentMechanic === "fade" && R.fadeAssembly);
+}
+
 function syncTypedLock(){
   const btn = $("confirm-answer");
   if(!btn) return;
   const ready = R.assemble && typeof Assemble !== "undefined" && Assemble.isFilled(R.assemble);
   btn.disabled = !ready;
-  btn.textContent = ready ? "Lock Answer" : "Place the words";
+  btn.textContent = ready
+    ? (isFadeAssembly() ? "Lock Full Verse" : "Lock Answer")
+    : (isFadeAssembly() ? "Place All Words" : "Place the words");
   btn.classList.toggle("ready", ready);
 }
 
@@ -43,7 +56,9 @@ function bindTypedPowerButtons(opts){
 function confirmTyped(){
   if(!R.running || R.paused || R.locked) return;
   if(!R.assemble || typeof Assemble === "undefined" || !Assemble.isFilled(R.assemble)){
-    if(typeof toast === "function") toast("Place all words into the phrase before locking");
+    if(typeof toast === "function") toast(isFadeAssembly()
+      ? "Place every word into the full verse before locking"
+      : "Place all words into the phrase before locking");
     return;
   }
   const phrase = Assemble.join(R.assemble.placed);
@@ -79,6 +94,24 @@ function typedHint(){
   return true;
 }
 
+/* Illuminate for a full Fade reconstruction: identify the next word without
+   placing it automatically.  The player still has to drag/tap it into the
+   correct position, preserving the memory test. */
+function illuminateAssembly(){
+  if(!isFadeAssembly() || !R.assemble) return false;
+  var next = R.assemble.placed.findIndex(function(t){ return !t; });
+  if(next < 0) return false;
+  R.fadeAssembly.hintIndex = next;
+  renderAssembleBank();
+  var word = R.assemble.target[next];
+  var hint = $("typed-hint");
+  if(hint){
+    hint.textContent = "Illuminate — next word: " + word;
+    hint.classList.add("on");
+  }
+  return true;
+}
+
 function renderAssembleBank(){
   const bank = $("asm-bank");
   const slots = $("asm-slots");
@@ -88,7 +121,10 @@ function renderAssembleBank(){
   left.forEach(t => {
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "asm-tile";
+    var hintIndex = isFadeAssembly() ? R.fadeAssembly.hintIndex : -1;
+    var fadeHint = isFadeAssembly() && hintIndex >= 0 && !R.assemble.placed[hintIndex] &&
+      t.word === R.assemble.target[hintIndex];
+    b.className = "asm-tile" + (fadeHint ? " illuminate-target" : "");
     b.dataset.id = t.id;
     b.draggable = true;
     b.textContent = t.word;
@@ -105,7 +141,9 @@ function renderAssembleBank(){
     el.dataset.slot = String(i);
     el.textContent = t ? t.word : "—";
     el.setAttribute("role", "listitem");
-    el.setAttribute("aria-label", t ? "Placed word " + t.word + ". Tap to remove." : "Empty phrase slot " + (i + 1));
+    el.setAttribute("aria-label", t
+      ? "Placed word " + t.word + ". Tap to remove."
+      : (isFadeAssembly() ? "Empty full-verse slot " : "Empty phrase slot ") + (i + 1));
     if(t){ el.dataset.id = t.id; el.draggable = true; el.setAttribute("aria-grabbed", "true"); }
     slots.appendChild(el);
   });
@@ -273,8 +311,11 @@ function bindAssembleBoard(){
 function renderTypedQuestion(q, dur, scene){
   R.hintLevel = 0;
   const rnd = R.mode==="daily" ? R.daily.rnd : Math.random;
+  const target = assemblyTargetFor(q);
   R.assemble = (typeof Assemble !== "undefined")
-    ? Assemble.build(q.a, q.d, rnd)
+    ? (isFadeAssembly() && Assemble.buildExact
+      ? Assemble.buildExact(target, rnd)
+      : Assemble.build(target, q.d, rnd))
     : { target:[], bank:[], placed:[] };
   const opts = $("opts");
   opts.className = "answers typed queued";
@@ -307,7 +348,9 @@ function renderTypedQuestion(q, dur, scene){
   }
   syncTypedLock();
   const how=$("warn-how");
-  if(how) how.innerHTML="Place the missing words<br>Lock Answer or Enter confirms";
+  if(how) how.innerHTML = isFadeAssembly()
+    ? "Rebuild the whole verse in order<br>Drag or tap every word, then lock"
+    : "Place the missing words<br>Lock Answer or Enter confirms";
   renderPowers();
   syncTypedPowerButtons();
   armTimer(dur);
@@ -336,9 +379,10 @@ function renderTypedVerdict(g){
   document.querySelectorAll(".asm-slot").forEach(s => { s.disabled = true; });
   document.querySelectorAll(".asm-tile").forEach(s => { s.disabled = true; });
   el.classList.add("on", "verdict");
+  var target = assemblyTargetFor(R.q);
   el.innerHTML =
-    g.verdict === "exact"   ? '<b class="ok">Word for word.</b>' :
-    g.verdict === "close"   ? '<b class="ok">Counted.</b> <span>The verse reads “'+esc(R.q.a)+'”.</span>' :
-    g.verdict === "modernised" ? '<b class="no">Not the wording.</b> <span>'+esc(g.hint)+' The verse reads “'+esc(R.q.a)+'”.</span>' :
-                              '<b class="no">Not this one.</b> <span>'+diffSentence(g.diff)+'The verse reads “'+esc(R.q.a)+'”.</span>';
+    g.verdict === "exact"   ? '<b class="ok">'+(isFadeAssembly() ? "Full verse restored." : "Word for word.")+'</b>' :
+    g.verdict === "close"   ? '<b class="ok">Counted.</b> <span>The verse reads “'+esc(target)+'”.</span>' :
+    g.verdict === "modernised" ? '<b class="no">Not the wording.</b> <span>'+esc(g.hint)+' The verse reads “'+esc(target)+'”.</span>' :
+                              '<b class="no">Not this one.</b> <span>'+diffSentence(g.diff)+'The verse reads “'+esc(target)+'”.</span>';
 }

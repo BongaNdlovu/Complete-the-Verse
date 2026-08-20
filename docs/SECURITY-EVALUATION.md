@@ -108,13 +108,13 @@ out of scope for this product stage and documented as such.
 ## 5. Open item — deploy `submit-score`
 
 State: the function exists (`supabase/functions/submit-score/index.ts`),
-validates method + auth + ceilings, and the client calls it first
+validates method + auth + ceilings, rate-limits callers, and the client requires it for board writes
 (pinned by `fixes.test.js` / `improvements.test.js`). It is **not yet
 deployed** (no Supabase access token in dev environments). Until
 deployed:
 
-- submissions fall back to direct RLS writes (still identity-scoped),
-- CHECK constraints in migration 003 remain the last line of defense.
+- submissions fail closed in the browser when the function is unavailable,
+- local records remain available while trusted board submission is offline.
 
 Deploy command and verification steps: `BACKEND.md` § "Server-trusted
 scores".
@@ -202,7 +202,7 @@ node test.js
 
 | # | Finding | Severity | Status |
 |---|---|---|---|
-| S1 | Scores written client-side only; edge function unused | Medium | **Fixed 2026-08-16** — edge-first submission with fallback; deploy pending (§5) |
+| S1 | Scores written client-side only; edge function unused | Medium | **Fixed 2026-08-20** — trusted-edge-only submission with rate limiting; deploy pending (§5) |
 | S2 | Anon JWT in repo | Info | by design, RLS-backed, rotation runbook §9 |
 | S3 | Under-ceiling score forgery remains possible even with edge | Low | accepted (§4); full server replay out of scope |
 | S4 | `style-src 'unsafe-inline'` | Info | styles only; zero inline scripts exist |

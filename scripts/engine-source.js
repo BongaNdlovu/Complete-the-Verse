@@ -16,7 +16,7 @@ const fs = require("fs");
 const path = require("path");
 
 /* Order matters: util (shared helpers, safe at parse time) → audio →
-   director (uses Snd) → setpieces → viz → typed → sequences → panels →
+   director (uses Snd) → setpieces → viz → typed → rewards → sequences → panels →
    results → briefs → game. */
 const ENGINE_FILES = [
   "js/util.js",
@@ -25,6 +25,7 @@ const ENGINE_FILES = [
   "js/setpieces.js",
   "js/viz.js",
   "js/typed.js",
+  "js/rewards.js",
   "js/sequences.js",
   "js/panels.js",
   "js/cinematic.js",

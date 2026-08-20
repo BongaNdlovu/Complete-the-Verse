@@ -27,6 +27,18 @@ function playClockMs(ms){
   return Math.round(momentumClockMs(pickClockMs(ms)) * PACE + FLAT_ADD_MS);
 }
 
+const FADE_MEMORY_MS = 30000;
+const FADE_RECALL_MIN_MS = 30000;
+
+function fullVerseText(q){
+  const prefix = String(q && q.p || "").trim();
+  const answer = String(q && q.a || "").trim();
+  const suffix = String(q && q.s || "").trim();
+  let text = [prefix, answer].filter(Boolean).join(" ");
+  if(suffix) text += /^[.,;:!?]/.test(suffix) ? suffix : " " + suffix;
+  return text;
+}
+
 function questionDuration(){
   if(R.mode==="trial"){ return playClockMs(ACTS[R.actIdx].t * R.diff.time); }
   if(R.mode==="daily"){ return playClockMs(10000 * R.diff.time); }
@@ -58,25 +70,59 @@ function questionDuration(){
 
 /* ------------------------- FIRST-RUN ONBOARDING ------------------------- */
 const TUTORIAL_QUESTIONS = [
-  {id:"tutorial-psalm-23-1",b:"Psalms",r:"Psalm 23:1",t:1,
-   p:"The LORD is my shepherd; I",a:"shall not want",s:".",
-   d:["shall not fear","shall not faint","shall not wander"]},
-  {id:"tutorial-philippians-4-13",b:"Philippians",r:"Philippians 4:13",t:1,
-   p:"I can do all things through Christ which",a:"strengtheneth me",s:".",
-   d:["keepeth me","comforteth me","teacheth me"]},
-  {id:"tutorial-psalm-118-24",b:"Psalms",r:"Psalm 118:24",t:1,
-   p:"This is the day which the LORD hath made; we will",a:"rejoice and be glad in it",s:".",
-   d:["sing and give thanks","stand and praise his name","remember and be glad"]}
+  {
+    id: "tutorial-choice", b: "Psalms", r: "Psalm 23:1", t: 1,
+    p: "The LORD is my shepherd; I", a: "shall not want", s: ".",
+    d: ["shall not fear", "shall not faint", "shall not wander"]
+  },
+  {
+    id: "tutorial-strike", b: "Proverbs", r: "Proverbs 3:5", t: 1,
+    p: "Trust in the LORD with all thine heart; and lean not unto thine", a: "own understanding", s: ".",
+    d: ["carnal wisdom", "earthly counsel", "proud imagination"],
+    mechanic: "strike"
+  },
+  {
+    id: "tutorial-cloze", b: "Genesis", r: "Genesis 1:1", t: 1,
+    p: "In the beginning", a: "God created the heaven and the earth", s: ".",
+    d: ["the Word formed the light and land", "the Almighty established the deep"],
+    mechanic: "cloze"
+  },
+  {
+    id: "tutorial-duel", b: "John", r: "John 1:1", t: 1,
+    p: "In the beginning was the Word, and the Word was with God, and the Word", a: "was God", s: ".",
+    d: ["was divine", "became flesh", "dwelt in light"],
+    mechanic: "duel"
+  },
+  {
+    id: "tutorial-fade", b: "Philippians", r: "Philippians 4:13", t: 1,
+    p: "I can do all things through Christ which", a: "strengtheneth me", s: ".",
+    d: ["keepeth me", "comforteth me", "teacheth me"],
+    mechanic: "fade"
+  },
+  {
+    id: "tutorial-assemble", b: "Psalms", r: "Psalm 118:24", t: 1,
+    p: "This is the day which the LORD hath made; we will", a: "rejoice and be glad in it", s: ".",
+    d: ["sing and give thanks", "stand and praise his name", "remember and be glad"],
+    typed: true
+  }
 ];
+
 const TUTORIAL_GUIDE = [
-  "Choose the phrase that completes the verse. A tap is enough.",
-  "Try a lifeline if you need help. Selah adds time; Illuminate removes falsehoods.",
-  "This one is assembled recall: drag the words into the slots, or tap them in order."
+  "Lesson 1 · Recognition: Choose the phrase that completes the verse.",
+  "Lesson 2 · Falsehood Strike: Tap the corrupted word in the verse to shatter it and restore truth.",
+  "Lesson 3 · Scribe's Cloze: Tap the missing words in sequence from the tray below.",
+  "Lesson 4 · True Scripture Duel: Discern and choose the genuine King James reading.",
+  "Lesson 5 · Fade-to-Memory: Memorize the whole verse for 30 seconds, then rebuild every word in order.",
+  "Lesson 6 · Assembled Recall: Drag or tap the words in order, then lock your answer."
 ];
+
 const TUTORIAL_VOICE = [
   "Lesson one. Choose the phrase that completes the verse.",
-  "Lesson two. Lifelines are available when you need a hand.",
-  "Lesson three. Drag the missing words into order, then lock the answer."
+  "Lesson two. Strike the corrupted word in the verse.",
+  "Lesson three. Tap the missing words in sequence.",
+  "Lesson four. Discern the true Scripture reading.",
+  "Lesson five. Memorize the whole verse for thirty seconds, then rebuild every word in order.",
+  "Lesson six. Assemble the verse from memory."
 ];
 
 function updateTutorialGuide(index, result){
@@ -97,7 +143,7 @@ function startTutorialRun(){
     powers:{selah:1,illum:1,wind:0}, usedPower:false, qUsedPower:false, powersSpent:0,
     running:false, paused:false, locked:false, selected:null, tEnd:0, tTotal:0, qStart:0,
     tutorial:{index:-1,total:TUTORIAL_QUESTIONS.length,correct:0,attempts:0},
-    typed:false, hintLevel:0, pendingSelah:0, setpiece:null, speed:false,
+    typed:false, currentMechanic:null, hintLevel:0, pendingSelah:0, setpiece:null, speed:false,
     tiersSeen:new Set(), booksRun:new Set(), rescheduled:[], decisionMs:0, timedDecisions:0,
     fastestMs:Infinity, lastTickSec:-1, lastHeart:0, pressureStage:-1
   });
@@ -114,10 +160,15 @@ function tutorialNextQuestion(){
   const index=++R.tutorial.index;
   if(index>=R.tutorial.total){ completeTutorialRun(); return; }
   const q=TUTORIAL_QUESTIONS[index];
-  R.q=q; R.qTotal=index+1; R.qInAct=index+1; R.typed=index===2; R.speed=false;
+  R.q=q; R.qTotal=index+1; R.qInAct=index+1;
+  R.typed = !!q.typed;
+  R.currentMechanic = q.mechanic || null;
+  R.speed=false;
   R.hintLevel=0; R.qUsedPower=false; R.locked=false; R.selected=null;
   updateTutorialGuide(index);
-  updateChips(); updateActTrack(); renderQuestion(q, index===2?30000:22000);
+  updateChips(); updateActTrack();
+  const dur = (q.mechanic === "fade") ? FADE_RECALL_MIN_MS : (R.typed ? 32000 : 22000);
+  renderQuestion(q, dur);
   if(typeof Director!=="undefined" && Director.speak) Director.speak(TUTORIAL_VOICE[index], true);
 }
 
@@ -125,11 +176,14 @@ function resolveTutorialAnswer(q, choice, btn){
   if(R.q!==q || R.mode!=="tutorial") return;
   let graded=null, ok=false;
   if(R.typed){
-    graded=Recall.grade(choice||"", q.a, q.d);
+    const target = (typeof assemblyTargetFor === "function") ? assemblyTargetFor(q) : q.a;
+    graded=Recall.grade(choice||"", target, q.d);
     ok=Recall.isCorrect(graded.verdict);
     renderTypedVerdict(graded);
   }else{
-    ok=choice===q.a;
+    const choiceNorm = (typeof choice === "string") ? choice.trim().replace(/\s+/g, ' ').toLowerCase() : "";
+    const targetNorm = (typeof q.a === "string") ? q.a.trim().replace(/\s+/g, ' ').toLowerCase() : "";
+    ok = (choice === q.a) || (choiceNorm !== "" && choiceNorm === targetNorm);
     answerButtons().forEach(function(b){
       b.classList.remove("sel");
       if(b.dataset.val===q.a) b.classList.add("right");
@@ -138,13 +192,17 @@ function resolveTutorialAnswer(q, choice, btn){
     });
   }
   const blank=$("blank");
-  if(blank){ blank.textContent=q.a; blank.classList.add("filled","reveal"); }
+  if(blank){
+    blank.textContent = (R.currentMechanic === "fade" && typeof assemblyTargetFor === "function")
+      ? assemblyTargetFor(q) : q.a;
+    blank.classList.add("filled","reveal");
+  }
   R.tutorial.attempts++;
   if(ok) R.tutorial.correct++;
-  updateTutorialGuide(R.tutorial.index, ok ? "Good. The lesson continues." : "That is all right. The verse reads: "+q.a);
+  updateTutorialGuide(R.tutorial.index, ok ? "Well done. The lesson continues." : "The true verse reads: "+q.a);
   if(ok) Snd.correct(); else Snd.wrong();
   if(typeof Director!=="undefined" && Director.impact) Director.impact(ok?"correct":"wrong");
-  afterRun(1050, tutorialNextQuestion);
+  afterRun(1200, tutorialNextQuestion);
 }
 
 function completeTutorialRun(){
@@ -352,7 +410,16 @@ function syncCinematicBackdrop(){
   const siteId = R.siteId || (R.q && typeof Pilgrimage!=="undefined" && Pilgrimage.siteForBook ? (Pilgrimage.siteForBook(R.q.b)||{}).id : null) || "ur";
   const vig = (typeof Pilgrimage !== "undefined" && Pilgrimage.vignette) ? Pilgrimage.vignette(siteId) : null;
   const imgUrl = vig ? vig.image : ("assets/journey/" + siteId + ".png");
-  el.style.backgroundImage = 'url("' + imgUrl + '"), url("assets/journey/ur.png")';
+  el.style.backgroundImage = 'url("' + imgUrl + '"), url("assets/journey/ur.webp")';
+}
+
+/* Timers owned by a special question must die with that question. */
+var activeFadeTimer = null;
+function clearQuestionMechanicTimers(){
+  if(activeFadeTimer !== null){
+    clearInterval(activeFadeTimer);
+    activeFadeTimer = null;
+  }
 }
 
 function clearOtherStages(){
@@ -361,23 +428,39 @@ function clearOtherStages(){
   const asm = $("assembly"); if(asm) asm.className = "assembly";
   const opts = $("opts"); if(opts) { opts.style.display = ""; opts.style.opacity = ""; opts.style.pointerEvents = ""; }
   const blank = $("blank"); if(blank) blank.classList.remove("fade-dissolve");
-  const oldFadeBar = $("fade-bar"); if(oldFadeBar) oldFadeBar.remove();
+  const oldFadeBar = $("fade-bar");
+  if(oldFadeBar){
+    if(typeof oldFadeBar.remove === "function") oldFadeBar.remove();
+    else if(oldFadeBar.parentNode) oldFadeBar.parentNode.removeChild(oldFadeBar);
+  }
+  clearQuestionMechanicTimers();
+  if(typeof R !== "undefined"){
+    R.strike = null;
+    R.cloze = null;
+    R.duel = null;
+    R.fadeAssembly = null;
+    R.fadePhase = null;
+  }
 }
 
 function selectPilgrimageMechanic(idx, q){
   if(!q || R.typed) return null;
   if(idx === 2) return "strike";
   if(idx === 3) return "cloze";
-  if(idx === 5) return "duel";
-  if(idx === 6) return "fade";
+  if(idx === 4) return "duel";
+  if(idx === 5) return "fade";
   return null;
 }
 
 /* ================= 1. FALSEHOOD STRIKE (ERROR PURGE) ================= */
 function renderStrikeQuestion(q, dur, scene){
+  R.currentMechanic = "strike";
   $("confirm-answer").style.display = "none";
   const how = $("warn-how");
   if(how) how.innerHTML = "Strike the Falsehood<br>Tap the corrupted word in the verse";
+
+  const refEl = $("ref");
+  if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";
 
   const words = (q.a || "").trim().split(/\s+/).filter(Boolean);
   const targetIdx = Math.floor(Math.random() * words.length);
@@ -385,21 +468,18 @@ function renderStrikeQuestion(q, dur, scene){
   const dWords = (q.d && q.d[0] ? q.d[0] : "falsehood stone darkness dust").split(/\s+/).filter(Boolean);
   const fakeWord = dWords[Math.floor(Math.random() * dWords.length)] || "darkness";
 
-  const fullWords = ((q.p ? q.p + " " : "") + (q.a || "") + (q.s ? " " + q.s : "")).trim().split(/\s+/);
-  let replaced = false;
-  const corruptFullWords = fullWords.map(w => {
-    const cleanW = w.toLowerCase().replace(/[^a-z]/g, "");
-    const cleanTarget = correctWord.toLowerCase().replace(/[^a-z]/g, "");
-    if(!replaced && cleanW === cleanTarget){
-      replaced = true;
-      return fakeWord;
-    }
-    return w;
-  });
+  const prefixWords = (q.p || "").trim().split(/\s+/).filter(Boolean);
+  const fullWords = prefixWords.concat(words, (q.s || "").trim().split(/\s+/).filter(Boolean));
+  /* Target the selected answer position.  Searching for the first matching
+     word in the full passage breaks whenever the prefix repeats an answer
+     word, and can also mark multiple injected tokens when the distractor is
+     already present elsewhere. */
+  const targetIndex = prefixWords.length + targetIdx;
+  const corruptFullWords = fullWords.map((w, idx) => idx === targetIndex ? fakeWord : w);
+  R.strike = {q, scene, targetIndex, correctWord, fakeWord, total:fullWords.length, answered:false};
 
   $("verse").innerHTML = corruptFullWords.map((w, idx) => {
-    const isCorrupt = (w === fakeWord);
-    return '<span class="strike-word' + (isCorrupt ? ' corrupt-target' : '') + '" data-idx="' + idx + '" data-corrupt="' + (isCorrupt ? '1' : '0') + '">' + esc(w) + '</span>';
+    return '<button type="button" class="strike-word" data-idx="' + idx + '" aria-label="Verse word ' + (idx + 1) + '">' + esc(w) + '</button>';
   }).join(" ");
 
   fitVerseSize(corruptFullWords.join(" ").length);
@@ -410,37 +490,68 @@ function renderStrikeQuestion(q, dur, scene){
 
   $("verse").querySelectorAll(".strike-word").forEach(el => {
     el.addEventListener("click", function(){
-      if(R.locked || !R.running || R.paused) return;
-      const isCorrupt = el.dataset.corrupt === "1";
+      if(R.locked || !R.running || R.paused || !R.strike || R.strike.q !== q) return;
+      const idx = Number(el.dataset.idx);
+      const isCorrupt = idx === R.strike.targetIndex;
+      R.strike.answered = true;
+      R.locked = true;
+      stopTimer();
+      const elapsed = performance.now() - R.qStart;
+      const left = Math.max(0, R.tEnd - performance.now());
+      el.disabled = true;
       if(isCorrupt){
-        R.locked = true;
-        stopTimer();
         el.classList.add("strike-shattered");
         Snd.lock();
-        setTimeout(() => {
+        afterRun(360, () => {
+          if(R.q !== q || R.sceneToken !== scene || !R.strike || R.strike.q !== q) return;
           el.textContent = correctWord;
-          el.classList.remove("strike-shattered", "corrupt-target");
+          el.classList.remove("strike-shattered");
           el.classList.add("strike-restored");
-          resolveAnswer(q, q.a, null, performance.now() - R.qStart, Math.max(0, R.tEnd - performance.now()));
-        }, 360);
+          resolveAnswer(q, q.a, null, elapsed, left);
+        });
       } else {
-        Snd.wrong();
-        doFlash("red");
-        shakeUI(true);
-        loseLife(1);
+        el.classList.add("strike-miss");
+        /* A miss uses the same accounting path as every other answer and the
+           lock above prevents repeated clicks from draining extra lives. */
+        resolveAnswer(q, "", el, elapsed, left);
       }
     });
   });
 }
 
+function illuminateStrike(){
+  if(!R.strike || R.strike.illuminated) return false;
+  const total = R.strike.total || 1;
+  const split = Math.ceil(total / 2);
+  const firstHalf = R.strike.targetIndex < split;
+  R.strike.illuminated = true;
+  R.strike.hintHalf = firstHalf ? "first" : "second";
+  const words = $("verse").querySelectorAll ? $("verse").querySelectorAll(".strike-word") : [];
+  Array.from(words || []).forEach((word, idx) => {
+    const inHalf = firstHalf ? idx < split : idx >= split;
+    if(inHalf && word.classList) word.classList.add("strike-illum-zone");
+  });
+  if(typeof toast === "function") toast("Illuminate — the falsehood is in the " + (firstHalf ? "first" : "second") + " half");
+  return true;
+}
+
 /* ================= 2. SCRIBE'S RAPID CLOZE (1-2-3 TAP) ================= */
 function renderClozeQuestion(q, dur, scene){
+  R.currentMechanic = "cloze";
   $("confirm-answer").style.display = "none";
   const how = $("warn-how");
   if(how) how.innerHTML = "1-2-3 Rapid Cloze<br>Tap missing words in sequence";
 
+  const refEl = $("ref");
+  if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";
+
+  $("verse").innerHTML = highlightVerse(q.p||"") + ' <span class="blank" id="blank">&#8195;&#8195;&#8195;</span>' + sep(q.s) + highlightVerse(q.s||"");
+  fitVerseSize((q.p||"").length + (q.a||"").length + (q.s||"").length);
+
   const words = (q.a || "").trim().split(/\s+/).filter(Boolean);
-  let filled = [];
+  const clozeState = {q, words, filled:[], hintIndex:-1};
+  R.cloze = clozeState;
+  const filled = clozeState.filled;
 
   const clozeStage = $("cloze-stage");
   clozeStage.style.display = "flex";
@@ -453,9 +564,20 @@ function renderClozeQuestion(q, dur, scene){
     host.innerHTML = words.map((w, i) => {
       const isFilled = filled[i] !== undefined;
       const isActive = i === filled.length;
-      return '<div class="cloze-slot' + (isFilled ? ' filled' : '') + (isActive ? ' active' : '') + '" data-slot="' + i + '">' +
-        (isFilled ? esc(filled[i]) : '[ ' + (i + 1) + '. ___ ]') + '</div>';
+      return '<button type="button" class="cloze-slot' + (isFilled ? ' filled' : '') + (isActive ? ' active' : '') + '" data-slot="' + i + '" aria-label="Cloze word ' + (i + 1) + '">' +
+        (isFilled ? esc(filled[i]) : '[ ' + (i + 1) + '. ___ ]') + '</button>';
     }).join("");
+
+    const blankEl = $("blank");
+    if(blankEl){
+      if(filled.length){
+        blankEl.textContent = filled.join(" ");
+        blankEl.classList.add("filled");
+      } else {
+        blankEl.textContent = "\u2003\u2003\u2003";
+        blankEl.classList.remove("filled");
+      }
+    }
 
     host.querySelectorAll(".cloze-slot.filled").forEach(sl => {
       sl.addEventListener("click", () => {
@@ -478,7 +600,8 @@ function renderClozeQuestion(q, dur, scene){
       const countInFilled = filled.filter(x => x === w).length;
       const countInBank = bankPool.filter(x => x === w).length;
       const spent = countInFilled >= countInBank;
-      return '<button type="button" class="cloze-chip' + (spent ? ' spent' : '') + '" data-word="' + esc(w) + '">' + esc(w) + '</button>';
+      const illuminated = !spent && clozeState.hintIndex === filled.length && w === words[clozeState.hintIndex];
+      return '<button type="button" class="cloze-chip' + (spent ? ' spent' : '') + (illuminated ? ' illuminate-target' : '') + '" data-word="' + esc(w) + '">' + esc(w) + '</button>';
     }).join("");
 
     host.querySelectorAll(".cloze-chip:not(.spent)").forEach(chip => {
@@ -497,6 +620,7 @@ function renderClozeQuestion(q, dur, scene){
     });
   }
 
+  clozeState.render = function(){ renderSlots(); renderBank(); };
   renderSlots();
   renderBank();
   renderPowers();
@@ -504,11 +628,30 @@ function renderClozeQuestion(q, dur, scene){
   startTimer(dur);
 }
 
+function illuminateCloze(){
+  const state = R.cloze;
+  if(!state || state.hintIndex === state.filled.length && state.hintIndex >= state.words.length - 1 && state.filled.length >= state.words.length) return false;
+  const next = state.filled.length;
+  if(next >= state.words.length) return false;
+  state.hintIndex = next;
+  if(typeof state.render === "function") state.render();
+  const word = state.words[next];
+  if(typeof toast === "function") toast("Illuminate — next word: " + word);
+  return true;
+}
+
 /* ================= 3. TRUE SCRIPTURE DUEL (LEFT VS RIGHT) ================= */
 function renderDuelQuestion(q, dur, scene){
+  R.currentMechanic = "duel";
   $("confirm-answer").style.display = "none";
   const how = $("warn-how");
-  if(how) how.innerHTML = "True Scripture Duel<br>Select the true King James reading";
+  if(how) how.innerHTML = "True Scripture Duel<br>Select the genuine King James reading";
+
+  const refEl = $("ref");
+  if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";
+
+  $("verse").innerHTML = '<span class="duel-prompt-kicker">Discern the genuine King James reading</span>';
+  fitVerseSize(42);
 
   const duelStage = $("duel-stage");
   duelStage.style.display = "grid";
@@ -519,17 +662,18 @@ function renderDuelQuestion(q, dur, scene){
   const fakeVerse = (q.p ? q.p + " " : "") + fakePhrase + (q.s ? " " + q.s : "");
 
   const isLeftTrue = Math.random() < 0.5;
+  R.duel = {q, correctVal:q.a, isLeftTrue, illuminated:false};
   const leftText = isLeftTrue ? trueVerse : fakeVerse;
   const rightText = isLeftTrue ? fakeVerse : trueVerse;
 
   duelStage.innerHTML = 
-    '<div class="duel-card" id="duel-left" data-val="' + esc(isLeftTrue ? q.a : fakePhrase) + '">' +
+    '<div role="button" tabindex="0" class="duel-card" id="duel-left" data-val="' + esc(isLeftTrue ? q.a : fakePhrase) + '" aria-label="Reading Alpha">' +
       '<div class="duel-tag">Reading Alpha (← / A / 1)</div>' +
-      '<p class="duel-verse-text">' + highlightVerse(leftText) + '</p>' +
+      '<span class="duel-verse-text">' + highlightVerse(leftText) + '</span>' +
     '</div>' +
-    '<div class="duel-card" id="duel-right" data-val="' + esc(!isLeftTrue ? q.a : fakePhrase) + '">' +
+    '<div role="button" tabindex="0" class="duel-card" id="duel-right" data-val="' + esc(!isLeftTrue ? q.a : fakePhrase) + '" aria-label="Reading Beta">' +
       '<div class="duel-tag">Reading Beta (→ / D / 2)</div>' +
-      '<p class="duel-verse-text">' + highlightVerse(rightText) + '</p>' +
+      '<span class="duel-verse-text">' + highlightVerse(rightText) + '</span>' +
     '</div>';
 
   function handlePick(btn, chosenVal){
@@ -543,53 +687,116 @@ function renderDuelQuestion(q, dur, scene){
   const rightCard = $("duel-right");
   leftCard.addEventListener("click", () => handlePick(leftCard, leftCard.dataset.val));
   rightCard.addEventListener("click", () => handlePick(rightCard, rightCard.dataset.val));
+  [leftCard, rightCard].forEach(card => card.addEventListener("keydown", e => {
+    if(e.key === "Enter" || e.key === " "){ e.preventDefault(); card.click(); }
+  }));
 
   renderPowers();
   armTimer(dur);
   startTimer(dur);
 }
 
+function illuminateDuel(){
+  if(!R.duel || R.duel.illuminated) return false;
+  const cards = $("duel-stage").querySelectorAll ? $("duel-stage").querySelectorAll(".duel-card") : [];
+  let correct = null;
+  Array.from(cards || []).forEach(card => {
+    if(card.dataset && card.dataset.val === R.duel.correctVal) correct = card;
+  });
+  if(!correct) return false;
+  R.duel.illuminated = true;
+  correct.classList.add("illum-cue");
+  const marker = document.createElement("div");
+  marker.className = "duel-illumination";
+  marker.textContent = "Illuminate · KJV cue";
+  correct.insertAdjacentElement ? correct.insertAdjacentElement("afterbegin", marker) : correct.appendChild(marker);
+  if(typeof toast === "function") toast("Illuminate — the genuine KJV reading is marked");
+  return true;
+}
+
 /* ================= 4. FADE-TO-MEMORY (DISSOLVING ECHO) ================= */
 function renderFadeQuestion(q, dur, scene){
+  R.currentMechanic = "fade";
   const how = $("warn-how");
-  if(how) how.innerHTML = "Fade-to-Memory<br>Commit verse before words dissolve";
+  if(how) how.innerHTML = "Fade-to-Memory<br>Memorize the whole verse — reconstruction follows";
 
-  const fullText = (q.p ? q.p + " " : "") + '<span class="blank" id="blank">' + esc(q.a) + '</span>' + (q.s ? " " + q.s : "");
+  const refEl = $("ref");
+  if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";
+
+  R.fadePhase = "memorize";
+  R.fadeAssembly = null;
+  R.typed = false;
+  $("confirm-answer").style.display = "none";
+
+  /* Fade begins as a true memorization view: the complete verse is visible,
+     including the answer. The answer span keeps the blank geometry so the
+     later transition does not shift the surrounding line. */
+  const fullText = highlightVerse(q.p||"") + ' <span class="blank filled fade-memory-answer" id="blank">' + esc(q.a||"") + '</span>' + sep(q.s) + highlightVerse(q.s||"");
   $("verse").innerHTML = fullText;
-  fitVerseSize(fullText.length);
+  fitVerseSize((q.p||"").length + (q.a||"").length + (q.s||"").length);
 
   $("opts").style.opacity = "0";
   $("opts").style.pointerEvents = "none";
 
-  let count = 3;
+  clearQuestionMechanicTimers();
+  const runToken = R.runToken;
+  const sceneToken = scene;
+  let count = Math.ceil(FADE_MEMORY_MS / 1000);
   const countdownEl = document.createElement("div");
   countdownEl.className = "fade-countdown-bar";
   countdownEl.id = "fade-bar";
-  countdownEl.textContent = "Memorize: " + count + "s";
+  countdownEl.textContent = "Memorize the whole verse: " + count + "s";
   const stageEl = $("verse-stage");
-  if(stageEl) stageEl.prepend(countdownEl);
+  if(stageEl){
+    if(typeof stageEl.prepend === "function") stageEl.prepend(countdownEl);
+    else if(typeof stageEl.insertBefore === "function") stageEl.insertBefore(countdownEl, stageEl.firstChild);
+    else if(typeof stageEl.appendChild === "function") stageEl.appendChild(countdownEl);
+  }
 
-  const echoTimer = setInterval(() => {
+  let echoTimer = null;
+  const isCurrent = () => R.runToken === runToken && R.sceneToken === sceneToken && R.q === q && currentView === "play";
+  echoTimer = setInterval(() => {
+    if(!isCurrent()){
+      if(activeFadeTimer === echoTimer){ clearInterval(echoTimer); activeFadeTimer = null; }
+      return;
+    }
     count--;
     if(count > 0){
-      countdownEl.textContent = "Memorize: " + count + "s";
+      countdownEl.textContent = "Memorize the whole verse: " + count + "s";
     } else {
       clearInterval(echoTimer);
-      countdownEl.remove();
+      if(activeFadeTimer === echoTimer) activeFadeTimer = null;
+      if(R.fadePhase !== "memorize") return;
+      R.fadePhase = "dissolve";
+      stopTimer();
+      if(typeof countdownEl.remove === "function") countdownEl.remove();
+      else if(countdownEl.parentNode) countdownEl.parentNode.removeChild(countdownEl);
       const blank = $("blank");
       if(blank){
-        blank.textContent = "\u2003\u2003\u2003";
+        /* Keep the real answer in place while it visibly dissolves. Only
+           after that animation completes do we replace the passage with the
+           full reconstruction board. */
+        blank.classList.remove("filled");
         blank.classList.add("fade-dissolve");
       }
-      $("opts").style.opacity = "";
-      $("opts").style.pointerEvents = "";
-      renderStandardChoices(q, dur, scene);
+      afterRun(1200, () => {
+        if(!isCurrent()) return;
+        R.fadePhase = "reconstruct";
+        R.fadeAssembly = {target:fullVerseText(q), hintIndex:-1};
+        R.typed = true;
+        $("verse").innerHTML = '<span class="recon-prompt">Reconstruct the whole verse in order</span>';
+        fitVerseSize(R.fadeAssembly.target.length);
+        $("opts").style.opacity = "";
+        $("opts").style.pointerEvents = "";
+        renderTypedQuestion(q, Math.max(FADE_RECALL_MIN_MS, dur || 0), scene);
+      });
     }
   }, 1000);
+  activeFadeTimer = echoTimer;
 
+  armTimer(FADE_MEMORY_MS);
+  startTimer(FADE_MEMORY_MS);
   renderPowers();
-  armTimer(dur);
-  startTimer(dur);
 }
 
 function renderStandardChoices(q, dur, scene){
@@ -629,8 +836,17 @@ function renderQuestion(q, dur){
   clearOtherStages();
   $("ref").textContent = q.r + " — KJV";
   
-  const mechanic = q.mechanic || R.mechanic || (R.mode === "pilgrimage" ? selectPilgrimageMechanic(R.qIdx, q) : null);
+  const currentIdx = (typeof R.siteIdx === "number" && R.siteIdx > 0) ? (R.siteIdx - 1) : (R.qInAct - 1);
+  const mechanic = q.mechanic || R.mechanic || (R.mode === "pilgrimage" ? selectPilgrimageMechanic(currentIdx, q) : null);
   R.currentMechanic = mechanic;
+  /* Every mechanic is a fresh question. Resolution leaves R.locked true on
+     the previous question, so reset it before rendering any special stage;
+     otherwise Fade/Duel options can appear but reject the player's click. */
+  R.locked = false;
+  R.selected = null;
+  if(typeof renderQuickRewards === "function") renderQuickRewards();
+  document.body.classList.toggle("mode-typed", !!R.typed);
+  document.body.classList.toggle("speed-round", !!R.speed);
 
   if(mechanic === "strike") return renderStrikeQuestion(q, dur, scene);
   if(mechanic === "cloze") return renderClozeQuestion(q, dur, scene);
@@ -647,9 +863,6 @@ function renderQuestion(q, dur){
   if(verseEl && !document.body.classList.contains("reduced")){
     verseEl.classList.remove("q-in"); void verseEl.offsetWidth; verseEl.classList.add("q-in");
   }
-  R.locked = false; R.selected = null;
-  document.body.classList.toggle("mode-typed", !!R.typed);
-  document.body.classList.toggle("speed-round", !!R.speed);
   if(R.typed) return renderTypedQuestion(q, dur, scene);
   
   const how=$("warn-how");
@@ -799,7 +1012,8 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     // The verse's own distractors are handed to the grader so a typed
     // near-miss is measured against the readings it could be confused
     // with, not just against character distance.
-    graded = Recall.grade(choice, q.a, q.d);
+    const target = (typeof assemblyTargetFor === "function") ? assemblyTargetFor(q) : q.a;
+    graded = Recall.grade(choice, target, q.d);
     ok = Recall.isCorrect(graded.verdict);
     if(graded.verdict === "exact") R.typedExact++;
     if(graded.verdict === "close") R.typedClose++;
@@ -807,7 +1021,9 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     if(graded.verdict === "exact") SAVE.life.typedExact++;
     renderTypedVerdict(graded);
   } else {
-    ok = choice===q.a;
+    const choiceNorm = (typeof choice === "string") ? choice.trim().replace(/\s+/g, ' ').toLowerCase() : "";
+    const targetNorm = (typeof q.a === "string") ? q.a.trim().replace(/\s+/g, ' ').toLowerCase() : "";
+    ok = (choice === q.a) || (choiceNorm !== "" && choiceNorm === targetNorm);
     answerButtons().forEach(b=>{
       b.classList.remove("sel");
       if(b.dataset.val===q.a) b.classList.add("right");
@@ -825,10 +1041,12 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     mode: R.typed ? "assembly" : "choice"
   });
   if(ok){
-    const blank=$("blank"); blank.textContent=q.a; blank.classList.add("filled","reveal");
+    const blank=$("blank");
+    if(blank){ blank.textContent=q.a; blank.classList.add("filled","reveal"); }
     R.correct++; R.streak++; R.best=Math.max(R.best,R.streak);
     R.booksRun.add(q.b);
     if(elapsed < 1500) R.fast++;
+    if(typeof updateQuickRewards === "function") updateQuickRewards();
     // The "double pay" is no longer automatic — it only holds while the
     // player is riding the fire, a choice made at the Overdrive moment.
     const riding = R.overdriveRide && inOverdrive();
@@ -943,6 +1161,28 @@ function timeUp(){
   if(R.mode==="blitz"){ presentRunEnd("timeout-death"); return; }
   if(R.passage) return resolvePassage();
   if(R.recon) return resolveRecon();
+  /* The 30-second Fade memorization window ends in reconstruction; it is
+     not a failed answer and must not consume a lamp.  The mechanic interval
+     normally performs this handoff, while this guard covers timer scheduling
+     races at the exact boundary. */
+  if(R.currentMechanic === "fade" && R.fadePhase === "memorize"){
+    stopTimer();
+    R.fadePhase = "dissolve";
+    const fadeBlank = $("blank");
+    if(fadeBlank) fadeBlank.classList.add("fade-dissolve");
+    afterRun(1200, () => {
+      if(R.currentMechanic !== "fade" || R.fadePhase !== "dissolve" || !R.q) return;
+      R.fadePhase = "reconstruct";
+      R.fadeAssembly = {target:fullVerseText(R.q), hintIndex:-1};
+      R.typed = true;
+      $("verse").innerHTML = '<span class="recon-prompt">Reconstruct the whole verse in order</span>';
+      fitVerseSize(R.fadeAssembly.target.length);
+      $("opts").style.opacity = "";
+      $("opts").style.pointerEvents = "";
+      renderTypedQuestion(R.q, Math.max(FADE_RECALL_MIN_MS, R.tTotal || 0), R.sceneToken);
+    });
+    return;
+  }
   if(R.mode==="tutorial"){
     stopTimer();
     R.locked=true;

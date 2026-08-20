@@ -71,9 +71,10 @@ assert(/blitzAdjustMs/.test(polish), "blitzAdjustMs export");
 assert(/insightForVerse/.test(polish), "insightForVerse export");
 assert(/pacedClockMs/.test(polish), "pacedClockMs export — one clock for every surface");
 assert(fs.existsSync(path.join(ROOT, "supabase", "functions", "submit-score", "index.ts")), "edge function scaffold");
-/* Scores go through the edge function first, direct write only as fallback. */
+/* Scores go through the trusted edge function and fail closed if unavailable. */
 assert(/functions\.invoke\("submit-score"/.test(cloud), "cloud submits via the edge function");
-assert(/via: "edge"/.test(cloud) && /via: "direct"/.test(cloud), "edge-first with direct fallback");
+assert(/via: "edge"/.test(cloud) && /trusted-submit-unavailable/.test(cloud) &&
+  !/via: "direct"/.test(cloud), "trusted edge path with fail-closed fallback");
 
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");

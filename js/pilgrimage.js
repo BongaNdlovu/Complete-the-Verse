@@ -710,8 +710,8 @@ var Pilgrimage = (function () {
       quote: s.quote,
       ref: s.quoteRef,
       narrative: s.description,
-      image: "assets/journey/" + s.id + ".png",
-      fallback: "assets/journey/ur.png"
+      image: "assets/journey/" + s.id + ".webp",
+      fallback: "assets/journey/ur.webp"
     };
   }
 

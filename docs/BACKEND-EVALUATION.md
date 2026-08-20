@@ -148,7 +148,7 @@ Client (`submitDailyScore` / `submitBlitzScore`, 2026-08-16):
 ```
 clamp locally (Polish) → try functions.invoke("submit-score",
 {kind, score, …}) → on success: done (via:"edge")
-                      → on any failure: direct RLS upsert/insert (via:"direct")
+                      → on any failure: fail closed (trusted-submit-unavailable)
 ```
 
 Edge Function (`submit-score/index.ts`): rejects non-POST, verifies the
@@ -160,12 +160,11 @@ upserts on (user_id, play_date); blitz inserts.
 
 - ✅ Identity is established server-side; a forged user_id in the body
   is ignored (the function uses `user.id` from the verified session).
-- ✅ Fallback keeps boards alive pre-deployment; DB CHECKs (003) remain
-  the final guard either way. UI marks "Honor system" whenever scores
-  are accepted via the direct RLS fallback.
+- ✅ Browser writes cannot bypass the trusted path; the local result remains
+  available when a board submission is unavailable.
 - ⚠️ **Not yet deployed** (needs one `supabase functions deploy` — see
-  BACKEND.md §"Server-trusted scores"). Until then all submissions use
-  the direct path (labeled "Honor system" in the UI).
+  BACKEND.md §"Server-trusted scores"). Until then leaderboard submissions
+  remain unavailable by design; local play and local records still work.
 - ⚠️ The function trusts any under-ceiling value (no plausibility
   model). Full anti-cheat would validate score/accuracy/duration
   consistency (e.g. score vs verses-possible); documented as accepted

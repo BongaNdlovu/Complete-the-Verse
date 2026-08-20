@@ -18,6 +18,7 @@ var Cloud = (function () {
   var profile = null;
   var lastRevision = 0;
   var lastSubmitVia = null;
+  var lastError = "";
   var pushTimer = null;
   var syncing = false;
   var hooks = { onAuth: null, onSync: null, onError: null };
@@ -32,10 +33,17 @@ var Cloud = (function () {
   }
 
   function emit(kind, payload) {
+    if(kind === "onError") lastError = (payload && payload.message) || "Cloud request failed";
+    if(kind === "onSync" && payload && payload.direction !== "start" && payload.direction !== "idle") lastError = "";
     var fn = hooks[kind];
     if (typeof fn === "function") {
       try { fn(payload); } catch (e) {}
     }
+  }
+
+  function setSyncing(value){
+    syncing = !!value;
+    emit("onSync", { direction: syncing ? "start" : "idle" });
   }
 
   function ensureClient() {
@@ -195,6 +203,7 @@ var Cloud = (function () {
     var out = JSON.parse(JSON.stringify(local));
     out.v = Math.max(local.v || 3, remote.v || 3);
     out.xp = maxNum(local.xp, remote.xp);
+    out.illumReserve = maxNum(local.illumReserve, remote.illumReserve);
     out.runs = maxNum(local.runs, remote.runs);
     out.seals = unionArr(local.seals, remote.seals);
     out.best = Object.assign({}, remote.best || {}, local.best || {});
@@ -308,7 +317,7 @@ var Cloud = (function () {
   async function pullSave() {
     var sb = ensureClient();
     if (!sb || !user) return null;
-    syncing = true;
+    setSyncing(true);
     try {
       var res = await sb.from("saves").select("payload, revision, client_updated_at")
         .eq("user_id", user.id).maybeSingle();
@@ -320,14 +329,14 @@ var Cloud = (function () {
       lastRevision = res.data.revision || 0;
       return res.data;
     } finally {
-      syncing = false;
+      setSyncing(false);
     }
   }
 
   async function pushSave(saveObj) {
     var sb = ensureClient();
     if (!sb || !user) return { ok: false, reason: "signed-out" };
-    syncing = true;
+    setSyncing(true);
     try {
       /* Optimistic lock: if remote moved past what we last merged, refuse blind overwrite. */
       var peek = await sb.from("saves").select("revision, payload, client_updated_at")
@@ -356,7 +365,7 @@ var Cloud = (function () {
       emit("onSync", { direction: "push", revision: nextRev });
       return { ok: true, revision: nextRev };
     } finally {
-      syncing = false;
+      setSyncing(false);
     }
   }
 
@@ -372,7 +381,7 @@ var Cloud = (function () {
   /** Merge remote into local SAVE object; caller assigns + persist(). */
   async function syncOnBoot(localSave) {
     if (!isSignedIn()) return { ok: false, reason: "signed-out", save: localSave };
-    syncing = true;
+    setSyncing(true);
     try {
       var remote = await pullSave();
       if (!remote || !remote.payload || !Object.keys(remote.payload).length) {
@@ -385,16 +394,15 @@ var Cloud = (function () {
       emit("onSync", { direction: "pull-merge", revision: lastRevision });
       return { ok: true, save: merged, merged: true };
     } finally {
-      syncing = false;
+      setSyncing(false);
     }
   }
 
   /* ----------------------- scores ----------------------- */
 
-  /* Server-trusted path first: the submit-score Edge Function re-clamps
-     and writes under the caller's own auth (see supabase/functions/).
-     If the function is not deployed (or the network fails), fall back to
-     the direct RLS write so boards keep working during rollout. */
+  /* Server-trusted path: the submit-score Edge Function re-clamps and writes
+     under the caller's own auth (see supabase/functions/). Board writes fail
+     closed when the trusted path is unavailable; the local record remains. */
   async function submitViaEdge(kind, payload) {
     var sb = ensureClient();
     if (!sb || !sb.functions || typeof sb.functions.invoke !== "function") {
@@ -427,13 +435,13 @@ var Cloud = (function () {
     var edge = await submitViaEdge("daily", payload);
     if (edge.ok) {
       lastSubmitVia = "edge";
+      emit("onSync", { direction: "score-submit" });
       return { ok: true, score: payload.score, via: "edge" };
     }
-    /* Edge unavailable — direct write (still RLS-scoped to this user). */
-    var res = await sb.from("daily_scores").upsert(Object.assign({ user_id: user.id }, payload), { onConflict: "user_id,play_date" });
-    if (res.error) return { ok: false, reason: res.error.message };
-    lastSubmitVia = "direct";
-    return { ok: true, score: payload.score, via: "direct" };
+    /* No trusted write path is available; keep this local result intact. */
+    lastSubmitVia = null;
+    emit("onError", { message: "Trusted leaderboard submission is unavailable." });
+    return { ok: false, reason: "trusted-submit-unavailable", via: "none" };
   }
 
   async function submitBlitzScore(row) {
@@ -449,12 +457,12 @@ var Cloud = (function () {
     var edge = await submitViaEdge("blitz", payload);
     if (edge.ok) {
       lastSubmitVia = "edge";
+      emit("onSync", { direction: "score-submit" });
       return { ok: true, score: payload.score, via: "edge" };
     }
-    var res = await sb.from("blitz_scores").insert(Object.assign({ user_id: user.id }, payload));
-    if (res.error) return { ok: false, reason: res.error.message };
-    lastSubmitVia = "direct";
-    return { ok: true, score: payload.score, via: "direct" };
+    lastSubmitVia = null;
+    emit("onError", { message: "Trusted leaderboard submission is unavailable." });
+    return { ok: false, reason: "trusted-submit-unavailable", via: "none" };
   }
 
   async function fetchDailyBoard(playDate, limit) {
@@ -462,7 +470,7 @@ var Cloud = (function () {
     if (!sb) return [];
     limit = limit || 20;
     var res = await sb.from("daily_scores")
-      .select("score, accuracy, diff, user_id, profiles(display_name)")
+      .select("id, score, accuracy, diff, user_id, profiles(display_name)")
       .eq("play_date", playDate)
       .order("score", { ascending: false })
       .limit(limit);
@@ -473,6 +481,7 @@ var Cloud = (function () {
         ? (Polish.sanitizeDisplayName(raw) || "Pilgrim") : String(raw).slice(0, 32);
       return {
         rank: i + 1,
+        id: r.id,
         score: r.score,
         accuracy: r.accuracy,
         diff: r.diff,
@@ -488,7 +497,7 @@ var Cloud = (function () {
     if (!sb) return [];
     limit = limit || 20;
     var res = await sb.from("blitz_scores")
-      .select("score, survived_ms, diff, user_id, profiles(display_name)")
+      .select("id, score, survived_ms, diff, user_id, profiles(display_name)")
       .order("score", { ascending: false })
       .order("survived_ms", { ascending: false })
       .limit(limit);
@@ -499,6 +508,7 @@ var Cloud = (function () {
         ? (Polish.sanitizeDisplayName(raw) || "Pilgrim") : String(raw).slice(0, 32);
       return {
         rank: i + 1,
+        id: r.id,
         score: r.score,
         survived_ms: r.survived_ms,
         diff: r.diff,
@@ -514,7 +524,7 @@ var Cloud = (function () {
     var sb = ensureClient();
     if (!sb || !user) return null;
     var res = await sb.from("daily_scores")
-      .select("score, accuracy, diff, user_id, profiles(display_name)")
+      .select("id, score, accuracy, diff, user_id, profiles(display_name)")
       .eq("play_date", playDate)
       .order("score", { ascending: false })
       .limit(100);
@@ -524,6 +534,7 @@ var Cloud = (function () {
       if (rows[i].user_id === user.id) {
         var raw = (rows[i].profiles && rows[i].profiles.display_name) || "You";
         return {
+          id: rows[i].id,
           rank: i + 1,
           score: rows[i].score,
           accuracy: rows[i].accuracy,
@@ -541,7 +552,7 @@ var Cloud = (function () {
     var sb = ensureClient();
     if (!sb || !user) return null;
     var res = await sb.from("blitz_scores")
-      .select("score, survived_ms, diff, user_id, profiles(display_name)")
+      .select("id, score, survived_ms, diff, user_id, profiles(display_name)")
       .order("score", { ascending: false })
       .order("survived_ms", { ascending: false })
       .limit(100);
@@ -551,6 +562,7 @@ var Cloud = (function () {
       if (rows[i].user_id === user.id) {
         var raw = (rows[i].profiles && rows[i].profiles.display_name) || "You";
         return {
+          id: rows[i].id,
           rank: i + 1,
           score: rows[i].score,
           survived_ms: rows[i].survived_ms,
@@ -562,6 +574,22 @@ var Cloud = (function () {
       }
     }
     return null;
+  }
+
+  async function reportScore(board, scoreId, reason) {
+    var sb = ensureClient();
+    if (!sb || !user) return { ok: false, reason: "signed-out" };
+    board = board === "blitz" ? "blitz" : board === "daily" ? "daily" : "";
+    scoreId = String(scoreId || "");
+    reason = String(reason || "").replace(/[<>]/g, "").trim().slice(0, 500);
+    if (!board || !/^[0-9a-f-]{20,}$/i.test(scoreId) || reason.length < 8) {
+      return { ok: false, reason: "invalid-report" };
+    }
+    var res = await sb.from("leaderboard_reports").insert({
+      reporter_id: user.id, board: board, score_id: scoreId, reason: reason
+    });
+    if (res.error) return { ok: false, reason: res.error.message };
+    return { ok: true };
   }
 
   /* ----------------------- ghosts ----------------------- */
@@ -633,11 +661,13 @@ var Cloud = (function () {
     submitBlitzScore: submitBlitzScore,
     lastSubmitVia: function () { return lastSubmitVia; },
     setLastSubmitVia: function (v) { lastSubmitVia = v; },
+    lastError: function () { return lastError; },
     trustLabel: trustLabel,
     fetchDailyBoard: fetchDailyBoard,
     fetchBlitzBoard: fetchBlitzBoard,
     fetchMyDailyRank: fetchMyDailyRank,
     fetchMyBlitzRank: fetchMyBlitzRank,
+    reportScore: reportScore,
     upsertGhost: upsertGhost,
     fetchGhosts: fetchGhosts,
     isSyncing: function () { return syncing; },

@@ -48,8 +48,23 @@ function makeSandbox(){
   const body = makeElement("body");
   const doc = {
     body, hidden:false,
-    getElementById:id => el(id),
-    createElement:tag => { const e = makeElement("new"); e.tagName = String(tag).toUpperCase(); return e; },
+    getElementById:id => {
+      if (els[id]) return els[id];
+      for (const k in els) {
+        if (els[k] && els[k].id === id) return els[k];
+      }
+      return el(id);
+    },
+    createElement:tag => {
+      const e = makeElement("new");
+      e.tagName = String(tag).toUpperCase();
+      let _id = "new";
+      Object.defineProperty(e, "id", {
+        get(){ return _id; },
+        set(v){ _id = v; if(v) els[v] = e; }
+      });
+      return e;
+    },
     querySelector:() => makeElement("q"),
     querySelectorAll:() => [],
     addEventListener(){}, removeEventListener(){},

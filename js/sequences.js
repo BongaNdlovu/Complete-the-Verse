@@ -25,6 +25,7 @@ function drawPassage(){
 function clearSequence(){
   R.sceneToken = (R.sceneToken||0) + 1;
   R.passage = null; R.recon = null;
+  if(typeof clearQuestionMechanicTimers === "function") clearQuestionMechanicTimers();
   $("assembly").className = "assembly";
   $("assembly").innerHTML = "";
   $("opts").style.display = "";
@@ -307,4 +308,3 @@ function finishSequence(o){
     loseLife();
   }
 }
-

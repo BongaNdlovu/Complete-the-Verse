@@ -282,7 +282,7 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
   color: var(--gold); margin: 1.4em 0 .5em; display: flex; align-items: baseline; gap: .6em;
 }
 .arc-head:first-child { margin-top: 0; }
-.arc-head span { font-family: var(--ui); font-size: .62rem; letter-spacing: .16em; color: var(--parch-dim); }
+.arc-head span { font-family: var(--ui); font-size: .68rem; letter-spacing: .16em; color: var(--parch-dim); }
 .arc-head.done { color: var(--green); }
 .arc-head.flawless { color: var(--gold-hot); text-shadow: 0 0 16px rgba(217,182,103,.6); }
 
@@ -307,7 +307,7 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
   color: var(--parch); flex: 1; }
 .rail-site .mk { font-size: .64rem; color: var(--gold); }
 .rail-site.locked .nm { color: #8f8975; }
-.rail-site.locked .ord { color: #6b6552; }
+.rail-site.locked .ord { color: #b4aa98; }
 .rail-site.cleared .nm { color: var(--gold); }
 .rail-site.current .nm { color: var(--gold-hot); text-shadow: 0 0 14px rgba(217,182,103,.7); }
 
@@ -340,8 +340,8 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
 
 .doss-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--edge); margin: 1.2em 0; }
 .doss-cell { background: rgba(6,7,11,.9); padding: .75em .8em; }
-.doss-cell b { display: block; font-family: var(--ui); font-size: .62rem; letter-spacing: .24em;
-  text-transform: uppercase; color: #8f8975; margin-bottom: .4em; }
+.doss-cell b { display: block; font-family: var(--ui); font-size: .68rem; letter-spacing: .24em;
+  text-transform: uppercase; color: #b4aa98; margin-bottom: .4em; }
 .doss-cell span { font-family: var(--ui); font-size: .78rem; letter-spacing: .08em; color: var(--parch); }
 .doss-cell.wide { grid-column: 1 / -1; }
 
@@ -349,7 +349,7 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
    label says which so the map never passes a guess off as a reading */
 .doss-live { border: 1px solid var(--edge); padding: .85em .9em; margin: 1.2em 0; background: rgba(6,7,11,.75); }
 .doss-live .lv-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .6em; }
-.doss-live .lv-title { font-family: var(--ui); font-size: .62rem; letter-spacing: .28em; text-transform: uppercase; color: var(--gold-dim); }
+.doss-live .lv-title { font-family: var(--ui); font-size: .68rem; letter-spacing: .28em; text-transform: uppercase; color: var(--gold-dim); }
 .doss-live .lv-state { font-family: var(--ui); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; }
 .doss-live .lv-state.on { color: var(--green); }
 .doss-live .lv-state.off { color: #8f8975; }
@@ -357,7 +357,7 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
   font-family: var(--ui); font-size: .74rem; letter-spacing: .08em; }
 .doss-live .lv-row span { color: var(--parch-dim); }
 .doss-live .lv-row b { color: var(--parch); font-weight: 600; }
-.doss-live .lv-row b.dim { color: #8f8975; font-weight: 400; }
+.doss-live .lv-row b.dim { color: #b4aa98; font-weight: 400; }
 
 .doss-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; border-top: 1px solid var(--edge); }
 .doss-locked { font-family: var(--ui); font-size: .68rem; letter-spacing: .14em; color: var(--parch-dim);
@@ -367,7 +367,7 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
 .doss-record { display: flex; gap: 14px; margin: .9em 0 0; }
 .doss-record div { text-align: left; }
 .doss-record b { display: block; font-family: var(--disp); font-size: 1rem; color: var(--gold); }
-.doss-record span { font-family: var(--ui); font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: #8f8975; }
+.doss-record span { font-family: var(--ui); font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: #b4aa98; }
 
 /* ---------------------------------------------------------------- elevation */
 
@@ -411,7 +411,7 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
 .atlas-note {
   position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 500;
   font-family: var(--ui); font-size: .62rem; letter-spacing: .2em; text-transform: uppercase;
-  color: #8f8975; background: rgba(4,5,10,.7); padding: .4em .9em; border: 1px solid rgba(217,182,103,.12);
+  color: #b4aa98; background: rgba(4,5,10,.7); padding: .4em .9em; border: 1px solid rgba(217,182,103,.12);
   pointer-events: none; opacity: 0; transition: opacity .4s ease; text-align: center;
 }
 .atlas-note.on { opacity: 1; }
