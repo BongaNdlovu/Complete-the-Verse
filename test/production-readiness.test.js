@@ -27,14 +27,86 @@ function assert(condition, message) {
 
 /* Rare Illuminate is a banked mastery reward, not an early-run handout. */
 assert(/id:"illumAscendant"/.test(rewards), "rare Illuminate reward is catalogued");
-assert(/n % 8 === 7/.test(rewards), "rare Illuminate has a low-frequency rotation");
-assert(/type === "illum"/.test(rewards) && /best\) >= 12/.test(rewards),
-  "rare Illuminate requires the twelve-answer chain");
+assert(/n % 4 === 3/.test(rewards), "rare Illuminate has a controlled rotation");
+assert(/type === "illum"/.test(rewards) && /best\) >= 8/.test(rewards),
+  "rare Illuminate requires the eight-answer chain");
 assert(/!run\.usedPower/.test(rewards), "rare Illuminate requires a power-free run");
 assert(/illumReserve/.test(game) && /reservedIlluminate/.test(game),
   "Illuminate reward is reserved across the next eligible run");
 assert(/quickRewardResult\.illuminate/.test(results), "Illuminate is paid at result settlement");
 assert(/illumReserve/.test(cloud), "cloud merge preserves the Illuminate reserve");
+
+/* Tutorial recordings are local, stable assets and must remain usable when
+   browser speech synthesis is unavailable. */
+const lessonClips = [
+  ["lesson one choose the phrase that completes the verse", "lesson-one.mp3"],
+  ["lesson two strike the corrupted word in the verse", "lesson-two.mp3"],
+  ["lesson three tap the missing words in sequence", "lesson-three.mp3"],
+  ["lesson four discern the true scripture reading", "lesson-four.mp3"],
+  ["lesson five commit the words before they fade", "lesson-five.mp3"],
+  ["lesson six assemble the verse from memory", "lesson-six.mp3"]
+];
+lessonClips.forEach(([key, file]) => {
+  const abs = path.join(ROOT, "audio", "voice", file);
+  assert(fs.existsSync(abs) && fs.statSync(abs).size > 500, "lesson voice asset is present: " + file);
+  assert(new RegExp('"' + key + '"\\s*:\\s*"audio/voice/' + file.replace(".", "\\.") + '"').test(director),
+    "lesson voice mapping is present: " + key);
+});
+
+/* The newly supplied soundtrack beds and the dedicated 30-second lesson
+   recording must be real local MP3s with active runtime destinations. */
+[
+  ["audio/indigo.mp3", "indigo"],
+  ["audio/final-stillness.mp3", "finalStillness"],
+  ["audio/sudden-descent.mp3", "suddenDescent"]
+].forEach(([rel, key]) => {
+  const abs = path.join(ROOT, rel);
+  assert(fs.existsSync(abs) && fs.statSync(abs).size > 100000, "supplied soundtrack is present: " + rel);
+  assert(audio.includes(key + ':"audio/' + rel.split("/").pop() + '"'),
+    "supplied soundtrack is mapped: " + rel);
+});
+assert(fs.existsSync(path.join(ROOT, "audio", "voice", "thirty-seconds.mp3")),
+  "30-second memorization recording is present");
+assert(director.includes('"lesson five memorize the whole verse for thirty seconds then rebuild every word in order":"audio/voice/thirty-seconds.mp3"'),
+  "30-second memorization tutorial selects the supplied recording");
+assert(read("js/play.js").includes('Snd.ambience("indigo")'),
+  "tutorial selects the supplied Indigo bed");
+
+/* Rival races are visible in the two recommended competitive modes and
+   preserve a recoverable local fallback when the cloud is empty. */
+assert(/id="rival-hud"[^>]*role="status"/.test(index) && /function initRivalRace\(/.test(game) &&
+  /function updateRivalRace\(/.test(game), "visible rival HUD is wired as an accessible status region");
+assert(/class="play-top-stack"/.test(index) &&
+  /<div class="play-top-stack">[\s\S]*?id="act-track"[\s\S]*?id="quick-rewards"[\s\S]*?id="rival-hud"[\s\S]*?<\/div>/.test(index),
+  "top HUD elements are organized inside .play-top-stack");
+assert(/\.rival-hud\s*\{[^}]*position:\s*relative/.test(gameCss) &&
+  !/\.rival-hud\s*\{[^}]*position:\s*absolute/.test(gameCss) &&
+  !/\.play-top-stack\s*\{[^}]*position:\s*absolute/.test(gameCss),
+  "rival HUD occupies an in-flow slot inside .play-top-stack and cannot cover the question");
+assert(/mode === "trial"/.test(game) && /mode === "pilgrimage"/.test(game) &&
+  /pilgrimageBySite/.test(game), "rival scope is trial plus site-specific pilgrimage");
+assert(/fetchGhosts\(rivalCloudMode\(\), rivalRunKey\(\)/.test(game),
+  "rival HUD consumes cloud ghosts when available");
+
+/* Readability layer and visual hierarchy contracts. */
+assert(/\.stage:?:before\s*\{[\s\S]*?z-index:\s*1/.test(playCss), "readability veil on .stage::before has z-index 1");
+assert(/\.question-content\s*\{[^}]*z-index:\s*3/.test(playCss), "question content has z-index 3 above veil");
+assert(/\.play-top-stack\s*\{[^}]*z-index:\s*5/.test(gameCss), "top HUD stack has z-index 5 above question content");
+assert(/#backdrop\s*\{[\s\S]*?opacity:\s*\.32/.test(playCss), "backdrop opacity is reduced for contrast");
+
+/* Rival image assets and fallback contracts. */
+const rivalAssets = [
+  "assets/rival/shadow-pursuer.png",
+  "assets/rival/previous-pilgrim.png",
+  "assets/rival/rival-mask.png"
+];
+rivalAssets.forEach((rel) => {
+  const abs = path.join(ROOT, rel);
+  assert(fs.existsSync(abs) && fs.statSync(abs).size > 1000, "rival asset exists and is non-empty: " + rel);
+  assert(game.includes(rel), "rival asset path is referenced by runtime code: " + rel);
+});
+assert(/<span>◈<\/span>/.test(game) && /\.rival-figure span/.test(gameCss),
+  "CSS glyph fallback marker is preserved under the image");
 
 /* Spoken content remains readable when audio is muted, blocked or unavailable. */
 assert(/id="voice-caption"[^>]*role="status"[^>]*aria-live="polite"/.test(index),

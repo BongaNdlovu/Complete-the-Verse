@@ -56,7 +56,7 @@ var QuickRewards = (function(){
     },
     illumAscendant: {
       id:"illumAscendant", group:"mastery", name:"The Hidden Flame",
-      desc:"Complete a run with a 12-answer streak without spending a power.",
+      desc:"Complete a run with an 8-answer streak without spending a power.",
       type:"illum", target:1, xp:150, oil:0, illuminate:1, endOnly:true, rare:true
     }
   };
@@ -83,7 +83,7 @@ var QuickRewards = (function(){
        so the player must choose whether to chase the hardest prize. */
     var longEnough = mode === "practice" || mode === "recall" ||
       mode === "trial" || mode === "endless" || mode === "daily";
-    var discipline = (longEnough && n % 8 === 7)
+    var discipline = (longEnough && n % 4 === 3)
       ? "illumAscendant"
       : disciplinePool[Math.floor(n / 2) % disciplinePool.length];
     return [copy(chain), copy(precision), copy(discipline)].filter(Boolean);
@@ -99,7 +99,7 @@ var QuickRewards = (function(){
       return Number(run.books) || 0;
     }
     if(goal.type === "illum"){
-      return Number(run.best) >= 12 && !run.usedPower ? 1 : 0;
+      return Number(run.best) >= 8 && !run.usedPower ? 1 : 0;
     }
     if(goal.type === "clean") return run.missed && run.missed.length ? 0 : 1;
     if(goal.type === "noPower") return run.usedPower ? 0 : 1;

@@ -17,9 +17,11 @@ function endRun(reason){
   if(R.ended) return;
   R.ended = true;
   invalidateRun();
+  R.resultTrack = reason === "complete" ? "finalStillness"
+    : (reason === "death" || reason === "abandon") ? "suddenDescent" : "results";
   clearSequence();
   hideSiteQuote();
-  document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7");
+  document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7","retreat");
   R.setpiece=null;
   const reachedV = (R.mode==="trial" && R.actIdx>=4);
   const trialWon = R.mode==="trial" && reason==="complete";
@@ -86,6 +88,9 @@ function endRun(reason){
     if(reason==="complete" && !hasSeal("relay")) grantSeal("relay");
   }
   const road = isPilgrim ? recordSiteResult(siteCleared, total, acc) : null;
+  if(R.rivalSetback){
+    SAVE.life.rivalSetbacks = (SAVE.life.rivalSetbacks||0) + 1;
+  }
   /* First clear opens the next place — remember it for the map ceremony. */
   if(road && road.firstClear && siteCleared){
     const nxt = Pilgrimage.currentSite(SAVE.pilgrim);
@@ -194,16 +199,30 @@ function endRun(reason){
   checkMetaSeals();
   persist();
 
-  /* Local PB ghosts for progress marker */
+  /* Local previous-run ghosts. Pilgrimage is keyed by site so the race is
+     fair; Trial uses one campaign route. These records are recoverable
+     presentation data and never replace cleared-site progress. */
   const survivedMs = Math.max(0, Date.now() - (R.startedAt||Date.now()));
   if(R.ghostSamples && R.ghostSamples.length){
-    const key = R.mode==="blitz" ? "blitz" : (isPilgrim ? "pilgrimage" : null);
+    const key = R.mode==="blitz" ? "blitz" : (isPilgrim ? "pilgrimage" : R.mode==="trial" ? "trial" : null);
     if(key){
-      const prev = SAVE.ghosts && SAVE.ghosts[key];
+      SAVE.ghosts = SAVE.ghosts || {};
       const ghostScore = R.mode==="blitz" ? (R.correct||0) : total;
-      if(!prev || ghostScore >= (prev.score||0)){
-        SAVE.ghosts = SAVE.ghosts || {};
-        SAVE.ghosts[key] = { score: ghostScore, samples: R.ghostSamples, total_ms: survivedMs };
+      const record = { score: ghostScore, samples: R.ghostSamples, total_ms: survivedMs,
+        name: (SAVE.set && SAVE.set.playerName) || "Your previous run" };
+      if(isPilgrim){
+        SAVE.ghosts.pilgrimageBySite = SAVE.ghosts.pilgrimageBySite || {};
+        const prev = SAVE.ghosts.pilgrimageBySite[R.siteId];
+        if(!prev || ghostScore >= (prev.score||0)) SAVE.ghosts.pilgrimageBySite[R.siteId] = record;
+        /* Keep the old aggregate key for older UI builds and migrations. */
+        const roadPrev = SAVE.ghosts.pilgrimage;
+        if(!roadPrev || ghostScore >= (roadPrev.score||0)) SAVE.ghosts.pilgrimage = record;
+      } else if(R.mode==="trial"){
+        const prev = SAVE.ghosts.trial;
+        if(!prev || ghostScore >= (prev.score||0)) SAVE.ghosts.trial = record;
+      } else if(R.mode==="blitz"){
+        const prev = SAVE.ghosts.blitz;
+        if(!prev || ghostScore >= (prev.score||0)) SAVE.ghosts.blitz = record;
       }
     }
   }
@@ -220,7 +239,7 @@ function endRun(reason){
     SAVE.journal = SAVE.journal.slice(0, 40);
   }
 
-  /* Cloud: board scores + optional pilgrimage ghost (best only).
+  /* Cloud: board scores + optional route ghost (best only).
      lastSubmitVia is only set after the async submit settles, so the
      Honor-system tag is painted from the promise, not this tick. */
   function refreshSubmitTrust(){
@@ -256,15 +275,19 @@ function endRun(reason){
         diff: R.diff.key
       }));
     }
-    if(isPilgrim && siteCleared && total > 0){
-      const ov = Pilgrimage.overview(SAVE.pilgrim);
-      const p = ov.total ? ov.cleared / ov.total : 0;
-      Cloud.upsertGhost("pilgrimage", "road", SAVE.best.pilgrimage||total, {
+    const raceGhostEligible = total > 0 && (R.mode === "trial" || (isPilgrim && siteCleared));
+    if(raceGhostEligible){
+      const ov = isPilgrim ? Pilgrimage.overview(SAVE.pilgrim) : null;
+      const p = isPilgrim && ov && ov.total ? ov.cleared / ov.total : (R.mode === "trial" ? 1 : 0);
+      const ghostMode = R.mode === "trial" ? "trial" : "pilgrimage";
+      const ghostKey = R.mode === "trial" ? "campaign" : "site:" + R.siteId;
+      Cloud.upsertGhost(ghostMode, ghostKey, total, {
         version: 1,
         samples: R.ghostSamples || [{ t: 0, p: 0 }, { t: survivedMs, p: p }],
         total_ms: survivedMs,
         end_p: p
-      }, { siteId: R.siteId, cleared: ov.cleared, total: ov.total });
+      }, { siteId: R.siteId || null, cleared: ov ? ov.cleared : null, total: ov ? ov.total : null,
+        campaign: R.mode === "trial" });
     }
   }
 
@@ -288,6 +311,17 @@ function renderResults(o){
     R.mode==="endless" ? "The gauntlet closed" : "The trial is ended";
   document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
   $("res-rank").textContent = runTitle(o.total);
+  const rivalEl = $("res-rival");
+  if(rivalEl){
+    if(R.rivalSetback){
+      const maskAsset = typeof RIVAL_ASSETS !== "undefined" && RIVAL_ASSETS.threat ? RIVAL_ASSETS.threat : "assets/rival/rival-mask.png";
+      rivalEl.innerHTML = '<img class="res-rival-thumb" src="'+esc(maskAsset)+'" alt="" onerror="this.remove()"><b>Retreat recorded</b><span>The pursuer gained ground. Permanent relics and cleared sites are safe.</span>';
+    } else if(R.rivalRace && R.rivalRace.ghost){
+      rivalEl.innerHTML = "<b>Race logged</b><span>"+esc((R.rivalRace.name||"The Pursuer")+" remains on this route.")+"</span>";
+    } else {
+      rivalEl.innerHTML = "";
+    }
+  }
   $("res-score").textContent = "0";
 
   $("res-breakdown").innerHTML =

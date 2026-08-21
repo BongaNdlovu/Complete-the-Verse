@@ -150,7 +150,8 @@ function startTutorialRun(){
   document.body.classList.add("onboarding");
   document.body.classList.remove("mode-typed","speed-round");
   Backdrop.palette("menu");
-  Snd.ambience("menu");
+  /* Indigo gives the first-run lesson its own calm, focused identity. */
+  Snd.ambience("indigo");
   go("play");
   tutorialNextQuestion();
 }
@@ -814,7 +815,17 @@ function renderStandardChoices(q, dur, scene){
     const b=document.createElement("button");
     b.className="ans"; b.dataset.val=c;
     b.setAttribute("aria-pressed","false");
-    b.innerHTML='<span class="ans-float"><span class="ltr">'+LETTERS[i]+'.</span>'+esc(c)+'</span>';
+    const veiled = !!R.rivalFog && i===0 && c!==q.a;
+    b.innerHTML='<span class="ans-float"><span class="ltr">'+LETTERS[i]+'.</span><span class="ans-copy">'+esc(veiled ? "The pursuer's echo" : c)+'</span></span>';
+    if(veiled){
+      b.classList.add("rival-decoy");
+      afterRun(900, function(){
+        if(R.q!==q || R.sceneToken!==scene) return;
+        const copy=b.querySelector(".ans-copy");
+        if(copy) copy.textContent=c;
+        b.classList.remove("rival-decoy");
+      });
+    }
     b.style.setProperty("--drift-delay", (i * 0.85) + "s");
     b.addEventListener("click", ()=>pickAnswer(c,b));
     opts.appendChild(b);
@@ -902,6 +913,11 @@ function confirmAnswer(){
 const RING_C = 2 * Math.PI * 52;   // circumference of the countdown arc
 
 function armTimer(dur){
+  const pressureClock = typeof rivalRaceMode === "function" && rivalRaceMode() &&
+    !(R.currentMechanic === "fade" && R.fadePhase === "memorize");
+  const penalty = pressureClock ? Math.min(1800, Number(R.nextClockPenalty)||0) : 0;
+  dur = Math.max(4500, dur - penalty);
+  R.nextClockPenalty = 0;
   R.tTotal = dur; R.tEnd = 0; R.qStart = 0;
   R.running = false; R.paused = false; R.lastTickSec = -1; R.lastHeart = 0; R.lastHeartSec = -1;
   if(typeof Snd!=="undefined" && Snd.stopPressure) Snd.stopPressure();
@@ -946,6 +962,7 @@ function tickTimer(now){
     w1.textContent = sec + (sec===1 ? " second remaining" : " seconds remaining");
     w1.classList.toggle("hot", sec<=5);
     Director.pressure(sec);
+    if(typeof rivalRaceMode === "function" && rivalRaceMode() && sec===5) rivalReact("low");
     /* Strict countdown SFX (whole seconds only, never mid-bar 55% ticks):
        10–6 soft tick · 5–4 critical tick · 3–1 heartbeat only (no double stack). */
     if(left>0 && R.mode!=="blitz"){
@@ -965,6 +982,7 @@ function tickTimer(now){
     Snd.heart();
     doFlash("heart");
   }
+  if(typeof updateRivalRace === "function") updateRivalRace();
   if(left<=0) timeUp();
 }
 
@@ -1041,6 +1059,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     mode: R.typed ? "assembly" : "choice"
   });
   if(ok){
+    clearRivalMistakePressure();
     const blank=$("blank");
     if(blank){ blank.textContent=q.a; blank.classList.add("filled","reveal"); }
     R.correct++; R.streak++; R.best=Math.max(R.best,R.streak);
@@ -1091,6 +1110,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     R.overdriveRide = false;
     spillOil(R.streak||0);
     R.streak=0; setMult(); R.missed.push(q);
+    applyRivalMistakePressure();
     if(R.mode==="blitz" && typeof Polish!=="undefined"){
       const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
       R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, false);
@@ -1131,10 +1151,47 @@ function noteGhostProgress(){
     p = Math.min(1, (R.correct||0) / 30);
   } else if(R.mode==="daily" && R.daily && R.daily.list){
     p = Math.min(1, (R.dailyIdx||0) / R.daily.list.length);
+  } else if(R.mode==="trial"){
+    /* Trial progress must use the whole-campaign question count. qInAct
+       resets at every act boundary, which would make the recorded ghost
+       timeline sawtooth back to zero mid-run. */
+    const total = (typeof trialActs === "function" ? trialActs() : [])
+      .reduce(function(n, a){ return n + (a.q === Infinity ? 8 : a.q); }, 0) || 1;
+    p = Math.min(1, (R.qTotal||0) / total);
   } else {
     p = Math.min(1, (R.qInAct||0) / 8);
   }
   R.ghostSamples.push({ t, p: Math.round(p * 100) / 100 });
+}
+
+function applyRivalMistakePressure(){
+  if(typeof rivalRaceMode !== "function" || !rivalRaceMode()) return;
+  R.missStreak = (R.missStreak||0) + 1;
+  R.rivalMisses = (R.rivalMisses||0) + 1;
+  /* The pressure is temporary and readable: it affects the next clock,
+     never the player's permanent lives, relics or cleared sites. */
+  R.nextClockPenalty = Math.min(1800, 700 + (R.missStreak-1) * 500);
+  R.rivalFog = R.missStreak >= 2;
+  if(R.missStreak >= 3){
+    R.rivalSetback = true;
+    R.pressureStage = 3;
+    setRivalRetreat(true);
+    toast("Retreat recorded — permanent progress is safe");
+  } else if(R.missStreak === 2){
+    toast("The pursuer clouds the next reading");
+  } else {
+    toast("The next clock is shortened — steady your hand");
+  }
+  rivalReact("miss");
+}
+function clearRivalMistakePressure(){
+  if(typeof rivalRaceMode !== "function" || !rivalRaceMode()) return;
+  R.missStreak = 0;
+  R.nextClockPenalty = 0;
+  R.rivalFog = false;
+  R.pressureStage = -1;
+  setRivalRetreat(false);
+  rivalReact("correct");
 }
 
 function paintGhostMarker(){
@@ -1215,6 +1272,7 @@ function timeUp(){
     cueLevel:R.hintLevel||0, mode:R.typed ? "assembly" : "choice"
   });
   R.missed.push(q);
+  applyRivalMistakePressure();
   Director.impact("wrong");Snd.wrong(); doFlash("red"); shakeUI(true);
   loseLife();
 }

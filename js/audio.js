@@ -18,7 +18,10 @@ const Snd = (function(){
     act3:"audio/act3.mp3",
     act4:"audio/act4.mp3",
     act5:"audio/act5.mp3",
-    results:"audio/results.mp3"
+    results:"audio/results.mp3",
+    finalStillness:"audio/final-stillness.mp3",
+    suddenDescent:"audio/sudden-descent.mp3",
+    indigo:"audio/indigo.mp3"
   };
   const SFX = {
     ui:"sfx/ui.mp3",

@@ -27,7 +27,7 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
   ok("rare Illuminate contract is not on every run",
     !QuickRewards.pick("practice", 1).some(g=>g.id==="illumAscendant"));
   ok("rare Illuminate contract appears only on a hard rotation",
-    QuickRewards.pick("practice", 7).some(g=>g.id==="illumAscendant"));
+    QuickRewards.pick("practice", 3).some(g=>g.id==="illumAscendant"));
 }
 
 {
@@ -47,16 +47,16 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
     !QuickRewards.complete(clean, {missed:[{p:"miss"}], quickSettling:true}));
   ok("using a power breaks bare hands",
     !QuickRewards.complete(QuickRewards.catalog.noCrutch, {missed:[], usedPower:true, quickSettling:true}));
-  ok("hidden flame requires the 12-chain and no power",
-    !QuickRewards.complete(QuickRewards.catalog.illumAscendant, {best:11, usedPower:false, quickSettling:true}) &&
-    !QuickRewards.complete(QuickRewards.catalog.illumAscendant, {best:12, usedPower:true, quickSettling:true}) &&
-    QuickRewards.complete(QuickRewards.catalog.illumAscendant, {best:12, usedPower:false, quickSettling:true}));
+  ok("hidden flame requires the easier 8-chain and no power",
+    !QuickRewards.complete(QuickRewards.catalog.illumAscendant, {best:7, usedPower:false, quickSettling:true}) &&
+    !QuickRewards.complete(QuickRewards.catalog.illumAscendant, {best:8, usedPower:true, quickSettling:true}) &&
+    QuickRewards.complete(QuickRewards.catalog.illumAscendant, {best:8, usedPower:false, quickSettling:true}));
 }
 
 {
-  const goals = QuickRewards.pick("practice", 7);
+  const goals = QuickRewards.pick("practice", 3);
   const run = {
-    mode:"practice", best:12, fast:8, missed:[], usedPower:false,
+    mode:"practice", best:8, fast:8, missed:[], usedPower:false,
     booksRun:new Set(["Genesis"])
   };
   const result = QuickRewards.resolve(goals, run, "complete");

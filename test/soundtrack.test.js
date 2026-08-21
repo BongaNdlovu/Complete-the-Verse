@@ -23,7 +23,10 @@ const BEDS = [
   { key: "act3", file: "act3.mp3", slot: "Trial Act III — The Blackout (+ Endless)" },
   { key: "act4", file: "act4.mp3", slot: "Trial Act IV — No Turning Back" },
   { key: "act5", file: "act5.mp3", slot: "Trial Act V — The Final Test" },
-  { key: "results", file: "results.mp3", slot: "Results screen" }
+  { key: "results", file: "results.mp3", slot: "Results screen" },
+  { key: "finalStillness", file: "final-stillness.mp3", slot: "Completed-run results" },
+  { key: "suddenDescent", file: "sudden-descent.mp3", slot: "Failed-run results" },
+  { key: "indigo", file: "indigo.mp3", slot: "First-run tutorial" }
 ];
 
 assert(/const TRACKS\s*=\s*\{[\s\S]*?\};/.test(game), "TRACKS object present");
@@ -58,7 +61,16 @@ assert(keys.length === expected.length, "TRACKS should have exactly " + expected
 
 // Call sites that must hit track beds
 assert(/Snd\.ambience\("menu"\)/.test(game), 'menu view calls Snd.ambience("menu")');
-assert(/Snd\.ambience\("results"\)/.test(game), 'results view calls Snd.ambience("results")');
+assert(/Snd\.ambience\(\(R && R\.resultTrack\) \|\| "results"\)/.test(game),
+  'results view keeps the neutral results bed as its fallback');
+assert(/Snd\.ambience\(\(R && R\.resultTrack\) \|\| "results"\)/.test(game),
+  "results view selects the resolved result bed");
+assert(/R\.resultTrack\s*=\s*reason === "complete" \? "finalStillness"/.test(game),
+  "completed runs select Final Stillness");
+assert(/reason === "death" \|\| reason === "abandon"/.test(game) && /"suddenDescent"/.test(game),
+  "failed and abandoned runs select Sudden Descent");
+assert(/Snd\.ambience\("indigo"\)/.test(game),
+  "first-run tutorial selects Indigo");
 assert(/Snd\.ambience\(A\.pal\)/.test(game), "beginAct uses act palette ambience");
 assert(/pal:"act1"/.test(game) && /pal:"act2"/.test(game) && /pal:"act3"/.test(game) &&
   /pal:"act4"/.test(game) && /pal:"act5"/.test(game), "ACTS define pal act1–act5");

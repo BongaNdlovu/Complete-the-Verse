@@ -18,7 +18,9 @@ const PALETTES = {
   act3:    {a:'150,72,26',  b:'29,12,5',  c:'104,44,14'},
   act4:    {a:'80,57,120',  b:'18,12,30', c:'52,36,84'},
   act5:    {a:'128,20,24',  b:'26,4,7',   c:'96,14,18'},
-  results: {a:'154,124,60', b:'28,21,9',  c:'104,82,40'}
+  results: {a:'154,124,60', b:'28,21,9',  c:'104,82,40'},
+  finalStillness: {a:'90,24,32', b:'18,6,8', c:'64,16,22'},
+  suddenDescent:  {a:'120,40,20', b:'24,8,4', c:'90,30,12'}
 };
 
 const Backdrop = (function(){
@@ -119,7 +121,17 @@ const Director = (function(){
     "the record closes prepare for another run":"audio/voice/end-defeated.mp3",
     "the pilgrimage ur to patmos":"audio/voice/map-open.mp3",
     "the next place is open":"audio/voice/map-unlocked.mp3",
-    "that place is still sealed":"audio/voice/map-sealed.mp3"
+    "that place is still sealed":"audio/voice/map-sealed.mp3",
+    "lesson one choose the phrase that completes the verse":"audio/voice/lesson-one.mp3",
+    "lesson two strike the corrupted word in the verse":"audio/voice/lesson-two.mp3",
+    "lesson three tap the missing words in sequence":"audio/voice/lesson-three.mp3",
+    "lesson four discern the true scripture reading":"audio/voice/lesson-four.mp3",
+    "lesson five commit the words before they fade":"audio/voice/lesson-five.mp3",
+    "lesson five memorize the whole verse for thirty seconds then rebuild every word in order":"audio/voice/thirty-seconds.mp3",
+    "memorize the whole verse for thirty seconds then rebuild every word in order":"audio/voice/thirty-seconds.mp3",
+    "thirty second memorization tutorial":"audio/voice/thirty-seconds.mp3",
+    "thirty seconds":"audio/voice/thirty-seconds.mp3",
+    "lesson six assemble the verse from memory":"audio/voice/lesson-six.mp3"
   };
   function voiceKey(text){
     return String(text||"").toLowerCase().replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();

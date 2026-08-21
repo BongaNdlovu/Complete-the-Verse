@@ -270,8 +270,12 @@
         <div class="momentum-top"><span>Momentum</span><b id="momentum-name">Cold Start</b><span id="momentum-pct">0%</span></div>
         <div class="momentum-track"><i class="momentum-fill" id="momentum-fill"></i></div>
       </div>
-      <div class="quick-rewards" id="quick-rewards" aria-live="polite" aria-label="Quick rewards"></div>
-      <div class="act-track" id="act-track" aria-label="Run progress"></div>
+
+      <div class="play-top-stack">
+        <div id="act-track" class="act-track" aria-label="Run progress"></div>
+        <div id="quick-rewards" class="quick-rewards" aria-live="polite" aria-label="Quick rewards"></div>
+        <div id="rival-hud" class="rival-hud" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+      </div>
 
       <div class="kjv"><b>KJV</b></div>
       <div class="witness" id="witness" hidden>
@@ -279,41 +283,43 @@
       </div>
       <div id="judge-burst" aria-hidden="true"><i></i></div>
 
-      <div class="verse-stage" id="verse-stage">
-        <div class="verse-main" id="verse" aria-live="polite" aria-atomic="true"></div>
-        <div class="ref-line"><i></i><span id="ref">&nbsp;</span><i></i></div>
-      </div>
-
-      <div class="answers" id="opts"></div>
-      <div class="assembly" id="assembly"></div>
-      <div class="cloze-stage" id="cloze-stage" style="display:none"></div>
-      <div class="duel-stage" id="duel-stage" style="display:none"></div>
-
-      <div class="control">
-        <div class="ring" id="ring">
-          <svg viewBox="0 0 120 120">
-            <defs>
-              <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#ffe8ae"/>
-                <stop offset="42%" stop-color="#d5ad62"/>
-                <stop offset="74%" stop-color="#bd4a3d"/>
-                <stop offset="100%" stop-color="#711419"/>
-              </linearGradient>
-            </defs>
-            <circle class="trk" cx="60" cy="60" r="52"></circle>
-            <circle class="arc" id="ring-arc" cx="60" cy="60" r="52"
-                    stroke-dasharray="326.7" stroke-dashoffset="0"></circle>
-          </svg>
-          <b id="clock">00:14</b>
+      <div class="question-content">
+        <div class="verse-stage" id="verse-stage">
+          <div class="verse-main" id="verse" aria-live="polite" aria-atomic="true"></div>
+          <div class="ref-line"><i></i><span id="ref">&nbsp;</span><i></i></div>
         </div>
-        <button class="confirm-answer" id="confirm-answer" type="button" disabled>Lock Answer</button>
-        <div class="warn">
-          <b id="warn-1">14 seconds remaining</b>
-          <span id="warn-how">Select a phrase, then lock it<br>Enter or Space confirms</span>
-        </div>
-      </div>
 
-      <div class="powerbar" id="powers"></div>
+        <div class="answers" id="opts"></div>
+        <div class="assembly" id="assembly"></div>
+        <div class="cloze-stage" id="cloze-stage" style="display:none"></div>
+        <div class="duel-stage" id="duel-stage" style="display:none"></div>
+
+        <div class="control">
+          <div class="ring" id="ring">
+            <svg viewBox="0 0 120 120">
+              <defs>
+                <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#ffe8ae"/>
+                  <stop offset="42%" stop-color="#d5ad62"/>
+                  <stop offset="74%" stop-color="#bd4a3d"/>
+                  <stop offset="100%" stop-color="#711419"/>
+                </linearGradient>
+              </defs>
+              <circle class="trk" cx="60" cy="60" r="52"></circle>
+              <circle class="arc" id="ring-arc" cx="60" cy="60" r="52"
+                      stroke-dasharray="326.7" stroke-dashoffset="0"></circle>
+            </svg>
+            <b id="clock">00:14</b>
+          </div>
+          <button class="confirm-answer" id="confirm-answer" type="button" disabled>Lock Answer</button>
+          <div class="warn">
+            <b id="warn-1">14 seconds remaining</b>
+            <span id="warn-how">Select a phrase, then lock it<br>Enter or Space confirms</span>
+          </div>
+        </div>
+
+        <div class="powerbar" id="powers"></div>
+      </div>
     </div>
 
     <div id="tutorial-guide" role="status" aria-live="polite" hidden>
@@ -332,7 +338,6 @@
     <footer class="ftr"></footer>
     <canvas id="viz"></canvas>
     <div id="lock-seal" aria-hidden="true"><i></i></div>
-    <div id="judge-burst" aria-hidden="true"><i></i></div>
     <div id="site-quote" aria-live="polite">
       <div class="kick" id="site-quote-kicker"></div>
       <p id="site-quote-line"></p>
@@ -352,6 +357,7 @@
       </div>
       <div class="kick" id="res-kick">The trial is ended</div>
       <div class="rank" id="res-rank" style="margin-top:1.4vh"></div>
+      <div class="result-rival" id="res-rival" role="status" aria-live="polite"></div>
       <div class="bigscore" id="res-score">0</div>
       <div class="footer res-primary">
         <button class="btn" id="res-again">Run It Back</button>

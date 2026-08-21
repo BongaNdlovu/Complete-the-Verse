@@ -259,7 +259,10 @@ async function runLiveVerification() {
     console.log("  -> Testing Verse 6 (Fade-to-Memory)");
     check("Current mechanic is Fade-to-Memory", await client.eval("R.currentMechanic === 'fade'"));
     const fadeBarText = await client.eval(`$("fade-bar") ? $("fade-bar").textContent : ""`);
-    check("Fade bar starts with 7s countdown", fadeBarText.includes("7s") || fadeBarText.includes("6s"), `bar: "${fadeBarText}"`);
+    // FADE_MEMORY_MS = 30000 since commit 2c4007a (matches the
+    // "memorize ... for thirty seconds" voice line). Accept the first
+    // rendered second of that window.
+    check("Fade bar starts with 30s countdown", fadeBarText.includes("30s") || fadeBarText.includes("29s"), `bar: "${fadeBarText}"`);
     await client.captureScreenshot("09_play_verse6_fade_7s.png");
     await client.eval(`nextQuestion();`);
     await sleep(200);

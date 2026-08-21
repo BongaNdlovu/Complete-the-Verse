@@ -10,9 +10,10 @@ const DEFAULT_SAVE = {
   seals:[],
   life:{correct:0, attempts:0, bestStreak:0, sdBest:0, endlessBest:0, dailyDone:0, perfectActs:0,
         typedExact:0, typedAttempts:0, reviewsDone:0, sitesCleared:0, arcsCleared:0, blitzBest:0,
-        oilSpent:0, oilEarned:0, quickRewards:0, quickRewardXP:0, quickRewardOil:0, illumRewards:0},
+        oilSpent:0, oilEarned:0, quickRewards:0, quickRewardXP:0, quickRewardOil:0, illumRewards:0,
+        rivalSetbacks:0},
   books:{}, verse:{}, srs:{}, board:[], journal:[],
-  ghosts:{pilgrimage:null, blitz:null},
+  ghosts:{pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null},
   daily:{date:"", score:0},
   /* Habit streak tracking across calendar days */
   habit:{count:0, lastDate:"", lastDay:0, best:0, history:{}},
@@ -57,7 +58,9 @@ function load(){
         ? Artifacts.normalize(s.artifacts)
         : Object.assign({unlocked:{}, seen:{}}, s.artifacts||{}),
       journal: Array.isArray(s.journal) ? s.journal.slice(0, 40) : [],
-      ghosts: Object.assign({pilgrimage:null, blitz:null}, s.ghosts||{})
+      ghosts: Object.assign({pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null}, s.ghosts||{}, {
+        pilgrimageBySite: Object.assign({}, (s.ghosts && s.ghosts.pilgrimageBySite) || {})
+      })
     });
     if(migrating) migrateV2(out, s);
     migrateProfile(out);
@@ -359,7 +362,7 @@ function applyLeave(plan){
   if(plan.clearPlayClasses){
     document.body.classList.remove("setpiece-active","overdrive","od-open","wiping",
       "mode-typed","speed-round","reveal-freeze","pressure-3","pressure-5","pressure-7",
-      "blitz-edge","blitz-edge-2","blitz-edge-3");
+      "blitz-edge","blitz-edge-2","blitz-edge-3","retreat");
   }
   if(plan.bumpScene) R.sceneToken = (R.sceneToken||0) + 1;
   if(plan.hideState && currentView!=="play") hideState();
@@ -383,7 +386,12 @@ function go(view){
   if(view==="brief"||view==="study"||view==="seals"||view==="records"||view==="settings"||view==="relics"){
     syncHallVideo(SAVE.set.quality);
   }
-  if(view==="results"){ Backdrop.palette("results"); Snd.ambience("results"); }
+  if(view==="results"){
+    Backdrop.palette("results");
+    /* Completion and failure have distinct musical resolutions; older
+       callers still fall back to the neutral results bed. */
+    Snd.ambience((R && R.resultTrack) || "results");
+  }
   if(view==="study") renderStudy();
   if(view==="relics") renderRelics();
   if(view==="seals") renderSeals();
@@ -598,6 +606,8 @@ function startRun(mode, diffKey, options){
     relay: relay,
     blitzEnd: mode==="blitz" ? performance.now() + blitzMs : 0,
     ghostSamples: [{ t:0, p:0 }],
+    rivalRace: null, missStreak:0, nextClockPenalty:0, rivalFog:false,
+    rivalSetback:false, rivalMisses:0,
     lastPickKey: "", lastPickAt: 0,
     quoteShown: false, assemble: null,
     quickRewards: (typeof QuickRewards !== "undefined" && QuickRewards.pick)
@@ -605,6 +615,7 @@ function startRun(mode, diffKey, options){
     quickRewardAnnounced: new Set(), quickResult: null,
     reservedIlluminate: reservedIlluminate
   });
+  initRivalRace();
   document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4","blitz-edge","blitz-edge-2","blitz-edge-3");
   if(mode==="daily") R.daily = buildDailyList();
   renderLives();
@@ -813,6 +824,158 @@ function witnessLook(down){
 }
 /* Full-screen judge burst — same sprite-sheet steps() as the map walker.
    Plays once, never takes hits, skipped under reduced motion. */
+/* ------------------------- RIVAL RACE -------------------------
+   A rival is presentation plus pressure, never a hidden score modifier.
+   The local previous run appears immediately; a public cloud ghost replaces
+   it when one is available. Pilgrimage races are site-specific so a Ur run
+   is never compared with a late-road sprint. */
+const RIVAL_ASSETS = Object.freeze({
+  pursuer: "assets/rival/shadow-pursuer.png",
+  pilgrim: "assets/rival/previous-pilgrim.png",
+  threat: "assets/rival/rival-mask.png"
+});
+
+function rivalAssetPath(source, misses) {
+  if (Number(misses) >= 2) return RIVAL_ASSETS.threat;
+  return source === "pursuer" ? RIVAL_ASSETS.pursuer : RIVAL_ASSETS.pilgrim;
+}
+
+function rivalRaceMode(){
+  return !!R && (R.mode === "pilgrimage" || R.mode === "pilgrim-recall" || R.mode === "trial");
+}
+function rivalRunKey(){
+  if(R.mode === "trial") return "campaign";
+  return R.siteId ? "site:" + R.siteId : "road";
+}
+function rivalCloudMode(){ return R.mode === "trial" ? "trial" : "pilgrimage"; }
+function rivalSamples(ghost){
+  if(!ghost) return [];
+  return (ghost.timeline && ghost.timeline.samples) || ghost.samples || [];
+}
+function localRivalGhost(){
+  if(!SAVE || !SAVE.ghosts) return null;
+  if(R.mode === "trial") return SAVE.ghosts.trial || null;
+  const bySite = SAVE.ghosts.pilgrimageBySite || {};
+  return bySite[R.siteId] || SAVE.ghosts.pilgrimage || null;
+}
+function syntheticRivalGhost(){
+  /* A new player still gets a readable opponent. The pursuer is a pacing
+     baseline, replaced by a local or cloud previous run as soon as one is
+     available; it never changes score or answer grading. */
+  const questions = R.mode === "trial"
+    ? trialActs().reduce(function(n, a){ return n + (a.q === Infinity ? 8 : a.q); }, 0)
+    : Math.max(1, R.siteVerses ? R.siteVerses.length : 8);
+  const horizon = Math.max(90000, questions * 11000);
+  return {name:"The Pursuer", best_score:0, timeline:{version:1, samples:[
+    {t:0,p:0}, {t:Math.round(horizon*.24),p:.18}, {t:Math.round(horizon*.48),p:.43},
+    {t:Math.round(horizon*.72),p:.70}, {t:horizon,p:1}
+  ]}};
+}
+function setRivalGhost(ghost, source){
+  if(!R.rivalRace) R.rivalRace = {misses:0, surge:0, reaction:""};
+  R.rivalRace.ghost = ghost || null;
+  R.rivalRace.source = source || "local";
+  R.rivalRace.name = ghost && ghost.name
+    ? ghost.name : source === "cloud" ? "Previous pilgrim" : "Your previous run";
+  updateRivalRace();
+}
+function initRivalRace(){
+  const host = $("rival-hud");
+  if(!rivalRaceMode()){
+    if(host) host.hidden = true;
+    R.rivalRace = null;
+    return;
+  }
+  R.rivalRace = {ghost:null, source:"local", name:"Your previous run", misses:0, surge:0, reaction:"", reactionUntil:0};
+  const local = localRivalGhost();
+  if(local && rivalSamples(local).length) setRivalGhost(local, "local");
+  else setRivalGhost(syntheticRivalGhost(), "pursuer");
+  if(typeof Cloud !== "undefined" && Cloud.configured && Cloud.configured() && Cloud.fetchGhosts){
+    const raceToken = R.runToken;
+    Cloud.fetchGhosts(rivalCloudMode(), rivalRunKey(), 5).then(function(rows){
+      /* A newer run may have started while the request was in flight —
+         a stale ghost must never land in the new run's race. */
+      if(R.runToken !== raceToken) return;
+      const others = (rows || []).filter(function(g){ return !g.mine && rivalSamples(g).length; });
+      if(others.length) setRivalGhost(others[0], "cloud");
+    }).catch(function(){});
+  }
+}
+function rivalPlayerProgress(){
+  if(R.mode === "trial"){
+    const total = trialActs().reduce(function(n, a){ return n + (a.q === Infinity ? 8 : a.q); }, 0) || 1;
+    return Math.min(1, (R.qTotal || 0) / total);
+  }
+  const n = R.siteVerses ? R.siteVerses.length : 1;
+  return Math.min(1, (R.siteIdx || 0) / n);
+}
+function rivalReact(kind){
+  if(!rivalRaceMode() || !R.rivalRace) return;
+  const race = R.rivalRace;
+  if(kind === "miss"){
+    race.misses = (race.misses || 0) + 1;
+    race.surge = Math.min(.22, (race.surge || 0) + .055);
+    /* Surge is temporary pressure: without a deadline it would stick to
+       the rival for the rest of the run. It bleeds off after 12 calm
+       seconds and is wiped entirely by a correct answer. */
+    race.surgeUntil = Date.now() + 12000;
+    race.reaction = race.misses >= 3 ? "Retreat — the pursuer gains ground" : "The pursuer advances";
+    race.reactionUntil = Date.now() + 2600;
+  }else if(kind === "correct"){
+    race.misses = 0;
+    race.surge = 0;
+    race.surgeUntil = 0;
+    race.reaction = "You hold the line";
+    race.reactionUntil = Date.now() + 1200;
+  }else if(kind === "low"){
+    race.reaction = "Closing fast — keep moving";
+    race.reactionUntil = Date.now() + 1400;
+  }
+  updateRivalRace();
+}
+/* The rival's retreat state owns body class "retreat" (not Director's
+   "pressure-N" clock classes) so the two systems never wipe each other. */
+function setRivalRetreat(on){
+  document.body.classList.toggle("retreat", !!on);
+  if(on) document.body.classList.remove("pressure-3");
+}
+function updateRivalRace(){
+  const host = $("rival-hud");
+  if(!host || !rivalRaceMode() || !R.rivalRace || !R.rivalRace.ghost || !rivalSamples(R.rivalRace.ghost).length){
+    if(host) host.hidden = true;
+    return;
+  }
+  const race = R.rivalRace;
+  const now = Date.now();
+  const elapsed = Math.max(0, now - (R.startedAt || now));
+  const base = typeof Polish !== "undefined" && Polish.sampleGhost
+    ? Polish.sampleGhost(rivalSamples(race.ghost), elapsed) : 0;
+  if(now > (race.reactionUntil || 0)) race.reaction = "";
+  if(now > (race.surgeUntil || 0)) race.surge = Math.max(0, (race.surge || 0) * .985);
+  const rival = Math.min(1, Math.max(0, base + (race.surge || 0)));
+  const player = Math.min(1, Math.max(0, rivalPlayerProgress()));
+  const left = R.lastTickSec >= 0 ? R.lastTickSec : 99;
+  const retreat = document.body.classList.contains("retreat");
+  const close = !retreat && rival - player > .10;
+  const urgent = !retreat && left <= 5;
+  host.hidden = false;
+  host.classList.toggle("rival-close", close);
+  host.classList.toggle("rival-urgent", urgent);
+  const status = race.reaction || (urgent ? "Closing fast — keep moving" : close ? "Ahead of you" : player-rival > .10 ? "You are pulling ahead" : "At your heels");
+  const misses = (race.misses != null ? race.misses : R.missStreak) || 0;
+  const asset = rivalAssetPath(race.source, misses);
+  /* The track bars animate via CSS transitions, so only rebuild the DOM
+     when something actually changed — a per-frame innerHTML write would
+     restart the <img> request and kill the bar animations. */
+  const html = '<div class="rival-figure" aria-hidden="true"><span>◈</span><img src="'+esc(asset)+'" alt="" onerror="this.remove()"></div>'+
+    '<div class="rival-copy"><div class="rival-top"><b>'+esc(race.name || "Previous pilgrim")+'</b><span>'+esc(status)+'</span></div>'+
+    '<div class="rival-track" aria-hidden="true"><i style="width:'+(player*100).toFixed(1)+'%"></i><em style="left:'+(rival*100).toFixed(1)+'%"></em></div></div>'+
+    '<span class="sr-only">Rival progress '+Math.round(rival*100)+' percent. Your progress '+Math.round(player*100)+' percent.</span>';
+  if(race.renderedHTML !== html){
+    race.renderedHTML = html;
+    host.innerHTML = html;
+  }
+}
 function showJudgeBurst(kind){
   const el = $("judge-burst");
   if(!el) return;
@@ -880,6 +1043,7 @@ function updateChips(){
   $("hud-accuracy").textContent = R.attempts ? Math.round(R.correct/R.attempts*100)+"%" : "—";
   updateActTrack();
   updateCandle();
+  updateRivalRace();
 }
 
 function updateActTrack(){
@@ -1037,9 +1201,12 @@ function renderQuickRewards(){
     const current = g.type === "clean" || g.type === "noPower"
       ? (p.complete ? "READY" : "RUN END")
       : p.value + "/" + p.target;
-    return '<div class="quick-reward'+cls+'" title="'+esc(g.desc)+'">'+
-      '<b>'+esc(g.name)+'<i>'+esc(quickRewardPayout(g))+'</i></b>'+
-      '<span>'+esc(current)+' · '+esc(g.desc)+'</span></div>';
+    const icon = g.group === "chain" ? "🔥" : g.group === "precision" ? "⚡" : g.group === "mastery" ? "✨" : "🛡️";
+    return '<div class="quick-reward'+cls+'" title="'+esc(g.name)+': '+esc(g.desc)+' ('+esc(quickRewardPayout(g))+')">'+
+      '<span class="qr-tag">'+icon+'</span>'+
+      '<b>'+esc(g.name)+'</b>'+
+      '<span class="qr-val">'+esc(current)+'</span>'+
+      '<i>'+esc(quickRewardPayout(g))+'</i></div>';
   }).join("");
 }
 
@@ -1467,7 +1634,7 @@ function abandonRun(){
     R.setpiece = null;
     pendingSeals = [];
     $("setpiece-card").classList.remove("on");
-    document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7");
+    document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7","retreat");
     Snd.ui();
     // Backing out of a site before answering anything drops you on the
     // map you came from, not in the main hall.
