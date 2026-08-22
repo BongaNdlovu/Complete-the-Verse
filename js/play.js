@@ -426,6 +426,7 @@ function clearQuestionMechanicTimers(){
 function clearOtherStages(){
   const duel = $("duel-stage"); if(duel) duel.style.display = "none";
   const cloze = $("cloze-stage"); if(cloze) cloze.style.display = "none";
+  const tf = $("tf-stage"); if(tf) tf.style.display = "none";
   const asm = $("assembly"); if(asm) asm.className = "assembly";
   const opts = $("opts"); if(opts) { opts.style.display = ""; opts.style.opacity = ""; opts.style.pointerEvents = ""; }
   const blank = $("blank"); if(blank) blank.classList.remove("fade-dissolve");
@@ -439,6 +440,7 @@ function clearOtherStages(){
     R.strike = null;
     R.cloze = null;
     R.duel = null;
+    R.tf = null;
     R.fadeAssembly = null;
     R.fadePhase = null;
   }
@@ -450,6 +452,10 @@ function selectPilgrimageMechanic(idx, q){
   if(idx === 3) return "cloze";
   if(idx === 4) return "duel";
   if(idx === 5) return "fade";
+  /* Slot 6 is the gauntlet: a standalone Judgement claim replaces the
+     verse question. The displaced verse is never answered, so its
+     mastery is untouched and it returns in future runs. */
+  if(idx === 6 && typeof TF_CLAIMS !== "undefined" && TF_CLAIMS.length) return "truefalse";
   return null;
 }
 
@@ -715,6 +721,180 @@ function illuminateDuel(){
   return true;
 }
 
+/* ================= 5. THE JUDGEMENT (TRUE / FALSE CLAIM) ================= */
+/* A Judgement claim is scripture knowledge, not verse recall: a plain
+   statement about the Bible's people, places, numbers and events that
+   the player must simply judge. It replaces slot 6's verse question,
+   so it resolves through its own path — streaks, lives, score and the
+   rival all react, but verse mastery, SRS and the review queue are
+   never touched, because no verse was asked. */
+function tfPickClaim(){
+  const bank = (typeof TF_CLAIMS !== "undefined" && TF_CLAIMS.length) ? TF_CLAIMS : [];
+  if(!bank.length) return null;
+  R.tfUsed = R.tfUsed || [];
+  /* No-repeat is a bounded window, not a full pool drain: only the last
+     N picks stay excluded. N is always at least 8 claims under the
+     false-claim count, so even a marathon relay passing every site can
+     never exhaust the verdict the roll asked for — the 65% false
+     weighting holds for every single draw, not just the first cycle. */
+  const window = Math.max(1, Math.min(40,
+    bank.filter(function(c){ return !c.v; }).length - 8));
+  let pool = bank.filter(function(c, i){ return R.tfUsed.indexOf(i) < 0; });
+  if(!pool.length){ R.tfUsed = []; pool = bank.slice(); }
+  /* Territory first: the books this site actually draws from, with a
+     quarter of draws opened to the whole road so replays stay fresh. */
+  const books = {};
+  (R.siteVerses || []).forEach(function(v){ if(v && v.b) books[v.b] = 1; });
+  const wantFalse = Math.random() < 0.65;
+  const ofVerdict = function(list, v){ return list.filter(function(c){ return c.v === v; }); };
+  let candidates = null;
+  if(Math.random() < 0.75){
+    const territory = pool.filter(function(c){ return books[c.b]; });
+    /* wantFalse asks for false claims, so the verdict to MATCH is the
+       opposite of the roll. Priority: territory+verdict, then the whole
+       road at the right verdict, then territory, then anything — the
+       weighting survives a small territory running dry. */
+    candidates = ofVerdict(territory, !wantFalse);
+    if(!candidates.length) candidates = ofVerdict(pool, !wantFalse);
+    if(!candidates.length) candidates = territory;
+  }
+  if(!candidates || !candidates.length) candidates = ofVerdict(pool, !wantFalse);
+  if(!candidates.length) candidates = pool;
+  const claim = candidates[Math.floor(Math.random() * candidates.length)];
+  R.tfUsed.push(bank.indexOf(claim));
+  while(R.tfUsed.length > window) R.tfUsed.shift();
+  return claim;
+}
+
+function renderTrueFalseQuestion(q, dur, scene){
+  const claim = tfPickClaim();
+  if(!claim) return renderStandardChoices(q, dur, scene);
+  R.currentMechanic = "truefalse";
+  R.tf = {claim: claim, resolved: false, illuminated: false};
+  $("confirm-answer").style.display = "none";
+  const how = $("warn-how");
+  if(how) how.innerHTML = "The Judgement<br>True or False — T / F keys";
+  const refEl = $("ref");
+  if(refEl) refEl.textContent = "Out of " + claim.b + " — KJV";
+
+  $("verse").innerHTML = '<span class="tf-kicker">The Witness Speaks · Judge the Claim</span>';
+  fitVerseSize(Math.max(42, claim.s.length));
+
+  const stage = $("tf-stage");
+  stage.style.display = "grid";
+  $("opts").style.display = "none";
+  stage.innerHTML =
+    '<div class="tf-claim">' + esc(claim.s) + '</div>' +
+    '<div class="tf-buttons" role="group" aria-label="Judge the claim true or false">' +
+      '<button type="button" class="tf-btn tf-true" id="tf-true" data-val="true" aria-label="Mark the claim true">True<span>It is written</span></button>' +
+      '<button type="button" class="tf-btn tf-false" id="tf-false" data-val="false" aria-label="Mark the claim false">False<span>It is not so</span></button>' +
+    '</div>' +
+    '<div class="tf-why" id="tf-why" hidden></div>';
+  tfBind($("tf-true"));
+  tfBind($("tf-false"));
+  renderPowers();
+  /* A binary answer guesses well, so the clock tightens to roughly 65%
+     of the site's own beat — judgement by reflex, not deliberation. */
+  armTimer(Math.round(dur * 0.65));
+  startTimer(Math.round(dur * 0.65));
+}
+
+function tfBind(btn){
+  if(!btn) return;
+  btn.addEventListener("click", function(){
+    if(!R.running || R.paused || R.locked) return;
+    if(!R.tf || R.tf.resolved) return;
+    stopTimer();
+    R.locked = true;
+    const confirm = $("confirm-answer");
+    if(confirm){ confirm.disabled = true; confirm.textContent = "Answer Locked"; }
+    Snd.lock(); Snd.hush();
+    Director.beat("lock");
+    const picked = btn;
+    afterRun(430, function(){ resolveTrueFalse(picked.dataset.val, picked, false); });
+  });
+  btn.addEventListener("keydown", function(e){
+    if(e.key === "Enter" || e.key === " "){ e.preventDefault(); btn.click(); }
+  });
+}
+
+function resolveTrueFalse(choice, btn, timedOut){
+  if(!R.tf || R.tf.resolved) return;
+  R.tf.resolved = true;
+  const claim = R.tf.claim;
+  const elapsed = performance.now() - (R.qStart || performance.now());
+  const left = Math.max(0, (R.tEnd || 0) - performance.now());
+  R.attempts++;
+  recordDecision(elapsed);
+  const ok = !timedOut && choice === (claim.v ? "true" : "false");
+  const trueBtn = $("tf-true"), falseBtn = $("tf-false");
+  const rightBtn = claim.v ? trueBtn : falseBtn;
+  [trueBtn, falseBtn].forEach(function(b){ if(b) b.classList.add("mute"); });
+  if(rightBtn){ rightBtn.classList.remove("mute"); rightBtn.classList.add("right"); }
+  if(!ok && btn) btn.classList.add("bad");
+  if(ok){
+    clearRivalMistakePressure();
+    R.correct++; R.streak++; R.best = Math.max(R.best, R.streak);
+    if(elapsed < 1500) R.fast++;
+    if(typeof updateQuickRewards === "function") updateQuickRewards();
+    const riding = R.overdriveRide && inOverdrive();
+    const timeBonus = Math.round(left / (R.tTotal || 1) * 140);
+    const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * 1.24 * SetPieces.bonus() * (riding ? 2 : 1));
+    R.score += gained;
+    payCorrect(null);
+    noteGhostProgress(); Director.impact("correct"); Snd.correct(); animateScore(); setMult(true); Director.momentum(true);
+    if(typeof Cinematic !== "undefined" && (R.streak === 3 || R.streak === 5 || R.streak === 8 || R.streak === 12)){
+      if(Cinematic.event) Cinematic.event("streak", {streak: R.streak, mult: multiplier()});
+      else Cinematic.showComboStamp(R.streak, multiplier());
+    }
+    if(R.streak === 5) Director.callout("Unbroken ×5");
+    if(R.streak === 10) Director.callout("Perfect Recall");
+    if(R.streak >= 10 && !hasSeal("recall")) grantSeal("recall");
+    if(R.streak >= 20 && !hasSeal("flame")) grantSeal("flame");
+    if(R.fast >= 10 && !hasSeal("swift")) grantSeal("swift");
+    if(R.streak === MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] && !R.setpiece && R.mode !== "blitz"){
+      if(typeof Cinematic !== "undefined"){
+        if(Cinematic.event) Cinematic.event("overdrive");
+        else Cinematic.showOverdriveEntrance();
+      }
+      afterRun(700, offerOverdriveChoice);
+      return;
+    }
+    afterRun(typeof Flow !== "undefined" ? Flow.JUDGE_MS : 820, queueAdvance);
+  } else {
+    const wasRiding = R.overdriveRide && inOverdrive();
+    if(R.streak >= 3 && typeof Cinematic !== "undefined"){
+      if(Cinematic.event) Cinematic.event("miss");
+      else Cinematic.showComboCollapse();
+    }
+    R.overdriveRide = false;
+    spillOil(R.streak || 0);
+    R.streak = 0; setMult();
+    applyRivalMistakePressure();
+    Director.momentum(false); Director.impact("wrong");
+    Snd.wrong(); doFlash("red"); shakeUI(true);
+    if(SAVE.set.haptics !== false && typeof Polish !== "undefined") Polish.haptic("wrong");
+    witnessLook(true);
+    /* Every miss teaches: the verdict plus the anchor verse. */
+    const why = $("tf-why");
+    if(why){
+      why.hidden = false;
+      why.innerHTML = '<b>' + (claim.v ? "TRUE" : "FALSE") + '</b> — ' + esc(claim.why);
+    }
+    loseLife(wasRiding ? 2 : 1);
+  }
+}
+
+function illuminateTrueFalse(){
+  if(!R.tf || R.tf.illuminated || R.tf.resolved) return false;
+  const btn = R.tf.claim.v ? $("tf-true") : $("tf-false");
+  if(!btn) return false;
+  R.tf.illuminated = true;
+  btn.classList.add("illum-cue");
+  if(typeof toast === "function") toast("Illuminate — the true judgement is marked");
+  return true;
+}
+
 /* ================= 4. FADE-TO-MEMORY (DISSOLVING ECHO) ================= */
 function renderFadeQuestion(q, dur, scene){
   R.currentMechanic = "fade";
@@ -863,6 +1043,7 @@ function renderQuestion(q, dur){
   if(mechanic === "cloze") return renderClozeQuestion(q, dur, scene);
   if(mechanic === "duel") return renderDuelQuestion(q, dur, scene);
   if(mechanic === "fade") return renderFadeQuestion(q, dur, scene);
+  if(mechanic === "truefalse") return renderTrueFalseQuestion(q, dur, scene);
 
   // blank is a fixed width so the length of the answer is never a clue
   $("verse").innerHTML = highlightVerse(q.p) +
@@ -1218,6 +1399,13 @@ function timeUp(){
   if(R.mode==="blitz"){ presentRunEnd("timeout-death"); return; }
   if(R.passage) return resolvePassage();
   if(R.recon) return resolveRecon();
+  /* A timed-out Judgement is a failed claim, not a missed verse — the
+     slot 6 verse was never asked and must not enter the review queue. */
+  if(R.currentMechanic === "truefalse" && R.tf){
+    stopTimer();
+    resolveTrueFalse(null, null, true);
+    return;
+  }
   /* The 30-second Fade memorization window ends in reconstruction; it is
      not a failed answer and must not consume a lamp.  The mechanic interval
      normally performs this handoff, while this guard covers timer scheduling

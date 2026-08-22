@@ -15,6 +15,7 @@ const SUITE = [
   ["meta climb", "test/meta.test.js"],
   ["quick rewards", "test/rewards.test.js"],
   ["rival race", "test/rival-race.test.js"],
+  ["true/false judgement", "test/truefalse.test.js"],
   ["event flow", "test/flow.test.js"],
   ["srs logic", "test/srs.test.js"],
   ["recall logic", "test/recall.test.js"],

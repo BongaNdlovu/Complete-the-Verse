@@ -608,6 +608,7 @@ function startRun(mode, diffKey, options){
     ghostSamples: [{ t:0, p:0 }],
     rivalRace: null, missStreak:0, nextClockPenalty:0, rivalFog:false,
     rivalSetback:false, rivalMisses:0,
+    tf: null, tfUsed: [],
     lastPickKey: "", lastPickAt: 0,
     quoteShown: false, assemble: null,
     quickRewards: (typeof QuickRewards !== "undefined" && QuickRewards.pick)
@@ -1154,6 +1155,7 @@ function illuminateLabel(){
   if(R.currentMechanic === "strike") return "narrow the zone";
   if(R.currentMechanic === "cloze") return "reveal next word";
   if(R.currentMechanic === "duel") return "reveal KJV cue";
+  if(R.currentMechanic === "truefalse") return "reveal judgement";
   if(R.typed) return "hint";
   return "burn 2 wrong";
 }
@@ -1163,6 +1165,7 @@ function illuminateBlocked(){
   if(R.currentMechanic === "strike") return !!(R.strike && R.strike.illuminated);
   if(R.currentMechanic === "cloze") return !!(R.cloze && R.cloze.filled.length >= R.cloze.words.length);
   if(R.currentMechanic === "duel") return !!(R.duel && R.duel.illuminated);
+  if(R.currentMechanic === "truefalse") return !!(R.tf && R.tf.illuminated);
   if(R.typed) return R.hintLevel >= 3;
   return false;
 }
@@ -1259,6 +1262,8 @@ function usePower(kind){
       handled = illuminateCloze();
     } else if(R.currentMechanic === "duel" && typeof illuminateDuel === "function"){
       handled = illuminateDuel();
+    } else if(R.currentMechanic === "truefalse" && typeof illuminateTrueFalse === "function"){
+      handled = illuminateTrueFalse();
     } else if(R.currentMechanic === "fade" && typeof illuminateAssembly === "function"){
       handled = illuminateAssembly();
     } else if(R.typed){
@@ -1763,6 +1768,18 @@ addEventListener("keydown", e=>{
         const idx = R.assemble.placed.map((p,i)=>p?i:-1).filter(i=>i>=0).pop();
         if(idx>=0){ Assemble.unplace(R.assemble, idx); renderAssembleBank(); }
       }
+      return;
+    }
+  }
+  if(R.currentMechanic === "truefalse"){
+    if(k === "t" || k === "arrowleft" || k === "1"){
+      e.preventDefault();
+      const trueBtn = $("tf-true"); if(trueBtn) trueBtn.click();
+      return;
+    }
+    if(k === "f" || k === "arrowright" || k === "2"){
+      e.preventDefault();
+      const falseBtn = $("tf-false"); if(falseBtn) falseBtn.click();
       return;
     }
   }

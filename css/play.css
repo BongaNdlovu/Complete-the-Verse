@@ -1027,6 +1027,122 @@ body.motion-calm .cine-parallax-img {
   text-transform: uppercase;
 }
 
+/* ---------- THE JUDGEMENT (true / false claim) ---------- */
+.tf-stage {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: clamp(12px, 2vh, 22px);
+  width: min(880px, 92vw);
+  margin-top: clamp(8px, 1.6vh, 20px);
+  z-index: 3;
+}
+.tf-kicker {
+  font-family: var(--disp);
+  font-size: clamp(1rem, 2vw, 1.45rem);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gold-hot);
+  text-shadow: 0 2px 18px rgba(0,0,0,0.8);
+}
+.tf-claim {
+  font-family: var(--body);
+  font-size: clamp(1.25rem, 2.6vw, 2.1rem);
+  line-height: 1.35;
+  text-align: center;
+  color: #f4efe4;
+  text-shadow: 0 3px 40px rgba(0,0,0,.95), 0 0 90px rgba(0,0,0,.7);
+  padding: clamp(.6rem, 1.4vh, 1.2rem) clamp(1rem, 2vw, 1.6rem);
+  background: rgba(7,6,7,.34);
+  border-radius: 4px;
+  max-width: 100%;
+}
+.tf-buttons {
+  display: flex;
+  gap: clamp(14px, 2.4vw, 34px);
+  width: min(640px, 100%);
+}
+.tf-btn {
+  flex: 1 1 0;
+  min-height: clamp(58px, 7.5vh, 84px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .3em;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: clamp(1.05rem, 1.9vw, 1.5rem);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #ffe7b5;
+  background: linear-gradient(180deg,#31353d 0%,#1b1e24 5%,#101318 48%,#0a0c10 96%,#2a2e36 100%);
+  border: 1px solid rgba(200,168,102,.4);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.65) inset, 0 12px 34px -14px #000;
+  cursor: pointer;
+  transition: transform .18s, box-shadow .22s, border-color .22s, filter .22s;
+}
+.tf-btn span {
+  font-family: var(--ui);
+  font-weight: 400;
+  font-size: clamp(.56rem, .85vw, .7rem);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #9d9484;
+}
+.tf-btn:hover {
+  transform: translateY(-2px);
+  color: #fff6e4;
+  box-shadow: 0 0 0 1px rgba(190,160,96,.8) inset, 0 0 0 2px rgba(0,0,0,.85), 0 0 0 3px rgba(190,160,96,.42),
+             0 18px 44px -14px rgba(217,182,103,.45);
+}
+.tf-btn:active { transform: translateY(-1px) scale(.985); transition-duration:.08s; }
+.tf-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--gold-hot) inset, 0 0 30px rgba(217,182,103,.4);
+}
+.tf-true:hover { border-color: rgba(125,255,180,.55); }
+.tf-false:hover { border-color: rgba(255,109,91,.55); }
+.tf-btn.right {
+  color: #d6ffe4;
+  border-color: rgba(125,255,180,.62);
+  background: linear-gradient(180deg,#1c4a2f 0%,#0e2418 50%,#07150c 100%);
+  box-shadow: 0 0 0 2px var(--green) inset, 0 0 36px rgba(95,209,138,.45);
+}
+.tf-btn.bad {
+  color: #ffc9c7;
+  border-color: rgba(255,109,91,.7);
+  background: linear-gradient(180deg,#4a1418 0%,#2a080b 50%,#180507 100%);
+  box-shadow: 0 0 0 2px var(--crimson-hot) inset, 0 0 36px rgba(224,36,44,.5);
+}
+.tf-btn.mute { opacity: .32; filter: saturate(.25); }
+.tf-btn.illum-cue {
+  box-shadow: 0 0 0 2px var(--gold-hot) inset, 0 0 42px rgba(217,182,103,.68);
+}
+.tf-why {
+  font-family: var(--ui);
+  font-size: clamp(.68rem, 1vw, .82rem);
+  letter-spacing: .06em;
+  color: var(--parch-dim);
+  text-align: center;
+  max-width: 56ch;
+  line-height: 1.6;
+  animation: tfWhyIn .5s ease-out both;
+}
+.tf-why b {
+  color: var(--gold-hot);
+  font-family: var(--disp);
+  letter-spacing: .18em;
+  margin-right: .2em;
+}
+@keyframes tfWhyIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+body.reduced .tf-why { animation: none; }
+@media (max-width: 600px) {
+  .tf-buttons { flex-direction: column; }
+  .tf-claim { font-size: clamp(1.05rem, 5.6vw, 1.45rem); }
+}
+
 /* ================= 4. FADE-TO-MEMORY (DISSOLVING ECHO) ================= */
 .fade-countdown-bar {
   font-family: var(--disp);
