@@ -21,6 +21,7 @@ function endRun(reason){
     : (reason === "death" || reason === "abandon") ? "suddenDescent" : "results";
   clearSequence();
   hideSiteQuote();
+  if(typeof stopFriendRacePolling === "function") stopFriendRacePolling();
   document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7","retreat");
   R.setpiece=null;
   const reachedV = (R.mode==="trial" && R.actIdx>=4);
@@ -87,10 +88,13 @@ function endRun(reason){
     if(reason==="complete" && R.relay.current) bankRelaySite(R.relay.current.siteId);
     if(reason==="complete" && !hasSeal("relay")) grantSeal("relay");
   }
-  const road = isPilgrim ? recordSiteResult(siteCleared, total, acc) : null;
-  if(R.rivalSetback){
-    SAVE.life.rivalSetbacks = (SAVE.life.rivalSetbacks||0) + 1;
+  /* Zero-answer quit: quitting or abandoning a site with zero answers does not
+     spend the site's verses in usedIds. */
+  if(isPilgrim && R.attempts === 0 && R.siteCommitted && SAVE.pilgrim && Array.isArray(SAVE.pilgrim.usedIds)){
+    const unspent = R.siteCommitted;
+    SAVE.pilgrim.usedIds = SAVE.pilgrim.usedIds.filter(function(id){ return !unspent[id]; });
   }
+  const road = isPilgrim ? recordSiteResult(siteCleared, total, acc) : null;
   /* First clear opens the next place — remember it for the map ceremony. */
   if(road && road.firstClear && siteCleared){
     const nxt = Pilgrimage.currentSite(SAVE.pilgrim);
@@ -311,18 +315,8 @@ function renderResults(o){
     R.mode==="endless" ? "The gauntlet closed" : "The trial is ended";
   document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
   $("res-rank").textContent = runTitle(o.total);
-  const rivalEl = $("res-rival");
-  if(rivalEl){
-    if(R.rivalSetback){
-      const maskAsset = typeof RIVAL_ASSETS !== "undefined" && RIVAL_ASSETS.threat ? RIVAL_ASSETS.threat : "assets/rival/rival-mask.png";
-      rivalEl.innerHTML = '<img class="res-rival-thumb" src="'+esc(maskAsset)+'" alt="" onerror="this.remove()"><b>Retreat recorded</b><span>The pursuer gained ground. Permanent relics and cleared sites are safe.</span>';
-    } else if(R.rivalRace && R.rivalRace.ghost){
-      rivalEl.innerHTML = "<b>Race logged</b><span>"+esc((R.rivalRace.name||"The Pursuer")+" remains on this route.")+"</span>";
-    } else {
-      rivalEl.innerHTML = "";
-    }
-  }
   $("res-score").textContent = "0";
+  dailyPlacement = null;
 
   $("res-breakdown").innerHTML =
     row("Verses kept", fmt(o.baseScore)) +
@@ -396,7 +390,12 @@ function renderResults(o){
   const m=$("res-missed");
   if(R.missed.length){
     m.innerHTML='<div class="mtitle">Verses that got away — learn these</div>'+
-      R.missed.map(q=>'<div class="mrow"><i>'+esc(q.r)+'</i>'+esc(q.p)+' <em>'+esc(q.a)+'</em>'+sep(q.s)+esc(q.s)+'</div>').join("");
+      R.missed.map(q=>{
+        const note = (typeof VERSE_NOTES !== "undefined" && q.id && VERSE_NOTES[q.id])
+          ? '<div class="res-verse-note">'+esc(VERSE_NOTES[q.id])+'</div>'
+          : '';
+        return '<div class="mrow"><i>'+esc(q.r)+'</i>'+esc(q.p)+' <em>'+esc(q.a)+'</em>'+sep(q.s)+esc(q.s)+note+'</div>';
+      }).join("");
   } else {
     m.innerHTML='<div class="mtitle">Not one verse lost</div><div class="mrow" style="text-align:center">Flawless. Every word held.</div>';
   }
@@ -535,6 +534,45 @@ function countUpScore(total){
     if(k<1) requestAnimationFrame(count);
   })(t0);
 }
+/* ---------- Placement beat ("you placed #N of M") ----------
+   The payoff moment of a competitive run: after the score counts up,
+   the player learns exactly where they landed. Data arrives whenever
+   the network delivers it; the reveal waits for its slot in the
+   sequence so it never steals the count-up's beat. */
+let dailyPlacement = null;
+let lastDailyRank = 0;
+/* The previously recorded rank lives in the save; it is what makes the
+   movement arrow honest ("vs your last daily"). A record stamped TODAY
+   is this very run's result, not a baseline. */
+function loadLastDailyRank(){
+  const rec = (typeof SAVE !== "undefined") && SAVE.lastDaily;
+  if(rec && rec.rank && rec.date && rec.date !== todayKey()) return rec.rank;
+  return 0;
+}
+function ensurePlacementHost(){
+  const board = $("res-board");
+  if(!board || !board.parentNode) return null;
+  let el = $("res-placement");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "res-placement";
+    el.className = "res-placement";
+    board.parentNode.insertBefore(el, board);
+  }
+  return el;
+}
+function renderPlacement(){
+  const el = ensurePlacementHost();
+  if(!el) return;
+  if(dailyPlacement) el.innerHTML = dailyPlacement;
+  else el.classList.remove("on");
+}
+function revealPlacement(){
+  if(currentView !== "results") return;
+  if(!dailyPlacement) return;
+  const el = ensurePlacementHost();
+  if(el){ el.classList.add("on"); Snd.ui(); }
+}
 function presentSeal(s){
   if(!s) return;
   const row = $("res-seals");
@@ -560,6 +598,11 @@ function playResultsSequence(o, seals, autoUnlock){
 
   afterResults(t, function(){ countUpScore(o.total); });
   t += quiet ? 400 : 1400;
+
+  /* The placement reveal rides right behind the count-up: the number
+     lands, then where it put you. */
+  afterResults(t, function(){ revealPlacement(); });
+  t += quiet ? 120 : 500;
 
   afterResults(t, function(){
     const fill = $("xp-fill");
@@ -608,9 +651,19 @@ function reviewableMissed(missed){
   return out;
 }
 function boardRowHtml(r, extra){
-  return '<div class="board-row'+(r.mine?" mine":"")+'">'+
+  /* Top three read as the podium; the player's row carries the movement
+     arrow against their last recorded daily rank. */
+  const cls = "board-row" + (r.mine ? " mine" : "") + (r.rank <= 3 ? " top" : "") +
+    (r.rank === 1 ? " rank-1" : "");
+  let arrow = "";
+  if(r.mine && typeof r.move === "number" && r.move !== 0){
+    arrow = r.move > 0
+      ? ' <i class="board-move-up" title="Up ' + r.move + ' from your last daily">▲</i>'
+      : ' <i class="board-move-down" title="Down ' + (-r.move) + ' from your last daily">▼</i>';
+  }
+  return '<div class="'+cls+'">'+
     '<span class="rk">#'+r.rank+'</span>'+
-    '<span class="nm">'+esc(r.name)+(r.mine?' <i class="you-pill">You</i>':'')+'</span>'+
+    '<span class="nm">'+esc(r.name)+(r.mine?' <i class="you-pill">You</i>':'')+arrow+'</span>'+
     '<b>'+esc(extra || fmt(r.score))+'</b></div>';
 }
 function fillResultsBoard(mode){
@@ -618,6 +671,8 @@ function fillResultsBoard(mode){
   if(!el) return;
   el.innerHTML = "";
   el.style.display = "none";
+  renderPlacement();
+  lastDailyRank = loadLastDailyRank();
   if(typeof Cloud==="undefined" || !Cloud.configured()) return;
   const trustTag = (typeof Cloud!=="undefined" && typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct")
     ? ' <span class="trust-pill">(Honor system)</span>' : '';
@@ -626,15 +681,30 @@ function fillResultsBoard(mode){
     el.innerHTML = '<div class="mtitle">Daily board · '+esc(todayKey())+trustTag+'</div><div class="board-loading">Loading…</div>';
     Promise.all([
       Cloud.fetchDailyBoard(todayKey(), 15),
-      Cloud.isSignedIn() ? Cloud.fetchMyDailyRank(todayKey()) : Promise.resolve(null)
-    ]).then(([rows, mine])=>{
+      Cloud.isSignedIn() ? Cloud.fetchMyDailyRank(todayKey()) : Promise.resolve(null),
+      (typeof Cloud.fetchDailyEntryCount === "function") ? Cloud.fetchDailyEntryCount(todayKey()) : Promise.resolve(0)
+    ]).then(([rows, mine, entryCount])=>{
       if(!rows.length){
         el.innerHTML = '<div class="mtitle">Daily board · '+esc(todayKey())+trustTag+'</div>'+
           '<div class="empty">No scores yet today. Be the first — finish a Daily Trial while signed in.</div>';
         return;
       }
+      /* Placement data for the results beat, and this run's rank becomes
+         tomorrow's movement baseline. */
+      const mineRow = rows.find(r=>r.mine);
+      const myRank = (mineRow && mineRow.rank) || (mine && mine.rank) || null;
+      if(myRank && entryCount){
+        dailyPlacement = '<div class="place-line"><b>#'+myRank+'</b><span> of '+fmt(entryCount)+
+          ' today</span><i>The daily reading</i></div>';
+        SAVE.lastDaily = { date: todayKey(), rank: myRank };
+        if(typeof persist === "function") persist();
+      }
+      renderPlacement();
       let html = '<div class="mtitle">Daily board · '+esc(todayKey())+trustTag+'</div>'+
-        rows.map(r=>boardRowHtml(r, fmt(r.score)+(r.accuracy!=null?' · '+Math.round(r.accuracy)+'%':''))).join("");
+        rows.map(r=>{
+          if(r.mine && typeof r.rank === "number") r.move = lastDailyRank - r.rank;
+          return boardRowHtml(r, fmt(r.score)+(r.accuracy!=null?' · '+Math.round(r.accuracy)+'%':''));
+        }).join("");
       if(mine && !rows.some(r=>r.mine)){
         html += '<div class="board-you-sep">Your rank</div>'+boardRowHtml(mine, fmt(mine.score));
       }

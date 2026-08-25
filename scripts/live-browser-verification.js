@@ -259,10 +259,10 @@ async function runLiveVerification() {
     console.log("  -> Testing Verse 6 (Fade-to-Memory)");
     check("Current mechanic is Fade-to-Memory", await client.eval("R.currentMechanic === 'fade'"));
     const fadeBarText = await client.eval(`$("fade-bar") ? $("fade-bar").textContent : ""`);
-    // FADE_MEMORY_MS = 30000 since commit 2c4007a (matches the
-    // "memorize ... for thirty seconds" voice line). Accept the first
-    // rendered second of that window.
-    check("Fade bar starts with 30s countdown", fadeBarText.includes("30s") || fadeBarText.includes("29s"), `bar: "${fadeBarText}"`);
+    // FADE_MEMORY_MS = 60000 (doubled from the original 30000 of commit
+    // 2c4007a — see js/play.js). Accept the first rendered second of
+    // that window.
+    check("Fade bar starts with 60s countdown", fadeBarText.includes("60s") || fadeBarText.includes("59s"), `bar: "${fadeBarText}"`);
     await client.captureScreenshot("09_play_verse6_fade_7s.png");
     await client.eval(`nextQuestion();`);
     await sleep(200);
@@ -293,37 +293,37 @@ async function runLiveVerification() {
     check("Tutorial Lesson 1 is Recognition", await client.eval("R.tutorial.index === 0"));
     await client.captureScreenshot("11_onboarding_lesson1_choice.png");
     await client.eval(`resolveAnswer(R.q, R.q.a, null, 800, 20000);`);
-    await sleep(1400);
+    await sleep(2900);
 
     // Lesson 2: Strike
     check("Tutorial Lesson 2 is Falsehood Strike", await client.eval("R.tutorial.index === 1 && R.currentMechanic === 'strike'"));
     await client.captureScreenshot("12_onboarding_lesson2_strike.png");
     await client.eval(`resolveAnswer(R.q, R.q.a, null, 800, 20000);`);
-    await sleep(1400);
+    await sleep(2900);
 
     // Lesson 3: Cloze
     check("Tutorial Lesson 3 is Scribe Cloze", await client.eval("R.tutorial.index === 2 && R.currentMechanic === 'cloze'"));
     await client.captureScreenshot("13_onboarding_lesson3_cloze.png");
     await client.eval(`resolveAnswer(R.q, R.q.a, null, 800, 20000);`);
-    await sleep(1400);
+    await sleep(2900);
 
     // Lesson 4: Duel
     check("Tutorial Lesson 4 is Scripture Duel", await client.eval("R.tutorial.index === 3 && R.currentMechanic === 'duel'"));
     await client.captureScreenshot("14_onboarding_lesson4_duel.png");
     await client.eval(`resolveAnswer(R.q, R.q.a, null, 800, 20000);`);
-    await sleep(1400);
+    await sleep(2900);
 
     // Lesson 5: Fade
     check("Tutorial Lesson 5 is Fade-to-Memory", await client.eval("R.tutorial.index === 4 && R.currentMechanic === 'fade'"));
     await client.captureScreenshot("15_onboarding_lesson5_fade.png");
     await client.eval(`resolveAnswer(R.q, R.q.a, null, 800, 20000);`);
-    await sleep(1400);
+    await sleep(2900);
 
     // Lesson 6: Assembled Recall
     check("Tutorial Lesson 6 is Assembled Recall", await client.eval("R.tutorial.index === 5 && R.typed === true"));
     await client.captureScreenshot("16_onboarding_lesson6_assemble.png");
     await client.eval(`resolveAnswer(R.q, R.q.a, null, 800, 20000);`);
-    await sleep(1400);
+    await sleep(2900);
 
     // Verify Completion & Menu
     check("Tutorial finished and returned to menu", await client.eval("currentView === 'menu' && SAVE.set.tutorialDone === true"));

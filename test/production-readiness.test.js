@@ -19,6 +19,7 @@ const edge = read("supabase/functions/submit-score/index.ts");
 const migration = read("supabase/migrations/004_leaderboard_moderation.sql");
 const ops = read("docs/LEADERBOARD-OPERATIONS.md");
 const optimizer = read("scripts/optimise-media.py");
+const sw = read("sw.js");
 
 const failures = [];
 function assert(condition, message) {
@@ -72,41 +73,19 @@ assert(director.includes('"lesson five memorize the whole verse for thirty secon
 assert(read("js/play.js").includes('Snd.ambience("indigo")'),
   "tutorial selects the supplied Indigo bed");
 
-/* Rival races are visible in the two recommended competitive modes and
-   preserve a recoverable local fallback when the cloud is empty. */
-assert(/id="rival-hud"[^>]*role="status"/.test(index) && /function initRivalRace\(/.test(game) &&
-  /function updateRivalRace\(/.test(game), "visible rival HUD is wired as an accessible status region");
+/* Top HUD visual hierarchy and clean pursuer-free state. */
+assert(!/id="rival-hud"/.test(index), "rival-hud is completely removed from index.html");
 assert(/class="play-top-stack"/.test(index) &&
-  /<div class="play-top-stack">[\s\S]*?id="act-track"[\s\S]*?id="quick-rewards"[\s\S]*?id="rival-hud"[\s\S]*?<\/div>/.test(index),
-  "top HUD elements are organized inside .play-top-stack");
-assert(/\.rival-hud\s*\{[^}]*position:\s*relative/.test(gameCss) &&
-  !/\.rival-hud\s*\{[^}]*position:\s*absolute/.test(gameCss) &&
-  !/\.play-top-stack\s*\{[^}]*position:\s*absolute/.test(gameCss),
-  "rival HUD occupies an in-flow slot inside .play-top-stack and cannot cover the question");
-assert(/mode === "trial"/.test(game) && /mode === "pilgrimage"/.test(game) &&
-  /pilgrimageBySite/.test(game), "rival scope is trial plus site-specific pilgrimage");
-assert(/fetchGhosts\(rivalCloudMode\(\), rivalRunKey\(\)/.test(game),
-  "rival HUD consumes cloud ghosts when available");
+  /<div class="play-top-stack">[\s\S]*?id="act-track"[\s\S]*?id="quick-rewards"[\s\S]*?<\/div>/.test(index),
+  "top HUD elements are cleanly organized inside .play-top-stack");
+assert(!/\.play-top-stack\s*\{[^}]*position:\s*absolute/.test(gameCss),
+  "top HUD stack occupies an in-flow slot and cannot cover the question");
 
 /* Readability layer and visual hierarchy contracts. */
 assert(/\.stage:?:before\s*\{[\s\S]*?z-index:\s*1/.test(playCss), "readability veil on .stage::before has z-index 1");
 assert(/\.question-content\s*\{[^}]*z-index:\s*3/.test(playCss), "question content has z-index 3 above veil");
 assert(/\.play-top-stack\s*\{[^}]*z-index:\s*5/.test(gameCss), "top HUD stack has z-index 5 above question content");
 assert(/#backdrop\s*\{[\s\S]*?opacity:\s*\.32/.test(playCss), "backdrop opacity is reduced for contrast");
-
-/* Rival image assets and fallback contracts. */
-const rivalAssets = [
-  "assets/rival/shadow-pursuer.png",
-  "assets/rival/previous-pilgrim.png",
-  "assets/rival/rival-mask.png"
-];
-rivalAssets.forEach((rel) => {
-  const abs = path.join(ROOT, rel);
-  assert(fs.existsSync(abs) && fs.statSync(abs).size > 1000, "rival asset exists and is non-empty: " + rel);
-  assert(game.includes(rel), "rival asset path is referenced by runtime code: " + rel);
-});
-assert(/<span>◈<\/span>/.test(game) && /\.rival-figure span/.test(gameCss),
-  "CSS glyph fallback marker is preserved under the image");
 
 /* Spoken content remains readable when audio is muted, blocked or unavailable. */
 assert(/id="voice-caption"[^>]*role="status"[^>]*aria-live="polite"/.test(index),
@@ -134,6 +113,20 @@ assert(/board-loading/.test(panels) && /Could not reach the board/.test(panels),
   "leaderboard loading and error states are represented");
 assert(/onSync/ .test(cloud) && /Syncing/.test(read("js/briefs.js")) && /Sync error/.test(read("js/briefs.js")),
   "cloud syncing and error status are surfaced");
+
+/* PWA service worker and offline capability contracts. */
+assert(/navigator\.serviceWorker\.register\(['"]\.\/sw\.js['"]\)/.test(index),
+  "service worker registration is wired in index.html");
+assert(/const CACHE_NAME =/.test(sw) && /CACHE_VERSION/.test(sw),
+  "service worker defines a version-stamped cache name");
+assert(/request\.mode === "navigate"/.test(sw) && /fetch\(request\)/.test(sw),
+  "service worker implements network-first strategy for navigation / HTML shell");
+assert(/!path\.includes\("audio\/"\)/.test(sw) && /!path\.endsWith\("\.mp3"\)/.test(sw),
+  "audio is explicitly excluded from precaching");
+assert(/MAX_AUDIO_ENTRIES\s*=\s*25/.test(sw) && /trimCache/.test(sw),
+  "audio runtime caching is bounded with an LRU cap of 25 entries");
+assert(/self\.skipWaiting\(\)/.test(sw) && /self\.clients\.claim\(\)/.test(sw),
+  "service worker uses skipWaiting and clients.claim for clean lifecycle activation");
 
 /* Media is lazy by default and voice/audio does not eagerly download every bed. */
 assert(/preload="none"/.test(index) && /poster="assets\/intro\.jpg"/.test(index),
@@ -164,6 +157,35 @@ assert(/reportScore/.test(cloud) && /data-report-score/.test(panels),
   "players can report a suspicious public score");
 assert(/monitoring/i.test(ops) && /moderation/i.test(ops) && /recovery/i.test(ops),
   "leaderboard operations include monitoring, moderation and recovery");
+
+/* Learning Loop & Context Notes contracts. */
+const { loadBank } = require("../scripts/load-bank");
+const { VERSES, verseId } = loadBank();
+const bankById = {};
+VERSES.forEach(v => { bankById[verseId(v)] = v; });
+
+const { VERSE_NOTES } = require("../js/verses-notes");
+assert(typeof VERSE_NOTES === "object" && Object.keys(VERSE_NOTES).length >= 100,
+  "verse context notes catalog launches with at least 100 notes (got " + Object.keys(VERSE_NOTES).length + ")");
+
+const noteKeys = Object.keys(VERSE_NOTES);
+const allNotesValid = noteKeys.every(k => !!bankById[k]);
+assert(allNotesValid, "every verse note key resolves to a valid verse in the bank");
+
+assert(/<script src="js\/verses-notes\.js"><\/script>/.test(index),
+  "verses-notes.js is loaded in index.html");
+assert(/res-verse-note/.test(results) && /VERSE_NOTES\[q\.id\]/.test(results),
+  "verse context notes are surfaced on results resolution lines");
+assert(/vcard-note/.test(panels) && /VERSE_NOTES\[v\.id\]/.test(panels),
+  "verse context notes are surfaced in Study Hall cards");
+
+/* Thin places & Listen-and-rebuild study action contracts. */
+assert(/id="thin-places"/.test(index) && /drawThinPlaces/.test(panels),
+  "thin places section is wired in Study Hall and index.html");
+assert(/SAVE\.books/.test(panels) && /data-practice-book/.test(panels),
+  "thin places renders from SAVE.books and provides practice action");
+assert(/'speechSynthesis'\s*in\s*window/.test(panels) && /SpeechSynthesisUtterance/.test(panels),
+  "Listen & Rebuild study action is guarded by speechSynthesis feature detection");
 
 if (failures.length) {
   console.error("FAIL (" + failures.length + ")");

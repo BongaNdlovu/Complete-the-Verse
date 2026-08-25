@@ -10,8 +10,7 @@ const DEFAULT_SAVE = {
   seals:[],
   life:{correct:0, attempts:0, bestStreak:0, sdBest:0, endlessBest:0, dailyDone:0, perfectActs:0,
         typedExact:0, typedAttempts:0, reviewsDone:0, sitesCleared:0, arcsCleared:0, blitzBest:0,
-        oilSpent:0, oilEarned:0, quickRewards:0, quickRewardXP:0, quickRewardOil:0, illumRewards:0,
-        rivalSetbacks:0},
+        oilSpent:0, oilEarned:0, quickRewards:0, quickRewardXP:0, quickRewardOil:0, illumRewards:0},
   books:{}, verse:{}, srs:{}, board:[], journal:[],
   ghosts:{pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null},
   daily:{date:"", score:0},
@@ -488,12 +487,19 @@ function drawReviewVerse(){
 function buildDailyList(){
   const rnd = mulberry32(seedFromString("ctv-"+todayKey()));
   const pattern = [1,1,2,2,2,3,3,3,3,3,4,4,4,4,5,5,5,5,5,5];
+  /* Late-day mechanic beats give the fixed draw its difficulty curve —
+     and the weighted board something real to reward. Positions are fixed
+     so every player faces the identical sequence of mechanics. */
+  const MECHANIC_SLOTS = {4:"duel", 9:"cloze", 13:"strike", 16:"typed", 19:"fade"};
   const used = new Set(), out = [];
-  pattern.forEach(t=>{
+  pattern.forEach((t,i)=>{
     let pool = poolSansRepeatRefs(BY_TIER[t].filter(v=>!used.has(v.id)));
     if(!pool.length) pool = BY_TIER[t].slice();
     const v = pool[Math.floor(rnd()*pool.length)];
-    used.add(v.id); R.usedRefs.add(refKey(v)); out.push({v:v, rnd:rnd});
+    used.add(v.id); R.usedRefs.add(refKey(v));
+    const mech = MECHANIC_SLOTS[i];
+    /* Clone before stamping so the bank's verse objects stay pristine. */
+    out.push({v: mech ? Object.assign({}, v, mech==="typed" ? {typed:true} : {mechanic:mech}) : v, rnd:rnd});
   });
   return {list:out, rnd:rnd};
 }
@@ -606,8 +612,7 @@ function startRun(mode, diffKey, options){
     relay: relay,
     blitzEnd: mode==="blitz" ? performance.now() + blitzMs : 0,
     ghostSamples: [{ t:0, p:0 }],
-    rivalRace: null, missStreak:0, nextClockPenalty:0, rivalFog:false,
-    rivalSetback:false, rivalMisses:0,
+    missStreak:0,
     tf: null, tfUsed: [],
     lastPickKey: "", lastPickAt: 0,
     quoteShown: false, assemble: null,
@@ -616,7 +621,7 @@ function startRun(mode, diffKey, options){
     quickRewardAnnounced: new Set(), quickResult: null,
     reservedIlluminate: reservedIlluminate
   });
-  initRivalRace();
+  if(R.friendRoom) startFriendRacePolling(R.friendRoom);
   document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4","blitz-edge","blitz-edge-2","blitz-edge-3");
   if(mode==="daily") R.daily = buildDailyList();
   renderLives();
@@ -823,159 +828,46 @@ function witnessLook(down){
   const el = $("witness");
   if(el) el.classList.toggle("look", !!down);
 }
-/* Full-screen judge burst — same sprite-sheet steps() as the map walker.
-   Plays once, never takes hits, skipped under reduced motion. */
-/* ------------------------- RIVAL RACE -------------------------
-   A rival is presentation plus pressure, never a hidden score modifier.
-   The local previous run appears immediately; a public cloud ghost replaces
-   it when one is available. Pilgrimage races are site-specific so a Ur run
-   is never compared with a late-road sprint. */
-const RIVAL_ASSETS = Object.freeze({
-  pursuer: "assets/rival/shadow-pursuer.png",
-  pilgrim: "assets/rival/previous-pilgrim.png",
-  threat: "assets/rival/rival-mask.png"
-});
+/* ------------------------- FRIEND RACE POLLING ------------------------- */
+let friendRacePollTimer = null;
+let friendRaceInFlight = false;
 
-function rivalAssetPath(source, misses) {
-  if (Number(misses) >= 2) return RIVAL_ASSETS.threat;
-  return source === "pursuer" ? RIVAL_ASSETS.pursuer : RIVAL_ASSETS.pilgrim;
+function startFriendRacePolling(roomCode){
+  stopFriendRacePolling();
+  if(!roomCode) return;
+  const POLL_INTERVAL_MS = 3000;
+  const poll = async function(){
+    if(friendRaceInFlight || !R || !R.running || R.ended) return;
+    friendRaceInFlight = true;
+    try {
+      if(typeof Cloud !== "undefined" && Cloud.upsertLiveRaceState){
+        await Cloud.upsertLiveRaceState(roomCode, {
+          score: R.score || 0,
+          timeline: { version: 1, samples: R.ghostSamples || [] },
+          display_name: (SAVE.profile && SAVE.profile.name) || "Friend",
+          question_index: R.qTotal || 0,
+          accuracy: R.attempts ? Math.round(R.correct / R.attempts * 100) : 100
+        });
+      }
+      if(typeof Cloud !== "undefined" && Cloud.fetchLiveRaceGhosts){
+        await Cloud.fetchLiveRaceGhosts(roomCode);
+      }
+    } catch(err){
+      // Graceful offline fallback
+    } finally {
+      friendRaceInFlight = false;
+    }
+  };
+  poll();
+  friendRacePollTimer = setInterval(poll, POLL_INTERVAL_MS);
 }
 
-function rivalRaceMode(){
-  return !!R && (R.mode === "pilgrimage" || R.mode === "pilgrim-recall" || R.mode === "trial");
-}
-function rivalRunKey(){
-  if(R.mode === "trial") return "campaign";
-  return R.siteId ? "site:" + R.siteId : "road";
-}
-function rivalCloudMode(){ return R.mode === "trial" ? "trial" : "pilgrimage"; }
-function rivalSamples(ghost){
-  if(!ghost) return [];
-  return (ghost.timeline && ghost.timeline.samples) || ghost.samples || [];
-}
-function localRivalGhost(){
-  if(!SAVE || !SAVE.ghosts) return null;
-  if(R.mode === "trial") return SAVE.ghosts.trial || null;
-  const bySite = SAVE.ghosts.pilgrimageBySite || {};
-  return bySite[R.siteId] || SAVE.ghosts.pilgrimage || null;
-}
-function syntheticRivalGhost(){
-  /* A new player still gets a readable opponent. The pursuer is a pacing
-     baseline, replaced by a local or cloud previous run as soon as one is
-     available; it never changes score or answer grading. */
-  const questions = R.mode === "trial"
-    ? trialActs().reduce(function(n, a){ return n + (a.q === Infinity ? 8 : a.q); }, 0)
-    : Math.max(1, R.siteVerses ? R.siteVerses.length : 8);
-  const horizon = Math.max(90000, questions * 11000);
-  return {name:"The Pursuer", best_score:0, timeline:{version:1, samples:[
-    {t:0,p:0}, {t:Math.round(horizon*.24),p:.18}, {t:Math.round(horizon*.48),p:.43},
-    {t:Math.round(horizon*.72),p:.70}, {t:horizon,p:1}
-  ]}};
-}
-function setRivalGhost(ghost, source){
-  if(!R.rivalRace) R.rivalRace = {misses:0, surge:0, reaction:""};
-  R.rivalRace.ghost = ghost || null;
-  R.rivalRace.source = source || "local";
-  R.rivalRace.name = ghost && ghost.name
-    ? ghost.name : source === "cloud" ? "Previous pilgrim" : "Your previous run";
-  updateRivalRace();
-}
-function initRivalRace(){
-  const host = $("rival-hud");
-  if(!rivalRaceMode()){
-    if(host) host.hidden = true;
-    R.rivalRace = null;
-    return;
+function stopFriendRacePolling(){
+  if(friendRacePollTimer){
+    clearInterval(friendRacePollTimer);
+    friendRacePollTimer = null;
   }
-  R.rivalRace = {ghost:null, source:"local", name:"Your previous run", misses:0, surge:0, reaction:"", reactionUntil:0};
-  const local = localRivalGhost();
-  if(local && rivalSamples(local).length) setRivalGhost(local, "local");
-  else setRivalGhost(syntheticRivalGhost(), "pursuer");
-  if(typeof Cloud !== "undefined" && Cloud.configured && Cloud.configured() && Cloud.fetchGhosts){
-    const raceToken = R.runToken;
-    Cloud.fetchGhosts(rivalCloudMode(), rivalRunKey(), 5).then(function(rows){
-      /* A newer run may have started while the request was in flight —
-         a stale ghost must never land in the new run's race. */
-      if(R.runToken !== raceToken) return;
-      const others = (rows || []).filter(function(g){ return !g.mine && rivalSamples(g).length; });
-      if(others.length) setRivalGhost(others[0], "cloud");
-    }).catch(function(){});
-  }
-}
-function rivalPlayerProgress(){
-  if(R.mode === "trial"){
-    const total = trialActs().reduce(function(n, a){ return n + (a.q === Infinity ? 8 : a.q); }, 0) || 1;
-    return Math.min(1, (R.qTotal || 0) / total);
-  }
-  const n = R.siteVerses ? R.siteVerses.length : 1;
-  return Math.min(1, (R.siteIdx || 0) / n);
-}
-function rivalReact(kind){
-  if(!rivalRaceMode() || !R.rivalRace) return;
-  const race = R.rivalRace;
-  if(kind === "miss"){
-    race.misses = (race.misses || 0) + 1;
-    race.surge = Math.min(.22, (race.surge || 0) + .055);
-    /* Surge is temporary pressure: without a deadline it would stick to
-       the rival for the rest of the run. It bleeds off after 12 calm
-       seconds and is wiped entirely by a correct answer. */
-    race.surgeUntil = Date.now() + 12000;
-    race.reaction = race.misses >= 3 ? "Retreat — the pursuer gains ground" : "The pursuer advances";
-    race.reactionUntil = Date.now() + 2600;
-  }else if(kind === "correct"){
-    race.misses = 0;
-    race.surge = 0;
-    race.surgeUntil = 0;
-    race.reaction = "You hold the line";
-    race.reactionUntil = Date.now() + 1200;
-  }else if(kind === "low"){
-    race.reaction = "Closing fast — keep moving";
-    race.reactionUntil = Date.now() + 1400;
-  }
-  updateRivalRace();
-}
-/* The rival's retreat state owns body class "retreat" (not Director's
-   "pressure-N" clock classes) so the two systems never wipe each other. */
-function setRivalRetreat(on){
-  document.body.classList.toggle("retreat", !!on);
-  if(on) document.body.classList.remove("pressure-3");
-}
-function updateRivalRace(){
-  const host = $("rival-hud");
-  if(!host || !rivalRaceMode() || !R.rivalRace || !R.rivalRace.ghost || !rivalSamples(R.rivalRace.ghost).length){
-    if(host) host.hidden = true;
-    return;
-  }
-  const race = R.rivalRace;
-  const now = Date.now();
-  const elapsed = Math.max(0, now - (R.startedAt || now));
-  const base = typeof Polish !== "undefined" && Polish.sampleGhost
-    ? Polish.sampleGhost(rivalSamples(race.ghost), elapsed) : 0;
-  if(now > (race.reactionUntil || 0)) race.reaction = "";
-  if(now > (race.surgeUntil || 0)) race.surge = Math.max(0, (race.surge || 0) * .985);
-  const rival = Math.min(1, Math.max(0, base + (race.surge || 0)));
-  const player = Math.min(1, Math.max(0, rivalPlayerProgress()));
-  const left = R.lastTickSec >= 0 ? R.lastTickSec : 99;
-  const retreat = document.body.classList.contains("retreat");
-  const close = !retreat && rival - player > .10;
-  const urgent = !retreat && left <= 5;
-  host.hidden = false;
-  host.classList.toggle("rival-close", close);
-  host.classList.toggle("rival-urgent", urgent);
-  const status = race.reaction || (urgent ? "Closing fast — keep moving" : close ? "Ahead of you" : player-rival > .10 ? "You are pulling ahead" : "At your heels");
-  const misses = (race.misses != null ? race.misses : R.missStreak) || 0;
-  const asset = rivalAssetPath(race.source, misses);
-  /* The track bars animate via CSS transitions, so only rebuild the DOM
-     when something actually changed — a per-frame innerHTML write would
-     restart the <img> request and kill the bar animations. */
-  const html = '<div class="rival-figure" aria-hidden="true"><span>◈</span><img src="'+esc(asset)+'" alt="" onerror="this.remove()"></div>'+
-    '<div class="rival-copy"><div class="rival-top"><b>'+esc(race.name || "Previous pilgrim")+'</b><span>'+esc(status)+'</span></div>'+
-    '<div class="rival-track" aria-hidden="true"><i style="width:'+(player*100).toFixed(1)+'%"></i><em style="left:'+(rival*100).toFixed(1)+'%"></em></div></div>'+
-    '<span class="sr-only">Rival progress '+Math.round(rival*100)+' percent. Your progress '+Math.round(player*100)+' percent.</span>';
-  if(race.renderedHTML !== html){
-    race.renderedHTML = html;
-    host.innerHTML = html;
-  }
+  friendRaceInFlight = false;
 }
 function showJudgeBurst(kind){
   const el = $("judge-burst");
@@ -1044,7 +936,6 @@ function updateChips(){
   $("hud-accuracy").textContent = R.attempts ? Math.round(R.correct/R.attempts*100)+"%" : "—";
   updateActTrack();
   updateCandle();
-  updateRivalRace();
 }
 
 function updateActTrack(){
@@ -1240,7 +1131,7 @@ function usePower(kind){
   if(!armed) return;
   if(SetPieces.noPowers()){ toast("Lifelines are offline for this sequence"); return; }
   if(R.currentMechanic === "fade" && R.fadePhase === "memorize" && (kind === "selah" || kind === "illum")){
-    toast("Powers become available after the 30-second memory phase");
+    toast("Powers become available after the memory phase");
     return;
   }
   if(kind==="selah" && R.powers.selah){
@@ -1252,7 +1143,7 @@ function usePower(kind){
   } else if(kind==="illum" && R.powers.illum){
     if(!R.q){ toast("Illuminate needs a verse on the stage"); return; }
     if(R.currentMechanic === "fade" && R.fadePhase === "memorize"){
-      toast("Illuminate becomes available after the 30-second memory phase");
+      toast("Illuminate becomes available after the memory phase");
       return;
     }
     let handled = false;
@@ -1329,11 +1220,13 @@ function overdriveReward(){
   else { Director.callout("Overdrive — the meter is full"); }
   renderPowers();
 }
-/* Correct answers chain fast; wrong answers keep the long pause so the
-   miss can teach. The hotter the streak, the tighter the snap. */
+/* Correct answers chain at a readable pace — the old 650/800ms snap was
+   too quick to register the previous verdict, so every chain beat now
+   holds a full 1.5s. Wrong answers still keep the longer JUDGE_MS teach
+   pause; the hotter the streak, the tighter the snap. */
 function correctAdvance(){
   if(SetPieces.autoLock()) return 720;
-  return (R.streak >= MOMENTUM_STEPS[2]) ? 650 : 800;
+  return (R.streak >= MOMENTUM_STEPS[2]) ? 1400 : 1500;
 }
 
 /* The Overdrive moment. Reaching the top of the momentum meter used to

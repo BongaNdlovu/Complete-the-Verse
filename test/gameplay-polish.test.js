@@ -112,6 +112,19 @@ assert(/function confirmTyped/.test(game), "Lock still confirms an assembled phr
 assert(/Drag or tap the words/.test(game) || /Place the missing words/.test(game),
   "the player is told to place words, not type them");
 assert(/\.asm-tile/.test(gameCss) && /\.asm-slot/.test(gameCss), "assemble tiles are styled");
+/* lift & commit: taps and keys share one resolver; bank cards dropped onto
+   occupied slots REPLACE; keyboard gets arrows + Enter parity */
+assert(/Assemble\.resolveTap\(state, target\)/.test(game), "taps and keys resolve through Assemble.resolveTap");
+assert(/sourceSlot < 0 && state\.placed\[destSlot\]/.test(game), "a bank card dropped on an occupied slot replaces it");
+assert(/function renderAssembleBoardState/.test(game) && /\.asm-tile\.lifted/.test(gameCss),
+  "the lifted card renders as in-hand across every input path");
+assert(/ArrowRight/.test(game) && /ArrowLeft/.test(game), "arrows move focus for keyboard-only reordering");
+/* reflow glides instead of snapping (FLIP); calm mode opts out */
+assert(/function captureBoardRects/.test(game) && /function playBoardFlip/.test(game) &&
+  /230, easing/.test(game), "card reflow glides ~230ms via FLIP, not an innerHTML snap");
+assert(/120, easing/.test(game), "a placed card settles under the hand (~120ms)");
+assert(/function playBoardFlip[\s\S]{0,240}contains\("reduced"\)/.test(game),
+  "calm/reduced mode skips the reflow glide");
 
 /* --- cinematic drift (visual only) --- */
 assert(/ans-float/.test(game) && /ans-float/.test(gameCss), "choice text floats inside a still hit box");

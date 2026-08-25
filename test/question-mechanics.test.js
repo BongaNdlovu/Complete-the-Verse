@@ -83,15 +83,34 @@ run("Object.assign(R,{q:__question,locked:false,running:true,paused:false,sceneT
 run("renderFadeQuestion(__question,10000,12)");
 const initialFadeText = read("$(\"verse\").innerHTML.replace(/<[^>]+>/g,'')");
 assert("fade initially shows the complete verse", initialFadeText.includes(fade.p) && initialFadeText.includes(fade.a) && initialFadeText.includes(fade.s));
-assert("fade starts with a 30-second memorization phase", read("R.fadePhase === 'memorize' && $(\"fade-bar\").textContent.includes('30s') && R.tTotal === 30000"));
+assert("fade starts with a 60-second memorization phase", read("R.fadePhase === 'memorize' && $(\"fade-bar\").textContent.includes('60s') && R.tTotal === 60000"));
 assert("fade keeps options hidden during memorization", read("$(\"opts\").style.opacity === '0' && $(\"opts\").style.pointerEvents === 'none'"));
-if(fadeCallback) for(let i=0;i<30;i++) fadeCallback();
+/* The I'm Done shortcut: one click ends the memorization window early
+   and lands in the very same dissolve the full minute would reach. */
+assert("fade offers an I'm Done shortcut while memorizing",
+  read("!!document.getElementById('fade-done') && (document.getElementById('fade-done').textContent||'').indexOf('Done') >= 0"));
+run("document.getElementById('fade-done').click()");
+assert("I'm Done skips the rest of the memorization minute",
+  read("R.fadePhase === 'dissolve'") && clearedFade);
 assert("fade holds the answer during the dissolve", read("$(\"blank\").classList.contains('fade-dissolve')"));
 if(fadeTimers[0]) fadeTimers.shift()();
 assert("fade enters full-verse reconstruction", read("R.fadePhase === 'reconstruct' && R.typed === true && R.fadeAssembly.target === 'And the earth was without form and void.'"));
 assert("fade creates one slot for every verse word", read("R.assemble.target.length === 8 && R.assemble.placed.length === 8 && R.assemble.bank.length === 8"));
 run("R.powers={selah:1,illum:1,wind:0}; usePower('illum')");
 assert("Illuminate reveals the next Fade word", read("R.fadeAssembly.hintIndex === 0 && R.powers.illum === 0"));
+
+/* Mastery pays: resolving the Fade reconstruction correctly grants an
+   Illuminate card immediately, on top of every other reward. Swap in
+   the fresh power hand BEFORE reading the baseline, so the counters
+   describe the same object resolveAnswer mutates (deltas, because
+   earlier suites in this file already advanced them). */
+run("Object.assign(R,{powers:{selah:1,illum:1,wind:0},locked:false})");
+const preGrant = read("({illum:R.powers.illum||0, correct:R.correct, attempts:R.attempts})");
+run("resolveAnswer(__question, 'And the earth was without form and void.', null, 500, 80000)");
+assert("correct Fade reconstruction earns an Illuminate card",
+  read("({i:(R.powers.illum||0), c:R.correct, a:R.attempts})").i === preGrant.illum + 1 &&
+  read("R.correct") === preGrant.correct + 1 &&
+  read("R.attempts") === preGrant.attempts + 1);
 
 const cloze = {id:"mechanic-cloze",b:"Genesis",r:"Genesis 1:3",t:1,
   p:"And God said",a:"Let there be light",s:".",d:["Let the earth be still"]};
@@ -118,7 +137,7 @@ fadeHandle = 92;
 run("Object.assign(R,{q:__question,locked:false,running:true,paused:false,sceneToken:13,runToken:3})");
 run("renderFadeQuestion(__question,10000,13)");
 run("invalidateRun()");
-if(fadeCallback) for(let i=0;i<30;i++) fadeCallback();
+if(fadeCallback) for(let i=0;i<60;i++) fadeCallback();
 assert("fade interval is cleared when the run is invalidated", clearedFade);
 assert("stale fade callback cannot restore answer controls", read("$(\"opts\").style.opacity === '0' && $(\"opts\").style.pointerEvents === 'none'"));
 

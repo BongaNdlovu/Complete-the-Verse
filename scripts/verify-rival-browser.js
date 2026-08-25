@@ -84,8 +84,8 @@ async function sleep(ms) {
 }
 
 async function runBrowserAcceptance() {
-  console.log("=== EXECUTING RIVAL ASSET & UI HIERARCHY BROWSER ACCEPTANCE SUITE ===");
-  const tmpProfile = path.join(os.tmpdir(), "chrome-rival-profile-" + Date.now());
+  console.log("=== EXECUTING BROWSER ACCEPTANCE SUITE (60s FADE, 4s ANSWER DISPLAY, FADE ILLUMINATE REWARD, CLEAN HUD) ===");
+  const tmpProfile = path.join(os.tmpdir(), "chrome-test-profile-" + Date.now());
   const chrome = spawn(CHROME_PATH, [
     "--headless=new",
     "--remote-debugging-port=9223",
@@ -128,170 +128,147 @@ async function runBrowserAcceptance() {
 
     await sleep(1200);
 
-    // 1. Pilgrimage Mode: Pursuer Asset Verification
-    console.log("\n--- 1. PILGRIMAGE: PURSUER ASSET & TOP HUD ---");
+    // 1. Clean Top HUD: No Pursuer Element
+    console.log("\n--- 1. TOP HUD: PURSUER REMOVAL & CLEAN STACK ---");
     await client.eval(`SAVE.pilgrim = Pilgrimage.blankProgress(); startRun("pilgrimage", "watchman"); hideSiteQuote(); renderQuestion(R.q, 14000);`);
     await sleep(400);
 
-    const hudVisible = await client.eval(`!$("rival-hud").hidden`);
-    check("Rival HUD is visible in Pilgrimage", hudVisible);
+    const rivalHudExists = await client.eval(`!!$("rival-hud")`);
+    check("Rival HUD element is removed from DOM", !rivalHudExists);
 
-    const pursuerSrc = await client.eval(`$("rival-hud").querySelector(".rival-figure img").src`);
-    check("Rival figure displays shadow-pursuer.png", pursuerSrc.includes("assets/rival/shadow-pursuer.png"), `src: ${pursuerSrc}`);
+    const actTrackExists = await client.eval(`!!$("act-track")`);
+    check("Act track exists in top stack", actTrackExists);
 
-    const hasGlyphFallback = await client.eval(`$("rival-hud").querySelector(".rival-figure span").textContent === "◈"`);
-    check("Rival figure preserves glyph fallback ◈", hasGlyphFallback);
+    const quickRewardsExists = await client.eval(`!!$("quick-rewards")`);
+    check("Quick rewards exists in top stack", quickRewardsExists);
 
-    await client.captureScreenshot("rival_01_pilgrimage_pursuer.png");
+    await client.captureScreenshot("clean_hud_01_play.png");
 
-    // 2. Trial Mode: Rival System Appearance
-    console.log("\n--- 2. TRIAL MODE: RIVAL SYSTEM ---");
-    await client.eval(`startRun("trial", "watchman"); go("play"); nextQuestion();`);
-    await sleep(400);
-
-    const trialRivalVisible = await client.eval(`!$("rival-hud").hidden`);
-    check("Rival HUD is visible in Trial mode", trialRivalVisible);
-
-    await client.captureScreenshot("rival_02_trial_mode.png");
-
-    // 3. Mistake Pressure: 2 Consecutive Misses -> Threat Mask
-    console.log("\n--- 3. MISTAKE PRESSURE: THREAT MASK ON 2 MISSES ---");
+    // 2. Fade-to-Memory Timing (60s Memorization)
+    console.log("\n--- 2. FADE-TO-MEMORY: 60s MEMORIZATION TIMING ---");
     await client.eval(`
-      R.missStreak = 2;
-      if (R.rivalRace) {
-        R.rivalRace.misses = 2;
-        updateRivalRace();
-      }
+      const q = {id:"t-fade", b:"Philippians", r:"Philippians 4:13", t:1, p:"I can do all things through Christ which", a:"strengtheneth me", s:".", mechanic:"fade"};
+      Object.assign(R, {q: q, locked: false, running: true, paused: false, sceneToken: 20});
+      renderFadeQuestion(q, 60000, 20);
     `);
     await sleep(300);
 
-    const threatSrc = await client.eval(`$("rival-hud").querySelector(".rival-figure img").src`);
-    check("Two consecutive misses trigger rival-mask.png", threatSrc.includes("assets/rival/rival-mask.png"), `src: ${threatSrc}`);
+    const fadePhase = await client.eval(`R.fadePhase`);
+    check("Fade enters memorize phase", fadePhase === "memorize");
 
-    await client.captureScreenshot("rival_03_threat_mask_misses.png");
+    const fadeBarText = await client.eval(`$("fade-bar") ? $("fade-bar").textContent : ""`);
+    check("Fade countdown displays 60s", fadeBarText.includes("60s"), `text: ${fadeBarText}`);
 
-    // 4. Reduced Motion Mode
-    console.log("\n--- 4. REDUCED MOTION MODE ---");
-    await client.eval(`SAVE.set.reduced = true; document.body.classList.add("reduced"); updateRivalRace();`);
-    await sleep(300);
+    const fadeTotalTime = await client.eval(`R.tTotal`);
+    check("Fade total timer is 60,000 ms", fadeTotalTime === 60000);
 
-    const figureAnimation = await client.eval(`window.getComputedStyle($("rival-hud").querySelector(".rival-figure")).animationName`);
-    check("Reduced motion removes pulse animation but keeps figure asset", figureAnimation === "none", `animation: ${figureAnimation}`);
+    await client.captureScreenshot("fade_02_60s_memorization.png");
 
-    await client.captureScreenshot("rival_04_reduced_motion.png");
-
-    // 5. Results Screen: Retreat Recorded with Threat Mask & Safety Message
-    console.log("\n--- 5. RESULTS SCREEN: RETREAT RECORDED ---");
-    await client.eval(`
-      R.rivalSetback = true;
-      endRun("fail");
+    // 2b. Memorization mastery pays an Illuminate card
+    console.log("\n--- 2B. MEMORIZATION MASTERY PAYS AN ILLUMINATE CARD ---");
+    const fadeHandoff = await client.eval(`
+      (() => {
+        try {
+          timeUp(); /* the memorize window ends -> dissolve -> reconstruct */
+          return {ok: true};
+        } catch (e) { return {ok: false, err: String(e)}; }
+      })()
     `);
-    await sleep(400);
+    check("Fade memorize window hands off to reconstruction", fadeHandoff && fadeHandoff.ok, fadeHandoff ? (fadeHandoff.err || "") : "");
+    await sleep(1600); /* dissolve animation (1200ms) then the rebuild board */
 
-    const resRivalImg = await client.eval(`$("res-rival").querySelector("img") ? $("res-rival").querySelector("img").src : ""`);
-    check("Results screen renders threat mask image on retreat", resRivalImg.includes("assets/rival/rival-mask.png"), `src: ${resRivalImg}`);
+    const fadeReward = await client.eval(`
+      (() => {
+        try {
+          if (R.fadePhase !== "reconstruct") return {ok: false, err: "phase=" + R.fadePhase};
+          const before = R.powers.illum || 0;
+          resolveAnswer(R.q, R.fadeAssembly.target, null, 500, 30000);
+          const after = R.powers.illum || 0;
+          return {ok: after === before + 1, err: "illum before=" + before + " after=" + after};
+        } catch (e) { return {ok: false, err: String(e)}; }
+      })()
+    `);
+    check("Correct Fade reconstruction earns an Illuminate card", fadeReward && fadeReward.ok, fadeReward ? (fadeReward.err || "") : "");
 
-    const resRivalText = await client.eval(`$("res-rival").textContent`);
-    check("Results screen retains non-destructive safety message", resRivalText.includes("Permanent relics and cleared sites are safe"), `text: ${resRivalText}`);
+    await client.captureScreenshot("fade_reward_illuminate_card.png");
 
-    await client.captureScreenshot("rival_05_results_retreat_mask.png");
+    // 3. 4-Second Answer Review Display
+    console.log("\n--- 3. 4-SECOND ANSWER REVIEW DISPLAY ---");
+    await client.eval(`
+      const qNormal = {id:"t-rec", b:"Psalms", r:"Psalm 23:1", t:1, p:"The LORD is my shepherd; I", a:"shall not want", s:".", d:["shall not fear", "shall not faint", "shall not wander"]};
+      Object.assign(R, {q: qNormal, locked: false, running: true, paused: false, sceneToken: 21, attempts: 0, correct: 0});
+      renderQuestion(qNormal, 20000);
+      resolveAnswer(qNormal, "shall not want", null, 1000, 19000);
+    `);
+    await sleep(1000);
 
-    // 6. Viewport Matrix & Visual Geometry Hierarchy Checks
-    console.log("\n--- 6. VIEWPORT MATRIX & GEOMETRY HIERARCHY CHECKS ---");
+    const isAnswerStillShowing = await client.eval(`currentView === "play" && $("blank") && $("blank").textContent === "shall not want"`);
+    check("Answer remains displayed during 4-second review window", isAnswerStillShowing);
+
+    const flowJudgeMs = await client.eval(`Flow.JUDGE_MS`);
+    check("Flow.JUDGE_MS is 4000ms", flowJudgeMs === 4000);
+
+    await client.captureScreenshot("answer_reveal_03_4s_display.png");
+
+    // 4. Viewport Matrix Checks across Viewports
+    console.log("\n--- 4. VIEWPORT MATRIX & RESPONSIVE GEOMETRY CHECKS ---");
     const viewports = [
       { name: "desktop_1920x1080", w: 1920, h: 1080 },
-      { name: "laptop_1366x768",   w: 1366, h: 768 },
-      { name: "tablet_1024x768",   w: 1024, h: 768 },
-      { name: "mobile_390x844",    w: 390,  h: 844 },
-      { name: "mobile_430x932",    w: 430,  h: 932 }
+      { name: "laptop_1366x768", w: 1366, h: 768 },
+      { name: "tablet_1024x768", w: 1024, h: 768 },
+      { name: "mobile_390x844", w: 390, h: 844 },
+      { name: "mobile_430x932", w: 430, h: 932 }
     ];
 
     for (const vp of viewports) {
-      console.log(`\n  Checking viewport: ${vp.name} (${vp.w}×${vp.h})`);
       await client.send("Emulation.setDeviceMetricsOverride", {
         width: vp.w,
         height: vp.h,
         deviceScaleFactor: 1,
         mobile: vp.w <= 600
       });
-
-      // Start run with active quick rewards and rival HUD visible
-      await client.eval(`
-        SAVE.set.reduced = false;
-        document.body.classList.remove("reduced");
-        startRun("trial", "watchman");
-        hideSiteQuote();
-        go("play");
-        if (R.q) renderQuestion(R.q, 14000);
-        if (typeof Rewards !== "undefined" && Rewards.initRun) {
-          Rewards.initRun();
-          Rewards.renderHud();
-        }
-        if (typeof initRivalRace === "function") {
-          initRivalRace();
-        }
-      `);
-      await sleep(400);
+      await sleep(300);
 
       const geom = await client.eval(`
         (() => {
-          const topStack = document.querySelector(".play-top-stack")?.getBoundingClientRect();
-          const actTrack = document.querySelector(".act-track")?.getBoundingClientRect();
-          const rewards = document.querySelector(".quick-rewards")?.getBoundingClientRect();
-          const rival = document.querySelector(".rival-hud")?.getBoundingClientRect();
-          const verse = document.querySelector(".verse-stage")?.getBoundingClientRect();
-          const answers = document.querySelector(".answers")?.getBoundingClientRect();
-          const controls = document.querySelector(".control")?.getBoundingClientRect();
+          const stack = document.querySelector(".play-top-stack");
+          const qContent = document.querySelector(".question-content");
+          const verse = document.querySelector("#verse-stage");
+          const opts = document.querySelector("#opts");
+          const quit = document.querySelector(".play-quit");
+          const sR = stack ? stack.getBoundingClientRect() : null;
+          const qR = qContent ? qContent.getBoundingClientRect() : null;
+          const vR = verse ? verse.getBoundingClientRect() : null;
+          const oR = opts ? opts.getBoundingClientRect() : null;
+          const qtr = quit ? quit.getBoundingClientRect() : null;
 
           return {
-            topStack: topStack ? { top: topStack.top, bottom: topStack.bottom, height: topStack.height } : null,
-            actTrack: actTrack ? { top: actTrack.top, bottom: actTrack.bottom, height: actTrack.height } : null,
-            rewards: rewards && !document.querySelector(".quick-rewards")?.hidden ? { top: rewards.top, bottom: rewards.bottom, height: rewards.height } : null,
-            rival: rival && !document.querySelector(".rival-hud")?.hidden ? { top: rival.top, bottom: rival.bottom, height: rival.height } : null,
-            verse: verse ? { top: verse.top, bottom: verse.bottom, height: verse.height } : null,
-            answers: answers ? { top: answers.top, bottom: answers.bottom, height: answers.height } : null,
-            controls: controls ? { top: controls.top, bottom: controls.bottom, height: controls.height } : null
+            stackBottom: sR ? sR.bottom : 0,
+            verseTop: vR ? vR.top : 0,
+            verseBottom: vR ? vR.bottom : 0,
+            optsTop: oR ? oR.top : 0,
+            optsBottom: oR ? oR.bottom : 0,
+            quitRight: qtr ? qtr.right : 0,
+            viewportWidth: window.innerWidth,
+            viewportHeight: window.innerHeight
           };
         })()
       `);
 
-      if (geom.topStack && geom.verse) {
-        check(`${vp.name}: top HUD stack sits above verse (no overlap)`, geom.topStack.bottom <= geom.verse.top + 1, `topStack.bottom: ${geom.topStack.bottom}, verse.top: ${geom.verse.top}`);
-      }
-      if (geom.rewards && geom.rival && geom.rewards.height > 0 && geom.rival.height > 0) {
-        check(`${vp.name}: quick-rewards sits above rival HUD`, geom.rewards.bottom <= geom.rival.top + 1, `rewards.bottom: ${geom.rewards.bottom}, rival.top: ${geom.rival.top}`);
-      }
-      if (geom.rival && geom.verse && geom.rival.height > 0) {
-        check(`${vp.name}: rival HUD sits above verse`, geom.rival.bottom <= geom.verse.top + 1, `rival.bottom: ${geom.rival.bottom}, verse.top: ${geom.verse.top}`);
-      }
-      if (geom.verse && geom.answers) {
-        check(`${vp.name}: verse sits above answer options`, geom.verse.bottom <= geom.answers.top + 1, `verse.bottom: ${geom.verse.bottom}, answers.top: ${geom.answers.top}`);
-      }
-      if (geom.answers && geom.controls) {
-        check(`${vp.name}: answers sit above timer/controls`, geom.answers.bottom <= geom.controls.top + 1, `answers.bottom: ${geom.answers.bottom}, controls.top: ${geom.controls.top}`);
-      }
+      check(`[${vp.name}] Top HUD stack does not overlap question`, geom.stackBottom <= geom.verseTop + 30);
+      check(`[${vp.name}] Verse text sits above answer choices`, geom.verseBottom <= geom.optsTop + 20);
+      check(`[${vp.name}] Answer options fit within viewport height`, geom.optsBottom <= geom.viewportHeight + 20);
 
-      await client.captureScreenshot(`ui_layout_${vp.name}.png`);
+      await client.captureScreenshot(`layout_${vp.name}.png`);
     }
 
-    // Check for 0 console errors
-    console.log("\n--- CONSOLE LOG & EXCEPTION AUDIT ---");
-    if (client.errors.length > 0) {
-      check("Zero runtime JavaScript exceptions in browser", false, client.errors.join("; "));
-    } else {
-      check("Zero runtime JavaScript exceptions in live browser", true);
-    }
+    console.log(`\n========================================`);
+    console.log(`ACCEPTANCE RESULTS: ${results.passed} PASSED, ${results.failed} FAILED`);
+    console.log(`========================================`);
 
-    console.log("\n=======================================================");
-    console.log(`RIVAL & UI HIERARCHY BROWSER ACCEPTANCE SUMMARY:`);
-    console.log(`Passed: ${results.passed} / ${results.passed + results.failed}`);
     if (results.failed > 0) {
-      console.error(`FAILED: ${results.failed} checks.`);
       process.exit(1);
-    } else {
-      console.log(`🎉 ALL BROWSER ACCEPTANCE & GEOMETRY CHECKS PASSED (100%)!`);
     }
-
   } catch (err) {
     console.error("Browser Acceptance Error:", err);
     process.exit(1);

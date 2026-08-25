@@ -130,11 +130,71 @@ var Assemble = (function(){
     return state.bank.filter(function(t){ return !used[t.id]; });
   }
 
+  /* ---------- Lift & commit (tap + keyboard parity) ----------
+     Lifting picks a card up without moving it; committing it to a slot
+     places, swaps or replaces depending on where it came from. Pure so
+     the tests drive every branch without a DOM. */
+
+  function lift(state, id){
+    if(!state || !tileById(state, id)) return null;
+    state.lifted = id;
+    return state;
+  }
+
+  function liftedTile(state){
+    return (state && state.lifted) ? tileById(state, state.lifted) : null;
+  }
+
+  /* Resolve one tap/Enter on either a bank tile or a slot. Returns what
+     happened ("place" | "lift" | "relift" | "cancel" | "swap" |
+     "replace") or null for a no-op, so callers can sound and respond. */
+  function resolveTap(state, target){
+    if(!state) return null;
+    var t = liftedTile(state);
+    if(target && target.tileId != null){
+      if(t && t.id === target.tileId){ delete state.lifted; return { kind: "cancel" }; }
+      if(t){ state.lifted = target.tileId; return { kind: "relift" }; }
+      var firstEmpty = state.placed.indexOf(null);
+      if(firstEmpty < 0){ state.lifted = target.tileId; return { kind: "lift" }; }
+      place(state, target.tileId, firstEmpty);
+      return { kind: "place" };
+    }
+    if(target && target.slot != null){
+      if(t){
+        var from = state.placed.indexOf(t);
+        var occupant = state.placed[target.slot];
+        if(from >= 0 && from === target.slot){
+          delete state.lifted;
+          return { kind: "cancel" };
+        }
+        if(from >= 0){
+          state.placed[target.slot] = t;
+          state.placed[from] = occupant || null;
+          delete state.lifted;
+          return { kind: "swap", evicted: null };
+        }
+        if(from < 0 && occupant){
+          state.placed[target.slot] = t;
+          delete state.lifted;
+          return { kind: "replace", evicted: occupant };
+        }
+        place(state, t.id, target.slot);
+        delete state.lifted;
+        return { kind: "place", evicted: null };
+      }
+      var occupant2 = state.placed[target.slot];
+      if(occupant2){ state.lifted = occupant2.id; return { kind: "lift" }; }
+      return null;
+    }
+    return null;
+  }
+
   return {
     words: words, keyOf: keyOf, fakeCount: fakeCount,
     build: build, buildExact: buildExact, place: place, unplace: unplace,
     join: join, isFilled: isFilled, remaining: remaining,
-    shuffle: shuffle, tileById: tileById
+    shuffle: shuffle, tileById: tileById,
+    lift: lift, liftedTile: liftedTile, resolveTap: resolveTap
   };
 })();
 

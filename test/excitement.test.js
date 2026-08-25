@@ -58,11 +58,11 @@ eq("ride doubles the gain", Polish.overdriveRideGain(150), 300);
 
 /* ---------------- M1 chain flow ---------------- */
 assert(/function correctAdvance/.test(game), "correctAdvance exists");
-assert(/\? 650 : 800/.test(game), "correct answers chain at 650/800ms");
+assert(/\? 1400 : 1500/.test(game), "correct answers chain at a readable 1400/1500ms");
 assert(/function queueAdvance/.test(game) && /playWipe/.test(game),
   "correct path advances through the wipe gate");
 assert(!/autoLock\(\)\?720:1450/.test(game), "the old 1450ms dead air is gone");
-assert(/SetPieces\.autoLock\(\)\?950:1900/.test(game), "wrong answers keep the long teach pause");
+assert(/afterRun\(typeof Flow!==["']undefined["'] \? Flow\.JUDGE_MS : 2500, queueAdvance\)/.test(game), "wrong answers keep the 2.5-second teach pause");
 
 /* ---------------- M5 Overdrive ride or bank ---------------- */
 assert(/function offerOverdriveChoice/.test(game), "offerOverdriveChoice exists");

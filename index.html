@@ -274,7 +274,6 @@
       <div class="play-top-stack">
         <div id="act-track" class="act-track" aria-label="Run progress"></div>
         <div id="quick-rewards" class="quick-rewards" aria-live="polite" aria-label="Quick rewards"></div>
-        <div id="rival-hud" class="rival-hud" role="status" aria-live="polite" aria-atomic="true" hidden></div>
       </div>
 
       <div class="kjv"><b>KJV</b></div>
@@ -358,7 +357,6 @@
       </div>
       <div class="kick" id="res-kick">The trial is ended</div>
       <div class="rank" id="res-rank" style="margin-top:1.4vh"></div>
-      <div class="result-rival" id="res-rival" role="status" aria-live="polite"></div>
       <div class="bigscore" id="res-score">0</div>
       <div class="footer res-primary">
         <button class="btn" id="res-again">Run It Back</button>
@@ -415,6 +413,7 @@
       </div>
       <div id="book-heatmap" class="book-heatmap"></div>
       <div id="journey-journal" class="journey-journal"></div>
+      <div id="thin-places" class="thin-places"></div>
       <div class="listwrap" id="study-list"></div>
     </div>
   </section>
@@ -626,6 +625,7 @@
 <script src="js/verses-more.js"></script>
 <script src="js/verses-ascent.js"></script>
 <script src="js/verses-tf.js"></script>
+<script src="js/verses-notes.js"></script>
 <script src="js/passages.js"></script>
 <script src="js/legacy-ids.js"></script>
 <script src="js/bank.js"></script>
@@ -668,5 +668,12 @@
 <script src="js/briefs.js"></script>
 <script src="js/play.js"></script>
 <script src="js/game.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function() {});
+  });
+}
+</script>
 </body>
 </html>

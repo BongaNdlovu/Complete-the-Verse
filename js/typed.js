@@ -112,10 +112,81 @@ function illuminateAssembly(){
   return true;
 }
 
+function renderAssembleBoardState(){
+  /* One place decides the lifted/armed visuals so taps, drags and keys
+     all read the same board. */
+  const liftedId = R.assemble && R.assemble.lifted;
+  const hint = $("typed-hint");
+  document.querySelectorAll(".asm-tile.lifted,.asm-slot.lifted").forEach(function(el){
+    el.classList.remove("lifted");
+  });
+  document.querySelectorAll(".asm-slot.drop-hint").forEach(function(s){ s.classList.remove("drop-hint"); });
+  if(!liftedId) return;
+  const liftedNode = document.querySelector('.asm-tile[data-id="'+liftedId+'"], .asm-slot[data-id="'+liftedId+'"]');
+  if(liftedNode) liftedNode.classList.add("lifted");
+  document.querySelectorAll(".asm-slot.empty").forEach(function(s){ s.classList.add("drop-hint"); });
+  if(hint && !hint.classList.contains("verdict")){
+    hint.textContent = "Card lifted — tap or press Enter on a slot to swap or replace";
+    hint.classList.add("on");
+  }
+}
+
+function assembleDefaultHint(){
+  return isFadeAssembly()
+    ? "Drag, tap or press Enter every word into order"
+    : "Drag, tap or press Enter the words into order";
+}
+
+/* FLIP helpers: measure where each card sits, let the rebuild move it,
+   then glide it from its old position to its new one. Web Animations API
+   keeps this pure presentation — no state, no timers to clean up. */
+function captureBoardRects(){
+  const map = {};
+  if(document.body.classList.contains("reduced")) return map;
+  document.querySelectorAll(".asm-tile[data-id],.asm-slot[data-id]").forEach(el => {
+    if(typeof el.getBoundingClientRect !== "function") return;
+    const r = el.getBoundingClientRect();
+    if(r && (r.left || r.top)) map[el.dataset.id] = { x: r.left, y: r.top };
+  });
+  return map;
+}
+
+function playBoardFlip(map){
+  if(document.body.classList.contains("reduced")) return;
+  document.querySelectorAll(".asm-tile[data-id],.asm-slot[data-id]").forEach(el => {
+    const old = map[el.dataset.id];
+    if(!old || typeof el.getBoundingClientRect !== "function" || typeof el.animate !== "function") return;
+    const r = el.getBoundingClientRect();
+    const dx = Math.round(old.x - r.left), dy = Math.round(old.y - r.top);
+    if(!dx && !dy) return;
+    try {
+      const anim = el.animate(
+        [{ transform: "translate(" + dx + "px," + dy + "px)" }, { transform: "translate(0,0)" }],
+        { duration: 230, easing: "cubic-bezier(.2,.8,.2,1)" });
+      if(anim && anim.finished && anim.finished.catch) anim.finished.catch(function(){});
+    } catch(err){}
+  });
+}
+
+function settlePlacedCard(id){
+  /* The dropped card lands: a short settle reads as weight coming to
+     rest under the player's hand. */
+  if(!id || document.body.classList.contains("reduced")) return;
+  const el = document.querySelector('.asm-slot[data-id="' + id + '"]');
+  if(!el || typeof el.animate !== "function") return;
+  try {
+    const anim = el.animate(
+      [{ transform: "scale(1.08)" }, { transform: "scale(1)" }],
+      { duration: 120, easing: "ease-out" });
+    if(anim && anim.finished && anim.finished.catch) anim.finished.catch(function(){});
+  } catch(err){}
+}
+
 function renderAssembleBank(){
   const bank = $("asm-bank");
   const slots = $("asm-slots");
   if(!bank || !slots || !R.assemble || typeof Assemble === "undefined") return;
+  const beforeRects = captureBoardRects();
   const left = Assemble.remaining(R.assemble);
   bank.innerHTML = "";
   left.forEach(t => {
@@ -134,7 +205,7 @@ function renderAssembleBank(){
     bank.appendChild(b);
   });
   slots.innerHTML = "";
-  R.assemble.placed.forEach((t, i) => {
+  const makeSlot = (t, i) => {
     const el = document.createElement("button");
     el.type = "button";
     el.className = "asm-slot" + (t ? " full" : " empty");
@@ -142,14 +213,31 @@ function renderAssembleBank(){
     el.textContent = t ? t.word : "—";
     el.setAttribute("role", "listitem");
     el.setAttribute("aria-label", t
-      ? "Placed word " + t.word + ". Tap to remove."
+      ? "Placed word " + t.word + ". Tap to lift, then choose another slot to swap."
       : (isFadeAssembly() ? "Empty full-verse slot " : "Empty phrase slot ") + (i + 1));
-    if(t){ el.dataset.id = t.id; el.draggable = true; el.setAttribute("aria-grabbed", "true"); }
-    slots.appendChild(el);
-  });
+    if(t){ el.dataset.id = t.id; el.draggable = true; el.setAttribute("aria-grabbed", "false"); }
+    return el;
+  };
+  /* Fade rebuilds read as phrases: group the slot order at KJV clause
+     punctuation so a long verse scans in chunks instead of one ribbon.
+     Pure grouping — same state model underneath. */
+  const chunks = (typeof Polish !== "undefined" && Polish.verseChunks && isFadeAssembly())
+    ? Polish.verseChunks(R.assemble.target) : null;
+  if(chunks){
+    chunks.forEach(chunk => {
+      const g = document.createElement("div");
+      g.className = "asm-chunk";
+      chunk.forEach(i => { g.appendChild(makeSlot(R.assemble.placed[i], i)); });
+      slots.appendChild(g);
+    });
+  } else {
+    R.assemble.placed.forEach((t, i) => { slots.appendChild(makeSlot(t, i)); });
+  }
   const hidden = $("typed-answer");
   if(hidden) hidden.value = Assemble.join(R.assemble.placed);
   syncTypedLock();
+  renderAssembleBoardState();
+  playBoardFlip(beforeRects);
 }
 
 function bindAssembleBoard(){
@@ -185,6 +273,21 @@ function bindAssembleBoard(){
     if(p.source) p.source.classList.remove("dragging");
     document.querySelectorAll(".asm-slot.drop-target").forEach(function(s){ s.classList.remove("drop-target"); });
     state.pointer = null;
+  }
+
+  /* One tap/Enter resolver for clicks and keys alike: lift, commit,
+     swap or replace via the pure Assemble.resolveTap, then respond. */
+  function applyTap(target){
+    const state = R.assemble;
+    if(!state || !canInteract()) return;
+    const liftedId = state.lifted || null;
+    const result = Assemble.resolveTap(state, target);
+    if(!result) return;
+    Snd.ui();
+    renderAssembleBank();
+    /* The committed card settles where it landed. */
+    if(result.kind === "place") settlePlacedCard(liftedId || target.tileId);
+    else if(result.kind === "swap" || result.kind === "replace") settlePlacedCard(liftedId);
   }
 
   /* Pointer Events: Smooth realistic drag with floating avatar and slot preview */
@@ -247,20 +350,36 @@ function bindAssembleBoard(){
 
     if(target){
       const destSlot = +target.dataset.slot;
-      if(sourceSlot >= 0 && sourceSlot !== destSlot && state.placed[destSlot]){
+      let settledId = id;
+      if(sourceSlot < 0 && state.placed[destSlot]){
+        /* A bank card dropped onto an occupied slot REPLACES that word:
+           the evicted word flies back to the bank instead of the drop
+           silently landing in the first empty slot. */
+        Assemble.place(state, id, destSlot);
+        delete state.lifted;
+        Snd.ui();
+        renderAssembleBank();
+      } else if(sourceSlot >= 0 && sourceSlot !== destSlot && state.placed[destSlot]){
         // Swap existing placed word with dragged word
         const existing = state.placed[destSlot];
         const current = state.placed[sourceSlot];
         state.placed[destSlot] = current;
         state.placed[sourceSlot] = existing;
+        delete state.lifted;
+        settledId = current ? current.id : id;
+        Snd.ui();
+        renderAssembleBank();
       } else {
+        if(Assemble.liftedTile(state) && Assemble.liftedTile(state).id === id) delete state.lifted;
         Assemble.place(state, id, destSlot);
+        Snd.ui();
+        renderAssembleBank();
       }
-      Snd.ui();
-      renderAssembleBank();
+      settlePlacedCard(settledId);
     } else if(sourceSlot >= 0 && inBank){
       // Dragged from slot back into the bank
       Assemble.unplace(state, sourceSlot);
+      if(Assemble.liftedTile(state) && Assemble.liftedTile(state).id === id) delete state.lifted;
       Snd.ui();
       renderAssembleBank();
     }
@@ -268,7 +387,8 @@ function bindAssembleBoard(){
 
   window.addEventListener("pointercancel", clearPointer);
 
-  /* Tap / Click fallback */
+  /* Tap / Click fallback — the same lift & commit model as keyboard:
+     tap a card to pick it up, tap again to commit it where you point. */
   wrap.addEventListener("click", e => {
     if(!canInteract()) return;
     if(R.assemble.suppressClickUntil && Date.now() < R.assemble.suppressClickUntil){
@@ -277,33 +397,45 @@ function bindAssembleBoard(){
     }
     const tile = e.target.closest(".asm-tile");
     if(tile && !tile.classList.contains("burn")){
-      Assemble.place(R.assemble, tile.dataset.id);
-      Snd.ui();
-      renderAssembleBank();
+      applyTap({ tileId: tile.dataset.id });
       return;
     }
-    const slot = e.target.closest(".asm-slot.full");
+    const slot = e.target.closest(".asm-slot");
     if(slot){
-      Assemble.unplace(R.assemble, +slot.dataset.slot);
-      Snd.ui();
-      renderAssembleBank();
+      applyTap({ slot: +slot.dataset.slot });
     }
   });
 
+  /* Keyboard parity: Enter/Space lifts or commits exactly like a tap.
+     Arrows move focus between cards and slots so a full verse is fully
+     reorderable without ever touching the mouse. */
+  function focusables(){
+    return Array.from(
+      document.querySelectorAll("#asm-bank .asm-tile, #asm-slots .asm-slot")
+    ).filter(el => !el.disabled && !el.classList.contains("burn"));
+  }
+
   wrap.addEventListener("keydown", function(e){
-    if(!canInteract() || (e.key !== "Enter" && e.key !== " ")) return;
     const tile = e.target.closest && e.target.closest(".asm-tile");
-    const slot = e.target.closest && e.target.closest(".asm-slot.full");
+    const slot = e.target.closest && e.target.closest(".asm-slot");
+
+    if(e.key === "ArrowRight" || e.key === "ArrowLeft"){
+      const items = focusables();
+      const i = items.indexOf(document.activeElement);
+      if(i >= 0){
+        e.preventDefault();
+        const d = e.key === "ArrowRight" ? 1 : -1;
+        const n = items[(i + d + items.length) % items.length];
+        if(n) n.focus();
+      }
+      return;
+    }
+    if(!canInteract() || (e.key !== "Enter" && e.key !== " ")) return;
+    e.preventDefault();
     if(tile && !tile.classList.contains("burn")){
-      e.preventDefault();
-      Assemble.place(R.assemble, tile.dataset.id);
-      Snd.ui();
-      renderAssembleBank();
+      applyTap({ tileId: tile.dataset.id });
     }else if(slot){
-      e.preventDefault();
-      Assemble.unplace(R.assemble, +slot.dataset.slot);
-      Snd.ui();
-      renderAssembleBank();
+      applyTap({ slot: +slot.dataset.slot });
     }
   });
 }
@@ -330,11 +462,13 @@ function renderTypedQuestion(q, dur, scene){
       '</div>'+
       '<div class="asm-slots" id="asm-slots" role="list" aria-label="The missing phrase"></div>'+
       '<div class="asm-bank" id="asm-bank" role="list" aria-label="Word bank"></div>'+
-      '<div class="typed-hint" id="typed-hint" aria-live="polite">Drag or tap the words into order</div>'+
+      '<div class="typed-hint" id="typed-hint" aria-live="polite"></div>'+
     '</div>';
   bindTypedPowerButtons(opts);
   bindAssembleBoard();
   renderAssembleBank();
+  const hintEl = $("typed-hint");
+  if(hintEl && typeof assembleDefaultHint === "function") hintEl.textContent = assembleDefaultHint();
   const input = $("typed-answer");
   if(input){
     input.addEventListener("keydown", e=>{
@@ -349,8 +483,8 @@ function renderTypedQuestion(q, dur, scene){
   syncTypedLock();
   const how=$("warn-how");
   if(how) how.innerHTML = isFadeAssembly()
-    ? "Rebuild the whole verse in order<br>Drag or tap every word, then lock"
-    : "Place the missing words<br>Lock Answer or Enter confirms";
+    ? "Rebuild the whole verse in order<br>Drag, tap or press Enter to place each word"
+    : "Place the missing words<br>Drag, tap or press Enter — lift a card to swap or replace";
   renderPowers();
   syncTypedPowerButtons();
   armTimer(dur);

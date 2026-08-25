@@ -157,7 +157,7 @@ ARC1_SITES.forEach((site, sIdx) => {
       eq(`[${site.id}] Verse 6 mechanic is fade`, mechanic, "fade");
       const fadeBar = read(sb, `$("fade-bar")`);
       assert(!!fadeBar, `[${site.id}] Fade countdown bar rendered on stage`);
-      assert(fadeBar && fadeBar.textContent.includes("30s"), `[${site.id}] Fade-to-memory starts with 30-second countdown`);
+      assert(fadeBar && fadeBar.textContent.includes("60s"), `[${site.id}] Fade-to-memory starts with 60-second countdown`);
       assert(read(sb, `$("ref").textContent`).includes(q.r), `[${site.id}] Fade reference correctly rendered`);
       exec(sb, `R.fadePhase='reconstruct'; R.fadeAssembly={target:fullVerseText(R.q),hintIndex:-1}; R.typed=true; resolveAnswer(R.q, fullVerseText(R.q), null, 1200, 30000);`);
       assert(read(sb, `R.streak > 0`), `[${site.id}] Fade mechanic correctly solved`);

@@ -15,7 +15,7 @@ const SetPieces=(function(){
     rapid:{id:"rapid",title:"Rapid Recall",rule:"Five short verses on a fast clock. Answers lock on selection.",count:5,duration:6000,auto:true,code:"Velocity sequence",voice:"Rapid recall. Five verses. Six seconds each."},
     lockdown:{id:"lockdown",title:"Book Lockdown",rule:"Three transmissions from one Bible book. Hold the source.",count:3,duration:8500,sameBook:true,code:"Source restricted",voice:"Book lockdown. Source restricted."},
     missing:{id:"missing",title:"The Missing Passage",rule:"One passage, three phrases torn out. Lifelines are offline until it is whole.",count:3,duration:24000,passage:true,noPowers:true,code:"Blackout protocol",voice:"The missing passage. Three phrases gone. Lifelines offline."},
-    nochance:{id:"nochance",title:"No Second Chances",rule:"One difficult verse. Triple reward. No lifeline can change the result.",count:1,duration:7000,noPowers:true,reward:3,code:"Red-line decision",voice:"No second chances."},
+    nochance:{id:"nochance",title:"No Second Chances",rule:"One difficult verse. Triple reward. No lifeline can change the result.",count:1,duration:4000,noPowers:true,reward:3,code:"Red-line decision",voice:"No second chances."},
     reconstruct:{id:"reconstruct",title:"Final Reconstruction",rule:"One passage shattered into fragments. Rebuild it, then lock the passage.",count:5,duration:30000,reconstruct:true,noPowers:true,reward:2,code:"Passage assembly",voice:"Final reconstruction. Rebuild the passage."}
   };
 

@@ -519,6 +519,18 @@ var Cloud = (function () {
     });
   }
 
+  /* How many players posted a score on a given date (for "of M" on the
+     results screen). Read-only on the same table the board already uses. */
+  async function fetchDailyEntryCount(playDate) {
+    var sb = ensureClient();
+    if (!sb || !playDate) return 0;
+    var res = await sb.from("daily_scores")
+      .select("id", { count: "exact", head: true })
+      .eq("play_date", playDate);
+    if (res.error) return 0;
+    return (res.count != null) ? Number(res.count) : 0;
+  }
+
   /* Best daily score for a signed-in user on a given date (for "you" row). */
   async function fetchMyDailyRank(playDate) {
     var sb = ensureClient();
@@ -632,6 +644,48 @@ var Cloud = (function () {
     });
   }
 
+  /* ------------------- friend races ------------------- */
+
+  var ROOM_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+  function generateRoomCode(len) {
+    len = len || 5;
+    var code = "";
+    for (var i = 0; i < len; i++) {
+      code += ROOM_ALPHABET.charAt(Math.floor(Math.random() * ROOM_ALPHABET.length));
+    }
+    return code;
+  }
+
+  function formatRaceUrl(roomCode) {
+    var base = typeof location !== "undefined" ? (location.origin + location.pathname) : "https://complete-the-verse.vercel.app/";
+    return base + "#race=" + (roomCode || "").toUpperCase().trim();
+  }
+
+  function parseRaceCodeFromUrl(urlOrHash) {
+    var str = urlOrHash || (typeof location !== "undefined" ? location.hash : "");
+    var m = String(str).match(/#?race=([A-Z0-9]{5})/i);
+    return m ? m[1].toUpperCase() : null;
+  }
+
+  async function upsertLiveRaceState(roomCode, state) {
+    if (!roomCode) return { ok: false, reason: "missing-room" };
+    var score = (state && state.score) || 0;
+    var timeline = (state && state.timeline) || { version: 1, samples: [] };
+    var meta = {
+      display_name: (state && state.display_name) || "Friend",
+      question_index: (state && state.question_index) || 0,
+      accuracy: (state && state.accuracy) || 100,
+      updated_at: new Date().toISOString()
+    };
+    return upsertGhost("live", roomCode.toUpperCase().trim(), score, timeline, meta);
+  }
+
+  async function fetchLiveRaceGhosts(roomCode) {
+    if (!roomCode) return [];
+    return fetchGhosts("live", roomCode.toUpperCase().trim(), 10);
+  }
+
   function trustLabel(via) {
     if (!via) return "";
     return via === "direct" ? "Honor system" : "Trusted";
@@ -664,12 +718,18 @@ var Cloud = (function () {
     lastError: function () { return lastError; },
     trustLabel: trustLabel,
     fetchDailyBoard: fetchDailyBoard,
+    fetchDailyEntryCount: fetchDailyEntryCount,
     fetchBlitzBoard: fetchBlitzBoard,
     fetchMyDailyRank: fetchMyDailyRank,
     fetchMyBlitzRank: fetchMyBlitzRank,
     reportScore: reportScore,
     upsertGhost: upsertGhost,
     fetchGhosts: fetchGhosts,
+    generateRoomCode: generateRoomCode,
+    formatRaceUrl: formatRaceUrl,
+    parseRaceCodeFromUrl: parseRaceCodeFromUrl,
+    upsertLiveRaceState: upsertLiveRaceState,
+    fetchLiveRaceGhosts: fetchLiveRaceGhosts,
     isSyncing: function () { return syncing; },
     on: on
   };

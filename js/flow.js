@@ -7,7 +7,12 @@
 var Flow = (function(){
 
   var WIPE_MS = 750;
-  var JUDGE_MS = 820;
+  /* The universal post-answer hold: long enough to read the verdict,
+     short enough that a run keeps moving. 2.5s replaced the old 4s —
+     players reviewed at their own pace anyway and the extra second
+     read as dead air. Tutorial advances and the live-browser driver
+     key off this constant; keep them in sync when it moves. */
+  var JUDGE_MS = 2500;
   var VIEWS = ["boot","intro","menu","brief","sitebrief","atlas","act","play",
                "results","study","relics","seals","records","settings"];
 

@@ -193,7 +193,6 @@ body.reduced .ans.sel:after{animation:none;opacity:.5}
 100%{transform:none}}
 .ans.mute{opacity:.34;filter:saturate(.2)}
 .ans.burn{opacity:.1;filter:saturate(0) blur(1.2px);pointer-events:none}
-.ans.rival-decoy{color:#e4b5a7;filter:saturate(.65) blur(.65px);text-shadow:0 0 12px rgba(255,84,73,.72)}
 .answers.locked .ans{pointer-events:none}
 /* Question handoff: each new verse fades up instead of hard-swapping. */
 #verse.q-in{animation:qIn .38s ease-out both}
@@ -487,7 +486,6 @@ body.reduced .res-details[open] .breakdown,body.reduced .res-details[open] .stat
   .question-content{flex:0 0 auto;padding-bottom:16px}
   .play-top-stack{width:100%;gap:6px}
   .quick-rewards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
-  .rival-hud{width:min(100%,360px)}
   .edge{display:none}
   .verse-stage{width:100%;margin-top:14px;padding:18px 12px}
   .verse-main{font-size:clamp(1.04rem,5.8vw,1.7rem)}
@@ -1156,6 +1154,28 @@ body.reduced .tf-why { animation: none; }
 @keyframes fadePulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: .6; transform: scale(.97); }
+}
+.fade-done {
+  display: inline-block;
+  font-family: var(--ui);
+  font-size: .72rem;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(0,0,0,.28);
+  border: 1px solid var(--gold-dim);
+  border-radius: 2px;
+  padding: .55em 1.5em;
+  margin-bottom: 1.2vh;
+  cursor: pointer;
+  transition: color .25s ease, border-color .25s ease, background .25s ease;
+}
+.fade-done:hover,
+.fade-done:focus-visible {
+  color: var(--gold-hot);
+  border-color: var(--gold-hot);
+  background: rgba(0,0,0,.42);
+  outline: none;
 }
 .fade-dissolve {
   animation: dissolveText 1.2s ease-out forwards;

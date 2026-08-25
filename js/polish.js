@@ -369,6 +369,56 @@ var Polish = (function () {
     }
   }
 
+  /* ---------- Fade chunking ----------
+     A whole-verse rebuild renders as one long ribbon of tiles. Splitting
+     the slot order into phrase groups (at KJV clause punctuation) makes
+     the passage scannable without touching the state model underneath.
+     Returns arrays of SLOT INDICES so the DOM can group in order. */
+  function verseChunks(target) {
+    var words = Array.isArray(target) ? target.slice() : String(target == null ? "" : target).trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return [];
+    var groups = [];
+    var current = [];
+    for (var i = 0; i < words.length; i++) {
+      current.push(i);
+      var w = String(words[i]);
+      if (/[,;:]$/.test(w) || (/\.$/.test(w) && i < words.length - 1)) {
+        groups.push(current);
+        current = [];
+      }
+    }
+    if (current.length) {
+      /* Never strand a lone last word: fold it into the previous phrase
+         so the final group always reads as a phrase. */
+      if (current.length === 1 && groups.length && groups[groups.length - 1].length >= 2) {
+        groups[groups.length - 1].push(current[0]);
+      } else {
+        groups.push(current);
+      }
+    }
+    return groups;
+  }
+
+  /* ---------- Daily competitive weighting ----------
+     The Daily board compares everyone against the SAME fixed draw, so the
+     score must reflect how hard each question was: a typed recall or a
+     Fade reconstruction pays proportionally more than an early-tier tap.
+     Pure table, mirrored by tests; applied in daily mode only so the
+     other economies stay untouched. */
+  var DAILY_MECHANIC_WEIGHTS = {
+    "none": 1.0,
+    "strike": 1.15,
+    "truefalse": 1.15,
+    "cloze": 1.25,
+    "duel": 1.25,
+    "typed": 1.5,
+    "fade": 2.0
+  };
+
+  function dailyMechanicWeight(mechanic) {
+    return DAILY_MECHANIC_WEIGHTS[mechanic || "none"] || 1.0;
+  }
+
   return {
     MAX_DAILY_SCORE: MAX_DAILY_SCORE,
     MAX_BLITZ_SCORE: MAX_BLITZ_SCORE,
@@ -396,7 +446,9 @@ var Polish = (function () {
     overdriveBank: overdriveBank,
     overdriveRideGain: overdriveRideGain,
     pacedClockMs: pacedClockMs,
-    describeModeClock: describeModeClock
+    describeModeClock: describeModeClock,
+    verseChunks: verseChunks,
+    dailyMechanicWeight: dailyMechanicWeight
   };
 })();
 

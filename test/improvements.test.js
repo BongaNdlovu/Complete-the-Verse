@@ -54,6 +54,17 @@ assert(!/id="answer-reveal"/.test(index), "answer-reveal panel removed — blank
 assert(/id="menu-road-progress"/.test(index), "menu road progress");
 assert(/fillResultsBoard/.test(game), "results board filler");
 assert(/fillResultsInsights/.test(game), "results insights filler");
+/* competitive clarity: podium rows, movement vs last daily, placement beat */
+assert(/rank <= 3 \? " top"/.test(game) && /rank === 1 \? " rank-1"/.test(game),
+  "top-3 podium styling on board rows");
+assert(/board-move-up/.test(game) && /lastDailyRank - r\.rank/.test(game),
+  "your row shows movement vs your last daily");
+assert(/fetchDailyEntryCount/.test(cloud) && /<\/b><span> of '\+fmt\(entryCount\)/.test(game),
+  "placement line counts the day's field");
+assert(/function revealPlacement/.test(game),
+  "placement reveal rides the results sequence");
+assert(/SAVE\.lastDaily = \{ date: todayKey\(\), rank: myRank \}/.test(game),
+  "this run's rank becomes tomorrow's movement baseline");
 assert(/drawHeatmap/.test(game), "heatmap drawer");
 assert(/drawJournal/.test(game), "journal drawer");
 assert(!/showAnswerReveal/.test(game), "showAnswerReveal removed with the duplicate panel");

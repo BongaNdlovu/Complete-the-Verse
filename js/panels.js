@@ -203,6 +203,7 @@ function renderStudy(){
   }
   drawHeatmap();
   drawJournal();
+  drawThinPlaces();
   drawStudy();
 }
 function drawHeatmap(){
@@ -234,6 +235,35 @@ function drawJournal(){
     (r.cleared?' · cleared':' · held')+' · '+esc(String(r.acc))+'%</span></div>'
   ).join("");
 }
+function drawThinPlaces(){
+  const host = $("thin-places");
+  if(!host) return;
+  const rows = BOOKS_ORDER.filter(b=>SAVE.books && SAVE.books[b] && SAVE.books[b].a > 0)
+    .map(b=>({b, c:SAVE.books[b].c, a:SAVE.books[b].a, p:SAVE.books[b].c/SAVE.books[b].a}));
+  if(!rows.length){
+    host.innerHTML = '<div class="mtitle">Thin places · revision priorities</div><div class="empty">No book accuracy recorded yet — answer verses across the road to map weaknesses.</div>';
+    return;
+  }
+  rows.sort((x,y)=>x.p-y.p);
+  host.innerHTML = '<div class="mtitle">Thin places · weakest books first</div>' +
+    '<div class="thin-grid">' + rows.slice(0, 6).map(r =>
+      '<div class="tp-row"><b>'+esc(r.b)+'</b>' +
+      '<div class="bar"><u style="width:'+Math.round(r.p*100)+'%"></u></div>' +
+      '<span>'+Math.round(r.p*100)+'%</span>' +
+      '<button type="button" class="btn sm ghost tp-practice-btn" data-practice-book="'+esc(r.b)+'">Practice</button></div>'
+    ).join("") + '</div>';
+  host.querySelectorAll("[data-practice-book]").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      const bk = btn.dataset.practiceBook;
+      const bVerses = VERSES.filter(v=>v.b===bk);
+      if(bVerses.length){
+        Snd.unlock();
+        startRun("practice", SAVE.set.diff, { queue: bVerses, book: bk });
+      }
+    });
+  });
+}
 function drawStudy(){
   const q = ($("study-q").value||"").toLowerCase().trim();
   const bk = $("study-book").value;
@@ -254,15 +284,24 @@ function drawStudy(){
     el.innerHTML='<div class="empty">'+msg+'</div>';
     return;
   }
+  const hasTTS = typeof window !== "undefined" && ('speechSynthesis' in window);
   el.innerHTML = list.map(v=>{
     const sch = verseScheduleLabel(v);
+    const note = (typeof VERSE_NOTES !== "undefined" && v.id && VERSE_NOTES[v.id])
+      ? '<div class="vcard-note">' + esc(VERSE_NOTES[v.id]) + '</div>' : '';
+    const listenBtn = hasTTS
+      ? '<button type="button" class="btn sm ghost vcard-listen" data-listen-vid="'+esc(String(v.id))+'" title="Listen and rebuild this verse from memory">Listen & Rebuild</button>'
+      : '';
     return '<div class="vcard" data-vid="'+esc(String(v.id))+'"><div class="vr"><i><span class="tierdot" style="opacity:'+(0.35+v.t*0.13)+'"></span>'+
       esc(v.r)+' · Tier '+v.t+'</i><span class="mastery '+sch.cls+'">'+esc(sch.label)+'</span></div>'+
       '<p>'+esc(v.p)+' <em>'+esc(v.a)+'</em>'+sep(v.s)+esc(v.s)+'</p>'+
+      note+
+      (listenBtn ? '<div class="vcard-actions">'+listenBtn+'</div>' : '')+
       '<div class="vcard-insight" hidden></div></div>';
   }).join("");
   el.querySelectorAll(".vcard").forEach(card=>{
-    card.addEventListener("click", ()=>{
+    card.addEventListener("click", (e)=>{
+      if(e.target.closest(".vcard-listen")) return;
       const id = card.dataset.vid;
       const v = VERSES.find(x=>String(x.id)===id);
       const box = card.querySelector(".vcard-insight");
@@ -274,6 +313,24 @@ function drawStudy(){
       box.innerHTML = '<b>'+esc(info.theme)+'</b> · '+esc(info.author)+
         (info.roots.length?' · '+info.roots.map(r=>esc(r.w)).join(", "):'')+
         (cross.length?' · see '+cross.map(esc).join(", "):'');
+    });
+  });
+  el.querySelectorAll(".vcard-listen").forEach(lBtn => {
+    lBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = lBtn.dataset.listenVid;
+      const v = VERSES.find(x => String(x.id) === id);
+      if(!v) return;
+      if(typeof window !== "undefined" && ('speechSynthesis' in window)){
+        window.speechSynthesis.cancel();
+        const fullText = (v.p ? v.p + " " : "") + (v.a || "") + (v.s ? " " + v.s : "");
+        const utter = new SpeechSynthesisUtterance(fullText);
+        utter.rate = 0.9;
+        utter.onend = () => { startRun("recall", SAVE.set.diff, { queue: [v], forcedVerse: v }); };
+        utter.onerror = () => { startRun("recall", SAVE.set.diff, { queue: [v], forcedVerse: v }); };
+        window.speechSynthesis.speak(utter);
+        if(typeof toast === "function") toast("Listening to " + v.r + "…");
+      }
     });
   });
 }

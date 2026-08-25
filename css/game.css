@@ -479,6 +479,18 @@ body.reduced .voice-caption{transition:none}
 .jrow b{color:var(--parch)}
 .jrow span{color:var(--parch-dim);font-size:.82rem}
 .vcard-insight{margin-top:.45rem;padding-top:.4rem;border-top:1px solid rgba(232,196,120,.12);font-size:.82rem;color:var(--parch-dim)}
+.vcard-note{margin-top:.4rem;font-size:.82rem;line-height:1.45;color:var(--gold-dim);font-style:italic}
+.vcard-actions{margin-top:.55rem;display:flex;gap:.5rem;align-items:center}
+.vcard-listen{font-size:.72rem;padding:.3rem .7rem;letter-spacing:.08em}
+.res-verse-note{margin-top:.35rem;font-size:.8rem;color:var(--gold-dim);font-style:italic;line-height:1.4}
+.thin-places{margin:1.4vh 0;padding:1.1em 1.2em;background:var(--panel);box-shadow:0 0 0 1px rgba(217,182,103,.13) inset}
+.thin-grid{display:flex;flex-direction:column;gap:.5rem;margin-top:.8vh}
+.tp-row{display:flex;align-items:center;gap:12px;font-size:.88rem;color:var(--parch)}
+.tp-row b{min-width:110px}
+.tp-row .bar{flex:1;height:8px;background:rgba(0,0,0,.4);border-radius:4px;overflow:hidden}
+.tp-row .bar u{display:block;height:100%;background:linear-gradient(90deg,var(--blood-hot),var(--gold));border-radius:4px}
+.tp-row span{min-width:42px;text-align:right;font-size:.82rem;color:var(--parch-dim)}
+.tp-practice-btn{font-size:.68rem;padding:.2rem .6rem}
 body.contrast{--parch:#f4ead2;--parch-dim:#d8c9a8}
 body.contrast #app{filter:contrast(1.08)}
 body.blitz-edge{box-shadow:inset 0 0 0 3px rgba(220,90,50,.35)}
@@ -668,40 +680,7 @@ body.reduced .answers.drift .ans-float{animation:none}
 .quick-reward.done b{color:#b8ffd2}.quick-reward.done .qr-val{color:#d6ffe4}
 .quick-reward.ready{border-color:rgba(255,214,130,.8);box-shadow:0 0 18px -6px rgba(255,214,130,.85)}
 .quick-reward.ready b{color:var(--gold-hot)}
-.rival-hud{position:relative;inset:auto;transform:none;align-self:center;z-index:5;
-  display:flex;align-items:center;gap:8px;width:min(380px,74vw);margin:0;
-  flex:0 0 auto;padding:.32rem .55rem;
-  color:var(--parch-dim);background:rgba(10,7,10,.84);border:1px solid rgba(180,64,58,.42);
-  box-shadow:0 6px 18px -10px #000,0 0 14px -10px rgba(220,54,48,.7);pointer-events:none;
-  opacity:.94;transition:border-color .25s,box-shadow .25s,transform .25s}
-.rival-figure{position:relative;overflow:hidden;display:grid;place-items:center;width:27px;height:27px;flex:0 0 27px;border-radius:50%;
-  color:#ff9b7e;background:radial-gradient(circle at 50% 35%,#7d2827 0 20%,#170b10 58%,#04040a 100%);
-  border:1px solid rgba(255,141,111,.55);box-shadow:0 0 13px rgba(214,49,43,.56);font-size:1rem}
-.rival-figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
-.rival-figure span{position:relative;z-index:0}
-.rival-copy{min-width:0;flex:1}.rival-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;
-  font-family:var(--ui);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase}
-.rival-top b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e9c487}.rival-top span{color:#c79a8a;white-space:nowrap}
-.rival-track{position:relative;height:5px;margin-top:5px;background:rgba(255,255,255,.09);border:1px solid rgba(255,210,160,.18);overflow:visible}
-.rival-track i{display:block;height:100%;background:linear-gradient(90deg,#9d7431,#ffe4a1);transition:width .45s ease}
-.rival-track em{position:absolute;top:-4px;width:2px;height:11px;background:#ff716e;box-shadow:0 0 9px #ff514c;transform:translateX(-1px);transition:left .45s ease}
-.rival-hud.rival-close{border-color:rgba(255,109,91,.8);box-shadow:0 0 24px -10px rgba(255,65,52,.9)}
-.rival-hud.rival-close .rival-figure{animation:rivalPulse .72s ease-in-out infinite alternate}
-.rival-hud.rival-urgent{border-color:#ff9c72;box-shadow:0 0 26px -8px rgba(255,75,58,.95)}
-@keyframes rivalPulse{to{transform:scale(1.12);filter:brightness(1.35)}}
-body.reduced .rival-hud.rival-close .rival-figure{animation:none}
-/* Rival retreat mirrors pressure-3's stage language but lives on its own
-   body class, so Director's per-second pressure-N updates can't wipe it. */
-body.retreat .stage:after{animation:warningPulse .62s ease-in-out infinite alternate}
-body.retreat #vignette{box-shadow:inset 0 0 220px 80px rgba(0,0,0,.92),inset 0 0 560px 200px rgba(0,0,0,.72);transition:box-shadow .45s ease}
-body.retreat .answers{opacity:.92;filter:brightness(.92);transition:opacity .4s ease,filter .4s ease}
-body.retreat .verse-stage{filter:none;opacity:1}
-body.reduced.retreat .stage:after{animation:none!important}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-.result-rival{min-height:1.4em;margin:.72rem auto 0;width:min(620px,88vw);color:var(--parch-dim);font-family:var(--ui);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase}
-.result-rival .res-rival-thumb{width:38px;height:38px;margin:0 auto .4rem;display:block;object-fit:contain;filter:drop-shadow(0 0 8px rgba(255,75,58,.6))}
-.result-rival b{display:block;color:var(--gold-hot);font-size:.78rem;letter-spacing:.14em}
-.result-rival span{display:block;margin-top:.28rem;color:var(--parch-dim);text-transform:none;letter-spacing:.02em}
 .act-step{height:7px;min-width:0;background:rgba(213,173,98,.12);position:relative;overflow:visible;border-radius:1px}
 .act-step i{display:block;width:0;height:100%;background:linear-gradient(90deg,#9e742f,#ffe8ae);
   box-shadow:0 0 10px rgba(255,224,164,.55);transition:width .45s ease}
@@ -908,6 +887,18 @@ body.quality-low #v-results:before{animation:none!important}
   color:var(--gold-hot);margin-left:.35em;padding:.1em .4em;box-shadow:0 0 0 1px rgba(217,182,103,.4) inset;border-radius:2px}
 .board-you-sep{font-family:var(--ui);letter-spacing:.18em;text-transform:uppercase;font-size:.62rem;color:var(--gold-dim);
   margin:1.2vh 0 .6vh;text-align:center}
+/* Placement beat + leaderboard polish (top-3 podium, movement arrows) */
+.res-placement{min-height:0;opacity:0;transform:translateY(6px);transition:opacity .5s ease,transform .5s ease;margin:.4vh 0}
+.res-placement.on{opacity:1;transform:none}
+.place-line{display:flex;align-items:baseline;justify-content:center;gap:.45em;
+  font-family:var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim)}
+.place-line b{font-size:1.9rem;color:var(--gold-hot);letter-spacing:.02em;text-shadow:0 0 26px rgba(217,182,103,.55)}
+.board-row.top .rk{color:var(--gold-hot)}
+.board-row.top .nm{color:#fff}
+.board-row.rank-1 b{font-size:1.12em;text-shadow:0 0 18px rgba(217,182,103,.5)}
+.board-move-up{font-style:normal;font-size:.68rem;color:#7fd08a}
+.board-move-down{font-style:normal;font-size:.68rem;color:#c96f5e}
+  margin:1.2vh 0 .6vh;text-align:center}
 .board-loading{color:var(--parch-dim);font-style:italic;text-align:center;padding:1.2vh}
 .global-lb .lbrow .mode{flex:1;text-align:left}
 .board-report{min-height:44px;padding:.35em .6em;font-family:var(--ui);font-size:.62rem;letter-spacing:.16em;
@@ -1081,6 +1072,16 @@ body.reduced #reveal-stage.play .reveal-art{animation:none;opacity:1;transform:n
 /* Assemble — word bank in place of free typing */
 .asm-hidden{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px}
 .asm-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;width:100%;margin:.6vh 0 .4vh}
+/* Phrase grouping for Fade rebuilds: chunks read as clauses, separated
+   by a wider breath than the intra-phrase gap. */
+.asm-chunk{
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+  gap:8px;padding:0 .55em}
+.asm-chunk + .asm-chunk{position:relative;margin-left:.9em}
+.asm-chunk + .asm-chunk::before{
+  content:"";display:block;width:1px;height:1.6em;position:absolute;left:-.5em;top:50%;
+  transform:translateY(-50%);
+  background:linear-gradient(180deg,transparent,rgba(217,182,103,.35),transparent)}
 .asm-slot{
   min-width:3.6em;min-height:2.4em;padding:.4em .85em;font-family:var(--body);
   font-size:clamp(.95rem,2vw,1.2rem);color:var(--parch);
@@ -1113,6 +1114,19 @@ body.reduced #reveal-stage.play .reveal-art{animation:none;opacity:1;transform:n
   background:rgba(217,182,103,.2);
   box-shadow:0 0 0 2px var(--gold-hot) inset,0 0 24px rgba(217,182,103,.45);
   transform:scale(1.1)}
+/* A lifted card reads as "in hand": raised, lit, clearly not seated.
+   Empty slots glow softly so tap/keyboard players see where a lift
+   can commit. */
+.asm-tile.lifted,.asm-slot.lifted{
+  color:var(--gold-hot);
+  background:rgba(217,182,103,.16);
+  box-shadow:0 0 0 2px var(--gold-hot) inset,0 0 18px rgba(217,182,103,.4);
+  transform:translateY(-3px) scale(1.06)}
+.asm-slot.drop-hint{
+  opacity:.9;
+  border-color:rgba(217,182,103,.6)}
+body.reduced .asm-tile.lifted,
+body.reduced .asm-slot.lifted{transform:none}
 .asm-drag-avatar{
   position:fixed;pointer-events:none;z-index:15000;
   padding:.42em .92em;font-family:var(--body);

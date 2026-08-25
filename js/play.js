@@ -27,8 +27,8 @@ function playClockMs(ms){
   return Math.round(momentumClockMs(pickClockMs(ms)) * PACE + FLAT_ADD_MS);
 }
 
-const FADE_MEMORY_MS = 30000;
-const FADE_RECALL_MIN_MS = 30000;
+const FADE_MEMORY_MS = 60000;
+const FADE_RECALL_MIN_MS = 60000;
 
 function fullVerseText(q){
   const prefix = String(q && q.p || "").trim();
@@ -41,7 +41,8 @@ function fullVerseText(q){
 
 function questionDuration(){
   if(R.mode==="trial"){ return playClockMs(ACTS[R.actIdx].t * R.diff.time); }
-  if(R.mode==="daily"){ return playClockMs(10000 * R.diff.time); }
+  /* Typed dailies need a typing-sized window, not the picker clock. */
+  if(R.mode==="daily"){ return playClockMs((R.typed ? 32000 : 10000) * R.diff.time); }
   if(R.mode==="blitz"){
     const left = Math.max(0, (R.blitzEnd || 0) - performance.now());
     return Math.max(900, left);
@@ -112,7 +113,7 @@ const TUTORIAL_GUIDE = [
   "Lesson 2 · Falsehood Strike: Tap the corrupted word in the verse to shatter it and restore truth.",
   "Lesson 3 · Scribe's Cloze: Tap the missing words in sequence from the tray below.",
   "Lesson 4 · True Scripture Duel: Discern and choose the genuine King James reading.",
-  "Lesson 5 · Fade-to-Memory: Memorize the whole verse for 30 seconds, then rebuild every word in order.",
+  "Lesson 5 · Fade-to-Memory: Memorize the whole verse — tap I'm Done when you hold it, then rebuild every word in order.",
   "Lesson 6 · Assembled Recall: Drag or tap the words in order, then lock your answer."
 ];
 
@@ -121,7 +122,7 @@ const TUTORIAL_VOICE = [
   "Lesson two. Strike the corrupted word in the verse.",
   "Lesson three. Tap the missing words in sequence.",
   "Lesson four. Discern the true Scripture reading.",
-  "Lesson five. Memorize the whole verse for thirty seconds, then rebuild every word in order.",
+  "Lesson five. Memorize the whole verse for one minute, then rebuild every word in order.",
   "Lesson six. Assemble the verse from memory."
 ];
 
@@ -203,7 +204,14 @@ function resolveTutorialAnswer(q, choice, btn){
   updateTutorialGuide(R.tutorial.index, ok ? "Well done. The lesson continues." : "The true verse reads: "+q.a);
   if(ok) Snd.correct(); else Snd.wrong();
   if(typeof Director!=="undefined" && Director.impact) Director.impact(ok?"correct":"wrong");
-  afterRun(1200, tutorialNextQuestion);
+  /* Lesson five pays its card too: a mastered memorization grants an
+     Illuminate lifeline exactly as it does inside a real run. */
+  if(ok && R.currentMechanic === "fade" && R.powers){
+    R.powers.illum = (R.powers.illum||0) + 1;
+    if(typeof Director!=="undefined" && Director.callout) Director.callout("Memorization mastered — Illuminate earned");
+    Snd.power(); doFlash("violet"); renderPowers();
+  }
+  afterRun(typeof Flow !== "undefined" ? Flow.JUDGE_MS : 2500, tutorialNextQuestion);
 }
 
 function completeTutorialRun(){
@@ -304,6 +312,9 @@ function nextQuestion(){
   R.q = v; R.usedRefs.add(refKey(v)); commitSiteVerse(v);
   if(!R.setpiece) R.qInAct++; R.qTotal++;
   R.tiersSeen.add(v.t);
+  /* The Daily's stamped typed beat must actually flip the answering
+     mode — nothing else maps q.typed outside the tutorial/road. */
+  if(R.mode==="daily") R.typed = !!v.typed;
   if(R.mode==="trial" && R.actIdx===4) R.sdCount++;
   const dur = SetPieces.duration(questionDuration());
   updateChips();
@@ -434,6 +445,11 @@ function clearOtherStages(){
   if(oldFadeBar){
     if(typeof oldFadeBar.remove === "function") oldFadeBar.remove();
     else if(oldFadeBar.parentNode) oldFadeBar.parentNode.removeChild(oldFadeBar);
+  }
+  const oldFadeDone = $("fade-done");
+  if(oldFadeDone){
+    if(typeof oldFadeDone.remove === "function") oldFadeDone.remove();
+    else if(oldFadeDone.parentNode) oldFadeDone.parentNode.removeChild(oldFadeDone);
   }
   clearQuestionMechanicTimers();
   if(typeof R !== "undefined"){
@@ -725,8 +741,8 @@ function illuminateDuel(){
 /* A Judgement claim is scripture knowledge, not verse recall: a plain
    statement about the Bible's people, places, numbers and events that
    the player must simply judge. It replaces slot 6's verse question,
-   so it resolves through its own path — streaks, lives, score and the
-   rival all react, but verse mastery, SRS and the review queue are
+   so it resolves through its own path — streaks, lives and score all
+   react, but verse mastery, SRS and the review queue are
    never touched, because no verse was asked. */
 function tfPickClaim(){
   const bank = (typeof TF_CLAIMS !== "undefined" && TF_CLAIMS.length) ? TF_CLAIMS : [];
@@ -741,25 +757,56 @@ function tfPickClaim(){
     bank.filter(function(c){ return !c.v; }).length - 8));
   let pool = bank.filter(function(c, i){ return R.tfUsed.indexOf(i) < 0; });
   if(!pool.length){ R.tfUsed = []; pool = bank.slice(); }
+
+  /* Arc tier matching: Arc I–II -> t1-weighted, III–IV -> t2, V -> t3 */
+  let targetTier = (R && R.targetTier && R.targetTier >= 1 && R.targetTier <= 3) ? R.targetTier : null;
+  if(!targetTier && typeof Pilgrimage !== "undefined" && typeof R.siteIndex === "number" && R.siteIndex >= 0){
+    const pos = Pilgrimage.positionOf(R.siteIndex);
+    targetTier = pos < 0.38 ? 1 : pos < 0.78 ? 2 : 3;
+  } else if(!targetTier && R.siteId && typeof Pilgrimage !== "undefined" && Pilgrimage.site){
+    const s = Pilgrimage.site(R.siteId);
+    if(s && s.arc){
+      targetTier = (s.arc === "patriarchs" || s.arc === "exodus") ? 1
+        : (s.arc === "kingdom" || s.arc === "exile") ? 2 : 3;
+    }
+  }
+
   /* Territory first: the books this site actually draws from, with a
      quarter of draws opened to the whole road so replays stay fresh. */
   const books = {};
   (R.siteVerses || []).forEach(function(v){ if(v && v.b) books[v.b] = 1; });
   const wantFalse = Math.random() < 0.65;
   const ofVerdict = function(list, v){ return list.filter(function(c){ return c.v === v; }); };
+  const ofTier = function(list, t){
+    if(!t) return list;
+    const match = list.filter(function(c){ return (c.t || 1) === t; });
+    return match.length ? match : list;
+  };
+
   let candidates = null;
   if(Math.random() < 0.75){
     const territory = pool.filter(function(c){ return books[c.b]; });
     /* wantFalse asks for false claims, so the verdict to MATCH is the
-       opposite of the roll. Priority: territory+verdict, then the whole
-       road at the right verdict, then territory, then anything — the
-       weighting survives a small territory running dry. */
-    candidates = ofVerdict(territory, !wantFalse);
-    if(!candidates.length) candidates = ofVerdict(pool, !wantFalse);
+       opposite of the roll. Priority: territory+verdict (tier-preferred),
+       then whole road at verdict (tier-preferred), then territory, then anything. */
+    const terrV = ofVerdict(territory, !wantFalse);
+    candidates = ofTier(terrV, targetTier);
+    if(!candidates.length) candidates = terrV;
+    if(!candidates.length){
+      const poolV = ofVerdict(pool, !wantFalse);
+      candidates = ofTier(poolV, targetTier);
+      if(!candidates.length) candidates = poolV;
+    }
+    if(!candidates.length) candidates = ofTier(territory, targetTier);
     if(!candidates.length) candidates = territory;
   }
-  if(!candidates || !candidates.length) candidates = ofVerdict(pool, !wantFalse);
-  if(!candidates.length) candidates = pool;
+  if(!candidates || !candidates.length){
+    const poolV = ofVerdict(pool, !wantFalse);
+    candidates = ofTier(poolV, targetTier);
+    if(!candidates.length) candidates = poolV;
+  }
+  if(!candidates || !candidates.length) candidates = ofTier(pool, targetTier);
+  if(!candidates || !candidates.length) candidates = pool;
   const claim = candidates[Math.floor(Math.random() * candidates.length)];
   R.tfUsed.push(bank.indexOf(claim));
   while(R.tfUsed.length > window) R.tfUsed.shift();
@@ -833,7 +880,6 @@ function resolveTrueFalse(choice, btn, timedOut){
   if(rightBtn){ rightBtn.classList.remove("mute"); rightBtn.classList.add("right"); }
   if(!ok && btn) btn.classList.add("bad");
   if(ok){
-    clearRivalMistakePressure();
     R.correct++; R.streak++; R.best = Math.max(R.best, R.streak);
     if(elapsed < 1500) R.fast++;
     if(typeof updateQuickRewards === "function") updateQuickRewards();
@@ -860,7 +906,7 @@ function resolveTrueFalse(choice, btn, timedOut){
       afterRun(700, offerOverdriveChoice);
       return;
     }
-    afterRun(typeof Flow !== "undefined" ? Flow.JUDGE_MS : 820, queueAdvance);
+    afterRun(typeof Flow !== "undefined" ? Flow.JUDGE_MS : 2500, queueAdvance);
   } else {
     const wasRiding = R.overdriveRide && inOverdrive();
     if(R.streak >= 3 && typeof Cinematic !== "undefined"){
@@ -870,7 +916,6 @@ function resolveTrueFalse(choice, btn, timedOut){
     R.overdriveRide = false;
     spillOil(R.streak || 0);
     R.streak = 0; setMult();
-    applyRivalMistakePressure();
     Director.momentum(false); Director.impact("wrong");
     Snd.wrong(); doFlash("red"); shakeUI(true);
     if(SAVE.set.haptics !== false && typeof Polish !== "undefined") Polish.haptic("wrong");
@@ -936,6 +981,44 @@ function renderFadeQuestion(q, dur, scene){
 
   let echoTimer = null;
   const isCurrent = () => R.runToken === runToken && R.sceneToken === sceneToken && R.q === q && currentView === "play";
+
+  /* The dissolve→reconstruct handoff runs on BOTH the memory minute elapsing
+     and the player tapping "I'm Done" early — one shared path, no dead code. */
+  function beginDissolve(){
+    if(R.fadePhase !== "memorize") return;
+    if(echoTimer != null){ clearInterval(echoTimer); }
+    if(activeFadeTimer === echoTimer) activeFadeTimer = null;
+    echoTimer = null;
+    R.fadePhase = "dissolve";
+    stopTimer();
+    if(typeof countdownEl.remove === "function") countdownEl.remove();
+    else if(countdownEl.parentNode) countdownEl.parentNode.removeChild(countdownEl);
+    const doneBtn = $("fade-done");
+    if(doneBtn){
+      if(typeof doneBtn.remove === "function") doneBtn.remove();
+      else if(doneBtn.parentNode) doneBtn.parentNode.removeChild(doneBtn);
+    }
+    const blank = $("blank");
+    if(blank){
+      /* Keep the real answer in place while it visibly dissolves. Only
+         after that animation completes do we replace the passage with the
+         full reconstruction board. */
+      blank.classList.remove("filled");
+      blank.classList.add("fade-dissolve");
+    }
+    afterRun(1200, () => {
+      if(!isCurrent()) return;
+      R.fadePhase = "reconstruct";
+      R.fadeAssembly = {target:fullVerseText(q), hintIndex:-1};
+      R.typed = true;
+      $("verse").innerHTML = '<span class="recon-prompt">Reconstruct the whole verse in order</span>';
+      fitVerseSize(R.fadeAssembly.target.length);
+      $("opts").style.opacity = "";
+      $("opts").style.pointerEvents = "";
+      renderTypedQuestion(q, Math.max(FADE_RECALL_MIN_MS, dur || 0), scene);
+    });
+  }
+
   echoTimer = setInterval(() => {
     if(!isCurrent()){
       if(activeFadeTimer === echoTimer){ clearInterval(echoTimer); activeFadeTimer = null; }
@@ -945,35 +1028,25 @@ function renderFadeQuestion(q, dur, scene){
     if(count > 0){
       countdownEl.textContent = "Memorize the whole verse: " + count + "s";
     } else {
-      clearInterval(echoTimer);
-      if(activeFadeTimer === echoTimer) activeFadeTimer = null;
-      if(R.fadePhase !== "memorize") return;
-      R.fadePhase = "dissolve";
-      stopTimer();
-      if(typeof countdownEl.remove === "function") countdownEl.remove();
-      else if(countdownEl.parentNode) countdownEl.parentNode.removeChild(countdownEl);
-      const blank = $("blank");
-      if(blank){
-        /* Keep the real answer in place while it visibly dissolves. Only
-           after that animation completes do we replace the passage with the
-           full reconstruction board. */
-        blank.classList.remove("filled");
-        blank.classList.add("fade-dissolve");
-      }
-      afterRun(1200, () => {
-        if(!isCurrent()) return;
-        R.fadePhase = "reconstruct";
-        R.fadeAssembly = {target:fullVerseText(q), hintIndex:-1};
-        R.typed = true;
-        $("verse").innerHTML = '<span class="recon-prompt">Reconstruct the whole verse in order</span>';
-        fitVerseSize(R.fadeAssembly.target.length);
-        $("opts").style.opacity = "";
-        $("opts").style.pointerEvents = "";
-        renderTypedQuestion(q, Math.max(FADE_RECALL_MIN_MS, dur || 0), scene);
-      });
+      beginDissolve();
     }
   }, 1000);
   activeFadeTimer = echoTimer;
+
+  /* "I'm Done" — skip the memorization window and start rebuilding now.
+     No scoring penalty: the Illuminate mastery grant rewards a correct
+     reconstruction, not how long the player stared at the verse. */
+  const doneBtn = document.createElement("button");
+  doneBtn.type = "button";
+  doneBtn.id = "fade-done";
+  doneBtn.className = "fade-done";
+  doneBtn.textContent = "I'm Done";
+  doneBtn.setAttribute("aria-label", "I'm done memorizing — begin reconstruction now");
+  doneBtn.addEventListener("click", function(){ Snd.ui(); beginDissolve(); });
+  if(stageEl){
+    if(typeof stageEl.prepend === "function") stageEl.prepend(doneBtn);
+    else if(typeof stageEl.appendChild === "function") stageEl.appendChild(doneBtn);
+  }
 
   armTimer(FADE_MEMORY_MS);
   startTimer(FADE_MEMORY_MS);
@@ -995,17 +1068,7 @@ function renderStandardChoices(q, dur, scene){
     const b=document.createElement("button");
     b.className="ans"; b.dataset.val=c;
     b.setAttribute("aria-pressed","false");
-    const veiled = !!R.rivalFog && i===0 && c!==q.a;
-    b.innerHTML='<span class="ans-float"><span class="ltr">'+LETTERS[i]+'.</span><span class="ans-copy">'+esc(veiled ? "The pursuer's echo" : c)+'</span></span>';
-    if(veiled){
-      b.classList.add("rival-decoy");
-      afterRun(900, function(){
-        if(R.q!==q || R.sceneToken!==scene) return;
-        const copy=b.querySelector(".ans-copy");
-        if(copy) copy.textContent=c;
-        b.classList.remove("rival-decoy");
-      });
-    }
+    b.innerHTML='<span class="ans-float"><span class="ltr">'+LETTERS[i]+'.</span><span class="ans-copy">'+esc(c)+'</span></span>';
     b.style.setProperty("--drift-delay", (i * 0.85) + "s");
     b.addEventListener("click", ()=>pickAnswer(c,b));
     opts.appendChild(b);
@@ -1094,11 +1157,6 @@ function confirmAnswer(){
 const RING_C = 2 * Math.PI * 52;   // circumference of the countdown arc
 
 function armTimer(dur){
-  const pressureClock = typeof rivalRaceMode === "function" && rivalRaceMode() &&
-    !(R.currentMechanic === "fade" && R.fadePhase === "memorize");
-  const penalty = pressureClock ? Math.min(1800, Number(R.nextClockPenalty)||0) : 0;
-  dur = Math.max(4500, dur - penalty);
-  R.nextClockPenalty = 0;
   R.tTotal = dur; R.tEnd = 0; R.qStart = 0;
   R.running = false; R.paused = false; R.lastTickSec = -1; R.lastHeart = 0; R.lastHeartSec = -1;
   if(typeof Snd!=="undefined" && Snd.stopPressure) Snd.stopPressure();
@@ -1127,15 +1185,14 @@ function tickTimer(now){
     if(pr) document.body.classList.add(pr===3?"blitz-edge-3":pr===2?"blitz-edge-2":"blitz-edge");
     if(bLeft<=0){ timeUp(); return; }
     /* Blitz uses one shared survival clock — refresh arm each tick. */
-    R.tEnd = R.blitzEnd; R.tTotal = Math.max(R.tTotal, typeof Polish!=="undefined"?Polish.BLITZ_START_MS:60000);
+    R.tEnd = R.blitzEnd;
   }
-  let left = R.tEnd - now; if(left<0) left=0;
-  const frac = R.tTotal ? Math.max(0, Math.min(1, left/R.tTotal)) : 0;
-  const sec = Math.ceil(left/1000);
+  const left = Math.max(0, R.tEnd - now);
+  const frac = R.tTotal>0 ? Math.max(0, Math.min(1, left / R.tTotal)) : 0;
+  $("ring-arc").style.strokeDashoffset = String(RING_C * (1 - frac));
 
-  const arc = $("ring-arc");
-  if(arc.style) arc.style.strokeDashoffset = String(RING_C * (1-frac));
-  if(sec!==R.lastTickSec){
+  const sec = Math.ceil(left/1000);
+  if(sec !== R.lastTickSec){
     R.lastTickSec = sec;
     $("clock").textContent = "00:" + String(sec).padStart(2,"0");
     $("ring").classList.toggle("crit", sec<=5);
@@ -1143,7 +1200,6 @@ function tickTimer(now){
     w1.textContent = sec + (sec===1 ? " second remaining" : " seconds remaining");
     w1.classList.toggle("hot", sec<=5);
     Director.pressure(sec);
-    if(typeof rivalRaceMode === "function" && rivalRaceMode() && sec===5) rivalReact("low");
     /* Strict countdown SFX (whole seconds only, never mid-bar 55% ticks):
        10–6 soft tick · 5–4 critical tick · 3–1 heartbeat only (no double stack). */
     if(left>0 && R.mode!=="blitz"){
@@ -1163,7 +1219,6 @@ function tickTimer(now){
     Snd.heart();
     doFlash("heart");
   }
-  if(typeof updateRivalRace === "function") updateRivalRace();
   if(left<=0) timeUp();
 }
 
@@ -1240,19 +1295,33 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     mode: R.typed ? "assembly" : "choice"
   });
   if(ok){
-    clearRivalMistakePressure();
     const blank=$("blank");
     if(blank){ blank.textContent=q.a; blank.classList.add("filled","reveal"); }
     R.correct++; R.streak++; R.best=Math.max(R.best,R.streak);
     R.booksRun.add(q.b);
     if(elapsed < 1500) R.fast++;
     if(typeof updateQuickRewards === "function") updateQuickRewards();
+    /* A mastered memorization pays its own card: every correct
+       Fade-to-Memory reconstruction grants an Illuminate lifeline,
+       immediately and on top of every other reward. */
+    if(R.currentMechanic === "fade" && R.powers){
+      R.powers.illum = (R.powers.illum||0) + 1;
+      SAVE.life.illumRewards = (SAVE.life.illumRewards||0) + 1;
+      Director.callout("Memorization mastered — Illuminate earned");
+      Snd.power(); doFlash("violet"); renderPowers();
+    }
     // The "double pay" is no longer automatic — it only holds while the
     // player is riding the fire, a choice made at the Overdrive moment.
     const riding = R.overdriveRide && inOverdrive();
     const timeBonus = Math.round(left / R.tTotal * 140);
     const tierW = 1 + q.t*0.12;
-    const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * tierW * SetPieces.bonus() * (riding ? 2 : 1));
+    /* The Daily board compares one fixed draw, so the score carries the
+       question's difficulty: mechanic weight (typed/fade pay more) on
+       top of the existing tier weight. Other modes unchanged. */
+    const mechW = (R.mode === "daily" && typeof Polish !== "undefined" && Polish.dailyMechanicWeight)
+      ? Polish.dailyMechanicWeight(R.currentMechanic || (R.typed ? "typed" : "none"))
+      : 1;
+    const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * tierW * mechW * SetPieces.bonus() * (riding ? 2 : 1));
     R.score += gained;
     payCorrect(graded);
     if(R.mode==="blitz" && typeof Polish!=="undefined"){
@@ -1279,7 +1348,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
       afterRun(700, offerOverdriveChoice);
       return;
     }
-    afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 820, queueAdvance);
+    afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 2500, queueAdvance);
   } else {
     // Riding the fire turns a miss into two lost lamps — the risk that
     // paid for the double reward. Capture before the streak resets.
@@ -1291,7 +1360,6 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     R.overdriveRide = false;
     spillOil(R.streak||0);
     R.streak=0; setMult(); R.missed.push(q);
-    applyRivalMistakePressure();
     if(R.mode==="blitz" && typeof Polish!=="undefined"){
       const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
       R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, false);
@@ -1302,7 +1370,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     markBlankScar(choice, q.a);
     witnessLook(true);
     if(R.mode==="blitz"){
-      afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 820, ()=>{
+      afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 2500, ()=>{
         if(R.blitzEnd && performance.now()>=R.blitzEnd) presentRunEnd("timeout-death");
         else queueAdvance();
       });
@@ -1345,36 +1413,6 @@ function noteGhostProgress(){
   R.ghostSamples.push({ t, p: Math.round(p * 100) / 100 });
 }
 
-function applyRivalMistakePressure(){
-  if(typeof rivalRaceMode !== "function" || !rivalRaceMode()) return;
-  R.missStreak = (R.missStreak||0) + 1;
-  R.rivalMisses = (R.rivalMisses||0) + 1;
-  /* The pressure is temporary and readable: it affects the next clock,
-     never the player's permanent lives, relics or cleared sites. */
-  R.nextClockPenalty = Math.min(1800, 700 + (R.missStreak-1) * 500);
-  R.rivalFog = R.missStreak >= 2;
-  if(R.missStreak >= 3){
-    R.rivalSetback = true;
-    R.pressureStage = 3;
-    setRivalRetreat(true);
-    toast("Retreat recorded — permanent progress is safe");
-  } else if(R.missStreak === 2){
-    toast("The pursuer clouds the next reading");
-  } else {
-    toast("The next clock is shortened — steady your hand");
-  }
-  rivalReact("miss");
-}
-function clearRivalMistakePressure(){
-  if(typeof rivalRaceMode !== "function" || !rivalRaceMode()) return;
-  R.missStreak = 0;
-  R.nextClockPenalty = 0;
-  R.rivalFog = false;
-  R.pressureStage = -1;
-  setRivalRetreat(false);
-  rivalReact("correct");
-}
-
 function paintGhostMarker(){
   const track = $("act-track");
   if(!track) return;
@@ -1406,10 +1444,8 @@ function timeUp(){
     resolveTrueFalse(null, null, true);
     return;
   }
-  /* The 30-second Fade memorization window ends in reconstruction; it is
-     not a failed answer and must not consume a lamp.  The mechanic interval
-     normally performs this handoff, while this guard covers timer scheduling
-     races at the exact boundary. */
+  /* The 60-second Fade memorization window ends in reconstruction; it is
+     not a failed answer and must not consume a lamp. */
   if(R.currentMechanic === "fade" && R.fadePhase === "memorize"){
     stopTimer();
     R.fadePhase = "dissolve";
@@ -1460,7 +1496,6 @@ function timeUp(){
     cueLevel:R.hintLevel||0, mode:R.typed ? "assembly" : "choice"
   });
   R.missed.push(q);
-  applyRivalMistakePressure();
   Director.impact("wrong");Snd.wrong(); doFlash("red"); shakeUI(true);
   loseLife();
 }
@@ -1475,7 +1510,7 @@ function loseLife(count){
     toast("Relic shield — one miss absorbed");
     Snd.power();
     renderLives();
-    afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 820, queueAdvance);
+    afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 2500, queueAdvance);
     return;
   }
   R.lives = Math.max(0, R.lives - count);
@@ -1489,7 +1524,7 @@ function loseLife(count){
       toast("Second Wind — one life restored");
       Snd.power(); afterRun(1900, queueAdvance); return;
     }
-    afterRun(900, ()=>presentRunEnd("fallen")); return;
+    afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 2500, ()=>presentRunEnd("fallen")); return;
   }
-  afterRun(SetPieces.autoLock()?950:1900, queueAdvance);
+  afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 2500, queueAdvance);
 }

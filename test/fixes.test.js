@@ -71,6 +71,9 @@ ok("a verse is committed when served", /commitSiteVerse\(v\)/.test(game));
 ok("the commit helper guards the road modes",
    /function commitSiteVerse/.test(game) &&
    /R\.mode==="pilgrimage" \|\| R\.mode==="pilgrim-recall" \|\| R\.mode==="relay"/.test(game));
+ok("zero-answer quit does not spend site verses in usedIds",
+   /isPilgrim && R\.attempts === 0 && R\.siteCommitted/.test(game) &&
+   /SAVE\.pilgrim\.usedIds = SAVE\.pilgrim\.usedIds\.filter/.test(game));
 
 /* §2.4 / §3.1 — menu policy (behavioural pins live in menu-modes.test.js
    and integration.test.js; these pin the wiring). */
@@ -87,12 +90,24 @@ ok("the standard brief still names the lock keys for two-tap mode",
 /* §3.3 — the same verse never surfaces twice in one run. */
 ok("draw paths filter by reference",
    ["drawVerse", "drawEndlessVerse", "buildDailyList", "buildReviewQueue"]
-     .every(fn => new RegExp("function " + fn + "[\\s\\S]{0,400}?poolSansRepeatRefs\\(").test(game)),
+     .every(fn => new RegExp("function " + fn + "[\\s\\S]{0,600}?poolSansRepeatRefs\\(").test(game)),
    "every pick-mode draw wraps its pool");
 ok("the set-piece book pool filters by reference too",
    /poolSansRepeatRefs\(VERSES\.filter\(x=>x\.b===s\.book/.test(game));
 ok("a served verse's reference is recorded", /R\.usedRefs\.add\(refKey\(v\)\)/.test(game));
-ok("the daily list records references as it draws", /R\.usedRefs\.add\(refKey\(v\)\); out\.push/.test(game));
+ok("the daily list records references as it draws",
+   /function buildDailyList[\s\S]{0,700}R\.usedRefs\.add\(refKey\(v\)\)[\s\S]{0,200}out\.push/.test(game));
+
+/* §3.4 — the Daily's competitive layer: fixed mechanic beats (identical
+   for every player) plus difficulty-weighted scoring for that board. */
+ok("the daily draw carries fixed mechanic beats",
+   /MECHANIC_SLOTS = \{4:"duel", 9:"cloze", 13:"strike", 16:"typed", 19:"fade"\}/.test(game));
+ok("daily clones bank verses before stamping a mechanic",
+   /Object\.assign\(\{\}, v, /.test(game));
+ok("the daily typed beat flips the answering mode",
+   /if\(R\.mode==="daily"\) R\.typed = !!v\.typed;/.test(game));
+ok("daily scoring applies the mechanic weight on that board only",
+   /R\.mode === "daily"[\s\S]{0,220}Polish\.dailyMechanicWeight/.test(game));
 
 /* §3.5 — the relay control is named after the mode, not a verb. */
 ok("the rail relay reads as a destination, not a command",

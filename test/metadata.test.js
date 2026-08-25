@@ -77,15 +77,8 @@ ok("guide names live suite count",
 ok("guide does not still say 28 suites",
   guide.indexOf("28 suites") < 0 && guide.indexOf("28 test suites") < 0);
 
-ok("app does not register a service worker",
-  index.indexOf("serviceWorker") < 0);
-
-const smokePath = path.join(ROOT, "plans", "SMOKE-CHECKLIST.md");
-if (fs.existsSync(smokePath)) {
-  const smoke = fs.readFileSync(smokePath, "utf8");
-  ok("smoke checklist does not claim a service worker",
-    !/service worker/i.test(smoke));
-}
+ok("app registers a service worker",
+  index.indexOf("serviceWorker") >= 0);
 
 if (fail) {
   console.log("FAIL — metadata · " + pass + " passed · " + fail + " failed · live verses=" + verses + " sites=" + sites);

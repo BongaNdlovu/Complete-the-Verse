@@ -20,14 +20,15 @@ let assertions = 0;
 function assert(condition, message){ assertions++; if(!condition) failures.push(message); }
 
 /* ---------- 1. claim bank integrity ---------- */
-assert(Array.isArray(TF_CLAIMS) && TF_CLAIMS.length >= 100,
-  "claim bank launches with at least 100 claims (got " + TF_CLAIMS.length + ")");
+assert(Array.isArray(TF_CLAIMS) && TF_CLAIMS.length >= 250,
+  "claim bank launches with at least 250 claims (got " + TF_CLAIMS.length + ")");
 
 const seen = new Set();
 TF_CLAIMS.forEach(function(c, i){
   assert(c && typeof c.s === "string" && c.s.length >= 12 && c.s.length <= 140,
     "claim " + i + " statement is a readable sentence");
   assert(typeof c.v === "boolean", "claim " + i + " verdict is boolean");
+  assert(c.t === 1 || c.t === 2 || c.t === 3, "claim " + i + " has a valid tier (1, 2, or 3)");
   assert(typeof c.why === "string" && c.why.length >= 20,
     "claim " + i + " carries a correction that can teach");
   /* Every correction anchors the player back to scripture — either a
@@ -181,6 +182,17 @@ if(pickerSrc){
     }
   }
   assert(!repeatInWindow, "no claim repeats within the 40-draw no-repeat window");
+
+  /* Tier preference: targetTier === 3 biases draws toward t3 claims */
+  function runTierPicker(targetTier, picks){
+    const sandbox = { TF_CLAIMS: TF_CLAIMS, Math: Math, R: { siteVerses: allBooks, targetTier: targetTier, tfUsed: [] } };
+    vm.createContext(sandbox);
+    vm.runInContext(pickerSrc + "; __out = []; for(var q=0; q<" + picks + "; q++){ __out.push(tfPickClaim()); }", sandbox);
+    return sandbox.__out;
+  }
+  const t3Draws = runTierPicker(3, 200);
+  const t3Share = t3Draws.filter(c => c.t === 3).length / t3Draws.length;
+  assert(t3Share >= 0.5, "targetTier 3 biases draws toward t3 claims (got " + (t3Share * 100).toFixed(1) + "%)");
 }
 
 if(failures.length){
