@@ -675,6 +675,7 @@ function applySettings(){
   let mus = SAVE.set.music, sfx = SAVE.set.sfx;
   if(SAVE.set.quiet){ mus = Math.min(mus, 0.12); sfx = Math.min(sfx, 0.35); }
   Snd.setMusic(mus); Snd.setSfx(sfx);
+  if(typeof updateSiteVideoVolume==="function") updateSiteVideoVolume();
   Live.configure({enabled: SAVE.set.liveWeather !== false});
   Director.syncFx();
   if(typeof Backdrop!=="undefined" && Backdrop.syncSky) Backdrop.syncSky();

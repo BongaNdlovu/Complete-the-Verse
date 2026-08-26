@@ -365,6 +365,14 @@ function applyLeave(plan){
   }
   if(plan.bumpScene) R.sceneToken = (R.sceneToken||0) + 1;
   if(plan.hideState && currentView!=="play") hideState();
+  const siteVid = $("cine-parallax-video");
+  if(siteVid && plan && !plan.same && plan.stopLoop !== false){
+    try { siteVid.pause(); } catch(e){}
+    siteVid.style.display = "none";
+  }
+  if(typeof Snd !== "undefined" && typeof Snd.setRain === "function" && plan && !plan.same && plan.stopLoop !== false){
+    Snd.setRain(false);
+  }
 }
 function go(view){
   const leaving = currentView;

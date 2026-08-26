@@ -31,14 +31,49 @@ const Snd = (function(){
     wrong:"sfx/wrong.mp3",
     tick:"sfx/tick.mp3",
     heart:"sfx/heart.mp3",
-    power:"sfx/power.mp3"
+    power:"sfx/power.mp3",
   };
   /* Ones that replace themselves so rapid re-triggers do not stack. */
   const SFX_EXCL = { heart:1, tick:1 };
   /* Ones that briefly duck the bed so they cut through. */
   const SFX_DUCK = { lock:1, correct:1, wrong:1, power:1 };
-  const SFX_GAIN = { hover:0.4, lock:0.68, correct:0.72, wrong:0.66, power:0.5, heart:0.85 };
-  let voiceHold=null, pendingVoice=null;
+  const SFX_GAIN = { hover:0.4, lock:0.68, correct:0.72, wrong:0.66, power:0.5, heart:0.85,
+                     ignite:0.62, odReady:0.7, lampThud:0.78, lampCrackle:0.6, stamp:0.55 };
+  let voiceHold=null, pendingVoice=null, rainAudio=null, rainWired=false;
+  function syncRainVolume(){
+    if(!rainAudio) return;
+    if(ctx && mSfx && rainWired){ rainAudio.volume = 1; return; }
+    const sfxVol = (typeof SAVE!=="undefined" && SAVE.set && typeof SAVE.set.sfx==="number") ? SAVE.set.sfx : 0.7;
+    rainAudio.volume = Math.max(0, Math.min(1, sfxVol * 0.5));
+  }
+  function setRain(active){
+    if(!active){
+      if(rainAudio){ try{ rainAudio.pause(); }catch(e){} }
+      return;
+    }
+    if(!rainAudio && typeof Audio!=="undefined"){
+      rainAudio = new Audio("audio/ur-rain.mp3");
+      rainAudio.loop = true;
+      rainAudio.preload = "auto";
+    }
+    if(!rainAudio) return;
+    /* Wire into the SFX bus lazily: the audio context may not exist yet
+       the first time a site asks for rain. Re-checking on every call
+       also picks up a stream that started unwired once audio unlocks,
+       instead of leaving it stuck at raw media volume. */
+    if(ctx && mSfx && !rainWired){
+      try{
+        const n = ctx.createMediaElementSource(rainAudio);
+        n.connect(mSfx);
+        rainWired = true;
+      }catch(e){}
+    }
+    syncRainVolume();
+    if(rainAudio.paused){
+      const p = rainAudio.play();
+      if(p && p.catch) p.catch(()=>{});
+    }
+  }
   function duckMusic(factor, ms){
     if(!ctx||!mMus) return;
     const base = Math.max(0, SAVE.set.music||0);
@@ -240,7 +275,11 @@ const Snd = (function(){
         if(!trackNodes[k] && trackAudio[k]) trackAudio[k].volume = Math.max(0, Math.min(1, v||0));
       });
     },
-    setSfx(v){ SAVE.set.sfx=v; if(mSfx) mSfx.gain.setTargetAtTime(v, ctx.currentTime, .05); },
+    setSfx(v){
+      SAVE.set.sfx=v;
+      if(mSfx && ctx) mSfx.gain.setTargetAtTime(v, ctx.currentTime, .05);
+      if(rainAudio && !(ctx && mSfx && rainWired)) rainAudio.volume = Math.max(0, Math.min(1, (v||0) * 0.5));
+    },
     ambience(name){
       init(); if(!ctx||!avail) return;
       bed = name;
@@ -306,7 +345,8 @@ const Snd = (function(){
     },
     spectrum(){ if(!anal) return null; try{ anal.getByteFrequencyData(freq); }catch(e){ return null; } return freq; },
     playVoice:playVoice,
-    stopVoice:stopVoice
+    stopVoice:stopVoice,
+    setRain:setRain
   };
 })();
 

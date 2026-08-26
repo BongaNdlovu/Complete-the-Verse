@@ -30,6 +30,16 @@ function playClockMs(ms){
 const FADE_MEMORY_MS = 60000;
 const FADE_RECALL_MIN_MS = 60000;
 
+function answerHoldMs(){
+  /* The universal post-answer hold (Flow.JUDGE_MS) in EVERY mode. The
+     wrong-answer teach pause is where the verdict and word diff get
+     read; it must never collapse to 0. Correct answers chain faster via
+     correctAdvance(), which is a separate path. */
+  return (typeof Flow !== "undefined" && typeof Flow.judgeMs === "function")
+    ? Flow.judgeMs(typeof R !== "undefined" ? R.mode : "")
+    : 2500;
+}
+
 function fullVerseText(q){
   const prefix = String(q && q.p || "").trim();
   const answer = String(q && q.a || "").trim();
@@ -416,13 +426,56 @@ function buildChoices(q, rnd){
   return shuffle([correct].concat(picked.slice(0,3)), r);
 }
 
+function updateSiteVideoVolume(){
+  const vid = $("cine-parallax-video");
+  if(!vid) return;
+  const sfxVol = (typeof SAVE !== "undefined" && SAVE.set && typeof SAVE.set.sfx === "number") ? SAVE.set.sfx : 0.7;
+  const isQuiet = typeof SAVE !== "undefined" && SAVE.set && SAVE.set.quiet;
+  const base = isQuiet ? Math.min(sfxVol, 0.35) : sfxVol;
+  vid.volume = Math.max(0, Math.min(1, base * 0.45));
+}
+
 function syncCinematicBackdrop(){
   const el = $("cine-parallax-img");
+  const vid = $("cine-parallax-video");
   if(!el) return;
   const siteId = R.siteId || (R.q && typeof Pilgrimage!=="undefined" && Pilgrimage.siteForBook ? (Pilgrimage.siteForBook(R.q.b)||{}).id : null) || "ur";
   const vig = (typeof Pilgrimage !== "undefined" && Pilgrimage.vignette) ? Pilgrimage.vignette(siteId) : null;
   const imgUrl = vig ? vig.image : ("assets/journey/" + siteId + ".png");
   el.style.backgroundImage = 'url("' + imgUrl + '"), url("assets/journey/ur.webp")';
+
+  /* The ambient loop is Ur-only art. Gate STRICTLY on the resolved site
+     id: the old "(R.siteIdx === 1 || !R.siteIdx)" arm lit Ur's video on
+     any pilgrimage question whose site index wasn't loaded yet, so Haran
+     (and every later site) played desert footage under its own painting. */
+  const isUr = siteId === "ur" || siteId === "ur-of-the-chaldees";
+  const allowVideo = isUr && (typeof currentView !== "undefined" && currentView === "play");
+
+  if(vid){
+    if(allowVideo){
+      if(!vid.src || !vid.src.includes("assets/journey/ur.mp4")){
+        vid.src = "assets/journey/ur.mp4";
+      }
+      vid.loop = true;
+      vid.muted = true;
+      vid.playsInline = true;
+      vid.style.display = "block";
+      vid.style.opacity = "1";
+      if(el) el.style.opacity = "0";
+      if(typeof Snd !== "undefined" && typeof Snd.setRain === "function") Snd.setRain(true);
+      if(typeof vid.play === "function" && vid.paused){
+        const p = vid.play();
+        if(p && p.catch) p.catch(()=>{});
+      }
+    } else {
+      vid.style.display = "none";
+      if(el) el.style.opacity = "";
+      if(typeof Snd !== "undefined" && typeof Snd.setRain === "function") Snd.setRain(false);
+      if(typeof vid.pause === "function" && !vid.paused){
+        try { vid.pause(); } catch(e){}
+      }
+    }
+  }
 }
 
 /* Timers owned by a special question must die with that question. */
@@ -906,7 +959,7 @@ function resolveTrueFalse(choice, btn, timedOut){
       afterRun(700, offerOverdriveChoice);
       return;
     }
-    afterRun(typeof Flow !== "undefined" ? Flow.JUDGE_MS : 2500, queueAdvance);
+    afterRun(answerHoldMs(), queueAdvance);
   } else {
     const wasRiding = R.overdriveRide && inOverdrive();
     if(R.streak >= 3 && typeof Cinematic !== "undefined"){
@@ -1348,7 +1401,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
       afterRun(700, offerOverdriveChoice);
       return;
     }
-    afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 2500, queueAdvance);
+    afterRun(answerHoldMs(), queueAdvance);
   } else {
     // Riding the fire turns a miss into two lost lamps — the risk that
     // paid for the double reward. Capture before the streak resets.
@@ -1357,7 +1410,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
       if(Cinematic.event) Cinematic.event("miss");
       else Cinematic.showComboCollapse();
     }
-    R.overdriveRide = false;
+    R.overdriveRide=false;
     spillOil(R.streak||0);
     R.streak=0; setMult(); R.missed.push(q);
     if(R.mode==="blitz" && typeof Polish!=="undefined"){
@@ -1370,7 +1423,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     markBlankScar(choice, q.a);
     witnessLook(true);
     if(R.mode==="blitz"){
-      afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 2500, ()=>{
+      afterRun(answerHoldMs(), ()=>{
         if(R.blitzEnd && performance.now()>=R.blitzEnd) presentRunEnd("timeout-death");
         else queueAdvance();
       });
@@ -1510,7 +1563,7 @@ function loseLife(count){
     toast("Relic shield — one miss absorbed");
     Snd.power();
     renderLives();
-    afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 2500, queueAdvance);
+    afterRun(answerHoldMs(), queueAdvance);
     return;
   }
   R.lives = Math.max(0, R.lives - count);
@@ -1524,7 +1577,7 @@ function loseLife(count){
       toast("Second Wind — one life restored");
       Snd.power(); afterRun(1900, queueAdvance); return;
     }
-    afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 2500, ()=>presentRunEnd("fallen")); return;
+    afterRun(answerHoldMs(), ()=>presentRunEnd("fallen")); return;
   }
-  afterRun(typeof Flow!=="undefined" ? Flow.JUDGE_MS : 2500, queueAdvance);
+  afterRun(answerHoldMs(), queueAdvance);
 }

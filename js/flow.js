@@ -13,6 +13,15 @@ var Flow = (function(){
      read as dead air. Tutorial advances and the live-browser driver
      key off this constant; keep them in sync when it moves. */
   var JUDGE_MS = 2500;
+  function judgeMs(mode){
+    /* Every mode keeps the full teach pause — gameplay included. An
+       earlier cut returned 0 in gameplay and snapped wrong answers off
+       screen before the verdict or word diff could be read. Fast
+       correct-answer chaining is correctAdvance()'s job, not this. If a
+       mode ever truly needs a faster lane, opt it in explicitly here. */
+    void mode;
+    return JUDGE_MS;
+  }
   var VIEWS = ["boot","intro","menu","brief","sitebrief","atlas","act","play",
                "results","study","relics","seals","records","settings"];
 
@@ -116,7 +125,7 @@ var Flow = (function(){
   }
 
   return {
-    WIPE_MS: WIPE_MS, JUDGE_MS: JUDGE_MS, VIEWS: VIEWS, STATES: STATES,
+    WIPE_MS: WIPE_MS, JUDGE_MS: JUDGE_MS, judgeMs: judgeMs, VIEWS: VIEWS, STATES: STATES,
     leavePlay: leavePlay, leaveView: leaveView, shouldWipe: shouldWipe,
     state: state
   };

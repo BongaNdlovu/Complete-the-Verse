@@ -667,19 +667,10 @@ body.biblical-thriller{
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background:
-    radial-gradient(
-      ellipse 62% 46% at 50% 44%,
-      rgba(3, 3, 4, .28) 0%,
-      rgba(3, 3, 4, .58) 68%,
-      rgba(0, 0, 0, .86) 100%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(0, 0, 0, .48) 0%,
-      rgba(0, 0, 0, .18) 38%,
-      rgba(0, 0, 0, .66) 100%
-    );
+  /* Darkening gradients removed by user request — the Ur ambient video
+     must stay visible behind the question. Keep the layer itself
+     (z-index 1, inert) so stacking above it is unchanged. */
+  background: none;
 }
 .biblical-thriller .stage:after{display:none}
 .biblical-thriller .edge.l{background:linear-gradient(90deg,rgba(79,10,14,.34),rgba(33,9,10,.08) 48%,transparent)}
@@ -769,6 +760,20 @@ body.reduced .biblical-thriller .verse-stage:after{animation:none}
   overflow: hidden;
   pointer-events: none;
 }
+.cine-parallax-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  /* No color grading — show the clip as authored. */
+  filter: none;
+  transition: opacity 0.6s ease;
+  transform: translateZ(0);
+  pointer-events: none;
+  z-index: 1;
+}
 .cine-parallax-img {
   position: absolute;
   inset: -6%;
@@ -782,6 +787,7 @@ body.reduced .biblical-thriller .verse-stage:after{animation:none}
   animation: cineKenBurns 34s ease-in-out infinite alternate;
   transition: opacity 1.2s ease, filter 1.2s ease;
   transform: translateZ(0);
+  z-index: 1;
 }
 @keyframes cineKenBurns {
   0% { transform: scale(1) translate(0, 0); }
@@ -795,17 +801,23 @@ body.motion-calm .cine-parallax-img {
 .cine-parallax-veil {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 85% 75% at 50% 45%, rgba(10, 8, 4, 0.74) 0%, rgba(4, 3, 2, 0.94) 86%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  /* Dark veil + blur removed by user request so the ambient video shows
+     through clearly. Element stays in place (inert) for future use. */
+  pointer-events: none;
+  z-index: 2;
 }
 .cine-parallax-grain {
+  /* Hidden by user request — any overlay between the viewer and the
+     ambient video stays off. Element kept for future use. */
+  display: none;
   position: absolute;
   inset: 0;
   opacity: 0.14;
   background-image: radial-gradient(rgba(217, 182, 103, 0.35) 1px, transparent 1px);
   background-size: 24px 24px;
   mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* ================= 1. FALSEHOOD STRIKE (ERROR PURGE) ================= */

@@ -62,7 +62,8 @@ assert(/\? 1400 : 1500/.test(game), "correct answers chain at a readable 1400/15
 assert(/function queueAdvance/.test(game) && /playWipe/.test(game),
   "correct path advances through the wipe gate");
 assert(!/autoLock\(\)\?720:1450/.test(game), "the old 1450ms dead air is gone");
-assert(/afterRun\(typeof Flow!==["']undefined["'] \? Flow\.JUDGE_MS : 2500, queueAdvance\)/.test(game), "wrong answers keep the 2.5-second teach pause");
+assert(/afterRun\(answerHoldMs\(\), queueAdvance\)/.test(game), "answers route through the shared answerHoldMs gate");
+assert(!/JUDGE_MS : 0/.test(game), "no mode collapses the post-answer teach pause to zero");
 
 /* ---------------- M5 Overdrive ride or bank ---------------- */
 assert(/function offerOverdriveChoice/.test(game), "offerOverdriveChoice exists");

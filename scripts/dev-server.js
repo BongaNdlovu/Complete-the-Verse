@@ -33,6 +33,7 @@ const TYPES = {
 };
 
 http.createServer(function (req, res) {
+  if (process.env.CTV_LOG) console.log("[req]", req.url, "| range:", req.headers.range || "-", "| ua:", (req.headers["user-agent"]||"").slice(0,30));
   var rel;
   try { rel = decodeURIComponent(req.url.split("?")[0]); }
   catch (e) { res.writeHead(400).end("bad request"); return; }
@@ -42,13 +43,38 @@ http.createServer(function (req, res) {
   // Never serve outside the project, whatever the path claims to be.
   if (path.relative(ROOT, file).startsWith("..")) { res.writeHead(403).end("forbidden"); return; }
 
-  fs.readFile(file, function (err, buf) {
-    if (err) { res.writeHead(404).end("not found: " + rel); return; }
-    res.writeHead(200, {
-      "Content-Type": TYPES[path.extname(file).toLowerCase()] || "application/octet-stream",
-      "Cache-Control": "no-store"
-    });
-    res.end(buf);
+  fs.stat(file, function (err, st) {
+    if (err || !st.isFile()) { res.writeHead(404).end("not found: " + rel); return; }
+    const type = TYPES[path.extname(file).toLowerCase()] || "application/octet-stream";
+    /* Media elements (the Ur ambient video) issue Range requests for
+       buffering/seeking. Answer them properly instead of one big 200.
+       Media must stay CACHEABLE: no-store on partial responses makes
+       Chromium's media pipeline stall on seeks. Code stays no-store so
+       dev edits always load fresh. */
+    const media = /\.(mp4|webm|mp3|ogg|wav|m4a)$/i.test(file);
+    const cacheCtl = media ? "public, max-age=3600" : "no-store";
+    const baseHeaders = { "Content-Type": type, "Accept-Ranges": "bytes", "Cache-Control": cacheCtl };
+    const range = req.headers.range;
+    if (range) {
+      const m = /^bytes=(\d*)-(\d*)$/.exec(String(range).trim());
+      let start = 0, end = st.size - 1;
+      if (!m || (m[1] === "" && m[2] === "") ||
+          (m[1] === "" ? false : (start = parseInt(m[1], 10)) > st.size - 1) ||
+          (m[2] !== "" && (end = parseInt(m[2], 10)) < start)) {
+        res.writeHead(416, { "Content-Range": "bytes */" + st.size }).end();
+        return;
+      }
+      if (m[1] === "") start = Math.max(0, st.size - parseInt(m[2], 10));
+      end = Math.min(end, st.size - 1);
+      res.writeHead(206, Object.assign({}, baseHeaders, {
+        "Content-Range": "bytes " + start + "-" + end + "/" + st.size,
+        "Content-Length": end - start + 1
+      }));
+      fs.createReadStream(file, { start: start, end: end }).pipe(res);
+      return;
+    }
+    res.writeHead(200, Object.assign({}, baseHeaders, { "Content-Length": st.size }));
+    fs.createReadStream(file).pipe(res);
   });
 }).listen(PORT, function () {
   console.log("Complete the Verse — http://localhost:" + PORT);

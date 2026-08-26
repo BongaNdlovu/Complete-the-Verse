@@ -73,6 +73,24 @@ console.log("=== EXECUTING DEEP ARC I VERIFICATION ===");
 
 const sb = bootGame();
 
+/* ------------------------------------------------------------------
+   Post-answer hold contract (regression guard): Flow.judgeMs must keep
+   the 2.5s teach pause in EVERY mode. A prior batch made gameplay
+   resolve to 0ms, snapping wrong answers away before the verdict or
+   word diff could be read. Asserted behaviorally against the booted
+   engine, not just as source text. */
+{
+  eq("Flow.JUDGE_MS is the 2.5s teach pause", read(sb, "Flow.JUDGE_MS"), 2500);
+  for (const m of ["pilgrimage", "blitz", "speed", "daily", "tutorial", ""]) {
+    eq(`Flow.judgeMs(${JSON.stringify(m)}) keeps the teach pause`,
+       read(sb, `Flow.judgeMs(${JSON.stringify(m)})`), 2500);
+  }
+  exec(sb, 'R.mode = "pilgrimage";');
+  eq("answerHoldMs() keeps the teach pause in pilgrimage", read(sb, "answerHoldMs()"), 2500);
+  exec(sb, 'R.mode = "blitz";');
+  eq("answerHoldMs() keeps the teach pause in blitz", read(sb, "answerHoldMs()"), 2500);
+}
+
 ARC1_SITES.forEach((site, sIdx) => {
   console.log(`\n--- Testing Destination ${sIdx + 1}/9: ${site.id.toUpperCase()} ---`);
   
@@ -110,6 +128,23 @@ ARC1_SITES.forEach((site, sIdx) => {
   if (bgImg) {
     const bgStyle = bgImg.style.backgroundImage || "";
     assert(bgStyle.includes(`assets/journey/${site.id}.webp`), `[${site.id}] Cinematic background syncs to assets/journey/${site.id}.webp (got: ${bgStyle})`);
+  }
+
+  // Ambient video gate: Ur's looping clip may show ONLY at Ur. A prior
+  // batch gated it on a loose siteIdx fallback and lit it on every site.
+  {
+    const vidEl = read(sb, `$("cine-parallax-video")`);
+    assert(!!vidEl, `[${site.id}] Ambient video element exists`);
+    if (vidEl) {
+      const shown = vidEl.style.display === "block";
+      if (site.id === "ur") {
+        assert(shown, `[${site.id}] Ur ambient video is visible at Ur`);
+        assert(String(vidEl.src || "").includes("assets/journey/ur.mp4"),
+               `[${site.id}] Ur ambient video source is assets/journey/ur.mp4`);
+      } else {
+        assert(!shown, `[${site.id}] Ambient video stays hidden off Ur (display=${vidEl.style.display})`);
+      }
+    }
   }
 
   // 5. Play Through All 8 Verses & Verify Each Mechanic
