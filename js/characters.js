@@ -118,7 +118,8 @@ var BIBLE_FIGURES = [
     arc: "patriarchs",
     unlock: { arc: "patriarchs" },
     portrait: "assets/characters/abram/portrait.png",
-    token: "assets/characters/abram/token.png"
+    token: "assets/characters/abram/token.png",
+    question: "assets/characters/abram/question.png"
   },
   {
     id: "moses",

@@ -221,14 +221,21 @@
       <div class="cine-parallax-grain"></div>
     </div>
 
+    <!-- The Patriarchs character is a separate transparent layer so the
+         Ur video can remain atmospheric without baking UI art into it. -->
+    <figure class="question-abraham" id="question-abraham" aria-hidden="true">
+      <div class="question-abraham-aura"></div>
+      <img src="assets/characters/abram/question.png" alt="" decoding="async" fetchpriority="low">
+    </figure>
+
     <header class="hdr">
       <div class="hdr-side l">
-        <div class="hdr-lab">Question Difficulty</div>
+        <div class="hdr-lab" id="hud-left-lab">Memory Tier</div>
         <div class="hdr-val" id="hud-diff">Foundation</div>
       </div>
-      <div class="hdr-title">Complete the Verse <small style="display:block;font-family:var(--ui);font-size:.26em;letter-spacing:.5em;color:var(--gold-dim);margin-top:.7em">The Scripture Trial</small></div>
+      <div class="hdr-title">Complete the Verse <small id="hud-journey">The Patriarchs</small></div>
       <div class="hdr-side r">
-        <div class="hdr-lab">Round Title</div>
+        <div class="hdr-lab" id="hud-right-lab">Site</div>
         <div class="hdr-val" id="hud-round">The Familiar</div>
       </div>
       <div class="hdr-rule"></div>

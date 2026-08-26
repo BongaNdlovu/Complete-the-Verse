@@ -130,12 +130,15 @@ const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"))
 ok("the three dependency is dropped", !pkg.dependencies || !pkg.dependencies.three, pkg.dependencies);
 const chars = fs.readdirSync(path.join(ROOT, "assets", "characters"));
 ok("character folders carry only wired art",
-   chars.every(c => ["portrait.png", "token.png"].sort().join() ===
+   chars.every(c => (c === "abram" ? ["portrait.png", "question.png", "token.png"] : ["portrait.png", "token.png"]).sort().join() ===
      fs.readdirSync(path.join(ROOT, "assets", "characters", c)).sort().join()),
    chars.filter(c => {
      const f = fs.readdirSync(path.join(ROOT, "assets", "characters", c)).sort().join();
-     return f !== ["portrait.png", "token.png"].sort().join();
+     const expected = c === "abram" ? ["portrait.png", "question.png", "token.png"] : ["portrait.png", "token.png"];
+     return f !== expected.sort().join();
    }));
+ok("Abraham question art is mapped in character data",
+   /question:\s*["']assets\/characters\/abram\/question\.png["']/.test(fs.readFileSync(path.join(ROOT, "js", "characters.js"), "utf8")));
 const vercelIgnore = fs.readFileSync(path.join(ROOT, ".vercelignore"), "utf8");
 ok("content tooling stays out of the deploy", /^content\/$/m.test(vercelIgnore));
 

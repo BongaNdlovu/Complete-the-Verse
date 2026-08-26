@@ -31,6 +31,7 @@ var Pilgrimage = (function () {
   var SITE_LIST = typeof SITES  !== "undefined" ? SITES  : [];
   var ARC_LIST  = typeof ARCS   !== "undefined" ? ARCS   : [];
   var VERSE_BANK = typeof VERSES !== "undefined" ? VERSES : [];
+  var VIGNETTE_LIST = typeof VIGNETTES !== "undefined" ? VIGNETTES : {};
 
   /* Old and New Testament split, for the third fallback ring. */
   var NT_BOOKS = {
@@ -59,6 +60,7 @@ var Pilgrimage = (function () {
     if (d.SITES)  SITE_LIST  = d.SITES;
     if (d.ARCS)   ARC_LIST   = d.ARCS;
     if (d.VERSES) VERSE_BANK = d.VERSES;
+    if (d.VIGNETTES) VIGNETTE_LIST = d.VIGNETTES;
   }
 
   function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
@@ -699,8 +701,19 @@ var Pilgrimage = (function () {
   }
 
   function vignette(siteId) {
-    if (typeof VIGNETTES !== "undefined" && VIGNETTES && VIGNETTES[siteId]) {
-      return VIGNETTES[siteId];
+    if (VIGNETTE_LIST && VIGNETTE_LIST[siteId]) {
+      var authored = VIGNETTE_LIST[siteId];
+      /* These are the authored journey paintings currently shipped. Other
+         sites use their own shipped artifact, not a failing request and
+         then Ur's scenery as a misleading fallback. */
+      var shippedJourneyArt = {
+        ur: 1, haran: 1, shechem: 1, bethel: 1, penuel: 1,
+        hebron: 1, beersheba: 1, moriah: 1, dothan: 1
+      };
+      if (!shippedJourneyArt[siteId] && authored.fallback) {
+        return Object.assign({}, authored, { image: authored.fallback });
+      }
+      return authored;
     }
     var s = site(siteId);
     if (!s) return null;
@@ -736,7 +749,7 @@ var Pilgrimage = (function () {
     speedSlot: speedSlot, barrageArc: barrageArc, mixedTypedSlot: mixedTypedSlot,
     verseClockFor: verseClockFor, verseWordCount: verseWordCount,
     spiralPass: spiralPass, passStandard: passStandard, advanceSpiral: advanceSpiral,
-    vignette: vignette, vignettes: function () { return typeof VIGNETTES !== "undefined" ? VIGNETTES : {}; }
+    vignette: vignette, vignettes: function () { return VIGNETTE_LIST; }
   };
 })();
 

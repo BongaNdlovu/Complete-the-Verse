@@ -640,7 +640,8 @@ function syncHallVideo(quality){
   const holdForIntro=currentView==="intro" || (currentView==="boot" && !introDone && introAllowed());
   /* The hall bed plays only when quality, motion and the user's data
      preference all allow it — and it is never fetched until then. */
-  const allow=quality!=="low" && !document.body.classList.contains("reduced") && !holdForIntro && !dataSaverOn();
+  // The hall is menu scenery, never a second gameplay backdrop.
+  const allow=currentView!=="play" && quality!=="low" && !document.body.classList.contains("reduced") && !holdForIntro && !dataSaverOn();
   if(!allow){
     try{ v.pause(); }catch(e){}
     document.body.classList.remove("hall-ready");

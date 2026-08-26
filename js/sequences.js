@@ -38,6 +38,7 @@ function startPassage(){
   R.q = null; R.recon = null; R.locked = false; R.qTotal++;
   R.passage = {p, idx:0, wrong:0};
   R.setpiece.remaining = p.blanks.length;
+  if(typeof syncAbrahamPresentation === "function") syncAbrahamPresentation("passage");
 
   Director.pressure(0);
   $("ref").textContent = p.r + " — KJV";
@@ -90,8 +91,8 @@ function fillBlank(val, btn){
     else x.classList.add("mute");
   });
   $("opts").classList.add("locked");
-  if(ok){ Snd.correct(); doFlash("gold"); Director.impact("correct"); }
-  else { st.wrong++; Snd.wrong(); doFlash("red"); Director.impact("wrong"); shakeUI(true); }
+  if(ok){ Snd.correct(); doFlash("gold"); Director.impact("correct"); if(typeof reactAbraham === "function") reactAbraham(true); }
+  else { st.wrong++; if(typeof reactAbraham === "function") reactAbraham(false); Snd.wrong(); doFlash("red"); Director.impact("wrong"); shakeUI(true); }
 
   st.idx++;
   R.setpiece.remaining = st.p.blanks.length - st.idx;
@@ -144,6 +145,7 @@ function startReconstruct(){
   R.q = null; R.passage = null; R.locked = false; R.qTotal++;
   R.recon = {p, frags, slots:new Array(frags.length).fill(null), drag:null};
   R.setpiece.remaining = frags.length;
+  if(typeof syncAbrahamPresentation === "function") syncAbrahamPresentation("reconstruct");
 
   Director.pressure(0);
   $("ref").textContent = p.r + " — KJV";
@@ -290,6 +292,7 @@ function finishSequence(o){
     animateScore();
   }
   if(perfect){
+    if(typeof reactAbraham === "function") reactAbraham(true);
     R.correct++; R.streak++; R.best = Math.max(R.best, R.streak);
     R.booksRun.add(o.book);
     Snd.correct(); doFlash("gold");
@@ -297,6 +300,7 @@ function finishSequence(o){
     setMult(true); Director.momentum(true);
     afterRun(1700, nextQuestion);
   } else {
+    if(typeof reactAbraham === "function") reactAbraham(false);
     R.streak = 0; setMult();
     const passage = PASSAGES.find(p=>p.id===o.id);
     if(passage){

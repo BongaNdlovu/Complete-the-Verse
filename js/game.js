@@ -386,6 +386,7 @@ function go(view){
   // The site's sky belongs to the site. Anywhere else gets the game's
   // own grading back.
   if(view!=="play"){ applySiteSky(null); document.body.classList.remove("mode-typed"); }
+  if(view!=="play" && typeof syncAbrahamPresentation === "function") syncAbrahamPresentation(null);
   if(view==="intro"){ syncHallVideo(SAVE.set.quality); }
   if(view==="atlas"){ Backdrop.palette("menu"); Snd.ambience("menu"); openAtlas(); }
   if(view==="boot"){ Backdrop.palette("menu"); syncHallVideo(SAVE.set.quality); }
@@ -406,6 +407,8 @@ function go(view){
   if(view==="settings") renderSettings();
   updatePlayerCard();   // shows/hides the player card and top-right icons per view
   document.body.classList.toggle("view-play", view==="play");
+  // The per-site layer is the sole backdrop during gameplay.
+  if(view==="play") syncHallVideo(SAVE.set.quality);
   if(typeof Director!=="undefined" && Director.syncFx) Director.syncFx();
   if(view==="play") ensureLoop(); else if(!(plan && plan.stopLoop===false)) stopLoop();
 }
@@ -893,6 +896,26 @@ function updateChips(){
   const diffEl = $("hud-diff");
   diffEl.textContent = TIER_NAMES[tier] || "Foundation";
   diffEl.classList.toggle("danger", tier>=5);
+
+  /* The live header is journey-first on the road. Keep the tier in the
+     left rail, but give the centre title and right rail the same identity
+     as the atlas and site brief. Other modes retain their trial label. */
+  const journeyEl = $("hud-journey");
+  const leftLab = $("hud-left-lab");
+  const rightLab = $("hud-right-lab");
+  const isRoad = R.mode === "pilgrimage" || R.mode === "pilgrim-recall" || R.mode === "relay";
+  let journeyName = "The Scripture Trial";
+  if(isRoad){
+    const site = R.siteId && typeof Pilgrimage !== "undefined" && Pilgrimage.site
+      ? Pilgrimage.site(R.siteId) : null;
+    const arcKey = site ? site.arc : R.relay && R.relay.arcKey;
+    const arc = arcKey && typeof Pilgrimage !== "undefined" && Pilgrimage.arc
+      ? Pilgrimage.arc(arcKey) : null;
+    journeyName = arc ? arc.name : "The Pilgrimage";
+  }
+  if(journeyEl) journeyEl.textContent = journeyName;
+  if(leftLab) leftLab.textContent = "Memory Tier";
+  if(rightLab) rightLab.textContent = isRoad ? "Site" : "Round Title";
 
   if(R.mode==="trial"){
     const A=ACTS[R.actIdx];

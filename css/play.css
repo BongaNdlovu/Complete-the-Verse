@@ -801,8 +801,8 @@ body.motion-calm .cine-parallax-img {
 .cine-parallax-veil {
   position: absolute;
   inset: 0;
-  /* Dark veil + blur removed by user request so the ambient video shows
-     through clearly. Element stays in place (inert) for future use. */
+  /* A light grade preserves text contrast without obscuring the video. */
+  background:linear-gradient(90deg,rgba(3,3,4,.52),rgba(3,3,4,.22) 58%,rgba(3,3,4,.38));
   pointer-events: none;
   z-index: 2;
 }
@@ -1291,4 +1291,152 @@ body.reduced .strike-shattered,
 body.reduced .strike-restored,
 body.reduced .cloze-chip.illuminate-target {
   animation: none;
+}
+
+/* ================= PATRIARCHS QUESTION COMPOSITION =================
+   The Ur loop remains the world layer. Abraham is a transparent, responsive
+   foreground layer with enough breathing room for every answer mechanic. */
+.hdr-title small{
+  display:block;
+  margin-top:.42em;
+  font-family:var(--ui);
+  font-size:.29em;
+  font-weight:600;
+  letter-spacing:.42em;
+  color:#a98b55;
+  text-align:center;
+}
+.biblical-thriller #v-play .hdr-title{display:block!important}
+
+.question-abraham{
+  display:none;
+  position:absolute;
+  right:clamp(12px,2.5vw,40px);
+  bottom:calc(var(--ftr-h) + clamp(10px,2.5vh,28px));
+  width:clamp(250px,30vw,470px);
+  height:min(78vh,760px);
+  margin:0;
+  z-index:2;
+  pointer-events:none;
+  opacity:0;
+  visibility:hidden;
+  transform:translate3d(3%,0,0);
+  transition:opacity .55s ease,transform .8s cubic-bezier(.16,.84,.28,1),visibility .55s;
+}
+.question-abraham.on{
+  display:block;
+  opacity:1;
+  visibility:visible;
+  transform:none;
+}
+.question-abraham-aura{
+  position:absolute;
+  inset:12% -13% 3%;
+  z-index:0;
+  border-radius:50%;
+  background:radial-gradient(ellipse at 50% 62%,rgba(211,154,63,.28),rgba(116,24,19,.14) 42%,transparent 72%);
+  filter:blur(22px);
+  opacity:.62;
+}
+.question-abraham img{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center bottom;
+  filter:drop-shadow(0 18px 18px rgba(0,0,0,.72)) drop-shadow(0 0 16px rgba(224,171,78,.2));
+  animation:abrahamFloat 7s ease-in-out infinite;
+}
+@keyframes abrahamFloat{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-5px) rotate(.18deg)}
+}
+body.reduced .question-abraham img,
+body.motion-calm .question-abraham img{animation:none}
+
+/* A readable left composition that still leaves the filmed site visible at
+   the edges. The character sits behind this content instead of competing
+   with answer hit targets. */
+body.abraham-active .question-content{
+  width:min(62vw,900px);
+  align-self:flex-start;
+  margin-left:0;
+  margin-right:auto;
+}
+body.abraham-active .verse-stage{
+  width:100%;
+  padding:clamp(14px,2.4vh,26px) clamp(18px,2.4vw,34px);
+  background:linear-gradient(90deg,rgba(5,5,7,.86),rgba(7,6,7,.58) 72%,rgba(7,6,7,.24));
+  border:1px solid rgba(213,173,98,.27);
+  box-shadow:0 18px 42px -24px #000,inset 0 0 34px rgba(0,0,0,.18);
+}
+body.abraham-active .answers,
+body.abraham-active .assembly.on,
+body.abraham-active .cloze-stage,
+body.abraham-active .duel-stage,
+body.abraham-active .tf-stage{
+  width:100%;
+  max-width:none;
+}
+body.abraham-active .assembly.on{margin-top:clamp(12px,2vh,22px)}
+body.abraham-active .control{width:100%}
+
+/* Dense mechanics give the illustration more visual air while keeping it
+   present as the journey's companion. */
+.question-abraham[data-mechanic="typed"]{width:clamp(208px,23vw,350px);opacity:.9}
+.question-abraham[data-mechanic="cloze"],
+.question-abraham[data-mechanic="strike"],
+.question-abraham[data-mechanic="truefalse"]{width:clamp(230px,27vw,410px)}
+.question-abraham[data-mechanic="fade"]{width:clamp(205px,23vw,350px);opacity:.78}
+.question-abraham[data-mechanic="passage"],
+.question-abraham[data-mechanic="reconstruct"]{width:clamp(185px,21vw,320px);opacity:.52}
+.question-abraham.success img{animation:abrahamSuccess .72s cubic-bezier(.16,.84,.28,1) both}
+.question-abraham.failure img{animation:abrahamFailure .46s cubic-bezier(.2,.7,.2,1) both}
+@keyframes abrahamSuccess{
+  0%{transform:translateY(0) scale(1)}
+  42%{transform:translateY(-7px) scale(1.018)}
+  100%{transform:translateY(0) scale(1)}
+}
+@keyframes abrahamFailure{
+  0%,100%{transform:translateX(0) rotate(0)}
+  22%{transform:translateX(-3px) rotate(-.35deg)}
+  48%{transform:translateX(3px) rotate(.35deg)}
+  74%{transform:translateX(-1px) rotate(-.1deg)}
+}
+body.reduced .question-abraham.success img,
+body.reduced .question-abraham.failure img,
+body.motion-calm .question-abraham.success img,
+body.motion-calm .question-abraham.failure img{animation:none}
+
+/* Full-screen overlays own the visual focus. */
+body.abraham-active:has(#pause.on) .question-abraham,
+body.abraham-active:has(#site-quote.on) .question-abraham,
+body.abraham-active:has(#overdrive-choice.on) .question-abraham,
+body.abraham-active:has(#state-panel.on) .question-abraham,
+body.abraham-active:has(#tutorial.on) .question-abraham,
+body.abraham-active:has(#setpiece-card.on) .question-abraham,
+body.abraham-active:has(#reveal-stage.on) .question-abraham{
+  opacity:0;
+  visibility:hidden;
+}
+
+@media (max-width:900px) and (min-width:601px){
+  body.abraham-active .question-content{width:calc(100% - 210px)}
+  .question-abraham{
+    right:clamp(6px,2vw,22px);
+    width:clamp(180px,24vw,270px);
+    height:min(74vh,560px);
+    opacity:.76;
+  }
+}
+@media (max-width:600px){
+  /* At phone width the answer controls are more important than the art.
+     The Ur footage and Patriarchs labels remain, while the full-body layer
+     steps out so it cannot cover a choice or typed input. */
+  .question-abraham{display:none!important}
+  body.abraham-active .question-content{width:100%;margin-left:0;margin-right:0}
+  body.abraham-active .verse-stage{width:100%}
 }

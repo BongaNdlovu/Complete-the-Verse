@@ -235,6 +235,8 @@ console.log("\n--- Mode 10/10: ARC RELAY ---");
   exec(sb, `pendingArcKey = "patriarchs"; startRun("relay", "watchman");`);
   eq("Relay mode active", read(sb, `R.mode`), "relay");
   assert(read(sb, `R.relay.queue.length`) > 0, "Relay queue loaded");
+  assert(read(sb, `R.siteId === R.relay.current.siteId && R.siteIndex === R.relay.current.index`),
+    "Relay mirrors its active site into shared road state");
   const qLen = read(sb, `R.relay.queue.length`);
   for (let rqi = 0; rqi < Math.min(10, qLen); rqi++) {
     exec(sb, `resolveAnswer(R.q, R.q.a, $("btn-opt-0"), 800, 6000); nextQuestion();`);

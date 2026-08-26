@@ -29,7 +29,7 @@ play. `node test.js` (or `npm test`) is the only tooling gate.
 ```
 index.html          the single page — all views are <section class="view">s
 README.md           repository entry point
-test.js             root test runner (runs all 49 test suites)
+test.js             root test runner (runs all 50 test suites)
 js/*.js             see module map below (loaded as classic <script>, globals)
 css/*.css           game styling, film FX, and atlas map
 vendor/leaflet/     Leaflet 1.9.4 (map — vendored, never CDN)
@@ -406,7 +406,7 @@ bank answers nearest in length — numbered fakes were removed.
 
 ## 10. Testing — the three styles (know which one you are writing)
 
-`node test.js` runs 49 suites in a fixed order: content gate → pure
+`node test.js` runs 50 suites in a fixed order: content gate → pure
 logic → integration sandbox → structural/static suites.
 
 1. **Pure requires** (`srs.test.js`, `recall.test.js`, `geo.test.js`,

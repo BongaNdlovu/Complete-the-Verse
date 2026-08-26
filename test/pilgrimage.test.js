@@ -12,7 +12,7 @@ const P = require("../js/pilgrimage");
 const { loadBank } = require("../scripts/load-bank");
 
 const bank = loadBank();
-P.attach({ SITES: S.SITES, ARCS: S.ARCS, VERSES: bank.VERSES });
+P.attach({ SITES: S.SITES, ARCS: S.ARCS, VERSES: bank.VERSES, VIGNETTES: S.VIGNETTES });
 
 let pass = 0, fail = 0;
 function ok(name, cond, extra){
@@ -50,6 +50,10 @@ function walkTo(n){
   ok("site() returns the record", P.site("babylon").name.indexOf("BABYLON") === 0);
   eq("site() is null for a stranger", P.site("atlantis"), null);
   eq("siteAt is null past the end", P.siteAt(999), null);
+
+  eq("a shipped journey scene is retained", P.vignette("haran").image, "assets/journey/haran.webp");
+  eq("an unshipped journey scene uses its own artifact", P.vignette("sinai").image, "assets/artifacts/tablet-sinai.png");
+  ok("a site never falls back to Ur scenery", P.vignette("sinai").image !== "assets/journey/ur.webp");
 
   eq("arcs are all present", P.arcs().length, 5);
   ok("sitesInArc partitions the road",

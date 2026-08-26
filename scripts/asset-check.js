@@ -3,11 +3,30 @@ const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
 let issues = 0;
+let resolvedFallbacks = 0;
+
+/* VIGNETTES may name an authored journey scene that has not shipped yet.
+   Gameplay resolves those entries to their per-site artifact fallback, so
+   validate the fallback rather than flagging a path that is never requested
+   at runtime. */
+const journeyFallbacks = new Map();
+const sitesSource = fs.readFileSync(path.join(root, 'js', 'sites.js'), 'utf8');
+for (const m of sitesSource.matchAll(/image:\s*["']([^"']+)["']\s*,\s*fallback:\s*["']([^"']+)["']/g)) {
+  journeyFallbacks.set(m[1], m[2]);
+}
 
 function checkRef(ref, fromFile) {
   if (/^(https?:)?\/\//.test(ref) || ref.startsWith('data:')) return;
+  // CSS/SVG same-document fragments are not filesystem paths.
+  if (decodeURIComponent(ref).startsWith('#')) return;
   const p = path.join(root, ref.replace(/^\//, '').split('?')[0]);
-  if (!fs.existsSync(p)) { console.log(`MISSING: ${ref}  (referenced in ${fromFile})`); issues++; }
+  if (fs.existsSync(p)) return;
+  const fallback = journeyFallbacks.get(ref);
+  if (fallback) {
+    const fallbackPath = path.join(root, fallback);
+    if (fs.existsSync(fallbackPath)) { resolvedFallbacks++; return; }
+  }
+  console.log(`MISSING: ${ref}  (referenced in ${fromFile})`); issues++;
 }
 
 // CSS url(...) references
@@ -31,4 +50,6 @@ for (const f of fs.readdirSync(jsDir).filter(f => f.endsWith('.js'))) {
   for (const m of src.matchAll(/["']((?:assets|audio|sfx)\/[^"']+)["']/g)) checkRef(m[1], 'js/' + f);
 }
 
-console.log(issues === 0 ? 'ASSET CHECK CLEAN' : `ASSET CHECK FOUND ${issues} missing file(s)`);
+console.log(issues === 0
+  ? `ASSET CHECK CLEAN${resolvedFallbacks ? ` — ${resolvedFallbacks} journey scenes resolve to shipped artifacts` : ''}`
+  : `ASSET CHECK FOUND ${issues} missing file(s)`);

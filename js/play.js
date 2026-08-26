@@ -308,6 +308,12 @@ function nextQuestion(){
     // Leaving a site banks it before the next one starts.
     if(rl.current && rl.current.siteId !== entry.siteId) bankRelaySite(rl.current.siteId);
     rl.current = entry; rl.idx++;
+    /* Relay entries carry the authoritative site as the road advances.
+       Mirror it into the shared site fields because backdrop, character,
+       judgement territory, and other presentation helpers read those
+       fields rather than the relay-local cursor. */
+    R.siteId = entry.siteId;
+    R.siteIndex = entry.index;
     const site = Pilgrimage.site(entry.siteId);
     if(site){
       const arc = Pilgrimage.arc(site.arc);
@@ -341,7 +347,20 @@ function maybePlaySiteQuote(v, dur){
   R.quoteShown = true;
   if(document.body.classList.contains("reduced")) return false;
   if(typeof showSiteQuote === "function"){
-    showSiteQuote(site, function(){ witnessLook(false); renderQuestion(v, dur); });
+    // Render before the optional cold-open so the play view can never
+    // remain an empty shell if the cold-open is interrupted or hidden.
+    // The completed render arms its mechanic-specific duration; stop it
+    // while the overlay owns focus, then start that exact duration once
+    // the quote clears.
+    renderQuestion(v, dur);
+    const armedDuration = R.tTotal || dur;
+    stopTimer();
+    showSiteQuote(site, function(){
+      if(R.q===v && currentView==="play" && !R.ended){
+        witnessLook(false);
+        startTimer(armedDuration);
+      }
+    });
     return true;
   }
   return false;
@@ -441,8 +460,9 @@ function syncCinematicBackdrop(){
   if(!el) return;
   const siteId = R.siteId || (R.q && typeof Pilgrimage!=="undefined" && Pilgrimage.siteForBook ? (Pilgrimage.siteForBook(R.q.b)||{}).id : null) || "ur";
   const vig = (typeof Pilgrimage !== "undefined" && Pilgrimage.vignette) ? Pilgrimage.vignette(siteId) : null;
-  const imgUrl = vig ? vig.image : ("assets/journey/" + siteId + ".png");
-  el.style.backgroundImage = 'url("' + imgUrl + '"), url("assets/journey/ur.webp")';
+  // A site owns its own image. Never fall back to Ur for another stop.
+  const imgUrl = vig ? (vig.image || vig.fallback) : "";
+  el.style.backgroundImage = imgUrl ? 'url("' + imgUrl + '")' : "none";
 
   /* The ambient loop is Ur-only art. Gate STRICTLY on the resolved site
      id: the old "(R.siteIdx === 1 || !R.siteIdx)" arm lit Ur's video on
@@ -476,6 +496,42 @@ function syncCinematicBackdrop(){
       }
     }
   }
+}
+
+/* ------------------------- PATRIARCHS CHARACTER -------------------------
+   Abraham is a visual companion to an active Patriarchs site question. The
+   artwork stays separate from the cinematic backdrop so the Ur loop can
+   change independently, and so dense mechanics can ask CSS for a smaller
+   treatment without touching their input logic. */
+function syncAbrahamPresentation(mechanic){
+  const el = $("question-abraham");
+  if(!el) return;
+  const site = R && R.siteId && typeof Pilgrimage !== "undefined" && Pilgrimage.site
+    ? Pilgrimage.site(R.siteId) : null;
+  const isPatriarchs = !!(site && site.arc === "patriarchs");
+  const isRoad = R && (R.mode === "pilgrimage" || R.mode === "pilgrim-recall" || R.mode === "relay");
+  const active = isPatriarchs && isRoad && currentView === "play";
+  const kind = R && R.passage ? "passage"
+    : R && R.recon ? "reconstruct"
+    : mechanic || (R && R.typed ? "typed" : "choice");
+  clearTimeout(el._reactionTimer);
+  el.classList.remove("success", "failure");
+  el.classList.toggle("on", active);
+  document.body.classList.toggle("abraham-active", active);
+  el.dataset.mechanic = kind;
+  el.dataset.site = site ? site.id : "";
+}
+
+function reactAbraham(ok){
+  const el = $("question-abraham");
+  if(!el || !el.classList.contains("on")) return;
+  clearTimeout(el._reactionTimer);
+  el.classList.remove("success", "failure");
+  void el.offsetWidth;
+  el.classList.add(ok ? "success" : "failure");
+  el._reactionTimer = setTimeout(function(){
+    el.classList.remove("success", "failure");
+  }, ok ? 760 : 520);
 }
 
 /* Timers owned by a special question must die with that question. */
@@ -933,6 +989,7 @@ function resolveTrueFalse(choice, btn, timedOut){
   if(rightBtn){ rightBtn.classList.remove("mute"); rightBtn.classList.add("right"); }
   if(!ok && btn) btn.classList.add("bad");
   if(ok){
+    reactAbraham(true);
     R.correct++; R.streak++; R.best = Math.max(R.best, R.streak);
     if(elapsed < 1500) R.fast++;
     if(typeof updateQuickRewards === "function") updateQuickRewards();
@@ -961,6 +1018,7 @@ function resolveTrueFalse(choice, btn, timedOut){
     }
     afterRun(answerHoldMs(), queueAdvance);
   } else {
+    reactAbraham(false);
     const wasRiding = R.overdriveRide && inOverdrive();
     if(R.streak >= 3 && typeof Cinematic !== "undefined"){
       if(Cinematic.event) Cinematic.event("miss");
@@ -1155,6 +1213,7 @@ function renderQuestion(q, dur){
   if(typeof renderQuickRewards === "function") renderQuickRewards();
   document.body.classList.toggle("mode-typed", !!R.typed);
   document.body.classList.toggle("speed-round", !!R.speed);
+  syncAbrahamPresentation(mechanic || (R.typed ? "typed" : "choice"));
 
   if(mechanic === "strike") return renderStrikeQuestion(q, dur, scene);
   if(mechanic === "cloze") return renderClozeQuestion(q, dur, scene);
@@ -1352,6 +1411,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     mode: R.typed ? "assembly" : "choice"
   });
   if(ok){
+    reactAbraham(true);
     const blank=$("blank");
     if(blank){ blank.textContent=q.a; blank.classList.add("filled","reveal"); }
     R.correct++; R.streak++; R.best=Math.max(R.best,R.streak);
@@ -1435,6 +1495,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     R.overdriveRide=false;
     document.body.classList.remove("ember-ride");
     spillOil(R.streak||0);
+    reactAbraham(false);
     R.streak=0; setMult(); R.missed.push(q);
     if(R.mode==="blitz" && typeof Polish!=="undefined"){
       const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
@@ -1572,6 +1633,7 @@ function timeUp(){
     cueLevel:R.hintLevel||0, mode:R.typed ? "assembly" : "choice"
   });
   R.missed.push(q);
+  reactAbraham(false);
   Director.impact("wrong");Snd.wrong(); doFlash("red"); shakeUI(true);
   loseLife();
 }

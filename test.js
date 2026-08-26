@@ -44,6 +44,7 @@ const SUITE = [
   ["improvements", "test/improvements.test.js"],
   ["sky3d", "test/sky3d.test.js"],
   ["gameplay polish", "test/gameplay-polish.test.js"],
+  ["Patriarchs question screen", "test/patriarchs-question-screen.test.js"],
   ["excitement", "test/excitement.test.js"],
   ["beats", "test/beats.test.js"],
   ["answering", "test/answering.test.js"],

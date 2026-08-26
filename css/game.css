@@ -69,6 +69,8 @@ body.motion-calm #flash.heart{animation:none;opacity:0}
   pointer-events:none;opacity:0;transition:opacity .55s ease;
   transform:translateZ(0);backface-visibility:hidden;will-change:opacity}
 body.hall-ready #hall-bg{opacity:1}
+/* The hall video is menu-only; play owns a separate site backdrop. */
+body.view-play #hall-bg{opacity:0;visibility:hidden}
 body.hall-ready #grain{animation:none}
 body.hall-ready.biblical-thriller #v-menu:before,
 body.hall-ready.biblical-thriller #v-boot:before,
