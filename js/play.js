@@ -967,6 +967,7 @@ function resolveTrueFalse(choice, btn, timedOut){
       else Cinematic.showComboCollapse();
     }
     R.overdriveRide = false;
+    document.body.classList.remove("ember-ride");
     spillOil(R.streak || 0);
     R.streak = 0; setMult();
     Director.momentum(false); Director.impact("wrong");
@@ -1187,7 +1188,10 @@ function renderQuestion(q, dur){
 function pickAnswer(val, btn){
   if(!R.running || R.paused || R.locked) return;
   answerButtons().forEach(b=>{b.classList.remove("sel");b.setAttribute("aria-pressed","false");});
-  btn.classList.add("sel");
+  btn.classList.remove("sel-punch"); void btn.offsetWidth;
+  btn.classList.add("sel","sel-punch");
+  const _punchBtn = btn;
+  setTimeout(function(){ _punchBtn.classList.remove("sel-punch"); }, 240);
   btn.setAttribute("aria-pressed","true");
   R.selected = {val, btn};
   const confirm=$("confirm-answer");
@@ -1377,6 +1381,24 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * tierW * mechW * SetPieces.bonus() * (riding ? 2 : 1));
     R.score += gained;
     payCorrect(graded);
+    /* ===== Beat: STREAK IGNITION =====
+       Fires at Polish.BEATS cadence (5, then every 3rd). Layers WITH the
+       existing combo stamp/callout instead of replacing them. First hit
+       per run announces itself once (announce-before-it-fires rule). */
+    if(typeof Polish !== "undefined" && Polish.streakIgniteAt && Polish.streakIgniteAt(R.streak)){
+      if(!R.igniteAnnounced){
+        R.igniteAnnounced = true;
+        toast("IGNITION — the chain burns ×" + R.streak);
+      }
+      const rail = document.querySelector(".rail.r") || $("mult");
+      if(rail){
+        rail.classList.remove("streak-ignite"); void rail.offsetWidth;
+        rail.classList.add("streak-ignite");
+        const tok = R.sceneToken;
+        afterRun(950, function(){ if(R.sceneToken === tok) rail.classList.remove("streak-ignite"); });
+      }
+      Snd.ignite();
+    }
     if(R.mode==="blitz" && typeof Polish!=="undefined"){
       const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
       R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, true);
@@ -1411,6 +1433,7 @@ function resolveAnswer(q,choice,btn,elapsed,left){
       else Cinematic.showComboCollapse();
     }
     R.overdriveRide=false;
+    document.body.classList.remove("ember-ride");
     spillOil(R.streak||0);
     R.streak=0; setMult(); R.missed.push(q);
     if(R.mode==="blitz" && typeof Polish!=="undefined"){
@@ -1567,6 +1590,17 @@ function loseLife(count){
     return;
   }
   R.lives = Math.max(0, R.lives - count);
+  /* ===== Beat: LAMP LOSS TREMOR =====
+     The stage micro-trembles while the lost lamp gutters out — loss must
+     feel like loss. Scene-token-guarded so it dies with the question. */
+  const stage = document.querySelector(".stage");
+  if(stage && !SAVE.set.reduced){
+    stage.classList.remove("stage-tremor"); void stage.offsetWidth;
+    stage.classList.add("stage-tremor");
+    const tok = R.sceneToken;
+    afterRun(340, function(){ if(R.sceneToken === tok) stage.classList.remove("stage-tremor"); });
+  }
+  Snd.lampThud(); Snd.lampCrackle();
   renderLives(count);
   if(R.lives===1 && !R.oneLifeCalled){ R.oneLifeCalled=true; Director.speak("One life remains.",true); }
   if(R.lives<=0){

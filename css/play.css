@@ -820,6 +820,81 @@ body.motion-calm .cine-parallax-img {
   z-index: 2;
 }
 
+/* ================= MOTION PASS BEATS (Aug 2026) =================
+   State-reactive drama: Streak Ignition, Overdrive Surge, Lamp Loss
+   Tremor, lock punch, verdict stamp. Every beat dies under
+   body.reduced / body.motion-calm and none animate layout edges. */
+
+/* Beat 1 — STREAK IGNITION: gold flare around the score rail */
+.streak-ignite{position:relative}
+.streak-ignite::after{content:"";position:absolute;inset:-6px;border-radius:8px;pointer-events:none;z-index:7;
+  background:radial-gradient(ellipse at center, rgba(255,214,130,.32), rgba(255,180,60,.10) 55%, transparent 78%);
+  animation:igniteFlare .9s ease-out both}
+@keyframes igniteFlare{
+  0%{opacity:0;transform:scale(.86)}
+  22%{opacity:1;transform:scale(1.04)}
+  100%{opacity:0;transform:scale(1.12)}}
+body.reduced .streak-ignite::after,
+body.motion-calm .streak-ignite::after{animation:none;display:none}
+
+/* Beat 2 — OVERDRIVE SURGE: shockwave from the arming overlay */
+.od-ready::after{content:"";position:absolute;left:50%;top:38%;width:14px;height:14px;margin:-7px 0 0 -7px;
+  border-radius:50%;pointer-events:none;z-index:3;
+  border:2px solid rgba(255,214,130,.7);
+  animation:odShockwave .58s cubic-bezier(.16,.84,.28,1) both}
+@keyframes odShockwave{
+  0%{opacity:.95;transform:scale(.4)}
+  100%{opacity:0;transform:scale(44)}}
+body.reduced .od-ready::after,
+body.motion-calm .od-ready::after{animation:none;display:none}
+
+/* Beat 2b — riding embers along the stage edges while Overdrive rides */
+body.ember-ride .cine-wrap::before,
+body.ember-ride .cine-wrap::after{content:"";position:absolute;top:0;bottom:0;width:56px;z-index:2;
+  pointer-events:none;mix-blend-mode:screen}
+body.ember-ride .cine-wrap::before{left:0;
+  background:linear-gradient(90deg,rgba(255,150,40,.20),transparent);
+  animation:emberDriftL 2.1s ease-in-out infinite}
+body.ember-ride .cine-wrap::after{right:0;
+  background:linear-gradient(270deg,rgba(255,150,40,.20),transparent);
+  animation:emberDriftR 2.6s ease-in-out infinite}
+@keyframes emberDriftL{0%,100%{opacity:.3}45%{opacity:.68}}
+@keyframes emberDriftR{0%,100%{opacity:.36}40%{opacity:.7}}
+body.reduced.ember-ride .cine-wrap::before,
+body.reduced.ember-ride .cine-wrap::after,
+body.motion-calm.ember-ride .cine-wrap::before,
+body.motion-calm.ember-ride .cine-wrap::after{display:none}
+
+/* Beat 3 — LAMP LOSS TREMOR: the stage shudders on a lost life */
+.stage-tremor{animation:stageTremor .32s ease-out both}
+@keyframes stageTremor{
+  0%{transform:none}
+  18%{transform:translate(-4px,2px)}
+  36%{transform:translate(3px,-2px)}
+  54%{transform:translate(-2px,1px)}
+  72%{transform:translate(1px,-1px)}
+  100%{transform:none}}
+body.reduced .stage-tremor,
+body.motion-calm .stage-tremor{animation:none}
+
+/* Deepening — lock punch on the chosen card */
+.sel-punch{animation:lockPunch .24s cubic-bezier(.2,.8,.2,1) both}
+@keyframes lockPunch{
+  0%{transform:scale(1)}
+  42%{transform:scale(.96) translateY(1px)}
+  100%{transform:none}}
+body.reduced .sel-punch,
+body.motion-calm .sel-punch{animation:none}
+
+/* Deepening — verdict stamp on the verse text */
+.verdict-stamp{animation:verdictStamp .4s cubic-bezier(.16,.84,.28,1) both}
+@keyframes verdictStamp{
+  0%{transform:scale(1.05)}
+  55%{transform:scale(.99)}
+  100%{transform:none}}
+body.reduced .verdict-stamp,
+body.motion-calm .verdict-stamp{animation:none}
+
 /* ================= 1. FALSEHOOD STRIKE (ERROR PURGE) ================= */
 .strike-word {
   display: inline-block;

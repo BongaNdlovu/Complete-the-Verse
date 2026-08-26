@@ -14,6 +14,19 @@ function ok(name, cond, extra) {
 }
 function eq(name, got, want) { ok(name, got === want, { got, want }); }
 
+/* motion-beat math — Streak Ignition cadence */
+{
+  eq("BEATS constants are the shipped cadence", JSON.stringify(Polish.BEATS), JSON.stringify({ IGNITE_START: 5, IGNITE_EVERY: 3 }));
+  eq("no ignition below the start streak", Polish.streakIgniteAt(4), false);
+  eq("ignition fires at the start streak", Polish.streakIgniteAt(5), true);
+  eq("quiet between cadence hits", Polish.streakIgniteAt(6), false);
+  eq("ignition fires at start+every", Polish.streakIgniteAt(8), true);
+  eq("ignition fires at 11", Polish.streakIgniteAt(11), true);
+  eq("ignition quiet at 10", Polish.streakIgniteAt(10), false);
+  eq("safe on zero", Polish.streakIgniteAt(0), false);
+  eq("safe on negative", Polish.streakIgniteAt(-3), false);
+}
+
 /* clamps */
 {
   const d = Polish.clampDailyScore({ play_date: "2026-04-01", score: 9e9, accuracy: 150, duration_ms: -5, diff: "watchman" });

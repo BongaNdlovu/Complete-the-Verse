@@ -22,7 +22,14 @@ const SFX = [
   { key: "lock", file: "lock.mp3" },
   { key: "correct", file: "correct.mp3" },
   { key: "wrong", file: "wrong.mp3" },
-  { key: "power", file: "power.mp3" }
+  { key: "power", file: "power.mp3" },
+  /* Motion-pass beats (Aug 2026): Streak Ignition, Overdrive Surge,
+     Lamp Loss Tremor pair, verdict stamp. */
+  { key: "ignite", file: "streak-ignite.mp3" },
+  { key: "odReady", file: "od-ready.mp3" },
+  { key: "lampThud", file: "lamp-thud.mp3" },
+  { key: "lampCrackle", file: "lamp-crackle.mp3" },
+  { key: "stamp", file: "verdict-stamp.mp3" }
 ];
 
 assert(/const SFX\s*=\s*\{/.test(game), "SFX map present");

@@ -32,11 +32,18 @@ const Snd = (function(){
     tick:"sfx/tick.mp3",
     heart:"sfx/heart.mp3",
     power:"sfx/power.mp3",
+    /* Motion-pass beats (Aug 2026). Ignite layers WITH correct; the lamp
+       loss pair plays together on a lost life. */
+    ignite:"sfx/streak-ignite.mp3",
+    odReady:"sfx/od-ready.mp3",
+    lampThud:"sfx/lamp-thud.mp3",
+    lampCrackle:"sfx/lamp-crackle.mp3",
+    stamp:"sfx/verdict-stamp.mp3"
   };
   /* Ones that replace themselves so rapid re-triggers do not stack. */
-  const SFX_EXCL = { heart:1, tick:1 };
+  const SFX_EXCL = { heart:1, tick:1, lampCrackle:1 };
   /* Ones that briefly duck the bed so they cut through. */
-  const SFX_DUCK = { lock:1, correct:1, wrong:1, power:1 };
+  const SFX_DUCK = { lock:1, correct:1, wrong:1, power:1, odReady:1, lampThud:1 };
   const SFX_GAIN = { hover:0.4, lock:0.68, correct:0.72, wrong:0.66, power:0.5, heart:0.85,
                      ignite:0.62, odReady:0.7, lampThud:0.78, lampCrackle:0.6, stamp:0.55 };
   let voiceHold=null, pendingVoice=null, rainAudio=null, rainWired=false;
@@ -331,6 +338,28 @@ const Snd = (function(){
       if(playSfx("power")) return;
       duckMusic(0.18, 520);
       [880,1174.66,1567.98].forEach((f,i)=>tone(f,1.0,"sine",.08,i*.045));
+    },
+    /* ===== Motion-pass beat sounds (Aug 2026) =====
+       Sample-first with a synth fallback, exactly like correct/wrong. */
+    ignite(){
+      if(playSfx("ignite")) return;
+      [523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,.9,"sine",.07,i*.06));
+    },
+    odReady(){
+      if(playSfx("odReady")) return;
+      tone(55,1.1,"sine",.20); noise(.4,.05,2400);
+    },
+    lampThud(){
+      if(playSfx("lampThud")) return;
+      tone(70,.7,"sine",.22);
+    },
+    lampCrackle(){
+      if(playSfx("lampCrackle")) return;
+      noise(.5,.12,900);
+    },
+    stamp(){
+      if(playSfx("stamp")) return;
+      noise(.09,.03,2600);
     },
     death(){ duckMusic(0.12, 1600); tone(110,3.4,"sine",.20,0,27.5); tone(103.8,3.4,"sawtooth",.075,0,26); noise(1.7,.2,300); },
     victory(){ duckMusic(0.18, 1200); [392,493.88,587.33,783.99,987.77,1174.66].forEach((f,i)=>tone(f,3.0,"sine",.09,i*.1)); },

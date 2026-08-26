@@ -16,6 +16,17 @@ var Polish = (function () {
   var PACE = 1.2;
   /* Flat extra seconds added to every question clock, after pacing. */
   var FLAT_ADD_MS = 5000;
+  /* ===== Motion-pass beat constants =====
+     Streak Ignition: first flare at streak 5, then every 3rd correct
+     answer (8, 11, 14...). Single source of truth for play.js wiring,
+     the toast copy, and the tests. */
+  var BEATS = { IGNITE_START: 5, IGNITE_EVERY: 3 };
+
+  function streakIgniteAt(streak) {
+    var s = Number(streak) || 0;
+    if (s < BEATS.IGNITE_START) return false;
+    return (s - BEATS.IGNITE_START) % BEATS.IGNITE_EVERY === 0;
+  }
 
   function clamp(n, lo, hi) {
     n = Number(n);
@@ -448,7 +459,9 @@ var Polish = (function () {
     pacedClockMs: pacedClockMs,
     describeModeClock: describeModeClock,
     verseChunks: verseChunks,
-    dailyMechanicWeight: dailyMechanicWeight
+    dailyMechanicWeight: dailyMechanicWeight,
+    BEATS: BEATS,
+    streakIgniteAt: streakIgniteAt
   };
 })();
 

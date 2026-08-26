@@ -211,6 +211,23 @@ const Director = (function(){
     setTimeout(()=>document.body.classList.remove(cls), kind==="act"?980:640);
   }
   function showJudgeBurst(kind){
+    /* ===== Deepening: VERDICT STAMP =====
+       The verse text takes a quick stamp-scale as the judgement lands,
+       with its click. Runs ahead of the motion guards so the SOUND always
+       plays; the visual respects reduced settings below. */
+    const v = document.getElementById("verse");
+    const motionOff = typeof SAVE!=="undefined" && SAVE.set && (SAVE.set.reduced || (SAVE.set.motion && SAVE.set.motion!=="full"));
+    if(v){
+      if(motionOff || (window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)){
+        v.classList.remove("verdict-stamp");
+      } else {
+        v.classList.remove("verdict-stamp"); void v.offsetWidth;
+        v.classList.add("verdict-stamp");
+        clearTimeout(v._stampT);
+        v._stampT = setTimeout(function(){ v.classList.remove("verdict-stamp"); }, 430);
+      }
+    }
+    if(typeof Snd!=="undefined" && Snd.stamp) Snd.stamp();
     if(typeof SAVE!=="undefined" && SAVE.set && (SAVE.set.reduced || (SAVE.set.motion && SAVE.set.motion!=="full"))) return;
     const systemReduced=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
     if(systemReduced) return;

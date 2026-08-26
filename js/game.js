@@ -1252,6 +1252,15 @@ function offerOverdriveChoice(){
   R.running = false;
   document.body.classList.add("od-open");
   el.classList.add("on");
+  /* ===== Beat: OVERDRIVE SURGE (arming) =====
+     Shockwave from the meter + sub hit, layered under the existing gold
+     flash. One-shot; the choice overlay carries the animation. */
+  if(!SAVE.set.reduced){
+    el.classList.remove("od-ready"); void el.offsetWidth;
+    el.classList.add("od-ready");
+    setTimeout(function(){ el.classList.remove("od-ready"); }, 600);
+  }
+  Snd.odReady();
   Snd.power(); doFlash("gold");
   clearTimeout(R._odTimer);
   R._odTimer = setTimeout(function(){
@@ -1274,7 +1283,10 @@ function resolveOverdrive(choice){
     popScore("+"+fmt(bank)); toast("Overdrive banked — "+fmt(bank)+" added");
     Snd.power();
   } else {
+    /* ===== Beat: OVERDRIVE SURGE (riding) =====
+       Ember drift along the stage edges for as long as the ride lives. */
     R.overdriveRide = true;
+    document.body.classList.add("ember-ride");
     overdriveReward();
     Director.callout("Riding the fire — double pay, double risk");
     Snd.power(); doFlash("gold");
