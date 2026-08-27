@@ -43,9 +43,7 @@ function answerHoldMs(){
      wrong-answer teach pause is where the verdict and word diff get
      read; it must never collapse to 0. Correct answers chain faster via
      correctAdvance(), which is a separate path. */
-  return (typeof Flow !== "undefined" && typeof Flow.judgeMs === "function")
-    ? Flow.judgeMs(typeof R !== "undefined" ? R.mode : "")
-    : 2500;
+  return (typeof Flow !== "undefined" && Flow.JUDGE_MS) || 2500;
 }
 
 function fullVerseText(q){
@@ -231,32 +229,57 @@ function completeTutorialRun(){
 }
 
 /* ------------------------- QUESTION ADVANCE ------------------------- */
-function nextQuestionTrialGate(){
-  if(R.mode!=="trial") return false;
+/* One policy for nextQuestion and wipeContext. Kinds: ended, act,
+   complete, death, setpiece, setpiece-site, passage, reconstruct, continue. */
+function runPhaseTrial(){
+  if(R.mode!=="trial") return null;
   const acts = trialActs();
   const A = acts[R.actIdx];
   if(A && A.q !== Infinity && R.qInAct >= A.q){
-    if(R.actNoLoss && !hasSeal("unshaken")) grantSeal("unshaken");
-    if(R.actIdx < acts.length-1){ beginAct(R.actIdx+1); return true; }
-    endRun("complete"); return true;
+    return { kind: R.actIdx < acts.length-1 ? "act" : "complete", trialSeal: true };
   }
-  return !!SetPieces.maybeLaunch();
+  if(typeof SetPieces!=="undefined" && SetPieces.wouldLaunch && SetPieces.wouldLaunch())
+    return { kind:"setpiece" };
+  return null;
 }
-
-function nextQuestionSiteGate(){
+function runPhaseLimits(){
+  if(R.mode==="daily" && R.daily && R.dailyIdx >= R.daily.list.length) return { kind:"complete" };
+  if(R.mode==="blitz" && R.blitzEnd && performance.now() >= R.blitzEnd) return { kind:"death" };
+  if((R.mode==="practice" || R.mode==="recall") && R.qTotal >= R.practiceLen) return { kind:"complete" };
+  return null;
+}
+function runPhaseSite(){
   if(!((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece &&
-     R.siteIdx >= (R.siteVerses ? R.siteVerses.length : 0))) return false;
-  if(SetPieces.maybeLaunchSite()) return true;
-  endRun("complete"); return true;
+     R.siteIdx >= (R.siteVerses ? R.siteVerses.length : 0))) return null;
+  if(typeof SetPieces!=="undefined" && SetPieces.wouldLaunchSite && SetPieces.wouldLaunchSite())
+    return { kind:"setpiece-site" };
+  return { kind:"complete" };
 }
-function nextQuestionRunGate(){
-  if(R.mode==="daily" && R.dailyIdx >= R.daily.list.length){ endRun("complete"); return true; }
-  if(R.mode==="blitz" && R.blitzEnd && performance.now() >= R.blitzEnd){ endRun("death"); return true; }
-  if((R.mode==="practice" || R.mode==="recall") && R.qTotal >= R.practiceLen){ endRun("complete"); return true; }
-  if(nextQuestionSiteGate()) return true;
-  if(R.mode==="relay" && R.relay.idx >= R.relay.queue.length){ endRun("complete"); return true; }
-  if(R.setpiece && R.setpiece.passage){ startPassage(); updateChips(); return true; }
-  if(R.setpiece && R.setpiece.reconstruct){ startReconstruct(); updateChips(); return true; }
+function runPhaseTail(){
+  if(R.mode==="relay" && R.relay && R.relay.idx >= R.relay.queue.length) return { kind:"complete" };
+  if(R.setpiece && R.setpiece.passage) return { kind:"passage" };
+  if(R.setpiece && R.setpiece.reconstruct) return { kind:"reconstruct" };
+  return { kind:"continue" };
+}
+function runPhase(){
+  if(R.ended) return { kind:"ended" };
+  return runPhaseTrial() || runPhaseLimits() || runPhaseSite() || runPhaseTail();
+}
+function grantUnshakenIfCleanAct(phase){
+  if(!phase.trialSeal) return;
+  if(R.actNoLoss && !hasSeal("unshaken")) grantSeal("unshaken");
+}
+function applyRunPhase(phase){
+  if(!phase || phase.kind==="continue") return false;
+  if(phase.kind==="ended") return true;
+  grantUnshakenIfCleanAct(phase);
+  if(phase.kind==="act"){ beginAct(R.actIdx+1); return true; }
+  if(phase.kind==="complete"){ endRun("complete"); return true; }
+  if(phase.kind==="death"){ endRun("death"); return true; }
+  if(phase.kind==="setpiece") return !!(SetPieces.maybeLaunch && SetPieces.maybeLaunch());
+  if(phase.kind==="setpiece-site") return !!(SetPieces.maybeLaunchSite && SetPieces.maybeLaunchSite());
+  if(phase.kind==="passage"){ startPassage(); updateChips(); return true; }
+  if(phase.kind==="reconstruct"){ startReconstruct(); updateChips(); return true; }
   return false;
 }
 
@@ -310,8 +333,7 @@ function nextQuestion(){
   if(R.mode==="tutorial"){ tutorialNextQuestion(); return; }
   R.qUsedPower=false;
   if(R.setpiece && R.setpiece.finishing) SetPieces.cleanup();
-  if(nextQuestionTrialGate()) return;
-  if(nextQuestionRunGate()) return;
+  if(applyRunPhase(runPhase())) return;
   const v = drawNextQuestionVerse();
   R.q = v; R.usedRefs.add(refKey(v)); commitSiteVerse(v);
   if(!R.setpiece) R.qInAct++; R.qTotal++;
@@ -1007,30 +1029,63 @@ function tfShowWhy(claim){
   why.hidden = false;
   why.innerHTML = '<b>' + (claim.v ? "TRUE" : "FALSE") + '</b> — ' + esc(claim.why);
 }
-function resolveTrueFalseMiss(claim){
-  reactAbraham(false);
+function applyMiss(opts){
+  opts = opts || {};
   const wasRiding = R.overdriveRide && inOverdrive();
-  if(R.streak >= 3 && typeof Cinematic !== "undefined"){
-    if(Cinematic.event) Cinematic.event("miss");
-    else Cinematic.showComboCollapse();
-  }
+  if(R.streak >= 3 && typeof Cinematic !== "undefined") Cinematic.event("miss");
   R.overdriveRide = false;
   document.body.classList.remove("ember-ride");
   spillOil(R.streak || 0);
+  reactAbraham(false);
   R.streak = 0; setMult();
+  if(opts.verse) R.missed.push(opts.verse);
+  if(opts.blitzClock && R.mode==="blitz" && typeof Polish!=="undefined"){
+    const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
+    R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, false);
+  }
   Director.momentum(false); Director.impact("wrong");
   Snd.wrong(); doFlash("red"); shakeUI(true);
-  if(SAVE.set.haptics !== false && typeof Polish !== "undefined") Polish.haptic("wrong");
+  if(SAVE.set.haptics!==false && typeof Polish!=="undefined") Polish.haptic("wrong");
+  if(opts.scar) markBlankScar(opts.scar.wrong, opts.scar.right);
   witnessLook(true);
-  tfShowWhy(claim);
+  if(opts.why) opts.why();
+  if(opts.blitzClock && R.mode==="blitz"){
+    afterRun(answerHoldMs(), function(){
+      if(R.blitzEnd && performance.now()>=R.blitzEnd) presentRunEnd("timeout-death");
+      else queueAdvance();
+    });
+    return;
+  }
   loseLife(wasRiding ? 2 : 1);
+}
+function applyCorrect(opts){
+  opts = opts || {};
+  reactAbraham(true);
+  R.correct++; R.streak++; R.best = Math.max(R.best, R.streak);
+  if(opts.book) R.booksRun.add(opts.book);
+  if(opts.elapsed < 1500) R.fast++;
+  if(typeof updateQuickRewards === "function") updateQuickRewards();
+  if(opts.afterMark) opts.afterMark();
+  const riding = R.overdriveRide && inOverdrive();
+  const denom = opts.clockDenom != null ? opts.clockDenom : R.tTotal;
+  const timeBonus = Math.round((opts.left || 0) / denom * 140);
+  const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * (opts.weight || 1) * SetPieces.bonus() * (riding ? 2 : 1));
+  R.score += gained;
+  payCorrect(opts.graded || null);
+  if(opts.afterPay) opts.afterPay();
+  if(opts.blitzClock && R.mode==="blitz" && typeof Polish!=="undefined"){
+    const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
+    R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, true);
+  }
+  noteGhostProgress(); Director.impact("correct"); Snd.correct(); animateScore(); setMult(true); Director.momentum(true);
+  celebrateCorrectStreak();
+  if(maybeOfferOverdrive()) return true;
+  afterRun(answerHoldMs(), queueAdvance);
+  return false;
 }
 function maybeOfferOverdrive(){
   if(R.streak === MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] && !R.setpiece && R.mode !== "blitz"){
-    if(typeof Cinematic !== "undefined"){
-      if(Cinematic.event) Cinematic.event("overdrive");
-      else Cinematic.showOverdriveEntrance();
-    }
+    if(typeof Cinematic !== "undefined") Cinematic.event("overdrive");
     afterRun(700, offerOverdriveChoice);
     return true;
   }
@@ -1046,20 +1101,11 @@ function resolveTrueFalse(choice, btn, timedOut){
   recordDecision(elapsed);
   const ok = !timedOut && choice === (claim.v ? "true" : "false");
   tfMarkButtons(claim, btn, ok);
-  if(!ok){ resolveTrueFalseMiss(claim); return; }
-  reactAbraham(true);
-  R.correct++; R.streak++; R.best = Math.max(R.best, R.streak);
-  if(elapsed < 1500) R.fast++;
-  if(typeof updateQuickRewards === "function") updateQuickRewards();
-  const riding = R.overdriveRide && inOverdrive();
-  const timeBonus = Math.round(left / (R.tTotal || 1) * 140);
-  const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * 1.24 * SetPieces.bonus() * (riding ? 2 : 1));
-  R.score += gained;
-  payCorrect(null);
-  noteGhostProgress(); Director.impact("correct"); Snd.correct(); animateScore(); setMult(true); Director.momentum(true);
-  celebrateCorrectStreak();
-  if(maybeOfferOverdrive()) return;
-  afterRun(answerHoldMs(), queueAdvance);
+  if(!ok){
+    applyMiss({ why: function(){ tfShowWhy(claim); } });
+    return;
+  }
+  applyCorrect({ elapsed: elapsed, left: left, weight: 1.24, clockDenom: R.tTotal || 1 });
 }
 
 function illuminateTrueFalse(){
@@ -1229,13 +1275,6 @@ function renderMechanicQuestion(mechanic, q, dur, scene){
   if(mechanic === "truefalse") return renderTrueFalseQuestion(q, dur, scene);
   return false;
 }
-function questionMechanicIndex(){
-  if(typeof R.siteIdx === "number" && R.siteIdx > 0) return R.siteIdx - 1;
-  if(R.mode === "relay" && R.relay && R.relay.current && typeof R.relay.current.verseIndex === "number"){
-    return R.relay.current.verseIndex;
-  }
-  return typeof R.verseIndex === "number" ? R.verseIndex : (R.qInAct - 1);
-}
 function renderQuestion(q, dur){
   const scene = ++R.sceneToken;
   Director.pressure(0);
@@ -1243,7 +1282,7 @@ function renderQuestion(q, dur){
   syncCinematicBackdrop();
   clearOtherStages();
   $("ref").textContent = q.r + " — KJV";
-  const mechanic = q.mechanic || R.mechanic || ((R.mode === "pilgrimage" || R.mode === "relay") ? selectPilgrimageMechanic(questionMechanicIndex(), q) : null);
+  const mechanic = q.mechanic || R.mechanic || ((R.mode === "pilgrimage" || R.mode === "relay") ? selectPilgrimageMechanic(verseMechanicIndex(), q) : null);
   R.currentMechanic = mechanic;
   if(mechanic !== "fade"){
     R.fadePhase = null;
@@ -1424,32 +1463,16 @@ function awardFadeIlluminate(){
   Snd.power(); doFlash("violet"); renderPowers();
 }
 function resolveCorrectAnswer(q, graded, elapsed, left){
-  reactAbraham(true);
   const blank=$("blank");
   if(blank){ blank.textContent=q.a; blank.classList.add("filled","reveal"); }
-  R.correct++; R.streak++; R.best=Math.max(R.best,R.streak);
-  R.booksRun.add(q.b);
-  if(elapsed < 1500) R.fast++;
-  if(typeof updateQuickRewards === "function") updateQuickRewards();
-  awardFadeIlluminate();
-  const riding = R.overdriveRide && inOverdrive();
-  const timeBonus = Math.round(left / R.tTotal * 140);
-  const tierW = 1 + q.t*0.12;
   const mechW = (R.mode === "daily" && typeof Polish !== "undefined" && Polish.dailyMechanicWeight)
     ? Polish.dailyMechanicWeight(R.currentMechanic || (R.typed ? "typed" : "none"))
     : 1;
-  const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * tierW * mechW * SetPieces.bonus() * (riding ? 2 : 1));
-  R.score += gained;
-  payCorrect(graded);
-  fireStreakIgnition();
-  if(R.mode==="blitz" && typeof Polish!=="undefined"){
-    const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
-    R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, true);
-  }
-  noteGhostProgress(); Director.impact("correct"); Snd.correct(); animateScore(); setMult(true);Director.momentum(true);
-  celebrateCorrectStreak();
-  if(maybeOfferOverdrive()) return;
-  afterRun(answerHoldMs(), queueAdvance);
+  applyCorrect({
+    elapsed: elapsed, left: left, book: q.b, graded: graded, blitzClock: true,
+    weight: (1 + q.t*0.12) * mechW,
+    afterMark: awardFadeIlluminate, afterPay: fireStreakIgnition
+  });
 }
 
 function fireStreakIgnition(){
@@ -1470,8 +1493,7 @@ function fireStreakIgnition(){
 
 function celebrateCorrectStreak(){
   if(typeof Cinematic !== "undefined" && (R.streak === 3 || R.streak === 5 || R.streak === 8 || R.streak === 12)){
-    if(Cinematic.event) Cinematic.event("streak", {streak:R.streak, mult:multiplier()});
-    else Cinematic.showComboStamp(R.streak, multiplier());
+    Cinematic.event("streak", {streak:R.streak, mult:multiplier()});
   }
   if(R.streak===5)Director.callout("Unbroken ×5");
   if(R.streak===10)Director.callout("Perfect Recall");
@@ -1481,33 +1503,7 @@ function celebrateCorrectStreak(){
 }
 
 function resolveWrongAnswer(q, choice){
-  const wasRiding = R.overdriveRide && inOverdrive();
-  if(R.streak >= 3 && typeof Cinematic !== "undefined"){
-    if(Cinematic.event) Cinematic.event("miss");
-    else Cinematic.showComboCollapse();
-  }
-  R.overdriveRide=false;
-  document.body.classList.remove("ember-ride");
-  spillOil(R.streak||0);
-  reactAbraham(false);
-  R.streak=0; setMult(); R.missed.push(q);
-  if(R.mode==="blitz" && typeof Polish!=="undefined"){
-    const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
-    R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, false);
-  }
-  Director.momentum(false);Director.impact("wrong");
-  Snd.wrong(); doFlash("red"); shakeUI(true);
-  if(SAVE.set.haptics!==false && typeof Polish!=="undefined") Polish.haptic("wrong");
-  markBlankScar(choice, q.a);
-  witnessLook(true);
-  if(R.mode==="blitz"){
-    afterRun(answerHoldMs(), ()=>{
-      if(R.blitzEnd && performance.now()>=R.blitzEnd) presentRunEnd("timeout-death");
-      else queueAdvance();
-    });
-  } else {
-    loseLife(wasRiding ? 2 : 1);
-  }
+  applyMiss({ verse: q, blitzClock: true, scar: { wrong: choice, right: q.a } });
 }
 
 function resolveAnswer(q,choice,btn,elapsed,left){

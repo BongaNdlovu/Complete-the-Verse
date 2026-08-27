@@ -1,7 +1,43 @@
 # Complete the Verse — Code organisation
 
-**Date:** 2026-08-18  
-**Status:** **Executed and Verified (all 45 test suites green)**
+**Date:** 2026-08-27  
+**Status:** **Findings closed** by [`plans/code-organisation-fix.md`](../plans/code-organisation-fix.md). Original 2026-08-18 audit is preserved below.  
+**Evidence this closeout:** root listing; `js/` still flat (names match jobs); `test/` holds every suite; `docs/reports/` holds snapshots; `node test.js` 51/51; `npm run lint` complexity max 20.
+
+## Closeout (2026-08-27)
+
+A stranger can clone the repo, read `README.md`, and know what the game is, how to run it, how to test it, and that [`docs/DEVELOPER-GUIDE.md`](./DEVELOPER-GUIDE.md) is the code map. Folder READMEs (`js/`, `test/`, `css/`, `docs/`, `content/`, `scripts/`, `supabase/`) say what lives in each home without moving runtime files.
+
+| Report question | 2026-08-18 | Target | Now |
+|---|---|---|---|
+| Files in a proper location | 6 / 10 | 9 / 10 | **9 / 10** |
+| Long files under control | 7 / 10 | 8 / 10 | **8 / 10** (`play.js` extracted; `game.js` is save/modes/router) |
+| First-time developer can understand | 5 / 10 | 8 / 10 | **8 / 10** |
+| Errors tracked easily | 4 / 10 | 8 / 10 | **8 / 10** (`js/diag.js`, `save-corrupt` / `save-blocked`, Settings copy) |
+
+**Leftover exceptions (intentional):**
+
+- Globals + classic `<script>` tags — `file://` + no bundler.
+- `js/` stays a flat folder. Nesting would churn every test path and `sw.js` precache list for no runtime gain. The map is `js/README.md`.
+- Do not split `js/pilgrimage.js`, `js/sites.js`, or `js/atlas.js`.
+- `game.js` / `play.js` remain over 1000 lines. The plan forbids nested `js/engine/`. Advance and wipe now share `runPhase()`; verse and Judgement share `applyCorrect` / `applyMiss`. That is the size work, not another folder.
+- `scripts/verse-extra-plans.js` stays put (generated input).
+- `sky3d.test.js` stays as a cheap lock, now under `test/`.
+- Empty `catch`es on audio / video / speech / Leaflet `removeLayer` / `share` stay.
+- Root also has `sw.js`, `.github/`, `.oxlintrc.json` — required, not junk.
+
+**Removed from the wrong home this closeout:** Next.js stubs `page.tsx` and `utils/supabase/*` (unused `todos` sample). `CONTEXT.md` moved to `docs/CONTEXT.md`.
+
+Reports for this work: [`docs/reports/COMPLEXITY-CEILING-20-REPORT.md`](./reports/COMPLEXITY-CEILING-20-REPORT.md), [`docs/reports/CODE-ORGANISATION-CLOSEOUT-REPORT.md`](./reports/CODE-ORGANISATION-CLOSEOUT-REPORT.md).
+
+---
+
+## Original findings (2026-08-18)
+
+The rest of this file is the audit the plan closed. Do not treat line counts, suite counts, or “no README” claims below as current.
+
+**Original date:** 2026-08-18  
+**Original status:** Executed and Verified (all 45 test suites green) — *superseded by the closeout above.*  
 **Scope:** directory layout, file size and seams, first-read understandability, how errors surface.  
 **Not in scope:** product design, verse quality, whether the game is worth $8–12.  
 **Evidence this session:** line counts from a walk of every text file (excluding `node_modules`, `vendor`, `assets`, `audio`, `sfx`); `index.html` script order; `scripts/engine-source.js`; `js/flow.js` state table; all 45 test suites passing under `test/`.

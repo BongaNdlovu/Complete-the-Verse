@@ -178,6 +178,8 @@ var Cloud = (function () {
   /* Old Blitz records stored composite totals (thousands). Verse counts
      stay well below this; a value above it that is not already life.blitzBest
      is the old unit and must be rewritten, or max() re-poisons a migrated local. */
+  /* Same rule as game.js migrateBlitzUnits. Cloud.mergeSave is required
+     from Node without game.js (test/cloud.test.js), so the body lives here. */
   var BLITZ_VERSE_CEILING = 200;
   function migrateBlitzUnits(out) {
     if (!out) return out;

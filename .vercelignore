@@ -5,6 +5,8 @@ node_modules/
 audio/_orig_backup/
 content/
 docs/
+plans/
+test/
 *.test.js
 test.js
 scripts/

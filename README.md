@@ -2,46 +2,58 @@
 
 Static King James Bible memory ordeal and geographical pilgrimage from Ur to Patmos.
 
----
-
-## How to Play
-
-- **Direct in browser**: Open [`index.html`](./index.html) in any modern web browser (`file://` works without a server).
-- **Local dev server**: Run `npm start` or `node scripts/dev-server.js`, then navigate to `http://localhost:8781`.
+There is no bundler and no TypeScript. Classic `<script>` tags and globals are on purpose so `file://` keeps working.
 
 ---
 
-## How to Test
+## How to play
 
-Run the full automated test suite (50 suites):
+- Open [`index.html`](./index.html) in a modern browser (`file://` needs no server).
+- Or run `npm start` / `node scripts/dev-server.js` and open `http://localhost:8781`.
+
+## How to test and lint
 
 ```bash
-npm test
-# or
-node test.js
+npm test          # node test.js — 51 suites
+npm run lint      # Oxlint cyclomatic complexity, max 20
 ```
 
----
+## Where things live
 
-## Architecture & Mental Model
+A stranger should only need this table, then [`docs/DEVELOPER-GUIDE.md`](./docs/DEVELOPER-GUIDE.md).
 
-The codebase is built with zero build step, zero bundler, and zero TypeScript. It executes directly in browsers from `file://` via classic `<script>` tags.
+| Path | What it is |
+|---|---|
+| `index.html` | The single page. Every screen is a `<section class="view">`. |
+| `sw.js` | Service worker for offline play. |
+| `js/` | Runtime modules. Names match jobs. Map: [`js/README.md`](./js/README.md). |
+| `css/` | Hall (`game.css`), play (`play.css`), atlas (`atlas.css`). |
+| `assets/` `audio/` `sfx/` | Art, music beds, voice, effects. |
+| `vendor/` | Leaflet + supabase-js. Never a CDN. |
+| `content/` | Verse QA data (quarantine). Tooling only. |
+| `scripts/` | Dev server, QA, generators. Map: [`scripts/README.md`](./scripts/README.md). |
+| `test.js` | Public test gate. Suites live in `test/`. |
+| `test/` | All `*.test.js` suites. Map: [`test/README.md`](./test/README.md). |
+| `docs/` | Living docs. Snapshots in `docs/reports/`. |
+| `plans/` | Product and smoke plans. |
+| `supabase/` | Migrations + `submit-score` edge function. |
 
 ```
-Bank (verses.js, bank.js)
-  ↳ Learning Model (srs.js, recall.js, assemble.js)
-    ↳ The Road (pilgrimage.js, sites.js, geo.js)
-      ↳ Map & Atmosphere (atlas.js, live.js, audio.js, cinematic.js)
-        ↳ Run Orchestration (game.js, play.js, flow.js, results.js)
-          ↳ index.html
+Bank (js/verses*.js, js/bank.js)
+  ↳ Learning (js/srs.js, js/recall.js, js/assemble.js)
+    ↳ The road (js/pilgrimage.js, js/sites.js, js/geo.js)
+      ↳ Map (js/atlas.js)
+        ↳ Optional cloud (js/cloud.js)
+          ↳ Play loop (js/play.js) · save/modes/router (js/game.js)
+            ↳ index.html
 ```
-
----
 
 ## Documentation
 
-- [`docs/DEVELOPER-GUIDE.md`](./docs/DEVELOPER-GUIDE.md) — Comprehensive technical reference, script load order, and testing guide.
-- [`docs/CODE-ORGANISATION.md`](./docs/CODE-ORGANISATION.md) — Codebase organisation principles and findings.
-- [`docs/BACKEND.md`](./docs/BACKEND.md) — Supabase backend runbook and edge functions.
-- [`docs/architecture.html`](./docs/architecture.html) — Visual architectural overview.
-- [`plans/coffee-pilgrimage.md`](./plans/coffee-pilgrimage.md) — Coffee Pilgrimage product specification.
+- [`docs/DEVELOPER-GUIDE.md`](./docs/DEVELOPER-GUIDE.md) — load order, module map, how to add a suite.
+- [`docs/CODE-ORGANISATION.md`](./docs/CODE-ORGANISATION.md) — layout findings and closeout.
+- [`docs/CONTEXT.md`](./docs/CONTEXT.md) — shared product language (journey, question screen, mechanic).
+- [`docs/BACKEND.md`](./docs/BACKEND.md) — Supabase runbook.
+- [`docs/architecture.html`](./docs/architecture.html) — how the game *plays*, not a code map.
+- [`plans/coffee-pilgrimage.md`](./plans/coffee-pilgrimage.md) — product specification.
+- [`docs/reports/`](./docs/reports/) — dated snapshots. Trust tests + the developer guide for current truth.

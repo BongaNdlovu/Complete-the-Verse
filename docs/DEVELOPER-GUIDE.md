@@ -3,7 +3,7 @@
 Everything a developer needs to work in this codebase, including the
 details that are hard to find because they live in comments, in test
 files, or in the gap between modules. Written against the tree as of
-2026-08-18 (after the code organisation and coffee pilgrimage pass).
+2026-08-27 (organisation closeout + Oxlint complexity ceiling of 20).
 
 Companion documents: `docs/SECURITY-EVALUATION.md` (trust model, audit
 checklist), `docs/BACKEND-EVALUATION.md` (Supabase schema, sync, failure
@@ -40,9 +40,11 @@ sfx/                8 effect samples
 content/            verse QA data (quarantine.json, legacy-order.json)
 scripts/            dev server + content QA/generation scripts
 supabase/           migrations + edge function (see BACKEND-EVALUATION.md)
-test/*.test.js      48 registered test suites (see §10)
-docs/               living documentation and runbooks
-docs/reports/       archived snapshot reports
+test/*.test.js      51 registered test suites (see §10)
+docs/               living documentation and runbooks (see docs/README.md)
+docs/reports/       archived snapshot reports — not current truth
+plans/              product and smoke plans
+js/README.md        first-read map of every runtime module
 ```
 
 ---
@@ -390,8 +392,7 @@ bank answers nearest in length — numbered fakes were removed.
   migration**, old v2 saves re-point verse stats through
   `LEGACY_IDS` and seed SRS cards, and `migrateProfile` folds retired
   Bible-figure skins into scholars.
-- `persist()` never throws (quota errors swallowed) and pushes to cloud
-  (debounced) only when signed in and configured.
+- `persist()` logs and records `save-blocked` via `Diag` if `localStorage` throws, and shows a named panel once per session. It still never throws to the play loop. Cloud push is debounced only when signed in and configured.
 - `mergeSave` (cloud.js, pure, tested): max of numeric bests/life/xp,
   union of seals/usedIds, per-site field merge (cleared OR-cleared,
   bests max), SRS card = more reps then later review, daily = higher

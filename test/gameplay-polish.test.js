@@ -135,7 +135,7 @@ assert(/body\.reduced \.answers\.drift/.test(gameCss), "reduced motion kills the
 /* --- miss scar (wrong + true, no blood spray) --- */
 assert(/function markBlankScar/.test(game), "markBlankScar exists");
 assert(/scar-miss/.test(game) && /scar-true/.test(game), "scar shows the miss and the true phrase");
-assert(/markBlankScar\(choice, q\.a\)/.test(game), "a locked miss writes the scar");
+assert(/markBlankScar/.test(game) && /wrong:\s*choice/.test(game), "a locked miss writes the scar");
 assert(/markBlankScar\("— time —"/.test(game), "time-up writes the scar");
 assert(!/afterRun\(520, \(\)=>\{ if\(R\.q===q\)\{ blank\.textContent=q\.a/.test(game),
   "the miss is not wiped after 520ms");

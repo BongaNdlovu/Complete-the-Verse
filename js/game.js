@@ -209,18 +209,9 @@ function commitSiteVerse(v){
 }
 
 /* ------------------------- PROGRESSION ------------------------- */
-function xpNeeded(l){ return (typeof Meta!=="undefined" && Meta.xpNeeded) ? Meta.xpNeeded(l) : Math.round(320 * Math.pow(l, 1.32)); }
-function levelInfo(xp){
-  if(typeof Meta!=="undefined" && Meta.levelInfo) return Meta.levelInfo(xp);
-  let l=1, rem=xp;
-  while(l < 160 && rem >= xpNeeded(l)){ rem -= xpNeeded(l); l++; }
-  return {level:l, into:rem, need:xpNeeded(l)};
-}
-const RANKS = (typeof Meta!=="undefined" && Meta.RANKS) ? Meta.RANKS : [
-  {l:1,t:"Hearer"},{l:3,t:"Reader"},{l:5,t:"Scribe"},{l:8,t:"Levite"},
-  {l:11,t:"Watchman"},{l:15,t:"Seer"},{l:20,t:"Keeper of the Word"},{l:27,t:"Prophet of the Living God"}
-];
-function rankFor(level){ return (typeof Meta!=="undefined" && Meta.rankFor) ? Meta.rankFor(level) : (RANKS.filter(x=>level>=x.l).pop()||RANKS[0]).t; }
+function xpNeeded(l){ return Meta.xpNeeded(l); }
+function levelInfo(xp){ return Meta.levelInfo(xp); }
+function rankFor(level){ return Meta.rankFor(level); }
 function trialActs(){
   const n = (typeof Meta!=="undefined" && Meta.trialActCount) ? Meta.trialActCount(SAVE) : 5;
   return ACTS.slice(0, Math.min(ACTS.length, n));
@@ -279,8 +270,7 @@ function hasSeal(id){ return SAVE.seals.indexOf(id) >= 0; }
 /* Printed clock on a mode card. Always Polish.pacedClockMs via
    describeModeClock so the hall cannot invent a second set of numbers. */
 function modeClockLabel(mode){
-  if(typeof Polish!=="undefined" && Polish.describeModeClock) return Polish.describeModeClock(mode);
-  return "";
+  return (typeof Polish!=="undefined" && Polish.describeModeClock) ? Polish.describeModeClock(mode) : "";
 }
 
 /* ------------------------- MODES / DIFFICULTY / ACTS ------------------------- */
@@ -766,10 +756,6 @@ function beginAct(i){
   });
 }
 
-/* High momentum used to grant extra time only at an 8-streak, so an
-   8-verse site never saw it. From Building (3) onward the pick clock
-/* One clock to print on every surface. Mirrors Polish.pacedClockMs; the
-   local fallback keeps loads without polish.js (the test sandbox) honest. */
 function pacedClockMs(base, diffTime, pad){
   if(typeof Polish !== "undefined" && Polish.pacedClockMs) return Polish.pacedClockMs(base, diffTime, pad);
   return Math.round((base * diffTime + (pad == null ? 1500 : pad)) * PACE + FLAT_ADD_MS);
@@ -890,17 +876,6 @@ function stopFriendRacePolling(){
     friendRacePollTimer = null;
   }
   friendRaceInFlight = false;
-}
-function showJudgeBurst(kind){
-  const el = $("judge-burst");
-  if(!el) return;
-  if(SAVE.set.reduced) return;
-  if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  el.classList.remove("on","up","down");
-  void el.offsetWidth;
-  el.classList.add("on", kind==="down" ? "down" : "up");
-  clearTimeout(el._t);
-  el._t = setTimeout(function(){ el.classList.remove("on","up","down"); }, 920);
 }
 function paintHud(round, qlab, q){
   $("hud-round").textContent = round;
@@ -1424,34 +1399,14 @@ function payCorrect(graded){
   updatePlayerCard();
   popScore("+"+xp+" XP  +"+oil+" oil");
 }
-function wipeTrialContext(reduced){
-  const acts = trialActs();
-  const A = acts[R.actIdx];
-  if(A && A.q !== Infinity && R.qInAct >= A.q){
-    return { reduced, toAct: R.actIdx < acts.length-1, toEnd: R.actIdx >= acts.length-1 };
-  }
-  if(typeof SetPieces!=="undefined" && SetPieces.wouldLaunch && SetPieces.wouldLaunch()) return { reduced, toSetpiece:true };
-  return null;
-}
-function wipeSiteContext(reduced){
-  if(!((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece &&
-     R.siteIdx >= (R.siteVerses ? R.siteVerses.length : 0))) return null;
-  const finale = typeof SetPieces!=="undefined" && SetPieces.wouldLaunchSite && SetPieces.wouldLaunchSite();
-  return { reduced, toEnd:!finale, toSetpiece:!!finale };
-}
 function wipeContext(){
-  if(R.ended) return { ended:true };
+  const phase = runPhase();
   const reduced = !!(SAVE.set && SAVE.set.reduced);
-  if(R.mode==="trial"){
-    const trial = wipeTrialContext(reduced);
-    if(trial) return trial;
-  }
-  if(R.mode==="daily" && R.daily && R.dailyIdx >= R.daily.list.length) return { reduced, toEnd:true };
-  if(R.mode==="blitz" && R.blitzEnd && performance.now() >= R.blitzEnd) return { reduced, toDeath:true };
-  if((R.mode==="practice" || R.mode==="recall") && R.qTotal >= R.practiceLen) return { reduced, toEnd:true };
-  const site = wipeSiteContext(reduced);
-  if(site) return site;
-  if(R.mode==="relay" && R.relay && R.relay.idx >= R.relay.queue.length) return { reduced, toEnd:true };
+  if(phase.kind==="ended") return { ended:true };
+  if(phase.kind==="act") return { reduced, toAct:true };
+  if(phase.kind==="complete") return { reduced, toEnd:true };
+  if(phase.kind==="death") return { reduced, toDeath:true };
+  if(phase.kind==="setpiece" || phase.kind==="setpiece-site") return { reduced, toSetpiece:true };
   return { reduced };
 }
 function hideWipe(){

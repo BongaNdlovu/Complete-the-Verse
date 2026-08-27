@@ -63,8 +63,8 @@ assert(/el\.classList\.add\("od-ready"\)/.test(game), "arming overlay takes the 
 assert(/Snd\.odReady\(\)/.test(game), "overdrive arming plays its sub hit");
 assert(/@keyframes odShockwave/.test(allCss), "shockwave keyframes exist");
 assert(/document\.body\.classList\.add\("ember-ride"\)/.test(game), "riding arms the ember edges");
-assert(game.split('document.body.classList.remove("ember-ride")').length >= 3,
-  "ember ride clears on miss AND on typed-miss paths (both ride-end sites)");
+assert(/document\.body\.classList\.remove\("ember-ride"\)/.test(game),
+  "ember ride clears on miss (applyMiss covers choice and typed)");
 assert(/@keyframes emberDriftL/.test(allCss) && /@keyframes emberDriftR/.test(allCss),
   "ember drift keyframes exist (names avoid the banned emberFall/Rise)");
 assert(!/@keyframes emberFall/.test(allCss) && !/@keyframes emberRise/.test(allCss),

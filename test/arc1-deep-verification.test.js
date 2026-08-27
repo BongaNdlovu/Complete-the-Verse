@@ -74,17 +74,12 @@ console.log("=== EXECUTING DEEP ARC I VERIFICATION ===");
 const sb = bootGame();
 
 /* ------------------------------------------------------------------
-   Post-answer hold contract (regression guard): Flow.judgeMs must keep
-   the 2.5s teach pause in EVERY mode. A prior batch made gameplay
-   resolve to 0ms, snapping wrong answers away before the verdict or
-   word diff could be read. Asserted behaviorally against the booted
-   engine, not just as source text. */
+   Post-answer hold contract (regression guard): Flow.JUDGE_MS must keep
+   the 2.5s teach pause. A prior batch made gameplay resolve to 0ms,
+   snapping wrong answers away before the verdict or word diff could be
+   read. Asserted behaviorally against the booted engine. */
 {
   eq("Flow.JUDGE_MS is the 2.5s teach pause", read(sb, "Flow.JUDGE_MS"), 2500);
-  for (const m of ["pilgrimage", "blitz", "speed", "daily", "tutorial", ""]) {
-    eq(`Flow.judgeMs(${JSON.stringify(m)}) keeps the teach pause`,
-       read(sb, `Flow.judgeMs(${JSON.stringify(m)})`), 2500);
-  }
   exec(sb, 'R.mode = "pilgrimage";');
   eq("answerHoldMs() keeps the teach pause in pilgrimage", read(sb, "answerHoldMs()"), 2500);
   exec(sb, 'R.mode = "blitz";');
