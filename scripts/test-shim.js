@@ -11,7 +11,7 @@
 
 function makeElement(id){
   const el = {
-    id, tagName:"DIV", textContent:"", innerHTML:"", value:"", disabled:false, open:false,
+    id, tagName:"DIV", textContent:"", value:"", disabled:false, open:false,
     checked:false, offsetWidth:1, children:[], options:[], dataset:{},
     style:new Proxy({}, {get:(t,k)=> k==="setProperty" ? ()=>{} : (t[k]||""), set:(t,k,v)=>{t[k]=v;return true;}}),
     // Real DOMTokenList is iterable and game.js spreads it, so the shim
@@ -25,6 +25,7 @@ function makeElement(id){
       item(i){ return [...this._s][i]; },
       [Symbol.iterator](){ return this._s.values(); }
     },
+    _className:"",
     _handlers:{},
     addEventListener(t,fn){ (this._handlers[t]=this._handlers[t]||[]).push(fn); },
     removeEventListener(){},
@@ -39,6 +40,21 @@ function makeElement(id){
     scrollIntoView(){}, insertAdjacentHTML(){}, remove(){},
     getBoundingClientRect(){ return {width:100,height:100,top:0,left:0}; }
   };
+  Object.defineProperty(el, "innerHTML", {
+    get(){ return this._html || ""; },
+    set(v){
+      this._html = String(v || "");
+      if(!this._html) this.children = [];
+    }
+  });
+  Object.defineProperty(el, "className", {
+    get(){ return this._className || [...this.classList._s].join(" "); },
+    set(v){
+      this._className = String(v || "");
+      this.classList._s.clear();
+      this._className.split(/\s+/).filter(Boolean).forEach(x => this.classList._s.add(x));
+    }
+  });
   return el;
 }
 

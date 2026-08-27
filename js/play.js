@@ -28,10 +28,15 @@ function playClockMs(ms){
 }
 
 const FADE_MEMORY_MS = 60000;
-const FADE_RECALL_MIN_MS = 60000;
+const FADE_PICK_MS = 45000;
+const FADE_RECALL_MIN_MS = FADE_PICK_MS;
 const WALL_PICK_MS = 30000;
 const WALL_TYPED_MS = 45000;
 const WALL_FADE_MS = 60000;
+const ROAD_QUESTION_BEDS = [
+  "indigo","heroes","pointOfImpact","primarySuspect",
+  "theTrace","theUncovering","awakeningMachine","machineAwakening"
+];
 
 function usesWallClock(){
   return R.mode==="pilgrimage" || R.mode==="pilgrim-recall" || R.mode==="relay"
@@ -109,7 +114,7 @@ const TUTORIAL_GUIDE = [
   "Lesson 2 · Name the Passage: Select its book, chapter, and verse.",
   "Lesson 3 · Scribe's Cloze: Tap the missing words in sequence from the tray below.",
   "Lesson 4 · True Scripture Duel: Discern and choose the genuine King James reading.",
-  "Lesson 5 · Fade-to-Memory: Memorize the whole verse — tap I'm Done when you hold it, then rebuild every word in order.",
+  "Lesson 5 · Fade-to-Memory: Memorize the whole verse — tap I'm Done when you hold it, then choose the true King James line.",
   "Lesson 6 · Assembled Recall: Drag or tap the words in order, then lock your answer."
 ];
 
@@ -118,7 +123,7 @@ const TUTORIAL_VOICE = [
   "Lesson two. Name the passage for the verse shown.",
   "Lesson three. Tap the missing words in sequence.",
   "Lesson four. Discern the true Scripture reading.",
-  "Lesson five. Memorize the whole verse for one minute, then rebuild every word in order.",
+  "Lesson five. Memorize the whole verse for one minute, then choose the true King James line.",
   "Lesson six. Assemble the verse from memory."
 ];
 
@@ -332,6 +337,7 @@ function nextQuestion(){
   stopTimer();
   if(R.mode==="tutorial"){ tutorialNextQuestion(); return; }
   R.qUsedPower=false;
+  R.fadeIllumUsed=false;
   if(R.setpiece && R.setpiece.finishing) SetPieces.cleanup();
   if(applyRunPhase(runPhase())) return;
   const v = drawNextQuestionVerse();
@@ -611,21 +617,22 @@ function verseMechanicIndex(){
   return Math.max(0, (R.qInAct || 1) - 1);
 }
 
-function wallClockMs(){
+function isFadeClock(){
   const q = R.q;
-  const onFade = (q && q.mechanic === "fade") ||
-    (R.currentMechanic === "fade" && !(R.typed && q && q.mechanic !== "fade"));
-  if(onFade) return WALL_FADE_MS;
-  if(R.mode === "tutorial"){
-    if(q && q.typed) return WALL_TYPED_MS;
-    return WALL_PICK_MS;
-  }
+  if(q && q.mechanic === "fade") return true;
+  return R.currentMechanic === "fade" && !(R.typed && q && q.mechanic !== "fade");
+}
+function fadeClockMs(){
+  return R.fadePhase === "reconstruct" ? FADE_PICK_MS : WALL_FADE_MS;
+}
+function wallClockMs(){
+  if(isFadeClock()) return fadeClockMs();
+  if(R.mode === "tutorial") return (R.q && R.q.typed) ? WALL_TYPED_MS : WALL_PICK_MS;
   if(R.mode === "practice") return WALL_PICK_MS;
   if(R.mode === "recall" || R.mode === "pilgrim-recall") return WALL_TYPED_MS;
-  if(R.typed || (q && q.typed)) return WALL_TYPED_MS;
-  if(q && (R.mode === "pilgrimage" || R.mode === "relay")){
-    if(selectPilgrimageMechanic(verseMechanicIndex(), q) === "fade") return WALL_FADE_MS;
-  }
+  if(R.typed || (R.q && R.q.typed)) return WALL_TYPED_MS;
+  if(R.q && (R.mode === "pilgrimage" || R.mode === "relay") &&
+     selectPilgrimageMechanic(verseMechanicIndex(), R.q) === "fade") return WALL_FADE_MS;
   return WALL_PICK_MS;
 }
 
@@ -750,6 +757,9 @@ function renderClozeQuestion(q, dur, scene){
       if(filled.length){
         blankEl.textContent = filled.join(" ");
         blankEl.classList.add("filled");
+      } else if(clozeState.revealed){
+        blankEl.textContent = words.join(" ");
+        blankEl.classList.add("filled");
       } else {
         blankEl.textContent = "\u2003\u2003\u2003";
         blankEl.classList.remove("filled");
@@ -777,7 +787,7 @@ function renderClozeQuestion(q, dur, scene){
       const countInFilled = filled.filter(x => x === w).length;
       const countInBank = bankPool.filter(x => x === w).length;
       const spent = countInFilled >= countInBank;
-      const illuminated = !spent && clozeState.hintIndex === filled.length && w === words[clozeState.hintIndex];
+      const illuminated = !spent && (clozeState.revealed ? words.indexOf(w) >= 0 : (clozeState.hintIndex === filled.length && w === words[clozeState.hintIndex]));
       return '<button type="button" class="cloze-chip' + (spent ? ' spent' : '') + (illuminated ? ' illuminate-target' : '') + '" data-word="' + esc(w) + '">' + esc(w) + '</button>';
     }).join("");
 
@@ -807,13 +817,13 @@ function renderClozeQuestion(q, dur, scene){
 
 function illuminateCloze(){
   const state = R.cloze;
-  if(!state || state.hintIndex === state.filled.length && state.hintIndex >= state.words.length - 1 && state.filled.length >= state.words.length) return false;
-  const next = state.filled.length;
-  if(next >= state.words.length) return false;
-  state.hintIndex = next;
+  if(!state || !state.words || !state.words.length || state.revealed) return false;
+  state.revealed = true;
+  state.filled.splice(0, state.filled.length);
+  state.words.forEach(function(w){ state.filled.push(w); });
+  state.hintIndex = 0;
   if(typeof state.render === "function") state.render();
-  const word = state.words[next];
-  if(typeof toast === "function") toast("Illuminate — next word: " + word);
+  if(typeof toast === "function") toast("Illuminate — the missing words are shown");
   return true;
 }
 
@@ -1118,6 +1128,102 @@ function illuminateTrueFalse(){
   return true;
 }
 
+function fadePhraseAsVerse(q, phrase){
+  const prefix = String(q && q.p || "").trim();
+  const mid = String(phrase || "").trim();
+  const suffix = String(q && q.s || "").trim();
+  let text = [prefix, mid].filter(Boolean).join(" ");
+  if(suffix) text += /^[.,;:!?]/.test(suffix) ? suffix : " " + suffix;
+  return text;
+}
+function fadePickChoices(q){
+  const truth = fullVerseText(q);
+  const seen = {};
+  seen[truth] = 1;
+  const pads = (q.d || []).concat(["the shadow of the deep","a still small voice","the dust of the ground"]);
+  const fakes = [];
+  pads.forEach(function(d){
+    if(fakes.length >= 3) return;
+    const line = fadePhraseAsVerse(q, d);
+    if(!seen[line]){ seen[line] = 1; fakes.push(line); }
+  });
+  const rnd = R.mode==="daily" && R.daily && R.daily.rnd ? R.daily.rnd : Math.random;
+  return shuffle([truth].concat(fakes.slice(0, 3)), rnd);
+}
+function fadeCleanupMemoryChrome(){
+  ["fade-bar","fade-done"].forEach(function(id){
+    const el = $(id);
+    if(el && el.parentNode) el.parentNode.removeChild(el);
+  });
+}
+function renderFadePickChoices(q, dur, scene){
+  const confirmBtn = $("confirm-answer");
+  if(confirmBtn){
+    confirmBtn.style.display = "";
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = (SAVE.set && SAVE.set.singleTap === false) ? "Lock Answer" : "One-tap answer";
+  }
+  const opts = $("opts");
+  if(!opts) return;
+  opts.className = "answers queued"; opts.innerHTML = "";
+  const letters = ["A","B","C","D"];
+  fadePickChoices(q).forEach(function(c, i){
+    if(i){ const ch=document.createElement("div"); ch.className="chev"; ch.innerHTML="&#8250;"; opts.appendChild(ch); }
+    const b=document.createElement("button");
+    b.className="ans"; b.dataset.val=c;
+    b.setAttribute("aria-pressed","false");
+    b.innerHTML='<span class="ans-float"><span class="ltr">'+letters[i]+'.</span><span class="ans-copy">'+esc(c)+'</span></span>';
+    b.addEventListener("click", function(){ pickAnswer(c,b); });
+    opts.appendChild(b);
+  });
+  const how = $("warn-how");
+  if(how) how.innerHTML = "Fade-to-Memory<br>Choose the true King James verse";
+  armTimer(dur);
+  startTimer(dur);
+  renderPowers();
+  afterRun(R.setpiece?180:520, function(){
+    if(R.q!==q || R.sceneToken!==scene || currentView!=="play") return;
+    opts.classList.remove("queued"); opts.classList.add("entering");
+  });
+}
+function startFadePick(q, scene){
+  R.fadePhase = "reconstruct";
+  R.fadeAssembly = null;
+  R.typed = false;
+  $("verse").innerHTML = '<span class="recon-prompt">Which line did you just memorize?</span>';
+  fitVerseSize(48);
+  $("opts").style.opacity = "";
+  $("opts").style.pointerEvents = "";
+  renderFadePickChoices(q, FADE_PICK_MS, scene);
+}
+function fadeLeaveMemory(q, scene){
+  if(R.fadePhase !== "memorize") return;
+  if(activeFadeTimer != null){
+    clearInterval(activeFadeTimer);
+    activeFadeTimer = null;
+  }
+  R.fadePhase = "dissolve";
+  stopTimer();
+  fadeCleanupMemoryChrome();
+  const blank = $("blank");
+  if(blank){
+    blank.classList.remove("filled");
+    blank.classList.add("fade-dissolve");
+  }
+  afterRun(1200, function(){
+    if(R.currentMechanic !== "fade" || R.fadePhase !== "dissolve" || R.q !== q) return;
+    startFadePick(q, scene);
+  });
+}
+function illuminateFadePick(){
+  const truth = fullVerseText(R.q);
+  const right = answerButtons().find(function(b){ return b.dataset.val === truth; });
+  if(!right || right.classList.contains("illum-cue")) return false;
+  right.classList.add("right","illum-cue");
+  if(typeof toast === "function") toast("Illuminate — the true verse is marked");
+  return true;
+}
+
 /* ================= 4. FADE-TO-MEMORY (DISSOLVING ECHO) ================= */
 function renderFadeQuestion(q, dur, scene){
   R.currentMechanic = "fade";
@@ -1160,41 +1266,10 @@ function renderFadeQuestion(q, dur, scene){
   let echoTimer = null;
   const isCurrent = () => R.runToken === runToken && R.sceneToken === sceneToken && R.q === q && currentView === "play";
 
-  /* The dissolve→reconstruct handoff runs on BOTH the memory minute elapsing
-     and the player tapping "I'm Done" early — one shared path, no dead code. */
+  /* The dissolve→pick handoff runs on BOTH the memory minute elapsing
+     and the player tapping "I'm Done" early — one shared path. */
   function beginDissolve(){
-    if(R.fadePhase !== "memorize") return;
-    if(echoTimer != null){ clearInterval(echoTimer); }
-    if(activeFadeTimer === echoTimer) activeFadeTimer = null;
-    echoTimer = null;
-    R.fadePhase = "dissolve";
-    stopTimer();
-    if(typeof countdownEl.remove === "function") countdownEl.remove();
-    else if(countdownEl.parentNode) countdownEl.parentNode.removeChild(countdownEl);
-    const doneBtn = $("fade-done");
-    if(doneBtn){
-      if(typeof doneBtn.remove === "function") doneBtn.remove();
-      else if(doneBtn.parentNode) doneBtn.parentNode.removeChild(doneBtn);
-    }
-    const blank = $("blank");
-    if(blank){
-      /* Keep the real answer in place while it visibly dissolves. Only
-         after that animation completes do we replace the passage with the
-         full reconstruction board. */
-      blank.classList.remove("filled");
-      blank.classList.add("fade-dissolve");
-    }
-    afterRun(1200, () => {
-      if(!isCurrent()) return;
-      R.fadePhase = "reconstruct";
-      R.fadeAssembly = {target:fullVerseText(q), hintIndex:-1};
-      R.typed = true;
-      $("verse").innerHTML = '<span class="recon-prompt">Reconstruct the whole verse in order</span>';
-      fitVerseSize(R.fadeAssembly.target.length);
-      $("opts").style.opacity = "";
-      $("opts").style.pointerEvents = "";
-      renderTypedQuestion(q, Math.max(FADE_RECALL_MIN_MS, dur || 0), scene);
-    });
+    fadeLeaveMemory(q, scene);
   }
 
   echoTimer = setInterval(() => {
@@ -1264,7 +1339,12 @@ function renderStandardChoices(q, dur, scene){
 function cueQuestionMusic(){
   if(!R || R.ended || R.quoteMusicHold) return;
   if(typeof currentView !== "undefined" && currentView !== "play") return;
-  if(typeof Snd !== "undefined" && typeof Snd.ambience === "function") Snd.ambience("indigo");
+  if(typeof Snd === "undefined" || typeof Snd.ambience !== "function") return;
+  if(R.mode==="tutorial"){ Snd.ambience("indigo"); return; }
+  if(R.mode==="pilgrimage" || R.mode==="relay" || R.mode==="pilgrim-recall"){
+    const idx = (typeof R.siteIndex === "number" && R.siteIndex >= 0) ? R.siteIndex : 0;
+    Snd.ambience(ROAD_QUESTION_BEDS[idx % ROAD_QUESTION_BEDS.length]);
+  }
 }
 
 function renderMechanicQuestion(mechanic, q, dur, scene){
@@ -1339,7 +1419,11 @@ function confirmAnswer(){
 }
 
 /* ------------------------- TIMER ------------------------- */
-const RING_C = 2 * Math.PI * 52;   // circumference of the countdown arc
+function paintClockBar(frac){
+  const fill = $("ring-arc");
+  if(!fill) return;
+  fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, frac)) + ")";
+}
 
 function armTimer(dur){
   R.tTotal = dur; R.tEnd = 0; R.qStart = 0;
@@ -1349,7 +1433,7 @@ function armTimer(dur){
   $("clock").textContent = "00:" + String(sec).padStart(2,"0");
   $("warn-1").textContent = sec + (sec===1 ? " second remaining" : " seconds remaining");
   $("ring").classList.remove("crit");
-  $("ring-arc").style.strokeDashoffset = "0";
+  paintClockBar(1);
 }
 
 function startTimer(dur){
@@ -1380,7 +1464,7 @@ function tickTimer(now){
   if(R.mode==="blitz" && R.blitzEnd && paintBlitzTimer(now)) return;
   const left = Math.max(0, R.tEnd - now);
   const frac = R.tTotal>0 ? Math.max(0, Math.min(1, left / R.tTotal)) : 0;
-  $("ring-arc").style.strokeDashoffset = String(RING_C * (1 - frac));
+  paintClockBar(frac);
   const sec = Math.ceil(left/1000);
   if(sec !== R.lastTickSec){
     R.lastTickSec = sec;
@@ -1444,11 +1528,13 @@ function gradeQuestionChoice(q, choice, btn){
     return { ok: Recall.isCorrect(graded.verdict), graded: graded };
   }
   const choiceNorm = (typeof choice === "string") ? choice.trim().replace(/\s+/g, ' ').toLowerCase() : "";
-  const targetNorm = (typeof q.a === "string") ? q.a.trim().replace(/\s+/g, ' ').toLowerCase() : "";
-  const ok = (choice === q.a) || (choiceNorm !== "" && choiceNorm === targetNorm);
+  const fadeTarget = (R.currentMechanic === "fade" && R.fadePhase === "reconstruct") ? fullVerseText(q) : null;
+  const targetRaw = fadeTarget || q.a;
+  const targetNorm = (typeof targetRaw === "string") ? targetRaw.trim().replace(/\s+/g, ' ').toLowerCase() : "";
+  const ok = (choice === targetRaw) || (choiceNorm !== "" && choiceNorm === targetNorm);
   answerButtons().forEach(b=>{
     b.classList.remove("sel");
-    if(b.dataset.val===q.a) b.classList.add("right");
+    if(b.dataset.val===targetRaw) b.classList.add("right");
     else if(b===btn) b.classList.add("bad");
     else b.classList.add("mute");
   });
@@ -1457,6 +1543,7 @@ function gradeQuestionChoice(q, choice, btn){
 
 function awardFadeIlluminate(){
   if(!(R.currentMechanic === "fade" && R.powers)) return;
+  if(R.fadeIllumUsed) return;
   R.powers.illum = (R.powers.illum||0) + 1;
   SAVE.life.illumRewards = (SAVE.life.illumRewards||0) + 1;
   Director.callout("Memorization mastered — Illuminate earned");
@@ -1594,24 +1681,10 @@ function timeUp(){
     resolveTrueFalse(null, null, true);
     return;
   }
-  /* The 60-second Fade memorization window ends in reconstruction; it is
-     not a failed answer and must not consume a lamp. */
+  /* The 60-second Fade memorization window ends in a four-verse pick;
+     it is not a failed answer and must not consume a lamp. */
   if(R.currentMechanic === "fade" && R.fadePhase === "memorize"){
-    stopTimer();
-    R.fadePhase = "dissolve";
-    const fadeBlank = $("blank");
-    if(fadeBlank) fadeBlank.classList.add("fade-dissolve");
-    afterRun(1200, () => {
-      if(R.currentMechanic !== "fade" || R.fadePhase !== "dissolve" || !R.q) return;
-      R.fadePhase = "reconstruct";
-      R.fadeAssembly = {target:fullVerseText(R.q), hintIndex:-1};
-      R.typed = true;
-      $("verse").innerHTML = '<span class="recon-prompt">Reconstruct the whole verse in order</span>';
-      fitVerseSize(R.fadeAssembly.target.length);
-      $("opts").style.opacity = "";
-      $("opts").style.pointerEvents = "";
-      renderTypedQuestion(R.q, Math.max(FADE_RECALL_MIN_MS, R.tTotal || 0), R.sceneToken);
-    });
+    fadeLeaveMemory(R.q, R.sceneToken);
     return;
   }
   if(R.mode==="tutorial"){

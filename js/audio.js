@@ -21,7 +21,14 @@ const Snd = (function(){
     results:"audio/results.mp3",
     finalStillness:"audio/final-stillness.mp3",
     suddenDescent:"audio/sudden-descent.mp3",
-    indigo:"audio/indigo.mp3"
+    indigo:"audio/indigo.mp3",
+    heroes:"audio/heroes.mp3",
+    pointOfImpact:"audio/point-of-impact.mp3",
+    primarySuspect:"audio/primary-suspect.mp3",
+    theTrace:"audio/the-trace.mp3",
+    theUncovering:"audio/the-uncovering.mp3",
+    awakeningMachine:"audio/awakening-machine.mp3",
+    machineAwakening:"audio/machine-awakening.mp3"
   };
   const SFX = {
     ui:"sfx/ui.mp3",

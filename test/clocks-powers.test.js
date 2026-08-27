@@ -32,6 +32,9 @@ const playCss = fs.readFileSync(path.join(ROOT, "css", "play.css"), "utf8");
 assert("question-body scroll region exists", index.includes('class="question-body"'));
 assert("powerbar is outside question-body", /question-body[\s\S]*control[\s\S]*<\/div>\s*<div class="powerbar"/.test(index));
 assert("default HUD clock reads 30s", index.includes('id="clock">00:30</b>'));
+assert("clock is a depleting bar pinned under the header",
+  /class="clockbar ring"/.test(index) && /id="ring-arc"/.test(index) &&
+  /\.clockbar\{[^}]*position:\s*absolute/.test(playCss));
 assert("question-body can scroll", /\.question-body\{[^}]*overflow-y:\s*auto/.test(playCss));
 assert("powerbar is a reserved footer", /\.powerbar\{[^}]*flex:\s*0\s*0\s*auto/.test(playCss));
 assert("typed assemble template has no duplicate typed-pwr buttons",
@@ -74,11 +77,9 @@ run("R.q = __fadeQ; R.siteIdx = 6; R.currentMechanic = 'fade'; renderFadeQuestio
 assert("fade memorize is 60s", read("R.tTotal") === 60000);
 assert("fade bar shows 60s", read("$('fade-bar') && $('fade-bar').textContent.includes('60s')"));
 
-run("R.fadePhase = 'reconstruct'; R.currentMechanic = 'fade'; R.fadeAssembly = { target: fullVerseText(__fadeQ), hintIndex: -1 }; R.typed = true;");
-run("renderTypedQuestion(__fadeQ, 60000, 100);");
-assert("fade reconstruct is 60s", read("R.tTotal") === 60000);
-const locked = read("Object.keys(R.assemble && R.assemble.locked || {}).length");
-assert("fade reconstruct gifts 2–3 locked words", locked >= 2 && locked <= 3);
+run("R.fadePhase = 'reconstruct'; R.currentMechanic = 'fade'; R.typed = false; startFadePick(__fadeQ, 100);");
+assert("fade pick clock is 45s", read("R.tTotal") === 45000);
+assert("fade pick has four choices", read("answerButtons().length === 4"));
 assert("typed board has no typed-pwr", !read("$('opts').innerHTML.includes('typed-pwr')"));
 
 run("R.typed = true; R.currentMechanic = 'fade'; R.q = {id:'typed-next',b:'Genesis',r:'Genesis 1:2',t:1,p:'And the earth was',a:'without form',s:'.'};");

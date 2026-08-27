@@ -228,6 +228,13 @@
       <img src="assets/characters/abram/question.png" alt="" decoding="async" fetchpriority="low">
     </figure>
 
+    <div class="clockbar ring" id="ring" aria-label="Time remaining">
+      <div class="clockbar-track">
+        <i class="clockbar-fill" id="ring-arc"></i>
+      </div>
+      <b id="clock">00:30</b>
+    </div>
+
     <header class="hdr">
       <div class="hdr-side l">
         <div class="hdr-lab" id="hud-left-lab">Memory Tier</div>
@@ -304,22 +311,6 @@
           <div class="tf-stage" id="tf-stage" style="display:none"></div>
 
           <div class="control">
-            <div class="ring" id="ring">
-              <svg viewBox="0 0 120 120">
-                <defs>
-                  <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stop-color="#ffe8ae"/>
-                    <stop offset="42%" stop-color="#d5ad62"/>
-                    <stop offset="74%" stop-color="#bd4a3d"/>
-                    <stop offset="100%" stop-color="#711419"/>
-                  </linearGradient>
-                </defs>
-                <circle class="trk" cx="60" cy="60" r="52"></circle>
-                <circle class="arc" id="ring-arc" cx="60" cy="60" r="52"
-                        stroke-dasharray="326.7" stroke-dashoffset="0"></circle>
-              </svg>
-              <b id="clock">00:30</b>
-            </div>
             <button class="confirm-answer" id="confirm-answer" type="button" disabled>Lock Answer</button>
             <div class="warn">
               <b id="warn-1">30 seconds remaining</b>

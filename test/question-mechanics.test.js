@@ -52,10 +52,10 @@ assert("passage reference renders four option buttons", passageButtons.length ==
 
 // Test Illuminate burning 2 wrong citations
 run("usePower('illum')");
-assert("Illuminate burns exactly two wrong citations",
-  read("answerButtons().filter(b => b.classList.contains('burn')).length === 2 && answerButtons().filter(b => !b.classList.contains('burn')).length === 2"));
-assert("Illuminate preserves the correct citation",
-  read("answerButtons().filter(b => !b.classList.contains('burn')).some(b => b.dataset.val === __question.a)"));
+assert("Illuminate marks the correct citation",
+  read("answerButtons().some(b => b.classList.contains('illum-cue') && b.dataset.val === __question.a)"));
+assert("Illuminate does not burn wrong citations",
+  read("answerButtons().filter(b => b.classList.contains('burn')).length === 0"));
 
 // Test wrong click
 run("answerButtons().find(b => b.dataset.val !== __question.a).click()");
@@ -93,17 +93,19 @@ assert("I'm Done skips the rest of the memorization minute",
   read("R.fadePhase === 'dissolve'") && clearedFade);
 assert("fade holds the answer during the dissolve", read("$(\"blank\").classList.contains('fade-dissolve')"));
 if(fadeTimers[0]) fadeTimers.shift()();
-assert("fade enters full-verse reconstruction", read("R.fadePhase === 'reconstruct' && R.typed === true && R.fadeAssembly.target === 'And the earth was without form and void.'"));
-assert("fade creates one slot for every verse word", read("R.assemble.target.length === 8 && R.assemble.placed.length === 8 && R.assemble.bank.length === 8"));
+if(fadeTimers.length) fadeTimers.forEach(function(fn){ try{ fn(); }catch(e){} });
+assert("fade enters a four-verse pick", read("R.fadePhase === 'reconstruct' && R.typed === false"));
+assert("fade pick offers four full-verse buttons", read("answerButtons().length === 4"));
+assert("fade pick includes the memorized verse", read("answerButtons().some(b => b.dataset.val === 'And the earth was without form and void.')"));
 run("R.powers={selah:1,illum:1,wind:0}; usePower('illum')");
-assert("Illuminate reveals the next Fade word", read("R.fadeAssembly.hintIndex === 0 && R.powers.illum === 0"));
+assert("Illuminate marks the true Fade verse", read("answerButtons().some(b => b.classList.contains('illum-cue')) && R.powers.illum === 0"));
 
 /* Mastery pays: resolving the Fade reconstruction correctly grants an
    Illuminate card immediately, on top of every other reward. Swap in
    the fresh power hand BEFORE reading the baseline, so the counters
    describe the same object resolveAnswer mutates (deltas, because
    earlier suites in this file already advanced them). */
-run("Object.assign(R,{powers:{selah:1,illum:1,wind:0},locked:false})");
+run("Object.assign(R,{powers:{selah:1,illum:0,wind:0},locked:false,fadeIllumUsed:false})");
 const preGrant = read("({illum:R.powers.illum||0, correct:R.correct, attempts:R.attempts})");
 run("resolveAnswer(__question, 'And the earth was without form and void.', null, 500, 80000)");
 assert("correct Fade reconstruction earns an Illuminate card",
@@ -115,7 +117,7 @@ const cloze = {id:"mechanic-cloze",b:"Genesis",r:"Genesis 1:3",t:1,
   p:"And God said",a:"Let there be light",s:".",d:["Let the earth be still"]};
 sb.__question = cloze;
 run("Object.assign(R,{q:__question,locked:false,running:true,paused:false,sceneToken:14,runToken:4,powers:{selah:1,illum:1,wind:0}}); renderClozeQuestion(__question,10000,14); usePower('illum')");
-assert("Illuminate reveals the next Cloze word", read("R.cloze.hintIndex === 0 && R.cloze.words[0] === 'Let' && R.powers.illum === 0"));
+assert("Illuminate shows the Cloze answer", read("R.cloze.revealed === true && $('blank').textContent.indexOf('Let there be light') >= 0 && R.powers.illum === 0"));
 
 const duelCards = [makeElement("duel-card-left"), makeElement("duel-card-right")];
 duelCards[0].dataset.val = "was God";

@@ -58,6 +58,7 @@ lessonClips.forEach(([key, file]) => {
    recording must be real local MP3s with active runtime destinations. */
 [
   ["audio/indigo.mp3", "indigo"],
+  ["audio/heroes.mp3", "heroes"],
   ["audio/final-stillness.mp3", "finalStillness"],
   ["audio/sudden-descent.mp3", "suddenDescent"]
 ].forEach(([rel, key]) => {

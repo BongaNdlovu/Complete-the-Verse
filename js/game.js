@@ -564,8 +564,8 @@ function startRunPowers(mode, isPilgrim){
   const startPowers = mode==="blitz"
     ? {selah:0, illum:0, wind:0}
     : leanRoad
-    ? {selah:1, illum:1, wind:0}
-    : {selah:1, illum:2, wind:1};
+    ? {selah:1, illum:0, wind:0}
+    : {selah:1, illum:0, wind:1};
   const reservedIlluminate = Math.min(2, Math.max(0, Number(SAVE.illumReserve)||0));
   startPowers.illum += reservedIlluminate;
   return { startPowers: startPowers, reservedIlluminate: reservedIlluminate };
@@ -1062,18 +1062,18 @@ const LAMP_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 14.2c0
 
 /* ------------------------- POWERS ------------------------- */
 function illuminateLabel(){
-  if(R.currentMechanic === "fade") return R.fadePhase === "memorize" ? "after memory" : "next word";
-  if(R.currentMechanic === "passage-ref") return "burn 2 citations";
-  if(R.currentMechanic === "cloze") return "reveal next word";
+  if(R.currentMechanic === "fade") return R.fadePhase === "memorize" ? "after memory" : "show the verse";
+  if(R.currentMechanic === "passage-ref") return "show the answer";
+  if(R.currentMechanic === "cloze") return "show the words";
   if(R.currentMechanic === "duel") return "reveal KJV cue";
   if(R.currentMechanic === "truefalse") return "reveal judgement";
   if(R.typed) return "hint";
-  return "burn 2 wrong";
+  return "show the answer";
 }
 
 function illuminateBlocked(){
   if(R.currentMechanic === "fade" && R.fadePhase === "memorize") return true;
-  if(R.currentMechanic === "cloze") return !!(R.cloze && R.cloze.filled.length >= R.cloze.words.length);
+  if(R.currentMechanic === "cloze") return !!(R.cloze && (R.cloze.revealed || (R.cloze.filled && R.cloze.filled.length >= R.cloze.words.length)));
   if(R.currentMechanic === "duel") return !!(R.duel && R.duel.illuminated);
   if(R.currentMechanic === "truefalse") return !!(R.tf && R.tf.illuminated);
   if(R.typed) return R.hintLevel >= 3;
@@ -1144,44 +1144,45 @@ function updateQuickRewards(){
   renderQuickRewards();
 }
 
+function spendIlluminate(){
+  R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
+  if(R.currentMechanic === "fade") R.fadeIllumUsed = true;
+  Snd.power(); doFlash("violet"); renderPowers();
+}
+function illuminateMechanic(){
+  if(R.currentMechanic === "cloze" && typeof illuminateCloze === "function") return illuminateCloze();
+  if(R.currentMechanic === "duel" && typeof illuminateDuel === "function") return illuminateDuel();
+  if(R.currentMechanic === "truefalse" && typeof illuminateTrueFalse === "function") return illuminateTrueFalse();
+  if(R.currentMechanic === "fade" && R.fadePhase === "reconstruct" && typeof illuminateFadePick === "function")
+    return illuminateFadePick();
+  return false;
+}
+function illuminateMarkChoice(){
+  const target = (R.currentMechanic === "fade" && typeof fullVerseText === "function")
+    ? fullVerseText(R.q) : R.q.a;
+  const right = answerButtons().find(function(b){ return b.dataset.val === target; });
+  if(!right) return false;
+  spendIlluminate();
+  right.classList.add("right","illum-cue");
+  toast("Illuminate — the true answer is marked");
+  return true;
+}
 function useIlluminate(){
   if(!R.q){ toast("Illuminate needs a verse on the stage"); return false; }
   if(R.currentMechanic === "fade" && R.fadePhase === "memorize"){
     toast("Illuminate becomes available after the memory phase");
     return false;
   }
-  let handled = false;
-  if(R.currentMechanic === "cloze" && typeof illuminateCloze === "function") handled = illuminateCloze();
-  else if(R.currentMechanic === "duel" && typeof illuminateDuel === "function") handled = illuminateDuel();
-  else if(R.currentMechanic === "truefalse" && typeof illuminateTrueFalse === "function") handled = illuminateTrueFalse();
-  else if(R.currentMechanic === "fade" && typeof illuminateAssembly === "function") handled = illuminateAssembly();
-  else if(R.typed){
+  if(illuminateMechanic()){ spendIlluminate(); return false; }
+  if(R.typed){
     if(R.hintLevel >= 3){ toast("Nothing further to illuminate"); return false; }
-    R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
+    spendIlluminate();
     typedHint();
-    Snd.power(); doFlash("violet");
     toast(R.hintLevel===1 ? "Illuminate — the shape of the words"
         : R.hintLevel===2 ? "Illuminate — first letters" : "Illuminate — the first word");
-    renderPowers();
     return false;
   }
-  if(handled){
-    R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
-    Snd.power(); doFlash("violet"); renderPowers();
-    return false;
-  }
-  const wrong = answerButtons().filter(b=>b.dataset.val!==R.q.a && !b.classList.contains("burn"));
-  if(wrong.length<2) return false;
-  R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
-  const burned = shuffle(wrong).slice(0,2);
-  burned.forEach(b=>b.classList.add("burn"));
-  if(R.selected && burned.indexOf(R.selected.btn)>=0){
-    R.selected = null;
-    $("confirm-answer").disabled = true;
-    $("confirm-answer").textContent = "Lock Answer";
-  }
-  Snd.power(); doFlash("violet"); toast("Illuminate — two falsehoods burned");
-  return true;
+  return illuminateMarkChoice();
 }
 
 function useOilPower(kind){

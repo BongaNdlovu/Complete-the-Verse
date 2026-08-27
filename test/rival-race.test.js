@@ -32,7 +32,7 @@ assert(!/rival-decoy/.test(play), "rival decoy answers are excised from play.js"
 
 /* 3. Timing contracts — 60s fade timer and 2.5s answer review */
 assert(/const FADE_MEMORY_MS = 60000;/.test(play), "Fade memorization duration is 60 seconds (60000ms)");
-assert(/const FADE_RECALL_MIN_MS = 60000;/.test(play), "Fade recall minimum duration is 60 seconds (60000ms)");
+assert(/const FADE_PICK_MS = 45000;/.test(play), "Fade pick duration is 45 seconds (45000ms)");
 assert(/var JUDGE_MS = 2500;/.test(flow), "Flow.JUDGE_MS is 2500ms for the 2.5-second answer display");
 assert(/afterRun\(typeof Flow !== ["']undefined["'] \? Flow\.JUDGE_MS : 2500,\s*tutorialNextQuestion\)/.test(play),
   "Tutorial holds completed answer through Flow.JUDGE_MS (2500ms)");

@@ -162,6 +162,7 @@ read(sb, "invalidateRun();");
 {
   const s = boot();
   read(s, "startRun('recall','disciple'); R.q = drawReviewVerse(); R.tTotal=22000;");
+  read(s, "R.powers.illum = 1;");
   read(s, "renderTypedQuestion(R.q, 22000, R.sceneToken); R.running=true; R.paused=false;");
   const before = read(s, "R.powers.illum");
   read(s, "usePower('illum')");
@@ -278,7 +279,7 @@ read(sb, "invalidateRun();");
   eq("the commit is the verse actually served", read(s, "SAVE.pilgrim.usedIds[0] === R.q.id"), true);
   ok("the rest of the draw is still unspent",
      read(s, "SAVE.pilgrim.usedIds.length") < read(s, "R.siteVerses.length"));
-  eq("pilgrimage starts lean on powers", read(s, "R.powers.illum"), 1);
+  eq("pilgrimage starts lean on powers", read(s, "R.powers.illum"), 0);
   eq("pilgrimage has no Second Wind", read(s, "R.powers.wind"), 0);
 
   /* startRun already served the first verse; the remaining need-1 calls

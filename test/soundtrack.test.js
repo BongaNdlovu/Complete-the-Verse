@@ -26,7 +26,14 @@ const BEDS = [
   { key: "results", file: "results.mp3", slot: "Results screen" },
   { key: "finalStillness", file: "final-stillness.mp3", slot: "Completed-run results" },
   { key: "suddenDescent", file: "sudden-descent.mp3", slot: "Failed-run results" },
-  { key: "indigo", file: "indigo.mp3", slot: "Tutorial and live questions" }
+  { key: "indigo", file: "indigo.mp3", slot: "Tutorial and Ur (cycle start)" },
+  { key: "heroes", file: "heroes.mp3", slot: "Road question bed" },
+  { key: "pointOfImpact", file: "point-of-impact.mp3", slot: "Road question bed" },
+  { key: "primarySuspect", file: "primary-suspect.mp3", slot: "Road question bed" },
+  { key: "theTrace", file: "the-trace.mp3", slot: "Road question bed" },
+  { key: "theUncovering", file: "the-uncovering.mp3", slot: "Road question bed" },
+  { key: "awakeningMachine", file: "awakening-machine.mp3", slot: "Road question bed" },
+  { key: "machineAwakening", file: "machine-awakening.mp3", slot: "Road question bed" }
 ];
 
 assert(/const TRACKS\s*=\s*\{[\s\S]*?\};/.test(game), "TRACKS object present");
@@ -73,8 +80,9 @@ assert(/Snd\.ambience\("indigo"\)/.test(game),
   "first-run tutorial selects Indigo");
 assert(/function cueQuestionMusic\(/.test(game),
   "question-time music helper exists");
+assert(/ROAD_QUESTION_BEDS/.test(game), "road question beds cycle including indigo");
 assert(/cueQuestionMusic\(\)/.test(game),
-  "live questions cue the Indigo bed");
+  "live questions cue a question bed");
 assert(/Snd\.ambience\(A\.pal\)/.test(game), "beginAct uses act palette ambience");
 assert(/pal:"act1"/.test(game) && /pal:"act2"/.test(game) && /pal:"act3"/.test(game) &&
   /pal:"act4"/.test(game) && /pal:"act5"/.test(game), "ACTS define pal act1–act5");
