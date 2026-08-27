@@ -156,40 +156,27 @@ function isDeclaration(v){
 function detectMidClause(v){
   const t = tokens(v.a);
   if(!t.length) return [{code:"empty-answer", detail:"answer is empty"}];
-  // A one-word blank has no phrase shape to get wrong.
   if(t.length === 1 || isDeclaration(v)) return [];
   const out = [];
   const last = t[t.length-1], first = t[0], prev = t[t.length-2];
-  // "as this" / "as that" are pronouns closing a phrase ("such a time as
-  // this"); "into this" / "of his" are determiners left hanging.
   const pronounClose = prev === "as" && (last === "this" || last === "that");
   if(DANGLING.has(last) && !pronounClose)
     out.push({code:"mid-clause", detail:'blank ends on "'+last+'" — the phrase dangles'});
-  // A blank may open with a preposition when what follows is a complete
-  // phrase — "with an everlasting love", "as a mighty stream". It may not
-  // when the window runs on past the phrase into a new clause
-  // ("of the LORD, that it is") or trails a verb ("in the image of God
-  // created"). "that which was lost" is a headed relative and complete.
-  const headedRelative = first === "that" && ["which","who","whom"].includes(t[1]);
-  // A relative straight after the opening preposition is pied-piping, not
-  // a run-on: "of whom I am chief" is one clause and a complete phrase.
-  const runsIntoClause = t.slice(2).some(w => ["that","which","who","whom"].includes(w));
-  // -ing is excluded: "understanding", "blessing" and "beginning" are
-  // nouns far more often than they are trailing verbs in this text.
-  const trailsVerb = /(?:ed|eth|est)$/.test(last) && !DANGLING.has(last);
-  if(t.length >= 4 && OPENING_BAD.has(first) && !headedRelative && (runsIntoClause || trailsVerb))
-    out.push({code:"mid-clause", detail:'blank begins on "'+first+'" and runs past the phrase'});
-  // Only an OBJECT pronoun strands the blank. Followed by a verb the same
-  // word is a subject and opens a clause cleanly ("it is the gift of God").
-  const subjectUse = ["is","was","are","were","shall","will","hath","have","be","am","doth"].includes(t[1]);
-  if(t.length >= 4 && PRONOUN_OPENERS.has(first) && !subjectUse)
-    out.push({code:"mid-clause", detail:'blank begins on the object pronoun "'+first+'"'});
-  // The text resuming after the blank tells you whether the blank closed
-  // where the phrase closed.
+  flagOpeningRunOn(t, first, last, out);
   const after = tokens(v.s)[0];
   if(t.length >= 3 && after && BINDS_BACK.has(after))
     out.push({code:"mid-clause", detail:'the verse resumes on "'+after+'" — the blank cut the phrase short'});
   return out;
+}
+function flagOpeningRunOn(t, first, last, out){
+  const headedRelative = first === "that" && ["which","who","whom"].includes(t[1]);
+  const runsIntoClause = t.slice(2).some(w => ["that","which","who","whom"].includes(w));
+  const trailsVerb = /(?:ed|eth|est)$/.test(last) && !DANGLING.has(last);
+  if(t.length >= 4 && OPENING_BAD.has(first) && !headedRelative && (runsIntoClause || trailsVerb))
+    out.push({code:"mid-clause", detail:'blank begins on "'+first+'" and runs past the phrase'});
+  const subjectUse = ["is","was","are","were","shall","will","hath","have","be","am","doth"].includes(t[1]);
+  if(t.length >= 4 && PRONOUN_OPENERS.has(first) && !subjectUse)
+    out.push({code:"mid-clause", detail:'blank begins on the object pronoun "'+first+'"'});
 }
 
 function detectRecycled(v){

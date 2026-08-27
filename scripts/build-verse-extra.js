@@ -467,19 +467,17 @@ function flattenPlans(existingRefs, baseCounts) {
   return { items, need };
 }
 
-async function buildEntry(spec, text) {
+async function resolveBlank(spec, text) {
   const override = OVERRIDES.get(`${spec.book}|${spec.ref}`);
   let answer = spec.a || override?.a;
   let distractors = spec.d || override?.d;
   let found = answer ? findAnswer(text, answer) : null;
-
   const usableOverride = () => {
     if (!found) return false;
     const pWords = text.slice(0, found.idx).trim().split(/\s+/).filter(Boolean).length;
     const aWords = found.answer.trim().split(/\s+/).length;
     return pWords >= 3 && aWords >= 1 && aWords <= 6;
   };
-
   if (!usableOverride()) {
     const pick = pickBlank(text, spec.t);
     const phrase = pick?.phrase || pickBlankFallback(text);
@@ -488,7 +486,14 @@ async function buildEntry(spec, text) {
     if (!found) return null;
     distractors = null;
   }
-  answer = found.answer;
+  return { found, distractors };
+}
+async function buildEntry(spec, text) {
+  const resolved = await resolveBlank(spec, text);
+  if (!resolved) return null;
+  const found = resolved.found;
+  let distractors = resolved.distractors;
+  const answer = found.answer;
 
   const p = text.slice(0, found.idx);
   const s = text.slice(found.idx + answer.length);
@@ -518,48 +523,19 @@ async function buildEntry(spec, text) {
   };
 }
 
-async function main() {
-  const { refs: existingRefs, counts: baseCounts, baseCount } = loadExistingRefs();
-  const { items, need } = flattenPlans(existingRefs, baseCounts);
+async function tryBuildSpec(spec, seen, built, baseCounts) {
+  if (seen.has(spec.r)) return { fetched: 0, failed: 0 };
+  const text = await fetchKjv(spec.book, spec.ref);
+  if (!text) return { fetched: 1, failed: 1 };
+  const entry = await buildEntry(spec, text);
+  if (!entry) return { fetched: 1, failed: 1 };
+  built.push(entry);
+  seen.add(spec.r);
+  baseCounts[spec.book] = (baseCounts[spec.book] || 0) + 1;
+  return { fetched: 1, failed: 0 };
+}
 
-  console.log(`Base verses: ${baseCount}. Target new: ~${need} (${MIN_TOTAL}-${MAX_TOTAL} total).`);
-  console.log(`Candidate specs: ${items.length}`);
-
-  const built = [];
-  const seen = new Set(existingRefs);
-  let fetched = 0;
-  let failed = 0;
-
-  for (const spec of items) {
-    if (built.length >= need) break;
-    if (seen.has(spec.r)) continue;
-
-    const text = await fetchKjv(spec.book, spec.ref);
-    fetched++;
-    if (!text) {
-      failed++;
-      continue;
-    }
-
-    const entry = await buildEntry(spec, text);
-    if (!entry) {
-      failed++;
-      continue;
-    }
-
-    built.push(entry);
-    seen.add(spec.r);
-    baseCounts[spec.book] = (baseCounts[spec.book] || 0) + 1;
-
-    if (built.length % 25 === 0) {
-      console.log(`  built ${built.length}…`);
-    }
-
-    // gentle rate limit
-    if (fetched % 10 === 0) await new Promise((r) => setTimeout(r, 120));
-  }
-
-  // Ensure every book reaches at least 3 verses after merge.
+async function fillBookFloor(seen, built, baseCounts) {
   for (const book of BOOKS_ORDER) {
     while ((baseCounts[book] || 0) < 3) {
       const more = (PLANS[book] || []).find((item) => {
@@ -582,6 +558,32 @@ async function main() {
       baseCounts[book] = (baseCounts[book] || 0) + 1;
     }
   }
+}
+
+async function main() {
+  const { refs: existingRefs, counts: baseCounts, baseCount } = loadExistingRefs();
+  const { items, need } = flattenPlans(existingRefs, baseCounts);
+
+  console.log(`Base verses: ${baseCount}. Target new: ~${need} (${MIN_TOTAL}-${MAX_TOTAL} total).`);
+  console.log(`Candidate specs: ${items.length}`);
+
+  const built = [];
+  const seen = new Set(existingRefs);
+  let fetched = 0;
+  let failed = 0;
+
+  for (const spec of items) {
+    if (built.length >= need) break;
+    const r = await tryBuildSpec(spec, seen, built, baseCounts);
+    fetched += r.fetched;
+    failed += r.failed;
+    if (built.length && built.length % 25 === 0 && r.fetched && !r.failed) {
+      console.log(`  built ${built.length}…`);
+    }
+    if (fetched % 10 === 0 && r.fetched) await new Promise((r) => setTimeout(r, 120));
+  }
+
+  await fillBookFloor(seen, built, baseCounts);
 
   const total = baseCount + built.length;
   if (total < MIN_TOTAL) {

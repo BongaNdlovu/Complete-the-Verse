@@ -24,7 +24,7 @@ modular plain-JS files, CSS files, vendored libraries. It must run:
    blocks boot or play.
 
 There is no bundler, no framework, no package installation needed to
-play. `node test.js` (or `npm test`) is the only tooling gate.
+play. `node test.js` (or `npm test`) is the logic gate. `npm run lint` runs Oxlint with a global cyclomatic-complexity ceiling of 20.
 
 ```
 index.html          the single page — all views are <section class="view">s
@@ -407,7 +407,8 @@ bank answers nearest in length — numbered fakes were removed.
 ## 10. Testing — the three styles (know which one you are writing)
 
 `node test.js` runs 51 suites in a fixed order: content gate → pure
-logic → integration sandbox → structural/static suites.
+logic → integration sandbox → structural/static suites. CI also runs
+`npm run lint` (Oxlint `complexity` max 20) before the suite.
 
 1. **Pure requires** (`srs.test.js`, `recall.test.js`, `geo.test.js`,
    `pilgrimage.test.js`, `polish.test.js`, parts of `cloud.test.js`):

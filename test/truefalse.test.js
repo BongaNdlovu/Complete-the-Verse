@@ -137,8 +137,13 @@ function extractFn(src, name){
   }
   return null;
 }
-const pickerSrc = extractFn(play, "tfPickClaim");
-assert(pickerSrc, "tfPickClaim is extractable for behavioral checks");
+const pickerSrc = [
+  extractFn(play, "tfTierFromArc"),
+  extractFn(play, "tfTargetTier"),
+  extractFn(play, "tfPickFromPool"),
+  extractFn(play, "tfPickClaim")
+].filter(Boolean).join("\n");
+assert(extractFn(play, "tfPickClaim"), "tfPickClaim is extractable for behavioral checks");
 
 if(pickerSrc){
   function runPicker(siteVerses, picks){

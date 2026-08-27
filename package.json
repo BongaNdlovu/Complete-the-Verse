@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "test": "node test.js",
+    "lint": "oxlint",
     "start": "node scripts/dev-server.js",
     "optimise-media": "node scripts/optimise-media.js",
     "optimize-media": "node scripts/optimise-media.js"
@@ -10,5 +11,8 @@
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3"
+  },
+  "devDependencies": {
+    "oxlint": "^1.37.0"
   }
 }

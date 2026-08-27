@@ -1,0 +1,27 @@
+{
+  "ignorePatterns": [
+    "vendor/**",
+    "node_modules/**",
+    "js/verses.js",
+    "js/verses-extra.js",
+    "js/verses-more.js",
+    "js/verses-ascent.js",
+    "js/verses-tf.js",
+    "js/verses-notes.js",
+    "js/passages.js",
+    "js/empires.js",
+    "js/sites.js"
+  ],
+  "categories": {
+    "correctness": "off",
+    "suspicious": "off",
+    "pedantic": "off",
+    "perf": "off",
+    "restriction": "off",
+    "style": "off",
+    "nursery": "off"
+  },
+  "rules": {
+    "complexity": ["error", { "max": 20, "variant": "classic" }]
+  }
+}

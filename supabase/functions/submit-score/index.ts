@@ -27,6 +27,43 @@ function validDate(value: unknown) {
   return parsed.toISOString().slice(0, 10) === date && date <= todayUtc();
 }
 
+async function upsertDailyScore(supabase, user, body) {
+  if (!validDate(body.play_date)) return json({ error: "invalid-date" }, 400);
+  const score = Math.max(0, Math.min(MAX_DAILY, Number(body.score) || 0));
+  const accuracy = Math.max(0, Math.min(100, Number(body.accuracy) || 0));
+  const duration = body.duration_ms == null ? null : Math.max(0, Math.min(7200000, Number(body.duration_ms) || 0));
+  const diff = String(body.diff || "watchman").slice(0, 32);
+  if (!DIFFS.has(diff)) return json({ error: "invalid-difficulty" }, 400);
+  const { error } = await supabase.from("daily_scores").upsert({
+    user_id: user.id,
+    play_date: String(body.play_date),
+    score,
+    accuracy,
+    duration_ms: duration,
+    diff
+  }, { onConflict: "user_id,play_date" });
+  if (error) return json({ error: error.message }, 400);
+  const log = await supabase.from("score_submission_log").insert({ user_id: user.id, kind: "daily" });
+  if (log.error) return json({ error: "submission-log-failed" }, 503);
+  return json({ ok: true, score });
+}
+async function insertBlitzScore(supabase, user, body) {
+  const score = Math.max(0, Math.min(MAX_BLITZ, Number(body.score) || 0));
+  const survived = Math.max(0, Math.min(7200000, Number(body.survived_ms) || 0));
+  const diff = String(body.diff || "watchman").slice(0, 32);
+  if (!DIFFS.has(diff)) return json({ error: "invalid-difficulty" }, 400);
+  const { error } = await supabase.from("blitz_scores").insert({
+    user_id: user.id,
+    score,
+    survived_ms: survived,
+    diff
+  });
+  if (error) return json({ error: error.message }, 400);
+  const log = await supabase.from("score_submission_log").insert({ user_id: user.id, kind: "blitz" });
+  if (log.error) return json({ error: "submission-log-failed" }, 503);
+  return json({ ok: true, score });
+}
+
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "method" }), { status: 405 });
@@ -52,39 +89,6 @@ Deno.serve(async (req) => {
     return json({ error: "rate-limited" }, 429);
   }
 
-  if (kind === "daily") {
-    if (!validDate(body.play_date)) return json({ error: "invalid-date" }, 400);
-    const score = Math.max(0, Math.min(MAX_DAILY, Number(body.score) || 0));
-    const accuracy = Math.max(0, Math.min(100, Number(body.accuracy) || 0));
-    const duration = body.duration_ms == null ? null : Math.max(0, Math.min(7200000, Number(body.duration_ms) || 0));
-    const diff = String(body.diff || "watchman").slice(0, 32);
-    if (!DIFFS.has(diff)) return json({ error: "invalid-difficulty" }, 400);
-    const { error } = await supabase.from("daily_scores").upsert({
-      user_id: user.id,
-      play_date: String(body.play_date),
-      score,
-      accuracy,
-      duration_ms: duration,
-      diff
-    }, { onConflict: "user_id,play_date" });
-    if (error) return json({ error: error.message }, 400);
-    const log = await supabase.from("score_submission_log").insert({ user_id: user.id, kind });
-    if (log.error) return json({ error: "submission-log-failed" }, 503);
-    return json({ ok: true, score });
-  }
-
-  const score = Math.max(0, Math.min(MAX_BLITZ, Number(body.score) || 0));
-  const survived = Math.max(0, Math.min(7200000, Number(body.survived_ms) || 0));
-  const diff = String(body.diff || "watchman").slice(0, 32);
-  if (!DIFFS.has(diff)) return json({ error: "invalid-difficulty" }, 400);
-  const { error } = await supabase.from("blitz_scores").insert({
-    user_id: user.id,
-    score,
-    survived_ms: survived,
-    diff
-  });
-  if (error) return json({ error: error.message }, 400);
-  const log = await supabase.from("score_submission_log").insert({ user_id: user.id, kind });
-  if (log.error) return json({ error: "submission-log-failed" }, 503);
-  return json({ ok: true, score });
+  if (kind === "daily") return upsertDailyScore(supabase, user, body);
+  return insertBlitzScore(supabase, user, body);
 });

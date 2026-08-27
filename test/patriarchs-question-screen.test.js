@@ -34,7 +34,7 @@ assert(sequences.includes('syncAbrahamPresentation("reconstruct")'), "reconstruc
 
 assert(game.includes("hud-journey") && game.includes("hud-left-lab") && game.includes("hud-right-lab"),
   "journey-first HUD labels are updated at runtime");
-assert(/journeyName = arc \? arc\.name/.test(game), "the HUD names the active journey arc");
+assert(/function hudJourneyName\(/.test(game) && /arc \? arc\.name/.test(game), "the HUD names the active journey arc");
 assert(/if\(view!=="play" && typeof syncAbrahamPresentation/.test(game),
   "leaving gameplay clears the Abraham presentation state");
 

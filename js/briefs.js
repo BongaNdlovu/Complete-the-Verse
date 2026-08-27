@@ -436,6 +436,21 @@ function siteBriefClockLabel(mode){
   return "30s · 45s assemble · 60s fade";
 }
 
+function fillSiteBriefHero(siteId, vig){
+  const heroWrap = $("sb-hero-media");
+  const heroImg = $("sb-hero-img");
+  if(heroWrap && heroImg && vig && vig.image){
+    heroImg.src = vig.image;
+    heroImg.onerror = function(){
+      if(vig.fallback) heroImg.src = vig.fallback;
+      else heroWrap.style.display = "none";
+    };
+    heroWrap.style.display = "block";
+  } else if(heroWrap){
+    heroWrap.style.display = "none";
+  }
+}
+
 function openSiteBrief(siteId, mode){
   const b = Pilgrimage.brief(siteId, SAVE.pilgrim);
   if(!b) return;
@@ -449,20 +464,8 @@ function openSiteBrief(siteId, mode){
   $("sb-name").textContent = s.name;
   $("sb-quote").textContent = s.quote;
   $("sb-ref").textContent = s.quoteRef;
-
   const vig = (typeof Pilgrimage !== "undefined" && Pilgrimage.vignette) ? Pilgrimage.vignette(siteId) : null;
-  const heroWrap = $("sb-hero-media");
-  const heroImg = $("sb-hero-img");
-  if(heroWrap && heroImg && vig && vig.image){
-    heroImg.src = vig.image;
-    heroImg.onerror = function(){
-      if(vig.fallback) heroImg.src = vig.fallback;
-      else heroWrap.style.display = "none";
-    };
-    heroWrap.style.display = "block";
-  } else if(heroWrap){
-    heroWrap.style.display = "none";
-  }
+  fillSiteBriefHero(siteId, vig);
 
   $("sb-info").innerHTML = [
     [b.ordinal + " / " + b.total, "Site on the road"],

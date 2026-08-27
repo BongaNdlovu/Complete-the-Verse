@@ -286,24 +286,27 @@ var Polish = (function () {
   }
 
   /* Pure shape score used by buildChoices (mirrored for tests). */
+  function lengthShapeScore(lenDiff) {
+    if (lenDiff <= 2) return 8;
+    if (lenDiff <= 5) return 6;
+    if (lenDiff <= 10) return 3;
+    if (lenDiff <= 16) return 1;
+    return -4;
+  }
+  function wordCountShapeScore(wcDiff) {
+    if (wcDiff === 0) return 7;
+    if (wcDiff === 1) return 4;
+    if (wcDiff === 2) return 1;
+    return -3;
+  }
   function choiceShapeScore(correct, cand) {
     correct = String(correct || "");
     cand = String(cand || "");
     if (!cand || cand === correct) return -1;
     function wordsOf(s) { return s.toLowerCase().split(/\W+/).filter(Boolean); }
     var cw = wordsOf(correct), aw = wordsOf(cand);
-    var score = 0;
-    var lenDiff = Math.abs(cand.length - correct.length);
-    if (lenDiff <= 2) score += 8;
-    else if (lenDiff <= 5) score += 6;
-    else if (lenDiff <= 10) score += 3;
-    else if (lenDiff <= 16) score += 1;
-    else score -= 4;
-    var wcDiff = Math.abs(aw.length - cw.length);
-    if (wcDiff === 0) score += 7;
-    else if (wcDiff === 1) score += 4;
-    else if (wcDiff === 2) score += 1;
-    else score -= 3;
+    var score = lengthShapeScore(Math.abs(cand.length - correct.length));
+    score += wordCountShapeScore(Math.abs(aw.length - cw.length));
     cw.filter(function (w) { return w.length > 3; }).forEach(function (w) {
       if (aw.indexOf(w) >= 0) score += 3;
     });

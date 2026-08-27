@@ -193,10 +193,29 @@ var Cloud = (function () {
     return out;
   }
 
+  function mergeBestLife(out, local, remote) {
+    out.best = Object.assign({}, remote.best || {}, local.best || {});
+    Object.keys(out.best).forEach(function (k) {
+      out.best[k] = maxNum((local.best || {})[k], (remote.best || {})[k]);
+    });
+    out.life = Object.assign({}, remote.life || {}, local.life || {});
+    Object.keys(Object.assign({}, local.life || {}, remote.life || {})).forEach(function (k) {
+      out.life[k] = maxNum((local.life || {})[k], (remote.life || {})[k]);
+    });
+  }
+
+  function mergeDaily(local, remote) {
+    var ld = local.daily || {}, rd = remote.daily || {};
+    if (ld.date && rd.date && ld.date === rd.date) {
+      return { date: ld.date, score: maxNum(ld.score, rd.score) };
+    }
+    if (ld.date) return { date: ld.date, score: ld.score || 0 };
+    return { date: rd.date || "", score: rd.score || 0 };
+  }
+
   function mergeSave(local, remote) {
     local = local || {};
     remote = remote || {};
-    // Empty remote → local wins entirely.
     if (!remote || (!remote.pilgrim && !remote.best && !remote.srs)) {
       return migrateBlitzUnits(JSON.parse(JSON.stringify(local)));
     }
@@ -206,28 +225,12 @@ var Cloud = (function () {
     out.illumReserve = maxNum(local.illumReserve, remote.illumReserve);
     out.runs = maxNum(local.runs, remote.runs);
     out.seals = unionArr(local.seals, remote.seals);
-    out.best = Object.assign({}, remote.best || {}, local.best || {});
-    Object.keys(out.best).forEach(function (k) {
-      out.best[k] = maxNum((local.best || {})[k], (remote.best || {})[k]);
-    });
-    out.life = Object.assign({}, remote.life || {}, local.life || {});
-    Object.keys(Object.assign({}, local.life || {}, remote.life || {})).forEach(function (k) {
-      out.life[k] = maxNum((local.life || {})[k], (remote.life || {})[k]);
-    });
+    mergeBestLife(out, local, remote);
     out.books = mergeMapMax(local.books, remote.books, ["c", "a"]);
     out.verse = mergeMapMax(local.verse, remote.verse, ["c", "a", "streak", "best"]);
     out.srs = mergeSrs(local.srs, remote.srs);
     out.pilgrim = mergePilgrim(local.pilgrim, remote.pilgrim);
-    // daily: keep higher score for same date, else prefer local date if set
-    var ld = local.daily || {}, rd = remote.daily || {};
-    if (ld.date && rd.date && ld.date === rd.date) {
-      out.daily = { date: ld.date, score: maxNum(ld.score, rd.score) };
-    } else if (ld.date) {
-      out.daily = { date: ld.date, score: ld.score || 0 };
-    } else {
-      out.daily = { date: rd.date || "", score: rd.score || 0 };
-    }
-    // settings: prefer local device prefs
+    out.daily = mergeDaily(local, remote);
     out.set = Object.assign({}, remote.set || {}, local.set || {});
     out.board = (local.board && local.board.length) ? local.board
       : (remote.board || []);

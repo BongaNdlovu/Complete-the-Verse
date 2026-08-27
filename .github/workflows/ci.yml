@@ -20,5 +20,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint complexity
+        run: npm run lint
+
       - name: Run Complete Test Suite
         run: npm test

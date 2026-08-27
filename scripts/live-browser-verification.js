@@ -93,12 +93,8 @@ async function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
 
-async function runLiveVerification() {
-  console.log("=== STARTING LIVE CHROME BROWSER VERIFICATION ===");
-  console.log(`Target URL: http://localhost:8781`);
-
-  const tmpProfile = path.join(os.tmpdir(), "chrome-live-profile-" + Date.now());
-  const chrome = spawn(CHROME_PATH, [
+async function spawnLiveChrome(tmpProfile) {
+  return spawn(CHROME_PATH, [
     "--headless=new",
     "--remote-debugging-port=9222",
     "--window-size=1920,1080",
@@ -108,6 +104,39 @@ async function runLiveVerification() {
     "--no-default-browser-check",
     `--user-data-dir=${tmpProfile}`
   ]);
+}
+
+async function connectLiveClient() {
+  const newTabRes = await fetch("http://127.0.0.1:9222/json/new?http://localhost:8781", { method: "PUT" });
+  const tabData = await newTabRes.json();
+  const client = new CDPClient(tabData.webSocketDebuggerUrl);
+  await client.connect();
+  await client.send("Page.enable");
+  await client.send("Runtime.enable");
+  await client.send("DOM.enable");
+  await client.send("Emulation.setDeviceMetricsOverride", {
+    width: 1920, height: 1080, deviceScaleFactor: 1, mobile: false
+  });
+  try {
+    await client.send("Emulation.setAutoplayPolicy", { policy: "noUserGestureRequired" });
+  } catch (e) {}
+  await sleep(3000);
+  for (let i = 0; i < 20; i++) {
+    try {
+      const ready = await client.eval(`Boolean(window.SAVE && window.Pilgrimage)`);
+      if (ready) break;
+    } catch (e) {}
+    await sleep(500);
+  }
+  return client;
+}
+
+async function runLiveVerification() {
+  console.log("=== STARTING LIVE CHROME BROWSER VERIFICATION ===");
+  console.log(`Target URL: http://localhost:8781`);
+
+  const tmpProfile = path.join(os.tmpdir(), "chrome-live-profile-" + Date.now());
+  const chrome = await spawnLiveChrome(tmpProfile);
 
   let client = null;
   const results = { passed: 0, failed: 0, checks: [] };
@@ -117,11 +146,11 @@ async function runLiveVerification() {
       results.passed++;
       results.checks.push({ name, status: "PASS", extra });
       console.log(`  ✅ [PASS] ${name}`);
-    } else {
-      results.failed++;
-      results.checks.push({ name, status: "FAIL", extra });
-      console.error(`  ❌ [FAIL] ${name} ${extra ? "— " + extra : ""}`);
+      return;
     }
+    results.failed++;
+    results.checks.push({ name, status: "FAIL", extra });
+    console.error(`  ❌ [FAIL] ${name} ${extra ? "— " + extra : ""}`);
   }
 
   async function verifyPowerbarInPlay(label) {
@@ -181,36 +210,7 @@ async function runLiveVerification() {
 
   try {
     await sleep(1500);
-
-    const newTabRes = await fetch("http://127.0.0.1:9222/json/new?http://localhost:8781", { method: "PUT" });
-    const tabData = await newTabRes.json();
-    const wsUrl = tabData.webSocketDebuggerUrl;
-
-    client = new CDPClient(wsUrl);
-    await client.connect();
-
-    await client.send("Page.enable");
-    await client.send("Runtime.enable");
-    await client.send("DOM.enable");
-    await client.send("Emulation.setDeviceMetricsOverride", {
-      width: 1920,
-      height: 1080,
-      deviceScaleFactor: 1,
-      mobile: false
-    });
-    try {
-      await client.send("Emulation.setAutoplayPolicy", { policy: "noUserGestureRequired" });
-    } catch (e) {}
-
-    await sleep(3000);
-    // Poll until window.SAVE is defined
-    for (let i = 0; i < 20; i++) {
-      try {
-        const ready = await client.eval(`Boolean(window.SAVE && window.Pilgrimage)`);
-        if (ready) break;
-      } catch (e) {}
-      await sleep(500);
-    }
+    client = await connectLiveClient();
 
     // Reset progress to Pass 1 for clean campaign verification
     await client.eval(`window.SAVE.pilgrim = window.Pilgrimage.blankProgress(); window.SAVE.runs = 0; if (typeof persist === "function") persist();`);

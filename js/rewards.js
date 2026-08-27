@@ -94,16 +94,15 @@ var QuickRewards = (function(){
     if(goal.type === "streak") return Number(run.best) || 0;
     if(goal.type === "fast") return Number(run.fast) || 0;
     if(goal.type === "exact") return Number(run.typedExact) || 0;
-    if(goal.type === "books"){
-      if(run.booksRun && typeof run.booksRun.size === "number") return run.booksRun.size;
-      return Number(run.books) || 0;
-    }
-    if(goal.type === "illum"){
-      return Number(run.best) >= 8 && !run.usedPower ? 1 : 0;
-    }
+    if(goal.type === "books") return booksValue(run);
+    if(goal.type === "illum") return Number(run.best) >= 8 && !run.usedPower ? 1 : 0;
     if(goal.type === "clean") return run.missed && run.missed.length ? 0 : 1;
     if(goal.type === "noPower") return run.usedPower ? 0 : 1;
     return 0;
+  }
+  function booksValue(run){
+    if(run.booksRun && typeof run.booksRun.size === "number") return run.booksRun.size;
+    return Number(run.books) || 0;
   }
 
   function complete(goal, run){

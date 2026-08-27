@@ -32,51 +32,53 @@ const DEFAULT_SAVE = {
 };
 let SAVE = load();
 if(typeof window !== "undefined") window.SAVE = SAVE;
+function mergeLoadedSave(s){
+  return Object.assign(JSON.parse(JSON.stringify(DEFAULT_SAVE)), s, {
+    v:3,
+    best:Object.assign({}, DEFAULT_SAVE.best, s.best||{}),
+    life:Object.assign({}, DEFAULT_SAVE.life, s.life||{}),
+    set:Object.assign({}, DEFAULT_SAVE.set, s.set||{}),
+    daily:Object.assign({}, DEFAULT_SAVE.daily, s.daily||{}),
+    srs:Object.assign({}, s.srs||{}),
+    habit:Object.assign({count:0, lastDate:"", lastDay:0, best:0, history:{}}, s.habit||{}),
+    pilgrim:Object.assign({sites:{}, lastPlayed:"", started:0, usedIds:[]}, s.pilgrim||{}, {
+      sites:Object.assign({}, (s.pilgrim && s.pilgrim.sites) || {}),
+      usedIds: Array.isArray(s.pilgrim && s.pilgrim.usedIds) ? s.pilgrim.usedIds.slice() : []
+    }),
+    artifacts: (typeof Artifacts !== "undefined")
+      ? Artifacts.normalize(s.artifacts)
+      : Object.assign({unlocked:{}, seen:{}}, s.artifacts||{}),
+    journal: Array.isArray(s.journal) ? s.journal.slice(0, 40) : [],
+    ghosts: Object.assign({pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null}, s.ghosts||{}, {
+      pilgrimageBySite: Object.assign({}, (s.ghosts && s.ghosts.pilgrimageBySite) || {})
+    })
+  });
+}
+function recoverCorruptSave(e){
+  console.error("Save load failure:", e);
+  if(typeof Diag !== "undefined" && Diag.record){
+    Diag.record({ kind: "save-corrupt", message: e.message || String(e), stack: e.stack });
+  }
+  try{
+    let rawBroken = localStorage.getItem(SAVE_KEY);
+    if(rawBroken) localStorage.setItem("ctv_save_v3_broken", rawBroken);
+  }catch(err){}
+  if(typeof window !== "undefined") window._saveCorruptPending = true;
+  return JSON.parse(JSON.stringify(DEFAULT_SAVE));
+}
 function load(){
   try{
     let raw = localStorage.getItem(SAVE_KEY), migrating = false;
     if(!raw){ raw = localStorage.getItem(LEGACY_SAVE_KEY); migrating = !!raw; }
     if(!raw) return JSON.parse(JSON.stringify(DEFAULT_SAVE));
     const s = JSON.parse(raw);
-    const out = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SAVE)), s, {
-      v:3,
-      best:Object.assign({}, DEFAULT_SAVE.best, s.best||{}),
-      life:Object.assign({}, DEFAULT_SAVE.life, s.life||{}),
-      set:Object.assign({}, DEFAULT_SAVE.set, s.set||{}),
-      daily:Object.assign({}, DEFAULT_SAVE.daily, s.daily||{}),
-      srs:Object.assign({}, s.srs||{}),
-      habit:Object.assign({count:0, lastDate:"", lastDay:0, best:0, history:{}}, s.habit||{}),
-      // A save written before the Pilgrimage existed has no `pilgrim`
-      // key at all. Merging rather than replacing means such a player
-      // simply starts the journey at Ur with everything else intact —
-      // no wipe, no reset, no lost seals.
-      pilgrim:Object.assign({sites:{}, lastPlayed:"", started:0, usedIds:[]}, s.pilgrim||{}, {
-        sites:Object.assign({}, (s.pilgrim && s.pilgrim.sites) || {}),
-        usedIds: Array.isArray(s.pilgrim && s.pilgrim.usedIds) ? s.pilgrim.usedIds.slice() : []
-      }),
-      artifacts: (typeof Artifacts !== "undefined")
-        ? Artifacts.normalize(s.artifacts)
-        : Object.assign({unlocked:{}, seen:{}}, s.artifacts||{}),
-      journal: Array.isArray(s.journal) ? s.journal.slice(0, 40) : [],
-      ghosts: Object.assign({pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null}, s.ghosts||{}, {
-        pilgrimageBySite: Object.assign({}, (s.ghosts && s.ghosts.pilgrimageBySite) || {})
-      })
-    });
+    const out = mergeLoadedSave(s);
     if(migrating) migrateV2(out, s);
     migrateProfile(out);
     migrateBlitzUnits(out);
     return out;
   }catch(e){
-    console.error("Save load failure:", e);
-    if(typeof Diag !== "undefined" && Diag.record){
-      Diag.record({ kind: "save-corrupt", message: e.message || String(e), stack: e.stack });
-    }
-    try{
-      let rawBroken = localStorage.getItem(SAVE_KEY);
-      if(rawBroken) localStorage.setItem("ctv_save_v3_broken", rawBroken);
-    }catch(err){}
-    if(typeof window !== "undefined") window._saveCorruptPending = true;
-    return JSON.parse(JSON.stringify(DEFAULT_SAVE));
+    return recoverCorruptSave(e);
   }
 }
 
@@ -346,11 +348,7 @@ const FLAT_ADD_MS = (typeof Polish!=="undefined" && Polish.FLAT_ADD_MS) || 5000;
 
 /* ------------------------- ROUTER ------------------------- */
 let currentView = "boot";
-function applyLeave(plan){
-  if(!plan || plan.same) return;
-  if(plan.unmountAtlas && typeof Atlas!=="undefined" && Atlas.unmount) Atlas.unmount();
-  if(plan.stopTimer) stopTimer();
-  if(plan.hideWipe) hideWipe();
+function applyLeaveOverlays(plan){
   if(plan.hidePause){ const p=$("pause"); if(p) p.classList.remove("on"); R.paused=false; }
   if(plan.hideJudge){ const j=$("judge-burst"); if(j) j.classList.remove("on","up","down"); }
   if(plan.hideOverdrive){
@@ -364,28 +362,26 @@ function applyLeave(plan){
       "mode-typed","speed-round","reveal-freeze","pressure-3","pressure-5","pressure-7",
       "blitz-edge","blitz-edge-2","blitz-edge-3","retreat");
   }
+}
+function applyLeave(plan){
+  if(!plan || plan.same) return;
+  if(plan.unmountAtlas && typeof Atlas!=="undefined" && Atlas.unmount) Atlas.unmount();
+  if(plan.stopTimer) stopTimer();
+  if(plan.hideWipe) hideWipe();
+  applyLeaveOverlays(plan);
   if(plan.bumpScene) R.sceneToken = (R.sceneToken||0) + 1;
   if(plan.hideState && currentView!=="play") hideState();
   const siteVid = $("cine-parallax-video");
-  if(siteVid && plan && !plan.same && plan.stopLoop !== false){
+  if(siteVid && plan.stopLoop !== false){
     try { siteVid.pause(); } catch(e){}
     siteVid.style.display = "none";
   }
-  if(typeof Snd !== "undefined" && typeof Snd.setRain === "function" && plan && !plan.same && plan.stopLoop !== false){
+  if(typeof Snd !== "undefined" && typeof Snd.setRain === "function" && plan.stopLoop !== false){
     Snd.setRain(false);
   }
 }
-function go(view){
-  const leaving = currentView;
-  const plan = (typeof Flow!=="undefined" && Flow.leaveView) ? Flow.leaveView(leaving, view) : null;
-  applyLeave(plan);
-  document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
-  const el = $("v-"+view); if(el) el.classList.add("on");
-  currentView = view;
-  // the play view supplies its own header/footer letterboxing
+function enterViewChrome(view){
   document.body.classList.toggle("cine", view==="act");
-  // The site's sky belongs to the site. Anywhere else gets the game's
-  // own grading back.
   if(view!=="play"){ applySiteSky(null); document.body.classList.remove("mode-typed"); }
   if(view!=="play" && typeof syncAbrahamPresentation === "function") syncAbrahamPresentation(null);
   if(view==="intro"){ syncHallVideo(SAVE.set.quality); }
@@ -397,18 +393,27 @@ function go(view){
   }
   if(view==="results"){
     Backdrop.palette("results");
-    /* Completion and failure have distinct musical resolutions; older
-       callers still fall back to the neutral results bed. */
     Snd.ambience((R && R.resultTrack) || "results");
   }
+}
+function enterViewPanels(view){
   if(view==="study") renderStudy();
   if(view==="relics") renderRelics();
   if(view==="seals") renderSeals();
   if(view==="records") renderRecords();
   if(view==="settings") renderSettings();
-  updatePlayerCard();   // shows/hides the player card and top-right icons per view
+}
+function go(view){
+  const leaving = currentView;
+  const plan = (typeof Flow!=="undefined" && Flow.leaveView) ? Flow.leaveView(leaving, view) : null;
+  applyLeave(plan);
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
+  const el = $("v-"+view); if(el) el.classList.add("on");
+  currentView = view;
+  enterViewChrome(view);
+  enterViewPanels(view);
+  updatePlayerCard();
   document.body.classList.toggle("view-play", view==="play");
-  // The per-site layer is the sole backdrop during gameplay.
   if(view==="play") syncHallVideo(SAVE.set.quality);
   if(typeof Director!=="undefined" && Director.syncFx) Director.syncFx();
   if(view==="play") ensureLoop(); else if(!(plan && plan.stopLoop===false)) stopLoop();
@@ -515,73 +520,56 @@ function buildDailyList(){
   return {list:out, rnd:rnd};
 }
 
-function startRun(mode, diffKey, options){
-  const D = resolveDiff(diffKey);
-  const runToken = (R.runToken||0) + 1;
-  pendingSeals = [];
-
-  /* A pilgrimage level is a fixed list of verses drawn from the site's
-     own scripture, decided here and then played straight through. The
-     attempt count seeds the draw, so walking a site again gives a
-     different set — and journey usedIds keep earlier sites out forever. */
-  const isPilgrim = mode==="pilgrimage" || mode==="pilgrim-recall";
-  let siteId = null, siteDraw = null, siteIndex = -1;
-  if(isPilgrim){
-    siteId = pendingSiteId || R.siteId || (typeof Pilgrimage !== "undefined" && Pilgrimage.currentSite ? (Pilgrimage.currentSite(SAVE.pilgrim)||{}).id : "ur") || "ur";
-    siteIndex = Pilgrimage.indexOf(siteId);
-    const rec = Pilgrimage.recordOf(SAVE.pilgrim, siteId);
-    const exclude = Pilgrimage.usedSet(SAVE.pilgrim);
-    const dueList = [];
-    if(typeof VERSES !== "undefined" && typeof SRS !== "undefined" && SAVE.srs){
-      const t = today();
-      VERSES.forEach(v => {
-        const c = cardFor(v);
-        if(c && (c.reps || c.lapses) && SRS.isDue(c, t) && !exclude[v.id]){
-          dueList.push(v);
-        }
-      });
-    }
-    siteDraw = Pilgrimage.drawSite(siteId, {
-      attempt: rec ? rec.attempts : 0,
-      exclude: exclude,
-      dueVerses: dueList
+function startRunPilgrimDraw(){
+  const siteId = pendingSiteId || R.siteId || (typeof Pilgrimage !== "undefined" && Pilgrimage.currentSite ? (Pilgrimage.currentSite(SAVE.pilgrim)||{}).id : "ur") || "ur";
+  const siteIndex = Pilgrimage.indexOf(siteId);
+  const rec = Pilgrimage.recordOf(SAVE.pilgrim, siteId);
+  const exclude = Pilgrimage.usedSet(SAVE.pilgrim);
+  const dueList = [];
+  if(typeof VERSES !== "undefined" && typeof SRS !== "undefined" && SAVE.srs){
+    const t = today();
+    VERSES.forEach(v => {
+      const c = cardFor(v);
+      if(c && (c.reps || c.lapses) && SRS.isDue(c, t) && !exclude[v.id]) dueList.push(v);
     });
-    if(!siteDraw || !siteDraw.verses || !siteDraw.verses.length){
-      showState("empty-draw", {
-        onPrimary: function(){ hideState(); go("atlas"); },
-        onSecondary: function(){ hideState(); go("menu"); }
-      });
-      return;
-    }
-    if(typeof Cinematic !== "undefined" && Cinematic.showColdPlaceToast){
-      const sObj = Pilgrimage.site(siteId);
-      const aObj = sObj ? Pilgrimage.arc(sObj.arc) : null;
-      Cinematic.showColdPlaceToast(sObj ? sObj.name : "Ur of the Chaldees", aObj ? aObj.name : "The Long Road");
-    }
-    /* Verses are committed as they are SERVED (commitSiteVerse below), not
-     here. Burning the whole draw at startRun meant backing out of a brief
-     you never answered still spent the site's eight verses forever. */
   }
-
-  let relay = null;
-  if(mode==="relay"){
-    const arcKey = pendingArcKey || (R.relay && R.relay.arcKey);
-    const list = Pilgrimage.sitesInArc(arcKey);
-    const queue = [];
-    let exclude = Pilgrimage.usedSet(SAVE.pilgrim);
-    list.forEach(s=>{
-      const rec = Pilgrimage.recordOf(SAVE.pilgrim, s.id);
-      const drawn = Pilgrimage.drawSite(s.id, {attempt: rec ? rec.attempts : 0, exclude: exclude});
-      drawn.verses.forEach((v, vi) => {
-        queue.push({siteId:s.id, index:Pilgrimage.indexOf(s.id), verseIndex:vi, v:v});
-        exclude[v.id] = 1;
-      });
+  const siteDraw = Pilgrimage.drawSite(siteId, {
+    attempt: rec ? rec.attempts : 0,
+    exclude: exclude,
+    dueVerses: dueList
+  });
+  if(!siteDraw || !siteDraw.verses || !siteDraw.verses.length){
+    showState("empty-draw", {
+      onPrimary: function(){ hideState(); go("atlas"); },
+      onSecondary: function(){ hideState(); go("menu"); }
     });
-    relay = {arcKey:arcKey, sites:list.map(s=>s.id), queue:queue, idx:0, banked:[], current:null};
+    return null;
   }
+  if(typeof Cinematic !== "undefined" && Cinematic.showColdPlaceToast){
+    const sObj = Pilgrimage.site(siteId);
+    const aObj = sObj ? Pilgrimage.arc(sObj.arc) : null;
+    Cinematic.showColdPlaceToast(sObj ? sObj.name : "Ur of the Chaldees", aObj ? aObj.name : "The Long Road");
+  }
+  return { siteId: siteId, siteIndex: siteIndex, siteDraw: siteDraw };
+}
 
-  /* Pilgrimage is lean: one Selah, one Illuminate, no Second Wind.
-     Blitz: no lifelines. Daily keeps the full toolkit. */
+function startRunRelayQueue(){
+  const arcKey = pendingArcKey || (R.relay && R.relay.arcKey);
+  const list = Pilgrimage.sitesInArc(arcKey);
+  const queue = [];
+  let exclude = Pilgrimage.usedSet(SAVE.pilgrim);
+  list.forEach(s=>{
+    const rec = Pilgrimage.recordOf(SAVE.pilgrim, s.id);
+    const drawn = Pilgrimage.drawSite(s.id, {attempt: rec ? rec.attempts : 0, exclude: exclude});
+    drawn.verses.forEach((v, vi) => {
+      queue.push({siteId:s.id, index:Pilgrimage.indexOf(s.id), verseIndex:vi, v:v});
+      exclude[v.id] = 1;
+    });
+  });
+  return {arcKey:arcKey, sites:list.map(s=>s.id), queue:queue, idx:0, banked:[], current:null};
+}
+
+function startRunPowers(mode, isPilgrim){
   const leanRoad = isPilgrim || mode==="relay";
   const startPowers = mode==="blitz"
     ? {selah:0, illum:0, wind:0}
@@ -590,8 +578,52 @@ function startRun(mode, diffKey, options){
     : {selah:1, illum:2, wind:1};
   const reservedIlluminate = Math.min(2, Math.max(0, Number(SAVE.illumReserve)||0));
   startPowers.illum += reservedIlluminate;
-  const blitzMs = (typeof Polish!=="undefined" && Polish.BLITZ_START_MS) || 60000;
+  return { startPowers: startPowers, reservedIlluminate: reservedIlluminate };
+}
 
+function startRunOpenStage(mode, isPilgrim, siteId, relay){
+  let pal = mode==="endless" ? "act3" : mode==="practice" ? "act1" : mode==="recall" ? "act4" : mode==="blitz" ? "act5" : "act2";
+  if(isPilgrim){
+    const site = Pilgrimage.site(siteId);
+    const arc = site ? Pilgrimage.arc(site.arc) : null;
+    pal = (arc && arc.pal) || "act2";
+  }
+  if(mode==="relay"){
+    const arc = Pilgrimage.arc(relay.arcKey);
+    pal = (arc && arc.pal) || "act3";
+  }
+  Backdrop.palette(pal);
+  Snd.ambience(pal);
+  $("hud-round").textContent = isPilgrim && Pilgrimage.site(siteId)
+    ? Pilgrimage.site(siteId).name
+    : mode==="relay" ? (Pilgrimage.arc(relay.arcKey) || {name:"The Long Road"}).name
+    : MODES[mode].name;
+  applySiteSky(isPilgrim ? siteId : mode==="relay" ? relay.sites[0] : null);
+  if(!(isPilgrim || mode==="relay")) applySitePlate("hall");
+  go("play"); nextQuestion();
+}
+
+function startRunReviewQueue(mode, options){
+  if(!(mode==="practice" || mode==="recall")) return true;
+  if(options && options.queue && options.queue.length){
+    R.queue = options.queue.slice();
+  } else {
+    R.queue = buildReviewQueue(R.practiceLen + 12);
+  }
+  if(!VERSES || !VERSES.length || !R.queue || !R.queue.length){
+    showState("empty-drill", { onPrimary: function(){ hideState(); go("menu"); } });
+    return false;
+  }
+  return true;
+}
+function startRunPracticeLen(mode, options, isPilgrim, siteDraw){
+  if(options && options.queue && options.queue.length) return options.queue.length;
+  if(mode==="practice") return 15;
+  if(mode==="recall") return 12;
+  if(isPilgrim) return siteDraw.verses.length;
+  return 0;
+}
+function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDraw, relay, startPowers, reservedIlluminate, blitzMs, options){
   Object.assign(R, {
     runToken, sceneToken:0, ended:false,
     mode, diff:D, actIdx:0, qInAct:0, qTotal:0,
@@ -608,9 +640,7 @@ function startRun(mode, diffKey, options){
     passage:null, recon:null, usedPass:new Set(), adaptivePick:"",
     decisionMs:0, timedDecisions:0, fastestMs:Infinity,
     actStartAttempts:0, actStartCorrect:0,
-    practiceLen: (options && options.queue && options.queue.length) ? options.queue.length
-               : mode==="practice" ? 15 : mode==="recall" ? 12
-               : isPilgrim ? siteDraw.verses.length : 0,
+    practiceLen: startRunPracticeLen(mode, options, isPilgrim, siteDraw),
     typed: mode==="recall" || mode==="pilgrim-recall", hintLevel:0, queue:null,
     typedExact:0, typedClose:0, rescheduled:[],
     siteId: siteId, siteIndex: siteIndex, siteIdx: 0,
@@ -628,6 +658,24 @@ function startRun(mode, diffKey, options){
     quickRewardAnnounced: new Set(), quickResult: null,
     reservedIlluminate: reservedIlluminate
   });
+}
+function startRun(mode, diffKey, options){
+  const D = resolveDiff(diffKey);
+  const runToken = (R.runToken||0) + 1;
+  pendingSeals = [];
+  const isPilgrim = mode==="pilgrimage" || mode==="pilgrim-recall";
+  let siteId = null, siteDraw = null, siteIndex = -1;
+  if(isPilgrim){
+    const drawn = startRunPilgrimDraw();
+    if(!drawn) return;
+    siteId = drawn.siteId; siteIndex = drawn.siteIndex; siteDraw = drawn.siteDraw;
+  }
+  let relay = null;
+  if(mode==="relay") relay = startRunRelayQueue();
+  const powerStart = startRunPowers(mode, isPilgrim);
+  const blitzMs = (typeof Polish!=="undefined" && Polish.BLITZ_START_MS) || 60000;
+  assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDraw, relay,
+    powerStart.startPowers, powerStart.reservedIlluminate, blitzMs, options);
   if(R.friendRoom) startFriendRacePolling(R.friendRoom);
   document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4","blitz-edge","blitz-edge-2","blitz-edge-3");
   if(mode==="daily") R.daily = buildDailyList();
@@ -638,45 +686,10 @@ function startRun(mode, diffKey, options){
   renderPowers();
   renderQuickRewards();
   updateActTrack();
-  if(mode==="practice" || mode==="recall"){
-    if(options && options.queue && options.queue.length){
-      R.queue = options.queue.slice();
-    } else {
-      R.queue = buildReviewQueue(R.practiceLen + 12);
-    }
-    if(!VERSES || !VERSES.length || !R.queue || !R.queue.length){
-      showState("empty-drill", { onPrimary: function(){ hideState(); go("menu"); } });
-      return;
-    }
-  }
+  if(!startRunReviewQueue(mode, options)) return;
   claimIlluminateReserve();
-  if(mode==="trial"){ beginAct(0); }
-  else {
-    // Each arc of the road carries its own bed, so the Patriarchs and
-    // the Church do not sound like the same afternoon.
-    let pal = mode==="endless" ? "act3" : mode==="practice" ? "act1" : mode==="recall" ? "act4" : mode==="blitz" ? "act5" : "act2";
-    if(isPilgrim){
-      const site = Pilgrimage.site(siteId);
-      const arc = site ? Pilgrimage.arc(site.arc) : null;
-      pal = (arc && arc.pal) || "act2";
-    }
-    if(mode==="relay"){
-      const arc = Pilgrimage.arc(relay.arcKey);
-      pal = (arc && arc.pal) || "act3";
-    }
-    Backdrop.palette(pal);
-    /* Arc beds cover the site-quote intro and Trial act cards. Live
-       questions switch to Indigo in cueQuestionMusic(). */
-    Snd.ambience(pal);
-    $("hud-round").textContent = isPilgrim && Pilgrimage.site(siteId)
-      ? Pilgrimage.site(siteId).name
-      : mode==="relay" ? (Pilgrimage.arc(relay.arcKey) || {name:"The Long Road"}).name
-      : MODES[mode].name;
-    // The play view wears the sky the site is actually under.
-    applySiteSky(isPilgrim ? siteId : mode==="relay" ? relay.sites[0] : null);
-    if(!(isPilgrim || mode==="relay")) applySitePlate("hall");
-    go("play"); nextQuestion();
-  }
+  if(mode==="trial") beginAct(0);
+  else startRunOpenStage(mode, isPilgrim, siteId, relay);
 }
 
 function claimIlluminateReserve(){
@@ -889,78 +902,81 @@ function showJudgeBurst(kind){
   clearTimeout(el._t);
   el._t = setTimeout(function(){ el.classList.remove("on","up","down"); }, 920);
 }
+function paintHud(round, qlab, q){
+  $("hud-round").textContent = round;
+  $("hud-qlab").textContent = qlab;
+  $("hud-q").textContent = q;
+}
+function paintTrialHud(){
+  const A=ACTS[R.actIdx];
+  paintHud(
+    R.setpiece ? SetPieces.label()+(R.setpiece.sameBook&&R.setpiece.book?" · "+R.setpiece.book:"") : A.name,
+    "Verse",
+    R.setpiece ? (R.setpiece.count-R.setpiece.remaining)+" / "+R.setpiece.count
+      : A.q===Infinity ? String(R.qInAct) : R.qInAct+" / "+A.q
+  );
+}
+function paintPilgrimHud(){
+  const site = Pilgrimage.site(R.siteId);
+  const n = R.siteVerses ? R.siteVerses.length : 0;
+  paintHud(
+    R.setpiece ? SetPieces.label() : site ? site.name : "The Pilgrimage",
+    R.setpiece ? "Sequence" : R.mode==="pilgrim-recall" ? "Typed" : "Verse",
+    R.setpiece ? (R.setpiece.count-R.setpiece.remaining)+" / "+R.setpiece.count : R.siteIdx+" / "+n
+  );
+}
+function updateChipsHudForMode(){
+  if(R.mode==="trial"){ paintTrialHud(); return; }
+  if(R.mode==="daily"){ paintHud("Daily Trial", "Verse", R.dailyIdx+" / "+R.daily.list.length); return; }
+  if(R.mode==="blitz"){
+    const left = Math.max(0, Math.ceil(((R.blitzEnd||0) - performance.now())/1000));
+    paintHud("Scripture Blitz", "Kept", String(R.correct)+" · "+left+"s");
+    paintGhostMarker();
+    return;
+  }
+  if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){ paintPilgrimHud(); return; }
+  if(R.mode==="relay"){
+    const cur = R.relay.current, site = cur ? Pilgrimage.site(cur.siteId) : null;
+    paintHud(site ? site.name : "The Long Road",
+      "Site "+(R.relay.banked.length+1)+" of "+R.relay.sites.length,
+      R.relay.idx+" / "+R.relay.queue.length);
+    return;
+  }
+  if(R.mode==="practice" || R.mode==="recall"){
+    paintHud((R.mode==="recall" ? "Recall · " : "Drill · ")+(R.adaptivePick||"Spaced review"),
+      R.mode==="recall" ? "Typed" : "Drill", R.qTotal+" / "+R.practiceLen);
+    return;
+  }
+  if(R.mode==="tutorial"){
+    paintHud("First light", "Lesson", R.tutorial ? (R.tutorial.index+1)+" / "+R.tutorial.total : "1 / 3");
+    return;
+  }
+  paintHud("Endless · "+(R.adaptivePick||"Adaptive Recall"), "Adaptive Verse", String(R.qTotal));
+}
+
+function hudJourneyName(){
+  const isRoad = R.mode === "pilgrimage" || R.mode === "pilgrim-recall" || R.mode === "relay";
+  if(!isRoad) return "The Scripture Trial";
+  const site = R.siteId && typeof Pilgrimage !== "undefined" && Pilgrimage.site
+    ? Pilgrimage.site(R.siteId) : null;
+  const arcKey = site ? site.arc : R.relay && R.relay.arcKey;
+  const arc = arcKey && typeof Pilgrimage !== "undefined" && Pilgrimage.arc
+    ? Pilgrimage.arc(arcKey) : null;
+  return arc ? arc.name : "The Pilgrimage";
+}
 function updateChips(){
   const tier = R.q ? R.q.t : currentTier();
   const diffEl = $("hud-diff");
   diffEl.textContent = TIER_NAMES[tier] || "Foundation";
   diffEl.classList.toggle("danger", tier>=5);
-
-  /* The live header is journey-first on the road. Keep the tier in the
-     left rail, but give the centre title and right rail the same identity
-     as the atlas and site brief. Other modes retain their trial label. */
   const journeyEl = $("hud-journey");
   const leftLab = $("hud-left-lab");
   const rightLab = $("hud-right-lab");
   const isRoad = R.mode === "pilgrimage" || R.mode === "pilgrim-recall" || R.mode === "relay";
-  let journeyName = "The Scripture Trial";
-  if(isRoad){
-    const site = R.siteId && typeof Pilgrimage !== "undefined" && Pilgrimage.site
-      ? Pilgrimage.site(R.siteId) : null;
-    const arcKey = site ? site.arc : R.relay && R.relay.arcKey;
-    const arc = arcKey && typeof Pilgrimage !== "undefined" && Pilgrimage.arc
-      ? Pilgrimage.arc(arcKey) : null;
-    journeyName = arc ? arc.name : "The Pilgrimage";
-  }
-  if(journeyEl) journeyEl.textContent = journeyName;
+  if(journeyEl) journeyEl.textContent = hudJourneyName();
   if(leftLab) leftLab.textContent = "Memory Tier";
   if(rightLab) rightLab.textContent = isRoad ? "Site" : "Round Title";
-
-  if(R.mode==="trial"){
-    const A=ACTS[R.actIdx];
-    $("hud-round").textContent = R.setpiece
-      ? SetPieces.label()+(R.setpiece.sameBook&&R.setpiece.book?" · "+R.setpiece.book:"") : A.name;
-    $("hud-qlab").textContent = "Verse";
-    $("hud-q").textContent = R.setpiece
-      ? (R.setpiece.count-R.setpiece.remaining)+" / "+R.setpiece.count
-      : A.q===Infinity ? String(R.qInAct) : R.qInAct+" / "+A.q;
-  } else if(R.mode==="daily"){
-    $("hud-round").textContent = "Daily Trial";
-    $("hud-qlab").textContent = "Verse";
-    $("hud-q").textContent = R.dailyIdx+" / "+R.daily.list.length;
-  } else if(R.mode==="blitz"){
-    const left = Math.max(0, Math.ceil(((R.blitzEnd||0) - performance.now())/1000));
-    $("hud-round").textContent = "Scripture Blitz";
-    $("hud-qlab").textContent = "Kept";
-    $("hud-q").textContent = String(R.correct)+" · "+left+"s";
-    paintGhostMarker();
-  } else if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
-    const site = Pilgrimage.site(R.siteId);
-    const n = R.siteVerses ? R.siteVerses.length : 0;
-    $("hud-round").textContent = R.setpiece ? SetPieces.label()
-      : site ? site.name : "The Pilgrimage";
-    $("hud-qlab").textContent = R.setpiece ? "Sequence"
-      : R.mode==="pilgrim-recall" ? "Typed" : "Verse";
-    $("hud-q").textContent = R.setpiece
-      ? (R.setpiece.count-R.setpiece.remaining)+" / "+R.setpiece.count
-      : R.siteIdx+" / "+n;
-  } else if(R.mode==="relay"){
-    const cur = R.relay.current, site = cur ? Pilgrimage.site(cur.siteId) : null;
-    $("hud-round").textContent = site ? site.name : "The Long Road";
-    $("hud-qlab").textContent = "Site "+(R.relay.banked.length+1)+" of "+R.relay.sites.length;
-    $("hud-q").textContent = R.relay.idx+" / "+R.relay.queue.length;
-  } else if(R.mode==="practice" || R.mode==="recall"){
-    $("hud-round").textContent = (R.mode==="recall" ? "Recall · " : "Drill · ")+(R.adaptivePick||"Spaced review");
-    $("hud-qlab").textContent = R.mode==="recall" ? "Typed" : "Drill";
-    $("hud-q").textContent = R.qTotal+" / "+R.practiceLen;
-  } else if(R.mode==="tutorial"){
-    $("hud-round").textContent = "First light";
-    $("hud-qlab").textContent = "Lesson";
-    $("hud-q").textContent = R.tutorial ? (R.tutorial.index+1)+" / "+R.tutorial.total : "1 / 3";
-  } else {
-    $("hud-round").textContent = "Endless · "+(R.adaptivePick||"Adaptive Recall");
-    $("hud-qlab").textContent = "Adaptive Verse";
-    $("hud-q").textContent = String(R.qTotal);
-  }
+  updateChipsHudForMode();
   $("hud-streak").textContent = R.streak + (R.streak===1 ? " Verse" : " Verses");
   $("hud-accuracy").textContent = R.attempts ? Math.round(R.correct/R.attempts*100)+"%" : "—";
   updateActTrack();
@@ -1153,6 +1169,70 @@ function updateQuickRewards(){
   renderQuickRewards();
 }
 
+function useIlluminate(){
+  if(!R.q){ toast("Illuminate needs a verse on the stage"); return false; }
+  if(R.currentMechanic === "fade" && R.fadePhase === "memorize"){
+    toast("Illuminate becomes available after the memory phase");
+    return false;
+  }
+  let handled = false;
+  if(R.currentMechanic === "cloze" && typeof illuminateCloze === "function") handled = illuminateCloze();
+  else if(R.currentMechanic === "duel" && typeof illuminateDuel === "function") handled = illuminateDuel();
+  else if(R.currentMechanic === "truefalse" && typeof illuminateTrueFalse === "function") handled = illuminateTrueFalse();
+  else if(R.currentMechanic === "fade" && typeof illuminateAssembly === "function") handled = illuminateAssembly();
+  else if(R.typed){
+    if(R.hintLevel >= 3){ toast("Nothing further to illuminate"); return false; }
+    R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
+    typedHint();
+    Snd.power(); doFlash("violet");
+    toast(R.hintLevel===1 ? "Illuminate — the shape of the words"
+        : R.hintLevel===2 ? "Illuminate — first letters" : "Illuminate — the first word");
+    renderPowers();
+    return false;
+  }
+  if(handled){
+    R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
+    Snd.power(); doFlash("violet"); renderPowers();
+    return false;
+  }
+  const wrong = answerButtons().filter(b=>b.dataset.val!==R.q.a && !b.classList.contains("burn"));
+  if(wrong.length<2) return false;
+  R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
+  const burned = shuffle(wrong).slice(0,2);
+  burned.forEach(b=>b.classList.add("burn"));
+  if(R.selected && burned.indexOf(R.selected.btn)>=0){
+    R.selected = null;
+    $("confirm-answer").disabled = true;
+    $("confirm-answer").textContent = "Lock Answer";
+  }
+  Snd.power(); doFlash("violet"); toast("Illuminate — two falsehoods burned");
+  return true;
+}
+
+function useOilPower(kind){
+  if(typeof Meta==="undefined") return false;
+  const which = kind==="oil-selah" ? "selah" : "illum";
+  const spent = Meta.spendOil(SAVE.oil||0, which);
+  if(!spent.ok){ toast("Not enough oil"); return false; }
+  SAVE.oil = spent.oil;
+  SAVE.life.oilSpent = (SAVE.life.oilSpent||0) + spent.cost;
+  if(which==="selah") R.powers.selah++;
+  else R.powers.illum++;
+  persist();
+  Snd.power(); doFlash("gold");
+  toast(which==="selah" ? "Anointed — Selah bought with oil" : "Anointed — Illuminate bought with oil");
+  if((SAVE.life.oilSpent||0)>=50 && !hasSeal("oil50")) grantSeal("oil50");
+  return true;
+}
+
+function applySelahPower(){
+  R.powers.selah--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++; R.tEnd += 5000; R.tTotal += 5000;
+  R.pendingSelah = (R.pendingSelah||0) + 5000;
+  Snd.power();
+  if(Snd.selah) Snd.selah(5000);
+  doFlash("gold"); toast("Selah — five seconds granted");
+  return true;
+}
 function usePower(kind){
   if(R.paused || R.locked) return;
   const armed = R.running || (!!R.tTotal && !R.ended);
@@ -1162,66 +1242,9 @@ function usePower(kind){
     toast("Powers become available after the memory phase");
     return;
   }
-  if(kind==="selah" && R.powers.selah){
-    R.powers.selah--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++; R.tEnd += 5000; R.tTotal += 5000;
-    R.pendingSelah = (R.pendingSelah||0) + 5000;
-    Snd.power();
-    if(Snd.selah) Snd.selah(5000);
-    doFlash("gold"); toast("Selah — five seconds granted");
-  } else if(kind==="illum" && R.powers.illum){
-    if(!R.q){ toast("Illuminate needs a verse on the stage"); return; }
-    if(R.currentMechanic === "fade" && R.fadePhase === "memorize"){
-      toast("Illuminate becomes available after the memory phase");
-      return;
-    }
-    let handled = false;
-    if(R.currentMechanic === "cloze" && typeof illuminateCloze === "function"){
-      handled = illuminateCloze();
-    } else if(R.currentMechanic === "duel" && typeof illuminateDuel === "function"){
-      handled = illuminateDuel();
-    } else if(R.currentMechanic === "truefalse" && typeof illuminateTrueFalse === "function"){
-      handled = illuminateTrueFalse();
-    } else if(R.currentMechanic === "fade" && typeof illuminateAssembly === "function"){
-      handled = illuminateAssembly();
-    } else if(R.typed){
-      if(R.hintLevel >= 3){ toast("Nothing further to illuminate"); return; }
-      R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
-      typedHint();
-      Snd.power(); doFlash("violet");
-      toast(R.hintLevel===1 ? "Illuminate — the shape of the words"
-          : R.hintLevel===2 ? "Illuminate — first letters" : "Illuminate — the first word");
-      renderPowers();
-      return;
-    }
-    if(handled){
-      R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
-      Snd.power(); doFlash("violet"); renderPowers();
-      return;
-    }
-    const wrong = answerButtons().filter(b=>b.dataset.val!==R.q.a && !b.classList.contains("burn"));
-    if(wrong.length<2) return;
-    R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
-    const burned = shuffle(wrong).slice(0,2);
-    burned.forEach(b=>b.classList.add("burn"));
-    if(R.selected && burned.indexOf(R.selected.btn)>=0){
-      R.selected = null;
-      $("confirm-answer").disabled = true;
-      $("confirm-answer").textContent = "Lock Answer";
-    }
-    Snd.power(); doFlash("violet"); toast("Illuminate — two falsehoods burned");
-  } else if((kind==="oil-selah" || kind==="oil-illum") && typeof Meta!=="undefined"){
-    const which = kind==="oil-selah" ? "selah" : "illum";
-    const spent = Meta.spendOil(SAVE.oil||0, which);
-    if(!spent.ok){ toast("Not enough oil"); return; }
-    SAVE.oil = spent.oil;
-    SAVE.life.oilSpent = (SAVE.life.oilSpent||0) + spent.cost;
-    if(which==="selah") R.powers.selah++;
-    else R.powers.illum++;
-    persist();
-    Snd.power(); doFlash("gold");
-    toast(which==="selah" ? "Anointed — Selah bought with oil" : "Anointed — Illuminate bought with oil");
-    if((SAVE.life.oilSpent||0)>=50 && !hasSeal("oil50")) grantSeal("oil50");
-  } else return;
+  if(kind==="selah" && R.powers.selah) applySelahPower();
+  else if(kind==="illum" && R.powers.illum){ if(!useIlluminate()) return; }
+  else if(!((kind==="oil-selah" || kind==="oil-illum") && useOilPower(kind))) return;
   renderPowers();
 }
 
@@ -1401,25 +1424,33 @@ function payCorrect(graded){
   updatePlayerCard();
   popScore("+"+xp+" XP  +"+oil+" oil");
 }
+function wipeTrialContext(reduced){
+  const acts = trialActs();
+  const A = acts[R.actIdx];
+  if(A && A.q !== Infinity && R.qInAct >= A.q){
+    return { reduced, toAct: R.actIdx < acts.length-1, toEnd: R.actIdx >= acts.length-1 };
+  }
+  if(typeof SetPieces!=="undefined" && SetPieces.wouldLaunch && SetPieces.wouldLaunch()) return { reduced, toSetpiece:true };
+  return null;
+}
+function wipeSiteContext(reduced){
+  if(!((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece &&
+     R.siteIdx >= (R.siteVerses ? R.siteVerses.length : 0))) return null;
+  const finale = typeof SetPieces!=="undefined" && SetPieces.wouldLaunchSite && SetPieces.wouldLaunchSite();
+  return { reduced, toEnd:!finale, toSetpiece:!!finale };
+}
 function wipeContext(){
   if(R.ended) return { ended:true };
   const reduced = !!(SAVE.set && SAVE.set.reduced);
   if(R.mode==="trial"){
-    const acts = trialActs();
-    const A = acts[R.actIdx];
-    if(A && A.q !== Infinity && R.qInAct >= A.q){
-      return { reduced, toAct: R.actIdx < acts.length-1, toEnd: R.actIdx >= acts.length-1 };
-    }
-    if(typeof SetPieces!=="undefined" && SetPieces.wouldLaunch && SetPieces.wouldLaunch()) return { reduced, toSetpiece:true };
+    const trial = wipeTrialContext(reduced);
+    if(trial) return trial;
   }
   if(R.mode==="daily" && R.daily && R.dailyIdx >= R.daily.list.length) return { reduced, toEnd:true };
   if(R.mode==="blitz" && R.blitzEnd && performance.now() >= R.blitzEnd) return { reduced, toDeath:true };
   if((R.mode==="practice" || R.mode==="recall") && R.qTotal >= R.practiceLen) return { reduced, toEnd:true };
-  if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece &&
-     R.siteIdx >= (R.siteVerses ? R.siteVerses.length : 0)){
-    const finale = typeof SetPieces!=="undefined" && SetPieces.wouldLaunchSite && SetPieces.wouldLaunchSite();
-    return { reduced, toEnd:!finale, toSetpiece:!!finale };
-  }
+  const site = wipeSiteContext(reduced);
+  if(site) return site;
   if(R.mode==="relay" && R.relay && R.relay.idx >= R.relay.queue.length) return { reduced, toEnd:true };
   return { reduced };
 }
@@ -1580,19 +1611,21 @@ function abandonRun(){
   endRun("abandon");
 }
 $("pause-quit").addEventListener("click", abandonRun);
-function candleProgress(){
-  if(!R) return 0;
-  let denom = 8;
+function candleDenom(){
   if(R.mode==="trial"){
     const acts = trialActs();
-    denom = acts.reduce((n,a)=>n+(a.q||0),0) || 39;
-  } else if(R.mode==="daily") denom = (R.daily && R.daily.list && R.daily.list.length) || 20;
-  else if(R.mode==="practice" || R.mode==="recall") denom = R.practiceLen || 15;
-  else if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall") denom = (R.siteVerses && R.siteVerses.length) || 8;
-  else if(R.mode==="relay" && R.relay) denom = R.relay.queue.length || 8;
-  else if(R.mode==="blitz") denom = 20;
-  else denom = 30;
-  const through = Math.min(1, (R.correct||0) / denom);
+    return acts.reduce((n,a)=>n+(a.q||0),0) || 39;
+  }
+  if(R.mode==="daily") return (R.daily && R.daily.list && R.daily.list.length) || 20;
+  if(R.mode==="practice" || R.mode==="recall") return R.practiceLen || 15;
+  if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall") return (R.siteVerses && R.siteVerses.length) || 8;
+  if(R.mode==="relay" && R.relay) return R.relay.queue.length || 8;
+  if(R.mode==="blitz") return 20;
+  return 30;
+}
+function candleProgress(){
+  if(!R) return 0;
+  const through = Math.min(1, (R.correct||0) / candleDenom());
   const streak = Math.min(1, (R.streak||0) / 12);
   return Math.max(0, Math.min(1, through * 0.75 + streak * 0.25));
 }
@@ -1634,98 +1667,123 @@ function shareDailyResult(total){
 }
 
 /* ------------------------- INPUT ------------------------- */
-addEventListener("keydown", e=>{
-  const k = e.key.toLowerCase();
-  if(document.activeElement && /input|select|textarea/i.test(document.activeElement.tagName)) return;
+function handleStatePanelKeys(e, k, stEl){
+  if(k==="enter" || k===" "){ e.preventDefault(); const b=$("state-primary"); if(b) b.click(); return true; }
+  if(k==="escape"){ e.preventDefault(); const b=$("state-secondary"); if(b && b.style.display!=="none") b.click(); else { const p=$("state-primary"); if(p) p.click(); } return true; }
+  return true;
+}
+function handleOverdriveKeys(e, k){
+  if(k==="enter"){ e.preventDefault(); resolveOverdrive("ride"); return true; }
+  if(k==="b" || k==="escape"){ e.preventDefault(); resolveOverdrive("bank"); return true; }
+  return true;
+}
+function handleOverlayKeydown(e, k){
   const stEl = $("state-panel");
-  if(stEl && stEl.classList.contains("on")){
-    if(k==="enter" || k===" "){ e.preventDefault(); const b=$("state-primary"); if(b) b.click(); return; }
-    if(k==="escape"){ e.preventDefault(); const b=$("state-secondary"); if(b && b.style.display!=="none") b.click(); else { const p=$("state-primary"); if(p) p.click(); } return; }
-    return;
-  }
+  if(stEl && stEl.classList.contains("on")) return handleStatePanelKeys(e, k, stEl);
   const odEl = $("overdrive-choice");
-  if(odEl && odEl.classList.contains("on")){
-    if(k==="enter"){ e.preventDefault(); resolveOverdrive("ride"); return; }
-    if(k==="b" || k==="escape"){ e.preventDefault(); resolveOverdrive("bank"); return; }
-    return;
-  }
+  if(odEl && odEl.classList.contains("on")) return handleOverdriveKeys(e, k);
   const quoteEl = $("site-quote");
   if(quoteEl && quoteEl.classList.contains("on")){
     if(k==="escape"||k==="enter"||k===" "){
       e.preventDefault();
       if(typeof quoteEl.onclick==="function") quoteEl.onclick();
     }
-    return;
+    return true;
   }
-  // Escape walks back one step rather than always jumping to the hall:
-  // a site briefing belongs to the map, so it returns there.
+  return false;
+}
+
+function handleNavKeydown(e, k){
   if(k==="escape"){
     if(currentView==="play") togglePause();
     else if(currentView==="sitebrief") go("atlas");
     else if(currentView!=="menu") go("menu");
-    return;
+    return true;
   }
   if(currentView==="intro"){
     e.preventDefault();
     if(k==="escape") finishIntro(true);
     else beginIntroPlayback();
-    return;
+    return true;
   }
   if(currentView==="menu" && (k==="enter"||k===" ")){
     e.preventDefault(); Snd.unlock();
-    /* Enter opens the first mode the menu actually shows — never a
-       hidden one. Launching hidden Trial from an Enter tap was a bug. */
     const first = MENU_ORDER.filter(x=>MODES[x] && !MODES[x].hidden)[0] || "pilgrimage";
     if(MODES[first].atlas) go("atlas"); else openBrief(first);
-    return;
+    return true;
   }
-  if(currentView==="brief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(briefMode, SAVE.set.diff); return; }
-  if(currentView==="sitebrief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(sbMode, SAVE.set.diff); return; }
-  if(currentView==="results" && (k==="enter"||k===" ")){ e.preventDefault(); startRun(R.mode, R.diff.key); return; }
-  if(currentView!=="play") return;
-  /* Typed mode: route keys into the answer field even when it is not
-     focused (mobile uses the on-screen board; desktop may type either way). */
-  if((e.ctrlKey||e.altKey||e.metaKey) && (k==="s"||k==="i")){
+  if(currentView==="brief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(briefMode, SAVE.set.diff); return true; }
+  if(currentView==="sitebrief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(sbMode, SAVE.set.diff); return true; }
+  if(currentView==="results" && (k==="enter"||k===" ")){ e.preventDefault(); startRun(R.mode, R.diff.key); return true; }
+  return false;
+}
+
+function handlePlayTypedKeys(e, k){
+  if(!(R.typed && !R.locked)) return false;
+  if(k==="enter"){ e.preventDefault(); confirmTyped(); return true; }
+  if(k==="backspace"){
     e.preventDefault();
-    usePower(k==="s"?"selah":"illum");
-    return;
-  }
-  if(R.typed && !R.locked){
-    if(k==="enter"){ e.preventDefault(); confirmTyped(); return; }
-    if(k==="backspace"){
-      e.preventDefault();
-      if(R.assemble && typeof Assemble!=="undefined"){
-        const last = R.assemble.placed.lastIndexOf(R.assemble.placed.filter(Boolean).pop() || null);
-        const idx = R.assemble.placed.map((p,i)=>p?i:-1).filter(i=>i>=0).pop();
-        if(idx>=0){ Assemble.unplace(R.assemble, idx); renderAssembleBank(); }
-      }
-      return;
+    if(R.assemble && typeof Assemble!=="undefined"){
+      const idx = R.assemble.placed.map((p,i)=>p?i:-1).filter(i=>i>=0).pop();
+      if(idx>=0){ Assemble.unplace(R.assemble, idx); renderAssembleBank(); }
     }
+    return true;
   }
+  return false;
+}
+
+function handlePlayMechanicKeys(e, k){
   if(R.currentMechanic === "truefalse"){
     if(k === "t" || k === "arrowleft" || k === "1"){
       e.preventDefault();
       const trueBtn = $("tf-true"); if(trueBtn) trueBtn.click();
-      return;
+      return true;
     }
     if(k === "f" || k === "arrowright" || k === "2"){
       e.preventDefault();
       const falseBtn = $("tf-false"); if(falseBtn) falseBtn.click();
-      return;
+      return true;
     }
   }
   if(R.currentMechanic === "duel"){
     if(k === "arrowleft" || k === "a" || k === "1"){
       e.preventDefault();
       const leftBtn = $("duel-left"); if(leftBtn) leftBtn.click();
-      return;
+      return true;
     }
     if(k === "arrowright" || k === "d" || k === "2"){
       e.preventDefault();
       const rightBtn = $("duel-right"); if(rightBtn) rightBtn.click();
-      return;
+      return true;
     }
   }
+  return false;
+}
+
+function handlePlayChoiceKeys(e, k){
+  const idx = (k>="1"&&k<="4") ? parseInt(k,10)-1 : "abcd".indexOf(k);
+  if(idx < 0) return;
+  const b = answerButtons()[idx];
+  if(!(b && !b.classList.contains("burn"))) return;
+  const key = String(idx);
+  const now = performance.now();
+  if(R.lastPickKey===key && now-(R.lastPickAt||0)<420 && R.selected){
+    confirmAnswer();
+  } else {
+    b.click();
+    R.lastPickKey = key;
+    R.lastPickAt = now;
+  }
+}
+
+function handlePlayKeydown(e, k){
+  if((e.ctrlKey||e.altKey||e.metaKey) && (k==="s"||k==="i")){
+    e.preventDefault();
+    usePower(k==="s"?"selah":"illum");
+    return;
+  }
+  if(handlePlayTypedKeys(e, k)) return;
+  if(handlePlayMechanicKeys(e, k)) return;
   if(k==="s"){ usePower("selah"); return; }
   if(k==="i"){ usePower("illum"); return; }
   if(k==="enter" || k===" "){
@@ -1735,22 +1793,16 @@ addEventListener("keydown", e=>{
     } else confirmAnswer();
     return;
   }
-  const idx = (k>="1"&&k<="4") ? parseInt(k,10)-1 : "abcd".indexOf(k);
-  if(idx >= 0){
-    const b = answerButtons()[idx];
-    if(b && !b.classList.contains("burn")){
-      const key = String(idx);
-      const now = performance.now();
-      /* Double-tap same letter within 420ms locks instantly. */
-      if(R.lastPickKey===key && now-(R.lastPickAt||0)<420 && R.selected){
-        confirmAnswer();
-      } else {
-        b.click();
-        R.lastPickKey = key;
-        R.lastPickAt = now;
-      }
-    }
-  }
+  handlePlayChoiceKeys(e, k);
+}
+
+addEventListener("keydown", e=>{
+  const k = e.key.toLowerCase();
+  if(document.activeElement && /input|select|textarea/i.test(document.activeElement.tagName)) return;
+  if(handleOverlayKeydown(e, k)) return;
+  if(handleNavKeydown(e, k)) return;
+  if(currentView!=="play") return;
+  handlePlayKeydown(e, k);
 });
 addEventListener("resize", ()=>{ if(currentView==="play")Viz.size(); });
 addEventListener("online", ()=>{ updateOfflineBanner(); updateCloudChip(); });

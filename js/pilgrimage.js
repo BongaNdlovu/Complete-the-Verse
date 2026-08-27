@@ -182,7 +182,7 @@ var Pilgrimage = (function () {
   /* Pure: returns a NEW progress object, never mutates the input — the
      same discipline srs.js keeps, and for the same reason. `result` is
      { cleared, score, accuracy, livesLeft }. */
-  function record(progress, siteId, result) {
+  function cloneProgressSites(progress, siteId) {
     var next = {
       sites: {},
       lastPlayed: siteId,
@@ -197,28 +197,35 @@ var Pilgrimage = (function () {
         clearedAt: old[k].clearedAt || 0, perfect: !!old[k].perfect
       };
     });
-
-    var r = next.sites[siteId] || {
-      cleared: false, best: 0, bestAccuracy: 0, attempts: 0, clearedAt: 0, perfect: false
-    };
+    return next;
+  }
+  function applySiteRecord(r, result) {
     r.attempts += 1;
     if (result && result.score > r.best) r.best = result.score;
     if (result && result.accuracy > r.bestAccuracy) r.bestAccuracy = result.accuracy;
     if (result && result.cleared) {
       if (!r.cleared) r.clearedAt = result.at || 0;
       r.cleared = true;
-      // "Perfect" is a clean sweep: every verse kept, no life lost.
       if (result.accuracy >= 100) r.perfect = true;
     }
-    next.sites[siteId] = r;
+    return r;
+  }
+  function mergeUsedIds(next, result) {
+    if (!(result && result.usedIds && result.usedIds.length)) return;
+    var seen = {};
+    next.usedIds.forEach(function (id) { seen[id] = 1; });
+    result.usedIds.forEach(function (id) {
+      if (id != null && !seen[id]) { seen[id] = 1; next.usedIds.push(id); }
+    });
+  }
+  function record(progress, siteId, result) {
+    var next = cloneProgressSites(progress, siteId);
+    var r = next.sites[siteId] || {
+      cleared: false, best: 0, bestAccuracy: 0, attempts: 0, clearedAt: 0, perfect: false
+    };
+    next.sites[siteId] = applySiteRecord(r, result);
     if (!next.started && result && result.at) next.started = result.at;
-    if (result && result.usedIds && result.usedIds.length) {
-      var seen = {};
-      next.usedIds.forEach(function (id) { seen[id] = 1; });
-      result.usedIds.forEach(function (id) {
-        if (id != null && !seen[id]) { seen[id] = 1; next.usedIds.push(id); }
-      });
-    }
+    mergeUsedIds(next, result);
     return next;
   }
 

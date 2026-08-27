@@ -361,15 +361,18 @@ var Atlas = (function () {
   }
 
   /* Walk the token along the painted road, not a straight cut. */
+  function snapTraveler(toId, to, opts) {
+    travelerAt = toId || travelerAt;
+    if (to) travelerLatLng = to.coords;
+    placeTravelerAtCurrent(false);
+    if (opts.onDone) opts.onDone();
+  }
   function walkTraveler(fromId, toId, opts) {
     opts = opts || {};
     var to = Pilgrimage.site(toId);
     var from = Pilgrimage.site(fromId);
     if (!hasMap() || reduced() || opts.duration === 0) {
-      travelerAt = toId || travelerAt;
-      if (to) travelerLatLng = to.coords;
-      placeTravelerAtCurrent(false);
-      if (opts.onDone) opts.onDone();
+      snapTraveler(toId, to, opts);
       return;
     }
     if (!to) {
@@ -393,6 +396,9 @@ var Atlas = (function () {
       if (opts.onDone) opts.onDone();
       return;
     }
+    startTravelerWalk(fromId, to, startPt, path, opts);
+  }
+  function startTravelerWalk(fromId, to, startPt, path, opts) {
     if (walkAnim) cancelAnimationFrame(walkAnim);
     var totalKm = Geo.pathLengthKm(path);
     var duration = typeof opts.duration === "number" ? opts.duration : durationForPath(path);
@@ -401,7 +407,6 @@ var Atlas = (function () {
     travelerFacing = (to.coords[1] >= startPt[1]) ? 1 : -1;
     travelerAt = fromId || travelerAt;
     ensureTravelerMarker(startPt, true);
-
     if (path.length > 2) {
       try {
         var bounds = L.latLngBounds(path).pad(0.2);
@@ -409,7 +414,6 @@ var Atlas = (function () {
         else if (map.flyToBounds) map.flyToBounds(bounds, { duration: 0.4 });
       } catch (e) {}
     }
-
     function step(ts) {
       if (start == null) start = ts;
       var t = Math.min(1, (ts - start) / duration);
@@ -814,23 +818,39 @@ var Atlas = (function () {
       '</svg></div>';
   }
 
+  function dossierRelicHtml(site, st) {
+    var art = Artifacts.forSite(site.id);
+    var store = (typeof SAVE !== "undefined" && SAVE.artifacts) ? SAVE.artifacts : null;
+    if (art && store && Artifacts.isUnlocked(store, art.id)) {
+      var img = Artifacts.imagePath(art);
+      return '<button type="button" class="doss-relic clickable" data-inspect-relic="' + esc(art.id) + '" style="width:100%;text-align:left;background:rgba(217,182,103,.08);border:1px solid rgba(217,182,103,.35);cursor:pointer;border-radius:4px;display:flex;align-items:center;gap:10px;padding:8px 10px;color:inherit;font:inherit">' +
+        (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : '<span class="doss-relic-glyph">✦</span>') +
+        '<div><div class="doss-relic-tag">Relic recovered · Tap to inspect</div>' +
+        '<b>' + esc(art.name) + '</b>' +
+        '<span>' + esc(art.blurb) + '</span></div></button>';
+    }
+    if (art && st.cleared) {
+      return '<div class="doss-relic dim"><span class="doss-relic-glyph">✦</span><div><div class="doss-relic-tag">Relic</div><b>' + esc(art.name) + '</b><span>Recovered on first clear</span></div></div>';
+    }
+    if (art) {
+      return '<div class="doss-relic dim"><span class="doss-relic-glyph">?</span><div><div class="doss-relic-tag">Relic sealed</div><b>Unknown find</b><span>Clear this site to recover it</span></div></div>';
+    }
+    return "";
+  }
   function showDossier(site) {
     var host = $("atlas-dossier");
     if (!host || !site) return;
     var body = $("atlas-doss-body");
     if (!body) return;
-
     var b = Pilgrimage.brief(site.id, progress);
     var st = stateOf(site);
     var arc = Pilgrimage.arc(site.arc);
     var prevName = b.previous ? b.previous.name : "";
-
     var head =
       '<div class="doss-tag">' + esc(arc ? arc.n + " · " + arc.name : site.tag) + '</div>' +
       '<div class="doss-name">' + esc(st.locked ? "Sealed" : site.name) + '</div>' +
       '<div class="doss-where">Site ' + b.ordinal + " of " + b.total + " · " + esc(site.modernCountry) +
       " · " + esc(Geo.formatDMS(site.coords)) + '</div>';
-
     if (st.locked) {
       body.innerHTML = head +
         '<div class="doss-quote">' + esc(site.scripture) + '</div>' +
@@ -840,25 +860,7 @@ var Atlas = (function () {
       renderDossActions(site, b, st);
       return;
     }
-
-    var relicHtml = "";
-    if (typeof Artifacts !== "undefined") {
-      var art = Artifacts.forSite(site.id);
-      var store = (typeof SAVE !== "undefined" && SAVE.artifacts) ? SAVE.artifacts : null;
-      if (art && store && Artifacts.isUnlocked(store, art.id)) {
-        var img = Artifacts.imagePath(art);
-        relicHtml =
-          '<button type="button" class="doss-relic clickable" data-inspect-relic="' + esc(art.id) + '" style="width:100%;text-align:left;background:rgba(217,182,103,.08);border:1px solid rgba(217,182,103,.35);cursor:pointer;border-radius:4px;display:flex;align-items:center;gap:10px;padding:8px 10px;color:inherit;font:inherit">' +
-            (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : '<span class="doss-relic-glyph">✦</span>') +
-            '<div><div class="doss-relic-tag">Relic recovered · Tap to inspect</div>' +
-            '<b>' + esc(art.name) + '</b>' +
-            '<span>' + esc(art.blurb) + '</span></div></button>';
-      } else if (art && st.cleared) {
-        relicHtml = '<div class="doss-relic dim"><span class="doss-relic-glyph">✦</span><div><div class="doss-relic-tag">Relic</div><b>' + esc(art.name) + '</b><span>Recovered on first clear</span></div></div>';
-      } else if (art) {
-        relicHtml = '<div class="doss-relic dim"><span class="doss-relic-glyph">?</span><div><div class="doss-relic-tag">Relic sealed</div><b>Unknown find</b><span>Clear this site to recover it</span></div></div>';
-      }
-    }
+    var relicHtml = typeof Artifacts !== "undefined" ? dossierRelicHtml(site, st) : "";
 
     var sealStampHtml = st.cleared
       ? '<div class="doss-seal-wrap" style="display:flex;justify-content:center;margin:1.4vh 0 .6vh"><div class="doss-seal-stamp wax-seal-stamp stamped"></div></div>'
@@ -1085,6 +1087,15 @@ var Atlas = (function () {
     }
   }
 
+  function fillJourneyVignetteCopy(d) {
+    if ($("jv-kick")) $("jv-kick").textContent = "The Pilgrimage Road · " + d.arcName;
+    if ($("jv-era")) $("jv-era").textContent = d.era;
+    if ($("jv-title")) $("jv-title").textContent = d.title;
+    if ($("jv-ref")) $("jv-ref").textContent = d.ref;
+    if ($("jv-quote")) $("jv-quote").textContent = '"' + d.quote + '"';
+    if ($("jv-narrative")) $("jv-narrative").textContent = d.narrative;
+  }
+
   /* ------------------------------ story vignette modal ------------------------------ */
 
   function openJourneyVignette(siteId) {
@@ -1114,12 +1125,7 @@ var Atlas = (function () {
       };
     }
 
-    if ($("jv-kick")) $("jv-kick").textContent = "The Pilgrimage Road · " + arcName;
-    if ($("jv-era")) $("jv-era").textContent = era;
-    if ($("jv-title")) $("jv-title").textContent = title;
-    if ($("jv-ref")) $("jv-ref").textContent = ref;
-    if ($("jv-quote")) $("jv-quote").textContent = '"' + quote + '"';
-    if ($("jv-narrative")) $("jv-narrative").textContent = narrative;
+    fillJourneyVignetteCopy({ title: title, quote: quote, ref: ref, narrative: narrative, era: era, arcName: arcName });
 
     modal.hidden = false;
     modal.classList.remove("on");

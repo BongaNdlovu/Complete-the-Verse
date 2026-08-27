@@ -92,10 +92,10 @@ function renderRelics(){
   });
 }
 
-function openRelicInspect(a){
-  if(!a) return;
-  const modal = $("relic-inspect-modal");
-  if(!modal) return;
+function setElText(id, text){
+  const el = $(id); if(el) el.textContent = text;
+}
+function fillRelicInspectFields(a){
   const img = Artifacts.imagePath(a);
   const site = Pilgrimage.site(a.siteId);
   const imgEl = $("inspect-img");
@@ -103,21 +103,25 @@ function openRelicInspect(a){
     if(img){ imgEl.src = img; imgEl.alt = a.name || ""; imgEl.style.display = "block"; }
     else imgEl.style.display = "none";
   }
-  const title = $("inspect-title"); if(title) title.textContent = a.name || "Sacred Relic";
-  const meta = $("inspect-meta"); if(meta) meta.textContent = [a.era, a.material, a.find].filter(Boolean).join(" · ");
-  const copy = $("inspect-copy"); if(copy) copy.textContent = a.detail || a.blurb || "";
-  const siteEl = $("inspect-site"); if(siteEl) siteEl.textContent = (site && site.name) ? site.name + " (" + site.arc + ")" : (a.siteId || "—");
-  const eraEl = $("inspect-era"); if(eraEl) eraEl.textContent = a.era || "—";
-  const matEl = $("inspect-mat"); if(matEl) matEl.textContent = a.material || "—";
-  const findEl = $("inspect-find"); if(findEl) findEl.textContent = a.find || "—";
-  const scripEl = $("inspect-scripture"); if(scripEl) scripEl.textContent = a.scripture || "—";
-
+  setElText("inspect-title", a.name || "Sacred Relic");
+  setElText("inspect-meta", [a.era, a.material, a.find].filter(Boolean).join(" · "));
+  setElText("inspect-copy", a.detail || a.blurb || "");
+  setElText("inspect-site", (site && site.name) ? site.name + " (" + site.arc + ")" : (a.siteId || "—"));
+  setElText("inspect-era", a.era || "—");
+  setElText("inspect-mat", a.material || "—");
+  setElText("inspect-find", a.find || "—");
+  setElText("inspect-scripture", a.scripture || "—");
+}
+function openRelicInspect(a){
+  if(!a) return;
+  const modal = $("relic-inspect-modal");
+  if(!modal) return;
+  fillRelicInspectFields(a);
   modal.removeAttribute("hidden");
   modal.classList.remove("on");
   void modal.offsetWidth;
   modal.classList.add("on");
   Snd.ui();
-
   const close = function(){
     modal.classList.remove("on");
     setTimeout(()=>{ modal.setAttribute("hidden", ""); }, 400);
@@ -451,25 +455,35 @@ function bindLeaderboardReports(host, board){
 }
 
 /* ------------------------- SETTINGS ------------------------- */
-function renderSettings(){
-  const s=SAVE.set;
+function setRow(l,sub,ctrl){ return '<div class="setrow"><div><label>'+esc(l)+'</label><small>'+esc(sub)+'</small></div>'+ctrl+'</div>'; }
+function seg(key,opts,cur){
+  return '<div class="seg" data-seg="'+key+'">'+opts.map(o=>
+    '<button data-val="'+o[0]+'" class="'+(String(cur)===String(o[0])?"on":"")+'">'+esc(o[1])+'</button>').join("")+'</div>';
+}
+function settingsAccountHtml(){
   const cloudOn = typeof Cloud!=="undefined" && Cloud.configured();
   const signedIn = cloudOn && Cloud.isSignedIn();
   const who = signedIn
     ? ((Cloud.profile() && Cloud.profile().display_name) || (Cloud.user() && Cloud.user().email) || "Signed in")
     : "";
-  const accountBlock = !cloudOn
-    ? '<div class="setrow account"><div><label>Cloud account</label><small>Offline only — add Project URL and anon key in js/cloud-config.js (see BACKEND.md).</small></div><span class="cloud-pill dim">Local</span></div>'
-    : signedIn
-      ? '<div class="setrow account"><div><label>Cloud account</label><small>Synced as <b>'+esc(who)+'</b>. Progress pushes after each save.</small></div>'+
-        '<button class="btn ghost sm" id="cloud-signout" type="button">Sign out</button></div>'+
-        setRow("Display name","Shown on Daily and Blitz boards.",
-          '<div class="cloud-name"><input id="cloud-name" type="text" maxlength="32" value="'+esc((Cloud.profile()&&Cloud.profile().display_name)||"")+'"><button class="btn ghost sm" id="cloud-name-save" type="button">Save</button></div>')+
-        '<div class="setrow"><div><label>Sync now</label><small>Pull and merge this device with the cloud, then push.</small></div>'+
-        '<button class="btn ghost sm" id="cloud-sync" type="button">Sync</button></div>'
-      : '<div class="setrow account"><div><label>Cloud account</label><small>Sign in to sync the Pilgrimage across devices and appear on leaderboards.</small></div></div>'+
-        '<div class="setrow"><div><label>Email magic link</label><small>We email a one-tap sign-in. No password.</small></div>'+
-        '<div class="cloud-name"><input id="cloud-email" type="email" placeholder="you@example.com" autocomplete="email"><button class="btn sm" id="cloud-signin" type="button">Send link</button></div></div>';
+  if(!cloudOn){
+    return '<div class="setrow account"><div><label>Cloud account</label><small>Offline only — add Project URL and anon key in js/cloud-config.js (see BACKEND.md).</small></div><span class="cloud-pill dim">Local</span></div>';
+  }
+  if(signedIn){
+    return '<div class="setrow account"><div><label>Cloud account</label><small>Synced as <b>'+esc(who)+'</b>. Progress pushes after each save.</small></div>'+
+      '<button class="btn ghost sm" id="cloud-signout" type="button">Sign out</button></div>'+
+      setRow("Display name","Shown on Daily and Blitz boards.",
+        '<div class="cloud-name"><input id="cloud-name" type="text" maxlength="32" value="'+esc((Cloud.profile()&&Cloud.profile().display_name)||"")+'"><button class="btn ghost sm" id="cloud-name-save" type="button">Save</button></div>')+
+      '<div class="setrow"><div><label>Sync now</label><small>Pull and merge this device with the cloud, then push.</small></div>'+
+      '<button class="btn ghost sm" id="cloud-sync" type="button">Sync</button></div>';
+  }
+  return '<div class="setrow account"><div><label>Cloud account</label><small>Sign in to sync the Pilgrimage across devices and appear on leaderboards.</small></div></div>'+
+    '<div class="setrow"><div><label>Email magic link</label><small>We email a one-tap sign-in. No password.</small></div>'+
+    '<div class="cloud-name"><input id="cloud-email" type="email" placeholder="you@example.com" autocomplete="email"><button class="btn sm" id="cloud-signin" type="button">Send link</button></div></div>';
+}
+function renderSettings(){
+  const s=SAVE.set;
+  const accountBlock = settingsAccountHtml();
 
   const ch = activeCharacter();
   const nameNow = playerDisplayName();
@@ -510,32 +524,29 @@ function renderSettings(){
     '<button class="btn ghost sm" id="set-road">Restart the Pilgrimage</button>' +
     '<button class="btn ghost sm" id="set-reset">Erase all progress</button></div>';
 
-  function setRow(l,sub,ctrl){ return '<div class="setrow"><div><label>'+esc(l)+'</label><small>'+esc(sub)+'</small></div>'+ctrl+'</div>'; }
-  function seg(key,opts,cur){
-    return '<div class="seg" data-seg="'+key+'">'+opts.map(o=>
-      '<button data-val="'+o[0]+'" class="'+(String(cur)===String(o[0])?"on":"")+'">'+esc(o[1])+'</button>').join("")+'</div>';
-  }
+  bindSettingsHandlers();
+}
 
+function bindSettingsDiag(){
+  const diagBtn = $("set-diag");
+  if(!diagBtn) return;
+  diagBtn.addEventListener("click", ()=>{
+    Snd.ui();
+    if(!(typeof Diag !== "undefined" && typeof Diag.dump === "function")) return;
+    const dumpText = Diag.dump();
+    if(typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(dumpText).then(()=>{
+        if(typeof toast === "function") toast("Diagnostics copied to clipboard");
+      }).catch(()=>{
+        if(typeof toast === "function") toast("Could not write to clipboard");
+      });
+    } else if(typeof toast === "function") toast("Clipboard unavailable");
+  });
+}
+function bindSettingsHandlers(){
   $("set-music").addEventListener("input", e=>{ Snd.unlock(); Snd.setMusic(parseFloat(e.target.value)); persist(); });
   $("set-sfx").addEventListener("input", e=>{ Snd.unlock(); Snd.setSfx(parseFloat(e.target.value)); persist(); });
-  const diagBtn = $("set-diag");
-  if(diagBtn){
-    diagBtn.addEventListener("click", ()=>{
-      Snd.ui();
-      if(typeof Diag !== "undefined" && typeof Diag.dump === "function"){
-        const dumpText = Diag.dump();
-        if(typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText){
-          navigator.clipboard.writeText(dumpText).then(()=>{
-            if(typeof toast === "function") toast("Diagnostics copied to clipboard");
-          }).catch(()=>{
-            if(typeof toast === "function") toast("Could not write to clipboard");
-          });
-        } else {
-          if(typeof toast === "function") toast("Clipboard unavailable");
-        }
-      }
-    });
-  }
+  bindSettingsDiag();
   const charBtn = $("set-character");
   if(charBtn) charBtn.addEventListener("click", ()=>{ Snd.ui(); openSkinPicker(); });
   const nameSave = $("set-name-save");

@@ -72,7 +72,7 @@ ok("the commit helper guards the road modes",
    /function commitSiteVerse/.test(game) &&
    /R\.mode==="pilgrimage" \|\| R\.mode==="pilgrim-recall" \|\| R\.mode==="relay"/.test(game));
 ok("zero-answer quit does not spend site verses in usedIds",
-   /isPilgrim && R\.attempts === 0 && R\.siteCommitted/.test(game) &&
+   /function endRunRefundUnspentSite/.test(game) &&
    /SAVE\.pilgrim\.usedIds = SAVE\.pilgrim\.usedIds\.filter/.test(game));
 
 /* §2.4 / §3.1 — menu policy (behavioural pins live in menu-modes.test.js

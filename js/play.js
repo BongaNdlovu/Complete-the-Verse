@@ -172,25 +172,28 @@ function tutorialNextQuestion(){
   if(typeof Director!=="undefined" && Director.speak) Director.speak(TUTORIAL_VOICE[index], true);
 }
 
-function resolveTutorialAnswer(q, choice, btn){
-  if(R.q!==q || R.mode!=="tutorial") return;
-  let graded=null, ok=false;
+function gradeTutorialChoice(q, choice, btn){
   if(R.typed){
     const target = (typeof assemblyTargetFor === "function") ? assemblyTargetFor(q) : q.a;
-    graded=Recall.grade(choice||"", target, q.d);
-    ok=Recall.isCorrect(graded.verdict);
+    const graded=Recall.grade(choice||"", target, q.d);
     renderTypedVerdict(graded);
-  }else{
-    const choiceNorm = (typeof choice === "string") ? choice.trim().replace(/\s+/g, ' ').toLowerCase() : "";
-    const targetNorm = (typeof q.a === "string") ? q.a.trim().replace(/\s+/g, ' ').toLowerCase() : "";
-    ok = (choice === q.a) || (choiceNorm !== "" && choiceNorm === targetNorm);
-    answerButtons().forEach(function(b){
-      b.classList.remove("sel");
-      if(b.dataset.val===q.a) b.classList.add("right");
-      else if(b===btn) b.classList.add("bad");
-      else b.classList.add("mute");
-    });
+    return { ok:Recall.isCorrect(graded.verdict), graded:graded };
   }
+  const choiceNorm = (typeof choice === "string") ? choice.trim().replace(/\s+/g, ' ').toLowerCase() : "";
+  const targetNorm = (typeof q.a === "string") ? q.a.trim().replace(/\s+/g, ' ').toLowerCase() : "";
+  const ok = (choice === q.a) || (choiceNorm !== "" && choiceNorm === targetNorm);
+  answerButtons().forEach(function(b){
+    b.classList.remove("sel");
+    if(b.dataset.val===q.a) b.classList.add("right");
+    else if(b===btn) b.classList.add("bad");
+    else b.classList.add("mute");
+  });
+  return { ok:ok, graded:null };
+}
+function resolveTutorialAnswer(q, choice, btn){
+  if(R.q!==q || R.mode!=="tutorial") return;
+  const gradedPack = gradeTutorialChoice(q, choice, btn);
+  const ok = gradedPack.ok;
   const blank=$("blank");
   if(blank){
     blank.textContent = (R.currentMechanic === "fade" && typeof assemblyTargetFor === "function")
@@ -228,93 +231,88 @@ function completeTutorialRun(){
 }
 
 /* ------------------------- QUESTION ADVANCE ------------------------- */
+function nextQuestionTrialGate(){
+  if(R.mode!=="trial") return false;
+  const acts = trialActs();
+  const A = acts[R.actIdx];
+  if(A && A.q !== Infinity && R.qInAct >= A.q){
+    if(R.actNoLoss && !hasSeal("unshaken")) grantSeal("unshaken");
+    if(R.actIdx < acts.length-1){ beginAct(R.actIdx+1); return true; }
+    endRun("complete"); return true;
+  }
+  return !!SetPieces.maybeLaunch();
+}
+
+function nextQuestionSiteGate(){
+  if(!((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece &&
+     R.siteIdx >= (R.siteVerses ? R.siteVerses.length : 0))) return false;
+  if(SetPieces.maybeLaunchSite()) return true;
+  endRun("complete"); return true;
+}
+function nextQuestionRunGate(){
+  if(R.mode==="daily" && R.dailyIdx >= R.daily.list.length){ endRun("complete"); return true; }
+  if(R.mode==="blitz" && R.blitzEnd && performance.now() >= R.blitzEnd){ endRun("death"); return true; }
+  if((R.mode==="practice" || R.mode==="recall") && R.qTotal >= R.practiceLen){ endRun("complete"); return true; }
+  if(nextQuestionSiteGate()) return true;
+  if(R.mode==="relay" && R.relay.idx >= R.relay.queue.length){ endRun("complete"); return true; }
+  if(R.setpiece && R.setpiece.passage){ startPassage(); updateChips(); return true; }
+  if(R.setpiece && R.setpiece.reconstruct){ startReconstruct(); updateChips(); return true; }
+  return false;
+}
+
+function applyPilgrimageTypedMode(){
+  const vi = R.siteIdx - 1;
+  if(R.mode==="pilgrim-recall"){ R.typed = true; R.speed = false; return; }
+  if(R.mode!=="pilgrimage") return;
+  const n = R.siteVerses ? R.siteVerses.length : 0;
+  const typedN = Math.min(2, n);
+  const arcKey = R.siteId ? (Pilgrimage.site(R.siteId)||{}).arc : null;
+  const mixed = arcKey ? Pilgrimage.mixedTypedSlot(vi, n, arcKey) : false;
+  const pass = (typeof Pilgrimage !== "undefined" && Pilgrimage.spiralPass) ? Pilgrimage.spiralPass(SAVE.pilgrim) : 1;
+  const isLastBeat = (n > 0 && vi === n - 1);
+  if(pass >= 3) R.typed = true;
+  else if(pass === 2) R.typed = isLastBeat || vi === 3 || vi === 4;
+  else R.typed = (n > 0 && vi >= (n - typedN)) || mixed || isLastBeat;
+  R.speed = Pilgrimage.speedSlot(vi, n) && !R.typed;
+}
+
+function drawRelayVerse(){
+  const rl = R.relay, entry = rl.queue[rl.idx];
+  if(rl.current && rl.current.siteId !== entry.siteId) bankRelaySite(rl.current.siteId);
+  rl.current = entry; rl.idx++;
+  R.siteId = entry.siteId;
+  R.siteIndex = entry.index;
+  R.verseIndex = (typeof entry.verseIndex === "number") ? entry.verseIndex : 0;
+  const site = Pilgrimage.site(entry.siteId);
+  if(site){
+    const arc = Pilgrimage.arc(site.arc);
+    if(arc) Backdrop.palette(arc.pal);
+    applySiteSky(entry.siteId);
+  }
+  return entry.v;
+}
+
+function drawNextQuestionVerse(){
+  if(R.mode==="daily"){ const v = R.daily.list[R.dailyIdx].v; R.dailyIdx++; return v; }
+  if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece){
+    const v = R.siteVerses[R.siteIdx]; R.siteIdx++;
+    applyPilgrimageTypedMode();
+    return v;
+  }
+  if(R.mode==="relay") return drawRelayVerse();
+  if(R.mode==="practice" || R.mode==="recall") return drawReviewVerse();
+  return R.mode==="endless"&&!R.setpiece ? drawEndlessVerse(currentTier()) : SetPieces.draw(currentTier());
+}
+
 function nextQuestion(){
   clearSequence();
   stopTimer();
   if(R.mode==="tutorial"){ tutorialNextQuestion(); return; }
-  /* Power use is a learning signal for this question, not merely for the
-     whole run. The run-level flag remains for achievements and results. */
   R.qUsedPower=false;
   if(R.setpiece && R.setpiece.finishing) SetPieces.cleanup();
-  if(R.mode==="trial"){
-    const acts = trialActs();
-    const A = acts[R.actIdx];
-    if(A && A.q !== Infinity && R.qInAct >= A.q){
-      if(R.actNoLoss && !hasSeal("unshaken")) grantSeal("unshaken");
-      if(R.actIdx < acts.length-1){ beginAct(R.actIdx+1); return; }
-      endRun("complete"); return;
-    }
-    if(SetPieces.maybeLaunch()) return;
-  }
-  if(R.mode==="daily" && R.dailyIdx >= R.daily.list.length){ endRun("complete"); return; }
-  if(R.mode==="blitz" && R.blitzEnd && performance.now() >= R.blitzEnd){ endRun("death"); return; }
-  if((R.mode==="practice" || R.mode==="recall") && R.qTotal >= R.practiceLen){ endRun("complete"); return; }
-  /* The site's own verses are exhausted. A handful of places close with
-     a set piece rather than simply ending — the sequence is the climax
-     of the site, which is why it fires here and not partway through. */
-  if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece &&
-     R.siteIdx >= (R.siteVerses ? R.siteVerses.length : 0)){
-    if(SetPieces.maybeLaunchSite()) return;
-    endRun("complete"); return;
-  }
-  if(R.mode==="relay" && R.relay.idx >= R.relay.queue.length){ endRun("complete"); return; }
-  if(R.setpiece && R.setpiece.passage){ startPassage(); updateChips(); return; }
-  if(R.setpiece && R.setpiece.reconstruct){ startReconstruct(); updateChips(); return; }
-
-  let v;
-  if(R.mode==="daily"){ v = R.daily.list[R.dailyIdx].v; R.dailyIdx++; }
-  // During a site's closing sequence the fixed list is finished, so the
-  // verses come from SetPieces.draw below instead.
-  else if((R.mode==="pilgrimage" || R.mode==="pilgrim-recall") && !R.setpiece){
-    v = R.siteVerses[R.siteIdx]; R.siteIdx++;
-    /* Pilgrim’s Recall is fully typed. Mixed pilgrimage ends with two
-       typed questions so production is trained without dominating the
-       stop. Late arcs also drop a typed recall mid-site (the road gets
-       busier east), and every site carries one swift 3-second round so
-       the body is not eight copies of the same tap. */
-    const vi = R.siteIdx - 1;
-    if(R.mode==="pilgrim-recall"){ R.typed = true; R.speed = false; }
-    else if(R.mode==="pilgrimage"){
-      const n = R.siteVerses ? R.siteVerses.length : 0;
-      const typedN = Math.min(2, n);
-      const arcKey = R.siteId ? (Pilgrimage.site(R.siteId)||{}).arc : null;
-      const mixed = arcKey ? Pilgrimage.mixedTypedSlot(vi, n, arcKey) : false;
-      const pass = (typeof Pilgrimage !== "undefined" && Pilgrimage.spiralPass) ? Pilgrimage.spiralPass(SAVE.pilgrim) : 1;
-      const isLastBeat = (n > 0 && vi === n - 1);
-
-      if(pass >= 3){
-        R.typed = true;
-      } else if(pass === 2){
-        R.typed = isLastBeat || vi === 3 || vi === 4;
-      } else {
-        R.typed = (n > 0 && vi >= (n - typedN)) || mixed || isLastBeat;
-      }
-      R.speed = Pilgrimage.speedSlot(vi, n) && !R.typed;
-    }
-  }
-  else if(R.mode==="relay"){
-    const rl = R.relay, entry = rl.queue[rl.idx];
-    // Leaving a site banks it before the next one starts.
-    if(rl.current && rl.current.siteId !== entry.siteId) bankRelaySite(rl.current.siteId);
-    rl.current = entry; rl.idx++;
-    /* Relay entries carry the authoritative site as the road advances.
-       Mirror it into the shared site fields because backdrop, character,
-       judgement territory, and other presentation helpers read those
-       fields rather than the relay-local cursor. */
-    R.siteId = entry.siteId;
-    R.siteIndex = entry.index;
-    R.verseIndex = (typeof entry.verseIndex === "number") ? entry.verseIndex : 0;
-    const site = Pilgrimage.site(entry.siteId);
-    if(site){
-      const arc = Pilgrimage.arc(site.arc);
-      if(arc) Backdrop.palette(arc.pal);
-      applySiteSky(entry.siteId);
-    }
-    v = entry.v;
-  }
-  else if(R.mode==="practice" || R.mode==="recall"){ v = drawReviewVerse(); }
-  else v = R.mode==="endless"&&!R.setpiece ? drawEndlessVerse(currentTier()) : SetPieces.draw(currentTier());
-
+  if(nextQuestionTrialGate()) return;
+  if(nextQuestionRunGate()) return;
+  const v = drawNextQuestionVerse();
   R.q = v; R.usedRefs.add(refKey(v)); commitSiteVerse(v);
   if(!R.setpiece) R.qInAct++; R.qTotal++;
   R.tiersSeen.add(v.t);
@@ -372,30 +370,8 @@ function answerButtons(){
 /* Prefer distractors that *look* like the correct phrase so all four
    options feel similar — length, word count, shape — and English alone
    cannot discard the wrong ones. */
-function buildChoices(q, rnd){
-  const r = rnd || Math.random;
-  const correct = String(q.a||"");
-  const ban = {}; if(correct) ban[correct] = 1;
-  const picked = [];
-  function push(s){
-    s = String(s||"").trim();
-    if(!s || ban[s]) return false;
-    ban[s] = 1; picked.push(s); return true;
-  }
-  /* Ranking lives in Polish.choiceShapeScore so the tests pin the same
-     math the game uses — the two copies had drifted before this dedupe.
-     Local fallback keeps the no-polish sandbox honest. */
-  const shapeScore = (typeof Polish !== "undefined" && Polish.choiceShapeScore)
-    ? (cand => Polish.choiceShapeScore(correct, cand))
-    : (cand => (cand && cand !== correct) ? 1 : -1);
+function collectChoiceCandidates(q, correct, ban, shapeScore, similarEnough, r){
   const cands = [];
-  const wantWords = correct.trim().split(/\s+/).filter(Boolean).length;
-  function similarEnough(s){
-    const t = String(s||"");
-    const wc = t.trim().split(/\s+/).filter(Boolean).length;
-    const lenDiff = Math.abs(t.length - correct.length);
-    return Math.abs(wc - wantWords) <= 1 && lenDiff <= 12;
-  }
   (q.d||[]).forEach(d=>{
     if(!d || d===correct) return;
     cands.push({ s:d, score: shapeScore(d) + (similarEnough(d) ? 8 : 5) });
@@ -416,30 +392,55 @@ function buildChoices(q, rnd){
     });
   }
   cands.sort((a,b)=> (b.score-a.score) || (r()-0.5));
+  return cands;
+}
+function fillPickedChoices(cands, push, similarEnough, correct, ban, q){
+  const picked = [];
   for(let i=0;i<cands.length && picked.length<3;i++){
     if(!similarEnough(cands[i].s) && picked.length) continue;
-    push(cands[i].s);
+    if(push(cands[i].s)) picked.push(cands[i].s);
   }
   for(let i=0;i<cands.length && picked.length<3;i++){
     const lenDiff = Math.abs(String(cands[i].s).length - correct.length);
     if(lenDiff>16 && picked.length) continue;
-    push(cands[i].s);
+    if(push(cands[i].s)) picked.push(cands[i].s);
   }
-  (q.d||[]).forEach(d=>{ if(picked.length<3) push(d); });
-  /* Last resort: real answers from the bank, nearest in length. The old
-     numbered fakes ("the word of the LORD 2") looked broken on screen. */
+  (q.d||[]).forEach(d=>{ if(picked.length<3 && push(d)) picked.push(d); });
   if(picked.length<3 && typeof VERSES!=="undefined"){
     VERSES.filter(x=>x && x.a && x.a!==correct && !ban[x.a])
       .sort((a,b)=>Math.abs(a.a.length-correct.length)-Math.abs(b.a.length-correct.length))
-      .slice(0,6).forEach(x=>{ if(picked.length<3) push(x.a); });
+      .slice(0,6).forEach(x=>{ if(picked.length<3 && push(x.a)) picked.push(x.a); });
   }
   const fillBase = correct.length>18 ? "the word of the LORD forever" :
     correct.length>10 ? "the word of the LORD" : "the LORD";
   let n=0;
   while(picked.length<3 && n<3){
     n++;
-    push(fillBase);
+    if(push(fillBase)) picked.push(fillBase);
   }
+  return picked;
+}
+function buildChoices(q, rnd){
+  const r = rnd || Math.random;
+  const correct = String(q.a||"");
+  const ban = {}; if(correct) ban[correct] = 1;
+  function push(s){
+    s = String(s||"").trim();
+    if(!s || ban[s]) return false;
+    ban[s] = 1; return true;
+  }
+  const shapeScore = (typeof Polish !== "undefined" && Polish.choiceShapeScore)
+    ? (cand => Polish.choiceShapeScore(correct, cand))
+    : (cand => (cand && cand !== correct) ? 1 : -1);
+  const wantWords = correct.trim().split(/\s+/).filter(Boolean).length;
+  function similarEnough(s){
+    const t = String(s||"");
+    const wc = t.trim().split(/\s+/).filter(Boolean).length;
+    const lenDiff = Math.abs(t.length - correct.length);
+    return Math.abs(wc - wantWords) <= 1 && lenDiff <= 12;
+  }
+  const cands = collectChoiceCandidates(q, correct, ban, shapeScore, similarEnough, r);
+  const picked = fillPickedChoices(cands, push, similarEnough, correct, ban, q);
   return shuffle([correct].concat(picked.slice(0,3)), r);
 }
 
@@ -452,51 +453,47 @@ function updateSiteVideoVolume(){
   vid.volume = Math.max(0, Math.min(1, base * 0.45));
 }
 
+function playSiteAmbientVideo(vid, el, ambientVideo, rainSites, siteId){
+  if(!vid.src || !vid.src.includes(ambientVideo)){
+    vid.src = ambientVideo;
+  }
+  vid.loop = true;
+  vid.muted = true;
+  vid.playsInline = true;
+  vid.style.display = "block";
+  vid.style.opacity = "1";
+  if(el) el.style.opacity = "0";
+  if(typeof Snd !== "undefined" && typeof Snd.setRain === "function") Snd.setRain(!!rainSites[siteId]);
+  if(typeof vid.play === "function" && vid.paused){
+    const p = vid.play();
+    if(p && p.catch) p.catch(()=>{});
+  }
+}
+function stopSiteAmbientVideo(vid, el){
+  vid.style.display = "none";
+  if(el) el.style.opacity = "";
+  if(typeof Snd !== "undefined" && typeof Snd.setRain === "function") Snd.setRain(false);
+  if(typeof vid.pause === "function" && !vid.paused){
+    try { vid.pause(); } catch(e){}
+  }
+}
 function syncCinematicBackdrop(){
   const el = $("cine-parallax-img");
   const vid = $("cine-parallax-video");
   if(!el) return;
   const siteId = R.siteId || (R.q && typeof Pilgrimage!=="undefined" && Pilgrimage.siteForBook ? (Pilgrimage.siteForBook(R.q.b)||{}).id : null) || "ur";
   const vig = (typeof Pilgrimage !== "undefined" && Pilgrimage.vignette) ? Pilgrimage.vignette(siteId) : null;
-  // A site owns its own image. Never fall back to Ur for another stop.
   const imgUrl = vig ? (vig.image || vig.fallback) : "";
   el.style.backgroundImage = imgUrl ? 'url("' + imgUrl + '")' : "none";
-
-  /* Ur and Haran share the rain plate; Shechem keeps the supplied mist
-     plate. Gate on resolved ids only: a missing site index must never leak a
-     video onto another location's own artwork. */
   const rainSites = {ur:true, haran:true};
   const mistSites = {shechem:true};
   const ambientVideo = rainSites[siteId] ? "assets/journey/ur.mp4"
     : mistSites[siteId] ? "assets/journey/patriarchs-mist.mp4"
     : "";
   const allowVideo = !!ambientVideo && (typeof currentView !== "undefined" && currentView === "play");
-
-  if(vid){
-    if(allowVideo){
-      if(!vid.src || !vid.src.includes(ambientVideo)){
-        vid.src = ambientVideo;
-      }
-      vid.loop = true;
-      vid.muted = true;
-      vid.playsInline = true;
-      vid.style.display = "block";
-      vid.style.opacity = "1";
-      if(el) el.style.opacity = "0";
-      if(typeof Snd !== "undefined" && typeof Snd.setRain === "function") Snd.setRain(!!rainSites[siteId]);
-      if(typeof vid.play === "function" && vid.paused){
-        const p = vid.play();
-        if(p && p.catch) p.catch(()=>{});
-      }
-    } else {
-      vid.style.display = "none";
-      if(el) el.style.opacity = "";
-      if(typeof Snd !== "undefined" && typeof Snd.setRain === "function") Snd.setRain(false);
-      if(typeof vid.pause === "function" && !vid.paused){
-        try { vid.pause(); } catch(e){}
-      }
-    }
-  }
+  if(!vid) return;
+  if(allowVideo) playSiteAmbientVideo(vid, el, ambientVideo, rainSites, siteId);
+  else stopSiteAmbientVideo(vid, el);
 }
 
 /* ------------------------- PATRIARCHS CHARACTER -------------------------
@@ -879,51 +876,33 @@ function illuminateDuel(){
    so it resolves through its own path — streaks, lives and score all
    react, but verse mastery, SRS and the review queue are
    never touched, because no verse was asked. */
-function tfPickClaim(){
-  const bank = (typeof TF_CLAIMS !== "undefined" && TF_CLAIMS.length) ? TF_CLAIMS : [];
-  if(!bank.length) return null;
-  R.tfUsed = R.tfUsed || [];
-  /* No-repeat is a bounded window, not a full pool drain: only the last
-     N picks stay excluded. N is always at least 8 claims under the
-     false-claim count, so even a marathon relay passing every site can
-     never exhaust the verdict the roll asked for — the 65% false
-     weighting holds for every single draw, not just the first cycle. */
-  const window = Math.max(1, Math.min(40,
-    bank.filter(function(c){ return !c.v; }).length - 8));
-  let pool = bank.filter(function(c, i){ return R.tfUsed.indexOf(i) < 0; });
-  if(!pool.length){ R.tfUsed = []; pool = bank.slice(); }
-
-  /* Arc tier matching: Arc I–II -> t1-weighted, III–IV -> t2, V -> t3 */
-  let targetTier = (R && R.targetTier && R.targetTier >= 1 && R.targetTier <= 3) ? R.targetTier : null;
-  if(!targetTier && typeof Pilgrimage !== "undefined" && typeof R.siteIndex === "number" && R.siteIndex >= 0){
+function tfTierFromArc(arc){
+  if(arc === "patriarchs" || arc === "exodus") return 1;
+  if(arc === "kingdom" || arc === "exile") return 2;
+  return 3;
+}
+function tfTargetTier(){
+  if(R && R.targetTier && R.targetTier >= 1 && R.targetTier <= 3) return R.targetTier;
+  if(typeof Pilgrimage !== "undefined" && typeof R.siteIndex === "number" && R.siteIndex >= 0){
     const pos = Pilgrimage.positionOf(R.siteIndex);
-    targetTier = pos < 0.38 ? 1 : pos < 0.78 ? 2 : 3;
-  } else if(!targetTier && R.siteId && typeof Pilgrimage !== "undefined" && Pilgrimage.site){
-    const s = Pilgrimage.site(R.siteId);
-    if(s && s.arc){
-      targetTier = (s.arc === "patriarchs" || s.arc === "exodus") ? 1
-        : (s.arc === "kingdom" || s.arc === "exile") ? 2 : 3;
-    }
+    return pos < 0.38 ? 1 : pos < 0.78 ? 2 : 3;
   }
-
-  /* Territory first: the books this site actually draws from, with a
-     quarter of draws opened to the whole road so replays stay fresh. */
-  const books = {};
-  (R.siteVerses || []).forEach(function(v){ if(v && v.b) books[v.b] = 1; });
-  const wantFalse = Math.random() < 0.65;
+  if(R.siteId && typeof Pilgrimage !== "undefined" && Pilgrimage.site){
+    const s = Pilgrimage.site(R.siteId);
+    if(s && s.arc) return tfTierFromArc(s.arc);
+  }
+  return null;
+}
+function tfPickFromPool(pool, books, wantFalse, targetTier){
   const ofVerdict = function(list, v){ return list.filter(function(c){ return c.v === v; }); };
   const ofTier = function(list, t){
     if(!t) return list;
     const match = list.filter(function(c){ return (c.t || 1) === t; });
     return match.length ? match : list;
   };
-
   let candidates = null;
   if(Math.random() < 0.75){
     const territory = pool.filter(function(c){ return books[c.b]; });
-    /* wantFalse asks for false claims, so the verdict to MATCH is the
-       opposite of the roll. Priority: territory+verdict (tier-preferred),
-       then whole road at verdict (tier-preferred), then territory, then anything. */
     const terrV = ofVerdict(territory, !wantFalse);
     candidates = ofTier(terrV, targetTier);
     if(!candidates.length) candidates = terrV;
@@ -942,6 +921,21 @@ function tfPickClaim(){
   }
   if(!candidates || !candidates.length) candidates = ofTier(pool, targetTier);
   if(!candidates || !candidates.length) candidates = pool;
+  return candidates;
+}
+function tfPickClaim(){
+  const bank = (typeof TF_CLAIMS !== "undefined" && TF_CLAIMS.length) ? TF_CLAIMS : [];
+  if(!bank.length) return null;
+  R.tfUsed = R.tfUsed || [];
+  const window = Math.max(1, Math.min(40,
+    bank.filter(function(c){ return !c.v; }).length - 8));
+  let pool = bank.filter(function(c, i){ return R.tfUsed.indexOf(i) < 0; });
+  if(!pool.length){ R.tfUsed = []; pool = bank.slice(); }
+  const targetTier = tfTargetTier();
+  const books = {};
+  (R.siteVerses || []).forEach(function(v){ if(v && v.b) books[v.b] = 1; });
+  const wantFalse = Math.random() < 0.65;
+  const candidates = tfPickFromPool(pool, books, wantFalse, targetTier);
   const claim = candidates[Math.floor(Math.random() * candidates.length)];
   R.tfUsed.push(bank.indexOf(claim));
   while(R.tfUsed.length > window) R.tfUsed.shift();
@@ -1000,6 +994,48 @@ function tfBind(btn){
   });
 }
 
+function tfMarkButtons(claim, btn, ok){
+  const trueBtn = $("tf-true"), falseBtn = $("tf-false");
+  const rightBtn = claim.v ? trueBtn : falseBtn;
+  [trueBtn, falseBtn].forEach(function(b){ if(b) b.classList.add("mute"); });
+  if(rightBtn){ rightBtn.classList.remove("mute"); rightBtn.classList.add("right"); }
+  if(!ok && btn) btn.classList.add("bad");
+}
+function tfShowWhy(claim){
+  const why = $("tf-why");
+  if(!why) return;
+  why.hidden = false;
+  why.innerHTML = '<b>' + (claim.v ? "TRUE" : "FALSE") + '</b> — ' + esc(claim.why);
+}
+function resolveTrueFalseMiss(claim){
+  reactAbraham(false);
+  const wasRiding = R.overdriveRide && inOverdrive();
+  if(R.streak >= 3 && typeof Cinematic !== "undefined"){
+    if(Cinematic.event) Cinematic.event("miss");
+    else Cinematic.showComboCollapse();
+  }
+  R.overdriveRide = false;
+  document.body.classList.remove("ember-ride");
+  spillOil(R.streak || 0);
+  R.streak = 0; setMult();
+  Director.momentum(false); Director.impact("wrong");
+  Snd.wrong(); doFlash("red"); shakeUI(true);
+  if(SAVE.set.haptics !== false && typeof Polish !== "undefined") Polish.haptic("wrong");
+  witnessLook(true);
+  tfShowWhy(claim);
+  loseLife(wasRiding ? 2 : 1);
+}
+function maybeOfferOverdrive(){
+  if(R.streak === MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] && !R.setpiece && R.mode !== "blitz"){
+    if(typeof Cinematic !== "undefined"){
+      if(Cinematic.event) Cinematic.event("overdrive");
+      else Cinematic.showOverdriveEntrance();
+    }
+    afterRun(700, offerOverdriveChoice);
+    return true;
+  }
+  return false;
+}
 function resolveTrueFalse(choice, btn, timedOut){
   if(!R.tf || R.tf.resolved) return;
   R.tf.resolved = true;
@@ -1009,63 +1045,21 @@ function resolveTrueFalse(choice, btn, timedOut){
   R.attempts++;
   recordDecision(elapsed);
   const ok = !timedOut && choice === (claim.v ? "true" : "false");
-  const trueBtn = $("tf-true"), falseBtn = $("tf-false");
-  const rightBtn = claim.v ? trueBtn : falseBtn;
-  [trueBtn, falseBtn].forEach(function(b){ if(b) b.classList.add("mute"); });
-  if(rightBtn){ rightBtn.classList.remove("mute"); rightBtn.classList.add("right"); }
-  if(!ok && btn) btn.classList.add("bad");
-  if(ok){
-    reactAbraham(true);
-    R.correct++; R.streak++; R.best = Math.max(R.best, R.streak);
-    if(elapsed < 1500) R.fast++;
-    if(typeof updateQuickRewards === "function") updateQuickRewards();
-    const riding = R.overdriveRide && inOverdrive();
-    const timeBonus = Math.round(left / (R.tTotal || 1) * 140);
-    const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * 1.24 * SetPieces.bonus() * (riding ? 2 : 1));
-    R.score += gained;
-    payCorrect(null);
-    noteGhostProgress(); Director.impact("correct"); Snd.correct(); animateScore(); setMult(true); Director.momentum(true);
-    if(typeof Cinematic !== "undefined" && (R.streak === 3 || R.streak === 5 || R.streak === 8 || R.streak === 12)){
-      if(Cinematic.event) Cinematic.event("streak", {streak: R.streak, mult: multiplier()});
-      else Cinematic.showComboStamp(R.streak, multiplier());
-    }
-    if(R.streak === 5) Director.callout("Unbroken ×5");
-    if(R.streak === 10) Director.callout("Perfect Recall");
-    if(R.streak >= 10 && !hasSeal("recall")) grantSeal("recall");
-    if(R.streak >= 20 && !hasSeal("flame")) grantSeal("flame");
-    if(R.fast >= 10 && !hasSeal("swift")) grantSeal("swift");
-    if(R.streak === MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] && !R.setpiece && R.mode !== "blitz"){
-      if(typeof Cinematic !== "undefined"){
-        if(Cinematic.event) Cinematic.event("overdrive");
-        else Cinematic.showOverdriveEntrance();
-      }
-      afterRun(700, offerOverdriveChoice);
-      return;
-    }
-    afterRun(answerHoldMs(), queueAdvance);
-  } else {
-    reactAbraham(false);
-    const wasRiding = R.overdriveRide && inOverdrive();
-    if(R.streak >= 3 && typeof Cinematic !== "undefined"){
-      if(Cinematic.event) Cinematic.event("miss");
-      else Cinematic.showComboCollapse();
-    }
-    R.overdriveRide = false;
-    document.body.classList.remove("ember-ride");
-    spillOil(R.streak || 0);
-    R.streak = 0; setMult();
-    Director.momentum(false); Director.impact("wrong");
-    Snd.wrong(); doFlash("red"); shakeUI(true);
-    if(SAVE.set.haptics !== false && typeof Polish !== "undefined") Polish.haptic("wrong");
-    witnessLook(true);
-    /* Every miss teaches: the verdict plus the anchor verse. */
-    const why = $("tf-why");
-    if(why){
-      why.hidden = false;
-      why.innerHTML = '<b>' + (claim.v ? "TRUE" : "FALSE") + '</b> — ' + esc(claim.why);
-    }
-    loseLife(wasRiding ? 2 : 1);
-  }
+  tfMarkButtons(claim, btn, ok);
+  if(!ok){ resolveTrueFalseMiss(claim); return; }
+  reactAbraham(true);
+  R.correct++; R.streak++; R.best = Math.max(R.best, R.streak);
+  if(elapsed < 1500) R.fast++;
+  if(typeof updateQuickRewards === "function") updateQuickRewards();
+  const riding = R.overdriveRide && inOverdrive();
+  const timeBonus = Math.round(left / (R.tTotal || 1) * 140);
+  const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * 1.24 * SetPieces.bonus() * (riding ? 2 : 1));
+  R.score += gained;
+  payCorrect(null);
+  noteGhostProgress(); Director.impact("correct"); Snd.correct(); animateScore(); setMult(true); Director.momentum(true);
+  celebrateCorrectStreak();
+  if(maybeOfferOverdrive()) return;
+  afterRun(answerHoldMs(), queueAdvance);
 }
 
 function illuminateTrueFalse(){
@@ -1227,6 +1221,21 @@ function cueQuestionMusic(){
   if(typeof Snd !== "undefined" && typeof Snd.ambience === "function") Snd.ambience("indigo");
 }
 
+function renderMechanicQuestion(mechanic, q, dur, scene){
+  if(mechanic === "passage-ref") return renderPassageReferenceQuestion(q, dur, scene);
+  if(mechanic === "cloze") return renderClozeQuestion(q, dur, scene);
+  if(mechanic === "duel") return renderDuelQuestion(q, dur, scene);
+  if(mechanic === "fade") return renderFadeQuestion(q, dur, scene);
+  if(mechanic === "truefalse") return renderTrueFalseQuestion(q, dur, scene);
+  return false;
+}
+function questionMechanicIndex(){
+  if(typeof R.siteIdx === "number" && R.siteIdx > 0) return R.siteIdx - 1;
+  if(R.mode === "relay" && R.relay && R.relay.current && typeof R.relay.current.verseIndex === "number"){
+    return R.relay.current.verseIndex;
+  }
+  return typeof R.verseIndex === "number" ? R.verseIndex : (R.qInAct - 1);
+}
 function renderQuestion(q, dur){
   const scene = ++R.sceneToken;
   Director.pressure(0);
@@ -1234,51 +1243,31 @@ function renderQuestion(q, dur){
   syncCinematicBackdrop();
   clearOtherStages();
   $("ref").textContent = q.r + " — KJV";
-  
-  const currentIdx = (typeof R.siteIdx === "number" && R.siteIdx > 0)
-    ? (R.siteIdx - 1)
-    : (R.mode === "relay" && R.relay && R.relay.current && typeof R.relay.current.verseIndex === "number")
-    ? R.relay.current.verseIndex
-    : (typeof R.verseIndex === "number" ? R.verseIndex : (R.qInAct - 1));
-  const mechanic = q.mechanic || R.mechanic || ((R.mode === "pilgrimage" || R.mode === "relay") ? selectPilgrimageMechanic(currentIdx, q) : null);
+  const mechanic = q.mechanic || R.mechanic || ((R.mode === "pilgrimage" || R.mode === "relay") ? selectPilgrimageMechanic(questionMechanicIndex(), q) : null);
   R.currentMechanic = mechanic;
   if(mechanic !== "fade"){
     R.fadePhase = null;
     R.fadeAssembly = null;
   }
-  /* Every mechanic is a fresh question. Resolution leaves R.locked true on
-     the previous question, so reset it before rendering any special stage;
-     otherwise Fade/Duel options can appear but reject the player's click. */
   R.locked = false;
   R.selected = null;
   if(typeof renderQuickRewards === "function") renderQuickRewards();
   document.body.classList.toggle("mode-typed", !!R.typed);
   document.body.classList.toggle("speed-round", !!R.speed);
   syncAbrahamPresentation(mechanic || (R.typed ? "typed" : "choice"));
-
-  if(mechanic === "passage-ref") return renderPassageReferenceQuestion(q, dur, scene);
-  if(mechanic === "cloze") return renderClozeQuestion(q, dur, scene);
-  if(mechanic === "duel") return renderDuelQuestion(q, dur, scene);
-  if(mechanic === "fade") return renderFadeQuestion(q, dur, scene);
-  if(mechanic === "truefalse") return renderTrueFalseQuestion(q, dur, scene);
-
-  // blank is a fixed width so the length of the answer is never a clue
+  if(renderMechanicQuestion(mechanic, q, dur, scene) !== false) return;
   $("verse").innerHTML = highlightVerse(q.p) +
     ' <span class="blank" id="blank">&#8195;&#8195;&#8195;</span>' + sep(q.s) + highlightVerse(q.s);
   fitVerseSize((q.p||"").length+(q.a||"").length+(q.s||"").length);
-  /* A light entrance on each new verse so question-to-question feels
-     like a handoff, not a hard swap. */
   const verseEl = $("verse");
   if(verseEl && !document.body.classList.contains("reduced")){
     verseEl.classList.remove("q-in"); void verseEl.offsetWidth; verseEl.classList.add("q-in");
   }
   if(R.typed) return renderTypedQuestion(q, dur, scene);
-  
   const how=$("warn-how");
   if(how) how.innerHTML = (SAVE.set.singleTap === false)
     ? "Select a phrase, then lock it<br>Enter or Space confirms"
     : "Tap a phrase to answer";
-
   renderStandardChoices(q, dur, scene);
   renderPowers();
   armTimer(dur);
@@ -1333,21 +1322,26 @@ function startTimer(dur){
   else ensureLoop();
 }
 
+function paintBlitzTimer(now){
+  const bLeft = R.blitzEnd - now;
+  document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
+  const pr = typeof Polish!=="undefined" ? Polish.blitzPressure(bLeft) : 0;
+  if(pr) document.body.classList.add(pr===3?"blitz-edge-3":pr===2?"blitz-edge-2":"blitz-edge");
+  if(bLeft<=0){ timeUp(); return true; }
+  R.tEnd = R.blitzEnd;
+  return false;
+}
+function tickCountdownSfx(sec, left){
+  if(!(left>0 && R.mode!=="blitz")) return;
+  if(sec===4 || sec===5) Snd.tick(true);
+  else if(sec>=6 && sec<=10) Snd.tick(false);
+}
 function tickTimer(now){
   if(!R.running || R.paused) return;
-  if(R.mode==="blitz" && R.blitzEnd){
-    const bLeft = R.blitzEnd - now;
-    document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
-    const pr = typeof Polish!=="undefined" ? Polish.blitzPressure(bLeft) : 0;
-    if(pr) document.body.classList.add(pr===3?"blitz-edge-3":pr===2?"blitz-edge-2":"blitz-edge");
-    if(bLeft<=0){ timeUp(); return; }
-    /* Blitz uses one shared survival clock — refresh arm each tick. */
-    R.tEnd = R.blitzEnd;
-  }
+  if(R.mode==="blitz" && R.blitzEnd && paintBlitzTimer(now)) return;
   const left = Math.max(0, R.tEnd - now);
   const frac = R.tTotal>0 ? Math.max(0, Math.min(1, left / R.tTotal)) : 0;
   $("ring-arc").style.strokeDashoffset = String(RING_C * (1 - frac));
-
   const sec = Math.ceil(left/1000);
   if(sec !== R.lastTickSec){
     R.lastTickSec = sec;
@@ -1357,18 +1351,8 @@ function tickTimer(now){
     w1.textContent = sec + (sec===1 ? " second remaining" : " seconds remaining");
     w1.classList.toggle("hot", sec<=5);
     Director.pressure(sec);
-    /* Strict countdown SFX (whole seconds only, never mid-bar 55% ticks):
-       10–6 soft tick · 5–4 critical tick · 3–1 heartbeat only (no double stack). */
-    if(left>0 && R.mode!=="blitz"){
-      if(sec===4 || sec===5){
-        Snd.tick(true);
-      } else if(sec>=6 && sec<=10){
-        Snd.tick(false);
-      }
-      /* sec 3–1: heartbeat only (below), no tick stack */
-    }
+    tickCountdownSfx(sec, left);
   }
-  /* Heartbeat owns the final three seconds — one pulse per second, stops on lock. */
   if(R.running && !R.locked && !R.paused && R.mode!=="blitz" &&
      sec>=1 && sec<=3 && left>0 && sec!==R.lastHeartSec){
     R.lastHeartSec = sec;
@@ -1409,6 +1393,123 @@ function recordDecision(ms){
   R.fastestMs=Math.min(R.fastestMs,safe);
 }
 
+function gradeQuestionChoice(q, choice, btn){
+  if(R.typed){
+    const target = (typeof assemblyTargetFor === "function") ? assemblyTargetFor(q) : q.a;
+    const graded = Recall.grade(choice, target, q.d);
+    if(graded.verdict === "exact") R.typedExact++;
+    if(graded.verdict === "close") R.typedClose++;
+    SAVE.life.typedAttempts++;
+    if(graded.verdict === "exact") SAVE.life.typedExact++;
+    renderTypedVerdict(graded);
+    return { ok: Recall.isCorrect(graded.verdict), graded: graded };
+  }
+  const choiceNorm = (typeof choice === "string") ? choice.trim().replace(/\s+/g, ' ').toLowerCase() : "";
+  const targetNorm = (typeof q.a === "string") ? q.a.trim().replace(/\s+/g, ' ').toLowerCase() : "";
+  const ok = (choice === q.a) || (choiceNorm !== "" && choiceNorm === targetNorm);
+  answerButtons().forEach(b=>{
+    b.classList.remove("sel");
+    if(b.dataset.val===q.a) b.classList.add("right");
+    else if(b===btn) b.classList.add("bad");
+    else b.classList.add("mute");
+  });
+  return { ok: ok, graded: null };
+}
+
+function awardFadeIlluminate(){
+  if(!(R.currentMechanic === "fade" && R.powers)) return;
+  R.powers.illum = (R.powers.illum||0) + 1;
+  SAVE.life.illumRewards = (SAVE.life.illumRewards||0) + 1;
+  Director.callout("Memorization mastered — Illuminate earned");
+  Snd.power(); doFlash("violet"); renderPowers();
+}
+function resolveCorrectAnswer(q, graded, elapsed, left){
+  reactAbraham(true);
+  const blank=$("blank");
+  if(blank){ blank.textContent=q.a; blank.classList.add("filled","reveal"); }
+  R.correct++; R.streak++; R.best=Math.max(R.best,R.streak);
+  R.booksRun.add(q.b);
+  if(elapsed < 1500) R.fast++;
+  if(typeof updateQuickRewards === "function") updateQuickRewards();
+  awardFadeIlluminate();
+  const riding = R.overdriveRide && inOverdrive();
+  const timeBonus = Math.round(left / R.tTotal * 140);
+  const tierW = 1 + q.t*0.12;
+  const mechW = (R.mode === "daily" && typeof Polish !== "undefined" && Polish.dailyMechanicWeight)
+    ? Polish.dailyMechanicWeight(R.currentMechanic || (R.typed ? "typed" : "none"))
+    : 1;
+  const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * tierW * mechW * SetPieces.bonus() * (riding ? 2 : 1));
+  R.score += gained;
+  payCorrect(graded);
+  fireStreakIgnition();
+  if(R.mode==="blitz" && typeof Polish!=="undefined"){
+    const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
+    R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, true);
+  }
+  noteGhostProgress(); Director.impact("correct"); Snd.correct(); animateScore(); setMult(true);Director.momentum(true);
+  celebrateCorrectStreak();
+  if(maybeOfferOverdrive()) return;
+  afterRun(answerHoldMs(), queueAdvance);
+}
+
+function fireStreakIgnition(){
+  if(!(typeof Polish !== "undefined" && Polish.streakIgniteAt && Polish.streakIgniteAt(R.streak))) return;
+  if(!R.igniteAnnounced){
+    R.igniteAnnounced = true;
+    toast("IGNITION — the chain burns ×" + R.streak);
+  }
+  const rail = document.querySelector(".rail.r") || $("mult");
+  if(rail){
+    rail.classList.remove("streak-ignite"); void rail.offsetWidth;
+    rail.classList.add("streak-ignite");
+    const tok = R.sceneToken;
+    afterRun(950, function(){ if(R.sceneToken === tok) rail.classList.remove("streak-ignite"); });
+  }
+  Snd.ignite();
+}
+
+function celebrateCorrectStreak(){
+  if(typeof Cinematic !== "undefined" && (R.streak === 3 || R.streak === 5 || R.streak === 8 || R.streak === 12)){
+    if(Cinematic.event) Cinematic.event("streak", {streak:R.streak, mult:multiplier()});
+    else Cinematic.showComboStamp(R.streak, multiplier());
+  }
+  if(R.streak===5)Director.callout("Unbroken ×5");
+  if(R.streak===10)Director.callout("Perfect Recall");
+  if(R.streak>=10 && !hasSeal("recall")) grantSeal("recall");
+  if(R.streak>=20 && !hasSeal("flame")) grantSeal("flame");
+  if(R.fast>=10 && !hasSeal("swift")) grantSeal("swift");
+}
+
+function resolveWrongAnswer(q, choice){
+  const wasRiding = R.overdriveRide && inOverdrive();
+  if(R.streak >= 3 && typeof Cinematic !== "undefined"){
+    if(Cinematic.event) Cinematic.event("miss");
+    else Cinematic.showComboCollapse();
+  }
+  R.overdriveRide=false;
+  document.body.classList.remove("ember-ride");
+  spillOil(R.streak||0);
+  reactAbraham(false);
+  R.streak=0; setMult(); R.missed.push(q);
+  if(R.mode==="blitz" && typeof Polish!=="undefined"){
+    const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
+    R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, false);
+  }
+  Director.momentum(false);Director.impact("wrong");
+  Snd.wrong(); doFlash("red"); shakeUI(true);
+  if(SAVE.set.haptics!==false && typeof Polish!=="undefined") Polish.haptic("wrong");
+  markBlankScar(choice, q.a);
+  witnessLook(true);
+  if(R.mode==="blitz"){
+    afterRun(answerHoldMs(), ()=>{
+      if(R.blitzEnd && performance.now()>=R.blitzEnd) presentRunEnd("timeout-death");
+      else queueAdvance();
+    });
+  } else {
+    loseLife(wasRiding ? 2 : 1);
+  }
+}
+
 function resolveAnswer(q,choice,btn,elapsed,left){
   if(R.q!==q)return;
   if(R.mode==="tutorial"){
@@ -1417,31 +1518,9 @@ function resolveAnswer(q,choice,btn,elapsed,left){
   }
   R.attempts++;
   recordDecision(elapsed);
-
-  let ok, graded = null;
-  if(R.typed){
-    // The verse's own distractors are handed to the grader so a typed
-    // near-miss is measured against the readings it could be confused
-    // with, not just against character distance.
-    const target = (typeof assemblyTargetFor === "function") ? assemblyTargetFor(q) : q.a;
-    graded = Recall.grade(choice, target, q.d);
-    ok = Recall.isCorrect(graded.verdict);
-    if(graded.verdict === "exact") R.typedExact++;
-    if(graded.verdict === "close") R.typedClose++;
-    SAVE.life.typedAttempts++;
-    if(graded.verdict === "exact") SAVE.life.typedExact++;
-    renderTypedVerdict(graded);
-  } else {
-    const choiceNorm = (typeof choice === "string") ? choice.trim().replace(/\s+/g, ' ').toLowerCase() : "";
-    const targetNorm = (typeof q.a === "string") ? q.a.trim().replace(/\s+/g, ' ').toLowerCase() : "";
-    ok = (choice === q.a) || (choiceNorm !== "" && choiceNorm === targetNorm);
-    answerButtons().forEach(b=>{
-      b.classList.remove("sel");
-      if(b.dataset.val===q.a) b.classList.add("right");
-      else if(b===btn) b.classList.add("bad");
-      else b.classList.add("mute");
-    });
-  }
+  const gradedChoice = gradeQuestionChoice(q, choice, btn);
+  const ok = gradedChoice.ok;
+  const graded = gradedChoice.graded;
   recordVerse(q, ok);
   scheduleReview(q, {
     correct: ok,
@@ -1451,111 +1530,8 @@ function resolveAnswer(q,choice,btn,elapsed,left){
     cueLevel: R.hintLevel || 0,
     mode: R.typed ? "assembly" : "choice"
   });
-  if(ok){
-    reactAbraham(true);
-    const blank=$("blank");
-    if(blank){ blank.textContent=q.a; blank.classList.add("filled","reveal"); }
-    R.correct++; R.streak++; R.best=Math.max(R.best,R.streak);
-    R.booksRun.add(q.b);
-    if(elapsed < 1500) R.fast++;
-    if(typeof updateQuickRewards === "function") updateQuickRewards();
-    /* A mastered memorization pays its own card: every correct
-       Fade-to-Memory reconstruction grants an Illuminate lifeline,
-       immediately and on top of every other reward. */
-    if(R.currentMechanic === "fade" && R.powers){
-      R.powers.illum = (R.powers.illum||0) + 1;
-      SAVE.life.illumRewards = (SAVE.life.illumRewards||0) + 1;
-      Director.callout("Memorization mastered — Illuminate earned");
-      Snd.power(); doFlash("violet"); renderPowers();
-    }
-    // The "double pay" is no longer automatic — it only holds while the
-    // player is riding the fire, a choice made at the Overdrive moment.
-    const riding = R.overdriveRide && inOverdrive();
-    const timeBonus = Math.round(left / R.tTotal * 140);
-    const tierW = 1 + q.t*0.12;
-    /* The Daily board compares one fixed draw, so the score carries the
-       question's difficulty: mechanic weight (typed/fade pay more) on
-       top of the existing tier weight. Other modes unchanged. */
-    const mechW = (R.mode === "daily" && typeof Polish !== "undefined" && Polish.dailyMechanicWeight)
-      ? Polish.dailyMechanicWeight(R.currentMechanic || (R.typed ? "typed" : "none"))
-      : 1;
-    const gained = Math.round((150 + timeBonus) * multiplier() * R.diff.score * tierW * mechW * SetPieces.bonus() * (riding ? 2 : 1));
-    R.score += gained;
-    payCorrect(graded);
-    /* ===== Beat: STREAK IGNITION =====
-       Fires at Polish.BEATS cadence (5, then every 3rd). Layers WITH the
-       existing combo stamp/callout instead of replacing them. First hit
-       per run announces itself once (announce-before-it-fires rule). */
-    if(typeof Polish !== "undefined" && Polish.streakIgniteAt && Polish.streakIgniteAt(R.streak)){
-      if(!R.igniteAnnounced){
-        R.igniteAnnounced = true;
-        toast("IGNITION — the chain burns ×" + R.streak);
-      }
-      const rail = document.querySelector(".rail.r") || $("mult");
-      if(rail){
-        rail.classList.remove("streak-ignite"); void rail.offsetWidth;
-        rail.classList.add("streak-ignite");
-        const tok = R.sceneToken;
-        afterRun(950, function(){ if(R.sceneToken === tok) rail.classList.remove("streak-ignite"); });
-      }
-      Snd.ignite();
-    }
-    if(R.mode==="blitz" && typeof Polish!=="undefined"){
-      const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
-      R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, true);
-    }
-    noteGhostProgress(); Director.impact("correct"); Snd.correct(); animateScore(); setMult(true);Director.momentum(true);
-    if(typeof Cinematic !== "undefined" && (R.streak === 3 || R.streak === 5 || R.streak === 8 || R.streak === 12)){
-      if(Cinematic.event) Cinematic.event("streak", {streak:R.streak, mult:multiplier()});
-      else Cinematic.showComboStamp(R.streak, multiplier());
-    }
-    if(R.streak===5)Director.callout("Unbroken ×5");
-    if(R.streak===10)Director.callout("Perfect Recall");
-    if(R.streak>=10 && !hasSeal("recall")) grantSeal("recall");
-    if(R.streak>=20 && !hasSeal("flame")) grantSeal("flame");
-    if(R.fast>=10 && !hasSeal("swift")) grantSeal("swift");
-    // The Overdrive moment: reaching the top of the meter pauses the run
-    // and asks the player to ride (double pay, double risk) or bank.
-    if(R.streak === MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] && !R.setpiece && R.mode!=="blitz"){
-      if(typeof Cinematic !== "undefined"){
-        if(Cinematic.event) Cinematic.event("overdrive");
-        else Cinematic.showOverdriveEntrance();
-      }
-      afterRun(700, offerOverdriveChoice);
-      return;
-    }
-    afterRun(answerHoldMs(), queueAdvance);
-  } else {
-    // Riding the fire turns a miss into two lost lamps — the risk that
-    // paid for the double reward. Capture before the streak resets.
-    const wasRiding = R.overdriveRide && inOverdrive();
-    if(R.streak >= 3 && typeof Cinematic !== "undefined"){
-      if(Cinematic.event) Cinematic.event("miss");
-      else Cinematic.showComboCollapse();
-    }
-    R.overdriveRide=false;
-    document.body.classList.remove("ember-ride");
-    spillOil(R.streak||0);
-    reactAbraham(false);
-    R.streak=0; setMult(); R.missed.push(q);
-    if(R.mode==="blitz" && typeof Polish!=="undefined"){
-      const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
-      R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, false);
-    }
-    Director.momentum(false);Director.impact("wrong");
-    Snd.wrong(); doFlash("red"); shakeUI(true);
-    if(SAVE.set.haptics!==false && typeof Polish!=="undefined") Polish.haptic("wrong");
-    markBlankScar(choice, q.a);
-    witnessLook(true);
-    if(R.mode==="blitz"){
-      afterRun(answerHoldMs(), ()=>{
-        if(R.blitzEnd && performance.now()>=R.blitzEnd) presentRunEnd("timeout-death");
-        else queueAdvance();
-      });
-    } else {
-      loseLife(wasRiding ? 2 : 1);
-    }
-  }
+  if(ok) resolveCorrectAnswer(q, graded, elapsed, left);
+  else resolveWrongAnswer(q, choice);
 }
 
 function markBlankScar(wrong, right){
