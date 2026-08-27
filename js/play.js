@@ -29,6 +29,14 @@ function playClockMs(ms){
 
 const FADE_MEMORY_MS = 60000;
 const FADE_RECALL_MIN_MS = 60000;
+const WALL_PICK_MS = 30000;
+const WALL_TYPED_MS = 45000;
+const WALL_FADE_MS = 60000;
+
+function usesWallClock(){
+  return R.mode==="pilgrimage" || R.mode==="pilgrim-recall" || R.mode==="relay"
+    || R.mode==="daily" || R.mode==="practice" || R.mode==="recall" || R.mode==="tutorial";
+}
 
 function answerHoldMs(){
   /* The universal post-answer hold (Flow.JUDGE_MS) in EVERY mode. The
@@ -51,31 +59,11 @@ function fullVerseText(q){
 
 function questionDuration(){
   if(R.mode==="trial"){ return playClockMs(ACTS[R.actIdx].t * R.diff.time); }
-  /* Typed dailies need a typing-sized window, not the picker clock. */
-  if(R.mode==="daily"){ return playClockMs((R.typed ? 32000 : 10000) * R.diff.time); }
   if(R.mode==="blitz"){
     const left = Math.max(0, (R.blitzEnd || 0) - performance.now());
     return Math.max(900, left);
   }
-  if(R.mode==="practice"){ return playClockMs(12000 * R.diff.time); }
-  // Typing a phrase takes far longer than picking one, so Recall gets a
-  // clock sized for the work rather than the same one the pickers use.
-  if(R.mode==="recall"){ return Math.round(32000 * R.diff.time * PACE + FLAT_ADD_MS); }
-  // The road's clock is a function of how far east you are: 14s at Ur,
-  // 6.5s at Patmos. pilgrimage.js owns the ramp. Typed slots on a mixed
-  // site always get a typing-sized clock (at least 20s base).
-  if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){
-    if(R.speed) return playClockMs((Pilgrimage.SPEED_MS || 6000) * R.diff.time);
-    const base = siteClockMs(R.siteId, R.mode);
-    if(R.mode==="pilgrimage" && R.typed) return Math.round(Math.max(32000, base) * R.diff.time * PACE + FLAT_ADD_MS);
-    return playClockMs(base * R.diff.time);
-  }
-  // The relay inherits each site's own clock as it reaches it, so the
-  // road tightens inside a single run exactly as it does across many.
-  if(R.mode==="relay"){
-    const cur = R.relay && R.relay.current;
-    return playClockMs(Pilgrimage.clockFor(cur ? cur.index : 0) * R.diff.time);
-  }
+  if(usesWallClock()) return wallClockMs();
   return playClockMs(Math.max(4200, R.endlessBase - R.qTotal*180) * R.diff.time);
 }
 
@@ -87,10 +75,10 @@ const TUTORIAL_QUESTIONS = [
     d: ["shall not fear", "shall not faint", "shall not wander"]
   },
   {
-    id: "tutorial-strike", b: "Proverbs", r: "Proverbs 3:5", t: 1,
+    id: "tutorial-passage-ref", b: "Proverbs", r: "Proverbs 3:5", t: 1,
     p: "Trust in the LORD with all thine heart; and lean not unto thine", a: "own understanding", s: ".",
     d: ["carnal wisdom", "earthly counsel", "proud imagination"],
-    mechanic: "strike"
+    mechanic: "passage-ref"
   },
   {
     id: "tutorial-cloze", b: "Genesis", r: "Genesis 1:1", t: 1,
@@ -120,7 +108,7 @@ const TUTORIAL_QUESTIONS = [
 
 const TUTORIAL_GUIDE = [
   "Lesson 1 · Recognition: Choose the phrase that completes the verse.",
-  "Lesson 2 · Falsehood Strike: Tap the corrupted word in the verse to shatter it and restore truth.",
+  "Lesson 2 · Name the Passage: Select its book, chapter, and verse.",
   "Lesson 3 · Scribe's Cloze: Tap the missing words in sequence from the tray below.",
   "Lesson 4 · True Scripture Duel: Discern and choose the genuine King James reading.",
   "Lesson 5 · Fade-to-Memory: Memorize the whole verse — tap I'm Done when you hold it, then rebuild every word in order.",
@@ -129,7 +117,7 @@ const TUTORIAL_GUIDE = [
 
 const TUTORIAL_VOICE = [
   "Lesson one. Choose the phrase that completes the verse.",
-  "Lesson two. Strike the corrupted word in the verse.",
+  "Lesson two. Name the passage for the verse shown.",
   "Lesson three. Tap the missing words in sequence.",
   "Lesson four. Discern the true Scripture reading.",
   "Lesson five. Memorize the whole verse for one minute, then rebuild every word in order.",
@@ -179,7 +167,7 @@ function tutorialNextQuestion(){
   R.hintLevel=0; R.qUsedPower=false; R.locked=false; R.selected=null;
   updateTutorialGuide(index);
   updateChips(); updateActTrack();
-  const dur = (q.mechanic === "fade") ? FADE_RECALL_MIN_MS : (R.typed ? 32000 : 22000);
+  const dur = (q.mechanic === "fade") ? WALL_FADE_MS : (q.typed ? WALL_TYPED_MS : WALL_PICK_MS);
   renderQuestion(q, dur);
   if(typeof Director!=="undefined" && Director.speak) Director.speak(TUTORIAL_VOICE[index], true);
 }
@@ -242,6 +230,7 @@ function completeTutorialRun(){
 /* ------------------------- QUESTION ADVANCE ------------------------- */
 function nextQuestion(){
   clearSequence();
+  stopTimer();
   if(R.mode==="tutorial"){ tutorialNextQuestion(); return; }
   /* Power use is a learning signal for this question, not merely for the
      whole run. The run-level flag remains for achievements and results. */
@@ -314,6 +303,7 @@ function nextQuestion(){
        fields rather than the relay-local cursor. */
     R.siteId = entry.siteId;
     R.siteIndex = entry.index;
+    R.verseIndex = (typeof entry.verseIndex === "number") ? entry.verseIndex : 0;
     const site = Pilgrimage.site(entry.siteId);
     if(site){
       const arc = Pilgrimage.arc(site.arc);
@@ -332,6 +322,11 @@ function nextQuestion(){
      mode — nothing else maps q.typed outside the tutorial/road. */
   if(R.mode==="daily") R.typed = !!v.typed;
   if(R.mode==="trial" && R.actIdx===4) R.sdCount++;
+  /* Drop the previous mechanic before the clock is measured so a Fade
+     minute cannot leak onto the next verse. */
+  R.currentMechanic = null;
+  R.fadePhase = null;
+  R.fadeAssembly = null;
   const dur = SetPieces.duration(questionDuration());
   updateChips();
   if(maybePlaySiteQuote(v, dur)) return;
@@ -352,12 +347,15 @@ function maybePlaySiteQuote(v, dur){
     // The completed render arms its mechanic-specific duration; stop it
     // while the overlay owns focus, then start that exact duration once
     // the quote clears.
+    R.quoteMusicHold = true;
     renderQuestion(v, dur);
+    R.quoteMusicHold = false;
     const armedDuration = R.tTotal || dur;
     stopTimer();
     showSiteQuote(site, function(){
       if(R.q===v && currentView==="play" && !R.ended){
         witnessLook(false);
+        cueQuestionMusic();
         startTimer(armedDuration);
       }
     });
@@ -464,17 +462,20 @@ function syncCinematicBackdrop(){
   const imgUrl = vig ? (vig.image || vig.fallback) : "";
   el.style.backgroundImage = imgUrl ? 'url("' + imgUrl + '")' : "none";
 
-  /* The ambient loop is Ur-only art. Gate STRICTLY on the resolved site
-     id: the old "(R.siteIdx === 1 || !R.siteIdx)" arm lit Ur's video on
-     any pilgrimage question whose site index wasn't loaded yet, so Haran
-     (and every later site) played desert footage under its own painting. */
-  const isUr = siteId === "ur" || siteId === "ur-of-the-chaldees";
-  const allowVideo = isUr && (typeof currentView !== "undefined" && currentView === "play");
+  /* Ur and Haran share the rain plate; Shechem keeps the supplied mist
+     plate. Gate on resolved ids only: a missing site index must never leak a
+     video onto another location's own artwork. */
+  const rainSites = {ur:true, haran:true};
+  const mistSites = {shechem:true};
+  const ambientVideo = rainSites[siteId] ? "assets/journey/ur.mp4"
+    : mistSites[siteId] ? "assets/journey/patriarchs-mist.mp4"
+    : "";
+  const allowVideo = !!ambientVideo && (typeof currentView !== "undefined" && currentView === "play");
 
   if(vid){
     if(allowVideo){
-      if(!vid.src || !vid.src.includes("assets/journey/ur.mp4")){
-        vid.src = "assets/journey/ur.mp4";
+      if(!vid.src || !vid.src.includes(ambientVideo)){
+        vid.src = ambientVideo;
       }
       vid.loop = true;
       vid.muted = true;
@@ -482,7 +483,7 @@ function syncCinematicBackdrop(){
       vid.style.display = "block";
       vid.style.opacity = "1";
       if(el) el.style.opacity = "0";
-      if(typeof Snd !== "undefined" && typeof Snd.setRain === "function") Snd.setRain(true);
+      if(typeof Snd !== "undefined" && typeof Snd.setRain === "function") Snd.setRain(!!rainSites[siteId]);
       if(typeof vid.play === "function" && vid.paused){
         const p = vid.play();
         if(p && p.catch) p.catch(()=>{});
@@ -500,7 +501,7 @@ function syncCinematicBackdrop(){
 
 /* ------------------------- PATRIARCHS CHARACTER -------------------------
    Abraham is a visual companion to an active Patriarchs site question. The
-   artwork stays separate from the cinematic backdrop so the Ur loop can
+   artwork stays separate from the shared cinematic backdrop so each site
    change independently, and so dense mechanics can ask CSS for a smaller
    treatment without touching their input logic. */
 function syncAbrahamPresentation(mechanic){
@@ -562,7 +563,6 @@ function clearOtherStages(){
   }
   clearQuestionMechanicTimers();
   if(typeof R !== "undefined"){
-    R.strike = null;
     R.cloze = null;
     R.duel = null;
     R.tf = null;
@@ -573,7 +573,7 @@ function clearOtherStages(){
 
 function selectPilgrimageMechanic(idx, q){
   if(!q || R.typed) return null;
-  if(idx === 2) return "strike";
+  if(idx === 2) return "passage-ref";
   if(idx === 3) return "cloze";
   if(idx === 4) return "duel";
   if(idx === 5) return "fade";
@@ -584,88 +584,114 @@ function selectPilgrimageMechanic(idx, q){
   return null;
 }
 
-/* ================= 1. FALSEHOOD STRIKE (ERROR PURGE) ================= */
-function renderStrikeQuestion(q, dur, scene){
-  R.currentMechanic = "strike";
+function verseMechanicIndex(){
+  if(R.mode === "relay" && R.relay && R.relay.current && typeof R.relay.current.verseIndex === "number")
+    return R.relay.current.verseIndex;
+  if(typeof R.siteIdx === "number" && R.siteIdx > 0) return R.siteIdx - 1;
+  if(typeof R.verseIndex === "number") return R.verseIndex;
+  return Math.max(0, (R.qInAct || 1) - 1);
+}
+
+function wallClockMs(){
+  const q = R.q;
+  const onFade = (q && q.mechanic === "fade") ||
+    (R.currentMechanic === "fade" && !(R.typed && q && q.mechanic !== "fade"));
+  if(onFade) return WALL_FADE_MS;
+  if(R.mode === "tutorial"){
+    if(q && q.typed) return WALL_TYPED_MS;
+    return WALL_PICK_MS;
+  }
+  if(R.mode === "practice") return WALL_PICK_MS;
+  if(R.mode === "recall" || R.mode === "pilgrim-recall") return WALL_TYPED_MS;
+  if(R.typed || (q && q.typed)) return WALL_TYPED_MS;
+  if(q && (R.mode === "pilgrimage" || R.mode === "relay")){
+    if(selectPilgrimageMechanic(verseMechanicIndex(), q) === "fade") return WALL_FADE_MS;
+  }
+  return WALL_PICK_MS;
+}
+
+/* ================= 1. PASSAGE IDENTIFICATION =================
+   The passage is selected from the active pilgrimage site's own verse draw;
+   its three false citations favour that same location before falling back to
+   the wider bank. This turns the old corrupted-word round into a meaningful
+   location-aware reference recall without exposing the citation in the stem. */
+function fullQuestionPassage(q){
+  return [q.p, q.a, q.s].filter(Boolean).join(" ")
+    .replace(/\s+([,.;:!?])/g, "$1").replace(/\s+/g, " ").trim();
+}
+
+function passageReferenceChoices(q){
+  const choices = [q.r];
+  const seen = new Set(choices);
+  const addFrom = function(pool){
+    if(!Array.isArray(pool)) return;
+    shuffle(pool.slice()).forEach(function(v){
+      if(choices.length >= 4 || !v || !v.r || v.id === q.id || seen.has(v.r)) return;
+      seen.add(v.r);
+      choices.push(v.r);
+    });
+  };
+  addFrom(R.siteVerses);
+  if(typeof VERSES !== "undefined"){
+    addFrom(VERSES.filter(function(v){ return v && v.b === q.b; }));
+    addFrom(VERSES);
+  }
+  /* The shipped location rosters always yield four unique citations. Keep a
+     deterministic, readable fallback for a tiny custom bank instead of
+     rendering fewer than four choices. */
+  const fallback = ["Genesis 1:1", "Exodus 3:14", "Joshua 24:2", "Acts 7:2"];
+  fallback.forEach(function(reference){
+    if(choices.length < 4 && !seen.has(reference)){
+      seen.add(reference);
+      choices.push(reference);
+    }
+  });
+  return shuffle(choices.slice());
+}
+
+function renderPassageReferenceQuestion(q, dur, scene){
+  R.currentMechanic = "passage-ref";
   $("confirm-answer").style.display = "none";
   const how = $("warn-how");
-  if(how) how.innerHTML = "Strike the Falsehood<br>Tap the corrupted word in the verse";
-
+  if(how) how.innerHTML = "Name the Passage<br>Select its book, chapter, and verse";
   const refEl = $("ref");
-  if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";
+  if(refEl) refEl.textContent = "Passage identification · King James Version";
 
-  const words = (q.a || "").trim().split(/\s+/).filter(Boolean);
-  const targetIdx = Math.floor(Math.random() * words.length);
-  const correctWord = words[targetIdx] || "Word";
-  const dWords = (q.d && q.d[0] ? q.d[0] : "falsehood stone darkness dust").split(/\s+/).filter(Boolean);
-  const fakeWord = dWords[Math.floor(Math.random() * dWords.length)] || "darkness";
+  const passage = fullQuestionPassage(q);
+  $("verse").innerHTML = '<span class="passage-reference-text">' + highlightVerse(passage) + '</span>';
+  fitVerseSize(passage.length);
 
-  const prefixWords = (q.p || "").trim().split(/\s+/).filter(Boolean);
-  const fullWords = prefixWords.concat(words, (q.s || "").trim().split(/\s+/).filter(Boolean));
-  /* Target the selected answer position.  Searching for the first matching
-     word in the full passage breaks whenever the prefix repeats an answer
-     word, and can also mark multiple injected tokens when the distractor is
-     already present elsewhere. */
-  const targetIndex = prefixWords.length + targetIdx;
-  const corruptFullWords = fullWords.map((w, idx) => idx === targetIndex ? fakeWord : w);
-  R.strike = {q, scene, targetIndex, correctWord, fakeWord, total:fullWords.length, answered:false};
-
-  $("verse").innerHTML = corruptFullWords.map((w, idx) => {
-    return '<button type="button" class="strike-word" data-idx="' + idx + '" aria-label="Verse word ' + (idx + 1) + '">' + esc(w) + '</button>';
-  }).join(" ");
-
-  fitVerseSize(corruptFullWords.join(" ").length);
-  $("opts").style.display = "none";
+  const opts = $("opts");
+  opts.className = "answers passage-reference-options";
+  opts.style.display = "";
+  opts.innerHTML = "";
+  passageReferenceChoices(q).forEach(function(reference, i){
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "ans passage-reference-option";
+    if(b.classList && b.classList.add) b.classList.add("ans", "passage-reference-option");
+    /* resolveAnswer keeps the normal score, review, power, and feedback path. */
+    b.dataset.val = reference === q.r ? q.a : "__passage-reference-" + i;
+    b.dataset.reference = reference;
+    b.setAttribute("aria-label", "Reference " + LETTERS[i] + ": " + reference);
+    b.innerHTML = '<span class="ans-float"><span class="ltr">' + LETTERS[i] + '.</span><span class="ans-copy">' + esc(reference) + '</span></span>';
+    b.addEventListener("click", function(){
+      if(R.locked || !R.running || R.paused || R.q !== q) return;
+      stopTimer();
+      R.locked = true;
+      const elapsed = performance.now() - R.qStart;
+      const left = Math.max(0, R.tEnd - performance.now());
+      Snd.lock();
+      resolveAnswer(q, reference === q.r ? q.a : "", b, elapsed, left);
+    });
+    opts.appendChild(b);
+  });
   renderPowers();
   armTimer(dur);
   startTimer(dur);
-
-  $("verse").querySelectorAll(".strike-word").forEach(el => {
-    el.addEventListener("click", function(){
-      if(R.locked || !R.running || R.paused || !R.strike || R.strike.q !== q) return;
-      const idx = Number(el.dataset.idx);
-      const isCorrupt = idx === R.strike.targetIndex;
-      R.strike.answered = true;
-      R.locked = true;
-      stopTimer();
-      const elapsed = performance.now() - R.qStart;
-      const left = Math.max(0, R.tEnd - performance.now());
-      el.disabled = true;
-      if(isCorrupt){
-        el.classList.add("strike-shattered");
-        Snd.lock();
-        afterRun(360, () => {
-          if(R.q !== q || R.sceneToken !== scene || !R.strike || R.strike.q !== q) return;
-          el.textContent = correctWord;
-          el.classList.remove("strike-shattered");
-          el.classList.add("strike-restored");
-          resolveAnswer(q, q.a, null, elapsed, left);
-        });
-      } else {
-        el.classList.add("strike-miss");
-        /* A miss uses the same accounting path as every other answer and the
-           lock above prevents repeated clicks from draining extra lives. */
-        resolveAnswer(q, "", el, elapsed, left);
-      }
-    });
-  });
 }
 
-function illuminateStrike(){
-  if(!R.strike || R.strike.illuminated) return false;
-  const total = R.strike.total || 1;
-  const split = Math.ceil(total / 2);
-  const firstHalf = R.strike.targetIndex < split;
-  R.strike.illuminated = true;
-  R.strike.hintHalf = firstHalf ? "first" : "second";
-  const words = $("verse").querySelectorAll ? $("verse").querySelectorAll(".strike-word") : [];
-  Array.from(words || []).forEach((word, idx) => {
-    const inHalf = firstHalf ? idx < split : idx >= split;
-    if(inHalf && word.classList) word.classList.add("strike-illum-zone");
-  });
-  if(typeof toast === "function") toast("Illuminate — the falsehood is in the " + (firstHalf ? "first" : "second") + " half");
-  return true;
-}
+
 
 /* ================= 2. SCRIBE'S RAPID CLOZE (1-2-3 TAP) ================= */
 function renderClozeQuestion(q, dur, scene){
@@ -1195,16 +1221,31 @@ function renderStandardChoices(q, dur, scene){
   });
 }
 
+function cueQuestionMusic(){
+  if(!R || R.ended || R.quoteMusicHold) return;
+  if(typeof currentView !== "undefined" && currentView !== "play") return;
+  if(typeof Snd !== "undefined" && typeof Snd.ambience === "function") Snd.ambience("indigo");
+}
+
 function renderQuestion(q, dur){
   const scene = ++R.sceneToken;
   Director.pressure(0);
+  cueQuestionMusic();
   syncCinematicBackdrop();
   clearOtherStages();
   $("ref").textContent = q.r + " — KJV";
   
-  const currentIdx = (typeof R.siteIdx === "number" && R.siteIdx > 0) ? (R.siteIdx - 1) : (R.qInAct - 1);
-  const mechanic = q.mechanic || R.mechanic || (R.mode === "pilgrimage" ? selectPilgrimageMechanic(currentIdx, q) : null);
+  const currentIdx = (typeof R.siteIdx === "number" && R.siteIdx > 0)
+    ? (R.siteIdx - 1)
+    : (R.mode === "relay" && R.relay && R.relay.current && typeof R.relay.current.verseIndex === "number")
+    ? R.relay.current.verseIndex
+    : (typeof R.verseIndex === "number" ? R.verseIndex : (R.qInAct - 1));
+  const mechanic = q.mechanic || R.mechanic || ((R.mode === "pilgrimage" || R.mode === "relay") ? selectPilgrimageMechanic(currentIdx, q) : null);
   R.currentMechanic = mechanic;
+  if(mechanic !== "fade"){
+    R.fadePhase = null;
+    R.fadeAssembly = null;
+  }
   /* Every mechanic is a fresh question. Resolution leaves R.locked true on
      the previous question, so reset it before rendering any special stage;
      otherwise Fade/Duel options can appear but reject the player's click. */
@@ -1215,7 +1256,7 @@ function renderQuestion(q, dur){
   document.body.classList.toggle("speed-round", !!R.speed);
   syncAbrahamPresentation(mechanic || (R.typed ? "typed" : "choice"));
 
-  if(mechanic === "strike") return renderStrikeQuestion(q, dur, scene);
+  if(mechanic === "passage-ref") return renderPassageReferenceQuestion(q, dur, scene);
   if(mechanic === "cloze") return renderClozeQuestion(q, dur, scene);
   if(mechanic === "duel") return renderDuelQuestion(q, dur, scene);
   if(mechanic === "fade") return renderFadeQuestion(q, dur, scene);

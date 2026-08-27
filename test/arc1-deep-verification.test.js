@@ -3,7 +3,7 @@
  * Tests all 9 destinations from Ur to Dothan, verifying:
  * - Parallax background sync to current site painting
  * - Site brief & Atlas vignette artwork links
- * - Interactive Mechanics: Strike (v3), Cloze (v4), Duel (v5), Fade (v6 - 30s memory + full reconstruction), Assembly (v7-v8)
+ * - Interactive Mechanics: Passage-Ref (v3), Cloze (v4), Duel (v5), Fade (v6 - 60s memory + full reconstruction), Assembly (v7-v8)
  * - Resolution and scoring across the entire Arc I campaign
  */
 
@@ -130,19 +130,23 @@ ARC1_SITES.forEach((site, sIdx) => {
     assert(bgStyle.includes(`assets/journey/${site.id}.webp`), `[${site.id}] Cinematic background syncs to assets/journey/${site.id}.webp (got: ${bgStyle})`);
   }
 
-  // Ambient video gate: Ur's looping clip may show ONLY at Ur. A prior
-  // batch gated it on a loose siteIdx fallback and lit it on every site.
+  // Rain belongs to Ur and Haran; mist belongs to Shechem only.
   {
     const vidEl = read(sb, `$("cine-parallax-video")`);
     assert(!!vidEl, `[${site.id}] Ambient video element exists`);
     if (vidEl) {
       const shown = vidEl.style.display === "block";
-      if (site.id === "ur") {
-        assert(shown, `[${site.id}] Ur ambient video is visible at Ur`);
-        assert(String(vidEl.src || "").includes("assets/journey/ur.mp4"),
-               `[${site.id}] Ur ambient video source is assets/journey/ur.mp4`);
+      const src = String(vidEl.src || "");
+      if (site.id === "ur" || site.id === "haran") {
+        assert(shown, `[${site.id}] rain video is visible at this early-road site`);
+        assert(src.includes("assets/journey/ur.mp4"),
+               `[${site.id}] rain video source is ur.mp4`);
+      } else if (site.id === "shechem") {
+        assert(shown, `[${site.id}] mist video is visible at Shechem`);
+        assert(src.includes("assets/journey/patriarchs-mist.mp4"),
+               `[${site.id}] mist video source is patriarchs-mist.mp4`);
       } else {
-        assert(!shown, `[${site.id}] Ambient video stays hidden off Ur (display=${vidEl.style.display})`);
+        assert(!shown, `[${site.id}] Ambient video stays hidden off its assigned sites (display=${vidEl.style.display})`);
       }
     }
   }
@@ -160,13 +164,13 @@ ARC1_SITES.forEach((site, sIdx) => {
       eq(`[${site.id}] Verse ${vi + 1} is not typed`, isTyped, false);
       exec(sb, `resolveAnswer(R.q, R.q.a, $("btn-opt-0"), 800, 5000);`);
     } else if (vi === 2) {
-      // Verse 3: Falsehood Strike (Error Purge)
-      eq(`[${site.id}] Verse 3 mechanic is strike`, mechanic, "strike");
+      // Verse 3: Passage Identification
+      eq(`[${site.id}] Verse 3 mechanic is passage identification`, mechanic, "passage-ref");
       const verseHtml = read(sb, `$("verse").innerHTML`);
-      assert(verseHtml.includes("strike-word") && verseHtml.includes("type=\"button\""), `[${site.id}] Falsehood strike words render as keyboard-accessible buttons without exposing the target`);
-      assert(read(sb, `$("ref").textContent`).includes(q.r), `[${site.id}] Strike reference correctly rendered`);
+      assert(verseHtml.includes("passage-reference-text") && !verseHtml.includes(q.r), `[${site.id}] Passage appears without exposing its citation`);
+      assert(read(sb, `$("ref").textContent`).includes("Passage identification"), `[${site.id}] Passage-identification prompt rendered`);
       exec(sb, `resolveAnswer(R.q, R.q.a, null, 800, 5000);`);
-      assert(read(sb, `R.streak > 0`), `[${site.id}] Strike mechanic correctly solved`);
+      assert(read(sb, `R.streak > 0`), `[${site.id}] Passage-identification mechanic correctly solved`);
     } else if (vi === 3) {
       // Verse 4: Scribe's Cloze (1-2-3 Tap)
       eq(`[${site.id}] Verse 4 mechanic is cloze`, mechanic, "cloze");

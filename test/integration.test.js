@@ -265,9 +265,7 @@ read(sb, "invalidateRun();");
      read(s, "Pilgrimage.VERSES_PER_SITE"));
   eq("they come from the site's own books", read(s, "R.siteRing"), "site");
   eq("it is not a typing run", read(s, "R.typed"), false);
-  eq("the clock is the site's clock plus the pick pad",
-     read(s, "questionDuration()"),
-     read(s, "Math.round((Pilgrimage.clockFor(0) * R.diff.time + Pilgrimage.PICK_PAD_MS) * PACE + FLAT_ADD_MS)"));
+  eq("the clock is a flat 30s wall time", read(s, "questionDuration()"), 30000);
   ok("every drawn verse belongs to Ur's books",
      read(s, "(function(){var b={};Pilgrimage.site('ur').books.forEach(function(x){b[x]=1});" +
              "return R.siteVerses.every(function(v){return b[v.b]===1})})()"));
@@ -368,38 +366,30 @@ read(sb, "invalidateRun();");
   eq("the replay types its answers", read(s, "R.typed"), true);
   eq("it still draws a full site", read(s, "R.siteVerses.length"),
      read(s, "Pilgrimage.VERSES_PER_SITE"));
-  ok("it gets a clock sized for typing",
-     read(s, "questionDuration()") > read(s, "Pilgrimage.clockFor(0) * R.diff.time"));
+  eq("it gets a 45s typing clock", read(s, "questionDuration()"), 45000);
 }
 
-/* ---------- the difficulty ramp is real in play ---------- */
+/* ---------- the road uses one flat wall clock everywhere ---------- */
 {
   const s = boot();
   read(s, "pendingSiteId='ur'; startRun('pilgrimage','disciple')");
   const atUr = read(s, "questionDuration()");
   read(s, "pendingSiteId='patmos'; startRun('pilgrimage','disciple')");
   const atPatmos = read(s, "questionDuration()");
-  ok("the clock is tighter at the end of the road than the start", atPatmos < atUr, {atUr, atPatmos});
+  eq("Ur and Patmos share the same 30s picker clock", atUr, 30000);
+  eq("Patmos picker is also 30s", atPatmos, 30000);
   eq("the last site is tier 5", read(s, "Pilgrimage.tierFor(Pilgrimage.indexOf('patmos'))"), 5);
 }
 
-/* ---------- high momentum lengthens the pick clock ---------- */
+/* ---------- momentum no longer changes the pilgrimage wall clock ---------- */
 {
   const s = boot();
   read(s, "pendingSiteId='ur'; startRun('pilgrimage','disciple')");
   const cold = read(s, "questionDuration()");
-  read(s, "R.streak = 2");
-  eq("before Building the clock is only the pad", read(s, "questionDuration()"), cold);
-  read(s, "R.streak = 3");
-  const hot = read(s, "questionDuration()");
-  eq("Building adds a 20% beat", hot, Math.round((cold - 5000) * 1.2 + 5000));
-  read(s, "R.speed = true; R.streak = 3");
-  eq("Swift Lock is the short clock plus pad and Building",
-     read(s, "questionDuration()"),
-     read(s, "Math.round(Math.round(((Pilgrimage.SPEED_MS || 6000) * R.diff.time + Pilgrimage.PICK_PAD_MS) * 1.2) * PACE + FLAT_ADD_MS)"));
-  read(s, "R.speed = false; R.typed = true");
-  eq("typed clocks stay sized for typing", read(s, "questionDuration()"),
-     read(s, "Math.round(Math.max(32000, siteClockMs(R.siteId, R.mode)) * R.diff.time * PACE + FLAT_ADD_MS)"));
+  read(s, "R.streak = 3; R.typed = true;");
+  eq("Building does not stretch the typed wall clock", read(s, "questionDuration()"), 45000);
+  eq("Swift Lock stays at the picker wall clock", read(s, "(function(){ R.speed=true; R.typed=false; return questionDuration(); })()"), 30000);
+  eq("typed clocks are 45s flat", read(s, "(function(){ R.speed=false; R.typed=true; return questionDuration(); })()"), 45000);
 }
 
 /* ---------- the Pilgrimage feeds the scheduler ---------- */

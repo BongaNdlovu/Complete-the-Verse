@@ -39,7 +39,7 @@ assert(/typeof VERSES_MORE !== "undefined"/.test(bankSrc),
 
 const bank = loadBank();
 assert(Array.isArray(bank.VERSES_MORE), "loadBank exposes VERSES_MORE");
-assert(bank.VERSES_MORE.length >= 50,
+assert(bank.VERSES_MORE.length >= 374,
   "VERSES_MORE holds a real expansion (got " + bank.VERSES_MORE.length + ")");
 
 const moreById = new Map(bank.VERSES_MORE.map(v => [bank.verseId(v), v]));

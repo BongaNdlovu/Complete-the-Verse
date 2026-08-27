@@ -66,8 +66,8 @@ assert(TF_CLAIMS.filter(c => !c.v).length >= 40, "wrong-doer & inversion density
 /* ---------- 2. slot 6 wiring ---------- */
 assert(/if\(idx === 6 && typeof TF_CLAIMS !== "undefined" && TF_CLAIMS\.length\) return "truefalse";/.test(play),
   "slot 6 of every pilgrimage site becomes the Judgement");
-assert(/if\(idx === 2\) return "strike";/.test(play) && /if\(idx === 5\) return "fade";/.test(play),
-  "strike/cloze/duel/fade slots are untouched");
+assert(/if\(idx === 2\) return "passage-ref";/.test(play) && /if\(idx === 5\) return "fade";/.test(play),
+  "passage-reference/cloze/duel/fade slots are wired");
 assert(/if\(mechanic === "truefalse"\) return renderTrueFalseQuestion\(q, dur, scene\);/.test(play),
   "renderQuestion dispatches the truefalse mechanic");
 assert(/R\.currentMechanic = "truefalse";/.test(play), "renderer marks the mechanic for powers and keys");

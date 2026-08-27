@@ -238,9 +238,21 @@ console.log("\n--- Mode 10/10: ARC RELAY ---");
   assert(read(sb, `R.siteId === R.relay.current.siteId && R.siteIndex === R.relay.current.index`),
     "Relay mirrors its active site into shared road state");
   const qLen = read(sb, `R.relay.queue.length`);
-  for (let rqi = 0; rqi < Math.min(10, qLen); rqi++) {
+  let relayPassageRefs = 0;
+  const relayPassageSites = new Set();
+  for (let rqi = 0; rqi < qLen; rqi++) {
+    const verseIndex = read(sb, `R.relay.current.verseIndex`);
+    if (verseIndex === 2) {
+      eq("Relay site-local verse 3 uses Name the Passage",
+        read(sb, `R.currentMechanic`), "passage-ref");
+      relayPassageRefs++;
+      relayPassageSites.add(read(sb, `R.relay.current.siteId`));
+    }
     exec(sb, `resolveAnswer(R.q, R.q.a, $("btn-opt-0"), 800, 6000); nextQuestion();`);
   }
+  assert(relayPassageRefs === read(sb, `R.relay.sites.length`) &&
+    relayPassageSites.size === read(sb, `R.relay.sites.length`),
+    "Relay applies Name the Passage to verse 3 of every site");
   exec(sb, `endRun("complete");`);
   eq("Relay run recorded", read(sb, `R.ended`), true);
 }

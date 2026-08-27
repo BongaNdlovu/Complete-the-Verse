@@ -46,7 +46,7 @@ const Snd = (function(){
   const SFX_DUCK = { lock:1, correct:1, wrong:1, power:1, odReady:1, lampThud:1 };
   const SFX_GAIN = { hover:0.4, lock:0.68, correct:0.72, wrong:0.66, power:0.5, heart:0.85,
                      ignite:0.62, odReady:0.7, lampThud:0.78, lampCrackle:0.6, stamp:0.55 };
-  let voiceHold=null, pendingVoice=null, rainAudio=null, rainWired=false;
+  let voiceHold=null, pendingVoice=null, rainAudio=null, rainWired=false, rainRequested=false;
   function syncRainVolume(){
     if(!rainAudio) return;
     if(ctx && mSfx && rainWired){ rainAudio.volume = 1; return; }
@@ -54,6 +54,7 @@ const Snd = (function(){
     rainAudio.volume = Math.max(0, Math.min(1, sfxVol * 0.5));
   }
   function setRain(active){
+    rainRequested = !!active;
     if(!active){
       if(rainAudio){ try{ rainAudio.pause(); }catch(e){} }
       return;
@@ -375,7 +376,8 @@ const Snd = (function(){
     spectrum(){ if(!anal) return null; try{ anal.getByteFrequencyData(freq); }catch(e){ return null; } return freq; },
     playVoice:playVoice,
     stopVoice:stopVoice,
-    setRain:setRain
+    setRain:setRain,
+    rainActive(){ return rainRequested; }
   };
 })();
 

@@ -29,7 +29,7 @@ play. `node test.js` (or `npm test`) is the only tooling gate.
 ```
 index.html          the single page — all views are <section class="view">s
 README.md           repository entry point
-test.js             root test runner (runs all 50 test suites)
+test.js             root test runner (runs all 51 test suites)
 js/*.js             see module map below (loaded as classic <script>, globals)
 css/*.css           game styling, film FX, and atlas map
 vendor/leaflet/     Leaflet 1.9.4 (map — vendored, never CDN)
@@ -347,7 +347,7 @@ abandon scores ×0.85. XP = round(total/12 + correct×14 + 300 if finished)
 ### 8.1 Shape
 
 Every verse: `{ r:"Ref", b:"Book", t:1-5 tier, p:"prefix", a:"answer",
-s:"suffix", d:[authored distractors] }`. 776 verses · 66 books ·
+s:"suffix", d:[authored distractors] }`. 899 verses · 66 books ·
 27 passages. `fullVerse(v) = p + " " + a + sep(s) + s`.
 
 ### 8.2 Identity and duplicates
@@ -406,7 +406,7 @@ bank answers nearest in length — numbered fakes were removed.
 
 ## 10. Testing — the three styles (know which one you are writing)
 
-`node test.js` runs 50 suites in a fixed order: content gate → pure
+`node test.js` runs 51 suites in a fixed order: content gate → pure
 logic → integration sandbox → structural/static suites.
 
 1. **Pure requires** (`srs.test.js`, `recall.test.js`, `geo.test.js`,
@@ -420,7 +420,7 @@ logic → integration sandbox → structural/static suites.
    actual runs: `startRun`, `nextQuestion`, `resolveAnswer`, `endRun`,
    save migrations, daily one-shot, serve-time usedIds. Gotchas:
    - the sandbox omits `verses-more.js` → `VERSES.length === 305` there
-     (776 verses in the browser). Assert against what the sandbox loads.
+     (899 verses in the browser). Assert against what the sandbox loads.
    - it omits `polish.js`/`cloud.js` → game.js's `typeof`-guarded
      fallbacks are load-bearing. If you made game.js call
      `Polish.foo()` unguarded, this suite is what catches it.

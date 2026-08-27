@@ -351,28 +351,20 @@ var Polish = (function () {
   }
 
   function describeModeClock(modeKey, diffKey) {
-    /* Watchman clock only. Do not look up the live difficulty table —
-       game.js calls this while parsing MODES, before that table exists. */
-    var t = 0.85;
-    var pad = 1500;
-    function sec(base, pickPad) {
-      return (pacedClockMs(base, t, pickPad) / 1000).toFixed(1);
-    }
     switch (modeKey) {
       case "trial":
+        return "paced";
       case "pilgrimage":
       case "relay":
-        return sec(14000, pad) + "→" + sec(6500, pad) + "s";
-      case "endless":
-        return sec(12000, pad) + "→" + sec(4200, pad) + "s";
       case "daily":
-        return sec(10000, pad) + "s";
+        return "30s · 45s assemble · 60s fade";
+      case "endless":
+        return "paced";
       case "practice":
-        return sec(12000, pad) + "s";
+        return "30s";
       case "recall":
-        return sec(32000, 0) + "s";
       case "pilgrim-recall":
-        return sec(14000, 0) + "→" + sec(6500, 0) + "s";
+        return "45s";
       case "blitz":
         return "60s";
       default:
@@ -418,7 +410,7 @@ var Polish = (function () {
      other economies stay untouched. */
   var DAILY_MECHANIC_WEIGHTS = {
     "none": 1.0,
-    "strike": 1.15,
+    "passage-ref": 1.15,
     "truefalse": 1.15,
     "cloze": 1.25,
     "duel": 1.25,

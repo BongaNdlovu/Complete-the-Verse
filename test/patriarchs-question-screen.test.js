@@ -50,7 +50,7 @@ assert(css.includes('data-mechanic="passage"') && css.includes('data-mechanic="r
 assert(css.includes("body.abraham-active:has(#pause.on)"), "pause hides the character focus layer");
 assert(/@media \(max-width:600px\)[\s\S]*\.question-abraham\{display:none!important\}/.test(css),
   "phone layout hides the full-body layer when space is tight");
-assert(/renderStrikeQuestion\(q, dur, scene\)/.test(play) && /renderClozeQuestion\(q, dur, scene\)/.test(play) &&
+assert(/renderPassageReferenceQuestion\(q, dur, scene\)/.test(play) && /renderClozeQuestion\(q, dur, scene\)/.test(play) &&
        /renderDuelQuestion\(q, dur, scene\)/.test(play) && /renderFadeQuestion\(q, dur, scene\)/.test(play) &&
        /renderTrueFalseQuestion\(q, dur, scene\)/.test(play),
   "existing mechanic render paths remain intact");

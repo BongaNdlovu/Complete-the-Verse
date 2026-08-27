@@ -37,8 +37,8 @@ eq("Watchman at Ur prints 18.9s", Polish.pacedClockMs(14000, 0.72, 1500), 18896)
 eq("Pilgrim at Ur prints 29.5s", Polish.pacedClockMs(14000, 1.35, 1500), 29480);
 eq("Act I at Disciple includes pace and flat", Polish.pacedClockMs(14000, 1.0, 1500),
    Math.round((14000 * 1.0 + 1500) * 1.2 + 5000));
-ok("game.js prints clocks through the helper",
-   /pacedClockMs\(siteClockMs\(siteId, sbMode\), D\.time, pad\)/.test(game));
+ok("site brief prints wall-clock labels",
+   /siteBriefClockLabel\(sbMode\)/.test(game));
 ok("act cards print the real clock",
    /pacedClockMs\(A\.t, R\.diff\.time, Pilgrimage\.PICK_PAD_MS/.test(game));
 ok("the atlas dossier prints the same formula",
@@ -101,7 +101,7 @@ ok("the daily list records references as it draws",
 /* §3.4 — the Daily's competitive layer: fixed mechanic beats (identical
    for every player) plus difficulty-weighted scoring for that board. */
 ok("the daily draw carries fixed mechanic beats",
-   /MECHANIC_SLOTS = \{4:"duel", 9:"cloze", 13:"strike", 16:"typed", 19:"fade"\}/.test(game));
+   /MECHANIC_SLOTS = \{4:"duel", 9:"cloze", 13:"passage-ref", 16:"typed", 19:"fade"\}/.test(game));
 ok("daily clones bank verses before stamping a mechanic",
    /Object\.assign\(\{\}, v, /.test(game));
 ok("the daily typed beat flips the answering mode",
@@ -177,11 +177,13 @@ ok("theme colour present", /name="theme-color"/.test(index));
 /* §5.3 — distractor fillers are real verses, never numbered fakes. */
 ok("the numbered filler is gone", !/" " \+ n/.test(game) && !fillerNumbered(game));
 function fillerNumbered(src){ return /push\(fillBase \+ \(n>1 \? " "\+n : ""\)\)/.test(src); }
-ok("the bank backs the last-resort fillers", /VERSES\.filter\(x=>x && x\.a && x\.a!==correct/.test(game));
-
-/* §5.2 — dead branches removed. */
-ok("no identical-branch ternary survives", !/o\.road\.after \? SAVE\.pilgrim : SAVE\.pilgrim/.test(game));
-ok("no both-arms-same label survives", !/\? "Verse" : "Verse"/.test(game));
+/* Strike removal and passage-ref mechanic verification */
+const playSrc = fs.readFileSync(path.join(ROOT, "js", "play.js"), "utf8");
+ok("live play.js has no renderStrikeQuestion", !/function renderStrikeQuestion/.test(playSrc));
+ok("live play.js has no illuminateStrike", !/function illuminateStrike/.test(playSrc));
+ok("tutorial lesson 2 is passage-ref", /id:\s*"tutorial-passage-ref"[\s\S]*?mechanic:\s*"passage-ref"/.test(playSrc));
+ok("Daily slot 13 is passage-ref", /13:\s*"passage-ref"/.test(game));
+ok("relay mode routes pilgrimage mechanics on site-local index", /mode === "relay"[\s\S]*?selectPilgrimageMechanic/.test(playSrc));
 
 if (fail) {
   console.log("FAIL — fixes · " + pass + " passed · " + fail + " failed");

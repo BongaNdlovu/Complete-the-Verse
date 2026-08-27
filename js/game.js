@@ -31,6 +31,7 @@ const DEFAULT_SAVE = {
        characterDone:false}
 };
 let SAVE = load();
+if(typeof window !== "undefined") window.SAVE = SAVE;
 function load(){
   try{
     let raw = localStorage.getItem(SAVE_KEY), migrating = false;
@@ -443,7 +444,6 @@ function invalidateRun(){
   R.sceneToken = (R.sceneToken||0) + 1;
   stopTimer();
   if(typeof clearQuestionMechanicTimers === "function") clearQuestionMechanicTimers();
-  R.strike = null;
 }
 function drawVerse(tier, rnd){
   const r = rnd || Math.random;
@@ -501,7 +501,7 @@ function buildDailyList(){
   /* Late-day mechanic beats give the fixed draw its difficulty curve —
      and the weighted board something real to reward. Positions are fixed
      so every player faces the identical sequence of mechanics. */
-  const MECHANIC_SLOTS = {4:"duel", 9:"cloze", 13:"strike", 16:"typed", 19:"fade"};
+  const MECHANIC_SLOTS = {4:"duel", 9:"cloze", 13:"passage-ref", 16:"typed", 19:"fade"};
   const used = new Set(), out = [];
   pattern.forEach((t,i)=>{
     let pool = poolSansRepeatRefs(BY_TIER[t].filter(v=>!used.has(v.id)));
@@ -563,10 +563,6 @@ function startRun(mode, diffKey, options){
      you never answered still spent the site's eight verses forever. */
   }
 
-  /* The relay flattens a whole arc into one queue, each entry tagged
-     with the site it came from so the clock, the tier and the HUD can
-     follow the road as it goes. Sites are banked as they are passed —
-     dying at the fifth site does not take the four behind it. */
   let relay = null;
   if(mode==="relay"){
     const arcKey = pendingArcKey || (R.relay && R.relay.arcKey);
@@ -576,8 +572,8 @@ function startRun(mode, diffKey, options){
     list.forEach(s=>{
       const rec = Pilgrimage.recordOf(SAVE.pilgrim, s.id);
       const drawn = Pilgrimage.drawSite(s.id, {attempt: rec ? rec.attempts : 0, exclude: exclude});
-      drawn.verses.forEach(v => {
-        queue.push({siteId:s.id, index:Pilgrimage.indexOf(s.id), v:v});
+      drawn.verses.forEach((v, vi) => {
+        queue.push({siteId:s.id, index:Pilgrimage.indexOf(s.id), verseIndex:vi, v:v});
         exclude[v.id] = 1;
       });
     });
@@ -616,7 +612,7 @@ function startRun(mode, diffKey, options){
                : mode==="practice" ? 15 : mode==="recall" ? 12
                : isPilgrim ? siteDraw.verses.length : 0,
     typed: mode==="recall" || mode==="pilgrim-recall", hintLevel:0, queue:null,
-    typedExact:0, typedClose:0, rescheduled:[], strike:null,
+    typedExact:0, typedClose:0, rescheduled:[],
     siteId: siteId, siteIndex: siteIndex, siteIdx: 0,
     siteVerses: siteDraw ? siteDraw.verses : null,
     siteRing: siteDraw ? siteDraw.ring : "",
@@ -669,6 +665,8 @@ function startRun(mode, diffKey, options){
       pal = (arc && arc.pal) || "act3";
     }
     Backdrop.palette(pal);
+    /* Arc beds cover the site-quote intro and Trial act cards. Live
+       questions switch to Indigo in cueQuestionMusic(). */
     Snd.ambience(pal);
     $("hud-round").textContent = isPilgrim && Pilgrimage.site(siteId)
       ? Pilgrimage.site(siteId).name
@@ -1074,7 +1072,7 @@ const LAMP_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 14.2c0
 /* ------------------------- POWERS ------------------------- */
 function illuminateLabel(){
   if(R.currentMechanic === "fade") return R.fadePhase === "memorize" ? "after memory" : "next word";
-  if(R.currentMechanic === "strike") return "narrow the zone";
+  if(R.currentMechanic === "passage-ref") return "burn 2 citations";
   if(R.currentMechanic === "cloze") return "reveal next word";
   if(R.currentMechanic === "duel") return "reveal KJV cue";
   if(R.currentMechanic === "truefalse") return "reveal judgement";
@@ -1084,7 +1082,6 @@ function illuminateLabel(){
 
 function illuminateBlocked(){
   if(R.currentMechanic === "fade" && R.fadePhase === "memorize") return true;
-  if(R.currentMechanic === "strike") return !!(R.strike && R.strike.illuminated);
   if(R.currentMechanic === "cloze") return !!(R.cloze && R.cloze.filled.length >= R.cloze.words.length);
   if(R.currentMechanic === "duel") return !!(R.duel && R.duel.illuminated);
   if(R.currentMechanic === "truefalse") return !!(R.tf && R.tf.illuminated);
@@ -1178,9 +1175,7 @@ function usePower(kind){
       return;
     }
     let handled = false;
-    if(R.currentMechanic === "strike" && typeof illuminateStrike === "function"){
-      handled = illuminateStrike();
-    } else if(R.currentMechanic === "cloze" && typeof illuminateCloze === "function"){
+    if(R.currentMechanic === "cloze" && typeof illuminateCloze === "function"){
       handled = illuminateCloze();
     } else if(R.currentMechanic === "duel" && typeof illuminateDuel === "function"){
       handled = illuminateDuel();

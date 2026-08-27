@@ -123,7 +123,6 @@ const Director = (function(){
     "the next place is open":"audio/voice/map-unlocked.mp3",
     "that place is still sealed":"audio/voice/map-sealed.mp3",
     "lesson one choose the phrase that completes the verse":"audio/voice/lesson-one.mp3",
-    "lesson two strike the corrupted word in the verse":"audio/voice/lesson-two.mp3",
     "lesson three tap the missing words in sequence":"audio/voice/lesson-three.mp3",
     "lesson four discern the true scripture reading":"audio/voice/lesson-four.mp3",
     "lesson five commit the words before they fade":"audio/voice/lesson-five.mp3",

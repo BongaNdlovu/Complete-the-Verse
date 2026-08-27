@@ -124,6 +124,61 @@ async function runLiveVerification() {
     }
   }
 
+  async function verifyPowerbarInPlay(label) {
+    const geom = await client.eval(`(() => {
+      const play = $("v-play");
+      const bar = document.querySelector(".powerbar");
+      if (!play || !bar) return { ok: false, reason: "missing play or powerbar" };
+      const pr = play.getBoundingClientRect();
+      const br = bar.getBoundingClientRect();
+      const inside = br.top >= pr.top - 1 && br.bottom <= pr.bottom + 1 &&
+        br.left >= pr.left - 1 && br.right <= pr.right + 1;
+      const selah = !!bar.querySelector('[data-pw="selah"]');
+      const illum = !!bar.querySelector('[data-pw="illum"]');
+      const typedPwr = document.querySelectorAll(".typed-pwr").length;
+      return { ok: inside && selah && illum, inside, selah, illum, typedPwr,
+        barTop: Math.round(br.top), playBottom: Math.round(pr.bottom) };
+    })()`);
+    check(`${label}: powerbar fully inside #v-play`, geom.inside,
+      `barTop=${geom.barTop}, playBottom=${geom.playBottom}`);
+    check(`${label}: Selah and Illuminate visible`, geom.selah && geom.illum);
+    check(`${label}: no duplicate .typed-pwr buttons`, geom.typedPwr === 0, `count=${geom.typedPwr}`);
+    return geom;
+  }
+
+  async function setViewport(width, height, mobile) {
+    await client.send("Emulation.setDeviceMetricsOverride", {
+      width, height, deviceScaleFactor: 1, mobile: !!mobile
+    });
+    await sleep(200);
+  }
+
+  async function verifyAmbientPlate(siteId, expectedSrc, expectRain) {
+    const label = siteId.toUpperCase();
+    await client.eval(`endRun("abandon");`);
+    await sleep(350);
+    await client.eval(`pendingSiteId = ${JSON.stringify(siteId)}; startRun("pilgrimage", "watchman"); hideSiteQuote(); renderQuestion(R.q, 14000);`);
+    await sleep(350);
+    const backdrop = await client.eval(`(() => {
+      if (typeof Snd !== "undefined" && Snd.unlock) Snd.unlock();
+      if (typeof syncCinematicBackdrop === "function") syncCinematicBackdrop();
+      const video = $("cine-parallax-video");
+      const image = $("cine-parallax-img");
+      return {
+        display: video && video.style.display,
+        source: video && (video.currentSrc || video.src || ""),
+        imageOpacity: image && image.style.opacity,
+        rainActive: typeof Snd !== "undefined" && typeof Snd.rainActive === "function" && Snd.rainActive(),
+        strikeWords: document.querySelectorAll(".strike-word").length
+      };
+    })()`);
+    check(`${label} shows its ambient video`, backdrop.display === "block");
+    check(`${label} uses ${expectedSrc}`, backdrop.source.includes(expectedSrc), `src: ${backdrop.source}`);
+    check(`${label} hides the still while video plays`, backdrop.imageOpacity === "0", `opacity: ${backdrop.imageOpacity}`);
+    check(`${label} rain cue is ${expectRain ? "on" : "off"}`, backdrop.rainActive === expectRain);
+    check(`${label} has no Strike words`, backdrop.strikeWords === 0);
+  }
+
   try {
     await sleep(1500);
 
@@ -143,11 +198,22 @@ async function runLiveVerification() {
       deviceScaleFactor: 1,
       mobile: false
     });
+    try {
+      await client.send("Emulation.setAutoplayPolicy", { policy: "noUserGestureRequired" });
+    } catch (e) {}
 
-    await sleep(1500);
+    await sleep(3000);
+    // Poll until window.SAVE is defined
+    for (let i = 0; i < 20; i++) {
+      try {
+        const ready = await client.eval(`Boolean(window.SAVE && window.Pilgrimage)`);
+        if (ready) break;
+      } catch (e) {}
+      await sleep(500);
+    }
 
     // Reset progress to Pass 1 for clean campaign verification
-    await client.eval(`SAVE.pilgrim = Pilgrimage.blankProgress(); SAVE.runs = 0; if (typeof persist === "function") persist();`);
+    await client.eval(`window.SAVE.pilgrim = window.Pilgrimage.blankProgress(); window.SAVE.runs = 0; if (typeof persist === "function") persist();`);
 
     // Verify page title and boot
     const title = await client.eval("document.title");
@@ -202,13 +268,34 @@ async function runLiveVerification() {
     // STEP 5: Play View — Pilgrimage All 8 Verses (All Mechanics)
     // -----------------------------------------------------------------
     console.log("\n--- 5. VERIFYING PLAY: PILGRIMAGE VERSES 1-8 ---");
-    await client.eval(`startRun("pilgrimage", "watchman"); hideSiteQuote(); renderQuestion(R.q, 14000);`);
+    await setViewport(1920, 1080, false);
+    await client.eval(`startRun("pilgrimage", "watchman"); hideSiteQuote(); renderQuestion(R.q, questionDuration());`);
     await sleep(400);
 
     // Verse 1: Recognition
     console.log("  -> Testing Verse 1 (Recognition)");
+    const pickerClock = await client.eval(`({ tTotal: R.tTotal, dur: questionDuration(), clock: $("clock").textContent })`);
+    check("Ur picker wall clock is 30s", pickerClock.tTotal === 30000 && pickerClock.dur === 30000,
+      `tTotal=${pickerClock.tTotal}, dur=${pickerClock.dur}, clock="${pickerClock.clock}"`);
+    await verifyPowerbarInPlay("Verse 1 choice");
     const bgImageStyle = await client.eval(`window.getComputedStyle($("cine-parallax-img")).backgroundImage`);
     check("Parallax backdrop displays Ur painting", bgImageStyle.includes("assets/journey/ur.webp"), `bg: ${bgImageStyle}`);
+    const urRain = await client.eval(`(() => {
+      if (typeof Snd !== "undefined" && Snd.unlock) Snd.unlock();
+      if (typeof syncCinematicBackdrop === "function") syncCinematicBackdrop();
+      return {
+        display: $("cine-parallax-video").style.display,
+        source: $("cine-parallax-video").currentSrc || $("cine-parallax-video").src || "",
+        imageOpacity: $("cine-parallax-img").style.opacity,
+        rainActive: typeof Snd !== "undefined" && typeof Snd.rainActive === "function" && Snd.rainActive(),
+        strikeWords: document.querySelectorAll(".strike-word").length
+      };
+    })()`);
+    check("Ur shows the rain video", urRain.display === "block");
+    check("Ur uses ur.mp4", urRain.source.includes("assets/journey/ur.mp4"), `src: ${urRain.source}`);
+    check("Ur hides the still while rain plays", urRain.imageOpacity === "0", `opacity: ${urRain.imageOpacity}`);
+    check("Ur rain cue is on", urRain.rainActive === true);
+    check("Ur has no Strike words", urRain.strikeWords === 0);
     const quitRect = await client.eval(`$("play-quit").getBoundingClientRect().toJSON()`);
     const railRightRect = await client.eval(`document.querySelector('.rail.r').getBoundingClientRect().toJSON()`);
     const isQuitColliding = (quitRect.bottom > railRightRect.top && quitRect.top < railRightRect.bottom && quitRect.right > railRightRect.left && quitRect.left < railRightRect.right);
@@ -223,12 +310,13 @@ async function runLiveVerification() {
     await client.eval(`nextQuestion();`);
     await sleep(200);
 
-    // Verse 3: Falsehood Strike
-    console.log("  -> Testing Verse 3 (Falsehood Strike)");
-    check("Current mechanic is Falsehood Strike", await client.eval("R.currentMechanic === 'strike'"));
-    const strikeCount = await client.eval("document.querySelectorAll('.strike-word').length");
-    check("Strike words rendered in verse text", strikeCount > 0, `count: ${strikeCount}`);
-    await client.captureScreenshot("06_play_verse3_strike_falsehood.png");
+    // Verse 3: Name the Passage
+    console.log("  -> Testing Verse 3 (Name the Passage)");
+    check("Current mechanic is Name the Passage", await client.eval("R.currentMechanic === 'passage-ref'"));
+    await verifyPowerbarInPlay("Verse 3 passage-ref");
+    const passageRefOptions = await client.eval("document.querySelectorAll('.passage-reference-option').length");
+    check("Passage reference options rendered", passageRefOptions === 4, `count: ${passageRefOptions}`);
+    await client.captureScreenshot("06_play_verse3_passage_ref.png");
     await client.eval(`nextQuestion();`);
     await sleep(200);
 
@@ -241,6 +329,7 @@ async function runLiveVerification() {
     const slotsCount = await client.eval("document.querySelectorAll('.cloze-slot').length");
     const chipsCount = await client.eval("document.querySelectorAll('.cloze-chip').length");
     check("Scribe cloze has slots and word chips rendered", slotsCount > 0 && chipsCount > 0, `slots=${slotsCount}, chips=${chipsCount}`);
+    await verifyPowerbarInPlay("Verse 4 cloze");
     await client.captureScreenshot("07_play_verse4_scribe_cloze.png");
     await client.eval(`nextQuestion();`);
     await sleep(200);
@@ -251,25 +340,46 @@ async function runLiveVerification() {
     const duelLeft = await client.eval(`!!$("duel-left")`);
     const duelRight = await client.eval(`!!$("duel-right")`);
     check("Reading Alpha and Beta codex tablets rendered", duelLeft && duelRight);
+    await verifyPowerbarInPlay("Verse 5 duel");
     await client.captureScreenshot("08_play_verse5_scripture_duel.png");
     await client.eval(`nextQuestion();`);
     await sleep(200);
 
-    // Verse 6: Fade-to-Memory (7s Timer)
+    // Verse 6: Fade-to-Memory (60s Timer)
     console.log("  -> Testing Verse 6 (Fade-to-Memory)");
     check("Current mechanic is Fade-to-Memory", await client.eval("R.currentMechanic === 'fade'"));
-    const fadeBarText = await client.eval(`$("fade-bar") ? $("fade-bar").textContent : ""`);
+    const fadeClock = await client.eval(`({ tTotal: R.tTotal, dur: questionDuration(), bar: $("fade-bar") ? $("fade-bar").textContent : "" })`);
+    check("Fade memorize wall clock is 60s", fadeClock.tTotal === 60000 && fadeClock.dur === 60000,
+      `tTotal=${fadeClock.tTotal}, dur=${fadeClock.dur}`);
+    const fadeBarText = fadeClock.bar;
     // FADE_MEMORY_MS = 60000 (doubled from the original 30000 of commit
     // 2c4007a — see js/play.js). Accept the first rendered second of
     // that window.
     check("Fade bar starts with 60s countdown", fadeBarText.includes("60s") || fadeBarText.includes("59s"), `bar: "${fadeBarText}"`);
+    await verifyPowerbarInPlay("Verse 6 fade memorize");
     await client.captureScreenshot("09_play_verse6_fade_7s.png");
-    await client.eval(`nextQuestion();`);
-    await sleep(200);
+    await client.eval(`const btn = $("fade-done"); if (btn) btn.click();`);
+    await sleep(2000);
+    const fadeGifts = await client.eval(`({
+      tTotal: R.tTotal,
+      locked: document.querySelectorAll(".asm-slot.locked").length,
+      typedPwr: document.querySelectorAll(".typed-pwr").length
+    })`);
+    check("Fade reconstruct wall clock is 60s", fadeGifts.tTotal === 60000, `tTotal=${fadeGifts.tTotal}`);
+    check("Fade reconstruct gifts 2–3 locked words", fadeGifts.locked >= 2 && fadeGifts.locked <= 3,
+      `locked=${fadeGifts.locked}`);
+    check("Fade reconstruct has no duplicate typed-pwr", fadeGifts.typedPwr === 0, `count=${fadeGifts.typedPwr}`);
+    await client.captureScreenshot("09b_play_verse6_fade_reconstruct.png");
+    await client.eval(`stopTimer(); nextQuestion();`);
+    await sleep(1600);
 
     // Verse 7: Assembled Recall
     console.log("  -> Testing Verse 7 (Assembled Recall)");
     check("Verse 7 is Assembled Recall (typed mode)", await client.eval("R.typed === true"));
+    const typedClock = await client.eval(`({ tTotal: R.tTotal, dur: questionDuration(), clock: $("clock").textContent })`);
+    check("Assembled recall wall clock is 45s", typedClock.tTotal === 45000 && typedClock.dur === 45000,
+      `tTotal=${typedClock.tTotal}, dur=${typedClock.dur}, clock="${typedClock.clock}"`);
+    await verifyPowerbarInPlay("Verse 7 typed assemble");
     await client.captureScreenshot("10_play_verse7_assembled_recall.png");
     await client.eval(`nextQuestion();`);
     await sleep(200);
@@ -280,6 +390,36 @@ async function runLiveVerification() {
     await client.eval(`endRun("complete");`);
     await sleep(400);
     check("Ur cleared in SAVE.pilgrim", await client.eval(`Pilgrimage.isCleared(SAVE.pilgrim, "ur")`));
+
+    // Early-road backdrop and Daily Name the Passage checks
+    console.log("\n--- 5b. VERIFYING RAIN, MIST, AND DAILY PASSAGE REFERENCES ---");
+    await verifyAmbientPlate("haran", "assets/journey/ur.mp4", true);
+    await verifyAmbientPlate("shechem", "assets/journey/patriarchs-mist.mp4", false);
+    await client.eval(`startRun("daily", "watchman");`);
+    await sleep(300);
+    await client.eval(`for (let i = 0; i < 13; i++) nextQuestion();`);
+    await sleep(300);
+    check("Daily slot 13 is Name the Passage", await client.eval("R.dailyIdx === 14 && R.currentMechanic === 'passage-ref'"));
+    check("Daily Name the Passage renders four citations", await client.eval("document.querySelectorAll('.passage-reference-option').length === 4"));
+    check("Daily passage stem hides its citation", await client.eval("!$('verse').textContent.includes(R.q.r)"));
+    await client.eval(`usePower("illum");`);
+    const dailyIlluminate = await client.eval(`({
+      burned: answerButtons().filter(b => b.classList.contains("burn")).length,
+      live: answerButtons().filter(b => !b.classList.contains("burn")).length,
+      correctLive: answerButtons().some(b => !b.classList.contains("burn") && b.dataset.val === R.q.a)
+    })`);
+    check("Daily Illuminate burns two wrong citations", dailyIlluminate.burned === 2 && dailyIlluminate.live === 2 && dailyIlluminate.correctLive);
+    check("Daily has no Strike words", await client.eval("document.querySelectorAll('.strike-word').length === 0"));
+    await client.eval(`endRun("abandon");`);
+    await sleep(350);
+
+    console.log("\n--- 5c. VERIFYING MOBILE POWERBAR (390×844) ---");
+    await setViewport(390, 844, true);
+    await client.eval(`pendingSiteId = "ur"; startRun("pilgrimage", "watchman"); hideSiteQuote(); renderQuestion(R.q, questionDuration());`);
+    await sleep(400);
+    await verifyPowerbarInPlay("Mobile verse 1 choice");
+    await client.captureScreenshot("18_mobile_powerbar_choice.png");
+    await setViewport(1920, 1080, false);
 
     // -----------------------------------------------------------------
     // STEP 6: Onboarding Tutorial (All 6 Lessons)
@@ -295,9 +435,9 @@ async function runLiveVerification() {
     await client.eval(`resolveAnswer(R.q, R.q.a, null, 800, 20000);`);
     await sleep(2900);
 
-    // Lesson 2: Strike
-    check("Tutorial Lesson 2 is Falsehood Strike", await client.eval("R.tutorial.index === 1 && R.currentMechanic === 'strike'"));
-    await client.captureScreenshot("12_onboarding_lesson2_strike.png");
+    // Lesson 2: Name the Passage
+    check("Tutorial Lesson 2 is Name the Passage", await client.eval("R.tutorial.index === 1 && R.currentMechanic === 'passage-ref' && document.querySelectorAll('.passage-reference-option').length === 4 && document.querySelectorAll('.strike-word').length === 0"));
+    await client.captureScreenshot("12_onboarding_lesson2_passage_ref.png");
     await client.eval(`resolveAnswer(R.q, R.q.a, null, 800, 20000);`);
     await sleep(2900);
 

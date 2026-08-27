@@ -39,6 +39,7 @@ function startPassage(){
   R.passage = {p, idx:0, wrong:0};
   R.setpiece.remaining = p.blanks.length;
   if(typeof syncAbrahamPresentation === "function") syncAbrahamPresentation("passage");
+  if(typeof cueQuestionMusic === "function") cueQuestionMusic();
 
   Director.pressure(0);
   $("ref").textContent = p.r + " — KJV";
@@ -146,6 +147,7 @@ function startReconstruct(){
   R.recon = {p, frags, slots:new Array(frags.length).fill(null), drag:null};
   R.setpiece.remaining = frags.length;
   if(typeof syncAbrahamPresentation === "function") syncAbrahamPresentation("reconstruct");
+  if(typeof cueQuestionMusic === "function") cueQuestionMusic();
 
   Director.pressure(0);
   $("ref").textContent = p.r + " — KJV";

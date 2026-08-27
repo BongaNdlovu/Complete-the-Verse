@@ -9,7 +9,7 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
 <meta property="og:title" content="Complete the Verse — A Trial of Scripture">
-<meta property="og:description" content="One phrase is taken away. Complete it before the final second falls. 776 verses · 66 books · a pilgrimage from Ur to Patmos.">
+<meta property="og:description" content="One phrase is taken away. Complete it before the final second falls. 899 verses · 66 books · a pilgrimage from Ur to Patmos.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://complete-the-verse.vercel.app/">
 <meta property="og:image" content="https://complete-the-verse.vercel.app/assets/intro.jpg">
@@ -291,38 +291,40 @@
       <div id="judge-burst" aria-hidden="true"><i></i></div>
 
       <div class="question-content">
-        <div class="verse-stage" id="verse-stage">
-          <div class="verse-main" id="verse" aria-live="polite" aria-atomic="true"></div>
-          <div class="ref-line"><i></i><span id="ref">&nbsp;</span><i></i></div>
-        </div>
-
-        <div class="answers" id="opts"></div>
-        <div class="assembly" id="assembly"></div>
-        <div class="cloze-stage" id="cloze-stage" style="display:none"></div>
-        <div class="duel-stage" id="duel-stage" style="display:none"></div>
-        <div class="tf-stage" id="tf-stage" style="display:none"></div>
-
-        <div class="control">
-          <div class="ring" id="ring">
-            <svg viewBox="0 0 120 120">
-              <defs>
-                <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#ffe8ae"/>
-                  <stop offset="42%" stop-color="#d5ad62"/>
-                  <stop offset="74%" stop-color="#bd4a3d"/>
-                  <stop offset="100%" stop-color="#711419"/>
-                </linearGradient>
-              </defs>
-              <circle class="trk" cx="60" cy="60" r="52"></circle>
-              <circle class="arc" id="ring-arc" cx="60" cy="60" r="52"
-                      stroke-dasharray="326.7" stroke-dashoffset="0"></circle>
-            </svg>
-            <b id="clock">00:14</b>
+        <div class="question-body">
+          <div class="verse-stage" id="verse-stage">
+            <div class="verse-main" id="verse" aria-live="polite" aria-atomic="true"></div>
+            <div class="ref-line"><i></i><span id="ref">&nbsp;</span><i></i></div>
           </div>
-          <button class="confirm-answer" id="confirm-answer" type="button" disabled>Lock Answer</button>
-          <div class="warn">
-            <b id="warn-1">14 seconds remaining</b>
-            <span id="warn-how">Select a phrase, then lock it<br>Enter or Space confirms</span>
+
+          <div class="answers" id="opts"></div>
+          <div class="assembly" id="assembly"></div>
+          <div class="cloze-stage" id="cloze-stage" style="display:none"></div>
+          <div class="duel-stage" id="duel-stage" style="display:none"></div>
+          <div class="tf-stage" id="tf-stage" style="display:none"></div>
+
+          <div class="control">
+            <div class="ring" id="ring">
+              <svg viewBox="0 0 120 120">
+                <defs>
+                  <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#ffe8ae"/>
+                    <stop offset="42%" stop-color="#d5ad62"/>
+                    <stop offset="74%" stop-color="#bd4a3d"/>
+                    <stop offset="100%" stop-color="#711419"/>
+                  </linearGradient>
+                </defs>
+                <circle class="trk" cx="60" cy="60" r="52"></circle>
+                <circle class="arc" id="ring-arc" cx="60" cy="60" r="52"
+                        stroke-dasharray="326.7" stroke-dashoffset="0"></circle>
+              </svg>
+              <b id="clock">00:30</b>
+            </div>
+            <button class="confirm-answer" id="confirm-answer" type="button" disabled>Lock Answer</button>
+            <div class="warn">
+              <b id="warn-1">30 seconds remaining</b>
+              <span id="warn-how">Select a phrase, then lock it<br>Enter or Space confirms</span>
+            </div>
           </div>
         </div>
 

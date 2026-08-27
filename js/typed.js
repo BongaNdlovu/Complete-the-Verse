@@ -206,16 +206,23 @@ function renderAssembleBank(){
   });
   slots.innerHTML = "";
   const makeSlot = (t, i) => {
+    const locked = !!(R.assemble && R.assemble.locked && R.assemble.locked[i]);
     const el = document.createElement("button");
     el.type = "button";
-    el.className = "asm-slot" + (t ? " full" : " empty");
+    el.className = "asm-slot" + (t ? " full" : " empty") + (locked ? " locked" : "");
     el.dataset.slot = String(i);
     el.textContent = t ? t.word : "—";
     el.setAttribute("role", "listitem");
-    el.setAttribute("aria-label", t
-      ? "Placed word " + t.word + ". Tap to lift, then choose another slot to swap."
-      : (isFadeAssembly() ? "Empty full-verse slot " : "Empty phrase slot ") + (i + 1));
-    if(t){ el.dataset.id = t.id; el.draggable = true; el.setAttribute("aria-grabbed", "false"); }
+    if(locked){
+      el.disabled = true;
+      el.draggable = false;
+      el.setAttribute("aria-label", "Gift word " + t.word + " (locked)");
+    } else {
+      el.setAttribute("aria-label", t
+        ? "Placed word " + t.word + ". Tap to lift, then choose another slot to swap."
+        : (isFadeAssembly() ? "Empty full-verse slot " : "Empty phrase slot ") + (i + 1));
+      if(t){ el.dataset.id = t.id; el.draggable = true; el.setAttribute("aria-grabbed", "false"); }
+    }
     return el;
   };
   /* Fade rebuilds read as phrases: group the slot order at KJV clause
@@ -449,22 +456,19 @@ function renderTypedQuestion(q, dur, scene){
       ? Assemble.buildExact(target, rnd)
       : Assemble.build(target, q.d, rnd))
     : { target:[], bank:[], placed:[] };
+  if(isFadeAssembly() && R.assemble && typeof Assemble !== "undefined" && Assemble.giftLocked)
+    Assemble.giftLocked(R.assemble, rnd);
   const opts = $("opts");
   opts.className = "answers typed queued";
   opts.innerHTML =
     '<div class="typewrap" id="asm-wrap">'+
-      '<div class="type-row">'+
-        '<input id="typed-answer" class="typed-input asm-hidden" type="text" autocomplete="off" '+
-          'autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="none" '+
-          'aria-label="Assemble the missing words" readonly tabindex="-1">'+
-        '<button type="button" class="typed-pwr" data-pw="selah">Selah</button>'+
-        '<button type="button" class="typed-pwr" data-pw="illum">Illuminate</button>'+
-      '</div>'+
+      '<input id="typed-answer" class="typed-input asm-hidden" type="text" autocomplete="off" '+
+        'autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="none" '+
+        'aria-label="Assemble the missing words" readonly tabindex="-1">'+
       '<div class="asm-slots" id="asm-slots" role="list" aria-label="The missing phrase"></div>'+
       '<div class="asm-bank" id="asm-bank" role="list" aria-label="Word bank"></div>'+
       '<div class="typed-hint" id="typed-hint" aria-live="polite"></div>'+
     '</div>';
-  bindTypedPowerButtons(opts);
   bindAssembleBoard();
   renderAssembleBank();
   const hintEl = $("typed-hint");

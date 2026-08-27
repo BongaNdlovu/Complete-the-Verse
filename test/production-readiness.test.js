@@ -41,12 +41,12 @@ assert(/illumReserve/.test(cloud), "cloud merge preserves the Illuminate reserve
    browser speech synthesis is unavailable. */
 const lessonClips = [
   ["lesson one choose the phrase that completes the verse", "lesson-one.mp3"],
-  ["lesson two strike the corrupted word in the verse", "lesson-two.mp3"],
   ["lesson three tap the missing words in sequence", "lesson-three.mp3"],
   ["lesson four discern the true scripture reading", "lesson-four.mp3"],
   ["lesson five commit the words before they fade", "lesson-five.mp3"],
   ["lesson six assemble the verse from memory", "lesson-six.mp3"]
 ];
+assert(fs.existsSync(path.join(ROOT, "audio", "voice", "lesson-two.mp3")), "lesson-two asset exists on disk");
 lessonClips.forEach(([key, file]) => {
   const abs = path.join(ROOT, "audio", "voice", file);
   assert(fs.existsSync(abs) && fs.statSync(abs).size > 500, "lesson voice asset is present: " + file);
@@ -72,6 +72,8 @@ assert(director.includes('"lesson five memorize the whole verse for thirty secon
   "30-second memorization tutorial selects the supplied recording");
 assert(read("js/play.js").includes('Snd.ambience("indigo")'),
   "tutorial selects the supplied Indigo bed");
+assert(read("js/play.js").includes("function cueQuestionMusic"),
+  "live questions share the tutorial Indigo bed");
 
 /* Top HUD visual hierarchy and clean pursuer-free state. */
 assert(!/id="rival-hud"/.test(index), "rival-hud is completely removed from index.html");

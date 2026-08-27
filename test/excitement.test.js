@@ -89,11 +89,11 @@ assert(/Never repeat a verse the site already used/.test(game), "set-piece draws
 /* ---------------- M8 speed round ---------------- */
 assert(/function speedSlot/.test(game) || /Pilgrimage\.speedSlot\(vi, n\)/.test(game), "speed slot wired into the site body");
 assert(/R\.speed = Pilgrimage\.speedSlot/.test(game), "nextQuestion marks the swift verse");
-assert(/if\(R\.speed\) return playClockMs\(\(Pilgrimage\.SPEED_MS \|\| 6000\)/.test(game),
-  "the swift verse gets the short clock");
-eq("the swift clock leaves time to read", P.SPEED_MS >= 5000, true);
+assert(/if\(usesWallClock\(\)\) return wallClockMs\(\)/.test(game),
+  "the swift verse shares the flat 30s wall clock");
+eq("the swift flavor still leaves time to read", P.SPEED_MS >= 5000, true);
 assert(/function momentumClockMs/.test(game) && /ms \* 1\.2/.test(game),
-  "high momentum adds a 20% extra beat on pick clocks");
+  "high momentum still shapes paced clocks outside the wall-clock modes");
 assert(/MOMENTUM_STEPS\[0\]/.test(game), "the momentum stretch starts at Building");
 assert(/Swift Lock/.test(game), "the swift verse labels its lock button");
 assert(/speed-round/.test(game) && /speed-round/.test(css), "the swift verse has a visual state");
@@ -133,10 +133,12 @@ assert(/fl \.7s ease-out/.test(css), "the red flash fades more gently");
 /* ---------------- pace (playtest tuning) ---------------- */
 eq("PACE is +20%", Polish.PACE, 1.2);
 eq("flat add is +5s", Polish.FLAT_ADD_MS, 5000);
-assert(/momentumClockMs\(pickClockMs\(ms\)\) \* PACE \+ FLAT_ADD_MS/.test(game), "every routed clock gets the pace boost and the flat +5s");
-assert(/Math\.round\(R\.setpiece\.duration\*PACE\+FLAT_ADD_MS\)/.test(game), "set-piece finales get the pace boost and the flat +5s");
-assert(/32000 \* R\.diff\.time \* PACE \+ FLAT_ADD_MS/.test(game), "typed clocks get the pace boost and the flat +5s");
-assert(/pacedClockMs\(siteClockMs\(siteId, sbMode\), D\.time, pad\)/.test(game), "the brief prints the paced clock plus the flat +5s");
+assert(/function usesWallClock/.test(game), "wall clock gate exists");
+assert(/function wallClockMs/.test(game), "wall clock helper exists");
+assert(/if\(usesWallClock\(\)\) return wallClockMs\(\)/.test(game), "in-scope modes use flat wall clocks");
+assert(/playClockMs\(ACTS\[R\.actIdx\]/.test(game), "trial keeps the paced act clock");
+assert(/Math\.round\(R\.setpiece\.duration\*PACE\+FLAT_ADD_MS\)/.test(game), "set-piece finales still get pace boost");
+assert(/function siteBriefClockLabel/.test(game), "site brief prints the wall-clock mix");
 
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");

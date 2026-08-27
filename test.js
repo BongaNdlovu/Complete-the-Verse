@@ -22,6 +22,7 @@ const SUITE = [
   ["recall logic", "test/recall.test.js"],
   ["onboarding", "test/onboarding.test.js"],
   ["question mechanics", "test/question-mechanics.test.js"],
+  ["clocks and powers", "test/clocks-powers.test.js"],
   ["all game modes", "test/all-game-modes.test.js"],
   ["arc I deep verification", "test/arc1-deep-verification.test.js"],
   ["geo logic", "test/geo.test.js"],

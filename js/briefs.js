@@ -431,6 +431,11 @@ function siteClockMs(siteId, mode){
   return Pilgrimage.clockFor(Pilgrimage.indexOf(siteId));
 }
 
+function siteBriefClockLabel(mode){
+  if(mode === "pilgrim-recall") return "45s";
+  return "30s · 45s assemble · 60s fade";
+}
+
 function openSiteBrief(siteId, mode){
   const b = Pilgrimage.brief(siteId, SAVE.pilgrim);
   if(!b) return;
@@ -438,8 +443,7 @@ function openSiteBrief(siteId, mode){
 
   sbSiteId = siteId; sbMode = mode || "pilgrimage"; pendingSiteId = siteId;
   const s = b.site, arc = b.arc, D = resolveDiff(SAVE.set.diff);
-  const pad = (sbMode==="pilgrim-recall") ? 0 : pickPadMs();
-  const secsLabel = (pacedClockMs(siteClockMs(siteId, sbMode), D.time, pad) / 1000).toFixed(1);
+  const secsLabel = siteBriefClockLabel(sbMode);
 
   $("sb-arc").textContent = arc ? arc.n + " · " + arc.name : s.tag;
   $("sb-name").textContent = s.name;
@@ -464,7 +468,7 @@ function openSiteBrief(siteId, mode){
     [b.ordinal + " / " + b.total, "Site on the road"],
     [String(b.verses), sbMode === "pilgrim-recall" ? "Verses, assembled" : "Verses"],
     [TIER_NAMES[b.tier] || "Foundation", "Difficulty"],
-    [secsLabel + "s", "Per verse"],
+    [secsLabel, "Per verse"],
     [String(D.lives), "Lives"]
   ].map(i=>'<div class="bi"><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("");
 

@@ -79,6 +79,28 @@ const rng = (function(){ let i = 0; return function(){ i = (i * 9301 + 49297) % 
   ok("exact assembly still shuffles the word bank", st.bank.map(t => t.word).join(" ") !== st.target.join(" "));
 }
 
+{
+  const st = Assemble.buildExact("And the earth was without form and void.", () => 0.42);
+  Assemble.giftLocked(st, () => 0.42);
+  const lockedCount = Object.keys(st.locked || {}).length;
+  ok("fade gifts lock two or three words on a long verse", lockedCount >= 2 && lockedCount <= 3, lockedCount);
+  Object.keys(st.locked || {}).forEach(function(slot){
+    const i = +slot;
+    ok("gift sits on the correct word at slot " + slot, st.placed[i] && st.placed[i].dest === i);
+  });
+  const firstLocked = +Object.keys(st.locked)[0];
+  const before = st.placed[firstLocked];
+  Assemble.unplace(st, firstLocked);
+  eq("locked gifts cannot be unplaced", st.placed[firstLocked], before);
+  ok("phrase assemble has no gifts", !Assemble.build("still small voice", ["wind"], rng).locked);
+}
+
+{
+  const short = Assemble.buildExact("the world", () => 0.5);
+  Assemble.giftLocked(short, () => 0.5);
+  eq("two-word verse locks both words", Object.keys(short.locked || {}).length, 2);
+}
+
 /* ---------- Lift & commit (tap + keyboard parity) ---------- */
 {
   const st = Assemble.build("still small voice", ["mighty rushing wind"], rng);

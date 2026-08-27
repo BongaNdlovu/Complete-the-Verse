@@ -34,8 +34,8 @@ run("usePower('selah')");
 ok("tutorial lifeline is usable", read("R.powers.selah === 0 && R.pendingSelah === 5000"));
 run("resolveAnswer(R.q, R.q.a, null, 1000, 20000); tutorialNextQuestion();");
 
-// Lesson 2: Falsehood Strike
-ok("lesson two teaches Falsehood Strike", read("R.tutorial.index === 1 && R.currentMechanic === 'strike' && R.q.r === 'Proverbs 3:5'"));
+// Lesson 2: Name the Passage
+ok("lesson two teaches Name the Passage", read("R.tutorial.index === 1 && R.currentMechanic === 'passage-ref' && R.q.r === 'Proverbs 3:5'"));
 run("resolveAnswer(R.q, R.q.a, null, 1000, 20000); tutorialNextQuestion();");
 
 // Lesson 3: Scribe's Cloze

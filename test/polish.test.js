@@ -95,30 +95,15 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
   ok("cross refs found", cross.length >= 1);
 }
 
-/* mode clock descriptions — must be pacedClockMs, not invented seconds */
+/* mode clock descriptions — flat wall clocks for in-scope modes */
 {
-  const pad = 1500;
-  const range = (open, close, t, pickPad) =>
-    (Polish.pacedClockMs(open, t, pickPad) / 1000).toFixed(1) + "→" +
-    (Polish.pacedClockMs(close, t, pickPad) / 1000).toFixed(1) + "s";
-  const one = (base, t, pickPad) =>
-    (Polish.pacedClockMs(base, t, pickPad) / 1000).toFixed(1) + "s";
-
-  const t = 0.85;
-  eq("describeModeClock trial watchman", Polish.describeModeClock("trial", "watchman"), range(14000, 6500, t, pad));
-  eq("describeModeClock pilgrimage matches pacedClockMs",
-    Polish.describeModeClock("pilgrimage", "watchman"), range(14000, 6500, t, pad));
-  ok("describeModeClock pilgrimage does not invent 19.6→11.1s",
-    Polish.describeModeClock("pilgrimage", "watchman").indexOf("19.6") < 0);
-  eq("describeModeClock endless watchman", Polish.describeModeClock("endless", "watchman"), range(12000, 4200, t, pad));
-  eq("describeModeClock daily watchman", Polish.describeModeClock("daily", "watchman"), one(10000, t, pad));
-  eq("describeModeClock blitz watchman", Polish.describeModeClock("blitz", "watchman"), "60s");
-  eq("describeModeClock practice watchman", Polish.describeModeClock("practice", "watchman"), one(12000, t, pad));
-  eq("describeModeClock recall watchman", Polish.describeModeClock("recall", "watchman"), one(32000, t, 0));
-  eq("legacy disciple key uses the Watchman clock",
-    Polish.describeModeClock("daily", "disciple"), one(10000, t, pad));
-  eq("legacy pilgrim key uses the Watchman clock",
-    Polish.describeModeClock("daily", "pilgrim"), one(10000, t, pad));
+  eq("describeModeClock pilgrimage", Polish.describeModeClock("pilgrimage", "watchman"), "30s · 45s assemble · 60s fade");
+  eq("describeModeClock daily", Polish.describeModeClock("daily", "watchman"), "30s · 45s assemble · 60s fade");
+  eq("describeModeClock practice", Polish.describeModeClock("practice", "watchman"), "30s");
+  eq("describeModeClock recall", Polish.describeModeClock("recall", "watchman"), "45s");
+  eq("describeModeClock pilgrim-recall", Polish.describeModeClock("pilgrim-recall", "watchman"), "45s");
+  eq("describeModeClock blitz", Polish.describeModeClock("blitz", "watchman"), "60s");
+  eq("describeModeClock trial", Polish.describeModeClock("trial", "watchman"), "paced");
 }
 
 {

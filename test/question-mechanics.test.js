@@ -30,44 +30,43 @@ assert("bank keeps canonical Psalms key", read("BOOKS_ORDER.includes('Psalms') &
 
 run("startRun('practice','watchman')");
 run("Math.random = function(){ return 0; }");
-const strike = {id:"mechanic-strike",b:"Genesis",r:"Genesis 1:1",t:1,
-  p:"the",a:"the earth",s:".",d:["stone"]};
-const verse = sb._els.verse || read("$(\"verse\")");
-let buttons = [];
-function prepareStrike(){
-  buttons = [0,1,2,3].map(i => {
-    const b = makeElement("strike-" + i);
-    b.dataset.idx = String(i);
-    return b;
-  });
-  verse.querySelectorAll = () => buttons;
-  sb.__question = strike;
-  run("Object.assign(R,{q:__question,locked:false,running:true,paused:false,sceneToken:7,runToken:1,attempts:0,correct:0,missed:[],rescheduled:[],lives:2})");
-  run("renderStrikeQuestion(__question,10000,7)");
-}
-prepareStrike();
-const strikeHtml = read("$(\"verse\").innerHTML");
-assert("strike renders keyboard-accessible controls", strikeHtml.includes('type="button"') && strikeHtml.includes('aria-label="Verse word'));
-assert("strike does not expose the answer marker", !strikeHtml.includes("data-corrupt") && !strikeHtml.includes("corrupt-target"));
-assert("strike targets the answer position", read("R.strike.targetIndex") === 1 && read("R.strike.fakeWord") === "stone");
-assert("strike renders exactly one injected position", (strikeHtml.match(/data-idx=/g) || []).length === 4);
 
-run("R.powers={selah:1,illum:1,wind:0}; usePower('illum')");
-assert("Illuminate narrows Strike to a half", read("R.strike.illuminated === true && R.strike.hintHalf === 'first' && R.powers.illum === 0"));
+const passageRef = {id:"mechanic-passage-ref",b:"Genesis",r:"Genesis 12:6",t:1,
+  p:"And Abram passed through the land unto the place of",a:"Sichem",s:".",d:["Bethel"]};
+const siteReferencePool = [passageRef,
+  {id:"site-ref-2",b:"Genesis",r:"Genesis 12:7"},
+  {id:"site-ref-3",b:"Genesis",r:"Genesis 13:4"},
+  {id:"site-ref-4",b:"Genesis",r:"Genesis 15:1"}];
+sb.__question = passageRef;
+sb.__siteReferencePool = siteReferencePool;
+run("Object.assign(R,{q:__question,siteVerses:__siteReferencePool,locked:false,running:true,paused:false,sceneToken:8,runToken:1,attempts:0,correct:0,missed:[],rescheduled:[],lives:2,powers:{selah:1,illum:1,wind:0}})");
+run("renderPassageReferenceQuestion(__question,10000,8)");
+assert("passage reference renders the whole location verse", read("$('verse').innerHTML.includes('Sichem') && $('verse').innerHTML.includes('passage-reference-text')"));
+assert("passage reference hides the correct citation from the stem", read("!$('verse').innerHTML.includes(__question.r) && $('ref').textContent.includes('Passage identification')"));
+const referenceChoices = read("passageReferenceChoices(__question)");
+assert("passage reference offers four unique citations including the answer",
+  referenceChoices.length === 4 && referenceChoices.includes(passageRef.r) && new Set(referenceChoices).size === 4);
 
-buttons[0].click();
-assert("strike wrong click locks the question", read("R.locked === true && R.running === false"));
-assert("strike wrong click counts one attempt", read("R.attempts === 1 && R.missed.length === 1"));
-assert("strike wrong click costs one life", read("R.lives === 1"));
+const passageButtons = read("answerButtons()");
+assert("passage reference renders four option buttons", passageButtons.length === 4);
 
-let scheduled = [];
-sb.setTimeout = fn => { scheduled.push(fn); return scheduled.length; };
-sb.clearTimeout = () => {};
-prepareStrike();
-buttons[1].click();
-assert("strike correct click schedules a guarded reveal", scheduled.length >= 1 && read("R.locked === true"));
-if(scheduled[0]) scheduled.shift()();
-assert("strike correct click resolves as a correct answer", read("R.correct === 1 && R.attempts === 1 && R.rescheduled.length === 1"));
+// Test Illuminate burning 2 wrong citations
+run("usePower('illum')");
+assert("Illuminate burns exactly two wrong citations",
+  read("answerButtons().filter(b => b.classList.contains('burn')).length === 2 && answerButtons().filter(b => !b.classList.contains('burn')).length === 2"));
+assert("Illuminate preserves the correct citation",
+  read("answerButtons().filter(b => !b.classList.contains('burn')).some(b => b.dataset.val === __question.a)"));
+
+// Test wrong click
+run("answerButtons().find(b => b.dataset.val !== __question.a).click()");
+assert("passage-ref wrong click locks the question", read("R.locked === true && R.running === false"));
+assert("passage-ref wrong click counts one attempt and miss", read("R.attempts === 1 && R.missed.length === 1 && R.correct === 0"));
+
+// Test correct click
+run("Object.assign(R,{q:__question,siteVerses:__siteReferencePool,locked:false,running:true,paused:false,sceneToken:9,runToken:1,attempts:0,correct:0,missed:[]})");
+run("renderPassageReferenceQuestion(__question,10000,9)");
+run("answerButtons().find(b => b.dataset.val === __question.a).click()");
+assert("passage-ref correct click increments R.correct", read("R.correct === 1 && R.attempts === 1"));
 
 let fadeCallback = null;
 let fadeHandle = 91;
@@ -146,4 +145,4 @@ if(fails.length){
   fails.forEach(f => console.error(" - " + f));
   process.exit(1);
 }
-console.log("PASS — question mechanics · strike positions/lockout · fade lifecycle · keyboard semantics · Psalms normalization");
+console.log("PASS — question mechanics · passage-ref lifecycle · fade lifecycle · keyboard semantics · Psalms normalization");

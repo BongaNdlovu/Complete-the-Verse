@@ -5,7 +5,7 @@
 distractors are not.** Nothing here is lost — each row is a verse worth including
 once someone writes a real blank and three real distractors for it.
 
-**203 re-authored · 93 still open.**
+**214 re-authored · 93 still open.**
 Run `node scripts/quarantine-status.js` to refresh these counts.
 
 ## How to re-author one

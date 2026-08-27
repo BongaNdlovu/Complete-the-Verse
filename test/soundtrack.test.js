@@ -26,7 +26,7 @@ const BEDS = [
   { key: "results", file: "results.mp3", slot: "Results screen" },
   { key: "finalStillness", file: "final-stillness.mp3", slot: "Completed-run results" },
   { key: "suddenDescent", file: "sudden-descent.mp3", slot: "Failed-run results" },
-  { key: "indigo", file: "indigo.mp3", slot: "First-run tutorial" }
+  { key: "indigo", file: "indigo.mp3", slot: "Tutorial and live questions" }
 ];
 
 assert(/const TRACKS\s*=\s*\{[\s\S]*?\};/.test(game), "TRACKS object present");
@@ -71,6 +71,10 @@ assert(/reason === "death" \|\| reason === "abandon"/.test(game) && /"suddenDesc
   "failed and abandoned runs select Sudden Descent");
 assert(/Snd\.ambience\("indigo"\)/.test(game),
   "first-run tutorial selects Indigo");
+assert(/function cueQuestionMusic\(/.test(game),
+  "question-time music helper exists");
+assert(/cueQuestionMusic\(\)/.test(game),
+  "live questions cue the Indigo bed");
 assert(/Snd\.ambience\(A\.pal\)/.test(game), "beginAct uses act palette ambience");
 assert(/pal:"act1"/.test(game) && /pal:"act2"/.test(game) && /pal:"act3"/.test(game) &&
   /pal:"act4"/.test(game) && /pal:"act5"/.test(game), "ACTS define pal act1–act5");

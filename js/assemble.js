@@ -93,8 +93,32 @@ var Assemble = (function(){
     return null;
   }
 
+  function isLocked(state, slot){
+    return !!(state && state.locked && state.locked[slot]);
+  }
+
+  /* Fade rebuild: gift 2–3 correct words already locked in their slots. */
+  function giftLocked(state, rng){
+    if(!state || !state.target || !state.target.length) return state;
+    var n = state.target.length;
+    var count = n <= 2 ? n : (Math.floor((rng || Math.random)() * 2) + 2);
+    var indices = state.target.map(function(_, i){ return i; });
+    indices = shuffle(indices, rng).slice(0, count);
+    state.locked = {};
+    indices.forEach(function(slot){
+      state.locked[slot] = true;
+      var tile = null;
+      for(var i = 0; i < state.bank.length; i++){
+        if(state.bank[i].dest === slot){ tile = state.bank[i]; break; }
+      }
+      if(tile) state.placed[slot] = tile;
+    });
+    return state;
+  }
+
   function unplace(state, slot){
     if(!state || slot < 0 || slot >= state.placed.length) return state;
+    if(isLocked(state, slot)) return state;
     state.placed[slot] = null;
     return state;
   }
@@ -109,6 +133,7 @@ var Assemble = (function(){
       slot = state.placed.indexOf(null);
     }
     if(slot < 0 || slot >= state.placed.length) return state;
+    if(isLocked(state, slot)) return state;
     if(state.placed[slot]) state.placed[slot] = null;
     state.placed[slot] = tile;
     return state;
@@ -160,6 +185,7 @@ var Assemble = (function(){
       return { kind: "place" };
     }
     if(target && target.slot != null){
+      if(isLocked(state, target.slot)) return null;
       if(t){
         var from = state.placed.indexOf(t);
         var occupant = state.placed[target.slot];
@@ -183,7 +209,10 @@ var Assemble = (function(){
         return { kind: "place", evicted: null };
       }
       var occupant2 = state.placed[target.slot];
-      if(occupant2){ state.lifted = occupant2.id; return { kind: "lift" }; }
+      if(occupant2){
+        if(isLocked(state, target.slot)) return null;
+        state.lifted = occupant2.id; return { kind: "lift" };
+      }
       return null;
     }
     return null;
@@ -191,7 +220,8 @@ var Assemble = (function(){
 
   return {
     words: words, keyOf: keyOf, fakeCount: fakeCount,
-    build: build, buildExact: buildExact, place: place, unplace: unplace,
+    build: build, buildExact: buildExact, giftLocked: giftLocked, isLocked: isLocked,
+    place: place, unplace: unplace,
     join: join, isFilled: isFilled, remaining: remaining,
     shuffle: shuffle, tileById: tileById,
     lift: lift, liftedTile: liftedTile, resolveTap: resolveTap
