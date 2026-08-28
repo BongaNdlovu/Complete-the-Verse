@@ -144,34 +144,6 @@ var SITES = [
     climate: { type: "mediterranean", hi: 30, lo: 18 }
   },
   {
-    id: "bethel", arc: "patriarchs", name: "BETHEL", tag: "PATRIARCHAL ROUTE",
-    coords: [31.9308, 35.2211], elevation: 880, modernCountry: "Palestine",
-    scripture: "Genesis 12:8 · Genesis 28:12-19",
-    quote: "Surely the LORD is in this place; and I knew it not.",
-    quoteRef: "Genesis 28:16",
-    era: "c. 1850 – 722 BC", empire: "canaan",
-    archaeology: "Beitin ridge settlement",
-    region: "Ephraim highlands", place: "The central watershed road",
-    description: "A high point on the ridge route where Abraham pitched his tent, and where Jacob — running for his life — slept on a stone and saw a ladder set up to heaven. He called it the House of God.",
-    context: "Abraham's altar and Jacob's ladder.",
-    books: ["Genesis", "1 Kings", "Amos", "Hosea"],
-    climate: { type: "mediterranean", hi: 29, lo: 17 }
-  },
-  {
-    id: "penuel", arc: "patriarchs", name: "PENUEL", tag: "PATRIARCHAL ROUTE",
-    coords: [32.1833, 35.6167], elevation: 50, modernCountry: "Jordan",
-    scripture: "Genesis 32:24-30 · Genesis 32:28",
-    quote: "And Jacob called the name of the place Peniel: for I have seen God face to face, and my life is preserved.",
-    quoteRef: "Genesis 32:30",
-    era: "c. 1850 BC", empire: "canaan",
-    archaeology: "The Jabbok ford approaches",
-    region: "East of Jordan", place: "The ford of the Jabbok",
-    description: "A lonely ford on the Jabbok where Jacob, returning home after twenty years, wrestled until daybreak and would not let go until he was blessed — and limped away with a new name.",
-    context: "Where Jacob becomes Israel.",
-    books: ["Genesis", "Hosea", "Hebrews", "Romans"],
-    climate: { type: "semi-arid", hi: 34, lo: 20 }
-  },
-  {
     id: "hebron", arc: "patriarchs", name: "HEBRON (MAMRE)", tag: "PATRIARCHAL ROUTE",
     coords: [31.5326, 35.0998], elevation: 930, modernCountry: "Palestine",
     scripture: "Genesis 13:18 · Genesis 23:19 · 2 Samuel 5:3",
@@ -212,6 +184,34 @@ var SITES = [
     context: "Where the ram was caught in the thicket.",
     books: ["Genesis", "Hebrews", "James", "2 Chronicles"],
     climate: { type: "mediterranean", hi: 29, lo: 17 }
+  },
+  {
+    id: "bethel", arc: "patriarchs", name: "BETHEL", tag: "PATRIARCHAL ROUTE",
+    coords: [31.9308, 35.2211], elevation: 880, modernCountry: "Palestine",
+    scripture: "Genesis 12:8 · Genesis 28:12-19",
+    quote: "Surely the LORD is in this place; and I knew it not.",
+    quoteRef: "Genesis 28:16",
+    era: "c. 1850 – 722 BC", empire: "canaan",
+    archaeology: "Beitin ridge settlement",
+    region: "Ephraim highlands", place: "The central watershed road",
+    description: "A high point on the ridge route where Abraham pitched his tent, and where Jacob — running for his life — slept on a stone and saw a ladder set up to heaven. He called it the House of God.",
+    context: "Abraham's altar and Jacob's ladder.",
+    books: ["Genesis", "1 Kings", "Amos", "Hosea"],
+    climate: { type: "mediterranean", hi: 29, lo: 17 }
+  },
+  {
+    id: "penuel", arc: "patriarchs", name: "PENUEL", tag: "PATRIARCHAL ROUTE",
+    coords: [32.1833, 35.6167], elevation: 50, modernCountry: "Jordan",
+    scripture: "Genesis 32:24-30 · Genesis 32:28",
+    quote: "And Jacob called the name of the place Peniel: for I have seen God face to face, and my life is preserved.",
+    quoteRef: "Genesis 32:30",
+    era: "c. 1850 BC", empire: "canaan",
+    archaeology: "The Jabbok ford approaches",
+    region: "East of Jordan", place: "The ford of the Jabbok",
+    description: "A lonely ford on the Jabbok where Jacob, returning home after twenty years, wrestled until daybreak and would not let go until he was blessed — and limped away with a new name.",
+    context: "Where Jacob becomes Israel.",
+    books: ["Genesis", "Hosea", "Hebrews", "Romans"],
+    climate: { type: "semi-arid", hi: 34, lo: 20 }
   },
   {
     id: "dothan", arc: "patriarchs", name: "DOTHAN", tag: "PATRIARCHAL ROUTE",
@@ -272,20 +272,6 @@ var SITES = [
     climate: { type: "desert", hi: 35, lo: 22 }
   },
   {
-    id: "sinai", arc: "exodus", name: "MOUNT SINAI (HOREB)", tag: "EXODUS TRAIL",
-    coords: [28.5392, 33.9750], elevation: 2285, modernCountry: "Egypt",
-    scripture: "Exodus 19:18 · Exodus 20:1-17 · Deuteronomy 5:2",
-    quote: "And mount Sinai was altogether on a smoke, because the LORD descended upon it in fire.",
-    quoteRef: "Exodus 19:18",
-    era: "c. 1250 BC", empire: "egypt",
-    archaeology: "Jebel Musa · St Catherine's plateau",
-    region: "Sinai peninsula", place: "Granite ranges above the Red Sea",
-    description: "The mountain of the Law, rising over 2,200 m out of the southern Sinai massif — the highest ground on the entire journey, by a wide margin. The Law was given here, and broken here, and given again.",
-    context: "The covenant, and the highest point on the road.",
-    books: ["Exodus", "Deuteronomy", "Leviticus", "Hebrews"],
-    climate: { type: "highland-desert", hi: 30, lo: 14 }
-  },
-  {
     id: "rephidim", arc: "exodus", name: "REPHIDIM", tag: "EXODUS TRAIL",
     coords: [28.7200, 33.6200], elevation: 900, modernCountry: "Egypt",
     scripture: "Exodus 17:1-13 · Exodus 17:6",
@@ -298,6 +284,20 @@ var SITES = [
     context: "Water from the rock, and the first battle.",
     books: ["Exodus", "Numbers", "Deuteronomy", "Psalms", "1 Corinthians"],
     climate: { type: "desert", hi: 34, lo: 18 }
+  },
+  {
+    id: "sinai", arc: "exodus", name: "MOUNT SINAI (HOREB)", tag: "EXODUS TRAIL",
+    coords: [28.5392, 33.9750], elevation: 2285, modernCountry: "Egypt",
+    scripture: "Exodus 19:18 · Exodus 20:1-17 · Deuteronomy 5:2",
+    quote: "And mount Sinai was altogether on a smoke, because the LORD descended upon it in fire.",
+    quoteRef: "Exodus 19:18",
+    era: "c. 1250 BC", empire: "egypt",
+    archaeology: "Jebel Musa · St Catherine's plateau",
+    region: "Sinai peninsula", place: "Granite ranges above the Red Sea",
+    description: "The mountain of the Law, rising over 2,200 m out of the southern Sinai massif — the highest ground on the entire journey, by a wide margin. The Law was given here, and broken here, and given again.",
+    context: "The covenant, and the highest point on the road.",
+    books: ["Exodus", "Deuteronomy", "Leviticus", "Hebrews"],
+    climate: { type: "highland-desert", hi: 30, lo: 14 }
   },
   {
     id: "kadesh", arc: "exodus", name: "KADESH BARNEA", tag: "EXODUS TRAIL",
@@ -328,20 +328,6 @@ var SITES = [
     climate: { type: "semi-arid", hi: 32, lo: 19 }
   },
   {
-    id: "jericho", arc: "exodus", name: "JERICHO", tag: "EXODUS TRAIL",
-    coords: [31.8711, 35.4444], elevation: -258, modernCountry: "Palestine",
-    scripture: "Joshua 6:20 · Hebrews 11:30",
-    quote: "So the people shouted when the priests blew with the trumpets… and the wall fell down flat.",
-    quoteRef: "Joshua 6:20",
-    era: "c. 9000 BC – present", empire: "israel",
-    archaeology: "Tell es-Sultan · Elisha's Spring",
-    region: "Jordan rift valley", place: "The lowest city on earth, −258 m",
-    description: "A spring-fed oasis and one of the oldest continuously inhabited places known, sitting 258 m below sea level — the lowest ground on the journey, and the first city taken as Israel came into Canaan.",
-    context: "The gate into the promised land.",
-    books: ["Joshua", "Hebrews", "Luke", "2 Kings"],
-    climate: { type: "desert", hi: 39, lo: 24 }
-  },
-  {
     id: "gilgal", arc: "exodus", name: "GILGAL", tag: "EXODUS TRAIL",
     coords: [31.8500, 35.4800], elevation: -240, modernCountry: "Palestine",
     scripture: "Joshua 4:19-24 · Joshua 5:9 · 1 Samuel 11:14",
@@ -353,6 +339,20 @@ var SITES = [
     description: "The base camp after the crossing, where twelve stones from the riverbed stood as a sign, the manna ceased, and a new generation was marked for the land they had just entered.",
     context: "Where Egypt's reproach was rolled away.",
     books: ["Joshua", "1 Samuel", "Hosea", "Amos", "Judges"],
+    climate: { type: "desert", hi: 39, lo: 24 }
+  },
+  {
+    id: "jericho", arc: "exodus", name: "JERICHO", tag: "EXODUS TRAIL",
+    coords: [31.8711, 35.4444], elevation: -258, modernCountry: "Palestine",
+    scripture: "Joshua 6:20 · Hebrews 11:30",
+    quote: "So the people shouted when the priests blew with the trumpets… and the wall fell down flat.",
+    quoteRef: "Joshua 6:20",
+    era: "c. 9000 BC – present", empire: "israel",
+    archaeology: "Tell es-Sultan · Elisha's Spring",
+    region: "Jordan rift valley", place: "The lowest city on earth, −258 m",
+    description: "A spring-fed oasis and one of the oldest continuously inhabited places known, sitting 258 m below sea level — the lowest ground on the journey, and the first city taken as Israel came into Canaan.",
+    context: "The gate into the promised land.",
+    books: ["Joshua", "Hebrews", "Luke", "2 Kings"],
     climate: { type: "desert", hi: 39, lo: 24 }
   },
 
@@ -775,14 +775,15 @@ var ROUTES = {
       [33.5138, 36.2765], // Damascus
       [32.9000, 35.8000], // down past the Sea of Galilee
       [32.2137, 35.2807], // Shechem
-      [31.9308, 35.2211], // Bethel
-      [32.1833, 35.6167], // Penuel, east of Jordan
+      [31.8500, 35.4000], // Jordan rift south, off the ridge
       [31.5326, 35.0998], // Hebron
       [31.2447, 34.8406], // Beersheba
       [31.4000, 35.0000], // north up the ridge
       [31.7738, 35.2372], // Moriah
-      [32.0500, 35.2300], // the watershed road north
-      [32.2137, 35.2807], // past Shechem
+      [31.9308, 35.2211], // Bethel
+      [32.0000, 35.4200], // east toward the Jabbok
+      [32.1833, 35.6167], // Penuel
+      [32.3000, 35.4000], // back west of the Jordan
       [32.4139, 35.2394]  // Dothan
     ]
   },
@@ -797,16 +798,16 @@ var ROUTES = {
       [30.7986, 31.8333], // Rameses / Goshen
       [30.2000, 32.5500], // Succoth, toward the Bitter Lakes
       [29.5200, 32.8800], // Yam Suph
-      [28.5392, 33.9750], // Mount Sinai
       [28.7200, 33.6200], // Rephidim
+      [28.5392, 33.9750], // Mount Sinai
       [29.6000, 34.2000], // north through the wilderness of Paran
       [30.6725, 34.4269], // Kadesh Barnea
       [29.5500, 34.9500], // Ezion-geber, after the forty years
       [30.3200, 35.4400], // Edom, up the King's Highway
       [30.9000, 35.4500], // the brook Zered
       [31.7683, 35.7256], // Mount Nebo
-      [31.8711, 35.4444], // Jericho
-      [31.8500, 35.4800]  // Gilgal
+      [31.8500, 35.4800], // Gilgal
+      [31.8711, 35.4444]  // Jericho
     ]
   },
   judges: {

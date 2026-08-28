@@ -27,7 +27,7 @@ const Beat = (function(){
   ];
   const questions = [
     {
-      id:"beat-q1", kind:"pick", plate:"question.png", sfx:"sfx-06-wind-shield.mp3", fx:"wind",
+      id:"beat-q1", kind:"pick", plate:"question.png", sfx:null, fx:"wind",
       r:"1 Samuel 17:1-2",
       stem:"The Philistines gathered themselves together at Shochoh, which belongeth to Judah, and pitched ______. And Saul and the men of Israel were gathered together, and pitched ______.",
       choices:[
@@ -39,7 +39,7 @@ const Beat = (function(){
       a:"between Shochoh and Azekah, in Ephes-dammim / in the valley of Elah"
     },
     {
-      id:"beat-q2", kind:"pick", plate:"03.jpeg", sfx:"sfx-06-wind-shield.mp3", fx:"wind",
+      id:"beat-q2", kind:"pick", plate:"03.jpeg", sfx:null, fx:"wind",
       r:"1 Samuel 17:5-7",
       stem:"Goliath's spear's head weighed:",
       choices:[
@@ -63,7 +63,7 @@ const Beat = (function(){
       a:"the captain of their thousand"
     },
     {
-      id:"beat-q4", kind:"order", plate:"06.jpeg", sfx:"sfx-10-thud.mp3", fx:"run",
+      id:"beat-q4", kind:"order", plate:"06.jpeg", sfx:"sfx-06-wind-shield.mp3", fx:"wind",
       r:"1 Samuel 17:20-22",
       stem:"Put David's morning in verse order.",
       order:[
@@ -81,7 +81,7 @@ const Beat = (function(){
       bank:["those few sheep in the wilderness","that thou mightest see the battle","Saul","Abner","Goliath","to see the battle"]
     },
     {
-      id:"beat-q6", kind:"pick", plate:"08.jpeg", sfx:"sfx-07-breath.mp3", fx:"breath",
+      id:"beat-q6", kind:"pick", plate:"08.jpeg", sfx:null, fx:"run",
       r:"1 Samuel 17:37",
       stem:"The LORD that delivered me out of the paw of the lion, and out of the paw of the bear, he will deliver me ______.",
       choices:[
@@ -106,14 +106,14 @@ const Beat = (function(){
       ]
     },
     {
-      id:"beat-q8", kind:"pick", plate:"12.jpeg", sfx:"sfx-05-crowd.mp3", fx:"run",
+      id:"beat-q8", kind:"pick", plate:"12.jpeg", sfx:null, fx:"run",
       r:"1 Samuel 17:43",
       stem:"Am I a dog, that thou comest to me with staves?",
       choices:["Eliab","Saul","Goliath","Abner"],
       a:"Goliath"
     },
     {
-      id:"beat-q9", kind:"pick", plate:"13.jpeg", sfx:"sfx-07-breath.mp3", fx:"breath",
+      id:"beat-q9", kind:"pick", plate:"13.jpeg", sfx:null, fx:"breath",
       r:"1 Samuel 17:45",
       stem:"Thou comest to me with a sword, and with a spear, and with a shield: but I come to thee in the name of ______.",
       choices:[
@@ -125,7 +125,7 @@ const Beat = (function(){
       a:NAME
     },
     {
-      id:"beat-q10", kind:"pick", plate:"14.jpeg", sfx:"sfx-10-thud.mp3", fx:"run",
+      id:"beat-q10", kind:"pick", plate:"14.jpeg", sfx:null, fx:"run",
       r:"1 Samuel 17:46",
       stem:"Why doth David say this fight is happening?",
       choices:[
@@ -137,7 +137,7 @@ const Beat = (function(){
       a:"that all the earth may know that there is a God in Israel"
     },
     {
-      id:"beat-q11", kind:"pick", plate:"15.jpeg", sfx:"sfx-10-thud.mp3", fx:"run",
+      id:"beat-q11", kind:"pick", plate:"15.jpeg", sfx:null, fx:"run",
       r:"1 Samuel 17:50-51",
       stem:"After the stone hits, what is true?",
       choices:[
@@ -149,7 +149,7 @@ const Beat = (function(){
       a:"David ran, and stood upon the Philistine, and took his sword, and drew it out of the sheath thereof, and slew him, and cut off his head therewith"
     },
     {
-      id:"beat-q12", kind:"match", plate:"11.jpeg", sfx:"sfx-05-crowd.mp3", fx:"wind",
+      id:"beat-q12", kind:"match", plate:"11.jpeg", sfx:null, fx:"wind",
       r:"1 Samuel 17:54",
       stem:"Match both destinations.",
       rows:[

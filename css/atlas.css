@@ -265,33 +265,31 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
   box-shadow: 0 0 12px rgba(217,182,103,.8); transition: width .8s cubic-bezier(.16,.84,.28,1); }
 .atlas-progress .count { font-family: var(--ui); font-size: .62rem; letter-spacing: .2em; color: var(--parch-dim); }
 
-/* ---------------------------------------------------------------- rail */
-
 .atlas-rail {
-  position: absolute; top: 0; bottom: 0; left: 0; width: min(310px, 78vw); z-index: 480;
+  position: absolute; top: 0; bottom: 0; left: 0; width: min(340px, 82vw); z-index: 480;
   display: flex; flex-direction: column;
   background: linear-gradient(96deg, rgba(4,5,10,.95), rgba(6,7,11,.82) 70%, transparent);
-  padding: calc(var(--safe-t) + 46px) 12px 12px;
+  padding: calc(var(--safe-t) + 46px) 16px 16px;
   transition: transform .55s cubic-bezier(.16,.84,.28,1), opacity .4s ease;
 }
 .atlas-rail.hidden { transform: translateX(-102%); opacity: 0; pointer-events: none; }
-.atlas-rail .rail-scroll { flex: 1; overflow-y: auto; padding-right: 4px; }
+.atlas-rail .rail-scroll { flex: 1; overflow-y: auto; padding-right: 8px; }
 
 .arc-head {
-  font-family: var(--disp); font-size: .68rem; letter-spacing: .3em; text-transform: uppercase;
-  color: var(--gold); margin: 1.4em 0 .5em; display: flex; align-items: baseline; gap: .6em;
+  font-family: var(--disp); font-size: .72rem; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--gold); margin: 1.4em 0 .5em; display: flex; align-items: baseline; flex-wrap: wrap; gap: .45em .6em;
 }
 .arc-head:first-child { margin-top: 0; }
 .arc-head span { font-family: var(--ui); font-size: .68rem; letter-spacing: .16em; color: var(--parch-dim); }
 .arc-head.done { color: var(--green); }
 .arc-head.flawless { color: var(--gold-hot); text-shadow: 0 0 16px rgba(217,182,103,.6); }
 
-/* "Walk it" — the optional one-run relay through a whole arc. */
 .arc-relay {
-  margin-left: auto; font-family: var(--ui); font-size: .64rem; letter-spacing: .18em;
+  margin-left: 0; font-family: var(--ui); font-size: .64rem; letter-spacing: .14em;
   text-transform: uppercase; color: var(--gold-hot); cursor: pointer;
   border: 1px solid var(--edge); padding: .45em .85em; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
   background: rgba(6,7,11,.6); transition: .2s ease;
+  flex: 1 1 100%;
 }
 .arc-relay:hover { color: var(--gold-hot); border-color: var(--gold); background: rgba(217,182,103,.14); }
 
@@ -303,8 +301,8 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
 .rail-site:hover { background: rgba(217,182,103,.08); }
 .rail-site.active { background: rgba(217,182,103,.14); border-left-color: var(--gold); }
 .rail-site .ord { font-family: var(--ui); font-size: .68rem; letter-spacing: .1em; color: var(--gold-dim); min-width: 1.6em; }
-.rail-site .nm { font-family: var(--ui); font-size: .74rem; letter-spacing: .13em; text-transform: uppercase;
-  color: var(--parch); flex: 1; }
+.rail-site .nm { font-family: var(--ui); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--parch); flex: 1; line-height: 1.25; }
 .rail-site .mk { font-size: .64rem; color: var(--gold); }
 .rail-site.locked .nm { color: #8f8975; }
 .rail-site.locked .ord { color: #b4aa98; }

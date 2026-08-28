@@ -17,8 +17,9 @@ function endRunSurvivalBonus(trialWon, isPilgrim, siteCleared){
   return Math.round(R.correct * 60 * R.diff.score);
 }
 
-function endRunGrantSeals(total, trialWon){
-  if(!hasSeal("first")) grantSeal("first");
+function endRunGrantSeals(total, trialWon, finished){
+  if(R.mode==="team") return;
+  if(finished && !hasSeal("first")) grantSeal("first");
   if(total>=25000) grantSeal("score25");
   if(total>=50000) grantSeal("score50");
   if(trialWon) grantSeal("sd15");
@@ -114,6 +115,7 @@ function keepBestGhost(slot, record, score){
   return slot;
 }
 function endRunGhosts(isPilgrim, total, survivedMs){
+  if(R.mode==="team") return;
   if(!(R.ghostSamples && R.ghostSamples.length)) return;
   const key = R.mode==="blitz" ? "blitz" : (isPilgrim ? "pilgrimage" : R.mode==="trial" ? "trial" : null);
   if(!key) return;
@@ -174,6 +176,7 @@ function upsertRaceGhost(isPilgrim, siteCleared, total, survivedMs){
     campaign: R.mode === "trial" });
 }
 function endRunCloudSubmit(dailyRecorded, isPilgrim, siteCleared, total, acc, survivedMs){
+  if(R.mode==="team") return;
   if(!(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn())) return;
   if(dailyRecorded){
     trackBoardSubmit(Cloud.submitDailyScore({
@@ -218,6 +221,7 @@ function endRunScore(reason, ctx){
 }
 
 function persistRunRecords(reason, ctx, total){
+  if(R.mode==="team") return { road: null, isRecord: false, prevBest: 0, dailyRecorded: false };
   if(R.mode==="beat"){
     SAVE.runs++;
     if(reason==="complete" && typeof Beat!=="undefined" && Beat.held(R)) SAVE.life.beatGoliathHeld = true;
@@ -247,6 +251,11 @@ function persistRunRecords(reason, ctx, total){
   return { road: road, isRecord: isRecord, prevBest: prevBest, dailyRecorded: dailyRecorded };
 }
 function applyQuickRewardBank(quickRewardResult, total, finished){
+  if(R.mode==="team"){
+    R.quickResult = quickRewardResult;
+    const info = levelInfo(SAVE.xp);
+    return { beforeLvl: info.level, xpGain: 0, afterInfo: info };
+  }
   R.quickResult = quickRewardResult;
   const beforeLvl = levelInfo(SAVE.xp).level;
   const xpGain = Math.round(total/12 + R.correct*14 + (finished?300:0) + quickRewardResult.xp);
@@ -265,6 +274,13 @@ function applyQuickRewardBank(quickRewardResult, total, finished){
   return { beforeLvl: beforeLvl, xpGain: xpGain, afterInfo: levelInfo(SAVE.xp) };
 }
 function endRunPersistXp(reason, ctx, total){
+  refundUnusedIlluminate();
+  if(R.mode==="team"){
+    const info = levelInfo(SAVE.xp);
+    return { road:null, isRecord:false, prevBest:0, dailyRecorded:false,
+      quickRewardResult:{goals:[],completed:[],paid:[],xp:0,oil:0,illuminate:0,settled:false},
+      xpGain:0, beforeLvl:info.level, afterInfo:info };
+  }
   const rec = persistRunRecords(reason, ctx, total);
   const quickRewardResult = (typeof QuickRewards !== "undefined" && QuickRewards.resolve)
     ? QuickRewards.resolve(R.quickRewards || [], R, reason)
@@ -289,14 +305,14 @@ function endRun(reason){
   clearSequence();
   hideSiteQuote();
   if(typeof stopFriendRacePolling === "function") stopFriendRacePolling();
-  document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7","retreat");
+  document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7","retreat","mode-team","team-white","team-blue");
   R.setpiece=null;
   const ctx = endRunContext(reason);
   if(reason==="death" || reason==="abandon"){ Snd.death(); Backdrop.hit("death"); }
   else { Snd.victory(); Backdrop.hit("levelup"); }
   const scored = endRunScore(reason, ctx);
   ctx.acc = scored.acc;
-  endRunGrantSeals(scored.total, ctx.trialWon);
+  endRunGrantSeals(scored.total, ctx.trialWon, ctx.finished);
   const saved = endRunPersistXp(reason, ctx, scored.total);
   const survivedMs = Math.max(0, Date.now() - (R.startedAt||Date.now()));
   endRunGhosts(ctx.isPilgrim, scored.total, survivedMs);
@@ -314,6 +330,12 @@ function endRun(reason){
 
 function resultsKickText(o){
   if(o.reason==="abandon") return "The run was abandoned";
+  if(R.mode==="team"){
+    const w = typeof teamWinner==="function" ? teamWinner() : "draw";
+    if(o.reason!=="complete") return "The match was called off";
+    if(w==="draw") return "The match is drawn";
+    return (w==="white"?"White":"Blue")+" takes the match";
+  }
   if(o.reason==="complete" && R.mode==="trial" && R.actIdx>=5) return "The Remnant is complete";
   if(o.reason==="complete" && R.mode==="trial") return "The Final Test is complete";
   if(o.reason==="complete" && R.mode==="daily") return "The daily reading is finished";
@@ -328,6 +350,13 @@ function resultsKickText(o){
 
 function resultsBreakdownHtml(o){
   function row(a,b){ return '<div class="brow"><span>'+esc(a)+'</span><b>'+esc(b)+'</b></div>'; }
+  if(R.mode==="team" && R.teams){
+    const w = R.teams.white, b = R.teams.blue;
+    const win = typeof teamWinner==="function" ? teamWinner() : "draw";
+    return '<div class="brow team-row white'+(win==="white"?" win":"")+'"><span>White Team</span><b>'+esc((w.kept||0)+"/5 · "+((w.ms||0)/1000).toFixed(1)+"s")+'</b></div>'+
+      '<div class="brow team-row blue'+(win==="blue"?" win":"")+'"><span>Blue Team</span><b>'+esc((b.kept||0)+"/5 · "+((b.ms||0)/1000).toFixed(1)+"s")+'</b></div>'+
+      row("Result", win==="draw" ? "Draw" : (win==="white"?"White":"Blue")+" by keeps, then time");
+  }
   const actLabel = R.mode==="trial" ? "Acts survived" : R.mode==="endless" ? "Distance"
     : R.mode==="relay" ? "Sites walked" : "Verses answered";
   return row("Verses kept", fmt(o.baseScore)) +
@@ -409,6 +438,10 @@ function renderResultsMissed(){
 }
 
 function renderResultsBestLine(o){
+  if(R.mode==="team"){
+    $("res-best").textContent = "Keeps first. Faster total answer time breaks a tie.";
+    return;
+  }
   let best = "";
   if(R.mode==="blitz"){
     if(o.isRecord) best = "New "+MODES[R.mode].name+" record — previous "+fmt(o.prevBest)+" verses";
@@ -424,6 +457,7 @@ function renderResultsBestLine(o){
 function renderResultsHabit(){
   const habitEl = $("res-habit-streak");
   if(!habitEl) return;
+  if(R.mode==="team"){ habitEl.style.display = "none"; return; }
   const hCount = (SAVE.habit && SAVE.habit.count) || 0;
   let lampsHtml = "";
   for(let l = 1; l <= 7; l++){
@@ -494,9 +528,14 @@ function renderResultsRoadChrome(o){
 
 function renderResultsRetryReview(o){
   const retryBtn = $("res-retry");
-  if(retryBtn && R.mode==="beat"){
+  if(retryBtn && (R.mode==="beat" || R.mode==="team")){
     retryBtn.style.display = "";
-    retryBtn.onclick = function(){ Snd.unlock(); Snd.ui(); startRun("beat", R.diff.key); };
+    retryBtn.textContent = R.mode==="team" ? "Play again" : retryBtn.textContent;
+    retryBtn.onclick = function(){
+      Snd.unlock(); Snd.ui();
+      if(R.mode==="team") openBrief("team");
+      else startRun("beat", R.diff.key);
+    };
     const reviewMissedBtn = $("res-review-missed");
     if(reviewMissedBtn) reviewMissedBtn.style.display = "none";
     return;
@@ -527,16 +566,29 @@ function renderResults(o){
     ? ((typeof Beat!=="undefined" && Beat.held(R)) ? "Held" : "Scarred")
     : resultsKickText(o);
   document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
-  $("res-rank").textContent = runTitle(o.total);
-  $("res-score").textContent = "0";
+  const resView = $("v-results");
+  if(resView){
+    resView.classList.remove("team-win-white","team-win-blue","team-win-draw");
+    if(R.mode==="team"){
+      const w = typeof teamWinner==="function" ? teamWinner() : "draw";
+      resView.classList.add(w==="draw" ? "team-win-draw" : "team-win-"+w);
+    }
+  }
+  $("res-rank").textContent = R.mode==="team" ? "Party match · not recorded" : runTitle(o.total);
+  $("res-score").textContent = R.mode==="team" && R.teams
+    ? (R.teams.white.kept||0)+"–"+(R.teams.blue.kept||0)
+    : "0";
   dailyPlacement = null;
   $("res-breakdown").innerHTML = resultsBreakdownHtml(o);
   renderResultsSchedule();
   renderResultsStats(o);
-  $("xp-lvl").textContent = "Level "+o.afterInfo.level+" · "+rankFor(o.afterInfo.level);
-  $("xp-gain").textContent = "+"+fmt(o.xpGain)+" XP";
+  const xpbar = $("xp-lvl") && $("xp-lvl").closest ? $("xp-lvl").closest(".xpbar") : null;
+  if(xpbar) xpbar.style.display = R.mode==="team" ? "none" : "";
+  if($("xp-lvl")) $("xp-lvl").textContent = "Level "+o.afterInfo.level+" · "+rankFor(o.afterInfo.level);
+  if($("xp-gain")) $("xp-gain").textContent = R.mode==="team" ? "Not recorded" : "+"+fmt(o.xpGain)+" XP";
   $("xp-fill").style.width = "0%";
   renderResultsQuick(o);
+  if($("res-quick")) $("res-quick").style.display = R.mode==="team" ? "none" : "";
   const seals = pendingSeals.slice();
   pendingSeals = [];
   $("res-seals").innerHTML = "";
@@ -636,7 +688,13 @@ function playResultsSequence(o, seals, autoUnlock){
   afterResults(t, function(){ Director.ending(o); });
   t += quiet ? 240 : 2200;
 
-  afterResults(t, function(){ countUpScore(o.total); });
+  afterResults(t, function(){
+    if(R.mode==="team" && R.teams){
+      $("res-score").textContent = (R.teams.white.kept||0)+"–"+(R.teams.blue.kept||0);
+      return;
+    }
+    countUpScore(o.total);
+  });
   t += quiet ? 400 : 1400;
 
   /* The placement reveal rides right behind the count-up: the number
@@ -798,4 +856,8 @@ function fillResultsInsights(v){
       : '')+
     (cross.length ? '<div class="insight-cross">Also see: '+cross.map(esc).join(", ")+'</div>' : '');
 }
-$("res-again").addEventListener("click", ()=>{ Snd.ui(); startRun(R.mode, R.diff.key); });
+$("res-again").addEventListener("click", ()=>{
+  Snd.ui();
+  if(R.mode==="team"){ openBrief("team"); return; }
+  startRun(R.mode, R.diff.key);
+});

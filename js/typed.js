@@ -132,14 +132,14 @@ function renderAssembleBoardState(){
 }
 
 function assembleDefaultHint(){
-  return isFadeAssembly()
-    ? "Drag, tap or press Enter every word into order"
-    : "Drag, tap or press Enter the words into order";
+  if(isFadeAssembly()) return "Drag, tap or press Enter every word into order";
+  if(R.lastBeat && R.q && typeof Recall !== "undefined"){
+    const target = (typeof assemblyTargetFor === "function") ? assemblyTargetFor(R.q) : R.q.a;
+    return Recall.hint(target, 3) + " — place the rest in order";
+  }
+  return "Drag, tap or press Enter the words into order";
 }
 
-/* FLIP helpers: measure where each card sits, let the rebuild move it,
-   then glide it from its old position to its new one. Web Animations API
-   keeps this pure presentation — no state, no timers to clean up. */
 function captureBoardRects(){
   const map = {};
   if(document.body.classList.contains("reduced")) return map;
@@ -472,7 +472,10 @@ function renderTypedQuestion(q, dur, scene){
   bindAssembleBoard();
   renderAssembleBank();
   const hintEl = $("typed-hint");
-  if(hintEl && typeof assembleDefaultHint === "function") hintEl.textContent = assembleDefaultHint();
+  if(hintEl && typeof assembleDefaultHint === "function"){
+    hintEl.textContent = assembleDefaultHint();
+    if(R.lastBeat) hintEl.classList.add("on");
+  }
   const input = $("typed-answer");
   if(input){
     input.addEventListener("keydown", e=>{

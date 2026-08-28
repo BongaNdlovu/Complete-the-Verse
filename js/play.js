@@ -34,14 +34,14 @@ const WALL_PICK_MS = 30000;
 const WALL_TYPED_MS = 45000;
 const WALL_FADE_MS = 60000;
 const ROAD_QUESTION_BEDS = [
-  "indigo","heroes","pointOfImpact","primarySuspect",
+  "heroes","pointOfImpact","primarySuspect",
   "theTrace","theUncovering","awakeningMachine","machineAwakening"
 ];
 const SITE_AMBIENT = {
-  ur:"assets/journey/ur.mp4", haran:"assets/journey/ur.mp4",
-  shechem:"assets/journey/shechem.mp4", bethel:"assets/journey/shechem.mp4",
-  penuel:"assets/journey/shechem.mp4", hebron:"assets/journey/shechem.mp4",
-  beersheba:"assets/journey/shechem.mp4",
+  ur:"assets/journey/ur.mp4", haran:"assets/journey/haran.mp4",
+  shechem:"assets/journey/shechem.mp4", bethel:"assets/journey/bethel.mp4",
+  penuel:"assets/journey/penuel.mp4", hebron:"assets/journey/hebron.mp4",
+  beersheba:"assets/journey/beersheba.mp4",
   moriah:"assets/journey/moriah.mp4", dothan:"assets/journey/dothan.mp4",
   midian:"assets/journey/midian.mp4",
   "yam-suph":"assets/journey/yam-suph.mp4",
@@ -50,7 +50,7 @@ const SITE_AMBIENT = {
 
 function usesWallClock(){
   return R.mode==="pilgrimage" || R.mode==="pilgrim-recall" || R.mode==="relay"
-    || R.mode==="daily" || R.mode==="practice" || R.mode==="recall" || R.mode==="tutorial";
+    || R.mode==="daily" || R.mode==="practice" || R.mode==="recall" || R.mode==="team" || R.mode==="tutorial";
 }
 
 function answerHoldMs(){
@@ -262,7 +262,8 @@ function runPhaseLimits(){
   if(R.mode==="beat" && R.beatQ >= Beat.questions.length && !R.beatPlates) return { kind:"complete" };
   if(R.mode==="daily" && R.daily && R.dailyIdx >= R.daily.list.length) return { kind:"complete" };
   if(R.mode==="blitz" && R.blitzEnd && performance.now() >= R.blitzEnd) return { kind:"death" };
-  if((R.mode==="practice" || R.mode==="recall") && R.qTotal >= R.practiceLen) return { kind:"complete" };
+  if((R.mode==="practice" || R.mode==="recall" || R.mode==="team") && R.qTotal >= R.practiceLen) return { kind:"complete" };
+  if(R.mode==="team" && !R.teamHanded && R.qTotal >= 5) return { kind:"handoff" };
   return null;
 }
 function runPhaseSite(){
@@ -291,6 +292,7 @@ function applyRunPhase(phase){
   if(phase.kind==="ended") return true;
   grantUnshakenIfCleanAct(phase);
   if(phase.kind==="act"){ beginAct(R.actIdx+1); return true; }
+  if(phase.kind==="handoff"){ beginTeamHandoff(); return true; }
   if(phase.kind==="complete"){ endRun("complete"); return true; }
   if(phase.kind==="death"){ endRun("death"); return true; }
   if(phase.kind==="setpiece") return !!(SetPieces.maybeLaunch && SetPieces.maybeLaunch());
@@ -300,8 +302,45 @@ function applyRunPhase(phase){
   return false;
 }
 
+function beginTeamHandoff(){
+  const next = R.teamSide==="blue" ? "white" : "blue";
+  const label = next==="blue" ? "Blue" : "White";
+  R.teamSide = next;
+  R.teamHanded = true;
+  document.body.classList.toggle("team-white", next==="white");
+  document.body.classList.toggle("team-blue", next==="blue");
+  if(typeof paintHud==="function") paintHud(label+" Team", "Verse", "0 / 5");
+  showState("team-handoff", {
+    onPrimary: function(){ hideState(); nextQuestion(); }
+  });
+  const kick = $("state-kick"), title = $("state-title"), body = $("state-body"), pri = $("state-primary");
+  if(kick) kick.textContent = (next==="blue"?"White":"Blue")+"'s five are in";
+  if(title) title.textContent = "Pass the device";
+  if(body) body.textContent = "Hand it to "+label+". They answer five different verses next. Tap when they are looking at the screen.";
+  if(pri) pri.textContent = label+" is ready";
+  if(typeof renderLives==="function") renderLives();
+}
+function teamClockUsed(elapsed){
+  const ms = Number.isFinite(elapsed) ? elapsed : (performance.now() - (R.qStart || 0));
+  return Math.min(Math.max(0, ms), (R.tTotal || ms) + 500);
+}
+function teamTally(ok, elapsed){
+  if(R.mode!=="team" || !R.teams) return;
+  const t = R.teams[R.teamSide || "white"];
+  if(!t) return;
+  if(ok) t.kept++;
+  t.ms += teamClockUsed(elapsed);
+}
+function teamWinner(){
+  if(!R.teams) return "draw";
+  const w = R.teams.white, b = R.teams.blue;
+  if(w.kept !== b.kept) return w.kept > b.kept ? "white" : "blue";
+  if(w.ms !== b.ms) return w.ms < b.ms ? "white" : "blue";
+  return "draw";
+}
 function applyPilgrimageTypedMode(){
   const vi = R.siteIdx - 1;
+  R.lastBeat = false;
   if(R.mode==="pilgrim-recall"){ R.typed = true; R.speed = false; return; }
   if(R.mode!=="pilgrimage") return;
   const n = R.siteVerses ? R.siteVerses.length : 0;
@@ -310,6 +349,7 @@ function applyPilgrimageTypedMode(){
   const mixed = arcKey ? Pilgrimage.mixedTypedSlot(vi, n, arcKey) : false;
   const pass = (typeof Pilgrimage !== "undefined" && Pilgrimage.spiralPass) ? Pilgrimage.spiralPass(SAVE.pilgrim) : 1;
   const isLastBeat = (n > 0 && vi === n - 1);
+  R.lastBeat = isLastBeat;
   if(pass >= 3) R.typed = true;
   else if(pass === 2) R.typed = isLastBeat || vi === 3 || vi === 4;
   else R.typed = (n > 0 && vi >= (n - typedN)) || mixed || isLastBeat;
@@ -340,7 +380,7 @@ function drawNextQuestionVerse(){
     return v;
   }
   if(R.mode==="relay") return drawRelayVerse();
-  if(R.mode==="practice" || R.mode==="recall") return drawReviewVerse();
+  if(R.mode==="practice" || R.mode==="recall" || R.mode==="team") return drawReviewVerse();
   return R.mode==="endless"&&!R.setpiece ? drawEndlessVerse(currentTier()) : SetPieces.draw(currentTier());
 }
 
@@ -353,7 +393,9 @@ function beatSky(file){
 }
 function beatFx(name){
   document.body.classList.remove("beat-fx-wind","beat-fx-breath","beat-fx-run");
-  if(name) document.body.classList.add("beat-fx-" + name);
+  if(!name) return;
+  if(document.body.classList.contains("beat-cinema") && name === "run") return;
+  document.body.classList.add("beat-fx-" + name);
 }
 function beatCaption(text){
   const el = $("voice-caption");
@@ -388,6 +430,7 @@ function playBeatCinema(plates){
 function beatAdvancePlate(){
   if(R.mode!=="beat" || !R.beatPlates) return;
   if(typeof Snd!=="undefined" && Snd.stopVoice) Snd.stopVoice();
+  R.beatShot = (R.beatShot||0) + 1;
   R.beatPlateIdx++;
   if(R.beatPlateIdx >= R.beatPlates.length){
     R.beatPlates = null;
@@ -398,40 +441,54 @@ function beatAdvancePlate(){
   }
   showBeatPlate(R.beatPlates[R.beatPlateIdx]);
 }
+function beatSting(fx){
+  const stage = $("v-play");
+  if(!stage) return;
+  stage.classList.remove("beat-flash", "beat-shake");
+  void stage.offsetWidth;
+  stage.classList.add("beat-flash");
+  if(fx === "run") stage.classList.add("beat-shake");
+}
 function showBeatPlate(plate){
   beatSky(plate.still);
-  beatFx(plate.fx);
-  beatCaption(plate.line);
-  $("verse").textContent = plate.line || "";
+  beatCaption("");
+  $("verse").textContent = "";
   $("ref").textContent = "";
   $("opts").innerHTML = "";
   const how = $("warn-how");
-  if(how) how.textContent = "Tap to continue";
+  if(how) how.textContent = "";
   const confirm = $("confirm-answer");
   if(confirm) confirm.style.display = "none";
-  beatPlayPlateAudio(plate);
+  const vid = $("cine-parallax-video");
+  if(vid){ vid.style.display = "none"; if(!vid.paused) try{ vid.pause(); }catch(e){} }
+  beatFx(plate.fx);
+  beatSting(plate.fx);
+  const shot = R.beatShot;
+  afterRun(480, function(){
+    if(R.beatShot !== shot) return;
+    beatPlayPlateAudio(plate);
+  });
 }
-function beatPlayPlateAudio(plate){
-  const then = function(){ beatAdvancePlate(); };
-  if(plate.sfxFirst && plate.sfx){
-    if(typeof Snd!=="undefined" && Snd.playFile){
-      Snd.playFile(Beat.url(plate.sfx), function(){
-        if(plate.vo && Snd.playVoice) Snd.playVoice(Beat.url(plate.vo), 8000, then, then);
-        else then();
-      });
-      return;
-    }
-  }
-  if(plate.sfx && typeof Snd!=="undefined" && Snd.playFile) Snd.playFile(Beat.url(plate.sfx));
+function beatSpeakPlate(plate, then){
+  beatCaption(plate.line);
   if(plate.vo && typeof Snd!=="undefined" && Snd.playVoice){
     Snd.playVoice(Beat.url(plate.vo), 8000, then, then);
     return;
   }
-  if(plate.sfx && typeof Snd!=="undefined" && Snd.playFile){
-    Snd.playFile(Beat.url(plate.sfx), then);
+  afterRun(plate.sfx ? 1600 : 1400, then);
+}
+function beatPlayPlateAudio(plate){
+  const shot = R.beatShot;
+  const then = function(){
+    if(R.beatShot !== shot) return;
+    beatAdvancePlate();
+  };
+  if(plate.sfxFirst && plate.sfx && typeof Snd!=="undefined" && Snd.playFile){
+    Snd.playFile(Beat.url(plate.sfx), function(){ beatSpeakPlate(plate, then); });
     return;
   }
-  afterRun(1400, then);
+  if(plate.sfx && typeof Snd!=="undefined" && Snd.playFile) Snd.playFile(Beat.url(plate.sfx));
+  afterRun(plate.sfx ? 640 : 360, function(){ beatSpeakPlate(plate, then); });
 }
 function nextBeatQuestion(){
   R.qUsedPower = false;
@@ -618,9 +675,104 @@ function nextQuestion(){
   R.fadeAssembly = null;
   const dur = SetPieces.duration(questionDuration());
   updateChips();
+  if(maybePlayUrPrologue(v, dur)) return;
+  if(maybePlayTeamPrologue(v, dur)) return;
   if(maybePlaySiteQuote(v, dur)) return;
   witnessLook(false);
   renderQuestion(v, dur);
+}
+
+let urPrologueResume = null;
+function markUrPrologueDone(){
+  if(!SAVE.set || SAVE.set.urPrologueDone) return;
+  SAVE.set.urPrologueDone = true;
+  persist();
+}
+function urPrologueAllowed(){
+  const v = $("ur-prologue-video");
+  if(!v || typeof v.play !== "function") return false;
+  if(document.body.classList.contains("reduced")) return false;
+  if(SAVE.set && SAVE.set.reduced) return false;
+  if((SAVE.set.quality || "high") === "low") return false;
+  if(typeof navigator !== "undefined" && navigator.connection && navigator.connection.saveData) return false;
+  return true;
+}
+function hideUrPrologue(resume){
+  const wrap = $("ur-prologue");
+  const vid = $("ur-prologue-video");
+  if(wrap) wrap.classList.remove("on");
+  if(vid){
+    try{ vid.pause(); }catch(e){}
+    vid.onended = null;
+  }
+  if(typeof Snd !== "undefined" && Snd.duckMusic) Snd.duckMusic(1, 1);
+  const fn = urPrologueResume;
+  urPrologueResume = null;
+  if(resume && fn) fn();
+}
+function playStageFilm(src, done){
+  const wrap = $("ur-prologue");
+  const vid = $("ur-prologue-video");
+  const skip = $("ur-prologue-skip");
+  if(!wrap || !vid){ if(done) done(); return; }
+  urPrologueResume = done;
+  wrap.classList.add("on");
+  if(typeof Snd !== "undefined" && Snd.duckMusic) Snd.duckMusic(0, 20000);
+  vid.onended = function(){ hideUrPrologue(true); };
+  if(skip) skip.onclick = function(){ hideUrPrologue(true); };
+  if(src){
+    vid.src = src;
+    try{ vid.load(); }catch(e){}
+  }
+  try{ vid.currentTime = 0; }catch(e){}
+  const p = vid.play();
+  if(p && p.catch) p.catch(function(){ hideUrPrologue(true); });
+}
+function playUrPrologue(done){
+  markUrPrologueDone();
+  playStageFilm("assets/ur-prologue.mp4", done);
+}
+function maybePlayUrPrologue(v, dur){
+  if(R.mode !== "pilgrimage" || R.siteId !== "ur" || R.siteIdx !== 1) return false;
+  if(SAVE.set && SAVE.set.urPrologueDone) return false;
+  if(typeof Pilgrimage !== "undefined" && Pilgrimage.clearedCount(SAVE.pilgrim) > 0){
+    markUrPrologueDone();
+    return false;
+  }
+  if(!urPrologueAllowed()){
+    markUrPrologueDone();
+    return false;
+  }
+  R.quoteShown = true;
+  renderQuestion(v, dur);
+  stopTimer();
+  const armed = R.tTotal || dur;
+  playUrPrologue(function(){
+    if(R.q === v && currentView === "play" && !R.ended){
+      witnessLook(false);
+      startTimer(armed);
+    }
+  });
+  return true;
+}
+
+function maybePlayTeamPrologue(v, dur){
+  if(R.mode !== "team" || R.qTotal !== 1 || R.teamFilmShown) return false;
+  R.teamFilmShown = true;
+  if(!urPrologueAllowed()) return false;
+  R.holdQuestionMusic = true;
+  renderQuestion(v, dur);
+  stopTimer();
+  const armed = R.tTotal || dur;
+  playStageFilm("assets/team-prologue.mp4", function(){
+    R.holdQuestionMusic = false;
+    if(R.q === v && currentView === "play" && !R.ended){
+      if(typeof cueQuestionMusic === "function") cueQuestionMusic();
+      witnessLook(false);
+      startTimer(armed);
+    }
+  });
+  return true;
 }
 
 function maybePlaySiteQuote(v, dur){
@@ -628,23 +780,15 @@ function maybePlaySiteQuote(v, dur){
   if(R.siteIdx!==1 || R.quoteShown) return false;
   const site = Pilgrimage.site(R.siteId);
   if(!site || !site.quote) return false;
-  R.quoteShown = true;
+    R.quoteShown = true;
   if(document.body.classList.contains("reduced")) return false;
   if(typeof showSiteQuote === "function"){
-    // Render before the optional cold-open so the play view can never
-    // remain an empty shell if the cold-open is interrupted or hidden.
-    // The completed render arms its mechanic-specific duration; stop it
-    // while the overlay owns focus, then start that exact duration once
-    // the quote clears.
-    R.quoteMusicHold = true;
     renderQuestion(v, dur);
-    R.quoteMusicHold = false;
     const armedDuration = R.tTotal || dur;
     stopTimer();
     showSiteQuote(site, function(){
       if(R.q===v && currentView==="play" && !R.ended){
         witnessLook(false);
-        cueQuestionMusic();
         startTimer(armedDuration);
       }
     });
@@ -776,7 +920,7 @@ function syncCinematicBackdrop(){
   const vig = (typeof Pilgrimage !== "undefined" && Pilgrimage.vignette) ? Pilgrimage.vignette(siteId) : null;
   const imgUrl = vig ? (vig.image || vig.fallback) : "";
   el.style.backgroundImage = imgUrl ? 'url("' + imgUrl + '")' : "none";
-  const rainSites = {ur:true, haran:true};
+  const rainSites = {ur:true};
   const ambientVideo = SITE_AMBIENT[siteId] || "";
   const allowVideo = !!ambientVideo && (typeof currentView !== "undefined" && currentView === "play");
   if(!vid) return;
@@ -825,7 +969,7 @@ function reactAbraham(ok){
   el.classList.add(ok ? "success" : "failure");
   el._reactionTimer = setTimeout(function(){
     el.classList.remove("success", "failure");
-  }, ok ? 760 : 520);
+  }, ok ? 1100 : 820);
 }
 
 /* Timers owned by a special question must die with that question. */
@@ -896,7 +1040,7 @@ function fadeClockMs(){
 function wallClockMs(){
   if(isFadeClock()) return fadeClockMs();
   if(R.mode === "tutorial") return (R.q && R.q.typed) ? WALL_TYPED_MS : WALL_PICK_MS;
-  if(R.mode === "practice") return WALL_PICK_MS;
+  if(R.mode === "practice" || R.mode === "team") return WALL_PICK_MS;
   if(R.mode === "recall" || R.mode === "pilgrim-recall") return WALL_TYPED_MS;
   if(R.typed || (R.q && R.q.typed)) return WALL_TYPED_MS;
   if(R.q && (R.mode === "pilgrimage" || R.mode === "relay") &&
@@ -1314,9 +1458,10 @@ function applyMiss(opts){
   R.overdriveRide = false;
   document.body.classList.remove("ember-ride");
   spillOil(R.streak || 0);
+  teamTally(false);
   reactAbraham(false);
   R.streak = 0; setMult();
-  if(opts.verse) R.missed.push(opts.verse);
+  R.missed.push(opts.verse || R.q || {p:"miss"});
   if(opts.blitzClock && R.mode==="blitz" && typeof Polish!=="undefined"){
     const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
     R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, false);
@@ -1351,6 +1496,7 @@ function applyCorrect(opts){
   R.score += gained;
   payCorrect(opts.graded || null);
   if(opts.afterPay) opts.afterPay();
+  teamTally(true, opts.elapsed);
   if(opts.blitzClock && R.mode==="blitz" && typeof Polish!=="undefined"){
     const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
     R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, true);
@@ -1362,7 +1508,7 @@ function applyCorrect(opts){
   return false;
 }
 function maybeOfferOverdrive(){
-  if(R.mode==="beat") return false;
+  if(R.mode==="beat" || R.mode==="team") return false;
   if(R.streak === MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] && !R.setpiece && R.mode !== "blitz"){
     if(typeof Cinematic !== "undefined") Cinematic.event("overdrive");
     afterRun(700, offerOverdriveChoice);
@@ -1606,11 +1752,12 @@ function renderStandardChoices(q, dur, scene){
 }
 
 function cueQuestionMusic(){
-  if(!R || R.ended || R.quoteMusicHold) return;
+  if(!R || R.ended) return;
+  if(R.holdQuestionMusic) return;
   if(typeof currentView !== "undefined" && currentView !== "play") return;
   if(typeof Snd === "undefined" || typeof Snd.ambience !== "function") return;
   if(R.mode==="beat"){ Snd.ambience(Beat.bed); return; }
-  if(R.mode==="tutorial"){ Snd.ambience("indigo"); return; }
+  if(R.mode==="tutorial" || R.mode==="team"){ Snd.ambience("indigo"); return; }
   if(R.mode==="pilgrimage" || R.mode==="relay" || R.mode==="pilgrim-recall"){
     const idx = (typeof R.siteIndex === "number" && R.siteIndex >= 0) ? R.siteIndex : 0;
     Snd.ambience(ROAD_QUESTION_BEDS[idx % ROAD_QUESTION_BEDS.length]);
@@ -1805,8 +1952,10 @@ function gradeQuestionChoice(q, choice, btn){
     const graded = Recall.grade(choice, target, q.d);
     if(graded.verdict === "exact") R.typedExact++;
     if(graded.verdict === "close") R.typedClose++;
-    SAVE.life.typedAttempts++;
-    if(graded.verdict === "exact") SAVE.life.typedExact++;
+    if(R.mode!=="team"){
+      SAVE.life.typedAttempts++;
+      if(graded.verdict === "exact") SAVE.life.typedExact++;
+    }
     renderTypedVerdict(graded);
     return { ok: Recall.isCorrect(graded.verdict), graded: graded };
   }
@@ -1827,6 +1976,7 @@ function gradeQuestionChoice(q, choice, btn){
 function awardFadeIlluminate(){
   if(!(R.currentMechanic === "fade" && R.powers)) return;
   if(R.fadeIllumUsed) return;
+  if(R.mode==="team") return;
   R.powers.illum = (R.powers.illum||0) + 1;
   SAVE.life.illumRewards = (SAVE.life.illumRewards||0) + 1;
   Director.callout("Memorization mastered — Illuminate earned");
@@ -2004,6 +2154,7 @@ function timeUp(){
   R.missed.push(q);
   reactAbraham(false);
   Director.impact("wrong");Snd.wrong(); doFlash("red"); shakeUI(true);
+  teamTally(false, R.tTotal);
   loseLife();
 }
 
@@ -2011,6 +2162,10 @@ function loseLife(count){
   count = count || 1;
   if(R.mode==="beat"){
     R.beatMiss = (R.beatMiss||0) + 1;
+    afterRun(answerHoldMs(), queueAdvance);
+    return;
+  }
+  if(R.mode==="team"){
     afterRun(answerHoldMs(), queueAdvance);
     return;
   }

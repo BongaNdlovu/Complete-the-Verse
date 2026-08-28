@@ -61,11 +61,11 @@ const ARC1_SITES = [
   { id: "ur", title: "Abram Departs Ur" },
   { id: "haran", title: "The Call at Haran" },
   { id: "shechem", title: "The First Altar in Canaan" },
-  { id: "bethel", title: "Jacob's Ladder" },
-  { id: "penuel", title: "The Wrestling at Penuel" },
   { id: "hebron", title: "The Oaks of Mamre" },
   { id: "beersheba", title: "The Well of Beersheba" },
   { id: "moriah", title: "The Mount of Moriah" },
+  { id: "bethel", title: "Jacob's Ladder" },
+  { id: "penuel", title: "The Wrestling at Penuel" },
   { id: "dothan", title: "The Pit of Dothan" }
 ];
 
@@ -89,16 +89,11 @@ const sb = bootGame();
 function assertSiteAmbient(site, vidEl) {
   const shown = vidEl.style.display === "block";
   const src = String(vidEl.src || "");
-  if (site.id === "ur" || site.id === "haran") {
-    assert(shown, `[${site.id}] rain video is visible at this early-road site`);
-    assert(src.includes("assets/journey/ur.mp4"),
-           `[${site.id}] rain video source is ur.mp4`);
-    return;
-  }
-  if (site.id === "shechem" || site.id === "bethel" || site.id === "penuel" || site.id === "hebron" || site.id === "beersheba") {
-    assert(shown, `[${site.id}] highland video is visible`);
-    assert(src.includes("assets/journey/shechem.mp4"),
-           `[${site.id}] highland video source is shechem.mp4`);
+  const ownLoop = { ur:true, haran:true, shechem:true, bethel:true, penuel:true, hebron:true, beersheba:true };
+  if (ownLoop[site.id]) {
+    assert(shown, `[${site.id}] ambient video is visible`);
+    assert(src.includes("assets/journey/" + site.id + ".mp4"),
+           `[${site.id}] ambient video is its own loop`);
     return;
   }
   if (site.id === "moriah") {

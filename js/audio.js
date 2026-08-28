@@ -410,7 +410,8 @@ const Snd = (function(){
     playFile:playFile,
     stopVoice:stopVoice,
     setRain:setRain,
-    rainActive(){ return rainRequested; }
+    rainActive(){ return rainRequested; },
+    duckMusic:duckMusic
   };
 })();
 

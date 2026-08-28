@@ -1,11 +1,3 @@
-/* Menu mode visibility — what the main hall offers.
-
-   The menu shows the Pilgrimage first, then Daily, Blitz, Trial, Endless
-   and the Drill. Hiding Trial/Endless left seven seals with no public
-   path, and hiding the Drill hid the only mode that serves SRS-due
-   verses. Standalone Recall, Pilgrim's Recall and the relay stay off the
-   menu: the road covers typed recall, and the relay is a deliberate
-   detour reached from the map. */
 const fs = require("fs");
 const ROOT = require("../scripts/repo-root");
 const path = require("path");
@@ -35,7 +27,7 @@ function modeBlock(key) {
   return next < 0 ? rest : rest.slice(0, next + 1);
 }
 
-const publicModes = ["pilgrimage", "beat", "daily", "blitz", "trial", "endless", "practice", "recall"];
+const publicModes = ["pilgrimage", "beat", "daily", "blitz", "trial", "endless", "practice", "recall", "team"];
 const hiddenModes = ["relay", "pilgrim-recall"];
 
 publicModes.forEach(k => {
@@ -67,22 +59,21 @@ ok("menu Enter routes through MENU_ORDER, not a hidden mode",
 ok("menu Enter no longer opens the hidden Trial directly",
   !/openBrief\("trial"\); return;/.test(src));
 
-/* Typed recall still exists on the Pilgrimage road and as a discoverable
-   dedicated practice mode. */
 ok("pilgrimage still mixes typed questions",
   /typedN\s*=\s*Math\.min\(2/.test(src) || /last two of every stop are typed/.test(src) ||
   /R\.typed\s*=\s*n\s*>\s*0\s*&&\s*R\.siteIdx\s*>\s*\(n\s*-\s*typedN\)/.test(src) ||
   /isLastBeat/.test(src));
-ok("Recall is surfaced as a practice mode",
-  /Practice[\s\S]*modes: \["practice", "recall"\]/.test(src));
+ok("Recall and Team Mode sit with the Drill",
+  /Practice[\s\S]*modes: \["practice", "recall", "team"\]/.test(src));
 
-/* Menu hall grouping — The Road */
 ok("MENU_GROUPS covers The Valley",
   /The Valley[\s\S]*modes:\s*\[[^\]]*"beat"/.test(src));
 ok("MENU_GROUPS defines The Road",
   /The Road/.test(src));
 ok("MENU_GROUPS covers pilgrimage",
   /modes:\s*\[[^\]]*"pilgrimage"/.test(src));
+ok("MENU_GROUPS covers Challenges with trial and endless",
+  /Challenges[\s\S]*modes:\s*\["blitz", "trial", "endless"\]/.test(src));
 
 if (fail) {
   console.log("FAIL — menu modes · " + pass + " passed · " + fail + " failed");

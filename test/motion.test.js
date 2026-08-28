@@ -25,6 +25,7 @@ const css = gameCss + "\n" + atlasCss;
 const overlays = [
   ["#pause", "pause"],
   ["#site-quote", "site cold-open"],
+  ["#ur-prologue", "Ur opening film"],
   ["#tutorial", "tutorial"],
   ["#reveal-stage", "relic/figure reveal"],
   [".setpiece-card", "set-piece card"]

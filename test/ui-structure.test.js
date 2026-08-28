@@ -45,6 +45,23 @@ assert(fs.existsSync(path.join(ROOT, "assets", "hall.mp4")), "assets/hall.mp4 ex
 assert(fs.statSync(path.join(ROOT, "assets", "hall.mp4")).size < 14 * 1024 * 1024,
   "hall.mp4 stays under 14MB for the web pack");
 assert(html.includes("assets/hall.mp4"), "hall video is sourced in the page");
+assert(html.includes('id="ur-prologue"') && html.includes('id="ur-prologue-skip"'),
+  "Ur opening film overlay and skip are in the play stage");
+assert(html.includes("assets/ur-prologue.mp4"), "Ur opening film path wired");
+assert(fs.existsSync(path.join(ROOT, "assets", "ur-prologue.mp4")), "assets/ur-prologue.mp4 exists");
+assert(fs.statSync(path.join(ROOT, "assets", "ur-prologue.mp4")).size < 2 * 1024 * 1024,
+  "Ur opening film stays under 2MB");
+assert(/function maybePlayUrPrologue/.test(game), "Ur opening film plays before the first verse");
+assert(/function maybePlayTeamPrologue/.test(game), "Team Mode plays a film before the first team");
+assert(css.includes(".team-mark"), "Team Mode paints White/Blue side marks");
+assert(css.includes("body.biblical-thriller.team-white .hdr-rule"), "White Team tints the play header");
+assert(css.includes("body.biblical-thriller.team-blue .hdr-rule"), "Blue Team tints the play header");
+assert(css.includes(".brow.team-row"), "Team tally rows carry side color");
+assert(/class="team-mark white/.test(game), "Team Mode HUD renders White/Blue marks");
+assert(fs.existsSync(path.join(ROOT, "assets", "team-prologue.mp4")), "assets/team-prologue.mp4 exists");
+assert(fs.statSync(path.join(ROOT, "assets", "team-prologue.mp4")).size < 2 * 1024 * 1024,
+  "Team Mode film stays under 2MB");
+assert(/urPrologueDone/.test(game), "Ur opening film is once per save");
 assert(/function syncHallVideo\(/.test(game), "syncHallVideo helper present");
 assert(css.includes("body.hall-ready #hall-bg"), "hall video fades in when ready");
 assert(css.includes("body.quality-low #hall-bg"), "efficient profile hides the hall video");

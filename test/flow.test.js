@@ -40,7 +40,7 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
   ok("the last question does not wipe into results", !Flow.shouldWipe({toEnd:true}));
   ok("an act card is not a wipe", !Flow.shouldWipe({toAct:true}));
   ok("a set-piece card is not a wipe", !Flow.shouldWipe({toSetpiece:true}));
-  ok("death is not a wipe", !Flow.shouldWipe({toDeath:true}));
+  ok("handoff is not a wipe", !Flow.shouldWipe({toHandoff:true}));
 }
 
 {
@@ -49,8 +49,8 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
   ok("death has a way forward", !!fallen.primary);
   const load = Flow.state("load-fail");
   ok("load failure is a designed state", !!load && /record|witness/i.test(load.title + " " + load.kick));
-  const empty = Flow.state("empty-drill");
-  ok("empty drill is a designed state", !!empty);
+  const handoff = Flow.state("team-handoff");
+  ok("team handoff is a designed state", !!handoff && /Pass the device/i.test(handoff.title));
   const saveCorrupt = Flow.state("save-corrupt");
   ok("save-corrupt is a designed state", !!saveCorrupt && !!saveCorrupt.primary);
   const saveBlocked = Flow.state("save-blocked");

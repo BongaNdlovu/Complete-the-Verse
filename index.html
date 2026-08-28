@@ -111,6 +111,10 @@
       <div class="briefinfo" id="brief-info" style="margin-top:3vh"></div>
       <div class="h-sm" id="brief-difflabel" style="margin-top:2.6vh">The ordeal</div>
       <div class="diffs" id="diffs"></div>
+      <div id="brief-team-pick" class="team-pick" hidden>
+        <button type="button" class="btn team-pick-btn white" data-team="white">White starts</button>
+        <button type="button" class="btn team-pick-btn blue" data-team="blue">Blue starts</button>
+      </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
         <button class="btn" id="brief-start">Begin</button>
         <button class="btn ghost" data-go="menu">Back</button>
@@ -228,13 +232,6 @@
       <img src="assets/characters/abram/question.png" alt="" decoding="async" fetchpriority="low">
     </figure>
 
-    <div class="clockbar ring" id="ring" aria-label="Time remaining">
-      <div class="clockbar-track">
-        <i class="clockbar-fill" id="ring-arc"></i>
-      </div>
-      <b id="clock">00:30</b>
-    </div>
-
     <header class="hdr">
       <div class="hdr-side l">
         <div class="hdr-lab" id="hud-left-lab">Memory Tier</div>
@@ -263,6 +260,15 @@
       </div>
 
       <div class="rail r">
+        <div class="hud-time">
+          <div class="rail-lab">Time</div>
+          <div class="clockbar ring" id="ring" aria-label="Time remaining">
+            <div class="clockbar-track">
+              <i class="clockbar-fill" id="ring-arc"></i>
+            </div>
+            <b id="clock">00:30</b>
+          </div>
+        </div>
         <div>
           <div class="rail-lab">Score</div>
           <div class="rail-val" id="score">0</div>
@@ -313,8 +319,8 @@
           <div class="control">
             <button class="confirm-answer" id="confirm-answer" type="button" disabled>Lock Answer</button>
             <div class="warn">
-              <b id="warn-1">30 seconds remaining</b>
-              <span id="warn-how">Select a phrase, then lock it<br>Enter or Space confirms</span>
+              <b id="warn-1" hidden>30 seconds remaining</b>
+              <span id="warn-how">Tap a phrase to answer</span>
             </div>
           </div>
         </div>
@@ -343,6 +349,10 @@
       <div class="kick" id="site-quote-kicker"></div>
       <p id="site-quote-line"></p>
       <div class="site-quote-ref" id="site-quote-ref"></div>
+    </div>
+    <div id="ur-prologue" aria-label="Opening film">
+      <video id="ur-prologue-video" src="assets/ur-prologue.mp4" playsinline preload="none" disablepictureinpicture></video>
+      <button type="button" class="intro-skip" id="ur-prologue-skip">Skip</button>
     </div>
    </div>
   </section>

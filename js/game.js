@@ -24,7 +24,7 @@ const DEFAULT_SAVE = {
   /* Relics unlocked by first site clear. Shape owned by artifacts.js. */
   artifacts:{unlocked:{}, seen:{}},
   set:{music:0.45, sfx:0.7, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"watchman",
-       tutorialDone:false, liveWeather:true, coldOpenDone:false, quiet:false, contrast:false, haptics:true,
+       tutorialDone:false, liveWeather:true, coldOpenDone:false, urPrologueDone:false, quiet:false, contrast:false, haptics:true,
        singleTap:true,
        character:"amina", scholarId:"amina", playerName:"", profileDone:false,
        vkb:false,
@@ -252,7 +252,7 @@ const SEALS = [
      perfected a site at a time — the seal rewards precision over the
      whole stretch, not one flawless sitting. */
   {id:"arc-patriarchs",n:"Faith of Abraham", d:"Keep every verse at every site from Ur to Dothan."},
-  {id:"arc-exodus",    n:"Out of Egypt",     d:"Keep every verse at every site from Midian to Gilgal."},
+  {id:"arc-exodus",    n:"Out of Egypt",     d:"Keep every verse at every site from Midian to Jericho."},
   {id:"arc-judges",    n:"No King in Israel",d:"Keep every verse at every site from Harod to Mizpah."},
   {id:"arc-kingdom",   n:"By the Rivers",    d:"Keep every verse at every site from Jerusalem to Susa."},
   {id:"arc-gospel",    n:"To the Ends",      d:"Keep every verse at every site from Bethlehem to Patmos."},
@@ -286,8 +286,6 @@ const MODES = {
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, assembled word for word.",
     tagline:"Assemble · cleared sites", info:[["8","Verses"],["Assemble","No options"],[modeClockLabel("pilgrim-recall"),"Clock"]] },
-  /* Relay and Pilgrim's Recall stay contextual to an atlas-selected arc or
-     cleared site; the rest of the modes are discoverable from the hall. */
   relay:{ key:"relay", name:"The Long Road", kick:"One unbroken walk", hidden:true,
     desc:"A whole arc in a single run. Lives carry from site to site and never come back, and the clock keeps tightening the way the road does. Sites you pass stay cleared even if the road ends you.",
     tagline:"A whole arc · shared lives", info:[["1","Run"],["Shared","Lives"],["No","Rest"]] },
@@ -306,6 +304,9 @@ const MODES = {
   practice:{ key:"practice", name:"The Drill", kick:"Spaced review",
     desc:"The verses that have fallen due, most overdue first, then whatever you have never seen.",
     tagline:"15 verses · due first", info:[["15","Verses"],["Due","Ordered by"],[modeClockLabel("practice"),"Clock"]] },
+  team:{ key:"team", name:"Team Mode", kick:"White vs Blue",
+    desc:"Pass-and-play. Tap who starts. That team answers five, then the other answers five different verses. Misses do not end the round. Keeps win; faster total time breaks a tie. Nothing is recorded.",
+    tagline:"Pick who starts · 5 each · not recorded", info:[["5","Each"],["10","Verses"],[modeClockLabel("team"),"Clock"]] },
   recall:{ key:"recall", name:"Recall", kick:"Assemble it from memory",
     desc:"No options to choose between. The missing words sit in a bank with a few fakes. Place them in order.",
     tagline:"12 verses · assemble", info:[["12","Verses"],["Assemble","No options"],[modeClockLabel("recall"),"Clock"]] }
@@ -483,8 +484,13 @@ function buildReviewQueue(len){
 function drawReviewVerse(){
   if(!R.queue || !R.queue.length) R.queue = buildReviewQueue(40);
   let chosen = R.queue.shift();
-  while(chosen && R.used.has(chosen.id) && R.queue.length) chosen = R.queue.shift();
-  if(!chosen){ R.used.clear(); R.queue = buildReviewQueue(40); chosen = R.queue.shift(); }
+  while(chosen && (R.used.has(chosen.id) || R.usedRefs.has(refKey(chosen))) && R.queue.length)
+    chosen = R.queue.shift();
+  if(!chosen || R.used.has(chosen.id) || R.usedRefs.has(refKey(chosen))){
+    R.used.clear();
+    R.queue = buildReviewQueue(40);
+    chosen = R.queue.shift();
+  }
   const card = cardFor(chosen), t = today();
   const over = SRS.overdueBy(card, t);
   R.adaptivePick = !card || (!card.reps && !card.lapses) ? "Never seen"
@@ -564,7 +570,7 @@ function startRunRelayQueue(){
 }
 
 function startRunPowers(mode, isPilgrim){
-  if(mode==="beat") return { startPowers:{selah:0, illum:0, wind:0}, reservedIlluminate:0 };
+  if(mode==="beat" || mode==="team") return { startPowers:{selah:0, illum:0, wind:0}, reservedIlluminate:0 };
   const leanRoad = isPilgrim || mode==="relay";
   const startPowers = mode==="blitz"
     ? {selah:0, illum:0, wind:0}
@@ -578,26 +584,33 @@ function startRunPowers(mode, isPilgrim){
 
 function startBeatStage(){
   Backdrop.palette("act5");
-  Snd.ambience((typeof Beat!=="undefined" && Beat.bed) || "act5");
   $("hud-round").textContent = MODES.beat.name;
   applySiteSky(null);
   go("play");
   if(typeof playBeatCinema==="function") playBeatCinema(Beat.cinemaA);
 }
 
-function startRunOpenStage(mode, isPilgrim, siteId, relay){
-  let pal = mode==="endless" ? "act3" : mode==="practice" ? "act1" : mode==="recall" ? "act4" : mode==="blitz" ? "act5" : "act2";
+function startRunPalette(mode, isPilgrim, siteId, relay){
   if(isPilgrim){
     const site = Pilgrimage.site(siteId);
     const arc = site ? Pilgrimage.arc(site.arc) : null;
-    pal = (arc && arc.pal) || "act2";
+    return (arc && arc.pal) || "act2";
   }
   if(mode==="relay"){
     const arc = Pilgrimage.arc(relay.arcKey);
-    pal = (arc && arc.pal) || "act3";
+    return (arc && arc.pal) || "act3";
   }
+  if(mode==="endless") return "act3";
+  if(mode==="practice" || mode==="team") return "act1";
+  if(mode==="recall") return "act4";
+  if(mode==="blitz") return "act5";
+  return "act2";
+}
+
+function startRunOpenStage(mode, isPilgrim, siteId, relay){
+  const pal = startRunPalette(mode, isPilgrim, siteId, relay);
   Backdrop.palette(pal);
-  Snd.ambience(pal);
+  if(!(isPilgrim || mode==="relay" || mode==="team")) Snd.ambience(pal);
   $("hud-round").textContent = isPilgrim && Pilgrimage.site(siteId)
     ? Pilgrimage.site(siteId).name
     : mode==="relay" ? (Pilgrimage.arc(relay.arcKey) || {name:"The Long Road"}).name
@@ -608,7 +621,7 @@ function startRunOpenStage(mode, isPilgrim, siteId, relay){
 }
 
 function startRunReviewQueue(mode, options){
-  if(!(mode==="practice" || mode==="recall")) return true;
+  if(!(mode==="practice" || mode==="recall" || mode==="team")) return true;
   if(options && options.queue && options.queue.length){
     R.queue = options.queue.slice();
   } else {
@@ -623,6 +636,7 @@ function startRunReviewQueue(mode, options){
 function startRunPracticeLen(mode, options, isPilgrim, siteDraw){
   if(options && options.queue && options.queue.length) return options.queue.length;
   if(mode==="practice") return 15;
+  if(mode==="team") return 10;
   if(mode==="recall") return 12;
   if(isPilgrim) return siteDraw.verses.length;
   return 0;
@@ -657,8 +671,13 @@ function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDra
     tf: null, tfUsed: [],
     lastPickKey: "", lastPickAt: 0,
     quoteShown: false, assemble: null,
-    quickRewards: (typeof QuickRewards !== "undefined" && QuickRewards.pick)
+    quickRewards: (mode!=="team" && typeof QuickRewards !== "undefined" && QuickRewards.pick)
       ? QuickRewards.pick(mode, runToken + (SAVE.runs||0)) : [],
+    teamSide: mode==="team" ? ((options && options.teamSide)==="blue" ? "blue" : "white") : null,
+    teamHanded: false,
+    teamFilmShown: false,
+    holdQuestionMusic: false,
+    teams: mode==="team" ? { white:{kept:0, ms:0}, blue:{kept:0, ms:0} } : null,
     quickRewardAnnounced: new Set(), quickResult: null,
       reservedIlluminate: reservedIlluminate,
     beatQ: 0, beatMiss: 0, beatBDone: false, beatPlates: null, beatPlateIdx: -1
@@ -683,6 +702,9 @@ function startRun(mode, diffKey, options){
     powerStart.startPowers, powerStart.reservedIlluminate, blitzMs, options);
   if(R.friendRoom) startFriendRacePolling(R.friendRoom);
   document.body.classList.toggle("mode-beat", mode==="beat");
+  document.body.classList.toggle("mode-team", mode==="team");
+  document.body.classList.toggle("team-white", mode==="team" && R.teamSide==="white");
+  document.body.classList.toggle("team-blue", mode==="team" && R.teamSide==="blue");
   document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4","blitz-edge","blitz-edge-2","blitz-edge-3");
   if(mode==="daily") R.daily = buildDailyList();
   renderLives();
@@ -703,8 +725,15 @@ function claimIlluminateReserve(){
   const n = Math.min(2, Math.max(0, Number(R.reservedIlluminate)||0));
   if(!n) return;
   SAVE.illumReserve = Math.max(0, (Number(SAVE.illumReserve)||0) - n);
+  R.illumFromReserve = n;
   R.reservedIlluminate = 0;
   persist();
+}
+function refundUnusedIlluminate(){
+  const n = Math.max(0, Number(R.illumFromReserve)||0);
+  if(!n) return;
+  SAVE.illumReserve = (Number(SAVE.illumReserve)||0) + n;
+  R.illumFromReserve = 0;
 }
 
 function beginAct(i){
@@ -791,7 +820,7 @@ function currentTier(){
     const cur = R.relay && R.relay.current;
     return R.q ? R.q.t : Pilgrimage.tierFor(cur ? cur.index : 0);
   }
-  if(R.mode==="practice" || R.mode==="recall") return R.q ? R.q.t : 2;
+  if(R.mode==="practice" || R.mode==="recall" || R.mode==="team") return R.q ? R.q.t : 2;
   const n = R.qTotal;
   if(n<5) return 1; if(n<11) return 2; if(n<19) return 3; if(n<29) return 4;
   return (n%5===0) ? 4 : 5;
@@ -799,6 +828,7 @@ function currentTier(){
 
 function hideSiteQuote(){
   const el = $("site-quote");
+  if(typeof hideUrPrologue === "function") hideUrPrologue();
   if(!el) return;
   el._done = true;
   if(el._timer){ clearInterval(el._timer); el._timer = null; }
@@ -934,9 +964,10 @@ function updateChipsHudForMode(){
       R.relay.idx+" / "+R.relay.queue.length);
     return;
   }
-  if(R.mode==="practice" || R.mode==="recall"){
-    paintHud((R.mode==="recall" ? "Recall · " : "Drill · ")+(R.adaptivePick||"Spaced review"),
-      R.mode==="recall" ? "Typed" : "Drill", R.qTotal+" / "+R.practiceLen);
+  if(R.mode==="practice" || R.mode==="recall" || R.mode==="team"){
+    const side = R.mode==="team" ? ((R.teamSide==="blue"?"Blue":"White")+" Team") : ((R.mode==="recall" ? "Recall · " : "Drill · ")+(R.adaptivePick||"Spaced review"));
+    const local = R.mode==="team" ? ((R.qTotal||0) % 5 || (R.qTotal?5:0))+" / 5" : (R.qTotal+" / "+R.practiceLen);
+    paintHud(side, R.mode==="recall" ? "Typed" : "Verse", local);
     return;
   }
   if(R.mode==="tutorial"){
@@ -967,7 +998,7 @@ function updateChips(){
   const isRoad = R.mode === "pilgrimage" || R.mode === "pilgrim-recall" || R.mode === "relay";
   if(journeyEl) journeyEl.textContent = hudJourneyName();
   if(leftLab) leftLab.textContent = "Memory Tier";
-  if(rightLab) rightLab.textContent = isRoad ? "Site" : "Round Title";
+  if(rightLab) rightLab.textContent = R.mode==="team" ? "Team" : isRoad ? "Site" : "Round Title";
   updateChipsHudForMode();
   $("hud-streak").textContent = R.streak + (R.streak===1 ? " Verse" : " Verses");
   $("hud-accuracy").textContent = R.attempts ? Math.round(R.correct/R.attempts*100)+"%" : "—";
@@ -1010,7 +1041,7 @@ function updateActTrack(){
         esc(s?s.name.split(/[ (]/)[0].slice(0,3):String(i+1))+'</span></div>';
     }).join("");
     el.setAttribute("aria-label","Site "+(rl.banked.length+1)+" of "+rl.sites.length);
-  }else if(R.mode==="practice" || R.mode==="recall"){
+  }else if(R.mode==="practice" || R.mode==="recall" || R.mode==="team"){
     const step=Math.max(1,Math.round(R.practiceLen/5));
     const marks=[1,2,3,4,5].map(n=>Math.min(R.practiceLen, n*step));
     el.innerHTML=marks.map((mark,i)=>{
@@ -1099,6 +1130,10 @@ function illuminateBlocked(){
 
 function renderPowers(){
   const p=R.powers; if(!p) return;
+  if(R.mode==="team"){
+    $("powers").innerHTML='<button type="button" class="pwr spent" disabled>Party match <em>No lifelines</em></button>';
+    return;
+  }
   if(SetPieces.noPowers()){
     $("powers").innerHTML='<button class="pwr spent">Lifelines Offline <em>Special sequence</em></button>';
     return;
@@ -1163,6 +1198,7 @@ function updateQuickRewards(){
 
 function spendIlluminate(){
   R.powers.illum--; R.usedPower=true; R.qUsedPower=true; R.powersSpent++;
+  if(R.illumFromReserve>0) R.illumFromReserve--;
   if(R.currentMechanic === "fade") R.fadeIllumUsed = true;
   Snd.power(); doFlash("violet"); renderPowers();
 }
@@ -1203,6 +1239,7 @@ function useIlluminate(){
 }
 
 function useOilPower(kind){
+  if(R.mode==="team") return false;
   if(typeof Meta==="undefined") return false;
   const which = kind==="oil-selah" ? "selah" : "illum";
   const spent = Meta.spendOil(SAVE.oil||0, which);
@@ -1227,6 +1264,7 @@ function applySelahPower(){
   return true;
 }
 function usePower(kind){
+  if(R.mode==="team") return;
   if(R.paused || R.locked) return;
   const armed = R.running || (!!R.tTotal && !R.ended);
   if(!armed) return;
@@ -1341,6 +1379,15 @@ function renderLives(lost){
   const el=$("hud-lives"); if(!el) return;
   const wrap=$("hud-lives-wrap");
   const lab=$("hud-lives-lab");
+  if(R.mode==="team"){
+    if(wrap) wrap.style.display="";
+    if(lab) lab.textContent="Sides";
+    const side = R.teamSide==="blue" ? "blue" : "white";
+    el.innerHTML =
+      '<span class="team-mark white'+(side==="white"?" on":"")+'" aria-current="'+(side==="white"?"true":"false")+'" aria-label="White"></span>'+
+      '<span class="team-mark blue'+(side==="blue"?" on":"")+'" aria-current="'+(side==="blue"?"true":"false")+'" aria-label="Blue"></span>';
+    return;
+  }
   if(R.mode==="blitz"){
     if(wrap) wrap.style.display="none";
     el.innerHTML="";
@@ -1360,7 +1407,7 @@ function renderLives(lost){
   el.innerHTML = html;
 }
 function recordVerse(q, ok){
-  if(R.mode==="beat") return;
+  if(R.mode==="beat" || R.mode==="team") return;
   const b = SAVE.books[q.b] || (SAVE.books[q.b]={c:0,a:0});
   b.a++; if(ok) b.c++;
   const v = SAVE.verse[q.id] || (SAVE.verse[q.id]={c:0,a:0});
@@ -1372,7 +1419,7 @@ function recordVerse(q, ok){
    practice-only side channel. Passage sub-answers are skipped: they carry
    no verse id of their own. */
 function scheduleReview(q, outcome){
-  if(R.mode==="beat") return;
+  if(R.mode==="beat" || R.mode==="team") return;
   if(!q || !q.id) return;
   const card = reviewVerse(q, outcome);
   R.rescheduled.push({ r:q.r, ivl:card.ivl, correct:!!outcome.correct });
@@ -1398,6 +1445,7 @@ function toast(t){
   document.body.appendChild(p); setTimeout(()=>p.remove(),2700);
 }
 function spillOil(streak){
+  if(R.mode==="team") return 0;
   if(typeof Meta==="undefined" || !Meta.oilForMiss) return 0;
   const take = Math.min(SAVE.oil||0, Meta.oilForMiss(streak));
   if(!take) return 0;
@@ -1408,6 +1456,7 @@ function spillOil(streak){
   return take;
 }
 function payCorrect(graded){
+  if(R.mode==="team") return;
   const exact = !!(graded && graded.verdict === "exact") || !R.typed;
   const oil = (typeof Meta!=="undefined" && Meta.oilForCorrect) ? Meta.oilForCorrect(R.streak, exact) : 2;
   const xp = (typeof Meta!=="undefined" && Meta.xpTick) ? Meta.xpTick(R.q ? R.q.t : 1, R.streak) : 10;
@@ -1424,6 +1473,7 @@ function wipeContext(){
   const reduced = !!(SAVE.set && SAVE.set.reduced);
   if(phase.kind==="ended") return { ended:true };
   if(phase.kind==="act") return { reduced, toAct:true };
+  if(phase.kind==="handoff") return { reduced, toHandoff:true };
   if(phase.kind==="complete") return { reduced, toEnd:true };
   if(phase.kind==="death") return { reduced, toDeath:true };
   if(phase.kind==="setpiece" || phase.kind==="setpiece-site") return { reduced, toSetpiece:true };
@@ -1461,6 +1511,7 @@ function hideState(){
   el.classList.remove("on");
   el.setAttribute("hidden","");
   el.setAttribute("aria-hidden","true");
+  delete el.dataset.kind;
   R._state = null;
 }
 function showState(kind, extra){
@@ -1482,6 +1533,7 @@ function showState(kind, extra){
     sec.textContent = spec.secondary || "";
     sec.style.display = spec.secondary ? "" : "none";
   }
+  el.dataset.kind = kind;
   el.classList.add("on");
   el.removeAttribute("hidden");
   el.setAttribute("aria-hidden","false");
@@ -1545,14 +1597,14 @@ function setPaused(v){
     if(typeof Snd!=="undefined" && Snd.stopPressure) Snd.stopPressure();
     const acts=trialActs();
     const progress=R.mode==="trial" ? ACTS[R.actIdx].n+" / "+acts[acts.length-1].n
-      : (R.mode==="practice"||R.mode==="recall") ? R.qTotal+" / "+R.practiceLen
+      : (R.mode==="practice"||R.mode==="recall"||R.mode==="team") ? R.qTotal+" / "+R.practiceLen
       : String(R.qTotal);
     const acc=R.attempts ? Math.round(R.correct/R.attempts*100)+"%" : "—";
     $("pause-stats").innerHTML=
       '<div><b>'+fmt(R.score)+'</b><span>Score</span></div>'+
       '<div><b>'+R.streak+'</b><span>Streak</span></div>'+
       '<div><b>'+acc+'</b><span>Accuracy</span></div>'+
-      '<div><b>'+progress+'</b><span>'+(R.mode==="trial"?"Act":R.mode==="practice"?"Drill":R.mode==="recall"?"Recall":"Distance")+'</span></div>';
+      '<div><b>'+progress+'</b><span>'+(R.mode==="trial"?"Act":R.mode==="practice"?"Drill":R.mode==="recall"?"Recall":R.mode==="team"?"Match":"Distance")+'</span></div>';
     stopLoop();
     /* A dialog that opens should take focus — keyboard players land on
        Resume instead of whatever they last answered with. */
@@ -1570,13 +1622,15 @@ $("pause-resume").addEventListener("click", togglePause);
 function abandonRun(){
   setPaused(false);
   if(!R.attempts){
+    refundUnusedIlluminate();
+    persist();
     invalidateRun();
     clearSequence();
     hideSiteQuote();
     R.setpiece = null;
     pendingSeals = [];
     $("setpiece-card").classList.remove("on");
-    document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7","retreat");
+    document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7","retreat","mode-team","team-white","team-blue");
     Snd.ui();
     // Backing out of a site before answering anything drops you on the
     // map you came from, not in the main hall.
@@ -1592,7 +1646,7 @@ function candleDenom(){
     return acts.reduce((n,a)=>n+(a.q||0),0) || 39;
   }
   if(R.mode==="daily") return (R.daily && R.daily.list && R.daily.list.length) || 20;
-  if(R.mode==="practice" || R.mode==="recall") return R.practiceLen || 15;
+  if(R.mode==="practice" || R.mode==="recall" || R.mode==="team") return R.practiceLen || 15;
   if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall") return (R.siteVerses && R.siteVerses.length) || 8;
   if(R.mode==="relay" && R.relay) return R.relay.queue.length || 8;
   if(R.mode==="blitz") return 20;
@@ -1665,6 +1719,14 @@ function handleOverlayKeydown(e, k){
     }
     return true;
   }
+  const pro = $("ur-prologue");
+  if(pro && pro.classList.contains("on")){
+    if(k==="escape"||k==="enter"||k===" "){
+      e.preventDefault();
+      if(typeof hideUrPrologue === "function") hideUrPrologue(true);
+    }
+    return true;
+  }
   return false;
 }
 
@@ -1687,7 +1749,10 @@ function handleNavKeydown(e, k){
     if(MODES[first].atlas) go("atlas"); else openBrief(first);
     return true;
   }
-  if(currentView==="brief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(briefMode, SAVE.set.diff); return true; }
+  if(currentView==="brief" && (k==="enter")){
+    if(briefMode==="team") return true;
+    e.preventDefault(); Snd.unlock(); startRun(briefMode, SAVE.set.diff); return true;
+  }
   if(currentView==="sitebrief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(sbMode, SAVE.set.diff); return true; }
   if(currentView==="results" && (k==="enter"||k===" ")){ e.preventDefault(); startRun(R.mode, R.diff.key); return true; }
   return false;

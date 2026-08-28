@@ -39,9 +39,6 @@ function eq(name, got, want) {
 
 const engineSrc = readEngine(ROOT);
 
-/* ==================================================================
-   1. FRONT DOOR & ZERO-MENU LAUNCH
-   ================================================================== */
 {
   ok("Boot launches directly into pilgrimage on current site",
     /startRun\("pilgrimage"/.test(engineSrc));

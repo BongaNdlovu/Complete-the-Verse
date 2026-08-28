@@ -224,6 +224,7 @@ var Cloud = (function () {
     var out = JSON.parse(JSON.stringify(local));
     out.v = Math.max(local.v || 3, remote.v || 3);
     out.xp = maxNum(local.xp, remote.xp);
+    out.oil = maxNum(local.oil, remote.oil);
     out.illumReserve = maxNum(local.illumReserve, remote.illumReserve);
     out.runs = maxNum(local.runs, remote.runs);
     out.seals = unionArr(local.seals, remote.seals);

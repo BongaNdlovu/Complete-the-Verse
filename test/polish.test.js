@@ -100,6 +100,7 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
   eq("describeModeClock pilgrimage", Polish.describeModeClock("pilgrimage", "watchman"), "30s · 45s assemble · 60s fade");
   eq("describeModeClock daily", Polish.describeModeClock("daily", "watchman"), "30s · 45s assemble · 60s fade");
   eq("describeModeClock practice", Polish.describeModeClock("practice", "watchman"), "30s");
+  eq("describeModeClock team", Polish.describeModeClock("team", "watchman"), "30s");
   eq("describeModeClock recall", Polish.describeModeClock("recall", "watchman"), "45s");
   eq("describeModeClock pilgrim-recall", Polish.describeModeClock("pilgrim-recall", "watchman"), "45s");
   eq("describeModeClock blitz", Polish.describeModeClock("blitz", "watchman"), "60s");

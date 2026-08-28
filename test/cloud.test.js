@@ -18,7 +18,7 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
 
 {
   const local = {
-    v: 3, xp: 100, runs: 2, seals: ["a"],
+    v: 3, xp: 100, oil: 4, illumReserve: 1, runs: 2, seals: ["a"],
     best: { pilgrimage: 50, daily: 10 },
     life: { correct: 5, sitesCleared: 1 },
     books: { Genesis: { c: 2, a: 3 } },
@@ -33,7 +33,7 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
     board: []
   };
   const remote = {
-    v: 3, xp: 80, runs: 5, seals: ["b"],
+    v: 3, xp: 80, oil: 11, illumReserve: 0, runs: 5, seals: ["b"],
     best: { pilgrimage: 70, daily: 5 },
     life: { correct: 9, sitesCleared: 0 },
     books: { Genesis: { c: 1, a: 4 }, Exodus: { c: 1, a: 1 } },
@@ -51,6 +51,8 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
 
   const m = Cloud.mergeSave(local, remote);
   eq("xp takes the max", m.xp, 100);
+  eq("oil takes the max", m.oil, 11);
+  eq("illuminate reserve takes the max", m.illumReserve, 1);
   eq("runs takes the max", m.runs, 5);
   ok("seals are unioned", m.seals.indexOf("a") >= 0 && m.seals.indexOf("b") >= 0);
   eq("best pilgrimage is max", m.best.pilgrimage, 70);

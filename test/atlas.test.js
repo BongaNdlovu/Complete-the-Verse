@@ -147,9 +147,9 @@ function walkTo(P, n){
   const st = id => a.Atlas._stateOf(P.site(id));
   ok("a cleared site reads cleared", st("ur").cleared);
   ok("a cleared site is not the current one", !st("ur").current);
-  ok("the next site is current", st("bethel").current);
-  ok("the current site is unlocked", st("bethel").unlocked);
-  ok("the site after it is locked", st("hebron").locked);
+  ok("the next site is current", st("hebron").current);
+  ok("the current site is unlocked", st("hebron").unlocked);
+  ok("the site after it is locked", st("beersheba").locked);
   ok("a far site is locked", st("patmos").locked);
 
   const rail = a.doc.getElementById("atlas-rail-list").innerHTML;

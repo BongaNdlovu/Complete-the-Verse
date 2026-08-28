@@ -134,7 +134,7 @@ const verdict = (typed, answer) => Recall.grade(typed, answer).verdict;
   ok("level 1 hides every letter", !/[a-z]/i.test(h1), h1);
   ok("level 1 shows the word count", h1.split(/\s+/).filter(Boolean).length === 3, h1);
   ok("level 2 gives first letters", /s/.test(h2) && /v/.test(h2), h2);
-  ok("level 3 gives the first word whole", h3.indexOf("still") === 0, h3);
+  ok("level 3 gives the first half of the words", /still/.test(h3) && /small/.test(h3), h3);
   ok("hints never reveal the answer", h1 !== a && h2 !== a && h3 !== a);
   ok("level 3 still withholds the rest", h3.indexOf("voice") < 0, h3);
 }

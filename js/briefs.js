@@ -196,17 +196,14 @@ function updateOfflineBanner(){
   b.classList.toggle("on", !navigator.onLine);
   b.textContent = navigator.onLine ? "" : "You are offline — progress stays on this device until you reconnect.";
 }
-/* What the menu offers, grouped into four sections: The Road, Today,
-   Practice, and Challenges. Anything not listed but not hidden renders
-   in a fallback card grid without orphans. */
 const MENU_GROUPS = [
   { name: "The Road",   modes: ["pilgrimage"] },
   { name: "The Valley", modes: ["beat"] },
   { name: "Today",      modes: ["daily"] },
-  { name: "Practice",   modes: ["practice", "recall"] },
+  { name: "Practice",   modes: ["practice", "recall", "team"] },
   { name: "Challenges", modes: ["blitz", "trial", "endless"] }
 ];
-const MENU_ORDER = ["pilgrimage", "beat", "daily", "blitz", "trial", "endless", "practice"];
+const MENU_ORDER = ["pilgrimage", "beat", "daily", "blitz", "trial", "endless", "practice", "team"];
 
 function renderModeCard(k, due, dailyDone, road){
   const m = MODES[k];
@@ -292,7 +289,16 @@ function openBrief(mode){
   $("brief-title").textContent = m.name;
   $("brief-desc").textContent = m.desc;
   $("brief-info").innerHTML = m.info.map(i=>'<div class="bi"><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("");
-  renderDiffs();
+  const team = mode==="team";
+  const start = $("brief-start");
+  const pick = $("brief-team-pick");
+  const diffs = $("diffs");
+  const diffLab = $("brief-difflabel");
+  if(start) start.style.display = team ? "none" : "";
+  if(pick) pick.hidden = !team;
+  if(diffs) diffs.style.display = team ? "none" : "";
+  if(diffLab) diffLab.style.display = team ? "none" : "";
+  if(!team) renderDiffs();
   go("brief");
 }
 function renderDiffs(){
@@ -305,6 +311,13 @@ function renderDiffs(){
     '<span class="stats">'+d.lives+' lamps · clock ×'+d.time.toFixed(2)+'</span></div>';
 }
 $("brief-start").addEventListener("click", ()=>{ Snd.unlock(); startRun(briefMode, SAVE.set.diff); });
+const teamPick = $("brief-team-pick");
+if(teamPick) teamPick.addEventListener("click", function(e){
+  const btn = e.target.closest("[data-team]");
+  if(!btn) return;
+  Snd.unlock();
+  startRun("team", SAVE.set.diff, { teamSide: btn.dataset.team });
+});
 
 /* ------------------------- THE PILGRIMAGE -------------------------
    The campaign rules live in pilgrimage.js and the map lives in

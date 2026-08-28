@@ -140,7 +140,7 @@ assert(/loading="lazy"/.test(index) && /decoding="async"/.test(index) &&
   /loading="lazy"/.test(panels), "non-critical artwork uses lazy async decoding");
 assert(/write_webp/.test(optimizer) && /1024px/.test(optimizer) && /1024, 768/.test(optimizer),
   "the media pipeline emits bounded WebP journey scenes");
-const journey = ["ur", "haran", "shechem", "bethel", "penuel", "hebron", "beersheba", "moriah", "dothan"];
+const journey = ["ur", "haran", "shechem", "hebron", "beersheba", "moriah", "bethel", "penuel", "dothan"];
 assert(journey.every((id) => {
   const file = path.join(ROOT, "assets", "journey", id + ".webp");
   return fs.existsSync(file) && fs.statSync(file).size < 220000;

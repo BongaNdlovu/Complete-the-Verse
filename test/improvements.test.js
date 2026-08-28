@@ -39,10 +39,9 @@ assert(!/vendor\/supabase\/supabase\.js/.test(index) || /polish\.js/.test(index)
 assert(/js\/polish\.js/.test(index), "polish.js wired in index");
 assert(!/<script src="vendor\/supabase\/supabase\.js">/.test(index), "supabase not hard-loaded on every page");
 
-/* modes & UI */
 assert(/blitz:\s*\{\s*key:"blitz"/.test(game), "Scripture Blitz mode defined");
 assert(/trial:\{ key:"trial"/.test(game), "trial mode defined");
-assert(!/trial:\{ key:"trial", kick:"Campaign", hidden:true/.test(game), "trial is on the menu — hidden modes left seals unreachable");
+assert(!/trial:\{ key:"trial"[^}]*hidden:true/.test(game), "trial is on the menu");
 assert(/id="cloud-chip"/.test(index), "cloud status chip");
 assert(/id="offline-banner"/.test(index), "offline banner");
 assert(/id="res-board"/.test(index), "results leaderboard host");

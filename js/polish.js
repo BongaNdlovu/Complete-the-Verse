@@ -364,6 +364,7 @@ var Polish = (function () {
       case "endless":
         return "paced";
       case "practice":
+      case "team":
         return "30s";
       case "recall":
       case "pilgrim-recall":

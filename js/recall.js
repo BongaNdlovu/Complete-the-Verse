@@ -172,16 +172,13 @@ var Recall = (function(){
 
   var isCorrect = v => v === "exact" || v === "close";
 
-  /* Progressive help, in place of burning two wrong options — there are
-     no options to burn when you are typing.
-       1  how many words, and their lengths
-       2  first letter of each word
-       3  first word in full, initials for the rest */
   function hint(answer, level){
     var w = String(answer).trim().split(/\s+/).filter(Boolean);
     if(level <= 1) return w.map(x => "•".repeat(x.replace(/[^A-Za-z0-9']/g, "").length)).join("  ");
     if(level === 2) return w.map(x => x.charAt(0) + "…").join(" ");
-    return w.map((x, i) => i === 0 ? x : x.charAt(0) + "…").join(" ");
+    var keep = Math.max(2, Math.ceil(w.length / 2));
+    if(keep >= w.length) keep = Math.max(1, w.length - 1);
+    return w.map((x, i) => i < keep ? x : x.charAt(0) + "…").join(" ");
   }
 
   return {

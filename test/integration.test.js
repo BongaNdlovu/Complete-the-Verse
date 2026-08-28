@@ -258,6 +258,7 @@ read(sb, "invalidateRun();");
   eq("the typed replay is kept off it", read(s, "!!MODES['pilgrim-recall'].hidden"), true);
   eq("a fresh save starts the road at Ur", read(s, "Pilgrimage.currentSite(SAVE.pilgrim).id"), "ur");
   eq("nothing is cleared yet", read(s, "Pilgrimage.clearedCount(SAVE.pilgrim)"), 0);
+  eq("a fresh save has not seen the Ur film", read(s, "SAVE.set.urPrologueDone"), false);
 
   // Starting a site the way the briefing card does.
   read(s, "pendingSiteId = 'ur'; startRun('pilgrimage','disciple')");
@@ -277,6 +278,7 @@ read(sb, "invalidateRun();");
   eq("starting a run commits only the verse it serves",
      read(s, "SAVE.pilgrim.usedIds.length"), 1);
   eq("the commit is the verse actually served", read(s, "SAVE.pilgrim.usedIds[0] === R.q.id"), true);
+  eq("starting Ur spends the once-ever film flag", read(s, "SAVE.set.urPrologueDone"), true);
   ok("the rest of the draw is still unspent",
      read(s, "SAVE.pilgrim.usedIds.length") < read(s, "R.siteVerses.length"));
   eq("pilgrimage starts lean on powers", read(s, "R.powers.illum"), 0);
@@ -340,6 +342,75 @@ read(sb, "invalidateRun();");
      read(s, "SAVE.pilgrim.usedIds.length") < read(s, "Pilgrimage.VERSES_PER_SITE"));
   eq("the site records no attempt", read(s, "Pilgrimage.recordOf(SAVE.pilgrim,'ur')"), null);
   eq("and the road still points at Ur", read(s, "Pilgrimage.currentSite(SAVE.pilgrim).id"), "ur");
+}
+
+{
+  const s = boot();
+  read(s, "SAVE.illumReserve = 2; persist();");
+  read(s, "startRun('practice','watchman')");
+  eq("starting a run draws the reserved Illuminate", read(s, "SAVE.illumReserve"), 0);
+  eq("the run holds the reserved stock", read(s, "R.powers.illum"), 2);
+  read(s, "abandonRun()");
+  eq("backing out with no answers returns unused reserve", read(s, "SAVE.illumReserve"), 2);
+}
+
+{
+  const s = boot();
+  read(s, "SAVE.illumReserve = 2; persist();");
+  read(s, "startRun('practice','watchman')");
+  read(s, "spendIlluminate()");
+  read(s, "R.quickRewards = []; R.attempts = 1; R.correct = 1; endRun('complete')");
+  eq("spending one reserved Illuminate banks the unused one", read(s, "SAVE.illumReserve"), 1);
+  ok("finishing a run grants First Light", read(s, "hasSeal('first')"));
+}
+
+{
+  const s = boot();
+  read(s, "startRun('practice','watchman')");
+  read(s, "R.attempts = 1; R.correct = 0; endRun('death')");
+  eq("dying is not a completed first run", read(s, "hasSeal('first')"), false);
+}
+
+{
+  const s = boot();
+  const xp = read(s, "SAVE.xp");
+  const oil = read(s, "SAVE.oil||0");
+  const runs = read(s, "SAVE.runs");
+  const srs = read(s, "Object.keys(SAVE.srs).length");
+  read(s, "startRun('team','watchman')");
+  eq("team mode draws ten verses", read(s, "R.practiceLen"), 10);
+  eq("White goes first", read(s, "R.teamSide"), "white");
+  eq("team mode brings no powers", read(s, "R.powers.selah+R.powers.illum+R.powers.wind"), 0);
+  for (let i = 0; i < 5; i++) {
+    read(s, "resolveAnswer(R.q, R.q.a, $('btn-opt-0'), 400, 3000)");
+    if (i < 4) read(s, "nextQuestion()");
+  }
+  eq("White's five are in before the handoff", read(s, "R.teams.white.kept"), 5);
+  read(s, "nextQuestion()");
+  eq("the fifth verse hands the device to Blue", read(s, "R.teamSide"), "blue");
+  read(s, "hideState(); nextQuestion()");
+  for (let i = 0; i < 5; i++) {
+    read(s, "resolveAnswer(R.q, R.q.a, $('btn-opt-0'), 900, 3000)");
+    if (i < 4) read(s, "nextQuestion()");
+  }
+  read(s, "endRun('complete')");
+  eq("a finished match does not grant XP", read(s, "SAVE.xp"), xp);
+  eq("a finished match does not grant oil", read(s, "SAVE.oil||0"), oil);
+  eq("a finished match is not a run", read(s, "SAVE.runs"), runs);
+  eq("a finished match does not train the Drill", read(s, "Object.keys(SAVE.srs).length"), srs);
+  eq("White wins the time tie-break", read(s, "teamWinner()"), "white");
+}
+
+{
+  const s = boot();
+  read(s, "startRun('team','watchman',{teamSide:'blue'})");
+  eq("Blue can start the match", read(s, "R.teamSide"), "blue");
+  for (let i = 0; i < 5; i++) {
+    read(s, "resolveAnswer(R.q, R.q.a, $('btn-opt-0'), 400, 3000)");
+    if (i < 4) read(s, "nextQuestion()");
+  }
+  read(s, "nextQuestion()");
+  eq("after Blue's five the device passes to White", read(s, "R.teamSide"), "white");
 }
 
 /* ---------- a death no longer spends the day's Daily shot ----------
@@ -493,7 +564,6 @@ read(sb, "invalidateRun();");
   ok("menu-review-due hidden when 0 due", read(s, "document.getElementById('menu-review-due') ? document.getElementById('menu-review-due').style.display === 'none' : false"));
   ok("study-review-due hidden when 0 due", read(s, "document.getElementById('study-review-due') ? document.getElementById('study-review-due').style.display === 'none' : false"));
 
-  // With due items
   read(s, "SAVE.srs = {}; SAVE.srs[VERSES[0].id] = { reps: 1, due: today() - 1, last: today() - 2, ef: 2.5, ivl: 1, lapses: 0 };");
   read(s, "renderMenu(); renderStudy();");
   ok("menu-review-due visible when due > 0", read(s, "document.getElementById('menu-review-due').style.display !== 'none'"));

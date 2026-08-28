@@ -74,6 +74,12 @@
 @keyframes hbeat{0%,100%{transform:scale(1)}18%{transform:scale(1.22)}34%{transform:scale(1.04)}52%{transform:scale(1.16)}}
 body.reduced .hrt.last,body.reduced .hrt.break{animation:none}
 .heartrow b{font-family:var(--disp);font-size:clamp(.9rem,1.5vw,1.25rem);color:var(--gold-hot);margin-left:2px}
+.team-mark{width:clamp(12px,1.25vw,16px);height:clamp(12px,1.25vw,16px);transform:rotate(45deg);opacity:.34;flex:0 0 auto}
+.team-mark.white{background:#efe8dc;box-shadow:0 0 0 1px rgba(0,0,0,.45)}
+.team-mark.blue{background:#3a6ea8;box-shadow:0 0 0 1px rgba(0,0,0,.45)}
+.team-mark.on{opacity:1;transform:rotate(45deg) scale(1.22)}
+.team-mark.white.on{box-shadow:0 0 14px rgba(244,239,228,.7),0 0 0 1px rgba(0,0,0,.5)}
+.team-mark.blue.on{box-shadow:0 0 14px rgba(80,140,200,.75),0 0 0 1px rgba(0,0,0,.5)}
 .hrt.lamp{width:clamp(18px,2vw,24px);height:clamp(22px,2.4vw,28px);
   filter:drop-shadow(0 0 8px rgba(255,196,110,.55))}
 .hrt.lamp.gone{filter:none;opacity:.28}
@@ -241,11 +247,10 @@ body.reduced .verse-main .blank.pblank.active{animation:none}
 .biblical-thriller .slot.full{box-shadow:0 0 0 1px rgba(226,182,108,.62) inset,0 0 0 2px rgba(0,0,0,.8),0 12px 30px -16px #000}
 .biblical-thriller .frag{background:linear-gradient(180deg,rgba(46,32,22,.92),rgba(12,9,8,.96))}
 
-/* Always-visible countdown: thin depleting bar under the header, not a ring. */
 .clockbar{
-  position:absolute;top:calc(var(--hdr-h) + 8px);left:0;right:0;margin:0 auto;
-  width:min(200px,38vw);z-index:12;pointer-events:none;
-  display:flex;flex-direction:column;align-items:center;gap:3px}
+  position:static;width:min(132px,14vw);z-index:6;pointer-events:none;margin:0;
+  display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.hud-time{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 .clockbar-track{
   width:100%;height:4px;border-radius:2px;overflow:hidden;
   background:rgba(8,9,12,.72);box-shadow:0 0 0 1px rgba(255,255,255,.08) inset}
@@ -253,7 +258,7 @@ body.reduced .verse-main .blank.pblank.active{animation:none}
   display:block;height:100%;width:100%;transform-origin:left center;
   transform:scaleX(1);background:linear-gradient(90deg,#ffe8ae,#d5ad62 42%,#bd4a3d 74%,#711419);
   box-shadow:0 0 10px rgba(224,36,44,.55)}
-.clockbar b{font-family:var(--disp);font-weight:700;font-size:.68rem;letter-spacing:.04em;
+.clockbar b{font-family:var(--disp);font-weight:700;font-size:clamp(.9rem,1.5vw,1.28rem);letter-spacing:.04em;
   color:var(--gold-hot);font-variant-numeric:tabular-nums;line-height:1;
   text-shadow:0 0 16px rgba(255,227,166,.45)}
 .clockbar.crit b{color:#ff8a8e;text-shadow:0 0 16px rgba(255,90,98,.9)}
@@ -262,12 +267,11 @@ body.reduced .verse-main .blank.pblank.active{animation:none}
 body.reduced .ring.crit{animation:none}
 body.reduced .clockbar.crit .clockbar-fill{animation:none}
 
-/* control cluster */
 .control{display:flex;align-items:center;justify-content:center;gap:clamp(12px,2vw,32px);
   margin-top:clamp(10px,1.8vh,22px);z-index:3}
-.warn{font-family:var(--ui);font-size:clamp(.54rem,.86vw,.72rem);letter-spacing:.2em;text-transform:uppercase;
-  line-height:2;color:#9d9484;text-align:left;white-space:nowrap}
-.warn b{display:block;color:#e6bfa4;font-weight:600}
+.warn{font-family:var(--ui);font-size:clamp(.54rem,.86vw,.72rem);letter-spacing:.16em;text-transform:uppercase;
+  line-height:1.45;color:#9d9484;text-align:center;white-space:normal;max-width:min(520px,90vw)}
+.warn b{display:none}
 .warn b.hot{color:#ff8a8e;text-shadow:0 0 16px rgba(255,90,98,.7)}
 .confirm-answer,.recon-confirm{min-width:clamp(140px,14vw,200px);padding:.75em 1.2em;
   font-family:var(--ui);font-size:clamp(.58rem,.88vw,.76rem);font-weight:650;letter-spacing:.18em;
@@ -287,10 +291,9 @@ body.motion-calm .confirm-answer:not(:disabled){animation:none}
   box-shadow:0 0 0 2px rgba(0,0,0,.82),inset 0 0 24px rgba(255,219,141,.14),0 0 34px -10px rgba(225,183,99,.68)}
 .confirm-answer:disabled,.recon-confirm:disabled{opacity:.3;filter:saturate(.25);cursor:not-allowed}
 .recon-confirm{min-width:220px}
-/* powers */
-.powerbar{position:relative;inset:auto;flex:0 0 auto;margin-top:clamp(8px,1.4vh,16px);z-index:8;
+.powerbar{position:relative;inset:auto;flex:0 0 auto;margin-top:clamp(10px,1.6vh,18px);z-index:8;
   display:flex;justify-content:center;flex-wrap:wrap;gap:7px;
-  padding-bottom:max(4px, env(safe-area-inset-bottom, 0px))}
+  padding:8px 8px max(10px, env(safe-area-inset-bottom, 0px))}
 .pwr{font-family:var(--ui);font-size:clamp(.58rem,.72vw,.68rem);letter-spacing:.16em;text-transform:uppercase;
   color:#d8c7a0;min-height:44px;padding:.5em .85em .45em 1em;background:rgba(8,9,12,.78);backdrop-filter:blur(6px);
   box-shadow:0 0 0 1px rgba(200,168,102,.28) inset;transition:.2s;white-space:nowrap}
@@ -412,6 +415,13 @@ body.reduced #lock-seal i{animation:none}
 #site-quote.on:after{content:"Tap to continue";font-family:var(--ui);font-size:.58rem;
   letter-spacing:.32em;text-transform:uppercase;color:#8a8070;margin-top:1.6rem}
 
+#ur-prologue{position:absolute;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;
+  background:#04040a;opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .45s ease,visibility .45s}
+#ur-prologue.on{opacity:1;visibility:visible;pointer-events:auto}
+#ur-prologue-video{width:100%;height:100%;object-fit:cover}
+#ur-prologue .intro-skip{z-index:2}
+
 /* Witness token — chosen scholar, circular. Looks down on a miss. */
 .witness{position:absolute;right:clamp(14px,2.8vw,48px);bottom:clamp(10px,2.2vh,28px);
   z-index:4;width:clamp(44px,5.4vw,68px);pointer-events:none}
@@ -421,7 +431,7 @@ body.reduced #lock-seal i{animation:none}
   transition:filter .4s ease,transform .45s ease}
 .witness.look img{filter:saturate(.3) brightness(.52);transform:rotate(-8deg) translateY(5px)}
 body.reduced .witness img{transition:none}
-body.reduced #pause,body.reduced #site-quote,body.reduced #tutorial,
+body.reduced #pause,body.reduced #site-quote,body.reduced #ur-prologue,body.reduced #tutorial,
 body.reduced #reveal-stage,body.reduced .setpiece-card,body.reduced #site-motif,
 body.reduced #lock-seal{transition:none}
 @media (max-width:600px){
@@ -490,7 +500,6 @@ body.reduced .res-details[open] .breakdown,body.reduced .res-details[open] .stat
   .slot{flex:1 1 46%}
 }
 @media (max-width:600px){
-  /* rails become a single strip under the header so nothing overlaps the verse */
   .rail{position:static;flex-direction:row;align-items:center;justify-content:space-between;
     width:100%;gap:10px;padding:6px 12px}
   .rail.r{text-align:left;align-items:center}
@@ -508,7 +517,8 @@ body.reduced .res-details[open] .breakdown,body.reduced .res-details[open] .stat
   .answers{width:100%;margin-top:20px;gap:10px}
   .ans{flex:1 1 100%;font-size:.84rem}
   .control{margin-top:20px;flex-wrap:wrap;gap:14px}
-  .clockbar{top:auto;bottom:max(56px, env(safe-area-inset-bottom, 0px));width:min(180px,70vw)}
+  .clockbar{width:min(120px,28vw);align-items:flex-end}
+  .hud-time{align-items:flex-end}
   .confirm-answer{min-width:min(240px,70vw);min-height:52px;padding:1em 1.4em;font-size:.78rem;letter-spacing:.14em}
   .powerbar{position:static;justify-content:center;flex-wrap:wrap;margin:12px 0 8px}
   .assembly.on{width:100%;margin-top:14px}
@@ -697,7 +707,7 @@ body.biblical-thriller{
   text-shadow:0 2px 8px rgba(0,0,0,.95);
   border:0;
 }
-.biblical-thriller .verse-stage:before{content:"SCRIPTURE RECALL  •  KING JAMES VERSION";top:2px;font-family:var(--ui);font-size:.52rem;letter-spacing:.32em;color:rgba(223,194,136,.55)}
+.biblical-thriller .verse-stage:before{content:"KING JAMES VERSION";top:2px;font-family:var(--ui);font-size:.52rem;letter-spacing:.32em;color:rgba(223,194,136,.55)}
 .biblical-thriller .verse-stage:after{background:linear-gradient(90deg,transparent,var(--blood-hot),var(--gold),var(--blood-hot),transparent);animation:trialSweep 3.2s ease-in-out infinite}
 @keyframes trialSweep{0%,100%{transform:scaleX(.2);opacity:.18}50%{transform:scaleX(1);opacity:.8}}
 .biblical-thriller .verse-main{
@@ -1368,8 +1378,6 @@ body.abraham-active .tf-stage{
 body.abraham-active .assembly.on{margin-top:clamp(12px,2vh,22px)}
 body.abraham-active .control{width:100%}
 
-/* Dense mechanics give the illustration more visual air while keeping it
-   present as the journey's companion. */
 .question-abraham[data-mechanic="typed"]{width:clamp(208px,23vw,350px);opacity:.9}
 .question-abraham[data-mechanic="cloze"],
 .question-abraham[data-mechanic="passage-ref"],
@@ -1377,18 +1385,18 @@ body.abraham-active .control{width:100%}
 .question-abraham[data-mechanic="fade"]{width:clamp(205px,23vw,350px);opacity:.78}
 .question-abraham[data-mechanic="passage"],
 .question-abraham[data-mechanic="reconstruct"]{width:clamp(185px,21vw,320px);opacity:.52}
-.question-abraham.success img{animation:abrahamSuccess .72s cubic-bezier(.16,.84,.28,1) both}
-.question-abraham.failure img{animation:abrahamFailure .46s cubic-bezier(.2,.7,.2,1) both}
+.question-abraham.success img{animation:abrahamSuccess 1.05s cubic-bezier(.16,.84,.28,1) both}
+.question-abraham.failure img{animation:abrahamFailure .78s cubic-bezier(.2,.7,.2,1) both}
 @keyframes abrahamSuccess{
   0%{transform:translateY(0) scale(1)}
-  42%{transform:translateY(-7px) scale(1.018)}
+  38%{transform:translateY(-28px) scale(1.12)}
   100%{transform:translateY(0) scale(1)}
 }
 @keyframes abrahamFailure{
-  0%,100%{transform:translateX(0) rotate(0)}
-  22%{transform:translateX(-3px) rotate(-.35deg)}
-  48%{transform:translateX(3px) rotate(.35deg)}
-  74%{transform:translateX(-1px) rotate(-.1deg)}
+  0%,100%{transform:translateX(0) rotate(0) scale(1)}
+  18%{transform:translateX(-14px) rotate(-2.4deg) scale(1.04)}
+  42%{transform:translateX(14px) rotate(2.4deg) scale(1.04)}
+  66%{transform:translateX(-8px) rotate(-1.2deg) scale(1.02)}
 }
 body.reduced .question-abraham.success img,
 body.reduced .question-abraham.failure img,
@@ -1403,6 +1411,7 @@ body.motion-calm .question-abraham.failure img{animation:none}
   #hud-lives-wrap .rail-lab{writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:.24em}
   #hud-lives{flex-direction:column;align-items:center;gap:5px;margin-top:0}
   #hud-lives .hrt{width:clamp(19px,1.8vw,24px);height:clamp(22px,2.1vw,28px)}
+  #hud-lives .team-mark{width:clamp(13px,1.15vw,17px);height:clamp(13px,1.15vw,17px)}
   #hud-lives b{margin:3px 0 0}
 
   .rail.r{gap:clamp(7px,1.15vh,12px);right:clamp(14px,2.2vw,36px)}
@@ -1453,9 +1462,54 @@ body.abraham-active:has(#reveal-stage.on) .question-abraham{
 
 body.mode-beat .powerbar,
 body.mode-beat #hud-lives-wrap,
-body.mode-beat #momentum{display:none}
+body.mode-beat #momentum,
+body.mode-beat .question-abraham,
+body.mode-beat .kjv,
+body.mode-beat .witness,
+body.mode-beat .play-top-stack,
+body.mode-beat .hdr,
+body.mode-beat .rail.l,
+body.mode-beat .play-quit,
+body.mode-beat .cine-parallax-video,
+body.mode-beat .cine-parallax-img{display:none!important}
+body.mode-beat:not(.beat-cinema) .rail.r > :not(.hud-time){display:none!important}
+body.mode-beat.beat-cinema .hdr,
+body.mode-beat.beat-cinema .rail,
+body.mode-beat.beat-cinema .play-quit,
+body.mode-beat.beat-cinema .question-content,
+body.mode-beat.beat-cinema .cine-parallax-video,
+body.mode-beat.beat-cinema .cine-parallax-img,
+body.mode-beat.beat-cinema .clockbar,
 body.mode-beat.beat-cinema .answers,
-body.mode-beat.beat-cinema .confirm-answer{visibility:hidden}
+body.mode-beat.beat-cinema .confirm-answer,
+body.mode-beat.beat-cinema .warn{display:none!important}
+body.mode-beat #backdrop{opacity:1;filter:none}
+body.mode-beat.beat-cinema #backdrop{animation:beatKen 9s ease-in-out forwards}
+body.mode-beat.beat-cinema #voice-caption{
+  z-index:20; bottom:max(28px, calc(env(safe-area-inset-bottom) + 28px));
+  max-width:min(720px, 86vw); font-size:clamp(1.05rem, 2.4vw, 1.45rem);
+  text-align:center; text-shadow:0 3px 18px #000;
+}
+@keyframes beatKen{
+  from{transform:scale(1.04) translate(0, 1%)}
+  to{transform:scale(1.16) translate(-1.4%, -2%)}
+}
+#v-play.beat-flash:after{
+  content:""; position:absolute; inset:0; z-index:18; pointer-events:none;
+  background:#fff; animation:beatFlash .32s ease-out both;
+}
+#v-play.beat-flash.beat-shake:after{background:#7a1010}
+#v-play.beat-shake{animation:beatStageShake .4s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes beatFlash{0%{opacity:.72}100%{opacity:0}}
+@keyframes beatStageShake{
+  10%,90%{transform:translateX(-3px)}
+  20%,80%{transform:translateX(5px)}
+  30%,50%,70%{transform:translateX(-8px)}
+  40%,60%{transform:translateX(8px)}
+}
+body.reduced #v-play.beat-flash:after,
+body.reduced #v-play.beat-shake,
+body.reduced.mode-beat.beat-cinema #backdrop{animation:none}
 body.beat-fx-wind #backdrop{filter:saturate(.85) contrast(1.05)}
 body.beat-fx-breath #backdrop{animation:beatBreath 2.8s ease-in-out infinite}
 body.beat-fx-run #backdrop{animation:beatRun 0.55s ease-out}
@@ -1467,6 +1521,39 @@ body.beat-fx-run #backdrop{animation:beatRun 0.55s ease-out}
   0%{transform:translateX(0)}
   40%{transform:translateX(-10px)}
   100%{transform:translateX(0)}
+}
+body.mode-team #hud-lives-wrap{display:flex}
+body.team-white #hud-round{
+  background:none;-webkit-background-clip:border-box;background-clip:border-box;color:#f4efe4;
+  filter:drop-shadow(0 0 14px rgba(244,239,228,.35))
+}
+body.team-blue #hud-round{
+  background:none;-webkit-background-clip:border-box;background-clip:border-box;color:#9ec4ea;
+  filter:drop-shadow(0 0 14px rgba(80,140,200,.45))
+}
+body.biblical-thriller.team-white .hdr-rule{
+  background:linear-gradient(90deg,transparent,rgba(244,239,228,.18) 18%,#efe8dc 50%,rgba(244,239,228,.18) 82%,transparent);
+  box-shadow:0 0 13px rgba(244,239,228,.28)
+}
+body.biblical-thriller.team-white .hdr-rule:after{
+  background:linear-gradient(135deg,#fffaf0,#c8c2b4);
+  box-shadow:0 0 16px rgba(244,239,228,.7),0 0 0 1px rgba(0,0,0,.6)
+}
+body.biblical-thriller.team-blue .hdr-rule{
+  background:linear-gradient(90deg,transparent,rgba(42,95,158,.22) 18%,#3a6ea8 50%,rgba(42,95,158,.22) 82%,transparent);
+  box-shadow:0 0 13px rgba(58,110,168,.45)
+}
+body.biblical-thriller.team-blue .hdr-rule:after{
+  background:linear-gradient(135deg,#9ec4ea,#2a5f9e);
+  box-shadow:0 0 16px rgba(80,140,200,.75),0 0 0 1px rgba(0,0,0,.6)
+}
+body.biblical-thriller.team-white .clockbar-fill{
+  background:linear-gradient(90deg,#fffaf0,#d8d0c0 55%,#9a9284);
+  box-shadow:0 0 10px rgba(244,239,228,.4)
+}
+body.biblical-thriller.team-blue .clockbar-fill{
+  background:linear-gradient(90deg,#d6e8f8,#4d7eb0 55%,#1e4a7a);
+  box-shadow:0 0 10px rgba(80,140,200,.5)
 }
 body.reduced .beat-fx-breath #backdrop,
 body.reduced .beat-fx-run #backdrop{animation:none}

@@ -38,6 +38,13 @@ var Flow = (function(){
       primary: "Return to the hall",
       secondary: ""
     },
+    "team-handoff": {
+      kick: "Five down",
+      title: "Pass the device",
+      body: "Hand the device to the other team. They answer five different verses next. Tap when they are looking at the screen.",
+      primary: "Ready",
+      secondary: ""
+    },
     "empty-draw": {
       kick: "The road",
       title: "This place has no reading",
@@ -107,7 +114,7 @@ var Flow = (function(){
      Act cards, set-pieces, results and death are their own beats. */
   function shouldWipe(ctx){
     if(!ctx || ctx.ended || ctx.reduced) return false;
-    if(ctx.toAct || ctx.toSetpiece || ctx.toEnd || ctx.toDeath) return false;
+    if(ctx.toAct || ctx.toSetpiece || ctx.toEnd || ctx.toDeath || ctx.toHandoff) return false;
     return true;
   }
 

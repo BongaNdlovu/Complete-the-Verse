@@ -32,9 +32,9 @@ const playCss = fs.readFileSync(path.join(ROOT, "css", "play.css"), "utf8");
 assert("question-body scroll region exists", index.includes('class="question-body"'));
 assert("powerbar is outside question-body", /question-body[\s\S]*control[\s\S]*<\/div>\s*<div class="powerbar"/.test(index));
 assert("default HUD clock reads 30s", index.includes('id="clock">00:30</b>'));
-assert("clock is a depleting bar pinned under the header",
+assert("clock is a right-rail time column",
   /class="clockbar ring"/.test(index) && /id="ring-arc"/.test(index) &&
-  /\.clockbar\{[^}]*position:\s*absolute/.test(playCss));
+  /class="hud-time"/.test(index) && /\.clockbar\{[^}]*position:\s*static/.test(playCss));
 assert("question-body can scroll", /\.question-body\{[^}]*overflow-y:\s*auto/.test(playCss));
 assert("powerbar is a reserved footer", /\.powerbar\{[^}]*flex:\s*0\s*0\s*auto/.test(playCss));
 assert("typed assemble template has no duplicate typed-pwr buttons",
@@ -65,6 +65,10 @@ assert("recall mode is 45s", read("questionDuration()") === 45000);
 run("startRun('practice','watchman');");
 assert("practice is 30s", read("questionDuration()") === 30000);
 
+run("startRun('team','watchman');");
+assert("team mode is 30s", read("questionDuration()") === 30000);
+assert("team mode has no powers", read("R.powers.selah===0 && R.powers.illum===0 && R.powers.wind===0"));
+
 run("startRun('trial','watchman');");
 assert("trial is not flattened to 30s", read("questionDuration()") !== 30000);
 
@@ -93,4 +97,4 @@ if (fails.length) {
   fails.forEach(f => console.error(" - " + f));
   process.exit(1);
 }
-console.log("PASS — clocks-powers · " + (29) + " contracts verified");
+console.log("PASS — clocks-powers · " + (31) + " contracts verified");

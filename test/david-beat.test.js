@@ -54,6 +54,17 @@ ok("Q11 trap already drawn", qs[10].choices[0].indexOf("already drawn") >= 0);
 eq("Q12 head Jerusalem", qs[11].rows[0].a, "Jerusalem");
 eq("Q12 armour tent", qs[11].rows[1].a, "David's tent");
 ok("Q12 scatter Nob", qs[11].scatter.indexOf("Nob") >= 0);
+eq("cinema A 1 is valley VO", Beat.cinemaA[0].still + Beat.cinemaA[0].vo, "01.jpegvo-01-valley.mp3");
+eq("cinema A 3 is defy", Beat.cinemaA[2].vo, "vo-03-defy.mp3");
+eq("cinema A 5 is crowd only", Beat.cinemaA[4].sfx, "sfx-05-crowd.mp3");
+eq("cinema B 6 is wind-shield under youth", Beat.cinemaB[0].sfx, "sfx-06-wind-shield.mp3");
+eq("cinema B 7 is breath only", Beat.cinemaB[1].sfx, "sfx-07-breath.mp3");
+eq("cinema B 10 thud before name", Beat.cinemaB[4].sfxFirst && Beat.cinemaB[4].sfx, "sfx-10-thud.mp3");
+ok("Q1 has no borrowed SFX", !qs[0].sfx);
+ok("Q2 has no wind-shield", !qs[1].sfx);
+eq("Q4 uses pass wind not thud", qs[3].sfx, "sfx-06-wind-shield.mp3");
+eq("Q7 uses thud on the run plate", qs[6].sfx, "sfx-10-thud.mp3");
+ok("Q8 has no crowd bed", !qs[7].sfx);
 
 const src = fs.readFileSync(path.join(ROOT, "js", "beat.js"), "utf8");
 ok("no bronze", !/bronze/.test(src));

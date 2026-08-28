@@ -26,7 +26,7 @@ const BEDS = [
   { key: "results", file: "results.mp3", slot: "Results screen" },
   { key: "finalStillness", file: "final-stillness.mp3", slot: "Completed-run results" },
   { key: "suddenDescent", file: "sudden-descent.mp3", slot: "Failed-run results" },
-  { key: "indigo", file: "indigo.mp3", slot: "Tutorial and Ur (cycle start)" },
+  { key: "indigo", file: "indigo.mp3", slot: "First-run tutorial / Team Mode questions" },
   { key: "heroes", file: "heroes.mp3", slot: "Road question bed" },
   { key: "pointOfImpact", file: "point-of-impact.mp3", slot: "Road question bed" },
   { key: "primarySuspect", file: "primary-suspect.mp3", slot: "Road question bed" },
@@ -79,9 +79,13 @@ assert(/reason === "death" \|\| reason === "abandon"/.test(game) && /"suddenDesc
   "failed and abandoned runs select Sudden Descent");
 assert(/Snd\.ambience\("indigo"\)/.test(game),
   "first-run tutorial selects Indigo");
+assert(/R\.mode==="tutorial" \|\| R\.mode==="team"/.test(game),
+  "Team Mode questions play Indigo only");
+assert(/isPilgrim \|\| mode==="relay" \|\| mode==="team"/.test(game),
+  "Team Mode does not start an act bed before questions");
 assert(/function cueQuestionMusic\(/.test(game),
   "question-time music helper exists");
-assert(/Snd\.ambience\(ROAD_QUESTION_BEDS/.test(game) || /ROAD_QUESTION_BEDS/.test(game), "road question beds cycle including indigo");
+assert(/Snd\.ambience\(ROAD_QUESTION_BEDS/.test(game) || /ROAD_QUESTION_BEDS/.test(game), "road question beds cycle");
 assert(/fearOfTheDark/.test(game), "Valley Beat uses Fear of the Dark");
 assert(/cueQuestionMusic\(\)/.test(game),
   "live questions cue a question bed");
@@ -89,12 +93,10 @@ assert(/Snd\.ambience\(A\.pal\)/.test(game), "beginAct uses act palette ambience
 assert(/pal:"act1"/.test(game) && /pal:"act2"/.test(game) && /pal:"act3"/.test(game) &&
   /pal:"act4"/.test(game) && /pal:"act5"/.test(game), "ACTS define pal act1–act5");
 
-// Mode palette routing for non-trial
-assert(/mode==="endless"\s*\?\s*"act3"/.test(game), "Endless uses act3 bed");
-assert(/mode==="practice"\s*\?\s*"act1"/.test(game), "Practice uses act1 bed");
+assert(/if\(mode==="endless"\) return "act3"/.test(game), "Endless uses act3 bed");
+assert(/if\(mode==="practice" \|\| mode==="team"\) return "act1"/.test(game), "Practice and Team Mode use act1 bed");
 assert(/:\s*"act2"/.test(game), "Daily uses act2 bed");
 
-// Playback plumbing
 assert(/function playTrack\(name\)/.test(game), "playTrack helper");
 assert(/function stopAllTracks\(/.test(game), "stopAllTracks helper");
 assert(/TRACKS\[bed\]/.test(game), "unlock resumes current track bed");

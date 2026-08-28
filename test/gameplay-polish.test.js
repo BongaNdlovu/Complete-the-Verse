@@ -185,6 +185,7 @@ assert(/#site-quote\.on/.test(gameCss), "quote overlay is class-gated");
 assert(/position:absolute/.test(gameCss.match(/#site-quote\{[^}]+\}/)[0]),
   "quote overlay is out of the play flex flow");
 assert(/hideSiteQuote\(\)/.test(game), "end/abandon tear the quote down");
+assert(/hideUrPrologue/.test(game), "end/abandon tear the Ur film down");
 assert(/quoteEl\.classList\.contains\("on"\)/.test(game), "keyboard can skip the quote");
 
 /* --- judge burst (sprite sheet, same idea as the map walker) --- */

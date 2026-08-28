@@ -197,6 +197,7 @@ assert(new RegExp(resolved + " re-authored").test(qmd),
 
 /* ---------- modes and review systems ---------- */
 assert(game.includes('practice:{ key:"practice"'), "drill mode defined");
+assert(game.includes('team:{ key:"team"'), "team mode defined");
 assert(game.includes('recall:{ key:"recall"'), "recall (typing) mode defined");
 assert(game.includes("function drawReviewVerse"), "SRS-driven draw implemented");
 assert(!game.includes("function drawPracticeVerse"), "accuracy-weighted draw replaced");

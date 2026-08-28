@@ -21,6 +21,13 @@ const fmt = n => Math.round(n).toLocaleString();
    the same verse must never surface twice in one run. */
 const refKey = v => String(v && v.r || "").toLowerCase();
 function poolSansRepeatRefs(pool){
-  const out = pool.filter(v=>!R.usedRefs.has(refKey(v)));
-  return out.length ? out : pool;   /* a drained tier relaxes the rule rather than stall */
+  const seen = new Set();
+  const out = [];
+  for(let i=0;i<pool.length;i++){
+    const k = refKey(pool[i]);
+    if(R.usedRefs.has(k) || seen.has(k)) continue;
+    seen.add(k);
+    out.push(pool[i]);
+  }
+  return out.length ? out : pool;
 }
