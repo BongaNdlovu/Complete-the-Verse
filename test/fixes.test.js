@@ -130,15 +130,30 @@ const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"))
 ok("the three dependency is dropped", !pkg.dependencies || !pkg.dependencies.three, pkg.dependencies);
 const chars = fs.readdirSync(path.join(ROOT, "assets", "characters"));
 ok("character folders carry only wired art",
-   chars.every(c => (c === "abram" ? ["portrait.png", "question.png", "token.png"] : ["portrait.png", "token.png"]).sort().join() ===
-     fs.readdirSync(path.join(ROOT, "assets", "characters", c)).sort().join()),
+   chars.every(c => {
+     const expected = c === "abram" ? ["portrait.png", "question.png", "token.png"]
+       : c === "moses" ? ["portrait.png", "question.png", "token.png"]
+       : ["portrait.png", "token.png"];
+     return expected.sort().join() === fs.readdirSync(path.join(ROOT, "assets", "characters", c)).sort().join();
+   }),
    chars.filter(c => {
      const f = fs.readdirSync(path.join(ROOT, "assets", "characters", c)).sort().join();
-     const expected = c === "abram" ? ["portrait.png", "question.png", "token.png"] : ["portrait.png", "token.png"];
+     const expected = c === "abram" ? ["portrait.png", "question.png", "token.png"]
+       : c === "moses" ? ["portrait.png", "question.png", "token.png"]
+       : ["portrait.png", "token.png"];
      return f !== expected.sort().join();
    }));
 ok("Abraham question art is mapped in character data",
    /question:\s*["']assets\/characters\/abram\/question\.png["']/.test(fs.readFileSync(path.join(ROOT, "js", "characters.js"), "utf8")));
+ok("Moses question art is mapped in character data",
+   /question:\s*["']assets\/characters\/moses\/question\.png["']/.test(fs.readFileSync(path.join(ROOT, "js", "characters.js"), "utf8")));
+ok("Midian uses midian.mp4", /midian:"assets\/journey\/midian\.mp4"/.test(game));
+ok("Yam Suph uses yam-suph.mp4", /"yam-suph":"assets\/journey\/yam-suph\.mp4"/.test(game));
+ok("Sinai uses sinai.mp4", /sinai:"assets\/journey\/sinai\.mp4"/.test(game));
+["midian", "yam-suph", "sinai"].forEach(id => {
+  const f = path.join(ROOT, "assets", "journey", id + ".mp4");
+  ok(id + " ambient loop is present", fs.existsSync(f) && fs.statSync(f).size > 10000);
+});
 const vercelIgnore = fs.readFileSync(path.join(ROOT, ".vercelignore"), "utf8");
 ok("content tooling stays out of the deploy", /^content\/$/m.test(vercelIgnore));
 

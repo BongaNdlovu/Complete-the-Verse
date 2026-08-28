@@ -12,7 +12,7 @@
       stale cache eviction.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.7.0";
+const CACHE_VERSION = "ctv-v1.8.0";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MAX_AUDIO_ENTRIES = 25;
@@ -34,6 +34,7 @@ const PRECACHE_ASSETS = [
   "js/verses-more.js",
   "js/verses-ascent.js",
   "js/verses-tf.js",
+  "js/beat.js",
   "js/verses-notes.js",
   "js/passages.js",
   "js/legacy-ids.js",
@@ -68,7 +69,23 @@ const PRECACHE_ASSETS = [
   "js/diag.js",
   "js/briefs.js",
   "js/play.js",
-  "js/game.js"
+  "js/game.js",
+  "assets/beats/goliath/question.png",
+  "assets/beats/goliath/01.jpeg",
+  "assets/beats/goliath/02.jpeg",
+  "assets/beats/goliath/03.jpeg",
+  "assets/beats/goliath/04.jpeg",
+  "assets/beats/goliath/05.jpeg",
+  "assets/beats/goliath/06.jpeg",
+  "assets/beats/goliath/07.jpeg",
+  "assets/beats/goliath/08.jpeg",
+  "assets/beats/goliath/09.jpeg",
+  "assets/beats/goliath/10.jpeg",
+  "assets/beats/goliath/11.jpeg",
+  "assets/beats/goliath/12.jpeg",
+  "assets/beats/goliath/13.jpeg",
+  "assets/beats/goliath/14.jpeg",
+  "assets/beats/goliath/15.jpeg"
 ];
 
 /* Helper to check if a URL is an audio asset */

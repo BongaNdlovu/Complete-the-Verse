@@ -394,7 +394,7 @@ async function runLiveVerification() {
     // Early-road backdrop and Daily Name the Passage checks
     console.log("\n--- 5b. VERIFYING RAIN, MIST, AND DAILY PASSAGE REFERENCES ---");
     await verifyAmbientPlate("haran", "assets/journey/ur.mp4", true);
-    await verifyAmbientPlate("shechem", "assets/journey/patriarchs-mist.mp4", false);
+    await verifyAmbientPlate("shechem", "assets/journey/shechem.mp4", false);
     await client.eval(`startRun("daily", "watchman");`);
     await sleep(300);
     await client.eval(`for (let i = 0; i < 13; i++) nextQuestion();`);

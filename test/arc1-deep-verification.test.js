@@ -95,10 +95,22 @@ function assertSiteAmbient(site, vidEl) {
            `[${site.id}] rain video source is ur.mp4`);
     return;
   }
-  if (site.id === "shechem") {
-    assert(shown, `[${site.id}] mist video is visible at Shechem`);
-    assert(src.includes("assets/journey/patriarchs-mist.mp4"),
-           `[${site.id}] mist video source is patriarchs-mist.mp4`);
+  if (site.id === "shechem" || site.id === "bethel" || site.id === "penuel" || site.id === "hebron" || site.id === "beersheba") {
+    assert(shown, `[${site.id}] highland video is visible`);
+    assert(src.includes("assets/journey/shechem.mp4"),
+           `[${site.id}] highland video source is shechem.mp4`);
+    return;
+  }
+  if (site.id === "moriah") {
+    assert(shown, `[${site.id}] Moriah video is visible`);
+    assert(src.includes("assets/journey/moriah.mp4"),
+           `[${site.id}] Moriah video source is moriah.mp4`);
+    return;
+  }
+  if (site.id === "dothan") {
+    assert(shown, `[${site.id}] Dothan video is visible`);
+    assert(src.includes("assets/journey/dothan.mp4"),
+           `[${site.id}] Dothan video source is dothan.mp4`);
     return;
   }
   assert(!shown, `[${site.id}] Ambient video stays hidden off its assigned sites (display=${vidEl.style.display})`);
@@ -199,7 +211,6 @@ ARC1_SITES.forEach((site, sIdx) => {
     assert(bgStyle.includes(`assets/journey/${site.id}.webp`), `[${site.id}] Cinematic background syncs to assets/journey/${site.id}.webp (got: ${bgStyle})`);
   }
 
-  // Rain belongs to Ur and Haran; mist belongs to Shechem only.
   {
     const vidEl = read(sb, `$("cine-parallax-video")`);
     assert(!!vidEl, `[${site.id}] Ambient video element exists`);

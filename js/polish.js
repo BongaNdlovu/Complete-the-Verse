@@ -370,6 +370,8 @@ var Polish = (function () {
         return "45s";
       case "blitz":
         return "60s";
+      case "beat":
+        return "40s";
       default:
         return "";
     }

@@ -43,7 +43,7 @@ const PREFIX = [
   "js/assemble.js", "js/meta.js", "js/flow.js",
   "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js",
   "js/characters.js", "js/artifacts.js",
-  "js/live.js", "js/atlas.js"
+  "js/live.js", "js/atlas.js", "js/beat.js"
 ];
 const FILES = PREFIX.concat(ENGINE_FILES);
 
@@ -255,6 +255,17 @@ console.log("\n--- Mode 10/10: ARC RELAY ---");
     "Relay applies Name the Passage to verse 3 of every site");
   exec(sb, `endRun("complete");`);
   eq("Relay run recorded", read(sb, `R.ended`), true);
+}
+
+console.log("\n--- Mode 11: THE VALLEY ---");
+{
+  const sb = boot();
+  exec(sb, `startRun("beat", "watchman");`);
+  eq("Beat mode active", read(sb, `R.mode`), "beat");
+  for (let i = 0; i < 5; i++) exec(sb, `beatAdvancePlate();`);
+  eq("Q1 after camp cinema", read(sb, `R.q.id`), "beat-q1");
+  exec(sb, `resolveAnswer(R.q, R.q.a, null, 800, 40000); nextQuestion();`);
+  eq("lives held after a valley answer", read(sb, `R.lives`), 2);
 }
 
 console.log("\n==========================================");

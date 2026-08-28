@@ -8,9 +8,10 @@ const DEFAULT_SAVE = {
   v:3, xp:0, oil:0, illumReserve:0, runs:0,
   best:{trial:0, endless:0, daily:0, practice:0, recall:0, pilgrimage:0, "pilgrim-recall":0, blitz:0},
   seals:[],
-  life:{correct:0, attempts:0, bestStreak:0, sdBest:0, endlessBest:0, dailyDone:0, perfectActs:0,
+    life:{correct:0, attempts:0, bestStreak:0, sdBest:0, endlessBest:0, dailyDone:0, perfectActs:0,
         typedExact:0, typedAttempts:0, reviewsDone:0, sitesCleared:0, arcsCleared:0, blitzBest:0,
-        oilSpent:0, oilEarned:0, quickRewards:0, quickRewardXP:0, quickRewardOil:0, illumRewards:0},
+        oilSpent:0, oilEarned:0, quickRewards:0, quickRewardXP:0, quickRewardOil:0, illumRewards:0,
+        beatGoliathHeld:false},
   books:{}, verse:{}, srs:{}, board:[], journal:[],
   ghosts:{pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null},
   daily:{date:"", score:0},
@@ -279,6 +280,9 @@ const MODES = {
   pilgrimage:{ key:"pilgrimage", name:"The Pilgrimage", kick:"The long road", atlas:true,
     desc:"Forty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last beat is produced from memory with no options. The clock closes as you go east.",
     tagline:"46 sites · Ur to Patmos", info:[["46","Sites"],["8","Verses each"],[modeClockLabel("pilgrimage"),"Clock"]] },
+  beat:{ key:"beat", name:"The Valley", kick:"A Beat of Faith", atlas:false,
+    desc:"David and Goliath in the valley of Elah. Twelve questions from 1 Samuel 17. Forty seconds each. Held only if none are wrong.",
+    tagline:"Goliath · twelve questions · replay any time", info:[["12","Questions"],["40s","Clock"],["Held","None wrong"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, assembled word for word.",
     tagline:"Assemble · cleared sites", info:[["8","Verses"],["Assemble","No options"],[modeClockLabel("pilgrim-recall"),"Clock"]] },
@@ -350,7 +354,7 @@ function applyLeaveOverlays(plan){
   if(plan.clearPlayClasses){
     document.body.classList.remove("setpiece-active","overdrive","od-open","wiping",
       "mode-typed","speed-round","reveal-freeze","pressure-3","pressure-5","pressure-7",
-      "blitz-edge","blitz-edge-2","blitz-edge-3","retreat");
+      "blitz-edge","blitz-edge-2","blitz-edge-3","retreat","mode-beat","beat-cinema");
   }
 }
 function applyLeave(plan){
@@ -560,6 +564,7 @@ function startRunRelayQueue(){
 }
 
 function startRunPowers(mode, isPilgrim){
+  if(mode==="beat") return { startPowers:{selah:0, illum:0, wind:0}, reservedIlluminate:0 };
   const leanRoad = isPilgrim || mode==="relay";
   const startPowers = mode==="blitz"
     ? {selah:0, illum:0, wind:0}
@@ -569,6 +574,15 @@ function startRunPowers(mode, isPilgrim){
   const reservedIlluminate = Math.min(2, Math.max(0, Number(SAVE.illumReserve)||0));
   startPowers.illum += reservedIlluminate;
   return { startPowers: startPowers, reservedIlluminate: reservedIlluminate };
+}
+
+function startBeatStage(){
+  Backdrop.palette("act5");
+  Snd.ambience((typeof Beat!=="undefined" && Beat.bed) || "act5");
+  $("hud-round").textContent = MODES.beat.name;
+  applySiteSky(null);
+  go("play");
+  if(typeof playBeatCinema==="function") playBeatCinema(Beat.cinemaA);
 }
 
 function startRunOpenStage(mode, isPilgrim, siteId, relay){
@@ -646,7 +660,8 @@ function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDra
     quickRewards: (typeof QuickRewards !== "undefined" && QuickRewards.pick)
       ? QuickRewards.pick(mode, runToken + (SAVE.runs||0)) : [],
     quickRewardAnnounced: new Set(), quickResult: null,
-    reservedIlluminate: reservedIlluminate
+      reservedIlluminate: reservedIlluminate,
+    beatQ: 0, beatMiss: 0, beatBDone: false, beatPlates: null, beatPlateIdx: -1
   });
 }
 function startRun(mode, diffKey, options){
@@ -667,6 +682,7 @@ function startRun(mode, diffKey, options){
   assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDraw, relay,
     powerStart.startPowers, powerStart.reservedIlluminate, blitzMs, options);
   if(R.friendRoom) startFriendRacePolling(R.friendRoom);
+  document.body.classList.toggle("mode-beat", mode==="beat");
   document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4","blitz-edge","blitz-edge-2","blitz-edge-3");
   if(mode==="daily") R.daily = buildDailyList();
   renderLives();
@@ -679,6 +695,7 @@ function startRun(mode, diffKey, options){
   if(!startRunReviewQueue(mode, options)) return;
   claimIlluminateReserve();
   if(mode==="trial") beginAct(0);
+  else if(mode==="beat") startBeatStage();
   else startRunOpenStage(mode, isPilgrim, siteId, relay);
 }
 
@@ -1343,6 +1360,7 @@ function renderLives(lost){
   el.innerHTML = html;
 }
 function recordVerse(q, ok){
+  if(R.mode==="beat") return;
   const b = SAVE.books[q.b] || (SAVE.books[q.b]={c:0,a:0});
   b.a++; if(ok) b.c++;
   const v = SAVE.verse[q.id] || (SAVE.verse[q.id]={c:0,a:0});
@@ -1354,6 +1372,7 @@ function recordVerse(q, ok){
    practice-only side channel. Passage sub-answers are skipped: they carry
    no verse id of their own. */
 function scheduleReview(q, outcome){
+  if(R.mode==="beat") return;
   if(!q || !q.id) return;
   const card = reviewVerse(q, outcome);
   R.rescheduled.push({ r:q.r, ivl:card.ivl, correct:!!outcome.correct });

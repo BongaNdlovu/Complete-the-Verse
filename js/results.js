@@ -218,6 +218,11 @@ function endRunScore(reason, ctx){
 }
 
 function persistRunRecords(reason, ctx, total){
+  if(R.mode==="beat"){
+    SAVE.runs++;
+    if(reason==="complete" && typeof Beat!=="undefined" && Beat.held(R)) SAVE.life.beatGoliathHeld = true;
+    return { road: null, isRecord: false, prevBest: 0, dailyRecorded: false };
+  }
   SAVE.runs++;
   SAVE.life.bestStreak = Math.max(SAVE.life.bestStreak, R.best);
   if(R.mode==="trial") SAVE.life.sdBest = Math.max(SAVE.life.sdBest, R.sdCount);
@@ -277,6 +282,10 @@ function endRun(reason){
   invalidateRun();
   R.resultTrack = reason === "complete" ? "finalStillness"
     : (reason === "death" || reason === "abandon") ? "suddenDescent" : "results";
+  if(R.mode==="beat"){
+    R.resultTrack = (reason==="complete" && typeof Beat!=="undefined" && Beat.held(R))
+      ? "finalStillness" : "suddenDescent";
+  }
   clearSequence();
   hideSiteQuote();
   if(typeof stopFriendRacePolling === "function") stopFriendRacePolling();
@@ -484,8 +493,15 @@ function renderResultsRoadChrome(o){
 }
 
 function renderResultsRetryReview(o){
-  const isPilgrim = R.mode==="pilgrimage" || R.mode==="pilgrim-recall";
   const retryBtn = $("res-retry");
+  if(retryBtn && R.mode==="beat"){
+    retryBtn.style.display = "";
+    retryBtn.onclick = function(){ Snd.unlock(); Snd.ui(); startRun("beat", R.diff.key); };
+    const reviewMissedBtn = $("res-review-missed");
+    if(reviewMissedBtn) reviewMissedBtn.style.display = "none";
+    return;
+  }
+  const isPilgrim = R.mode==="pilgrimage" || R.mode==="pilgrim-recall";
   if(retryBtn){
     const showRetry = isPilgrim && !o.siteCleared && R.siteId;
     retryBtn.style.display = showRetry ? "" : "none";
@@ -507,7 +523,9 @@ function renderResultsRetryReview(o){
 }
 
 function renderResults(o){
-  $("res-kick").textContent = resultsKickText(o);
+  $("res-kick").textContent = R.mode==="beat"
+    ? ((typeof Beat!=="undefined" && Beat.held(R)) ? "Held" : "Scarred")
+    : resultsKickText(o);
   document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
   $("res-rank").textContent = runTitle(o.total);
   $("res-score").textContent = "0";

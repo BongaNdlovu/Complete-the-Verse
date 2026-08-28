@@ -24,8 +24,11 @@ assert(index.includes('id="hud-journey"') && index.includes('id="hud-left-lab"')
 
 assert(/function syncAbrahamPresentation\(mechanic\)/.test(play), "Abraham presentation sync exists");
 assert(/function reactAbraham\(ok\)/.test(play), "Abraham has a subtle answer reaction hook");
-assert(/site\.arc === "patriarchs"/.test(play) && /currentView === "play"/.test(play),
-  "Abraham is limited to active Patriarchs gameplay");
+assert(/site\.arc === "patriarchs" \|\| site\.arc === "exodus"/.test(play) && /currentView === "play"/.test(play),
+  "the companion is limited to Patriarchs and Exodus gameplay");
+assert(/moses\/question\.png/.test(play), "Exodus swaps in the Moses question artwork");
+const moses = path.join(ROOT, "assets", "characters", "moses", "question.png");
+assert(fs.existsSync(moses) && fs.statSync(moses).size > 1000, "Moses question artwork is present");
 assert(/abraham-active/.test(play) && /R\.passage/.test(play) && /R\.recon/.test(play),
   "the body state and dense mechanic variants are synced");
 assert(/syncAbrahamPresentation\(mechanic/.test(play), "normal questions sync the character layer");

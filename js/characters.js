@@ -130,7 +130,8 @@ var BIBLE_FIGURES = [
     arc: "exodus",
     unlock: { arc: "exodus" },
     portrait: "assets/characters/moses/portrait.png",
-    token: "assets/characters/moses/token.png"
+    token: "assets/characters/moses/token.png",
+    question: "assets/characters/moses/question.png"
   },
   {
     id: "david",

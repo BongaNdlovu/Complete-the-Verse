@@ -201,11 +201,12 @@ function updateOfflineBanner(){
    in a fallback card grid without orphans. */
 const MENU_GROUPS = [
   { name: "The Road",   modes: ["pilgrimage"] },
+  { name: "The Valley", modes: ["beat"] },
   { name: "Today",      modes: ["daily"] },
   { name: "Practice",   modes: ["practice", "recall"] },
   { name: "Challenges", modes: ["blitz", "trial", "endless"] }
 ];
-const MENU_ORDER = ["pilgrimage", "daily", "blitz", "trial", "endless", "practice"];
+const MENU_ORDER = ["pilgrimage", "beat", "daily", "blitz", "trial", "endless", "practice"];
 
 function renderModeCard(k, due, dailyDone, road){
   const m = MODES[k];

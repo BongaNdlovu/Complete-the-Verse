@@ -57,7 +57,8 @@ const SUITE = [
   ["coffee pilgrim", "test/coffee-pilgrimage.test.js"],
   ["e2e elements", "test/e2e-game-elements.test.js"],
   ["simulation", "test/playthrough-simulation.test.js"],
-  ["diag", "test/diag.test.js"]
+  ["diag", "test/diag.test.js"],
+  ["david beat", "test/david-beat.test.js"]
 ];
 
 let failed = 0;

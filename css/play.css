@@ -1450,3 +1450,25 @@ body.abraham-active:has(#reveal-stage.on) .question-abraham{
   body.abraham-active .question-content{width:100%;margin-left:0;margin-right:0}
   body.abraham-active .verse-stage{width:100%}
 }
+
+body.mode-beat .powerbar,
+body.mode-beat #hud-lives-wrap,
+body.mode-beat #momentum{display:none}
+body.mode-beat.beat-cinema .answers,
+body.mode-beat.beat-cinema .confirm-answer{visibility:hidden}
+body.beat-fx-wind #backdrop{filter:saturate(.85) contrast(1.05)}
+body.beat-fx-breath #backdrop{animation:beatBreath 2.8s ease-in-out infinite}
+body.beat-fx-run #backdrop{animation:beatRun 0.55s ease-out}
+@keyframes beatBreath{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.012)}
+}
+@keyframes beatRun{
+  0%{transform:translateX(0)}
+  40%{transform:translateX(-10px)}
+  100%{transform:translateX(0)}
+}
+body.reduced .beat-fx-breath #backdrop,
+body.reduced .beat-fx-run #backdrop{animation:none}
+.beat-match-lab{width:100%;font-family:var(--ui);letter-spacing:.18em;text-transform:uppercase;
+  font-size:.62rem;color:var(--gold-hot);margin:.6rem 0 .2rem}

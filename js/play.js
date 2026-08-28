@@ -37,6 +37,16 @@ const ROAD_QUESTION_BEDS = [
   "indigo","heroes","pointOfImpact","primarySuspect",
   "theTrace","theUncovering","awakeningMachine","machineAwakening"
 ];
+const SITE_AMBIENT = {
+  ur:"assets/journey/ur.mp4", haran:"assets/journey/ur.mp4",
+  shechem:"assets/journey/shechem.mp4", bethel:"assets/journey/shechem.mp4",
+  penuel:"assets/journey/shechem.mp4", hebron:"assets/journey/shechem.mp4",
+  beersheba:"assets/journey/shechem.mp4",
+  moriah:"assets/journey/moriah.mp4", dothan:"assets/journey/dothan.mp4",
+  midian:"assets/journey/midian.mp4",
+  "yam-suph":"assets/journey/yam-suph.mp4",
+  sinai:"assets/journey/sinai.mp4"
+};
 
 function usesWallClock(){
   return R.mode==="pilgrimage" || R.mode==="pilgrim-recall" || R.mode==="relay"
@@ -61,6 +71,7 @@ function fullVerseText(q){
 }
 
 function questionDuration(){
+  if(R.mode==="beat") return Beat.CLOCK_MS;
   if(R.mode==="trial"){ return playClockMs(ACTS[R.actIdx].t * R.diff.time); }
   if(R.mode==="blitz"){
     const left = Math.max(0, (R.blitzEnd || 0) - performance.now());
@@ -248,6 +259,7 @@ function runPhaseTrial(){
   return null;
 }
 function runPhaseLimits(){
+  if(R.mode==="beat" && R.beatQ >= Beat.questions.length && !R.beatPlates) return { kind:"complete" };
   if(R.mode==="daily" && R.daily && R.dailyIdx >= R.daily.list.length) return { kind:"complete" };
   if(R.mode==="blitz" && R.blitzEnd && performance.now() >= R.blitzEnd) return { kind:"death" };
   if((R.mode==="practice" || R.mode==="recall") && R.qTotal >= R.practiceLen) return { kind:"complete" };
@@ -332,10 +344,261 @@ function drawNextQuestionVerse(){
   return R.mode==="endless"&&!R.setpiece ? drawEndlessVerse(currentTier()) : SetPieces.draw(currentTier());
 }
 
+function beatSky(file){
+  const el = $("backdrop");
+  if(!el) return;
+  el.style.backgroundImage = file ? "url(\"" + Beat.url(file) + "\")" : "";
+  el.style.backgroundSize = "cover";
+  el.style.backgroundPosition = "center";
+}
+function beatFx(name){
+  document.body.classList.remove("beat-fx-wind","beat-fx-breath","beat-fx-run");
+  if(name) document.body.classList.add("beat-fx-" + name);
+}
+function beatCaption(text){
+  const el = $("voice-caption");
+  if(!el) return;
+  el.textContent = text || "";
+  el.classList.toggle("on", !!text);
+}
+function beatPlaySfx(file){
+  if(!file || typeof Snd==="undefined" || !Snd.playFile) return;
+  Snd.playFile(Beat.url(file));
+}
+function beatToVerse(item){
+  return {
+    id:item.id, b:"1 Samuel", r:item.r, t:1, p:item.stem||"", a:item.a||"", s:"",
+    d:[], kind:item.kind, plate:item.plate, choices:item.choices, order:item.order,
+    blanks:item.blanks, bank:item.bank, items:item.items, rows:item.rows, scatter:item.scatter
+  };
+}
+function playBeatCinema(plates){
+  R.beatPlates = plates;
+  R.beatPlateIdx = -1;
+  document.body.classList.add("beat-cinema");
+  const stage = $("v-play");
+  if(stage && !stage._beatSkip){
+    stage._beatSkip = true;
+    stage.addEventListener("click", function(){
+      if(R.mode==="beat" && R.beatPlates) beatAdvancePlate();
+    });
+  }
+  beatAdvancePlate();
+}
+function beatAdvancePlate(){
+  if(R.mode!=="beat" || !R.beatPlates) return;
+  if(typeof Snd!=="undefined" && Snd.stopVoice) Snd.stopVoice();
+  R.beatPlateIdx++;
+  if(R.beatPlateIdx >= R.beatPlates.length){
+    R.beatPlates = null;
+    document.body.classList.remove("beat-cinema");
+    beatCaption("");
+    nextBeatQuestion();
+    return;
+  }
+  showBeatPlate(R.beatPlates[R.beatPlateIdx]);
+}
+function showBeatPlate(plate){
+  beatSky(plate.still);
+  beatFx(plate.fx);
+  beatCaption(plate.line);
+  $("verse").textContent = plate.line || "";
+  $("ref").textContent = "";
+  $("opts").innerHTML = "";
+  const how = $("warn-how");
+  if(how) how.textContent = "Tap to continue";
+  const confirm = $("confirm-answer");
+  if(confirm) confirm.style.display = "none";
+  beatPlayPlateAudio(plate);
+}
+function beatPlayPlateAudio(plate){
+  const then = function(){ beatAdvancePlate(); };
+  if(plate.sfxFirst && plate.sfx){
+    if(typeof Snd!=="undefined" && Snd.playFile){
+      Snd.playFile(Beat.url(plate.sfx), function(){
+        if(plate.vo && Snd.playVoice) Snd.playVoice(Beat.url(plate.vo), 8000, then, then);
+        else then();
+      });
+      return;
+    }
+  }
+  if(plate.sfx && typeof Snd!=="undefined" && Snd.playFile) Snd.playFile(Beat.url(plate.sfx));
+  if(plate.vo && typeof Snd!=="undefined" && Snd.playVoice){
+    Snd.playVoice(Beat.url(plate.vo), 8000, then, then);
+    return;
+  }
+  if(plate.sfx && typeof Snd!=="undefined" && Snd.playFile){
+    Snd.playFile(Beat.url(plate.sfx), then);
+    return;
+  }
+  afterRun(1400, then);
+}
+function nextBeatQuestion(){
+  R.qUsedPower = false;
+  R.fadeIllumUsed = false;
+  if(applyRunPhase(runPhase())) return;
+  if(R.beatQ === 5 && !R.beatBDone){
+    R.beatBDone = true;
+    playBeatCinema(Beat.cinemaB);
+    return;
+  }
+  const item = Beat.questions[R.beatQ];
+  if(!item){ endRun("complete"); return; }
+  R.beatQ++;
+  R.q = beatToVerse(item);
+  R.qTotal++;
+  R.currentMechanic = item.kind;
+  document.body.classList.remove("beat-cinema");
+  beatSky(item.plate);
+  beatFx(item.fx);
+  beatPlaySfx(item.sfx);
+  beatCaption("");
+  renderBeatQuestion(item);
+}
+function renderBeatQuestion(item){
+  clearOtherStages();
+  cueQuestionMusic();
+  R.locked = false;
+  R.selected = null;
+  $("ref").textContent = item.r + " — KJV";
+  $("verse").textContent = item.stem || "";
+  fitVerseSize((item.stem||"").length);
+  const how = $("warn-how");
+  if(how) how.textContent = "Forty seconds · none wrong to Hold";
+  if(item.kind==="pick") return renderBeatPick(item);
+  if(item.kind==="order") return renderBeatOrder(item);
+  if(item.kind==="cloze") return renderBeatCloze(item);
+  if(item.kind==="multi") return renderBeatMulti(item);
+  return renderBeatMatch(item);
+}
+function beatArm(){
+  renderPowers();
+  armTimer(Beat.CLOCK_MS);
+  startTimer(Beat.CLOCK_MS);
+}
+function renderBeatPick(item){
+  const confirmBtn = $("confirm-answer");
+  confirmBtn.style.display = "";
+  confirmBtn.disabled = true;
+  const opts = $("opts"); opts.className = "answers"; opts.innerHTML = "";
+  item.choices.forEach(function(c, i){
+    const b = document.createElement("button");
+    b.className = "ans"; b.dataset.val = c;
+    b.innerHTML = '<span class="ans-float"><span class="ltr">'+LETTERS[i]+'.</span><span class="ans-copy">'+esc(c)+'</span></span>';
+    b.addEventListener("click", function(){ pickAnswer(c, b); });
+    opts.appendChild(b);
+  });
+  beatArm();
+}
+function renderBeatOrder(item){
+  $("confirm-answer").style.display = "";
+  $("confirm-answer").disabled = false;
+  $("confirm-answer").textContent = "Lock order";
+  R.beatOrder = [];
+  const opts = $("opts"); opts.className = "answers"; opts.innerHTML = "";
+  item.order.forEach(function(line){
+    const b = document.createElement("button");
+    b.className = "ans"; b.dataset.val = line;
+    b.innerHTML = '<span class="ans-copy">'+esc(line)+'</span>';
+    b.addEventListener("click", function(){
+      if(R.locked) return;
+      if(R.beatOrder.indexOf(line)>=0){
+        R.beatOrder = R.beatOrder.filter(function(x){ return x!==line; });
+        b.classList.remove("sel");
+      } else {
+        R.beatOrder.push(line);
+        b.classList.add("sel");
+      }
+    });
+    opts.appendChild(b);
+  });
+  beatArm();
+}
+function renderBeatCloze(item){
+  $("confirm-answer").style.display = "none";
+  R.beatFilled = [];
+  const opts = $("opts"); opts.className = "answers"; opts.innerHTML = "";
+  item.bank.forEach(function(c){
+    const b = document.createElement("button");
+    b.className = "ans"; b.dataset.val = c;
+    b.innerHTML = '<span class="ans-copy">'+esc(c)+'</span>';
+    b.addEventListener("click", function(){
+      if(R.locked) return;
+      if(R.beatFilled.indexOf(c)>=0) return;
+      R.beatFilled.push(c);
+      b.classList.add("sel");
+      if(R.beatFilled.length === item.blanks.length){
+        beatResolve(R.beatFilled.join("|") === item.blanks.join("|"));
+      }
+    });
+    opts.appendChild(b);
+  });
+  beatArm();
+}
+function renderBeatMulti(item){
+  $("confirm-answer").style.display = "";
+  $("confirm-answer").disabled = false;
+  $("confirm-answer").textContent = "Lock kit";
+  R.beatOn = {};
+  const opts = $("opts"); opts.className = "answers"; opts.innerHTML = "";
+  item.items.forEach(function(it){
+    const b = document.createElement("button");
+    b.className = "ans"; b.dataset.val = it.id;
+    b.innerHTML = '<span class="ans-copy">'+esc(it.t)+'</span>';
+    b.addEventListener("click", function(){
+      if(R.locked) return;
+      R.beatOn[it.id] = !R.beatOn[it.id];
+      b.classList.toggle("sel", !!R.beatOn[it.id]);
+    });
+    opts.appendChild(b);
+  });
+  beatArm();
+}
+function renderBeatMatch(item){
+  $("confirm-answer").style.display = "";
+  $("confirm-answer").disabled = false;
+  $("confirm-answer").textContent = "Lock both";
+  R.beatMatch = {};
+  const opts = $("opts"); opts.className = "answers beat-match"; opts.innerHTML = "";
+  item.rows.forEach(function(row){
+    const lab = document.createElement("div");
+    lab.className = "beat-match-lab";
+    lab.textContent = row.prompt;
+    opts.appendChild(lab);
+    item.scatter.forEach(function(opt){
+      const b = document.createElement("button");
+      b.className = "ans"; b.dataset.row = row.id; b.dataset.val = opt;
+      b.innerHTML = '<span class="ans-copy">'+esc(opt)+'</span>';
+      b.addEventListener("click", function(){
+        if(R.locked) return;
+        R.beatMatch[row.id] = opt;
+        [].slice.call(opts.querySelectorAll('[data-row="'+row.id+'"]')).forEach(function(x){ x.classList.remove("sel"); });
+        b.classList.add("sel");
+      });
+      opts.appendChild(b);
+    });
+  });
+  beatArm();
+}
+function beatResolve(ok){
+  if(R.locked || !R.running) return;
+  stopTimer();
+  R.locked = true;
+  R.attempts++;
+  recordDecision(performance.now() - (R.qStart||performance.now()));
+  const q = R.q;
+  if(ok){
+    applyCorrect({ elapsed: performance.now()-(R.qStart||0), left: Math.max(0,(R.tEnd||0)-performance.now()), book: q.b });
+  } else {
+    applyMiss({ verse: q });
+  }
+}
+
 function nextQuestion(){
   clearSequence();
   stopTimer();
   if(R.mode==="tutorial"){ tutorialNextQuestion(); return; }
+  if(R.mode==="beat"){ nextBeatQuestion(); return; }
   R.qUsedPower=false;
   R.fadeIllumUsed=false;
   if(R.setpiece && R.setpiece.finishing) SetPieces.cleanup();
@@ -514,32 +777,37 @@ function syncCinematicBackdrop(){
   const imgUrl = vig ? (vig.image || vig.fallback) : "";
   el.style.backgroundImage = imgUrl ? 'url("' + imgUrl + '")' : "none";
   const rainSites = {ur:true, haran:true};
-  const mistSites = {shechem:true};
-  const ambientVideo = rainSites[siteId] ? "assets/journey/ur.mp4"
-    : mistSites[siteId] ? "assets/journey/patriarchs-mist.mp4"
-    : "";
+  const ambientVideo = SITE_AMBIENT[siteId] || "";
   const allowVideo = !!ambientVideo && (typeof currentView !== "undefined" && currentView === "play");
   if(!vid) return;
   if(allowVideo) playSiteAmbientVideo(vid, el, ambientVideo, rainSites, siteId);
   else stopSiteAmbientVideo(vid, el);
 }
 
-/* ------------------------- PATRIARCHS CHARACTER -------------------------
-   Abraham is a visual companion to an active Patriarchs site question. The
-   artwork stays separate from the shared cinematic backdrop so each site
-   change independently, and so dense mechanics can ask CSS for a smaller
-   treatment without touching their input logic. */
+function companionQuestionSrc(arc){
+  return arc === "exodus"
+    ? "assets/characters/moses/question.png"
+    : "assets/characters/abram/question.png";
+}
+
+function isCompanionPlay(site){
+  return !!(site && (site.arc === "patriarchs" || site.arc === "exodus")
+    && R && (R.mode === "pilgrimage" || R.mode === "pilgrim-recall" || R.mode === "relay")
+    && currentView === "play");
+}
+
 function syncAbrahamPresentation(mechanic){
   const el = $("question-abraham");
   if(!el) return;
   const site = R && R.siteId && typeof Pilgrimage !== "undefined" && Pilgrimage.site
     ? Pilgrimage.site(R.siteId) : null;
-  const isPatriarchs = !!(site && site.arc === "patriarchs");
-  const isRoad = R && (R.mode === "pilgrimage" || R.mode === "pilgrim-recall" || R.mode === "relay");
-  const active = isPatriarchs && isRoad && currentView === "play";
+  const active = isCompanionPlay(site);
   const kind = R && R.passage ? "passage"
     : R && R.recon ? "reconstruct"
     : mechanic || (R && R.typed ? "typed" : "choice");
+  const img = el.querySelector("img");
+  const src = companionQuestionSrc(site && site.arc);
+  if(img && img.getAttribute("src") !== src) img.src = src;
   clearTimeout(el._reactionTimer);
   el.classList.remove("success", "failure");
   el.classList.toggle("on", active);
@@ -1094,6 +1362,7 @@ function applyCorrect(opts){
   return false;
 }
 function maybeOfferOverdrive(){
+  if(R.mode==="beat") return false;
   if(R.streak === MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] && !R.setpiece && R.mode !== "blitz"){
     if(typeof Cinematic !== "undefined") Cinematic.event("overdrive");
     afterRun(700, offerOverdriveChoice);
@@ -1340,6 +1609,7 @@ function cueQuestionMusic(){
   if(!R || R.ended || R.quoteMusicHold) return;
   if(typeof currentView !== "undefined" && currentView !== "play") return;
   if(typeof Snd === "undefined" || typeof Snd.ambience !== "function") return;
+  if(R.mode==="beat"){ Snd.ambience(Beat.bed); return; }
   if(R.mode==="tutorial"){ Snd.ambience("indigo"); return; }
   if(R.mode==="pilgrimage" || R.mode==="relay" || R.mode==="pilgrim-recall"){
     const idx = (typeof R.siteIndex === "number" && R.siteIndex >= 0) ? R.siteIndex : 0;
@@ -1413,6 +1683,19 @@ function pickAnswer(val, btn){
 }
 
 function confirmAnswer(){
+  if(R.mode==="beat" && R.q && R.q.kind==="order"){
+    beatResolve((R.beatOrder||[]).join("|") === (R.q.order||[]).join("|"));
+    return;
+  }
+  if(R.mode==="beat" && R.q && R.q.kind==="multi"){
+    const got = Object.keys(R.beatOn||{}).filter(function(k){ return R.beatOn[k]; }).sort().join(",");
+    beatResolve(got === Beat.multiKey(R.q));
+    return;
+  }
+  if(R.mode==="beat" && R.q && R.q.kind==="match"){
+    beatResolve((R.q.rows||[]).every(function(row){ return R.beatMatch && R.beatMatch[row.id]===row.a; }));
+    return;
+  }
   if(R.typed) return confirmTyped();
   if(!R.selected || !R.running || R.paused || R.locked) return;
   answer(R.selected.val, R.selected.btn);
@@ -1726,6 +2009,11 @@ function timeUp(){
 
 function loseLife(count){
   count = count || 1;
+  if(R.mode==="beat"){
+    R.beatMiss = (R.beatMiss||0) + 1;
+    afterRun(answerHoldMs(), queueAdvance);
+    return;
+  }
   /* A recovered relic shields the road once per site: the miss still
      costs the streak, but the lamp holds. */
   const onRoad = R.mode==="pilgrimage" || R.mode==="pilgrim-recall" || R.mode==="relay";

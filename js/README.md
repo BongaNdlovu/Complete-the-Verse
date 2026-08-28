@@ -20,7 +20,7 @@ Loaded as classic `<script>` tags from `index.html`. Globals are intentional (`f
 
 **Kinds (keep files here — do not nest folders)**
 
-- **Data:** `verses.js`, `verses-extra.js`, `verses-more.js`, `verses-ascent.js`, `verses-tf.js`, `verses-notes.js`, `passages.js`, `legacy-ids.js`, `sites.js`, `empires.js`, `characters.js`
+- **Data:** `verses.js`, `verses-extra.js`, `verses-more.js`, `verses-ascent.js`, `verses-tf.js`, `verses-notes.js`, `passages.js`, `legacy-ids.js`, `sites.js`, `empires.js`, `characters.js`, `beat.js`
 - **Pure rules:** `bank.js`, `srs.js`, `recall.js`, `assemble.js`, `meta.js`, `flow.js`, `geo.js`, `pilgrimage.js`, `polish.js`, `artifacts.js`, `live.js`
 - **View:** `atlas.js`
 - **Engine (also listed in `scripts/engine-source.js`):** `util.js` → `audio.js` → `director.js` → `setpieces.js` → `viz.js` → `typed.js` → `rewards.js` → `sequences.js` → `panels.js` → `cinematic.js` → `results.js` → `diag.js` → `briefs.js` → `play.js` → `game.js`

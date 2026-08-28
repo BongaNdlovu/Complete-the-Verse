@@ -28,7 +28,8 @@ const Snd = (function(){
     theTrace:"audio/the-trace.mp3",
     theUncovering:"audio/the-uncovering.mp3",
     awakeningMachine:"audio/awakening-machine.mp3",
-    machineAwakening:"audio/machine-awakening.mp3"
+    machineAwakening:"audio/machine-awakening.mp3",
+    fearOfTheDark:"audio/fear-of-the-dark.mp3"
   };
   const SFX = {
     ui:"sfx/ui.mp3",
@@ -124,7 +125,25 @@ const Snd = (function(){
     }catch(e){ return false; }
   }
   /* Recorded mission voice. Exclusive — a new line cuts the previous. */
-  function attemptVoice(src, duckMs, onFail){
+  function playFile(src, onEnded){
+    init();
+    if(!src){
+      if(onEnded) onEnded();
+      return null;
+    }
+    try{
+      const a = new Audio(src);
+      a.volume = Math.max(0, Math.min(1, SAVE.set.sfx==null ? 0.7 : SAVE.set.sfx));
+      if(onEnded) a.addEventListener("ended", onEnded, { once:true });
+      const p = a.play();
+      if(p && p.catch) p.catch(function(){ if(onEnded) onEnded(); });
+      return a;
+    }catch(e){
+      if(onEnded) onEnded();
+      return null;
+    }
+  }
+  function attemptVoice(src, duckMs, onFail, onEnded){
     function notifyVoiceFailure(){
       if(!onFail) return;
       setTimeout(function(){
@@ -151,7 +170,10 @@ const Snd = (function(){
            the fallback starts; otherwise the fallback is cancelled too. */
         notifyVoiceFailure();
       });
-      a.addEventListener("ended", function(){ if(voiceHold===a) voiceHold=null; });
+      a.addEventListener("ended", function(){
+        if(voiceHold===a) voiceHold=null;
+        if(onEnded) onEnded();
+      });
       return true;
     }catch(e){
       pendingVoice={src:src,duckMs:duckMs,onFail:onFail};
@@ -161,11 +183,14 @@ const Snd = (function(){
   }
   /* Return playback failures to the caller. Swallowing an autoplay
      rejection here used to silence both recorded voice and TTS fallback. */
-  function playVoice(src, duckMs, onFail){
+  function playVoice(src, duckMs, onFail, onEnded){
     init();
-    if(!src || (SAVE.set && SAVE.set.voice===false)) return false;
+    if(!src || (SAVE.set && SAVE.set.voice===false)){
+      if(onEnded) onEnded();
+      return false;
+    }
     pendingVoice=null;
-    return attemptVoice(src, duckMs, onFail);
+    return attemptVoice(src, duckMs, onFail, onEnded);
   }
   function stopVoice(){
     pendingVoice=null;
@@ -382,6 +407,7 @@ const Snd = (function(){
     },
     spectrum(){ if(!anal) return null; try{ anal.getByteFrequencyData(freq); }catch(e){ return null; } return freq; },
     playVoice:playVoice,
+    playFile:playFile,
     stopVoice:stopVoice,
     setRain:setRain,
     rainActive(){ return rainRequested; }

@@ -1,0 +1,12 @@
+---
+description: Always follow the no-comments skill on every code change.
+alwaysApply: true
+---
+
+# No comments
+
+On every coding change, read and follow `.cursor/skills/no-comments/SKILL.md` (same content as `C:\Users\fanel\Downloads\SKILL.md`). This is mandatory, not optional.
+
+- Do not add comments, section banners, or narrative docstrings in new or changed code.
+- After edits are in the working tree, run that skill before finishing: spawn `Task` with `subagent_type: "Comment Sicko"` on the changed files, then act on accepted findings.
+- If Comment Sicko is not an available subagent, apply the skill yourself on the same diff: delete unjustified comments; keep only proven exceptions.
