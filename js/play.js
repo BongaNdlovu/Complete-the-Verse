@@ -1711,9 +1711,13 @@ function renderFadeQuestion(q, dur, scene){
   doneBtn.textContent = "I'm Done";
   doneBtn.setAttribute("aria-label", "I'm done memorizing — begin reconstruction now");
   doneBtn.addEventListener("click", function(){ Snd.ui(); beginDissolve(); });
-  if(stageEl){
-    if(typeof stageEl.prepend === "function") stageEl.prepend(doneBtn);
-    else if(typeof stageEl.appendChild === "function") stageEl.appendChild(doneBtn);
+  const control = $("play-control");
+  if(control && typeof control.appendChild === "function"){
+    const lock = $("confirm-answer");
+    if(lock && typeof control.insertBefore === "function") control.insertBefore(doneBtn, lock);
+    else control.appendChild(doneBtn);
+  } else if(stageEl && typeof stageEl.appendChild === "function"){
+    stageEl.appendChild(doneBtn);
   }
 
   armTimer(FADE_MEMORY_MS);

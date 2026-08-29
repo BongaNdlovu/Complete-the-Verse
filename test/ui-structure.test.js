@@ -71,12 +71,23 @@ assert(css.includes("#v-play .hud-away"), "CSS must hide hud-away on play");
 assert(css.includes("#v-play .momentum"), "CSS must hide momentum on play");
 assert(css.includes("#v-play .kjv"), "CSS must hide KJV badge on play");
 assert(css.includes("#v-play .hdr-title"), "CSS must hide play header brand");
+assert(!/biblical-thriller #v-play \.hdr-title\{display:block!important\}/.test(css),
+  "play header brand stays hidden in every mode");
+assert(/\.stage\{[^}]*z-index:3/.test(css) || /\.stage\{[^}]*z-index:\s*3/.test(css.replace(/\s/g,"")),
+  "play stage stacks above the companion art");
+assert(/\.fade-countdown-bar\s*\{[^}]*display:\s*none/.test(css),
+  "Fade uses the HUD clock instead of a second timer");
+assert(css.includes("body.abraham-active .witness"), "companion sites do not stack two portraits");
+assert(css.includes("body.onboarding .play-top-stack"), "tutorial does not stack the act track under the lesson card");
+assert(css.includes("body.onboarding .rail.l"), "tutorial hides the lamp rail so the lesson card is clear");
+assert(css.includes("body.view-play .voice-caption"), "play voice captions sit above the power row");
 
 assert(html.includes('id="hud-streak"'), "streak id kept for JS updates");
 assert(html.includes('id="hud-accuracy"'), "accuracy id kept for JS updates");
 assert(html.includes('id="hud-lives"'), "lives remain on play HUD");
 assert(html.includes('id="score"'), "score remains on play HUD");
 assert(html.includes('id="confirm-answer"'), "Lock Answer control required");
+assert(html.includes('id="play-control"'), "play action row hosts I'm Done");
 assert(html.includes('id="play-quit"'), "play view offers a Quit control");
 assert(html.includes('id="play-candle"'), "play view offers the progress candle");
 

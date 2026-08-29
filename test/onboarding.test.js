@@ -28,6 +28,7 @@ run("startTutorialRun()");
 ok("tutorial starts in play", read("currentView") === "play");
 ok("tutorial uses the first recognition question", read("R.mode === 'tutorial' && R.tutorial.index === 0 && R.q.r === 'Psalm 23:1'"));
 ok("tutorial has six lessons", read("R.tutorial.total === 6"));
+ok("lesson one answer is KJV", read("R.q.a") === "shall not want");
 
 // Lesson 1: Multiple choice
 run("usePower('selah')");
@@ -36,22 +37,28 @@ run("resolveAnswer(R.q, R.q.a, null, 1000, 20000); tutorialNextQuestion();");
 
 // Lesson 2: Name the Passage
 ok("lesson two teaches Name the Passage", read("R.tutorial.index === 1 && R.currentMechanic === 'passage-ref' && R.q.r === 'Proverbs 3:5'"));
+ok("lesson two answer is KJV", read("R.q.a") === "own understanding");
 run("resolveAnswer(R.q, R.q.a, null, 1000, 20000); tutorialNextQuestion();");
 
 // Lesson 3: Scribe's Cloze
 ok("lesson three teaches Scribe's Rapid Cloze", read("R.tutorial.index === 2 && R.currentMechanic === 'cloze' && R.q.r === 'Genesis 1:1'"));
+ok("lesson three answer is KJV", read("R.q.a") === "God created the heaven and the earth");
 run("resolveAnswer(R.q, R.q.a, null, 1000, 20000); tutorialNextQuestion();");
 
 // Lesson 4: True Scripture Duel
 ok("lesson four teaches True Scripture Duel", read("R.tutorial.index === 3 && R.currentMechanic === 'duel' && R.q.r === 'John 1:1'"));
+ok("lesson four answer is KJV", read("R.q.a") === "was God");
 run("resolveAnswer(R.q, R.q.a, null, 1000, 20000); tutorialNextQuestion();");
 
 // Lesson 5: Fade-to-Memory (30s memory + full reconstruction)
 ok("lesson five teaches Fade-to-Memory", read("R.tutorial.index === 4 && R.currentMechanic === 'fade' && R.q.r === 'Philippians 4:13'"));
+ok("lesson five answer is KJV", read("R.q.a") === "strengtheneth me");
+ok("lesson five offers I'm Done", read("!!$('fade-done')"));
 run("resolveAnswer(R.q, R.q.a, null, 1000, 20000); tutorialNextQuestion();");
 
 // Lesson 6: Assembled Recall
 ok("lesson six is assembled recall", read("R.tutorial.index === 5 && R.typed === true && !!R.assemble"));
+ok("lesson six answer is KJV", read("R.q.a") === "rejoice and be glad in it");
 run("R.assemble.target.forEach(function(t,i){ R.assemble.placed[i] = t; }); resolveAnswer(R.q, Assemble.join(R.assemble.placed), null, 2000, 20000); tutorialNextQuestion();");
 
 ok("tutorial returns to the menu", read("currentView === 'menu' && SAVE.set.tutorialDone === true"));

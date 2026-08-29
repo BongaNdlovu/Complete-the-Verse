@@ -41,9 +41,11 @@ assert(/illumReserve/.test(cloud), "cloud merge preserves the Illuminate reserve
    browser speech synthesis is unavailable. */
 const lessonClips = [
   ["lesson one choose the phrase that completes the verse", "lesson-one.mp3"],
+  ["lesson two name the passage for the verse shown", "lesson-two.mp3"],
   ["lesson three tap the missing words in sequence", "lesson-three.mp3"],
   ["lesson four discern the true scripture reading", "lesson-four.mp3"],
   ["lesson five commit the words before they fade", "lesson-five.mp3"],
+  ["lesson five memorize the whole verse for one minute then choose the true king james line", "lesson-five.mp3"],
   ["lesson six assemble the verse from memory", "lesson-six.mp3"]
 ];
 assert(fs.existsSync(path.join(ROOT, "audio", "voice", "lesson-two.mp3")), "lesson-two asset exists on disk");
