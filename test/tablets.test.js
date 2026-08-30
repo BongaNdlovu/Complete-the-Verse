@@ -36,13 +36,13 @@ function read(sb, expr) { return vm.runInContext(expr, sb); }
 const p23 = Tablets.chapter("psalm23");
 const p91 = Tablets.chapter("psalm91");
 eq("Psalm 23 has 11 blanks", p23.blanks.length, 11);
-eq("Psalm 91 has 8 blanks", p91.blanks.length, 8);
+eq("Psalm 91 has 17 blanks", p91.blanks.length, 17);
 eq("BLANK_MS is 6500", Tablets.BLANK_MS, 6500);
 eq("23 first answer is want", p23.blanks[0].a, "want");
 eq("23 last answer is ever", p23.blanks[10].a, "ever");
 ["want","pastures","waters","soul","righteousness","evil","staff","enemies","oil","mercy","ever"]
   .forEach(function(w, i){ eq("23 blank " + (i + 1) + " is " + w, p23.blanks[i].a, w); });
-["Almighty","fortress","fowler","feathers","buckler","night","right","angels"]
+["Almighty","fortress","fowler","feathers","buckler","night","noonday","right","wicked","habitation","dwelling","angels","stone","trample","deliver","trouble","salvation"]
   .forEach(function(w, i){ eq("91 blank " + (i + 1) + " is " + w, p91.blanks[i].a, w); });
 
 p23.blanks.concat(p91.blanks).forEach(function(blank){
@@ -57,7 +57,7 @@ ok("Psalm 91 locked until Hold", !Tablets.unlocked("psalm91", { tablets:{ psalm2
 ok("Psalm 91 opens after Hold", Tablets.unlocked("psalm91", { tablets:{ psalm23:{ held:true } } }));
 ok("John 1 locked until Psalm 91 Hold", !Tablets.unlocked("john1", { tablets:{ psalm23:{ held:true }, psalm91:{ held:false } } }));
 ok("John 1 opens after Psalm 91 Hold", Tablets.unlocked("john1", { tablets:{ psalm23:{ held:true }, psalm91:{ held:true } } }));
-eq("John 1 has 5 blanks", Tablets.chapter("john1").blanks.length, 5);
+eq("John 1 has 51 blanks", Tablets.chapter("john1").blanks.length, 51);
 eq("John 1 first answer is Word", Tablets.chapter("john1").blanks[0].a, "Word");
 
 ok("clean 23 is Held", Tablets.held({ tabletMiss:0, tabletIdx:11, tabletTotal:11 }));
@@ -86,7 +86,7 @@ ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}
   eq("powers off", read(sb, "R.powers.selah + R.powers.illum + R.powers.wind"), 0);
   eq("chapter is Psalm 23", read(sb, "R.tabletChapter"), "psalm23");
   eq("91 still locked", read(sb, "Tablets.unlocked('psalm91', SAVE)"), false);
-  for (let i = 0; i < 11; i++) exec(sb, "tabletsResolve(true)");
+  for (let i = 0; i < 11; i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   eq("clean 23 ends complete", read(sb, "R.ended"), true);
   eq("Held", read(sb, "Tablets.held(R)"), true);
   eq("psalm 23 Held on save", read(sb, "SAVE.tablets.psalm23.held"), true);
@@ -95,14 +95,14 @@ ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}
   eq("91 unlocked after Hold", read(sb, "Tablets.unlocked('psalm91', SAVE)"), true);
   eq("XP paid", read(sb, "SAVE.xp > 0"), true);
   exec(sb, "startRun('tablets','watchman')");
-  for (let i = 0; i < 11; i++) exec(sb, "tabletsResolve(true)");
+  for (let i = 0; i < 11; i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   eq("second Hold does not recount", read(sb, "SAVE.life.tabletHolds"), 1);
 }
 
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
-  exec(sb, "tabletsResolve(false)");
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
   eq("a miss ends the run", read(sb, "R.ended"), true);
   eq("not Held", read(sb, "Tablets.held(R)"), false);
   eq("91 stays locked", read(sb, "SAVE.tablets.psalm23.held"), false);
@@ -113,8 +113,8 @@ ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}
   const sb = boot();
   exec(sb, "SAVE.tablets.psalm23.held = true; persist(); startRun('tablets','watchman',{tabletChapter:'psalm91'})");
   eq("Psalm 91 starts when unlocked", read(sb, "R.tabletChapter"), "psalm91");
-  eq("8 tablets", read(sb, "R.tabletTotal"), 8);
-  for (let i = 0; i < 8; i++) exec(sb, "tabletsResolve(true)");
+  eq("17 tablets", read(sb, "R.tabletTotal"), 17);
+  for (let i = 0; i < 17; i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   eq("91 Held", read(sb, "SAVE.tablets.psalm91.held"), true);
 }
 
@@ -122,8 +122,8 @@ ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}
   const sb = boot();
   exec(sb, "SAVE.tablets.psalm23.held = true; SAVE.tablets.psalm91.held = true; persist(); startRun('tablets','watchman',{tabletChapter:'john1'})");
   eq("John 1 starts when unlocked", read(sb, "R.tabletChapter"), "john1");
-  eq("5 blanks in John 1", read(sb, "R.tabletTotal"), 5);
-  for (let i = 0; i < 5; i++) exec(sb, "tabletsResolve(true)");
+  eq("51 blanks in John 1", read(sb, "R.tabletTotal"), 51);
+  for (let i = 0; i < 51; i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   eq("John 1 Held", read(sb, "SAVE.tablets.john1.held"), true);
 }
 

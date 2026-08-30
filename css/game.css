@@ -769,7 +769,7 @@ body.speed-round #clock{color:#ffe2a8;text-shadow:0 0 16px rgba(255,210,120,.9)}
 18%,62%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-28px);letter-spacing:.3em}}
 
 .ending-stage{width:min(900px,94vw);text-align:center;margin:1vh auto 2vh;padding:clamp(22px,4vw,48px);
-  position:relative;overflow:hidden;border:1px solid rgba(213,173,98,.24);
+  position:relative;overflow:hidden;flex-shrink:0;border:1px solid rgba(213,173,98,.24);
   background:linear-gradient(145deg,rgba(20,16,13,.88),rgba(4,4,5,.94));box-shadow:0 28px 90px -30px #000}
 .ending-stage:before{content:"";position:absolute;inset:-30%;z-index:0;opacity:.6;transition:2s ease}
 .ending-stage>*{position:relative;z-index:1}

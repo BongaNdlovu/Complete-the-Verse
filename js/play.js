@@ -2250,6 +2250,18 @@ function timeUp(){
   loseLife();
 }
 
+/* A recovered relic shields the road once per site: the miss still
+   costs the streak, but the lamp holds. */
+function relicShielded(count){
+  const onRoad = R.mode==="pilgrimage" || R.mode==="pilgrim-recall" || R.mode==="relay";
+  if(!(onRoad && count===1 && !R.armorUsed && typeof Artifacts!=="undefined" && Artifacts.unlockedCount(SAVE.artifacts) > 0)) return false;
+  R.armorUsed = true;
+  toast("Relic shield — one miss absorbed");
+  Snd.power();
+  renderLives();
+  afterRun(answerHoldMs(), queueAdvance);
+  return true;
+}
 function loseLife(count){
   count = count || 1;
   if(R.mode==="beat"){
@@ -2261,17 +2273,7 @@ function loseLife(count){
     afterRun(answerHoldMs(), queueAdvance);
     return;
   }
-  /* A recovered relic shields the road once per site: the miss still
-     costs the streak, but the lamp holds. */
-  const onRoad = R.mode==="pilgrimage" || R.mode==="pilgrim-recall" || R.mode==="relay";
-  if(onRoad && count===1 && !R.armorUsed && typeof Artifacts!=="undefined" && Artifacts.unlockedCount(SAVE.artifacts) > 0){
-    R.armorUsed = true;
-    toast("Relic shield — one miss absorbed");
-    Snd.power();
-    renderLives();
-    afterRun(answerHoldMs(), queueAdvance);
-    return;
-  }
+  if(relicShielded(count)) return;
   R.lives = Math.max(0, R.lives - count);
   /* ===== Beat: LAMP LOSS TREMOR =====
      The stage micro-trembles while the lost lamp gutters out — loss must

@@ -76,6 +76,8 @@ assert(!/function startBeatStage\(\)\{[\s\S]*?playBeatCinema\(Beat\.cinemaA\)/.t
   "Valley start no longer plays cinema A");
 assert(css.includes("#v-results.beat-win") && css.includes("#v-results.beat-loss"),
   "Valley results paint win and loss stills");
+assert(/\.ending-stage\{[^}]*flex-shrink:\s*0/.test(css),
+  "results ending card cannot shrink under the title");
 assert(/urPrologueDone/.test(game), "Ur opening film is once per save");
 assert(/function syncHallVideo\(/.test(game), "syncHallVideo helper present");
 assert(css.includes("body.hall-ready #hall-bg"), "hall video fades in when ready");

@@ -67,7 +67,7 @@ function paintTabletsClock(){
   if(fill) fill.style.width = (left * 100) + "%";
   if(bar && bar.classList) bar.classList.toggle("late", left < 0.3 && !tabletsReduced());
   if(lab){
-    if(tabletsReduced()) lab.textContent = "No clock";
+    if(tabletsReduced()) lab.textContent = "Untimed Hold";
     else lab.textContent = (left * ((Tablets.BLANK_MS || 6500) / 1000)).toFixed(1) + "s left";
   }
   const slot = $("tablets-blank-" + (R.tabletIdx || 0));
@@ -76,11 +76,15 @@ function paintTabletsClock(){
     else slot.classList.remove("danger");
   }
 }
-function paintTabletsStage(){
+function paintTabletsStage(answer){
   const ch = tabletsChapter();
   const i = R.tabletIdx || 0;
   fillVerseLine($("tablets-prev"), ch.blanks[i - 1], "done", i - 1);
-  fillVerseLine($("tablets-sheet"), ch.blanks[i], "on", i);
+  fillVerseLine($("tablets-sheet"), ch.blanks[i], answer ? "done" : "on", i);
+  if(answer){
+    const carved = $("tablets-sheet").querySelector(".tablets-carved");
+    if(carved) carved.classList.add("in", answer === "miss" ? "shattered" : "");
+  }
   fillVerseLine($("tablets-next"), ch.blanks[i + 1], "wait", i + 1);
   paintTabletsPips();
   paintTabletsClock();
@@ -145,6 +149,12 @@ function tabletsHear(){
   const u = new SpeechSynthesisUtterance(line);
   u.rate = 0.92;
   speechSynthesis.speak(u);
+  if(!tabletsReduced() && R.tabletHeardIdx !== R.tabletIdx){
+    const dur = (Tablets.BLANK_MS || 6500) / 1000;
+    R.tabletProgress = Math.max(0, (R.tabletProgress || 0) - 1 / dur);
+    R.tabletHeardIdx = R.tabletIdx;
+    paintTabletsClock();
+  }
   if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
 }
 function setTabletsPaused(on){
@@ -190,14 +200,19 @@ function tabletsShatter(){
   }, 600);
 }
 function tabletsResolve(ok){
-  if(!R || R.ended || R.mode !== "tablets") return;
+  if(!R || R.ended || R.paused || R.mode !== "tablets" || R.tabletResolving) return;
   const ch = tabletsChapter();
+  R.tabletResolving = true;
+  stopTabletsLoop();
   R.attempts = (R.attempts || 0) + 1;
   if(!ok){
     R.tabletMiss = (R.tabletMiss || 0) + 1;
     if(typeof Snd !== "undefined" && Snd.wrong) Snd.wrong();
+    paintTabletsStage("miss");
+    const failedGrid = $("tablets-grid");
+    if(failedGrid) failedGrid.classList.add("locked");
     tabletsShatter();
-    if(typeof endRun === "function") endRun("death");
+    setTimeout(function(){ tabletsFinishResolve(false); }, 800);
     return;
   }
   R.correct = (R.correct || 0) + 1;
@@ -205,6 +220,19 @@ function tabletsResolve(ok){
   R.streak = (R.streak || 0) + 1;
   R.best = Math.max(R.best || 0, R.streak);
   if(typeof Snd !== "undefined" && Snd.correct) Snd.correct();
+  paintTabletsStage("hit");
+  const grid = $("tablets-grid");
+  if(grid) grid.classList.add("locked");
+  setTimeout(function(){ tabletsFinishResolve(true); }, 500);
+}
+function tabletsFinishResolve(ok){
+  if(!R || R.ended || R.mode !== "tablets" || !R.tabletResolving) return;
+  const ch = tabletsChapter();
+  R.tabletResolving = false;
+  if(!ok){
+    if(typeof endRun === "function") endRun("death");
+    return;
+  }
   R.tabletIdx++;
   R.tabletProgress = 0;
   paintTabletsHud();
@@ -237,6 +265,8 @@ function startTabletsLoop(){
   R.tabletIdx = 0;
   R.tabletProgress = 0;
   R.tabletMiss = 0;
+  R.tabletResolving = false;
+  R.tabletHeardIdx = -1;
   R.tabletTotal = ch.blanks.length;
   R.qTotal = ch.blanks.length;
   R.tabletRacing = true;
@@ -289,8 +319,14 @@ function bindTabletsChrome(){
     window.addEventListener("keydown", function(e){
       if(typeof currentView === "undefined" || currentView !== "tablets") return;
       if(!R || R.ended || R.mode !== "tablets") return;
-      if(R.paused) return;
       const k = (e.key || "").toLowerCase();
+      if(R.paused){
+        if(k === "enter" || k === " "){
+          e.preventDefault();
+          setTabletsPaused(false);
+        }
+        return;
+      }
       const letters = { a:0, b:1, c:2, d:3 };
       let n = parseInt(e.key, 10);
       if(k in letters) n = letters[k] + 1;
@@ -318,6 +354,7 @@ if(typeof window !== "undefined"){
   window.startTabletsStage = startTabletsStage;
   window.stopTabletsLoop = stopTabletsLoop;
   window.tabletsResolve = tabletsResolve;
+  window.tabletsFinishResolve = tabletsFinishResolve;
   window.tabletsPick = tabletsPick;
   window.toggleTabletsPause = toggleTabletsPause;
   window.setTabletsPaused = setTabletsPaused;

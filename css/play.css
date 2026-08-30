@@ -639,6 +639,23 @@ body.hall-ready.biblical-thriller #v-results.beat-loss:before{
   position:relative;z-index:1;justify-content:flex-start;
   padding-top:calc(var(--safe-t) + 22px);
 }
+.biblical-thriller #v-results.tablets-held:before,
+.biblical-thriller #v-results.tablets-shattered:before,
+body.hall-ready.biblical-thriller #v-results.tablets-held:before,
+body.hall-ready.biblical-thriller #v-results.tablets-shattered:before{
+  opacity:1;animation:none;background-size:22px 22px,100% 100%;
+}
+.biblical-thriller #v-results.tablets-held:before,
+body.hall-ready.biblical-thriller #v-results.tablets-held:before{
+  background-image:linear-gradient(135deg,rgba(255,225,153,.1) 25%,transparent 25%,transparent 75%,rgba(255,225,153,.1) 75%),linear-gradient(180deg,#392a13,#0c0804);
+}
+.biblical-thriller #v-results.tablets-shattered:before,
+body.hall-ready.biblical-thriller #v-results.tablets-shattered:before{
+  background-image:linear-gradient(135deg,transparent 46%,rgba(190,77,61,.23) 47%,rgba(190,77,61,.23) 52%,transparent 53%),linear-gradient(180deg,#281310,#080505);
+}
+.biblical-thriller #v-results.tablets-held:after{background:rgba(11,7,2,.42)}
+.biblical-thriller #v-results.tablets-shattered:after{background:rgba(18,3,3,.53)}
+#v-results.tablets-held .scrollpad,#v-results.tablets-shattered .scrollpad{position:relative;z-index:1}
 @keyframes hallBreath{from{transform:scale(1.015)}to{transform:scale(1.055)}}
 .biblical-thriller .h-xl{
   font-family:var(--disp);font-weight:700;letter-spacing:.015em;

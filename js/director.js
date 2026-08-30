@@ -257,11 +257,20 @@ const Director = (function(){
     fx.querySelectorAll(".ember").forEach(e=>e.remove());
     delete fx.dataset.emberMark;
   }
+  function tabletEnding(){
+    const held = typeof Tablets!=="undefined" && Tablets.held(R);
+    return held
+      ? {key:"perfect",title:"The Hold Stands",copy:"Every word is carved. The next chapter opens.",voice:"The hold stands. The next chapter is open."}
+      : {key:"defeated",title:"The Tablet Shattered",copy:"The missing word is shown. Carry it into your next carving.",voice:"The tablet shattered. The word remains to be learned."};
+  }
   function ending(o){
     const acc=R.attempts?R.correct/R.attempts:0;
     const reachedFinal=R.mode==="trial"&&R.actIdx>=4;
     let key,title,copy,voice;
-    if(o.reason==="abandon"){
+    if(R.mode==="tablets"){
+      const tablet = tabletEnding();
+      key=tablet.key;title=tablet.title;copy=tablet.copy;voice=tablet.voice;
+    }else if(o.reason==="abandon"){
       key="defeated";title="Abandoned";copy="The run ends by your hand. The score still stands in the record.";voice="The run is abandoned.";
     }else if(o.reason==="death"){
       key="defeated";title="The Record Closes";copy="The hall grows still, but the words remain. Study the missed passages and return.";voice="The record closes. Prepare for another run.";

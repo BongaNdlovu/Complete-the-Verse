@@ -838,6 +838,10 @@ function pacedClockMs(base, diffTime, pad){
   return Math.round((base * diffTime + (pad == null ? 1500 : pad)) * PACE + FLAT_ADD_MS);
 }
 
+function endlessTier(n){
+  if(n<5) return 1; if(n<11) return 2; if(n<19) return 3; if(n<29) return 4;
+  return (n%5===0) ? 4 : 5;
+}
 function currentTier(){
   if(R.mode==="trial") return ACTS[R.actIdx].tier;
   if(R.mode==="daily") return R.daily.list[R.dailyIdx] ? R.daily.list[R.dailyIdx].v.t : 5;
@@ -852,9 +856,7 @@ function currentTier(){
     return R.q ? R.q.t : Pilgrimage.tierFor(cur ? cur.index : 0);
   }
   if(R.mode==="practice" || R.mode==="recall" || R.mode==="team") return R.q ? R.q.t : 2;
-  const n = R.qTotal;
-  if(n<5) return 1; if(n<11) return 2; if(n<19) return 3; if(n<29) return 4;
-  return (n%5===0) ? 4 : 5;
+  return endlessTier(R.qTotal);
 }
 
 function hideSiteQuote(){
@@ -978,6 +980,17 @@ function paintPilgrimHud(){
     R.setpiece ? (R.setpiece.count-R.setpiece.remaining)+" / "+R.setpiece.count : R.siteIdx+" / "+n
   );
 }
+function paintDrillHud(){
+  const side = R.mode==="team" ? ((R.teamSide==="blue"?"Blue":"White")+" Team") : ((R.mode==="recall" ? "Recall · " : "Drill · ")+(R.adaptivePick||"Spaced review"));
+  const local = R.mode==="team" ? ((R.qTotal||0) % 5 || (R.qTotal?5:0))+" / 5" : (R.qTotal+" / "+R.practiceLen);
+  paintHud(side, R.mode==="recall" ? "Typed" : "Verse", local);
+}
+function paintRelayHud(){
+  const cur = R.relay.current, site = cur ? Pilgrimage.site(cur.siteId) : null;
+  paintHud(site ? site.name : "The Long Road",
+    "Site "+(R.relay.banked.length+1)+" of "+R.relay.sites.length,
+    R.relay.idx+" / "+R.relay.queue.length);
+}
 function updateChipsHudForMode(){
   if(R.mode==="trial"){ paintTrialHud(); return; }
   if(R.mode==="daily"){ paintHud("Daily Trial", "Verse", R.dailyIdx+" / "+R.daily.list.length); return; }
@@ -988,19 +1001,8 @@ function updateChipsHudForMode(){
     return;
   }
   if(R.mode==="pilgrimage" || R.mode==="pilgrim-recall"){ paintPilgrimHud(); return; }
-  if(R.mode==="relay"){
-    const cur = R.relay.current, site = cur ? Pilgrimage.site(cur.siteId) : null;
-    paintHud(site ? site.name : "The Long Road",
-      "Site "+(R.relay.banked.length+1)+" of "+R.relay.sites.length,
-      R.relay.idx+" / "+R.relay.queue.length);
-    return;
-  }
-  if(R.mode==="practice" || R.mode==="recall" || R.mode==="team"){
-    const side = R.mode==="team" ? ((R.teamSide==="blue"?"Blue":"White")+" Team") : ((R.mode==="recall" ? "Recall · " : "Drill · ")+(R.adaptivePick||"Spaced review"));
-    const local = R.mode==="team" ? ((R.qTotal||0) % 5 || (R.qTotal?5:0))+" / 5" : (R.qTotal+" / "+R.practiceLen);
-    paintHud(side, R.mode==="recall" ? "Typed" : "Verse", local);
-    return;
-  }
+  if(R.mode==="relay"){ paintRelayHud(); return; }
+  if(R.mode==="practice" || R.mode==="recall" || R.mode==="team"){ paintDrillHud(); return; }
   if(R.mode==="tutorial"){
     paintHud("First light", "Lesson", R.tutorial ? (R.tutorial.index+1)+" / "+R.tutorial.total : "1 / 3");
     return;
@@ -1405,6 +1407,16 @@ function setMult(pop){
   const s=$("hud-streak"); if(s) s.textContent = R.streak + (R.streak===1?" Verse":" Verses");
 }
 
+function lampMarksHtml(lost){
+  let html = "";
+  for(let i=0;i<R.maxLives;i++){
+    const alive = i < R.lives;
+    const last  = alive && R.lives===1;
+    const broke = lost && !alive && i>=R.lives && i < R.lives+lost;
+    html += '<span class="hrt lamp'+(alive?"":" gone")+(last?" last":"")+(broke?" break":"")+'">'+LAMP_SVG+'</span>';
+  }
+  return html + '<b>'+R.lives+'</b>';
+}
 function renderLives(lost){
   lost = lost || 0;
   const el=$("hud-lives"); if(!el) return;
@@ -1426,16 +1438,7 @@ function renderLives(lost){
   }
   if(wrap) wrap.style.display="";
   if(lab) lab.textContent="Lamps";
-  const n = R.maxLives;
-  let html = "";
-  for(let i=0;i<n;i++){
-    const alive = i < R.lives;
-    const last  = alive && R.lives===1;
-    const broke = lost && !alive && i>=R.lives && i < R.lives+lost;
-    html += '<span class="hrt lamp'+(alive?"":" gone")+(last?" last":"")+(broke?" break":"")+'">'+LAMP_SVG+'</span>';
-  }
-  html += '<b>'+R.lives+'</b>';
-  el.innerHTML = html;
+  el.innerHTML = lampMarksHtml(lost);
 }
 function recordVerse(q, ok){
   if(R.mode==="beat" || R.mode==="team") return;
@@ -1768,16 +1771,16 @@ function handleOverlayKeydown(e, k){
   return false;
 }
 
-function handleNavKeydown(e, k){
-  if(k==="escape"){
-    if(currentView==="play") togglePause();
-    else if(currentView==="tablets"){
-      if(typeof toggleTabletsPause==="function") toggleTabletsPause();
-    }
-    else if(currentView==="sitebrief") go("atlas");
-    else if(currentView!=="menu") go("menu");
-    return true;
+function handleEscapeNav(){
+  if(currentView==="play") togglePause();
+  else if(currentView==="tablets"){
+    if(typeof toggleTabletsPause==="function") toggleTabletsPause();
   }
+  else if(currentView==="sitebrief") go("atlas");
+  else if(currentView!=="menu") go("menu");
+}
+function handleNavKeydown(e, k){
+  if(k==="escape"){ handleEscapeNav(); return true; }
   if(currentView==="intro"){
     e.preventDefault();
     if(k==="escape") finishIntro(true);

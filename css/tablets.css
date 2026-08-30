@@ -62,6 +62,7 @@ body.view-tablets #hall-bg{opacity:0;visibility:hidden}
   display:inline;font-family:var(--disp);font-weight:700;letter-spacing:.04em;
   color:#e2c07a;border-bottom:2px solid #85653b;padding:0 .08em}
 .tablets-carved.in{animation:tabletsCarve .55s ease both}
+.tablets-carved.shattered{color:#f2b1a6;border-color:#a8463d}
 .tablets-clock{height:6px;margin-top:16px;background:#1f150c;box-shadow:0 0 0 1px rgba(217,182,103,.28) inset;overflow:hidden}
 .tablets-clock-fill{display:block;height:100%;width:100%;transform-origin:left center;
   background:linear-gradient(90deg,#6b4c28,#ffd76e);box-shadow:0 0 12px rgba(217,182,103,.45)}
@@ -77,6 +78,7 @@ body.view-tablets #hall-bg{opacity:0;visibility:hidden}
   text-align:center;font-family:var(--ui);font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;
   color:#8a7a62;margin-bottom:10px}
 .tablets-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:760px;margin:0 auto}
+.tablets-grid.locked{pointer-events:none;opacity:.52}
 @media (min-width:720px){.tablets-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .tablets-stone{
   position:relative;display:flex;align-items:center;justify-content:center;

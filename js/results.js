@@ -367,6 +367,13 @@ function resultsKick(o){
   if(R.mode==="beat") return (typeof Beat!=="undefined" && Beat.held(R)) ? "Held" : "Scarred";
   return resultsKickText(o);
 }
+function resultsCompleteKick(){
+  if(R.mode==="trial") return R.actIdx>=5 ? "The Remnant is complete" : "The Final Test is complete";
+  if(R.mode==="daily") return "The daily reading is finished";
+  if(R.mode==="practice") return "The drill is finished";
+  if(R.mode==="recall") return "You wrote them out from memory";
+  return "";
+}
 function resultsKickText(o){
   if(o.reason==="abandon") return "The run was abandoned";
   if(R.mode==="team"){
@@ -375,11 +382,10 @@ function resultsKickText(o){
     if(w==="draw") return "The match is drawn";
     return (w==="white"?"White":"Blue")+" takes the match";
   }
-  if(o.reason==="complete" && R.mode==="trial" && R.actIdx>=5) return "The Remnant is complete";
-  if(o.reason==="complete" && R.mode==="trial") return "The Final Test is complete";
-  if(o.reason==="complete" && R.mode==="daily") return "The daily reading is finished";
-  if(o.reason==="complete" && R.mode==="practice") return "The drill is finished";
-  if(o.reason==="complete" && R.mode==="recall") return "You wrote them out from memory";
+  if(o.reason==="complete"){
+    const done = resultsCompleteKick();
+    if(done) return done;
+  }
   if(R.mode==="blitz") return "The blitz clock ran out";
   if(R.mode==="trial" && R.actIdx>=5) return "The Remnant ended the run";
   if(R.mode==="trial" && R.actIdx===4) return "The Final Test ended the run";
@@ -387,15 +393,24 @@ function resultsKickText(o){
   return "The trial is ended";
 }
 
-function resultsBreakdownHtml(o){
-  function row(a,b){ return '<div class="brow"><span>'+esc(a)+'</span><b>'+esc(b)+'</b></div>'; }
-  if(R.mode==="team" && R.teams){
+function teamResultsBreakdownHtml(row){
     const w = R.teams.white, b = R.teams.blue;
     const win = typeof teamWinner==="function" ? teamWinner() : "draw";
     return '<div class="brow team-row white'+(win==="white"?" win":"")+'"><span>White Team</span><b>'+esc((w.kept||0)+"/5 · "+((w.ms||0)/1000).toFixed(1)+"s")+'</b></div>'+
       '<div class="brow team-row blue'+(win==="blue"?" win":"")+'"><span>Blue Team</span><b>'+esc((b.kept||0)+"/5 · "+((b.ms||0)/1000).toFixed(1)+"s")+'</b></div>'+
       row("Result", win==="draw" ? "Draw" : (win==="white"?"White":"Blue")+" by keeps, then time");
-  }
+}
+function tabletsHeld(){ return typeof Tablets!=="undefined" && Tablets.held(R); }
+function tabletsResultsBreakdownHtml(o, row){
+  return row("Words carved", R.correct+" / "+R.qTotal) +
+    row("Hold", tabletsHeld() ? "Held" : "Shattered") +
+    row("Chapter best", ((SAVE.tablets && SAVE.tablets[R.tabletChapter] && SAVE.tablets[R.tabletChapter].best) || 0)+"%") +
+    '<div class="brow tot"><span>Final</span><b>'+fmt(o.total)+'</b></div>';
+}
+function resultsBreakdownHtml(o){
+  function row(a,b){ return '<div class="brow"><span>'+esc(a)+'</span><b>'+esc(b)+'</b></div>'; }
+  if(R.mode==="team" && R.teams) return teamResultsBreakdownHtml(row);
+  if(R.mode==="tablets") return tabletsResultsBreakdownHtml(o, row);
   const actLabel = R.mode==="trial" ? "Acts survived" : R.mode==="endless" ? "Distance"
     : R.mode==="relay" ? "Sites walked" : "Verses answered";
   return row("Verses kept", fmt(o.baseScore)) +
@@ -423,6 +438,15 @@ function renderResultsSchedule(){
 
 function renderResultsStats(o){
   function stat(a,b){ return '<div class="stat"><b>'+esc(String(a))+'</b><span>'+esc(b)+'</span></div>'; }
+  if(R.mode==="tablets"){
+    $("res-stats").innerHTML =
+      stat(R.correct, "Words carved") +
+      stat(R.qTotal, "Tablets in chapter") +
+      stat(R.best, "Longest carve") +
+      stat(Math.round(o.acc*100)+"%", "Accuracy") +
+      stat((SAVE.tablets && SAVE.tablets[R.tabletChapter] && SAVE.tablets[R.tabletChapter].best || 0)+"%", "Chapter best");
+    return;
+  }
   $("res-stats").innerHTML =
     stat(R.correct, "Verses kept") +
     (R.typed ? stat(R.typedExact, "Word for word") + stat(R.typedClose, "Close enough") : "") +
@@ -482,6 +506,12 @@ function renderResultsBestLine(o){
     return;
   }
   let best = "";
+  if(R.mode==="tablets"){
+    const rec = SAVE.tablets && SAVE.tablets[R.tabletChapter] || {best:0,held:false};
+    best = (rec.held ? "Hold recorded" : "The Hold broke") + " · " + (R.tabletChapter || "psalm23") + " best — " + (rec.best||0) + "%";
+    $("res-best").textContent = best;
+    return;
+  }
   if(R.mode==="blitz"){
     if(o.isRecord) best = "New "+MODES[R.mode].name+" record — previous "+fmt(o.prevBest)+" verses";
     else best = MODES[R.mode].name+" best — "+fmt(SAVE.best[R.mode]||0)+" verses";
@@ -567,9 +597,11 @@ function renderResultsRoadChrome(o){
 
 function renderResultsRetryReview(o){
   const retryBtn = $("res-retry");
+  const againBtn = $("res-again");
+  if(againBtn) againBtn.style.display = R.mode==="tablets" ? "none" : "";
   if(retryBtn && (R.mode==="beat" || R.mode==="team" || R.mode==="tablets")){
     retryBtn.style.display = "";
-    retryBtn.textContent = R.mode==="team" ? "Play again" : R.mode==="tablets" ? "Retry chapter" : retryBtn.textContent;
+    retryBtn.textContent = R.mode==="team" ? "Play again" : R.mode==="tablets" ? "Carve again" : retryBtn.textContent;
     retryBtn.onclick = function(){
       Snd.unlock(); Snd.ui();
       if(R.mode==="team") openBrief("team");
@@ -603,13 +635,14 @@ function renderResultsRetryReview(o){
 
 function paintResultsSkin(el){
   if(!el) return;
-  el.classList.remove("team-win-white","team-win-blue","team-win-draw","beat-win","beat-loss");
+  el.classList.remove("team-win-white","team-win-blue","team-win-draw","beat-win","beat-loss","tablets-held","tablets-shattered");
   if(R.mode==="team"){
     const w = typeof teamWinner==="function" ? teamWinner() : "draw";
     el.classList.add(w==="draw" ? "team-win-draw" : "team-win-"+w);
     return;
   }
   if(R.mode==="beat") el.classList.add(typeof Beat!=="undefined" && Beat.held(R) ? "beat-win" : "beat-loss");
+  if(R.mode==="tablets") el.classList.add(tabletsHeld() ? "tablets-held" : "tablets-shattered");
 }
 function renderResults(o){
   $("res-kick").textContent = resultsKick(o);
