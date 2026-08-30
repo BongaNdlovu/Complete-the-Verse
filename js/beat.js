@@ -151,7 +151,7 @@ const Beat = (function(){
     {
       id:"beat-q12", kind:"match", plate:"11.jpeg", sfx:null, fx:"wind",
       r:"1 Samuel 17:54",
-      stem:"Match both destinations.",
+      stem:"And David took the head of the Philistine, and brought it to ______; but he put his armour in ______.",
       rows:[
         { id:"head", prompt:"Head of Goliath", a:"Jerusalem" },
         { id:"armour", prompt:"Goliath's armour", a:"David's tent" }

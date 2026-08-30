@@ -29,6 +29,7 @@ const PRECACHE_ASSETS = [
   "css/game.css",
   "css/play.css",
   "css/atlas.css",
+  "css/tablets.css",
   "js/verses.js",
   "js/verses-extra.js",
   "js/verses-more.js",

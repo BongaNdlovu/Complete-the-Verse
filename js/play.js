@@ -417,6 +417,7 @@ function beatToVerse(item){
 }
 function playBeatCinema(plates){
   if(typeof Snd!=="undefined" && Snd.stopBeds) Snd.stopBeds();
+  if(plates === Beat.cinemaB && typeof Snd!=="undefined" && Snd.ambience) Snd.ambience("heartbeat");
   R.beatPlates = plates;
   R.beatPlateIdx = -1;
   document.body.classList.add("beat-cinema");
@@ -523,7 +524,9 @@ function renderBeatQuestion(item){
   $("verse").textContent = item.stem || "";
   fitVerseSize((item.stem||"").length);
   const how = $("warn-how");
-  if(how) how.textContent = "Forty seconds · none wrong to Hold";
+  if(how) how.textContent = item.kind==="match"
+    ? "One place per row · forty seconds · none wrong to Hold"
+    : "Forty seconds · none wrong to Hold";
   if(item.kind==="pick") return renderBeatPick(item);
   if(item.kind==="order") return renderBeatOrder(item);
   if(item.kind==="cloze") return renderBeatCloze(item);

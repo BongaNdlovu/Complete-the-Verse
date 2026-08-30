@@ -34,7 +34,8 @@ const BEDS = [
   { key: "theUncovering", file: "the-uncovering.mp3", slot: "Road question bed" },
   { key: "awakeningMachine", file: "awakening-machine.mp3", slot: "Road question bed" },
   { key: "machineAwakening", file: "machine-awakening.mp3", slot: "Road question bed" },
-  { key: "fearOfTheDark", file: "fear-of-the-dark.mp3", slot: "Valley Beat bed" }
+  { key: "fearOfTheDark", file: "fear-of-the-dark.mp3", slot: "Valley Beat questions" },
+  { key: "heartbeat", file: "heartbeat.mp3", slot: "Valley Beat cinema B" }
 ];
 
 assert(/const TRACKS\s*=\s*\{[\s\S]*?\};/.test(game), "TRACKS object present");
@@ -88,6 +89,7 @@ assert(/function cueQuestionMusic\(/.test(game),
   "question-time music helper exists");
 assert(/Snd\.ambience\(ROAD_QUESTION_BEDS/.test(game) || /ROAD_QUESTION_BEDS/.test(game), "road question beds cycle");
 assert(/fearOfTheDark/.test(game), "Valley Beat uses Fear of the Dark");
+assert(/Snd\.ambience\("heartbeat"\)/.test(game), "Valley cinema B plays Heartbeat");
 assert(/cueQuestionMusic\(\)/.test(game),
   "live questions cue a question bed");
 assert(/Snd\.ambience\(A\.pal\)/.test(game), "beginAct uses act palette ambience");

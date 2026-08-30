@@ -1,0 +1,11 @@
+---
+description: Use ponytail on every coding task in this repo.
+alwaysApply: true
+---
+
+# Ponytail
+
+On every coding task, read and follow `.cursor/skills/ponytail/SKILL.md` (same pack as `C:\Users\fanel\Downloads\ponytail-main`). This is mandatory, not optional.
+
+- Default intensity: **full**. Off only if the user says "stop ponytail" or "normal mode".
+- Also available: ponytail-review, ponytail-audit, ponytail-debt, ponytail-gain, ponytail-help.

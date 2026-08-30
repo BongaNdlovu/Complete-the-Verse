@@ -7,6 +7,7 @@ Trust these over anything in `reports/`.
 | [`DEVELOPER-GUIDE.md`](./DEVELOPER-GUIDE.md) | Code map: load order, modules, testing |
 | [`CODE-ORGANISATION.md`](./CODE-ORGANISATION.md) | Layout findings and closeout |
 | [`CONTEXT.md`](./CONTEXT.md) | Shared product language |
+| [`BEAT.md`](./BEAT.md) | Valley Beat: film, cinema, question kinds, how to clone |
 | [`BACKEND.md`](./BACKEND.md) | Supabase setup runbook |
 | [`BACKEND-EVALUATION.md`](./BACKEND-EVALUATION.md) | Schema, sync, failure modes |
 | [`SECURITY-EVALUATION.md`](./SECURITY-EVALUATION.md) | Trust model |

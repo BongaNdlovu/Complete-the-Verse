@@ -66,7 +66,7 @@ function armMedia(sb) {
   exec(sb, "startRun('beat','watchman')");
   eq("question bed is on before cinema B", read(sb, "Snd.currentBed()"), "fearOfTheDark");
   exec(sb, "playBeatCinema(Beat.cinemaB)");
-  eq("cinema B clears the question bed", read(sb, "Snd.currentBed()"), null);
+  eq("cinema B plays Heartbeat", read(sb, "Snd.currentBed()"), "heartbeat");
 }
 
 {

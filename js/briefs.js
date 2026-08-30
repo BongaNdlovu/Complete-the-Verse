@@ -302,7 +302,9 @@ function paintTabletsBrief(on){
     title.textContent = ch.name;
     const sub = document.createElement("span");
     const rec = Tablets.recordOf(SAVE, ch.id);
-    sub.textContent = locked ? "Hold Psalm 23 to unlock" : (ch.blanks.length + " tablets · best " + (rec.best || 0) + "%");
+    sub.textContent = locked
+      ? (Tablets.unlockLabel ? Tablets.unlockLabel(ch.id) : "Locked")
+      : (ch.blanks.length + " blanks · best " + (rec.best || 0) + "%");
     b.appendChild(title);
     b.appendChild(sub);
     host.appendChild(b);

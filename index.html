@@ -364,31 +364,60 @@
       <header class="tablets-top">
         <div class="tablets-chip">
           <b id="tablets-chapter">Psalm 23</b>
-          <span>KJV</span>
+          <span id="tablets-sub">The LORD is my shepherd</span>
         </div>
         <div class="tablets-stats">
+          <div class="tablets-stat"><b id="tablets-remain">1 / 11</b><span>Tablet</span></div>
           <div class="tablets-stat"><b id="tablets-streak">0</b><span>Streak</span></div>
           <div class="tablets-stat"><b id="tablets-best">0%</b><span>Best</span></div>
         </div>
-        <button type="button" class="tablets-quit" id="tablets-quit">Quit</button>
+        <div class="tablets-actions">
+          <button type="button" class="tablets-iconbtn" id="tablets-pause-btn">Pause</button>
+          <button type="button" class="tablets-iconbtn" id="tablets-quit">Quit</button>
+        </div>
       </header>
       <div class="tablets-stage" id="tablets-stage">
-        <div class="tablets-line" aria-hidden="true"></div>
-        <div class="tablets-sheet" id="tablets-sheet"></div>
+        <div class="tablets-ms">
+          <p class="tablets-prev" id="tablets-prev"></p>
+          <div class="tablets-hero">
+            <div class="tablets-ref-pill" id="tablets-ref">Psalm 23:1</div>
+            <p class="tablets-current" id="tablets-sheet"></p>
+            <div class="tablets-clock" aria-label="Time remaining">
+              <i class="tablets-clock-fill" id="tablets-clock-fill"></i>
+            </div>
+            <div class="tablets-clock-lab" id="tablets-clock-lab">6.5s</div>
+          </div>
+          <p class="tablets-next" id="tablets-next"></p>
+        </div>
       </div>
       <div class="tablets-tray">
-        <div class="tablets-tray-lab">Choose the word</div>
+        <div class="tablets-tray-lab">Choose the missing word</div>
         <div class="tablets-grid" id="tablets-grid"></div>
+        <div class="tablets-tray-tools">
+          <button type="button" class="tablets-hear" id="tablets-hear">Hear the line</button>
+          <span class="tablets-keys-hint">Keys 1–4 or A–D</span>
+        </div>
       </div>
       <footer class="tablets-foot">
-        <div class="tablets-hold">One miss ends the Hold</div>
+        <div class="tablets-hold">One miss shatters the Hold</div>
+        <div class="tablets-pips" id="tablets-pips" aria-hidden="true"></div>
         <div class="tablets-track">
           <i class="tablets-fill" id="tablets-fill"></i>
           <i class="tablets-ghost" id="tablets-ghost" hidden></i>
         </div>
         <div class="tablets-pct" id="tablets-pct">0%</div>
-        <div class="tablets-ref" id="tablets-ref">Psalm 23:1</div>
       </footer>
+      <div id="tablets-pause" class="tablets-pause" hidden>
+        <div class="tablets-pause-card">
+          <div class="kick">Paused</div>
+          <div class="h-lg" style="margin-top:1vh">The chisel rests</div>
+          <p class="tablets-pause-copy">The blank is still empty. Resume to keep the Hold.</p>
+          <div class="footer" style="justify-content:center;margin-top:2vh">
+            <button type="button" class="btn" id="tablets-resume">Resume</button>
+            <button type="button" class="btn ghost" id="tablets-pause-quit">Abandon</button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

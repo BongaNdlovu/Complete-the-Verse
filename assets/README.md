@@ -30,3 +30,4 @@
 - **Character Tokens (`assets/characters/<id>/token.png`)**: 128 × 128 px max, optimized PNG
 - **Scholar walkers (`assets/characters/<id>/{idle,walk}.png`)**: idle 269 × 479; walk 2152 × 479 (8 cells)
 - **Intro & Hall Videos (`assets/intro.mp4`, `assets/hall.mp4`)**: 1080p H.264, baseline audio stream
+- **Valley prologue (`assets/beats/goliath/prologue.mp4`)**: 1080p H.264 `yuv420p` + AAC, CRF 20, `+faststart`, under 20MB. Same `<video id="ur-prologue-video">` as Ur/Team.

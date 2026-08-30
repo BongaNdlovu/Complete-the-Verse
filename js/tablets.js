@@ -29,6 +29,16 @@ const Tablets = (function(){
         { r:"Psalm 91:7", prefix:"A thousand shall fall at thy side, and ten thousand at thy", a:"right", suffix:"hand; but it shall not come nigh thee.", d:["left","own","other"] },
         { r:"Psalm 91:11", prefix:"For he shall give his", a:"angels", suffix:"charge over thee, to keep thee in all thy ways.", d:["spirits","hosts","saints"] }
       ]
+    },
+    {
+      id:"john1", name:"John 1", r:"John 1:1-5", subtitle:"In the beginning was the Word",
+      blanks:[
+        { r:"John 1:1", prefix:"In the beginning was the", a:"Word", suffix:", and the Word was with God, and the Word was God.", d:["Light","Law","Voice"] },
+        { r:"John 1:2", prefix:"The same was in the beginning with", a:"God", suffix:".", d:["man","heaven","us"] },
+        { r:"John 1:3", prefix:"All things were made by him; and without him was not any thing", a:"made", suffix:"that was made.", d:["done","seen","formed"] },
+        { r:"John 1:4", prefix:"In him was life; and the life was the light of", a:"men", suffix:".", d:["God","heaven","angels"] },
+        { r:"John 1:5", prefix:"And the light shineth in darkness; and the darkness comprehended it", a:"not", suffix:".", d:["well","fully","ever"] }
+      ]
     }
   ];
   function chapter(id){
@@ -53,14 +63,20 @@ const Tablets = (function(){
   function held(run){
     return !!(run && !run.tabletMiss && run.tabletIdx >= (run.tabletTotal || 0) && (run.tabletTotal || 0) > 0);
   }
-  function unlocked(id, save){
-    if(id === "psalm23") return true;
-    const rec = save && save.tablets && save.tablets.psalm23;
-    return !!(rec && rec.held);
-  }
   function recordOf(save, id){
     const pack = (save && save.tablets) || {};
     return pack[id] || { best:0, held:false };
+  }
+  function unlocked(id, save){
+    if(id === "psalm23") return true;
+    if(id === "psalm91") return !!recordOf(save, "psalm23").held;
+    if(id === "john1") return !!recordOf(save, "psalm91").held;
+    return false;
+  }
+  function unlockLabel(id){
+    if(id === "psalm91") return "Hold Psalm 23 to open";
+    if(id === "john1") return "Hold Psalm 91 to open";
+    return "Open";
   }
   return {
     BLANK_MS: BLANK_MS,
@@ -69,6 +85,7 @@ const Tablets = (function(){
     options: options,
     held: held,
     unlocked: unlocked,
+    unlockLabel: unlockLabel,
     recordOf: recordOf
   };
 })();

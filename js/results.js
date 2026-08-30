@@ -226,7 +226,7 @@ function persistTabletsRecord(){
   const isRecord = pct > prevBest;
   if(isRecord) SAVE.best.tablets = pct;
   const id = R.tabletChapter || "psalm23";
-  if(!SAVE.tablets) SAVE.tablets = { psalm23:{best:0,held:false}, psalm91:{best:0,held:false} };
+  if(!SAVE.tablets) SAVE.tablets = { psalm23:{best:0,held:false}, psalm91:{best:0,held:false}, john1:{best:0,held:false} };
   const rec = Object.assign({best:0,held:false}, SAVE.tablets[id] || {});
   rec.best = Math.max(rec.best || 0, pct);
   const nowHeld = typeof Tablets !== "undefined" && Tablets.held(R);

@@ -55,6 +55,10 @@ p23.blanks.concat(p91.blanks).forEach(function(blank){
 ok("Psalm 23 is unlocked", Tablets.unlocked("psalm23", {}));
 ok("Psalm 91 locked until Hold", !Tablets.unlocked("psalm91", { tablets:{ psalm23:{ held:false } } }));
 ok("Psalm 91 opens after Hold", Tablets.unlocked("psalm91", { tablets:{ psalm23:{ held:true } } }));
+ok("John 1 locked until Psalm 91 Hold", !Tablets.unlocked("john1", { tablets:{ psalm23:{ held:true }, psalm91:{ held:false } } }));
+ok("John 1 opens after Psalm 91 Hold", Tablets.unlocked("john1", { tablets:{ psalm23:{ held:true }, psalm91:{ held:true } } }));
+eq("John 1 has 5 blanks", Tablets.chapter("john1").blanks.length, 5);
+eq("John 1 first answer is Word", Tablets.chapter("john1").blanks[0].a, "Word");
 
 ok("clean 23 is Held", Tablets.held({ tabletMiss:0, tabletIdx:11, tabletTotal:11 }));
 ok("a miss is not Held", !Tablets.held({ tabletMiss:1, tabletIdx:11, tabletTotal:11 }));
@@ -63,9 +67,17 @@ ok("short run is not Held", !Tablets.held({ tabletMiss:0, tabletIdx:4, tabletTot
 const src = fs.readFileSync(path.join(ROOT, "js", "tablets.js"), "utf8")
   + fs.readFileSync(path.join(ROOT, "js", "tablets-run.js"), "utf8")
   + fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8");
+const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+const gameSrc = fs.readFileSync(path.join(ROOT, "js", "game.js"), "utf8");
 ok("no three", !/three/i.test(src));
 ok("no importmap", !/importmap/.test(src));
 ok("no Google Fonts", !/fonts\.googleapis/.test(src));
+ok("current line wraps as ordinary text", /\.tablets-current\{[^}]*display:\s*block/.test(src));
+ok("blank sits in the line", /\.tablets-blank\{[^}]*inline-flex/.test(src));
+ok("pause overlay is in the view", html.indexOf('id="tablets-pause"') >= 0);
+ok("hear control is in the view", html.indexOf('id="tablets-hear"') >= 0);
+ok("remaining counter is in the view", html.indexOf('id="tablets-remain"') >= 0);
+ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}toggleTabletsPause/.test(gameSrc));
 
 {
   const sb = boot();
@@ -104,6 +116,25 @@ ok("no Google Fonts", !/fonts\.googleapis/.test(src));
   eq("8 tablets", read(sb, "R.tabletTotal"), 8);
   for (let i = 0; i < 8; i++) exec(sb, "tabletsResolve(true)");
   eq("91 Held", read(sb, "SAVE.tablets.psalm91.held"), true);
+}
+
+{
+  const sb = boot();
+  exec(sb, "SAVE.tablets.psalm23.held = true; SAVE.tablets.psalm91.held = true; persist(); startRun('tablets','watchman',{tabletChapter:'john1'})");
+  eq("John 1 starts when unlocked", read(sb, "R.tabletChapter"), "john1");
+  eq("5 blanks in John 1", read(sb, "R.tabletTotal"), 5);
+  for (let i = 0; i < 5; i++) exec(sb, "tabletsResolve(true)");
+  eq("John 1 Held", read(sb, "SAVE.tablets.john1.held"), true);
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "toggleTabletsPause()");
+  eq("pause stops the race", read(sb, "R.paused"), true);
+  eq("pause overlay is on", read(sb, "$('tablets-pause').classList.contains('on')"), true);
+  exec(sb, "toggleTabletsPause()");
+  eq("resume clears pause", read(sb, "R.paused"), false);
 }
 
 if (fail) {

@@ -12,7 +12,7 @@ const DEFAULT_SAVE = {
         typedExact:0, typedAttempts:0, reviewsDone:0, sitesCleared:0, arcsCleared:0, blitzBest:0,
         oilSpent:0, oilEarned:0, quickRewards:0, quickRewardXP:0, quickRewardOil:0, illumRewards:0,
         beatGoliathHeld:false, tabletHolds:0},
-  tablets:{psalm23:{best:0,held:false}, psalm91:{best:0,held:false}},
+  tablets:{psalm23:{best:0,held:false}, psalm91:{best:0,held:false}, john1:{best:0,held:false}},
   books:{}, verse:{}, srs:{}, board:[], journal:[],
   ghosts:{pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null},
   daily:{date:"", score:0},
@@ -38,7 +38,8 @@ function mergeTabletsSave(s){
   const t = (s && s.tablets) || {};
   return {
     psalm23: Object.assign({best:0,held:false}, t.psalm23 || {}),
-    psalm91: Object.assign({best:0,held:false}, t.psalm91 || {})
+    psalm91: Object.assign({best:0,held:false}, t.psalm91 || {}),
+    john1: Object.assign({best:0,held:false}, t.john1 || {})
   };
 }
 function mergeLoadedSave(s){
@@ -293,8 +294,8 @@ const MODES = {
     desc:"David and Goliath in the valley of Elah. Twelve questions from 1 Samuel 17. Forty seconds each. Held only if none are wrong.",
     tagline:"Goliath · twelve questions · replay any time", info:[["12","Questions"],["40s","Clock"],["Held","None wrong"]] },
   tablets:{ key:"tablets", name:"Word Tablets", kick:"Fill the Word", atlas:false,
-    desc:"Psalm 23 on a scrolling manuscript. Four stone tablets. One gold line. One miss ends the Hold. Hold Psalm 23 to open Psalm 91.",
-    tagline:"Psalm 23 · Hold or shatter", info:[["11","Tablets"],["Hold","One miss"],["Psalm 23","Then 91"]] },
+    desc:"Carve the missing KJV word before the clock runs out. One miss shatters the Hold. Hold Psalm 23 to open Psalm 91, then John 1.",
+    tagline:"Psalm 23 · 91 · John 1", info:[["6.5s","Each blank"],["Hold","One miss"],["Psalm 23","Then 91, John 1"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, assembled word for word.",
     tagline:"Assemble · cleared sites", info:[["8","Verses"],["Assemble","No options"],[modeClockLabel("pilgrim-recall"),"Clock"]] },
@@ -1770,6 +1771,9 @@ function handleOverlayKeydown(e, k){
 function handleNavKeydown(e, k){
   if(k==="escape"){
     if(currentView==="play") togglePause();
+    else if(currentView==="tablets"){
+      if(typeof toggleTabletsPause==="function") toggleTabletsPause();
+    }
     else if(currentView==="sitebrief") go("atlas");
     else if(currentView!=="menu") go("menu");
     return true;
@@ -1891,6 +1895,9 @@ document.addEventListener("visibilitychange", ()=>{
     if(currentView==="play"&&R.running&&!R.paused){
       pauseStamp=performance.now();
       setPaused(true);
+    }
+    if(currentView==="tablets"&&R.running&&!R.paused&&typeof setTabletsPaused==="function"){
+      setTabletsPaused(true);
     }
   }else if(currentView==="play"){
     ensureLoop();

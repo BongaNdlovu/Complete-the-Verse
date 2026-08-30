@@ -33,6 +33,9 @@ assert(/function playBootSequence\(/.test(game), "playBootSequence helper presen
 
 assert(html.includes('id="v-intro"'), "intro view present");
 assert(html.includes('id="v-tablets"'), "tablets view present");
+assert(html.includes('id="tablets-pause"'), "tablets pause overlay present");
+assert(html.includes('id="tablets-hear"'), "tablets hear control present");
+assert(html.includes('id="tablets-remain"'), "tablets remaining counter present");
 assert(html.includes('id="intro-video"'), "intro video element present");
 assert(fs.existsSync(path.join(ROOT, "assets", "intro.mp4")), "assets/intro.mp4 exists");
 assert(fs.existsSync(path.join(ROOT, "audio", "voice", "intro-word.mp3")), "intro voice file exists");
@@ -64,7 +67,7 @@ assert(fs.statSync(path.join(ROOT, "assets", "team-prologue.mp4")).size < 2 * 10
   "Team Mode film stays under 2MB");
 const beatPrologue = path.join(ROOT, "assets", "beats", "goliath", "prologue.mp4");
 assert(fs.existsSync(beatPrologue), "assets/beats/goliath/prologue.mp4 exists");
-assert(fs.statSync(beatPrologue).size < 2 * 1024 * 1024, "Valley prologue film stays under 2MB");
+assert(fs.statSync(beatPrologue).size < 20 * 1024 * 1024, "Valley prologue film stays under 20MB");
 assert(fs.existsSync(path.join(ROOT, "assets", "beats", "goliath", "win.png")), "Valley win still exists");
 assert(fs.existsSync(path.join(ROOT, "assets", "beats", "goliath", "loss.png")), "Valley loss still exists");
 assert(game.includes('playStageFilm("assets/beats/goliath/prologue.mp4"'),

@@ -29,7 +29,8 @@ const Snd = (function(){
     theUncovering:"audio/the-uncovering.mp3",
     awakeningMachine:"audio/awakening-machine.mp3",
     machineAwakening:"audio/machine-awakening.mp3",
-    fearOfTheDark:"audio/fear-of-the-dark.mp3"
+    fearOfTheDark:"audio/fear-of-the-dark.mp3",
+    heartbeat:"audio/heartbeat.mp3"
   };
   const SFX = {
     ui:"sfx/ui.mp3",

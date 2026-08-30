@@ -7,6 +7,7 @@ Loaded as classic `<script>` tags from `index.html`. Globals are intentional (`f
 | If you need… | Open |
 |---|---|
 | Save, modes, `go()`, `startRun` | `game.js` |
+| Valley Beat (Goliath) | `beat.js` + [`docs/BEAT.md`](../docs/BEAT.md) |
 | Timer, next question, answering, life loss | `play.js` (`runPhase`, `applyCorrect` / `applyMiss`) |
 | End-of-run score, XP, results view | `results.js` |
 | Settings, player card, study, relics | `panels.js` |
