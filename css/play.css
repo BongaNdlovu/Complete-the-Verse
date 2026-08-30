@@ -455,9 +455,9 @@ body.reduced #lock-seal{transition:none}
   background-repeat:no-repeat;background-position:0 0;
   background-size:calc(var(--cell-w) * 8) var(--cell-h);
   filter:drop-shadow(0 22px 36px rgba(0,0,0,.62))}
-#judge-burst.up i{background-image:url("../assets/judge/up.png");
+#judge-burst.up i{background-image:url("../assets/judge/up.webp");
   animation:judgeBurst .64s steps(7) forwards}
-#judge-burst.down i{background-image:url("../assets/judge/down.png");
+#judge-burst.down i{background-image:url("../assets/judge/down.webp");
   animation:judgeBurst .64s steps(7) forwards}
 @keyframes judgeBurst{
   from{background-position:0 0}
@@ -610,6 +610,34 @@ body.biblical-thriller{
 .biblical-thriller #v-results:after{
   content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
   background:radial-gradient(ellipse 55% 72% at 50% 45%,rgba(11,9,8,.22),rgba(0,0,0,.82) 94%);
+}
+.biblical-thriller #v-results.beat-win:before,
+.biblical-thriller #v-results.beat-loss:before,
+body.hall-ready.biblical-thriller #v-results.beat-win:before,
+body.hall-ready.biblical-thriller #v-results.beat-loss:before{
+  opacity:1;filter:saturate(.88) contrast(1.04) brightness(.78);animation:none;
+  background-size:cover;background-position:center 22%;background-repeat:no-repeat;
+}
+.biblical-thriller #v-results.beat-win:before,
+body.hall-ready.biblical-thriller #v-results.beat-win:before{
+  background-image:
+    linear-gradient(180deg,rgba(0,0,0,.7) 0%,rgba(0,0,0,.28) 24%,rgba(0,0,0,.16) 52%,rgba(0,0,0,.62) 100%),
+    url("../assets/beats/goliath/win.png");
+}
+.biblical-thriller #v-results.beat-loss:before,
+body.hall-ready.biblical-thriller #v-results.beat-loss:before{
+  background-image:
+    linear-gradient(180deg,rgba(0,0,0,.7) 0%,rgba(0,0,0,.28) 24%,rgba(0,0,0,.16) 52%,rgba(0,0,0,.62) 100%),
+    url("../assets/beats/goliath/loss.png");
+}
+.biblical-thriller #v-results.beat-win:after,
+.biblical-thriller #v-results.beat-loss:after{
+  background:rgba(0,0,0,.4);
+}
+#v-results.beat-win .scrollpad,
+#v-results.beat-loss .scrollpad{
+  position:relative;z-index:1;justify-content:flex-start;
+  padding-top:calc(var(--safe-t) + 22px);
 }
 @keyframes hallBreath{from{transform:scale(1.015)}to{transform:scale(1.055)}}
 .biblical-thriller .h-xl{
@@ -1574,4 +1602,7 @@ body.biblical-thriller.team-blue .clockbar-fill{
 body.reduced .beat-fx-breath #backdrop,
 body.reduced .beat-fx-run #backdrop{animation:none}
 .beat-match-lab{width:100%;font-family:var(--ui);letter-spacing:.18em;text-transform:uppercase;
-  font-size:.62rem;color:var(--gold-hot);margin:.6rem 0 .2rem}
+  font-size:.62rem;color:var(--gold-hot);margin:.6rem 0 .2rem;grid-column:1/-1}
+.answers.beat-match,
+.biblical-thriller .answers.beat-match{grid-template-columns:repeat(3,minmax(0,1fr))}
+body.mode-beat .ans .ans-copy{overflow-wrap:anywhere}

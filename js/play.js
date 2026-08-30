@@ -387,7 +387,8 @@ function drawNextQuestionVerse(){
 function beatSky(file){
   const el = $("backdrop");
   if(!el) return;
-  el.style.backgroundImage = file ? "url(\"" + Beat.url(file) + "\")" : "";
+  const safe = file && /^[A-Za-z0-9._-]+$/.test(file) ? file : "";
+  el.style.backgroundImage = safe ? "url(\"" + Beat.url(safe) + "\")" : "";
   el.style.backgroundSize = "cover";
   el.style.backgroundPosition = "center";
 }
@@ -415,6 +416,7 @@ function beatToVerse(item){
   };
 }
 function playBeatCinema(plates){
+  if(typeof Snd!=="undefined" && Snd.stopBeds) Snd.stopBeds();
   R.beatPlates = plates;
   R.beatPlateIdx = -1;
   document.body.classList.add("beat-cinema");
@@ -537,6 +539,7 @@ function renderBeatPick(item){
   const confirmBtn = $("confirm-answer");
   confirmBtn.style.display = "";
   confirmBtn.disabled = true;
+  confirmBtn.textContent = "Lock Answer";
   const opts = $("opts"); opts.className = "answers"; opts.innerHTML = "";
   item.choices.forEach(function(c, i){
     const b = document.createElement("button");
@@ -547,9 +550,21 @@ function renderBeatPick(item){
   });
   beatArm();
 }
+function paintBeatOrder(){
+  const opts = $("opts");
+  const chosen = R.beatOrder || [];
+  if(!opts) return;
+  [].forEach.call(opts.querySelectorAll(".ans"), function(b){
+    const n = chosen.indexOf(b.dataset.val);
+    const copy = b.querySelector(".ans-copy");
+    if(copy) copy.textContent = (n < 0 ? "" : (n + 1) + " · ") + b.dataset.val;
+  });
+  const lock = $("confirm-answer");
+  if(lock) lock.disabled = chosen.length !== (R.q && R.q.order ? R.q.order.length : 0);
+}
 function renderBeatOrder(item){
   $("confirm-answer").style.display = "";
-  $("confirm-answer").disabled = false;
+  $("confirm-answer").disabled = true;
   $("confirm-answer").textContent = "Lock order";
   R.beatOrder = [];
   const opts = $("opts"); opts.className = "answers"; opts.innerHTML = "";
@@ -566,6 +581,7 @@ function renderBeatOrder(item){
         R.beatOrder.push(line);
         b.classList.add("sel");
       }
+      paintBeatOrder();
     });
     opts.appendChild(b);
   });
@@ -581,7 +597,12 @@ function renderBeatCloze(item){
     b.innerHTML = '<span class="ans-copy">'+esc(c)+'</span>';
     b.addEventListener("click", function(){
       if(R.locked) return;
-      if(R.beatFilled.indexOf(c)>=0) return;
+      const at = R.beatFilled.indexOf(c);
+      if(at>=0){
+        R.beatFilled.splice(at, 1);
+        b.classList.remove("sel");
+        return;
+      }
       R.beatFilled.push(c);
       b.classList.add("sel");
       if(R.beatFilled.length === item.blanks.length){
@@ -613,7 +634,7 @@ function renderBeatMulti(item){
 }
 function renderBeatMatch(item){
   $("confirm-answer").style.display = "";
-  $("confirm-answer").disabled = false;
+  $("confirm-answer").disabled = true;
   $("confirm-answer").textContent = "Lock both";
   R.beatMatch = {};
   const opts = $("opts"); opts.className = "answers beat-match"; opts.innerHTML = "";
@@ -629,8 +650,10 @@ function renderBeatMatch(item){
       b.addEventListener("click", function(){
         if(R.locked) return;
         R.beatMatch[row.id] = opt;
-        [].slice.call(opts.querySelectorAll('[data-row="'+row.id+'"]')).forEach(function(x){ x.classList.remove("sel"); });
+        [].slice.call(opts.querySelectorAll('[data-row="'+String(row.id).replace(/[^\w-]/g, "")+'"]')).forEach(function(x){ x.classList.remove("sel"); });
         b.classList.add("sel");
+        const lock = $("confirm-answer");
+        if(lock) lock.disabled = !item.rows.every(function(r){ return R.beatMatch[r.id]; });
       });
       opts.appendChild(b);
     });
@@ -688,14 +711,26 @@ function markUrPrologueDone(){
   SAVE.set.urPrologueDone = true;
   persist();
 }
-function urPrologueAllowed(){
-  const v = $("ur-prologue-video");
-  if(!v || typeof v.play !== "function") return false;
+function heavyMediaAllowed(){
   if(document.body.classList.contains("reduced")) return false;
   if(SAVE.set && SAVE.set.reduced) return false;
   if((SAVE.set.quality || "high") === "low") return false;
   if(typeof navigator !== "undefined" && navigator.connection && navigator.connection.saveData) return false;
   return true;
+}
+function urPrologueAllowed(){
+  const v = $("ur-prologue-video");
+  if(!v || typeof v.play !== "function") return false;
+  return heavyMediaAllowed();
+}
+function stageFilmOn(){
+  const wrap = $("ur-prologue");
+  return !!(wrap && wrap.classList.contains("on") && urPrologueResume);
+}
+function dropFilmReady(vid){
+  if(!vid || !vid._filmReady) return;
+  if(typeof vid.removeEventListener === "function") vid.removeEventListener("loadeddata", vid._filmReady);
+  vid._filmReady = null;
 }
 function hideUrPrologue(resume){
   const wrap = $("ur-prologue");
@@ -704,29 +739,65 @@ function hideUrPrologue(resume){
   if(vid){
     try{ vid.pause(); }catch(e){}
     vid.onended = null;
+    dropFilmReady(vid);
   }
-  if(typeof Snd !== "undefined" && Snd.duckMusic) Snd.duckMusic(1, 1);
+  const skip = $("ur-prologue-skip");
+  if(skip) skip.onclick = null;
   const fn = urPrologueResume;
   urPrologueResume = null;
   if(resume && fn) fn();
+}
+function hushStageMedia(){
+  const vid = $("cine-parallax-video");
+  const el = $("cine-parallax-img");
+  if(vid) stopSiteAmbientVideo(vid, el);
+  else if(typeof Snd !== "undefined" && Snd.setRain) Snd.setRain(false);
+  if(typeof Snd !== "undefined" && Snd.stopBeds) Snd.stopBeds();
 }
 function playStageFilm(src, done){
   const wrap = $("ur-prologue");
   const vid = $("ur-prologue-video");
   const skip = $("ur-prologue-skip");
   if(!wrap || !vid){ if(done) done(); return; }
+  hushStageMedia();
   urPrologueResume = done;
   wrap.classList.add("on");
-  if(typeof Snd !== "undefined" && Snd.duckMusic) Snd.duckMusic(0, 20000);
+  vid.muted = false;
+  vid.playsInline = true;
   vid.onended = function(){ hideUrPrologue(true); };
   if(skip) skip.onclick = function(){ hideUrPrologue(true); };
   if(src){
-    vid.src = src;
-    try{ vid.load(); }catch(e){}
+    const cur = typeof vid.getAttribute === "function" ? vid.getAttribute("src") : "";
+    if(cur !== src && !(vid.src && String(vid.src).indexOf(src) >= 0)){
+      vid.src = src;
+    }
   }
-  try{ vid.currentTime = 0; }catch(e){}
-  const p = vid.play();
-  if(p && p.catch) p.catch(function(){ hideUrPrologue(true); });
+  dropFilmReady(vid);
+  function kick(retried){
+    if(!stageFilmOn()) return;
+    try{ vid.currentTime = 0; }catch(e){}
+    if(typeof vid.play !== "function"){ hideUrPrologue(true); return; }
+    const p = vid.play();
+    if(p && p.catch) p.catch(function(){
+      if(!stageFilmOn()) return;
+      if(retried){ hideUrPrologue(true); return; }
+      const retry = function(){
+        dropFilmReady(vid);
+        if(stageFilmOn()) kick(true);
+      };
+      vid._filmReady = retry;
+      if(typeof vid.addEventListener === "function") vid.addEventListener("loadeddata", retry);
+      try{ if(typeof vid.load === "function") vid.load(); }catch(e){}
+    });
+  }
+  if(vid.readyState >= 2){ kick(false); return; }
+  const onReady = function(){
+    dropFilmReady(vid);
+    if(stageFilmOn()) kick(false);
+  };
+  vid._filmReady = onReady;
+  if(typeof vid.addEventListener === "function") vid.addEventListener("loadeddata", onReady);
+  try{ if(typeof vid.load === "function") vid.load(); }catch(e){}
 }
 function playUrPrologue(done){
   markUrPrologueDone();
@@ -744,11 +815,15 @@ function maybePlayUrPrologue(v, dur){
     return false;
   }
   R.quoteShown = true;
+  R.holdQuestionMusic = true;
   renderQuestion(v, dur);
   stopTimer();
   const armed = R.tTotal || dur;
   playUrPrologue(function(){
+    R.holdQuestionMusic = false;
     if(R.q === v && currentView === "play" && !R.ended){
+      if(typeof cueQuestionMusic === "function") cueQuestionMusic();
+      if(typeof syncCinematicBackdrop === "function") syncCinematicBackdrop();
       witnessLook(false);
       startTimer(armed);
     }
@@ -922,7 +997,9 @@ function syncCinematicBackdrop(){
   el.style.backgroundImage = imgUrl ? 'url("' + imgUrl + '")' : "none";
   const rainSites = {ur:true};
   const ambientVideo = SITE_AMBIENT[siteId] || "";
-  const allowVideo = !!ambientVideo && (typeof currentView !== "undefined" && currentView === "play");
+  const allowVideo = !!ambientVideo
+    && (typeof currentView !== "undefined" && currentView === "play")
+    && heavyMediaAllowed();
   if(!vid) return;
   if(allowVideo) playSiteAmbientVideo(vid, el, ambientVideo, rainSites, siteId);
   else stopSiteAmbientVideo(vid, el);
@@ -1761,7 +1838,7 @@ function cueQuestionMusic(){
   if(typeof currentView !== "undefined" && currentView !== "play") return;
   if(typeof Snd === "undefined" || typeof Snd.ambience !== "function") return;
   if(R.mode==="beat"){ Snd.ambience(Beat.bed); return; }
-  if(R.mode==="tutorial" || R.mode==="team"){ Snd.ambience("indigo"); return; }
+  if(R.mode==="tablets" || R.mode==="tutorial" || R.mode==="team"){ Snd.ambience("indigo"); return; }
   if(R.mode==="pilgrimage" || R.mode==="relay" || R.mode==="pilgrim-recall"){
     const idx = (typeof R.siteIndex === "number" && R.siteIndex >= 0) ? R.siteIndex : 0;
     Snd.ambience(ROAD_QUESTION_BEDS[idx % ROAD_QUESTION_BEDS.length]);
@@ -1833,20 +1910,28 @@ function pickAnswer(val, btn){
   Snd.ui();
 }
 
-function confirmAnswer(){
-  if(R.mode==="beat" && R.q && R.q.kind==="order"){
-    beatResolve((R.beatOrder||[]).join("|") === (R.q.order||[]).join("|"));
-    return;
+function confirmBeatAnswer(){
+  if(!(R.mode==="beat" && R.q)) return false;
+  if(R.q.kind==="order"){
+    if((R.beatOrder||[]).length !== (R.q.order||[]).length) return true;
+    beatResolve(R.beatOrder.join("|") === R.q.order.join("|"));
+    return true;
   }
-  if(R.mode==="beat" && R.q && R.q.kind==="multi"){
+  if(R.q.kind==="multi"){
     const got = Object.keys(R.beatOn||{}).filter(function(k){ return R.beatOn[k]; }).sort().join(",");
     beatResolve(got === Beat.multiKey(R.q));
-    return;
+    return true;
   }
-  if(R.mode==="beat" && R.q && R.q.kind==="match"){
-    beatResolve((R.q.rows||[]).every(function(row){ return R.beatMatch && R.beatMatch[row.id]===row.a; }));
-    return;
+  if(R.q.kind==="match"){
+    const rows = R.q.rows || [];
+    if(!rows.every(function(row){ return R.beatMatch && R.beatMatch[row.id]; })) return true;
+    beatResolve(rows.every(function(row){ return R.beatMatch[row.id]===row.a; }));
+    return true;
   }
+  return false;
+}
+function confirmAnswer(){
+  if(confirmBeatAnswer()) return;
   if(R.typed) return confirmTyped();
   if(!R.selected || !R.running || R.paused || R.locked) return;
   answer(R.selected.val, R.selected.btn);

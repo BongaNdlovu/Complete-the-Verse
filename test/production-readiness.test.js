@@ -128,6 +128,21 @@ assert(/request\.mode === "navigate"/.test(sw) && /fetch\(request\)/.test(sw),
   "service worker implements network-first strategy for navigation / HTML shell");
 assert(/!path\.includes\("audio\/"\)/.test(sw) && /!path\.endsWith\("\.mp3"\)/.test(sw),
   "audio is explicitly excluded from precaching");
+assert(!/assets\/beats\/goliath/.test(sw),
+  "David Beat stills are not precached — they load when that mode starts");
+const questionStill = path.join(ROOT, "assets", "beats", "goliath", "question.jpeg");
+assert(fs.existsSync(questionStill) && fs.statSync(questionStill).size < 700000,
+  "beat question still is a compact JPEG");
+["up.webp", "down.webp"].forEach(function (file) {
+  const abs = path.join(ROOT, "assets", "judge", file);
+  assert(fs.existsSync(abs) && fs.statSync(abs).size < 500000, "judge burst is compact: " + file);
+});
+const play = read("js/play.js");
+assert(/function heavyMediaAllowed/.test(play), "heavy media has a shared gate");
+assert(/allowVideo[\s\S]{0,180}heavyMediaAllowed\(\)/.test(play),
+  "site ambient video uses the heavy-media gate");
+assert(/function urPrologueAllowed[\s\S]{0,220}heavyMediaAllowed\(\)/.test(play),
+  "Ur prologue uses the heavy-media gate");
 assert(/MAX_AUDIO_ENTRIES\s*=\s*25/.test(sw) && /trimCache/.test(sw),
   "audio runtime caching is bounded with an LRU cap of 25 entries");
 assert(/self\.skipWaiting\(\)/.test(sw) && /self\.clients\.claim\(\)/.test(sw),

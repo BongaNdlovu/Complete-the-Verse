@@ -404,6 +404,37 @@ function walkTo(P, n){
     /pathBetween\(startPt, to\.coords\)/.test(src));
   ok("select does not fly the camera away from a walking pilgrim",
     /willWalk \? \{ fly: false \}/.test(src));
+  ok("marker DOM listeners are wired once per element",
+    /el\._atlasWired/.test(src));
+}
+
+/* ---------- scholar walker sprites ---------- */
+{
+  const a = open();
+  a.Atlas.mount(a.Pilgrimage.blankProgress());
+  a.Atlas.select("ur");
+  a.Atlas.setTraveler({
+    idle: "assets/characters/elias/idle.png",
+    walk: "assets/characters/elias/walk.png"
+  });
+  const icons = a.log.icons.filter(i => (i.className || "").indexOf("traveler") >= 0);
+  ok("setTraveler draws a traveler icon", icons.length > 0);
+  const html = (icons[icons.length - 1] && icons[icons.length - 1].html) || "";
+  ok("the idle sprite is the chosen scholar", html.indexOf("assets/characters/elias/idle.png") >= 0, html.slice(0, 180));
+  ok("the walk sprite is the chosen scholar", html.indexOf("assets/characters/elias/walk.png") >= 0);
+  ok("the old face overlay is gone", html.indexOf("traveler-face") < 0);
+
+  a.Atlas.setTraveler({
+    idle: "assets/characters/priya/idle.png",
+    walk: "assets/characters/priya/walk.png"
+  });
+  const html2 = a.log.icons.filter(i => (i.className || "").indexOf("traveler") >= 0).pop().html;
+  ok("picking another scholar swaps the walker", html2.indexOf("priya/idle.png") >= 0);
+
+  a.Atlas.setTraveler(null);
+  const html3 = a.log.icons.filter(i => (i.className || "").indexOf("traveler") >= 0).pop().html;
+  ok("clearing the spec falls back to the default traveler",
+    html3.indexOf("assets/traveler/idle.png") >= 0);
 }
 
 /* ---------- an untouched map does no work ---------- */

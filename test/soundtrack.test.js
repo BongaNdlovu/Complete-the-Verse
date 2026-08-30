@@ -73,7 +73,8 @@ assert(/Snd\.ambience\(\(R && R\.resultTrack\) \|\| "results"\)/.test(game),
   'results view keeps the neutral results bed as its fallback');
 assert(/Snd\.ambience\(\(R && R\.resultTrack\) \|\| "results"\)/.test(game),
   "results view selects the resolved result bed");
-assert(/R\.resultTrack\s*=\s*reason === "complete" \? "finalStillness"/.test(game),
+assert(/R\.resultTrack\s*=\s*reason === "complete" \? "finalStillness"/.test(game)
+  || /if\(reason === "complete"\) return "finalStillness"/.test(game),
   "completed runs select Final Stillness");
 assert(/reason === "death" \|\| reason === "abandon"/.test(game) && /"suddenDescent"/.test(game),
   "failed and abandoned runs select Sudden Descent");
@@ -99,6 +100,12 @@ assert(/:\s*"act2"/.test(game), "Daily uses act2 bed");
 
 assert(/function playTrack\(name\)/.test(game), "playTrack helper");
 assert(/function stopAllTracks\(/.test(game), "stopAllTracks helper");
+assert(/function stopBeds\(/.test(game), "stopBeds helper");
+assert(/playBeatCinema\(plates\)\{[\s\S]{0,120}Snd\.stopBeds/.test(game),
+  "Valley Beat cinema stops leftover beds before VO");
+assert(/function hushStageMedia\(/.test(game), "stage films hush rain, loops, and beds");
+assert(/R\.holdQuestionMusic = true/.test(game) && /maybePlayUrPrologue\(/.test(game),
+  "Ur film holds the road bed until the picture ends");
 assert(/TRACKS\[bed\]/.test(game), "unlock resumes current track bed");
 assert(/if\(TRACKS\[name\]\)/.test(game), "ambience prefers TRACKS over synth pad");
 

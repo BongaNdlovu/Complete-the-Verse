@@ -38,6 +38,7 @@ const SUITE = [
   ["atlas data", "test/sites.test.js"],
   ["atlas view", "test/atlas.test.js"],
   ["soundtrack", "test/soundtrack.test.js"],
+  ["exclusive audio", "test/exclusive-audio.test.js"],
   ["sfx", "test/sfx.test.js"],
   ["mission voice", "test/voice.test.js"],
   ["cloud merge", "test/cloud.test.js"],
@@ -58,7 +59,8 @@ const SUITE = [
   ["e2e elements", "test/e2e-game-elements.test.js"],
   ["simulation", "test/playthrough-simulation.test.js"],
   ["diag", "test/diag.test.js"],
-  ["david beat", "test/david-beat.test.js"]
+  ["david beat", "test/david-beat.test.js"],
+  ["word tablets", "test/tablets.test.js"]
 ];
 
 let failed = 0;

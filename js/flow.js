@@ -13,7 +13,7 @@ var Flow = (function(){
      read as dead air. Tutorial advances and the live-browser driver
      key off this constant; keep them in sync when it moves. */
   var JUDGE_MS = 2500;
-  var VIEWS = ["boot","intro","menu","brief","sitebrief","atlas","act","play",
+  var VIEWS = ["boot","intro","menu","brief","sitebrief","atlas","act","play","tablets",
                "results","study","relics","seals","records","settings"];
 
   var STATES = {
@@ -105,6 +105,16 @@ var Flow = (function(){
     if(from === "play"){
       var p = leavePlay(to);
       Object.keys(p).forEach(function(k){ out[k] = p[k]; });
+    }
+    if(from === "tablets"){
+      out.stopTablets = true;
+      out.stopBeds = true;
+      out.stopTimer = true;
+      out.stopLoop = true;
+      out.hideWipe = true;
+      out.hidePause = true;
+      out.clearPlayClasses = to !== "results";
+      out.bumpScene = to !== "results";
     }
     if(to !== "play") out.hideState = from !== "play" || to !== "results";
     return out;

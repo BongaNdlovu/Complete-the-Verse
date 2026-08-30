@@ -197,8 +197,10 @@ assert(/judgeBurst/.test(gameCss) && /steps\(7\)/.test(gameCss),
   "burst is an 8-frame steps sheet");
 assert(/pointer-events:none/.test((gameCss.match(/#judge-burst\{[^}]+\}/) || [""])[0]),
   "the judge never steals hits");
-assert(fs.existsSync(path.join(ROOT, "assets", "judge", "up.png")), "thumbs-up sheet");
-assert(fs.existsSync(path.join(ROOT, "assets", "judge", "down.png")), "thumbs-down sheet");
+assert(fs.existsSync(path.join(ROOT, "assets", "judge", "up.webp")), "thumbs-up sheet");
+assert(fs.existsSync(path.join(ROOT, "assets", "judge", "down.webp")), "thumbs-down sheet");
+assert(fs.statSync(path.join(ROOT, "assets", "judge", "up.webp")).size < 500000, "thumbs-up sheet is compact");
+assert(fs.statSync(path.join(ROOT, "assets", "judge", "down.webp")).size < 500000, "thumbs-down sheet is compact");
 assert(/SAVE\.set\.reduced/.test(game) && /showJudgeBurst/.test(game),
   "reduced motion skips the burst");
 

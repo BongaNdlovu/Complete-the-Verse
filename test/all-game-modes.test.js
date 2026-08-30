@@ -43,9 +43,9 @@ const PREFIX = [
   "js/assemble.js", "js/meta.js", "js/flow.js",
   "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js",
   "js/characters.js", "js/artifacts.js",
-  "js/live.js", "js/atlas.js", "js/beat.js"
+  "js/live.js", "js/atlas.js", "js/beat.js", "js/tablets.js"
 ];
-const FILES = PREFIX.concat(ENGINE_FILES);
+const FILES = PREFIX.concat(ENGINE_FILES, ["js/tablets-run.js"]);
 
 function boot() {
   const sb = makeSandbox();
@@ -73,13 +73,13 @@ console.log("\n--- HALL MENU ---");
   const sb = boot();
   exec(sb, `go("menu"); renderMenu();`);
   const html = read(sb, `$("modes").innerHTML`);
-  ["pilgrimage", "beat", "daily", "practice", "recall", "team", "blitz", "trial", "endless"].forEach(k => {
+  ["pilgrimage", "beat", "tablets", "daily", "practice", "recall", "team", "blitz", "trial", "endless"].forEach(k => {
     assert(html.indexOf('data-mode="' + k + '"') >= 0, k + " card on hall");
   });
   ["relay", "pilgrim-recall"].forEach(k => {
     assert(html.indexOf('data-mode="' + k + '"') < 0, k + " stays off hall");
   });
-  ["practice", "recall", "team", "trial", "endless", "daily", "blitz", "beat"].forEach(k => {
+  ["practice", "recall", "team", "trial", "endless", "daily", "blitz", "beat", "tablets"].forEach(k => {
     exec(sb, `openBrief(${JSON.stringify(k)});`);
     eq(k + " brief opens", read(sb, `currentView==="brief" && briefMode===${JSON.stringify(k)}`), true);
   });
@@ -357,7 +357,6 @@ console.log("\n--- Mode 11: THE VALLEY ---");
   const sb = boot();
   exec(sb, `startRun("beat", "watchman");`);
   eq("Beat mode active", read(sb, `R.mode`), "beat");
-  for (let i = 0; i < 5; i++) exec(sb, `beatAdvancePlate();`);
   eq("Q1 after camp cinema", read(sb, `R.q.id`), "beat-q1");
   exec(sb, `resolveAnswer(R.q, R.q.a, null, 800, 40000); nextQuestion();`);
   eq("lives held after a valley answer", read(sb, `R.lives`), 2);

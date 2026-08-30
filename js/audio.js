@@ -232,6 +232,10 @@ const Snd = (function(){
   function stopAllTracks(){
     Object.keys(trackAudio).forEach(stopTrack);
   }
+  function stopBeds(){
+    stopAllTracks();
+    bed = null;
+  }
   function playTrack(name){
     ensureTrack(name);
     const a = trackAudio[name];
@@ -321,8 +325,8 @@ const Snd = (function(){
       if(rainAudio && !(ctx && mSfx && rainWired)) rainAudio.volume = Math.max(0, Math.min(1, (v||0) * 0.5));
     },
     ambience(name){
-      init(); if(!ctx||!avail) return;
       bed = name;
+      init(); if(!ctx||!avail) return;
       if(TRACKS[name]){
         setPadGain(0);
         playTrack(name);
@@ -411,7 +415,9 @@ const Snd = (function(){
     stopVoice:stopVoice,
     setRain:setRain,
     rainActive(){ return rainRequested; },
-    duckMusic:duckMusic
+    duckMusic:duckMusic,
+    stopBeds:stopBeds,
+    currentBed(){ return bed; }
   };
 })();
 

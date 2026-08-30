@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="css/game.css">
 <link rel="stylesheet" href="css/play.css">
+<link rel="stylesheet" href="css/tablets.css">
 <link rel="stylesheet" href="css/atlas.css">
 </head>
 <body class="biblical-thriller">
@@ -115,6 +116,7 @@
         <button type="button" class="btn team-pick-btn white" data-team="white">White starts</button>
         <button type="button" class="btn team-pick-btn blue" data-team="blue">Blue starts</button>
       </div>
+      <div id="brief-tablets-pick" hidden></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
         <button class="btn" id="brief-start">Begin</button>
         <button class="btn ghost" data-go="menu">Back</button>
@@ -357,6 +359,39 @@
    </div>
   </section>
 
+  <section class="view" id="v-tablets" aria-label="Word Tablets">
+    <div class="tablets-wrap">
+      <header class="tablets-top">
+        <div class="tablets-chip">
+          <b id="tablets-chapter">Psalm 23</b>
+          <span>KJV</span>
+        </div>
+        <div class="tablets-stats">
+          <div class="tablets-stat"><b id="tablets-streak">0</b><span>Streak</span></div>
+          <div class="tablets-stat"><b id="tablets-best">0%</b><span>Best</span></div>
+        </div>
+        <button type="button" class="tablets-quit" id="tablets-quit">Quit</button>
+      </header>
+      <div class="tablets-stage" id="tablets-stage">
+        <div class="tablets-line" aria-hidden="true"></div>
+        <div class="tablets-sheet" id="tablets-sheet"></div>
+      </div>
+      <div class="tablets-tray">
+        <div class="tablets-tray-lab">Choose the word</div>
+        <div class="tablets-grid" id="tablets-grid"></div>
+      </div>
+      <footer class="tablets-foot">
+        <div class="tablets-hold">One miss ends the Hold</div>
+        <div class="tablets-track">
+          <i class="tablets-fill" id="tablets-fill"></i>
+          <i class="tablets-ghost" id="tablets-ghost" hidden></i>
+        </div>
+        <div class="tablets-pct" id="tablets-pct">0%</div>
+        <div class="tablets-ref" id="tablets-ref">Psalm 23:1</div>
+      </footer>
+    </div>
+  </section>
+
   <!-- ============ RESULTS ============ -->
   <section class="view" id="v-results">
     <div class="scrollpad">
@@ -559,7 +594,7 @@
     <div class="h-lg" id="char-title" style="margin-top:1vh">Who are you on the road?</div>
     <div class="fil"><i></i></div>
     <p id="char-sub" style="max-width:48ch;color:var(--parch-dim);line-height:1.55;margin:0 auto;text-align:center">
-      Choose a scholar, then give them your name.</p>
+      Choose a scholar, then give them your name. They walk the map.</p>
     <div class="char-name-row" id="char-name-row">
       <label for="char-name">Your name</label>
       <input id="char-name" type="text" maxlength="32" placeholder="e.g. Miriam" autocomplete="nickname">
@@ -637,6 +672,7 @@
 <script src="js/verses-ascent.js"></script>
 <script src="js/verses-tf.js"></script>
 <script src="js/beat.js"></script>
+<script src="js/tablets.js"></script>
 <script src="js/verses-notes.js"></script>
 <script src="js/passages.js"></script>
 <script src="js/legacy-ids.js"></script>
@@ -679,6 +715,7 @@
 <script src="js/diag.js"></script>
 <script src="js/briefs.js"></script>
 <script src="js/play.js"></script>
+<script src="js/tablets-run.js"></script>
 <script src="js/game.js"></script>
 <script>
 if ('serviceWorker' in navigator) {

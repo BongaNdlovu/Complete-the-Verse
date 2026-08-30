@@ -14,7 +14,7 @@ There is no bundler and no TypeScript. Classic `<script>` tags and globals are o
 ## How to test and lint
 
 ```bash
-npm test          # node test.js — 52 suites
+npm test          # node test.js — 54 suites
 npm run lint      # Oxlint cyclomatic complexity, max 20
 ```
 
@@ -27,7 +27,7 @@ A stranger should only need this table, then [`docs/DEVELOPER-GUIDE.md`](./docs/
 | `index.html` | The single page. Every screen is a `<section class="view">`. |
 | `sw.js` | Service worker for offline play. |
 | `js/` | Runtime modules. Names match jobs. Map: [`js/README.md`](./js/README.md). |
-| `css/` | Hall (`game.css`), play (`play.css`), atlas (`atlas.css`). |
+| `css/` | Hall (`game.css`), play (`play.css`), atlas (`atlas.css`), tablets (`tablets.css`). |
 | `assets/` `audio/` `sfx/` | Art, music beds, voice, effects. |
 | `vendor/` | Leaflet + supabase-js. Never a CDN. |
 | `content/` | Verse QA data (quarantine). Tooling only. |

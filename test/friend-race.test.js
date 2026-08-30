@@ -86,6 +86,8 @@ assert(/if\(R\.friendRoom\)\s*(\{?\s*)?startFriendRacePolling\(R\.friendRoom\)/.
   "startRun launches friend race polling when R.friendRoom is set");
 assert(/stopFriendRacePolling\(\)/.test(results),
   "endRun cleanly terminates friend race polling");
+assert(/function abandonRun\(\)\{[\s\S]{0,220}stopFriendRacePolling/.test(game),
+  "abandoning before any answer also stops friend-race polling");
 
 if (failures.length) {
   console.error("FAIL (" + failures.length + ")");

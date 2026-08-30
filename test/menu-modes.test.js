@@ -27,7 +27,7 @@ function modeBlock(key) {
   return next < 0 ? rest : rest.slice(0, next + 1);
 }
 
-const publicModes = ["pilgrimage", "beat", "daily", "blitz", "trial", "endless", "practice", "recall", "team"];
+const publicModes = ["pilgrimage", "beat", "tablets", "daily", "blitz", "trial", "endless", "practice", "recall", "team"];
 const hiddenModes = ["relay", "pilgrim-recall"];
 
 publicModes.forEach(k => {
@@ -68,6 +68,8 @@ ok("Recall and Team Mode sit with the Drill",
 
 ok("MENU_GROUPS covers The Valley",
   /The Valley[\s\S]*modes:\s*\[[^\]]*"beat"/.test(src));
+ok("MENU_GROUPS covers The Tablets",
+  /The Tablets[\s\S]*modes:\s*\[[^\]]*"tablets"/.test(src));
 ok("MENU_GROUPS defines The Road",
   /The Road/.test(src));
 ok("MENU_GROUPS covers pilgrimage",

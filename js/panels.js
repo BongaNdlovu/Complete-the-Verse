@@ -491,7 +491,7 @@ function renderSettings(){
     setRow("Your name", "Shown on this device and on cloud boards when signed in.",
       '<div class="cloud-name"><input id="set-player-name" type="text" maxlength="32" value="'+esc(SAVE.set.playerName||"")+'"><button class="btn ghost sm" id="set-name-save" type="button">Save</button></div>') +
     setRow("Avatar",
-      ch ? (ch.name + " — your scholar. Portrait on the menu; token on the map.")
+      ch ? (ch.name + " — your scholar. Portrait on the menu; they walk the map.")
          : "Choose a scholar.",
       '<button class="btn ghost sm" id="set-character" type="button">'+(ch ? "Change · "+esc(ch.short) : "Choose avatar")+'</button>');
 
@@ -652,7 +652,7 @@ function syncHallVideo(quality){
   /* The hall bed plays only when quality, motion and the user's data
      preference all allow it — and it is never fetched until then. */
   // The hall is menu scenery, never a second gameplay backdrop.
-  const allow=currentView!=="play" && quality!=="low" && !document.body.classList.contains("reduced") && !holdForIntro && !dataSaverOn();
+  const allow=currentView!=="play" && currentView!=="tablets" && quality!=="low" && !document.body.classList.contains("reduced") && !holdForIntro && !dataSaverOn();
   if(!allow){
     try{ v.pause(); }catch(e){}
     document.body.classList.remove("hall-ready");

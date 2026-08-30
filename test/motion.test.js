@@ -155,6 +155,8 @@ const calmSelectors = [...css.matchAll(/body\.motion-calm[^{]*\{/g)].map((m) => 
 /* --- map walker sprite dimensions --- */
 assert(/\.traveler-walker\s*\{[^}]*height:\s*72px/.test(css), "walker rendered height is 72px (matching 269x479 aspect ratio)");
 assert(/background-size:\s*320px 72px/.test(css), "walker background-size is 320px 72px");
+assert(/--walker-idle/.test(css), "idle sprite is swappable per scholar");
+assert(/--walker-walk/.test(css), "walk sprite is swappable per scholar");
 
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");

@@ -79,14 +79,33 @@ const goliath = path.join(ROOT, "assets", "beats", "goliath");
  "vo-01-valley.mp3","vo-02-ridge.mp3","vo-03-defy.mp3","vo-04-again.mp3","vo-06-youth.mp3",
  "vo-08-staves.mp3","vo-09-flesh.mp3","vo-10-name.mp3",
  "sfx-05-crowd.mp3","sfx-06-wind-shield.mp3","sfx-07-breath.mp3","sfx-10-thud.mp3",
- "question.png"].forEach(function(f){
+ "question.jpeg","win.png","loss.png","prologue.mp4"].forEach(function(f){
   const p = path.join(goliath, f);
   ok(f + " exists", fs.existsSync(p) && fs.statSync(p).size > 1000);
 });
+ok("question still is compact", fs.statSync(path.join(goliath, "question.jpeg")).size < 700000);
+ok("prologue under 2MB", fs.statSync(path.join(goliath, "prologue.mp4")).size < 2 * 1024 * 1024);
 ok("Fear of the Dark exists", fs.statSync(path.join(ROOT, "audio", "fear-of-the-dark.mp3")).size > 100000);
+const gameSrc = fs.readFileSync(path.join(ROOT, "js", "game.js"), "utf8");
+ok("start uses prologue film", gameSrc.indexOf('playStageFilm("assets/beats/goliath/prologue.mp4"') >= 0);
+ok("start does not play cinema A", !/function startBeatStage\(\)\{[\s\S]*?playBeatCinema\(Beat\.cinemaA\)/.test(gameSrc));
 
 function skipCinema(sb, n) {
   for (let i = 0; i < n; i++) exec(sb, "beatAdvancePlate()");
+}
+function armMedia(sb) {
+  exec(sb, `(function(){
+    ["ur-prologue-video","cine-parallax-video"].forEach(function(id){
+      var v = $(id);
+      v.paused = true;
+      v.readyState = 4;
+      v.src = id === "ur-prologue-video" ? "assets/ur-prologue.mp4" : "";
+      v.play = function(){ this.paused = false; this._plays = (this._plays||0)+1; return Promise.resolve(); };
+      v.pause = function(){ this.paused = true; };
+      v.load = function(){};
+      v.getAttribute = function(n){ return n === "src" ? this.src : null; };
+    });
+  })()`);
 }
 function answerCurrent(sb) {
   const kind = read(sb, "R.q.kind");
@@ -100,18 +119,37 @@ function answerCurrent(sb) {
 {
   const sb = boot();
   exec(sb, "startRun('beat','watchman')");
-  skipCinema(sb, 5);
-  eq("Q1 after cinema A", read(sb, "R.q.id"), "beat-q1");
+  eq("Q1 after reduced film path", read(sb, "R.q.id"), "beat-q1");
   const lives = read(sb, "R.lives");
   exec(sb, "applyMiss({verse:R.q})");
   eq("miss does not take a lamp", read(sb, "R.lives"), lives);
+  exec(sb, "endRun('abandon')");
+  ok("loss still on miss", read(sb, "$('v-results').classList.contains('beat-loss')"));
+  ok("no win still on miss", !read(sb, "$('v-results').classList.contains('beat-win')"));
+}
+
+{
+  const sb = boot();
+  armMedia(sb);
+  exec(sb, "SAVE.set.quality='high'; SAVE.set.reduced=false; startRun('beat','watchman')");
+  ok("film overlay on", read(sb, "$('ur-prologue').classList.contains('on')"));
+  eq("film src", read(sb, "$('ur-prologue-video').src"), "assets/beats/goliath/prologue.mp4");
+  exec(sb, "hideUrPrologue(true)");
+  eq("Q1 after film skip", read(sb, "R.q.id"), "beat-q1");
+}
+
+{
+  const sb = boot();
+  armMedia(sb);
+  exec(sb, "SAVE.set.quality='low'; startRun('beat','watchman')");
+  eq("low quality skips film", read(sb, "R.q.id"), "beat-q1");
+  ok("film overlay off", !read(sb, "$('ur-prologue').classList.contains('on')"));
 }
 
 {
   const sb = boot();
   const board0 = read(sb, "SAVE.board.length");
   exec(sb, "startRun('beat','watchman')");
-  skipCinema(sb, 5);
   for (let i = 0; i < 12; i++) {
     answerCurrent(sb);
     if (i === 4) {
@@ -126,12 +164,13 @@ function answerCurrent(sb) {
   eq("twelve kept", read(sb, "R.correct"), 12);
   eq("board unchanged", read(sb, "SAVE.board.length"), board0);
   eq("Held saved", read(sb, "SAVE.life.beatGoliathHeld"), true);
+  ok("win still on Held", read(sb, "$('v-results').classList.contains('beat-win')"));
+  ok("no loss still on Held", !read(sb, "$('v-results').classList.contains('beat-loss')"));
 }
 
 {
   const sb = boot();
   exec(sb, "startRun('beat','watchman')");
-  skipCinema(sb, 5);
   for (let i = 0; i < 5; i++) { answerCurrent(sb); exec(sb, "nextQuestion()"); }
   skipCinema(sb, 5);
   for (let i = 0; i < 6; i++) {
@@ -148,7 +187,6 @@ function answerCurrent(sb) {
 {
   const sb = boot();
   exec(sb, "startRun('beat','watchman')");
-  skipCinema(sb, 5);
   for (let i = 0; i < 5; i++) { answerCurrent(sb); exec(sb, "nextQuestion()"); }
   skipCinema(sb, 5);
   for (let i = 0; i < 7; i++) {
@@ -160,6 +198,67 @@ function answerCurrent(sb) {
     answerCurrent(sb);
     exec(sb, "nextQuestion()");
   }
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('beat','watchman')");
+  eq("pick confirm label", read(sb, "$('confirm-answer').textContent"), "Lock Answer");
+  exec(sb, "R.q = beatToVerse(Beat.questions[3]); renderBeatOrder(Beat.questions[3])");
+  eq("order confirm label", read(sb, "$('confirm-answer').textContent"), "Lock order");
+  exec(sb, "renderBeatPick(Beat.questions[5])");
+  eq("pick label restored", read(sb, "$('confirm-answer').textContent"), "Lock Answer");
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('beat','watchman')");
+  exec(sb, "R.q = beatToVerse(Beat.questions[3]); renderBeatOrder(Beat.questions[3])");
+  const miss0 = read(sb, "R.beatMiss || 0");
+  exec(sb, "R.beatOrder = [R.q.order[0]]; confirmAnswer()");
+  eq("short order does not lock", read(sb, "R.locked"), false);
+  eq("short order is not a miss", read(sb, "R.beatMiss || 0"), miss0);
+  exec(sb, "R.beatOrder = R.q.order.slice(); confirmAnswer()");
+  eq("full order locks", read(sb, "R.locked"), true);
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('beat','watchman')");
+  exec(sb, "R.q = beatToVerse(Beat.questions[4]); renderBeatCloze(Beat.questions[4])");
+  exec(sb, `(function(){
+    var btns = $("opts").children, i, b;
+    for (i = 0; i < btns.length; i++) if (btns[i].dataset && btns[i].dataset.val === "Saul") b = btns[i];
+    if (b) b.click();
+  })()`);
+  eq("cloze can take a chip", read(sb, "R.beatFilled.join('|')"), "Saul");
+  exec(sb, `(function(){
+    var btns = $("opts").children, i, b;
+    for (i = 0; i < btns.length; i++) if (btns[i].dataset && btns[i].dataset.val === "Saul") b = btns[i];
+    if (b) b.click();
+  })()`);
+  eq("cloze chip can be undone", read(sb, "R.beatFilled.join('|')"), "");
+  eq("undo does not resolve", read(sb, "R.locked"), false);
+}
+
+{
+  const sb = boot();
+  armMedia(sb);
+  exec(sb, `$("ur-prologue-video").readyState = 0; SAVE.set.quality='high'; SAVE.set.reduced=false; startRun('beat','watchman')`);
+  eq("film waits for data", read(sb, "$('ur-prologue-video')._plays || 0"), 0);
+  exec(sb, "hideUrPrologue(true)");
+  eq("Q1 after early skip", read(sb, "R.q.id"), "beat-q1");
+  exec(sb, `$("ur-prologue-video").dispatch("loadeddata")`);
+  eq("late load does not restart film", read(sb, "$('ur-prologue-video')._plays || 0"), 0);
+  ok("overlay stays off after late load", !read(sb, "$('ur-prologue').classList.contains('on')"));
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('beat','watchman'); beatSky('15.jpeg')");
+  ok("safe plate url", /15\.jpeg/.test(read(sb, "$('backdrop').style.backgroundImage")));
+  exec(sb, `beatSky('x");alert(1)')`);
+  ok("rejects css-breaking plate", read(sb, "$('backdrop').style.backgroundImage") === "");
 }
 
 if (fail) {

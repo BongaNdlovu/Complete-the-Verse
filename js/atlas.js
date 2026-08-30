@@ -46,7 +46,8 @@ var Atlas = (function () {
   var termTimer = null, noteTimer = null;
   var layers = { routes: true, empires: true, borders: false, terminator: true };
   var coldOpenDone = false;
-  var travelerToken = null;    // optional portrait token on the current site
+  var travelerIdle = null;     // scholar idle sprite on the road
+  var travelerWalk = null;     // scholar walk sheet on the road
   var travelerMarker = null;   // separate map marker that can walk between sites
   var walkAnim = null;
   var travelerAt = null;       // site id the walker last stood on
@@ -289,8 +290,10 @@ var Atlas = (function () {
 
   /* ------------------------------ markers ------------------------------ */
 
-  function setTraveler(url) {
-    travelerToken = url || null;
+  function setTraveler(spec) {
+    spec = spec || {};
+    travelerIdle = spec.idle || null;
+    travelerWalk = spec.walk || null;
     if (built) {
       drawMarkers();
       wireMarkerDom();
@@ -298,14 +301,16 @@ var Atlas = (function () {
     }
   }
 
+  function walkerCssVars() {
+    var idle = travelerIdle || "assets/traveler/idle.png";
+    var walk = travelerWalk || "assets/traveler/walk.png";
+    return "--walker-idle:url('" + esc(idle) + "');--walker-walk:url('" + esc(walk) + "')";
+  }
+
   function travelerIconHtml(walking) {
     var face = travelerFacing < 0 ? " face-west" : "";
-    var token = travelerToken
-      ? '<img class="traveler-face" src="' + esc(travelerToken) + '" alt="" loading="lazy" decoding="async">'
-      : "";
     return '<div class="traveler-node' + (walking ? " walking" : "") + face + '">' +
-      '<i class="traveler-walker" aria-hidden="true"></i>' +
-      token +
+      '<i class="traveler-walker" style="' + walkerCssVars() + '" aria-hidden="true"></i>' +
       '<i class="traveler-shadow" aria-hidden="true"></i>' +
       '</div>';
   }
@@ -505,7 +510,8 @@ var Atlas = (function () {
       var m = markers[site.id];
       if (!m) return;
       var el = m.getElement();
-      if (!el) return;
+      if (!el || el._atlasWired) return;
+      el._atlasWired = true;
       el.addEventListener("keydown", function (e) {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(site.id); }
       });

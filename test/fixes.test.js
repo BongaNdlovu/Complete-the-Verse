@@ -129,18 +129,23 @@ ok("no orphaned host art", !fs.existsSync(path.join(ROOT, "assets", "hosts")));
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
 ok("the three dependency is dropped", !pkg.dependencies || !pkg.dependencies.three, pkg.dependencies);
 const chars = fs.readdirSync(path.join(ROOT, "assets", "characters"));
+const SCHOLAR_FOLDERS = ["amina","elias","soojin","yusef","lucia","priya","thomas","dawit"];
 ok("character folders carry only wired art",
    chars.every(c => {
-     const expected = c === "abram" ? ["portrait.png", "question.png", "token.png"]
-       : c === "moses" ? ["portrait.png", "question.png", "token.png"]
-       : ["portrait.png", "token.png"];
+     const expected = (c === "abram" || c === "moses")
+       ? ["portrait.png", "question.png", "token.png"]
+       : SCHOLAR_FOLDERS.indexOf(c) >= 0
+         ? ["portrait.png", "token.png", "idle.png", "walk.png"]
+         : ["portrait.png", "token.png"];
      return expected.sort().join() === fs.readdirSync(path.join(ROOT, "assets", "characters", c)).sort().join();
    }),
    chars.filter(c => {
      const f = fs.readdirSync(path.join(ROOT, "assets", "characters", c)).sort().join();
-     const expected = c === "abram" ? ["portrait.png", "question.png", "token.png"]
-       : c === "moses" ? ["portrait.png", "question.png", "token.png"]
-       : ["portrait.png", "token.png"];
+     const expected = (c === "abram" || c === "moses")
+       ? ["portrait.png", "question.png", "token.png"]
+       : SCHOLAR_FOLDERS.indexOf(c) >= 0
+         ? ["portrait.png", "token.png", "idle.png", "walk.png"]
+         : ["portrait.png", "token.png"];
      return f !== expected.sort().join();
    }));
 ok("Abraham question art is mapped in character data",

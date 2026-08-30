@@ -27,7 +27,7 @@ const Beat = (function(){
   ];
   const questions = [
     {
-      id:"beat-q1", kind:"pick", plate:"question.png", sfx:null, fx:"wind",
+      id:"beat-q1", kind:"pick", plate:"question.jpeg", sfx:null, fx:"wind",
       r:"1 Samuel 17:1-2",
       stem:"The Philistines gathered themselves together at Shochoh, which belongeth to Judah, and pitched ______. And Saul and the men of Israel were gathered together, and pitched ______.",
       choices:[

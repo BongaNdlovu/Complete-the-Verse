@@ -6,12 +6,13 @@ const SAVE_KEY = "ctv_save_v3";
 const LEGACY_SAVE_KEY = "ctv_save_v2";
 const DEFAULT_SAVE = {
   v:3, xp:0, oil:0, illumReserve:0, runs:0,
-  best:{trial:0, endless:0, daily:0, practice:0, recall:0, pilgrimage:0, "pilgrim-recall":0, blitz:0},
+  best:{trial:0, endless:0, daily:0, practice:0, recall:0, pilgrimage:0, "pilgrim-recall":0, blitz:0, tablets:0},
   seals:[],
     life:{correct:0, attempts:0, bestStreak:0, sdBest:0, endlessBest:0, dailyDone:0, perfectActs:0,
         typedExact:0, typedAttempts:0, reviewsDone:0, sitesCleared:0, arcsCleared:0, blitzBest:0,
         oilSpent:0, oilEarned:0, quickRewards:0, quickRewardXP:0, quickRewardOil:0, illumRewards:0,
-        beatGoliathHeld:false},
+        beatGoliathHeld:false, tabletHolds:0},
+  tablets:{psalm23:{best:0,held:false}, psalm91:{best:0,held:false}},
   books:{}, verse:{}, srs:{}, board:[], journal:[],
   ghosts:{pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null},
   daily:{date:"", score:0},
@@ -33,6 +34,13 @@ const DEFAULT_SAVE = {
 };
 let SAVE = load();
 if(typeof window !== "undefined") window.SAVE = SAVE;
+function mergeTabletsSave(s){
+  const t = (s && s.tablets) || {};
+  return {
+    psalm23: Object.assign({best:0,held:false}, t.psalm23 || {}),
+    psalm91: Object.assign({best:0,held:false}, t.psalm91 || {})
+  };
+}
 function mergeLoadedSave(s){
   return Object.assign(JSON.parse(JSON.stringify(DEFAULT_SAVE)), s, {
     v:3,
@@ -52,7 +60,8 @@ function mergeLoadedSave(s){
     journal: Array.isArray(s.journal) ? s.journal.slice(0, 40) : [],
     ghosts: Object.assign({pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null}, s.ghosts||{}, {
       pilgrimageBySite: Object.assign({}, (s.ghosts && s.ghosts.pilgrimageBySite) || {})
-    })
+    }),
+    tablets: mergeTabletsSave(s)
   });
 }
 function recoverCorruptSave(e){
@@ -283,6 +292,9 @@ const MODES = {
   beat:{ key:"beat", name:"The Valley", kick:"A Beat of Faith", atlas:false,
     desc:"David and Goliath in the valley of Elah. Twelve questions from 1 Samuel 17. Forty seconds each. Held only if none are wrong.",
     tagline:"Goliath · twelve questions · replay any time", info:[["12","Questions"],["40s","Clock"],["Held","None wrong"]] },
+  tablets:{ key:"tablets", name:"Word Tablets", kick:"Fill the Word", atlas:false,
+    desc:"Psalm 23 on a scrolling manuscript. Four stone tablets. One gold line. One miss ends the Hold. Hold Psalm 23 to open Psalm 91.",
+    tagline:"Psalm 23 · Hold or shatter", info:[["11","Tablets"],["Hold","One miss"],["Psalm 23","Then 91"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, assembled word for word.",
     tagline:"Assemble · cleared sites", info:[["8","Verses"],["Assemble","No options"],[modeClockLabel("pilgrim-recall"),"Clock"]] },
@@ -355,14 +367,20 @@ function applyLeaveOverlays(plan){
   if(plan.clearPlayClasses){
     document.body.classList.remove("setpiece-active","overdrive","od-open","wiping",
       "mode-typed","speed-round","reveal-freeze","pressure-3","pressure-5","pressure-7",
-      "blitz-edge","blitz-edge-2","blitz-edge-3","retreat","mode-beat","beat-cinema");
+      "blitz-edge","blitz-edge-2","blitz-edge-3","retreat","mode-beat","beat-cinema","mode-tablets");
+    if(typeof hideUrPrologue === "function") hideUrPrologue();
   }
+}
+function applyLeaveStops(plan){
+  if(plan.stopTimer) stopTimer();
+  if(plan.stopTablets && typeof stopTabletsLoop === "function") stopTabletsLoop();
+  if(plan.stopBeds && typeof Snd !== "undefined" && Snd.stopBeds) Snd.stopBeds();
+  if(plan.hideWipe) hideWipe();
 }
 function applyLeave(plan){
   if(!plan || plan.same) return;
   if(plan.unmountAtlas && typeof Atlas!=="undefined" && Atlas.unmount) Atlas.unmount();
-  if(plan.stopTimer) stopTimer();
-  if(plan.hideWipe) hideWipe();
+  applyLeaveStops(plan);
   applyLeaveOverlays(plan);
   if(plan.bumpScene) R.sceneToken = (R.sceneToken||0) + 1;
   if(plan.hideState && currentView!=="play") hideState();
@@ -409,7 +427,7 @@ function go(view){
   enterViewPanels(view);
   updatePlayerCard();
   document.body.classList.toggle("view-play", view==="play");
-  if(view==="play") syncHallVideo(SAVE.set.quality);
+  if(view==="play" || view==="tablets") syncHallVideo(SAVE.set.quality);
   if(typeof Director!=="undefined" && Director.syncFx) Director.syncFx();
   if(view==="play") ensureLoop(); else if(!(plan && plan.stopLoop===false)) stopLoop();
 }
@@ -570,7 +588,7 @@ function startRunRelayQueue(){
 }
 
 function startRunPowers(mode, isPilgrim){
-  if(mode==="beat" || mode==="team") return { startPowers:{selah:0, illum:0, wind:0}, reservedIlluminate:0 };
+  if(mode==="beat" || mode==="team" || mode==="tablets") return { startPowers:{selah:0, illum:0, wind:0}, reservedIlluminate:0 };
   const leanRoad = isPilgrim || mode==="relay";
   const startPowers = mode==="blitz"
     ? {selah:0, illum:0, wind:0}
@@ -587,7 +605,16 @@ function startBeatStage(){
   $("hud-round").textContent = MODES.beat.name;
   applySiteSky(null);
   go("play");
-  if(typeof playBeatCinema==="function") playBeatCinema(Beat.cinemaA);
+  if(Snd.stopBeds) Snd.stopBeds();
+  if(typeof urPrologueAllowed==="function" && urPrologueAllowed() && typeof playStageFilm==="function"){
+    R.holdQuestionMusic = true;
+    playStageFilm("assets/beats/goliath/prologue.mp4", function(){
+      R.holdQuestionMusic = false;
+      nextBeatQuestion();
+    });
+    return;
+  }
+  nextBeatQuestion();
 }
 
 function startRunPalette(mode, isPilgrim, siteId, relay){
@@ -680,7 +707,8 @@ function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDra
     teams: mode==="team" ? { white:{kept:0, ms:0}, blue:{kept:0, ms:0} } : null,
     quickRewardAnnounced: new Set(), quickResult: null,
       reservedIlluminate: reservedIlluminate,
-    beatQ: 0, beatMiss: 0, beatBDone: false, beatPlates: null, beatPlateIdx: -1
+    beatQ: 0, beatMiss: 0, beatBDone: false, beatPlates: null, beatPlateIdx: -1,
+    tabletChapter: (options && options.tabletChapter) || "psalm23"
   });
 }
 function startRun(mode, diffKey, options){
@@ -702,6 +730,7 @@ function startRun(mode, diffKey, options){
     powerStart.startPowers, powerStart.reservedIlluminate, blitzMs, options);
   if(R.friendRoom) startFriendRacePolling(R.friendRoom);
   document.body.classList.toggle("mode-beat", mode==="beat");
+  document.body.classList.toggle("mode-tablets", mode==="tablets");
   document.body.classList.toggle("mode-team", mode==="team");
   document.body.classList.toggle("team-white", mode==="team" && R.teamSide==="white");
   document.body.classList.toggle("team-blue", mode==="team" && R.teamSide==="blue");
@@ -718,6 +747,7 @@ function startRun(mode, diffKey, options){
   claimIlluminateReserve();
   if(mode==="trial") beginAct(0);
   else if(mode==="beat") startBeatStage();
+  else if(mode==="tablets") startTabletsStage();
   else startRunOpenStage(mode, isPilgrim, siteId, relay);
 }
 
@@ -1621,6 +1651,7 @@ function togglePause(){
 $("pause-resume").addEventListener("click", togglePause);
 function abandonRun(){
   setPaused(false);
+  if(typeof stopFriendRacePolling === "function") stopFriendRacePolling();
   if(!R.attempts){
     refundUnusedIlluminate();
     persist();
@@ -1666,6 +1697,12 @@ function updateCandle(){
   el.classList.toggle("lit", !!(R && (R.qTotal || R.correct)));
   el.classList.toggle("hot", heat >= 0.62);
   el.classList.toggle("blaze", heat >= 0.88);
+}
+function quitTablets(){
+  if(R.ended || currentView!=="tablets") return;
+  if(R.attempts && typeof confirm === "function" && !confirm("Leave this run? It will be recorded as abandoned.")) return;
+  Snd.ui();
+  abandonRun();
 }
 function quitPlay(){
   if(R.ended || currentView!=="play") return;
@@ -1801,7 +1838,7 @@ function handlePlayMechanicKeys(e, k){
 }
 
 function handlePlayChoiceKeys(e, k){
-  const idx = (k>="1"&&k<="4") ? parseInt(k,10)-1 : "abcd".indexOf(k);
+  const idx = (k>="1"&&k<="9") ? parseInt(k,10)-1 : "abcdefghi".indexOf(k);
   if(idx < 0) return;
   const b = answerButtons()[idx];
   if(!(b && !b.classList.contains("burn"))) return;

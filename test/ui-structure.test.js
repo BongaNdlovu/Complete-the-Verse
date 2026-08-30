@@ -32,6 +32,7 @@ assert(html.includes("boot-verse"), "boot screen carries a verse line");
 assert(/function playBootSequence\(/.test(game), "playBootSequence helper present");
 
 assert(html.includes('id="v-intro"'), "intro view present");
+assert(html.includes('id="v-tablets"'), "tablets view present");
 assert(html.includes('id="intro-video"'), "intro video element present");
 assert(fs.existsSync(path.join(ROOT, "assets", "intro.mp4")), "assets/intro.mp4 exists");
 assert(fs.existsSync(path.join(ROOT, "audio", "voice", "intro-word.mp3")), "intro voice file exists");
@@ -61,6 +62,17 @@ assert(/class="team-mark white/.test(game), "Team Mode HUD renders White/Blue ma
 assert(fs.existsSync(path.join(ROOT, "assets", "team-prologue.mp4")), "assets/team-prologue.mp4 exists");
 assert(fs.statSync(path.join(ROOT, "assets", "team-prologue.mp4")).size < 2 * 1024 * 1024,
   "Team Mode film stays under 2MB");
+const beatPrologue = path.join(ROOT, "assets", "beats", "goliath", "prologue.mp4");
+assert(fs.existsSync(beatPrologue), "assets/beats/goliath/prologue.mp4 exists");
+assert(fs.statSync(beatPrologue).size < 2 * 1024 * 1024, "Valley prologue film stays under 2MB");
+assert(fs.existsSync(path.join(ROOT, "assets", "beats", "goliath", "win.png")), "Valley win still exists");
+assert(fs.existsSync(path.join(ROOT, "assets", "beats", "goliath", "loss.png")), "Valley loss still exists");
+assert(game.includes('playStageFilm("assets/beats/goliath/prologue.mp4"'),
+  "Valley start plays the prologue film");
+assert(!/function startBeatStage\(\)\{[\s\S]*?playBeatCinema\(Beat\.cinemaA\)/.test(game),
+  "Valley start no longer plays cinema A");
+assert(css.includes("#v-results.beat-win") && css.includes("#v-results.beat-loss"),
+  "Valley results paint win and loss stills");
 assert(/urPrologueDone/.test(game), "Ur opening film is once per save");
 assert(/function syncHallVideo\(/.test(game), "syncHallVideo helper present");
 assert(css.includes("body.hall-ready #hall-bg"), "hall video fades in when ready");

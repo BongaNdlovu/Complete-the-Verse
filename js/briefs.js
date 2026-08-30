@@ -17,8 +17,10 @@ function activeCharacter(){
 }
 function syncTravelerToken(){
   if(typeof Atlas === "undefined" || !Atlas.setTraveler) return;
-  const ch = activeCharacter();
-  Atlas.setTraveler(ch ? ch.token : null);
+  const spec = (typeof Characters !== "undefined" && Characters.walkerSpec)
+    ? Characters.walkerSpec(SAVE.set.scholarId || SAVE.set.character, SAVE.pilgrim)
+    : null;
+  Atlas.setTraveler(spec);
 }
 function profileReady(){
   return !!(SAVE.set.profileDone && (SAVE.set.playerName || "").trim().length >= 2);
@@ -49,7 +51,7 @@ function renderProfileSetup(){
   const nameRow = $("char-name-row");
   const confirm = $("char-confirm");
   if(title) title.textContent = "Who are you on the road?";
-  if(sub) sub.textContent = "Choose a scholar, then give them your name.";
+  if(sub) sub.textContent = "Choose a scholar, then give them your name. They walk the map.";
   if(nameRow) nameRow.classList.remove("gone");
   if(confirm){ confirm.classList.remove("gone"); confirm.disabled = true; confirm.textContent = "Enter the hall"; }
   const nameInput = $("char-name");
@@ -128,8 +130,8 @@ function renderSkinPicker(){
   const host = $("char-grid");
   const nameRow = $("char-name-row");
   const confirm = $("char-confirm");
-  if(title) title.textContent = "Choose your avatar";
-  if(sub) sub.textContent = "Your scholar is the avatar on the road. Pick who you travel as.";
+  if(title) title.textContent = "Choose who walks the map";
+  if(sub) sub.textContent = "Your scholar is the walker on the road.";
   if(nameRow) nameRow.classList.add("gone");
   if(confirm) confirm.classList.add("gone");
   if(!host || typeof Characters === "undefined") return;
@@ -199,11 +201,12 @@ function updateOfflineBanner(){
 const MENU_GROUPS = [
   { name: "The Road",   modes: ["pilgrimage"] },
   { name: "The Valley", modes: ["beat"] },
+  { name: "The Tablets", modes: ["tablets"] },
   { name: "Today",      modes: ["daily"] },
   { name: "Practice",   modes: ["practice", "recall", "team"] },
   { name: "Challenges", modes: ["blitz", "trial", "endless"] }
 ];
-const MENU_ORDER = ["pilgrimage", "beat", "daily", "blitz", "trial", "endless", "practice", "team"];
+const MENU_ORDER = ["pilgrimage", "beat", "tablets", "daily", "blitz", "trial", "endless", "practice", "team"];
 
 function renderModeCard(k, due, dailyDone, road){
   const m = MODES[k];
@@ -282,6 +285,29 @@ function renderMenu(){
 
 /* ------------------------- BRIEF ------------------------- */
 let briefMode = "trial";
+function paintTabletsBrief(on){
+  const host = $("brief-tablets-pick");
+  if(!host) return;
+  host.hidden = !on;
+  if(!on){ host.innerHTML = ""; return; }
+  host.innerHTML = "";
+  Tablets.chapters.forEach(function(ch){
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "tablets-ch-btn";
+    b.dataset.chapter = ch.id;
+    const locked = !Tablets.unlocked(ch.id, SAVE);
+    b.disabled = locked;
+    const title = document.createElement("b");
+    title.textContent = ch.name;
+    const sub = document.createElement("span");
+    const rec = Tablets.recordOf(SAVE, ch.id);
+    sub.textContent = locked ? "Hold Psalm 23 to unlock" : (ch.blanks.length + " tablets · best " + (rec.best || 0) + "%");
+    b.appendChild(title);
+    b.appendChild(sub);
+    host.appendChild(b);
+  });
+}
 function openBrief(mode){
   briefMode = mode;
   const m = MODES[mode];
@@ -290,15 +316,17 @@ function openBrief(mode){
   $("brief-desc").textContent = m.desc;
   $("brief-info").innerHTML = m.info.map(i=>'<div class="bi"><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("");
   const team = mode==="team";
+  const tablets = mode==="tablets";
   const start = $("brief-start");
   const pick = $("brief-team-pick");
   const diffs = $("diffs");
   const diffLab = $("brief-difflabel");
-  if(start) start.style.display = team ? "none" : "";
+  if(start) start.style.display = (team || tablets) ? "none" : "";
   if(pick) pick.hidden = !team;
-  if(diffs) diffs.style.display = team ? "none" : "";
-  if(diffLab) diffLab.style.display = team ? "none" : "";
-  if(!team) renderDiffs();
+  if(diffs) diffs.style.display = (team || tablets) ? "none" : "";
+  if(diffLab) diffLab.style.display = (team || tablets) ? "none" : "";
+  if(!team && !tablets) renderDiffs();
+  paintTabletsBrief(tablets);
   go("brief");
 }
 function renderDiffs(){
@@ -317,6 +345,13 @@ if(teamPick) teamPick.addEventListener("click", function(e){
   if(!btn) return;
   Snd.unlock();
   startRun("team", SAVE.set.diff, { teamSide: btn.dataset.team });
+});
+const tabletsPickHost = $("brief-tablets-pick");
+if(tabletsPickHost) tabletsPickHost.addEventListener("click", function(e){
+  const btn = e.target.closest("[data-chapter]");
+  if(!btn || btn.disabled) return;
+  Snd.unlock();
+  startRun("tablets", SAVE.set.diff, { tabletChapter: btn.dataset.chapter });
 });
 
 /* ------------------------- THE PILGRIMAGE -------------------------

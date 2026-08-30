@@ -27,12 +27,12 @@ const game = readEngine(ROOT);
 const css   = fs.readFileSync(path.join(ROOT, "css", "game.css"), "utf8");
 
 /* ---------- files and load order ---------- */
-["index.html", "css/game.css", "css/play.css", "css/atlas.css", "js/verses.js", "js/verses-extra.js",
+["index.html", "css/game.css", "css/play.css", "css/atlas.css", "css/tablets.css", "js/verses.js", "js/verses-extra.js",
  "js/verses-more.js", "js/verses-ascent.js", "js/assemble.js", "js/meta.js", "js/flow.js",
  "js/passages.js", "js/bank.js", "js/srs.js", "js/recall.js",
  "js/legacy-ids.js",
  "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js", "js/live.js",
- "js/atlas.js", "js/game.js",
+ "js/atlas.js", "js/tablets.js", "js/tablets-run.js", "js/game.js",
  "scripts/verse-qa.js", "scripts/qa-verses.js", "scripts/load-atlas.js",
  "content/QUARANTINE.md", "content/quarantine.json"
 ].forEach(f => assert(fs.existsSync(path.join(ROOT, f)), f + " exists"));

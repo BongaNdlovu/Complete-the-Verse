@@ -5,7 +5,7 @@
    the player. Biblical figure records remain in the module for older
    saves; they are not equipable.
 
-   Art: assets/characters/<id>/{portrait,token}.png
+   Art: assets/characters/<id>/{portrait,token,idle,walk}.png
    ================================================================== */
 
 var SCHOLARS = [
@@ -19,7 +19,9 @@ var SCHOLARS = [
     blurb: "A careful reader from Lagos, trained in Hebrew and history.",
     unlock: null,
     portrait: "assets/characters/amina/portrait.png",
-    token: "assets/characters/amina/token.png"
+    token: "assets/characters/amina/token.png",
+    idle: "assets/characters/amina/idle.png",
+    walk: "assets/characters/amina/walk.png"
   },
   {
     id: "elias",
@@ -31,7 +33,9 @@ var SCHOLARS = [
     blurb: "An Athens classicist who still walks with a field notebook.",
     unlock: null,
     portrait: "assets/characters/elias/portrait.png",
-    token: "assets/characters/elias/token.png"
+    token: "assets/characters/elias/token.png",
+    idle: "assets/characters/elias/idle.png",
+    walk: "assets/characters/elias/walk.png"
   },
   {
     id: "soojin",
@@ -43,7 +47,9 @@ var SCHOLARS = [
     blurb: "A Seoul linguist who maps KJV cadence against the Hebrew.",
     unlock: null,
     portrait: "assets/characters/soojin/portrait.png",
-    token: "assets/characters/soojin/token.png"
+    token: "assets/characters/soojin/token.png",
+    idle: "assets/characters/soojin/idle.png",
+    walk: "assets/characters/soojin/walk.png"
   },
   {
     id: "yusef",
@@ -55,7 +61,9 @@ var SCHOLARS = [
     blurb: "A Cairo historian of the Near East and the long road.",
     unlock: null,
     portrait: "assets/characters/yusef/portrait.png",
-    token: "assets/characters/yusef/token.png"
+    token: "assets/characters/yusef/token.png",
+    idle: "assets/characters/yusef/idle.png",
+    walk: "assets/characters/yusef/walk.png"
   },
   {
     id: "lucia",
@@ -67,7 +75,9 @@ var SCHOLARS = [
     blurb: "A São Paulo theologian who traces the prophets through Portuguese Bibles.",
     unlock: null,
     portrait: "assets/characters/lucia/portrait.png",
-    token: "assets/characters/lucia/token.png"
+    token: "assets/characters/lucia/token.png",
+    idle: "assets/characters/lucia/idle.png",
+    walk: "assets/characters/lucia/walk.png"
   },
   {
     id: "priya",
@@ -79,7 +89,9 @@ var SCHOLARS = [
     blurb: "A Delhi Hebraist who compares KJV cadence with the Sanskrit of her home.",
     unlock: null,
     portrait: "assets/characters/priya/portrait.png",
-    token: "assets/characters/priya/token.png"
+    token: "assets/characters/priya/token.png",
+    idle: "assets/characters/priya/idle.png",
+    walk: "assets/characters/priya/walk.png"
   },
   {
     id: "thomas",
@@ -91,7 +103,9 @@ var SCHOLARS = [
     blurb: "An Oxford reader of the Church Fathers with mud still on his boots.",
     unlock: null,
     portrait: "assets/characters/thomas/portrait.png",
-    token: "assets/characters/thomas/token.png"
+    token: "assets/characters/thomas/token.png",
+    idle: "assets/characters/thomas/idle.png",
+    walk: "assets/characters/thomas/walk.png"
   },
   {
     id: "dawit",
@@ -103,7 +117,9 @@ var SCHOLARS = [
     blurb: "An Addis Ababa scholar of Ge'ez scripture and the long African church.",
     unlock: null,
     portrait: "assets/characters/dawit/portrait.png",
-    token: "assets/characters/dawit/token.png"
+    token: "assets/characters/dawit/token.png",
+    idle: "assets/characters/dawit/idle.png",
+    walk: "assets/characters/dawit/walk.png"
   }
 ];
 
@@ -256,6 +272,18 @@ var Characters = (function () {
     return SCHOLAR_LIST[0] || LIST[0] || null;
   }
 
+  var DEFAULT_IDLE = "assets/traveler/idle.png";
+  var DEFAULT_WALK = "assets/traveler/walk.png";
+  function walkerSpec(id, progress) {
+    var ch = resolve(id, progress);
+    if (!ch) return { id: null, idle: DEFAULT_IDLE, walk: DEFAULT_WALK };
+    return {
+      id: ch.id,
+      idle: ch.idle || DEFAULT_IDLE,
+      walk: ch.walk || DEFAULT_WALK
+    };
+  }
+
   function newlyUnlockedFigures(before, after) {
     var out = [];
     FIGURE_LIST.forEach(function (ch) {
@@ -277,6 +305,7 @@ var Characters = (function () {
     isUnlocked: isUnlocked,
     unlockLabel: unlockLabel,
     resolve: resolve,
+    walkerSpec: walkerSpec,
     newlyUnlockedFigures: newlyUnlockedFigures
   };
 })();

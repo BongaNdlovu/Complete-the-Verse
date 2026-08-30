@@ -29,12 +29,12 @@ play. `node test.js` (or `npm test`) is the logic gate. `npm run lint` runs Oxli
 ```
 index.html          the single page — all views are <section class="view">s
 README.md           repository entry point
-test.js             root test runner (runs all 52 test suites)
+test.js             root test runner (runs all 54 test suites)
 js/*.js             see module map below (loaded as classic <script>, globals)
 css/*.css           game styling, film FX, and atlas map
 vendor/leaflet/     Leaflet 1.9.4 (map — vendored, never CDN)
 vendor/supabase/    supabase-js 2.112.3 (lazy-loaded only when configured)
-assets/             art (46 relics, 8 scholars × portrait+token, judge sheets…)
+assets/             art (46 relics, 8 scholars × portrait+token+walker, judge sheets…)
 audio/              7 music beds · audio/voice/ 24 narration clips
 sfx/                8 effect samples
 content/            verse QA data (quarantine.json, legacy-order.json)
@@ -407,7 +407,7 @@ bank answers nearest in length — numbered fakes were removed.
 
 ## 10. Testing — the three styles (know which one you are writing)
 
-`node test.js` runs 52 suites in a fixed order: content gate → pure
+`node test.js` runs 54 suites in a fixed order: content gate → pure
 logic → integration sandbox → structural/static suites. CI also runs
 `npm run lint` (Oxlint `complexity` max 20) before the suite.
 

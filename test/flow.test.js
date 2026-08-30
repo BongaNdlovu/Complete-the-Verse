@@ -11,6 +11,7 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
 {
   ok("wipe lasts between 600 and 900ms", Flow.WIPE_MS >= 600 && Flow.WIPE_MS <= 900);
   ok("play is a known view", Flow.VIEWS.indexOf("play") >= 0);
+  ok("tablets is a known view", Flow.VIEWS.indexOf("tablets") >= 0);
   ok("results is a known view", Flow.VIEWS.indexOf("results") >= 0);
 }
 
@@ -31,6 +32,11 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
   ok("leaving the map unmounts it", atlas.unmountAtlas);
   const stay = Flow.leaveView("menu", "menu");
   ok("same view is a no-op", stay.same);
+  const fromTablets = Flow.leaveView("tablets", "menu");
+  ok("leaving tablets stops the loop", fromTablets.stopTablets);
+  const tabletsResults = Flow.leaveView("tablets", "results");
+  ok("tablets to results still stops the rAF loop", tabletsResults.stopTablets);
+  eq("tablets to results keeps play classes for the record", tabletsResults.clearPlayClasses, false);
 }
 
 {

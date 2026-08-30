@@ -220,12 +220,36 @@ function endRunScore(reason, ctx){
     survivalBonus: survivalBonus, firstClearBonus: firstClearBonus, total: total };
 }
 
+function persistTabletsRecord(){
+  const pct = Math.round(((R.tabletIdx || 0) / (R.tabletTotal || 1)) * 100);
+  const prevBest = SAVE.best.tablets || 0;
+  const isRecord = pct > prevBest;
+  if(isRecord) SAVE.best.tablets = pct;
+  const id = R.tabletChapter || "psalm23";
+  if(!SAVE.tablets) SAVE.tablets = { psalm23:{best:0,held:false}, psalm91:{best:0,held:false} };
+  const rec = Object.assign({best:0,held:false}, SAVE.tablets[id] || {});
+  rec.best = Math.max(rec.best || 0, pct);
+  const nowHeld = typeof Tablets !== "undefined" && Tablets.held(R);
+  if(nowHeld && !rec.held) SAVE.life.tabletHolds = (SAVE.life.tabletHolds || 0) + 1;
+  if(nowHeld) rec.held = true;
+  SAVE.tablets[id] = rec;
+  const oil = (R.correct || 0) * 2;
+  if(oil){
+    SAVE.oil = (SAVE.oil || 0) + oil;
+    SAVE.life.oilEarned = (SAVE.life.oilEarned || 0) + oil;
+  }
+  return { road: null, isRecord: isRecord, prevBest: prevBest, dailyRecorded: false };
+}
 function persistRunRecords(reason, ctx, total){
   if(R.mode==="team") return { road: null, isRecord: false, prevBest: 0, dailyRecorded: false };
   if(R.mode==="beat"){
     SAVE.runs++;
     if(reason==="complete" && typeof Beat!=="undefined" && Beat.held(R)) SAVE.life.beatGoliathHeld = true;
     return { road: null, isRecord: false, prevBest: 0, dailyRecorded: false };
+  }
+  if(R.mode==="tablets"){
+    SAVE.runs++;
+    return persistTabletsRecord();
   }
   SAVE.runs++;
   SAVE.life.bestStreak = Math.max(SAVE.life.bestStreak, R.best);
@@ -292,20 +316,26 @@ function endRunPersistXp(reason, ctx, total){
     quickRewardResult: quickRewardResult, xpGain: xp.xpGain, beforeLvl: xp.beforeLvl, afterInfo: xp.afterInfo };
 }
 
+function endRunTrack(reason){
+  if(R.mode==="beat" || R.mode==="tablets"){
+    const held = R.mode==="beat"
+      ? (typeof Beat!=="undefined" && Beat.held(R))
+      : (typeof Tablets!=="undefined" && Tablets.held(R));
+    return (reason==="complete" && held) ? "finalStillness" : "suddenDescent";
+  }
+  if(reason === "complete") return "finalStillness";
+  if(reason === "death" || reason === "abandon") return "suddenDescent";
+  return "results";
+}
 function endRun(reason){
   if(R.ended) return;
   R.ended = true;
   invalidateRun();
-  R.resultTrack = reason === "complete" ? "finalStillness"
-    : (reason === "death" || reason === "abandon") ? "suddenDescent" : "results";
-  if(R.mode==="beat"){
-    R.resultTrack = (reason==="complete" && typeof Beat!=="undefined" && Beat.held(R))
-      ? "finalStillness" : "suddenDescent";
-  }
+  R.resultTrack = endRunTrack(reason);
   clearSequence();
   hideSiteQuote();
   if(typeof stopFriendRacePolling === "function") stopFriendRacePolling();
-  document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7","retreat","mode-team","team-white","team-blue");
+  document.body.classList.remove("setpiece-active","overdrive","pressure-3","pressure-5","pressure-7","retreat","mode-team","team-white","team-blue","mode-tablets");
   R.setpiece=null;
   const ctx = endRunContext(reason);
   if(reason==="death" || reason==="abandon"){ Snd.death(); Backdrop.hit("death"); }
@@ -328,6 +358,15 @@ function endRun(reason){
   go("results");
 }
 
+function tabletsKickText(o){
+  if(o.reason==="abandon") return "The run was abandoned";
+  return (typeof Tablets!=="undefined" && Tablets.held(R)) ? "The manuscript held" : "The tablet shattered";
+}
+function resultsKick(o){
+  if(R.mode==="tablets") return tabletsKickText(o);
+  if(R.mode==="beat") return (typeof Beat!=="undefined" && Beat.held(R)) ? "Held" : "Scarred";
+  return resultsKickText(o);
+}
 function resultsKickText(o){
   if(o.reason==="abandon") return "The run was abandoned";
   if(R.mode==="team"){
@@ -457,7 +496,7 @@ function renderResultsBestLine(o){
 function renderResultsHabit(){
   const habitEl = $("res-habit-streak");
   if(!habitEl) return;
-  if(R.mode==="team"){ habitEl.style.display = "none"; return; }
+  if(R.mode==="team" || R.mode==="tablets"){ habitEl.style.display = "none"; return; }
   const hCount = (SAVE.habit && SAVE.habit.count) || 0;
   let lampsHtml = "";
   for(let l = 1; l <= 7; l++){
@@ -528,12 +567,13 @@ function renderResultsRoadChrome(o){
 
 function renderResultsRetryReview(o){
   const retryBtn = $("res-retry");
-  if(retryBtn && (R.mode==="beat" || R.mode==="team")){
+  if(retryBtn && (R.mode==="beat" || R.mode==="team" || R.mode==="tablets")){
     retryBtn.style.display = "";
-    retryBtn.textContent = R.mode==="team" ? "Play again" : retryBtn.textContent;
+    retryBtn.textContent = R.mode==="team" ? "Play again" : R.mode==="tablets" ? "Retry chapter" : retryBtn.textContent;
     retryBtn.onclick = function(){
       Snd.unlock(); Snd.ui();
       if(R.mode==="team") openBrief("team");
+      else if(R.mode==="tablets") startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23" });
       else startRun("beat", R.diff.key);
     };
     const reviewMissedBtn = $("res-review-missed");
@@ -561,19 +601,20 @@ function renderResultsRetryReview(o){
   }
 }
 
-function renderResults(o){
-  $("res-kick").textContent = R.mode==="beat"
-    ? ((typeof Beat!=="undefined" && Beat.held(R)) ? "Held" : "Scarred")
-    : resultsKickText(o);
-  document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
-  const resView = $("v-results");
-  if(resView){
-    resView.classList.remove("team-win-white","team-win-blue","team-win-draw");
-    if(R.mode==="team"){
-      const w = typeof teamWinner==="function" ? teamWinner() : "draw";
-      resView.classList.add(w==="draw" ? "team-win-draw" : "team-win-"+w);
-    }
+function paintResultsSkin(el){
+  if(!el) return;
+  el.classList.remove("team-win-white","team-win-blue","team-win-draw","beat-win","beat-loss");
+  if(R.mode==="team"){
+    const w = typeof teamWinner==="function" ? teamWinner() : "draw";
+    el.classList.add(w==="draw" ? "team-win-draw" : "team-win-"+w);
+    return;
   }
+  if(R.mode==="beat") el.classList.add(typeof Beat!=="undefined" && Beat.held(R) ? "beat-win" : "beat-loss");
+}
+function renderResults(o){
+  $("res-kick").textContent = resultsKick(o);
+  document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
+  paintResultsSkin($("v-results"));
   $("res-rank").textContent = R.mode==="team" ? "Party match · not recorded" : runTitle(o.total);
   $("res-score").textContent = R.mode==="team" && R.teams
     ? (R.teams.white.kept||0)+"–"+(R.teams.blue.kept||0)
@@ -859,5 +900,6 @@ function fillResultsInsights(v){
 $("res-again").addEventListener("click", ()=>{
   Snd.ui();
   if(R.mode==="team"){ openBrief("team"); return; }
+  if(R.mode==="tablets"){ startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23" }); return; }
   startRun(R.mode, R.diff.key);
 });

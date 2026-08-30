@@ -62,7 +62,7 @@ Nothing here needs a framework or a bundler. The `file://` + zero-install constr
 |---|---|---|
 | `js/` | 35 modules: data, pure rules, engine, views | Correct. Names match jobs. |
 | `css/` | `game.css` (play/hall) + `atlas.css` (map) | Correct split. |
-| `assets/` | relics, scholars, intro, traveler, judge | Correct. Character folders are consistent (`portrait.png` + `token.png`). |
+| `assets/` | relics, scholars, intro, traveler, judge | Correct. Scholar folders are `portrait.png` + `token.png` + `idle.png` + `walk.png`. |
 | `audio/` + `audio/voice/` + `sfx/` | beds, narration, effects | Correct. |
 | `vendor/` | Leaflet + supabase-js, no CDN | Correct and tested. |
 | `content/` | quarantine bank + legacy id snapshot | Correct — tooling only. |
