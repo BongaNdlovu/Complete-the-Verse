@@ -79,10 +79,13 @@ console.log("\n--- HALL MENU ---");
   ["relay", "pilgrim-recall"].forEach(k => {
     assert(html.indexOf('data-mode="' + k + '"') < 0, k + " stays off hall");
   });
-  ["practice", "recall", "team", "trial", "endless", "daily", "blitz", "beat", "tablets"].forEach(k => {
+  ["practice", "recall", "team", "trial", "endless", "daily", "blitz", "tablets"].forEach(k => {
     exec(sb, `openBrief(${JSON.stringify(k)});`);
     eq(k + " brief opens", read(sb, `currentView==="brief" && briefMode===${JSON.stringify(k)}`), true);
   });
+  exec(sb, `go("menu"); openBrief("beat");`);
+  eq("Valley brief stays closed", read(sb, `currentView==="menu"`), true);
+  assert(html.indexOf("incoming") >= 0 && html.indexOf("Incoming") >= 0, "Valley hall card is marked incoming");
 }
 
 // ----------------------------------------------------

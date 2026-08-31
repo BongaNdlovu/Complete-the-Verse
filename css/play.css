@@ -696,6 +696,7 @@ body.hall-ready.biblical-thriller #v-results.tablets-shattered:before{
   border-color:rgba(229,194,126,.65);
   box-shadow:0 0 0 1px rgba(213,173,98,.11) inset,0 0 40px -15px rgba(213,173,98,.38),0 24px 60px -30px #000;
 }
+.biblical-thriller .mode.incoming:hover{border-color:transparent;box-shadow:0 0 0 1px var(--edge) inset;transform:none}
 .biblical-thriller .mode b{font-family:var(--disp);color:#f5dfb2}
 .biblical-thriller .mode .pill{background:rgba(103,17,21,.26);color:#e2bd77;box-shadow:0 0 0 1px rgba(213,173,98,.24) inset}
 .biblical-thriller .diff.sel{border-color:var(--gold);background:linear-gradient(145deg,rgba(67,48,21,.92),rgba(10,8,7,.96));box-shadow:0 0 28px rgba(213,173,98,.18)}

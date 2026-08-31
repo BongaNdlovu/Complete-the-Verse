@@ -227,6 +227,8 @@ body.reduced .bootmark{animation:none}
   text-transform:uppercase;padding:.35em .7em;background:rgba(217,182,103,.14);color:var(--gold-hot);
   box-shadow:0 0 0 1px var(--edge) inset}
 .mode .pill.done{background:rgba(95,209,138,.14);color:var(--green)}
+.mode.incoming,.mode.incoming:hover{opacity:.58;cursor:default;transform:none;box-shadow:0 0 0 1px var(--edge) inset}
+.mode.incoming:hover:before{opacity:0}
 .subnav{display:flex;gap:12px;margin-top:4vh;flex-wrap:wrap;justify-content:center}
 
 @media (max-width:900px){

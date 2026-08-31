@@ -207,7 +207,7 @@ function tabletsResolve(ok){
   R.attempts = (R.attempts || 0) + 1;
   if(!ok){
     R.tabletMiss = (R.tabletMiss || 0) + 1;
-    if(typeof Snd !== "undefined" && Snd.wrong) Snd.wrong();
+    if(typeof Snd !== "undefined" && Snd.shatter) Snd.shatter();
     paintTabletsStage("miss");
     const failedGrid = $("tablets-grid");
     if(failedGrid) failedGrid.classList.add("locked");
@@ -219,7 +219,7 @@ function tabletsResolve(ok){
   R.score = (R.score || 0) + 1;
   R.streak = (R.streak || 0) + 1;
   R.best = Math.max(R.best || 0, R.streak);
-  if(typeof Snd !== "undefined" && Snd.correct) Snd.correct();
+  if(typeof Snd !== "undefined" && Snd.carve) Snd.carve();
   paintTabletsStage("hit");
   const grid = $("tablets-grid");
   if(grid) grid.classList.add("locked");

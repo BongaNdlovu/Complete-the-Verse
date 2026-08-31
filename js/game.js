@@ -290,7 +290,7 @@ const MODES = {
   pilgrimage:{ key:"pilgrimage", name:"The Pilgrimage", kick:"The long road", atlas:true,
     desc:"Forty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last beat is produced from memory with no options. The clock closes as you go east.",
     tagline:"46 sites · Ur to Patmos", info:[["46","Sites"],["8","Verses each"],[modeClockLabel("pilgrimage"),"Clock"]] },
-  beat:{ key:"beat", name:"The Valley", kick:"A Beat of Faith", atlas:false,
+  beat:{ key:"beat", name:"The Valley", kick:"A Beat of Faith", atlas:false, incoming:true,
     desc:"David and Goliath in the valley of Elah. Twelve questions from 1 Samuel 17. Forty seconds each. Held only if none are wrong.",
     tagline:"Goliath · twelve questions · replay any time", info:[["12","Questions"],["40s","Clock"],["Held","None wrong"]] },
   tablets:{ key:"tablets", name:"Word Tablets", kick:"Fill the Word", atlas:false,
@@ -1789,7 +1789,7 @@ function handleNavKeydown(e, k){
   }
   if(currentView==="menu" && (k==="enter"||k===" ")){
     e.preventDefault(); Snd.unlock();
-    const first = MENU_ORDER.filter(x=>MODES[x] && !MODES[x].hidden)[0] || "pilgrimage";
+    const first = MENU_ORDER.filter(x=>MODES[x] && !MODES[x].hidden && !MODES[x].incoming)[0] || "pilgrimage";
     if(MODES[first].atlas) go("atlas"); else openBrief(first);
     return true;
   }

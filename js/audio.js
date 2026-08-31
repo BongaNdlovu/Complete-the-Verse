@@ -47,14 +47,24 @@ const Snd = (function(){
     odReady:"sfx/od-ready.mp3",
     lampThud:"sfx/lamp-thud.mp3",
     lampCrackle:"sfx/lamp-crackle.mp3",
-    stamp:"sfx/verdict-stamp.mp3"
+    stamp:"sfx/verdict-stamp.mp3",
+    act:"sfx/act.mp3",
+    seal:"sfx/seal.mp3",
+    level:"sfx/level.mp3",
+    death:"sfx/death.mp3",
+    victory:"sfx/victory.mp3",
+    tickCrit:"sfx/tick-crit.mp3",
+    carve:"sfx/tablets-carve.mp3",
+    shatter:"sfx/tablets-shatter.mp3"
   };
   /* Ones that replace themselves so rapid re-triggers do not stack. */
-  const SFX_EXCL = { heart:1, tick:1, lampCrackle:1 };
+  const SFX_EXCL = { heart:1, tick:1, tickCrit:1, ui:1, lampCrackle:1 };
   /* Ones that briefly duck the bed so they cut through. */
-  const SFX_DUCK = { lock:1, correct:1, wrong:1, power:1, odReady:1, lampThud:1 };
+  const SFX_DUCK = { lock:1, correct:1, wrong:1, power:1, odReady:1, lampThud:1, act:1, seal:1, level:1, death:1, victory:1, shatter:1 };
   const SFX_GAIN = { hover:0.4, lock:0.68, correct:0.72, wrong:0.66, power:0.5, heart:0.85,
-                     ignite:0.62, odReady:0.7, lampThud:0.78, lampCrackle:0.6, stamp:0.55 };
+                     ignite:0.62, odReady:0.7, lampThud:0.78, lampCrackle:0.6, stamp:0.55,
+                     act:0.72, seal:0.62, level:0.68, death:0.78, victory:0.74,
+                     ui:0.45, tick:0.5, tickCrit:0.58, carve:0.62, shatter:0.7 };
   let voiceHold=null, pendingVoice=null, rainAudio=null, rainWired=false, rainRequested=false;
   function syncRainVolume(){
     if(!rainAudio) return;
@@ -336,9 +346,13 @@ const Snd = (function(){
       stopAllTracks();
       startOrRetunePad(CHORDS[name] || CHORDS.menu);
     },
-    ui(){ tone(1320,.045,"triangle",.035); tone(1980,.035,"sine",.018,.018); },
+    ui(){ if(playSfx("ui")) return; tone(1320,.045,"triangle",.035); tone(1980,.035,"sine",.018,.018); },
     hover(){ if(playSfx("hover")) return; tone(1540,.03,"sine",.03); },
-    tick(crit){ tone(crit?1180:780,.04,"square",crit?.04:.018); },
+    tick(crit){
+      if(crit){ if(playSfx("tickCrit")) return; }
+      else if(playSfx("tick")) return;
+      tone(crit?1180:780,.04,"square",crit?.04:.018);
+    },
     heart(){ if(playSfx("heart")) return; tone(58,.11,"sine",.1); tone(46,.14,"sine",.07,.1); },
     lock(){ if(playSfx("lock")) return; duckMusic(0.18, 520); tone(78,.32,"square",.18,0,52); tone(42,.42,"sine",.24); noise(.2,.11,680); },
     pulse(level){
@@ -368,10 +382,19 @@ const Snd = (function(){
       tone(146.83,1.1,"sawtooth",.10,0,73.4); tone(155.56,1.1,"sawtooth",.085,0,77.8);
       tone(40,1.4,"sine",.22); noise(.75,.18,420);
     },
-    act(){ duckMusic(0.22, 900); [261.63,329.63,392,523.25,659.25,783.99].forEach((f,i)=>tone(f,2.4,"sine",.085,i*.12));
-      tone(65.41,2.8,"triangle",.11); },
-    seal(){ duckMusic(0.22, 700); [783.99,1046.5,1318.5,1567.98].forEach((f,i)=>tone(f,1.8,"sine",.10,i*.09)); noise(.5,.05,4200); },
-    level(){ duckMusic(0.22, 900); [392,523.25,659.25,783.99,1046.5,1318.5,1567.98].forEach((f,i)=>tone(f,2.2,"sine",.09,i*.08)); },
+    act(){
+      if(playSfx("act")) return;
+      duckMusic(0.22, 900); [261.63,329.63,392,523.25,659.25,783.99].forEach((f,i)=>tone(f,2.4,"sine",.085,i*.12));
+      tone(65.41,2.8,"triangle",.11);
+    },
+    seal(){
+      if(playSfx("seal")) return;
+      duckMusic(0.22, 700); [783.99,1046.5,1318.5,1567.98].forEach((f,i)=>tone(f,1.8,"sine",.10,i*.09)); noise(.5,.05,4200);
+    },
+    level(){
+      if(playSfx("level")) return;
+      duckMusic(0.22, 900); [392,523.25,659.25,783.99,1046.5,1318.5,1567.98].forEach((f,i)=>tone(f,2.2,"sine",.09,i*.08));
+    },
     power(){
       if(playSfx("power")) return;
       duckMusic(0.18, 520);
@@ -399,11 +422,25 @@ const Snd = (function(){
       if(playSfx("stamp")) return;
       noise(.09,.03,2600);
     },
-    death(){ duckMusic(0.12, 1600); tone(110,3.4,"sine",.20,0,27.5); tone(103.8,3.4,"sawtooth",.075,0,26); noise(1.7,.2,300); },
-    victory(){ duckMusic(0.18, 1200); [392,493.88,587.33,783.99,987.77,1174.66].forEach((f,i)=>tone(f,3.0,"sine",.09,i*.1)); },
+    carve(){
+      if(playSfx("carve")) return;
+      tone(392,.18,"triangle",.08); noise(.22,.06,2400);
+    },
+    shatter(){
+      if(playSfx("shatter")) return;
+      tone(110,.55,"sawtooth",.12,0,55); noise(.45,.14,900);
+    },
+    death(){
+      if(playSfx("death")) return;
+      duckMusic(0.12, 1600); tone(110,3.4,"sine",.20,0,27.5); tone(103.8,3.4,"sawtooth",.075,0,26); noise(1.7,.2,300);
+    },
+    victory(){
+      if(playSfx("victory")) return;
+      duckMusic(0.18, 1200); [392,493.88,587.33,783.99,987.77,1174.66].forEach((f,i)=>tone(f,3.0,"sine",.09,i*.1));
+    },
     /* Kill countdown SFX immediately (lock, pause, time-up, end of run). */
     stopPressure(){
-      ["tick","heart"].forEach(function(name){
+      ["tick","tickCrit","heart"].forEach(function(name){
         if(sfxHold[name]){
           try{ sfxHold[name].pause(); sfxHold[name].currentTime=0; }catch(e){}
           sfxHold[name]=null;

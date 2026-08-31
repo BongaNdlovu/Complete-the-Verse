@@ -54,8 +54,8 @@ ok("renderMenu filters hidden modes",
   /keys\.filter\(k\s*=>\s*MODES\[k\]\s*&&\s*!MODES\[k\]\.hidden\)/.test(src));
 
 /* Enter on the menu must open a mode the menu actually shows. */
-ok("menu Enter routes through MENU_ORDER, not a hidden mode",
-  /MENU_ORDER\.filter\(x=>MODES\[x\]\s*&&\s*!MODES\[x\]\.hidden\)\[0\]/.test(src));
+ok("menu Enter routes through MENU_ORDER, not a hidden or incoming mode",
+  /MENU_ORDER\.filter\(x=>MODES\[x\]\s*&&\s*!MODES\[x\]\.hidden\s*&&\s*!MODES\[x\]\.incoming\)\[0\]/.test(src));
 ok("menu Enter no longer opens the hidden Trial directly",
   !/openBrief\("trial"\); return;/.test(src));
 
@@ -66,8 +66,12 @@ ok("pilgrimage still mixes typed questions",
 ok("Recall and Team Mode sit with the Drill",
   /Practice[\s\S]*modes: \["practice", "recall", "team"\]/.test(src));
 
+ok("The Valley is incoming, not hidden",
+  /beat:\{[^}]*incoming:\s*true/.test(src) && !/\bbeat:\{[^}]*hidden:\s*true/.test(src));
 ok("MENU_GROUPS covers The Valley",
   /The Valley[\s\S]*modes:\s*\[[^\]]*"beat"/.test(src));
+ok("incoming hall cards do not open a brief",
+  /if\(!m \|\| m\.incoming\)/.test(src));
 ok("MENU_GROUPS covers The Tablets",
   /The Tablets[\s\S]*modes:\s*\[[^\]]*"tablets"/.test(src));
 ok("MENU_GROUPS defines The Road",

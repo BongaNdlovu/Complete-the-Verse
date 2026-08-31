@@ -212,7 +212,8 @@ function renderModeCard(k, due, dailyDone, road){
   const m = MODES[k];
   if(!m || m.hidden) return "";
   let pill = "";
-  if(k==="daily") pill = dailyDone
+  if(m.incoming) pill = '<span class="pill">Incoming</span>';
+  else if(k==="daily") pill = dailyDone
     ? '<span class="pill done">Done · '+fmt(SAVE.daily.score)+'</span>'
     : '<span class="pill">Today</span>';
   else if(k==="practice" && due) pill = '<span class="pill due">'+fmt(due)+' due</span>';
@@ -220,8 +221,9 @@ function renderModeCard(k, due, dailyDone, road){
     ? '<span class="pill done">Road walked</span>'
     : '<span class="pill">'+road.cleared+' / '+road.total+'</span>';
   else if(SAVE.best[k]) pill = '<span class="pill">Best '+fmt(SAVE.best[k])+'</span>';
-  return '<button class="mode" data-mode="'+k+'">'+pill+'<b>'+esc(m.name)+'</b><p>'+esc(m.desc)+'</p>'+
-    '<span class="tagline">'+esc(m.tagline)+'</span></button>';
+  const cls = m.incoming ? "mode incoming" : "mode";
+  return '<button class="'+cls+'" data-mode="'+k+'"'+(m.incoming?' aria-disabled="true"':'')+'>'+pill+'<b>'+esc(m.name)+'</b><p>'+esc(m.desc)+'</p>'+
+    '<span class="tagline">'+esc(m.incoming ? "Incoming" : m.tagline)+'</span></button>';
 }
 
 function renderMenu(){
@@ -271,8 +273,12 @@ function renderMenu(){
   $("modes").innerHTML = groupsHtml;
   $("modes").querySelectorAll("[data-mode]").forEach(b=>{
     b.addEventListener("click",()=>{
+      if(MODES[b.dataset.mode].incoming){
+        Snd.lock();
+        toast(MODES[b.dataset.mode].name+" is incoming.");
+        return;
+      }
       Snd.unlock(); Snd.ui();
-      // The Pilgrimage picks its level on the map, not on a brief card.
       if(MODES[b.dataset.mode].atlas) go("atlas"); else openBrief(b.dataset.mode);
     });
   });
@@ -311,8 +317,12 @@ function paintTabletsBrief(on){
   });
 }
 function openBrief(mode){
-  briefMode = mode;
   const m = MODES[mode];
+  if(!m || m.incoming){
+    if(m && m.incoming && typeof toast==="function") toast(m.name+" is incoming.");
+    return;
+  }
+  briefMode = mode;
   $("brief-kick").textContent = m.kick;
   $("brief-title").textContent = m.name;
   $("brief-desc").textContent = m.desc;

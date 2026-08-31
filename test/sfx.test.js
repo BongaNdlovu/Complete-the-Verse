@@ -29,7 +29,17 @@ const SFX = [
   { key: "odReady", file: "od-ready.mp3" },
   { key: "lampThud", file: "lamp-thud.mp3" },
   { key: "lampCrackle", file: "lamp-crackle.mp3" },
-  { key: "stamp", file: "verdict-stamp.mp3" }
+  { key: "stamp", file: "verdict-stamp.mp3" },
+  { key: "act", file: "act.mp3" },
+  { key: "seal", file: "seal.mp3" },
+  { key: "level", file: "level.mp3" },
+  { key: "death", file: "death.mp3" },
+  { key: "victory", file: "victory.mp3" },
+  { key: "ui", file: "ui.mp3" },
+  { key: "tick", file: "tick.mp3" },
+  { key: "tickCrit", file: "tick-crit.mp3" },
+  { key: "carve", file: "tablets-carve.mp3" },
+  { key: "shatter", file: "tablets-shatter.mp3" }
 ];
 
 assert(/const SFX\s*=\s*\{/.test(game), "SFX map present");
@@ -50,23 +60,15 @@ SFX.forEach((s) => {
   assert(new RegExp('playSfx\\("' + s.key + '"\\)').test(game), s.key + " playSfx wired");
 });
 
-// Tick/heart/ui samples are too long for per-click / per-second use (8–9s).
-// Countdown and chrome stay on short synth so they stay in time.
-["tick", "ui"].forEach((k) => {
-  assert(!new RegExp('playSfx\\("' + k + '"\\)').test(game), k + " must stay synth (sample too long)");
+["ui", "tick", "tick-crit"].forEach((file) => {
+  const abs = path.join(ROOT, "sfx", file + ".mp3");
+  assert(fs.existsSync(abs) && fs.statSync(abs).size < 8000, file + " chrome clip must stay tiny");
 });
 assert(/playSfx\("heart"\)/.test(game), "heartbeat uses the trimmed sample");
-
-// Still-synth hooks that remain to replace later
-["act", "seal", "level", "death", "victory"].forEach((k) => {
-  assert(new RegExp(k + "\\(\\)\\{").test(game) || new RegExp(k + "\\(\\)\\{ ").test(game) || game.includes(k + "(){"),
-    k + " hook still exists");
-  assert(!new RegExp('playSfx\\("' + k + '"\\)').test(game), k + " should still be pending (no sample yet)");
-});
 
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");
   fails.forEach((f) => console.error(" - " + f));
   process.exit(1);
 }
-console.log("PASS — sfx · " + SFX.length + " samples wired · heart beat · tick/ui synth");
+console.log("PASS — sfx · " + SFX.length + " samples wired · heart beat · tiny ui/tick");
