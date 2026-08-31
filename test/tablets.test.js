@@ -5,6 +5,7 @@ const ROOT = require("../scripts/repo-root");
 const { makeSandbox } = require("../scripts/test-shim");
 const { ENGINE_FILES } = require("../scripts/engine-source");
 const { Tablets } = require("../js/tablets.js");
+require("../js/tablets-canon.js");
 
 let pass = 0, fail = 0;
 function ok(name, cond, extra) {
@@ -18,7 +19,7 @@ function eq(name, got, want) { ok(name, got === want, { got: got, want: want });
 
 const PREFIX = [
   "js/verses.js", "js/verses-extra.js", "js/verses-more.js", "js/verses-ascent.js",
-  "js/verses-tf.js", "js/beat.js", "js/tablets.js", "js/passages.js", "js/legacy-ids.js",
+  "js/verses-tf.js", "js/beat.js", "js/tablets.js", "js/tablets-canon.js", "js/passages.js", "js/legacy-ids.js",
   "js/bank.js", "js/srs.js", "js/recall.js", "js/assemble.js", "js/meta.js", "js/flow.js",
   "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js",
   "js/characters.js", "js/artifacts.js", "js/live.js", "js/atlas.js"
@@ -59,6 +60,9 @@ ok("John 1 locked until Psalm 91 Hold", !Tablets.unlocked("john1", { tablets:{ p
 ok("John 1 opens after Psalm 91 Hold", Tablets.unlocked("john1", { tablets:{ psalm23:{ held:true }, psalm91:{ held:true } } }));
 eq("John 1 has 51 blanks", Tablets.chapter("john1").blanks.length, 51);
 eq("John 1 first answer is Word", Tablets.chapter("john1").blanks[0].a, "Word");
+eq("Exodus 20 is in the canon", Tablets.chapter("exodus20").id, "exodus20");
+eq("John 14 is in the canon", Tablets.chapter("john14").id, "john14");
+eq("20 road chapters", Tablets.canon.length, 20);
 
 ok("clean 23 is Held", Tablets.held({ tabletMiss:0, tabletIdx:11, tabletTotal:11 }));
 ok("a miss is not Held", !Tablets.held({ tabletMiss:1, tabletIdx:11, tabletTotal:11 }));
@@ -75,7 +79,8 @@ ok("no Google Fonts", !/fonts\.googleapis/.test(src));
 ok("current line wraps as ordinary text", /\.tablets-current\{[^}]*display:\s*block/.test(src));
 ok("blank sits in the line", /\.tablets-blank\{[^}]*inline-flex/.test(src));
 ok("pause overlay is in the view", html.indexOf('id="tablets-pause"') >= 0);
-ok("hear control is in the view", html.indexOf('id="tablets-hear"') >= 0);
+ok("no hear control", html.indexOf('id="tablets-hear"') < 0);
+ok("illuminate control is in the view", html.indexOf('id="tablets-illum"') >= 0);
 ok("remaining counter is in the view", html.indexOf('id="tablets-remain"') >= 0);
 ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}toggleTabletsPause/.test(gameSrc));
 
@@ -83,7 +88,8 @@ ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   eq("opens tablets view", read(sb, "currentView"), "tablets");
-  eq("powers off", read(sb, "R.powers.selah + R.powers.illum + R.powers.wind"), 0);
+  eq("one Illuminate", read(sb, "R.powers.illum"), 1);
+  eq("no Selah or Wind", read(sb, "R.powers.selah + R.powers.wind"), 0);
   eq("chapter is Psalm 23", read(sb, "R.tabletChapter"), "psalm23");
   eq("91 still locked", read(sb, "Tablets.unlocked('psalm91', SAVE)"), false);
   for (let i = 0; i < 11; i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
@@ -135,6 +141,42 @@ ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}
   eq("pause overlay is on", read(sb, "$('tablets-pause').classList.contains('on')"), true);
   exec(sb, "toggleTabletsPause()");
   eq("resume clears pause", read(sb, "R.paused"), false);
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  eq("Illuminate starts at 1", read(sb, "R.powers.illum"), 1);
+  exec(sb, "tabletsIlluminate()");
+  eq("hint spends Illuminate", read(sb, "R.powers.illum"), 0);
+  eq("two decoys greyed", read(sb, "R.tabletGrey.length"), 2);
+  eq("answer and one fake remain", read(sb, "$('tablets-grid').children.filter(function(c){ return !c.classList.contains('hinted'); }).length"), 2);
+  exec(sb, "tabletsIlluminate()");
+  eq("already hinted does not spend", read(sb, "R.powers.illum"), 0);
+  for (let i = 0; i < 11; i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("perfect run after a hint still Holds", read(sb, "Tablets.held(R)"), true);
+}
+
+{
+  const sb = boot();
+  exec(sb, `(function(){
+    var list = Pilgrimage.stops();
+    var p = SAVE.pilgrim;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === "exodus20") break;
+      p = Pilgrimage.record(p, list[i].id, { cleared: true, score: 10, accuracy: 100, at: 1 });
+    }
+    SAVE.pilgrim = p;
+  })();
+  startRun("pilgrimage", "watchman");`);
+  eq("Sinai's tablet opens as tablets", read(sb, "R.mode"), "tablets");
+  eq("chapter is Exodus 20", read(sb, "R.tabletChapter"), "exodus20");
+  eq("from the road", read(sb, "!!R.fromRoad"), true);
+  const n = read(sb, "R.tabletTotal");
+  for (let i = 0; i < n; i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("Exodus 20 Held", read(sb, "SAVE.tablets.exodus20.held"), true);
+  eq("Exodus 20 stop recorded", read(sb, "Pilgrimage.isCleared(SAVE.pilgrim, 'exodus20')"), true);
+  eq("Kadesh unlocked after Hold", read(sb, "Pilgrimage.isUnlocked(SAVE.pilgrim, 'kadesh')"), true);
 }
 
 if (fail) {

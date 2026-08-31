@@ -78,7 +78,7 @@ ok("guide does not still say 28 suites",
   guide.indexOf("28 suites") < 0 && guide.indexOf("28 test suites") < 0);
 
 ok("app registers a service worker",
-  index.indexOf("serviceWorker") >= 0);
+  index.indexOf("register-sw.js") >= 0);
 
 if (fail) {
   console.log("FAIL — metadata · " + pass + " passed · " + fail + " failed · live verses=" + verses + " sites=" + sites);

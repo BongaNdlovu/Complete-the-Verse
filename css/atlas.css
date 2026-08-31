@@ -95,6 +95,10 @@ body:not(:has(#v-atlas.on)) .route-line { animation-play-state: paused; }
 .site-marker.locked .node-dot::after { background: var(--parch-dim); width: 3px; height: 3px; }
 .site-marker.locked .node-label { opacity: .38; border-style: dashed; color: var(--parch-dim); }
 
+.tablet-marker .node-dot { border-radius: 2px; width: 13px; height: 13px; left: -6px; top: -6px; }
+.tablet-marker .node-dot::after { border-radius: 1px; width: 4px; height: 4px; }
+.tablet-marker .node-label b { font-style: italic; letter-spacing: .04em; }
+
 /* cleared — filled and sealed */
 .site-marker.cleared .node-dot { background: rgba(217,182,103,.9); border-color: var(--gold-hot); box-shadow: 0 0 14px rgba(217,182,103,.75); }
 .site-marker.cleared .node-dot::after { background: #06070c; width: 6px; height: 6px; }

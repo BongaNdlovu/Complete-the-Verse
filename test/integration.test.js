@@ -61,7 +61,7 @@ eq("Recall is available to the game", read(sb, "typeof Recall.grade"), "function
 eq("a fresh save has no schedule", read(sb, "Object.keys(SAVE.srs).length"), 0);
 eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
 /* One ordeal. A new player meets Watchman: two lamps, clock ×0.85. */
-eq("a fresh save plays Watchman", read(sb, "SAVE.set.diff"), "watchman");
+eq("a fresh save plays Disciple", read(sb, "SAVE.set.diff"), "disciple");
 eq("the printed clock matches the pure helper",
    read(sb, "pacedClockMs(14000, 1, 1500)"), read(sb, "Math.round((14000 * 1 + 1500) * PACE + FLAT_ADD_MS)"));
 eq("the Disciple-era helper still prints 23.6s at ×1", read(sb, "pacedClockMs(14000, 1, 1500)"), 23600);
@@ -73,8 +73,8 @@ eq("a cold candle is dark", read(sb, "candleProgress()"), 0);
 read(sb, "R.mode='trial'; R.correct=20; R.streak=12; R.qTotal=20;");
 ok("kept verses and a streak heat the candle", read(sb, "candleProgress()") > 0.4);
 read(sb, "startRun('practice','disciple')");
-eq("a Disciple startRun is Watchman", read(sb, "R.diff.key"), "watchman");
-eq("a Disciple startRun gets two lamps", read(sb, "R.lives"), 2);
+eq("a Disciple startRun is Disciple", read(sb, "R.diff.key"), "disciple");
+eq("a Disciple startRun gets three lamps", read(sb, "R.lives"), 3);
 read(sb, "invalidateRun();");
 {
   const migrated = boot({key:"ctv_save_v3", value:{
@@ -82,7 +82,7 @@ read(sb, "invalidateRun();");
     best:{}, life:{}, books:{}, verse:{}, srs:{}, board:[],
     daily:{date:"", score:0}, set:{diff:"disciple"}
   }});
-  eq("an old Disciple save becomes Watchman", read(migrated, "SAVE.set.diff"), "watchman");
+  eq("an old Disciple save stays Disciple", read(migrated, "SAVE.set.diff"), "disciple");
 }
 
 /* ---------- a Drill run schedules what it asks ---------- */

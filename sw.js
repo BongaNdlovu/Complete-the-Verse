@@ -12,7 +12,7 @@
       stale cache eviction.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.8.2";
+const CACHE_VERSION = "ctv-v1.8.5";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MAX_AUDIO_ENTRIES = 25;
@@ -70,7 +70,15 @@ const PRECACHE_ASSETS = [
   "js/diag.js",
   "js/briefs.js",
   "js/play.js",
-  "js/game.js"
+  "js/tablets.js",
+  "js/tablets-canon.js",
+  "js/tablets-run.js",
+  "js/game.js",
+  "js/register-sw.js",
+  "privacy.html",
+  "assets/icon-192.png",
+  "assets/icon-512.png",
+  "assets/icon-maskable-512.png"
 ];
 
 /* Helper to check if a URL is an audio asset */

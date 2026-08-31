@@ -79,7 +79,7 @@ const sb = boot();
   eq("Pilgrimage level has 8 verses", read(sb, "R.siteVerses.length"), 8);
   eq("Initial score is 0", read(sb, "R.score"), 0);
   eq("Initial streak is 0", read(sb, "R.streak"), 0);
-  eq("Player starts with Watchman lamps", read(sb, "R.lives"), 2);
+  eq("Player starts with Disciple lamps", read(sb, "R.lives"), 3);
 }
 
 /* ==================================================================

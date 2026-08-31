@@ -112,6 +112,24 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
   ok("edge does not show Honor system", Cloud.trustLabel(Cloud.lastSubmitVia()).indexOf("Honor system") < 0);
 }
 
+{
+  const local = {
+    v: 3, xp: 1, seals: [], best: {}, life: {}, books: {}, verse: {},
+    srs: { keep: true }, pilgrim: { sites: {}, usedIds: [] }, set: {}, daily: {}, board: [],
+    tablets: { psalm23: { best: 40, held: false }, exodus20: { best: 10, held: true } }
+  };
+  const remote = {
+    v: 3, xp: 1, seals: [], best: {}, life: {}, books: {}, verse: {},
+    srs: { keep: true }, pilgrim: { sites: {}, usedIds: [] }, set: {}, daily: {}, board: [],
+    tablets: { psalm23: { best: 80, held: true }, john14: { best: 50, held: false } }
+  };
+  const m = Cloud.mergeSave(local, remote);
+  eq("tablets best takes max", m.tablets.psalm23.best, 80);
+  ok("tablets held is or", m.tablets.psalm23.held);
+  ok("local Hold kept", m.tablets.exodus20.held);
+  eq("remote chapter kept", m.tablets.john14.best, 50);
+}
+
 console.log((fail ? "FAIL" : "PASS") + " — cloud · " + pass + " assertions passed" + (fail ? " · " + fail + " FAILED" : ""));
 process.exit(fail ? 1 : 0);
 

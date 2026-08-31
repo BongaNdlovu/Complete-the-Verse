@@ -79,6 +79,8 @@ function eq(name, got, want) {
   ok("Broken save is backed up to ctv_save_v3_broken", !!brokenCopy);
   const saveCorruptPending = vm.runInContext("window._saveCorruptPending", sb);
   ok("Corrupted save sets pending warning flag", !!saveCorruptPending);
+  vm.runInContext("window._shown=null; showState=function(k){ window._shown=k; }; enterCoffeePath();", sb);
+  eq("boot surfaces the save-corrupt recovery state", vm.runInContext("window._shown", sb), "save-corrupt");
   console.error = origErr;
 }
 

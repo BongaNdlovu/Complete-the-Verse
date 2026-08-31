@@ -1,5 +1,5 @@
 -- Complete the Verse — cloud save, leaderboards, ghosts
--- Project: eanjhcktflbpbjkdjtej
+-- Project: fgwfniblkuozxlbgytfk
 -- Apply in: Supabase Dashboard → SQL Editor → New query → Run
 --
 -- Safe to re-run (idempotent where possible).

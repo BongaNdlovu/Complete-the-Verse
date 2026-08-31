@@ -31,3 +31,18 @@
 - **Scholar walkers (`assets/characters/<id>/{idle,walk}.png`)**: idle 269 × 479; walk 2152 × 479 (8 cells)
 - **Intro & Hall Videos (`assets/intro.mp4`, `assets/hall.mp4`)**: 1080p H.264, baseline audio stream
 - **Valley prologue (`assets/beats/goliath/prologue.mp4`)**: 1080p H.264 `yuv420p` + AAC, CRF 20, `+faststart`, under 20MB. Same `<video id="ur-prologue-video">` as Ur/Team.
+- **PWA icons**: `assets/icon-192.png`, `assets/icon-512.png`, `assets/icon-maskable-512.png` (from the lamp seal)
+
+## Payload budget
+
+First interactive screen should not wait on Story Beat films or journey loops. Those load when requested.
+
+| Class | Cap |
+|---|---|
+| Valley prologue film | 20 MB (test-enforced) |
+| Journey still (active WebP) | 220 KB |
+| Character question art | 1.5 MB |
+| Music bed | 10 MB |
+| SFX sample | 200 KB |
+
+Do not precache Beat stills, films, or `/audio/`. Measure Lighthouse on a mid-tier 4G profile after each media drop.

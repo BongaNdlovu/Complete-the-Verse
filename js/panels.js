@@ -467,17 +467,17 @@ function settingsAccountHtml(){
     ? ((Cloud.profile() && Cloud.profile().display_name) || (Cloud.user() && Cloud.user().email) || "Signed in")
     : "";
   if(!cloudOn){
-    return '<div class="setrow account"><div><label>Cloud account</label><small>Offline only — add Project URL and anon key in js/cloud-config.js (see BACKEND.md).</small></div><span class="cloud-pill dim">Local</span></div>';
+    return '<div class="setrow account"><div><label>Cloud account</label><small>Offline only — add Project URL and anon key in js/cloud-config.js (see BACKEND.md). <a href="privacy.html">Privacy</a></small></div><span class="cloud-pill dim">Local</span></div>';
   }
   if(signedIn){
-    return '<div class="setrow account"><div><label>Cloud account</label><small>Synced as <b>'+esc(who)+'</b>. Progress pushes after each save.</small></div>'+
+    return '<div class="setrow account"><div><label>Cloud account</label><small>Synced as <b>'+esc(who)+'</b>. Progress pushes after each save. <a href="privacy.html">Privacy</a></small></div>'+
       '<button class="btn ghost sm" id="cloud-signout" type="button">Sign out</button></div>'+
       setRow("Display name","Shown on Daily and Blitz boards.",
         '<div class="cloud-name"><input id="cloud-name" type="text" maxlength="32" value="'+esc((Cloud.profile()&&Cloud.profile().display_name)||"")+'"><button class="btn ghost sm" id="cloud-name-save" type="button">Save</button></div>')+
       '<div class="setrow"><div><label>Sync now</label><small>Pull and merge this device with the cloud, then push.</small></div>'+
       '<button class="btn ghost sm" id="cloud-sync" type="button">Sync</button></div>';
   }
-  return '<div class="setrow account"><div><label>Cloud account</label><small>Sign in to sync the Pilgrimage across devices and appear on leaderboards.</small></div></div>'+
+  return '<div class="setrow account"><div><label>Cloud account</label><small>Sign in to sync the Pilgrimage across devices and appear on leaderboards. <a href="privacy.html">Privacy</a></small></div></div>'+
     '<div class="setrow"><div><label>Email magic link</label><small>We email a one-tap sign-in. No password.</small></div>'+
     '<div class="cloud-name"><input id="cloud-email" type="email" placeholder="you@example.com" autocomplete="email"><button class="btn sm" id="cloud-signin" type="button">Send link</button></div></div>';
 }
@@ -498,6 +498,8 @@ function renderSettings(){
   $("settings-body").innerHTML =
     accountBlock +
     profileBlock +
+    setRow("Ordeal","Disciple is the learning path. Watchman is the full clock.",
+      seg("diff",[["disciple","Disciple"],["watchman","Watchman"]],s.diff||"disciple")) +
     setRow("Music","Ambient drone beneath the cathedral.",
       '<input type="range" id="set-music" min="0" max="1" step="0.05" value="'+s.music+'">') +
     setRow("Sound effects","Ticks, heartbeat, the hit when you are wrong.",

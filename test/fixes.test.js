@@ -48,15 +48,14 @@ ok("the dossier reads the player's difficulty",
 
 function eq(name, got, want) { ok(name, got === want, { got, want }); }
 
-/* §2.1 — one ordeal: Watchman. No picker. */
-ok("a fresh save defaults to Watchman",
-   /diff:"watchman"/.test(game) && !/diff:"disciple"/.test(game));
-ok("Pilgrim and Disciple are not playable diffs",
-   !/pilgrim:\{ key:"pilgrim"/.test(game) && !/disciple:\{ key:"disciple"/.test(game));
-ok("Watchman is the only DIFFS entry", /const DIFFS = \{[\s\S]*?watchman:/.test(game));
-ok("old difficulty keys resolve to Watchman", /function resolveDiff/.test(game));
-ok("the site brief no longer offers a difficulty picker",
-   /host\.innerHTML = ""/.test(game) && /function renderSiteDiffs/.test(game));
+ok("a fresh save defaults to Disciple",
+   /diff:"disciple"/.test(game));
+ok("Disciple and Watchman are playable diffs",
+   /disciple:\{ key:"disciple"/.test(game) && /watchman:\{ key:"watchman"/.test(game));
+ok("unknown difficulty keys fall back to Watchman",
+   /function resolveDiff/.test(game) && /DIFFS\[key\] \|\| DIFFS\.watchman/.test(game));
+ok("the site brief offers a difficulty picker",
+   /function renderSiteDiffs/.test(game) && /data-diff/.test(game));
 ok("the site brief host is still in the markup", /id="sb-diffs"/.test(index));
 
 /* §2.2 — the daily is spent by finishing, not by dying. */
@@ -78,7 +77,7 @@ ok("zero-answer quit does not spend site verses in usedIds",
 /* §2.4 / §3.1 — menu policy (behavioural pins live in menu-modes.test.js
    and integration.test.js; these pin the wiring). */
 ok("menu Enter routes through the visible order",
-   /MENU_ORDER\.filter\(x=>MODES\[x\] && !MODES\[x\]\.hidden\)\[0\]/.test(game));
+   /MENU_ORDER\.filter\(x=>MODES\[x\] && !MODES\[x\]\.hidden && !MODES\[x\]\.incoming\)\[0\]/.test(game));
 ok("the tutorial no longer teaches select-then-lock",
    /the tap is the answer; it locks at once/.test(index) &&
    !/then <b>Lock Answer \/ Enter<\/b>/.test(index));

@@ -34,7 +34,8 @@ assert(/function playBootSequence\(/.test(game), "playBootSequence helper presen
 assert(html.includes('id="v-intro"'), "intro view present");
 assert(html.includes('id="v-tablets"'), "tablets view present");
 assert(html.includes('id="tablets-pause"'), "tablets pause overlay present");
-assert(html.includes('id="tablets-hear"'), "tablets hear control present");
+assert(!html.includes('id="tablets-hear"'), "tablets hear control removed");
+assert(html.includes('id="tablets-illum"'), "tablets illuminate control present");
 assert(html.includes('id="tablets-remain"'), "tablets remaining counter present");
 assert(html.includes('id="intro-video"'), "intro video element present");
 assert(fs.existsSync(path.join(ROOT, "assets", "intro.mp4")), "assets/intro.mp4 exists");

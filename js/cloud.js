@@ -215,6 +215,22 @@ var Cloud = (function () {
     return { date: rd.date || "", score: rd.score || 0 };
   }
 
+  function mergeTablets(a, b) {
+    a = a || {}; b = b || {};
+    var out = {}, keys = {};
+    Object.keys(a).forEach(function (k) { keys[k] = 1; });
+    Object.keys(b).forEach(function (k) { keys[k] = 1; });
+    Object.keys(keys).forEach(function (k) {
+      var x = a[k] || {};
+      var y = b[k] || {};
+      out[k] = {
+        best: maxNum(x.best, y.best),
+        held: !!(x.held || y.held)
+      };
+    });
+    return out;
+  }
+
   function mergeSave(local, remote) {
     local = local || {};
     remote = remote || {};
@@ -233,6 +249,7 @@ var Cloud = (function () {
     out.verse = mergeMapMax(local.verse, remote.verse, ["c", "a", "streak", "best"]);
     out.srs = mergeSrs(local.srs, remote.srs);
     out.pilgrim = mergePilgrim(local.pilgrim, remote.pilgrim);
+    out.tablets = mergeTablets(local.tablets, remote.tablets);
     out.daily = mergeDaily(local, remote);
     out.set = Object.assign({}, remote.set || {}, local.set || {});
     out.board = (local.board && local.board.length) ? local.board

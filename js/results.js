@@ -220,13 +220,23 @@ function endRunScore(reason, ctx){
     survivalBonus: survivalBonus, firstClearBonus: firstClearBonus, total: total };
 }
 
+function recordRoadTabletHold(id, pct){
+  if(typeof Pilgrimage === "undefined" || !Pilgrimage.stop) return;
+  const stop = Pilgrimage.stop(id);
+  if(!(stop && stop.kind === "tablets")) return;
+  if(!Pilgrimage.isUnlocked(SAVE.pilgrim, id)) return;
+  SAVE.pilgrim = Pilgrimage.record(SAVE.pilgrim, id, { cleared: true, score: pct, accuracy: 100, at: Date.now() });
+  const nxt = Pilgrimage.currentSite(SAVE.pilgrim);
+  if(nxt && nxt.id !== id && Pilgrimage.isUnlocked(SAVE.pilgrim, nxt.id)) pendingUnlockId = nxt.id;
+}
 function persistTabletsRecord(){
   const pct = Math.round(((R.tabletIdx || 0) / (R.tabletTotal || 1)) * 100);
   const prevBest = SAVE.best.tablets || 0;
   const isRecord = pct > prevBest;
   if(isRecord) SAVE.best.tablets = pct;
   const id = R.tabletChapter || "psalm23";
-  if(!SAVE.tablets) SAVE.tablets = { psalm23:{best:0,held:false}, psalm91:{best:0,held:false}, john1:{best:0,held:false} };
+  if(!SAVE.tablets) SAVE.tablets = {};
+  if(!SAVE.tablets[id]) SAVE.tablets[id] = {best:0,held:false};
   const rec = Object.assign({best:0,held:false}, SAVE.tablets[id] || {});
   rec.best = Math.max(rec.best || 0, pct);
   const nowHeld = typeof Tablets !== "undefined" && Tablets.held(R);
@@ -238,6 +248,7 @@ function persistTabletsRecord(){
     SAVE.oil = (SAVE.oil || 0) + oil;
     SAVE.life.oilEarned = (SAVE.life.oilEarned || 0) + oil;
   }
+  if(nowHeld) recordRoadTabletHold(id, pct);
   return { road: null, isRecord: isRecord, prevBest: prevBest, dailyRecorded: false };
 }
 function persistRunRecords(reason, ctx, total){
@@ -581,11 +592,19 @@ function renderPilgrimResultCopy(o){
     : (site ? site.name + " holds" : "The site holds");
   $("res-best").textContent = o.siteCleared
     ? (o.road.after.complete
-      ? "Every site from Ur to Patmos is cleared. The road is walked."
+      ? pilgrimSpiralCompleteCopy()
       : "The road opens to " + (nxt ? nxt.name : "the next site") +
         " · " + o.road.after.cleared + " of " + o.road.after.total + " sites")
     : "Walk it again when you are ready · " + o.road.after.cleared +
       " of " + o.road.after.total + " sites cleared";
+}
+function pilgrimSpiralCompleteCopy(){
+  const pass = (typeof Pilgrimage !== "undefined" && Pilgrimage.spiralPass)
+    ? Pilgrimage.spiralPass(SAVE.pilgrim) : 1;
+  const std = (typeof Pilgrimage !== "undefined" && Pilgrimage.passStandard)
+    ? Pilgrimage.passStandard(Math.max(2, pass)) : null;
+  if(!std || pass < 2) return "Every site from Ur to Patmos is cleared. The road is walked.";
+  return "Every site from Ur to Patmos is cleared. " + std.title + " — " + std.desc;
 }
 function renderResultsRoadChrome(o){
   const isPilgrim = R.mode==="pilgrimage" || R.mode==="pilgrim-recall";
@@ -605,7 +624,7 @@ function renderResultsRetryReview(o){
     retryBtn.onclick = function(){
       Snd.unlock(); Snd.ui();
       if(R.mode==="team") openBrief("team");
-      else if(R.mode==="tablets") startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23" });
+      else if(R.mode==="tablets") startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23", fromRoad: !!R.fromRoad });
       else startRun("beat", R.diff.key);
     };
     const reviewMissedBtn = $("res-review-missed");
@@ -933,6 +952,6 @@ function fillResultsInsights(v){
 $("res-again").addEventListener("click", ()=>{
   Snd.ui();
   if(R.mode==="team"){ openBrief("team"); return; }
-  if(R.mode==="tablets"){ startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23" }); return; }
+  if(R.mode==="tablets"){ startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23", fromRoad: !!R.fromRoad }); return; }
   startRun(R.mode, R.diff.key);
 });

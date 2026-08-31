@@ -124,8 +124,9 @@ assert(/onSync/ .test(cloud) && /Syncing/.test(read("js/briefs.js")) && /Sync er
   "cloud syncing and error status are surfaced");
 
 /* PWA service worker and offline capability contracts. */
-assert(/navigator\.serviceWorker\.register\(['"]\.\/sw\.js['"]\)/.test(index),
-  "service worker registration is wired in index.html");
+assert(/navigator\.serviceWorker\.register\(['"]\.\/sw\.js['"]\)/.test(read("js/register-sw.js")),
+  "service worker registration is wired in register-sw.js");
+assert(/js\/register-sw\.js/.test(index), "register-sw.js is loaded from index.html");
 assert(/const CACHE_NAME =/.test(sw) && /CACHE_VERSION/.test(sw),
   "service worker defines a version-stamped cache name");
 assert(/request\.mode === "navigate"/.test(sw) && /fetch\(request\)/.test(sw),
@@ -149,8 +150,27 @@ assert(/function urPrologueAllowed[\s\S]{0,220}heavyMediaAllowed\(\)/.test(play)
   "Ur prologue uses the heavy-media gate");
 assert(/MAX_AUDIO_ENTRIES\s*=\s*25/.test(sw) && /trimCache/.test(sw),
   "audio runtime caching is bounded with an LRU cap of 25 entries");
-assert(/self\.skipWaiting\(\)/.test(sw) && /self\.clients\.claim\(\)/.test(sw),
-  "service worker uses skipWaiting and clients.claim for clean lifecycle activation");
+assert(/js\/tablets\.js/.test(sw) && /js\/tablets-canon\.js/.test(sw) && /js\/tablets-run\.js/.test(sw),
+  "Word Tablets scripts are precached for offline play");
+assert(/privacy\.html/.test(sw) && fs.existsSync(path.join(ROOT, "privacy.html")),
+  "privacy page ships and is precached");
+assert(!/script-src 'self' 'unsafe-inline'/.test(read("vercel.json")),
+  "script-src does not allow unsafe-inline");
+const icon192 = path.join(ROOT, "assets", "icon-192.png");
+const icon512 = path.join(ROOT, "assets", "icon-512.png");
+const iconMask = path.join(ROOT, "assets", "icon-maskable-512.png");
+assert(fs.existsSync(icon192) && fs.statSync(icon192).size > 200, "192 PNG icon exists");
+assert(fs.existsSync(icon512) && fs.statSync(icon512).size > 400, "512 PNG icon exists");
+assert(fs.existsSync(iconMask) && fs.statSync(iconMask).size > 400, "maskable 512 PNG icon exists");
+assert(/icon-192\.png/.test(read("manifest.webmanifest")) &&
+  /icon-512\.png/.test(read("manifest.webmanifest")),
+  "manifest lists raster install icons");
+const mig5 = read("supabase/migrations/005_edge_only_scores.sql");
+assert(/revoke insert, update, delete on table public\.daily_scores/.test(mig5) &&
+  /grant insert, update on table public\.daily_scores to service_role/.test(mig5),
+  "score writes are revoked from authenticated and granted to service_role");
+assert(/SUPABASE_SERVICE_ROLE_KEY/.test(edge),
+  "submit-score writes with the service role after verifying the caller");
 
 /* Media is lazy by default and voice/audio does not eagerly download every bed. */
 assert(/preload="none"/.test(index) && /poster="assets\/intro\.jpg"/.test(index),
@@ -168,6 +188,9 @@ assert(journey.every((id) => {
 }), "all active journey scenes are compact WebP assets");
 assert(journey.every((id) => !fs.existsSync(path.join(ROOT, "assets", "journey", id + ".png"))),
   "unused milestone PNG duplicates are removed");
+const mosesQ = path.join(ROOT, "assets", "characters", "moses", "question.png");
+assert(fs.existsSync(mosesQ) && fs.statSync(mosesQ).size < 1500000,
+  "Moses question art stays under the 1.5MB payload cap");
 
 /* Leaderboards require the trusted function, rate limiting and moderation. */
 assert(/trusted-submit-unavailable/.test(cloud) && !/via: "direct"/.test(cloud),

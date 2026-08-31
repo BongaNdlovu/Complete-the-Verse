@@ -8,7 +8,8 @@ continue to work offline.
 ## Release gate
 
 Apply migrations 001_complete_the_verse.sql, 002_lock_trigger_functions.sql,
-003_score_constraints.sql, and 004_leaderboard_moderation.sql, then deploy:
+003_score_constraints.sql, 004_leaderboard_moderation.sql, and
+005_edge_only_scores.sql, then deploy:
 
     supabase functions deploy submit-score --project-ref fgwfniblkuozxlbgytfk
 
@@ -26,6 +27,9 @@ performed by the local code/test pass.
   rate-check-unavailable, and submission-log-failed.
 - Review the Edge Function logs after each release and sample the
   score_submission_log rate by user and kind.
+- First-session funnel lives on signed-in saves at `payload.life.funnel`
+  (`boot`, `ur`, `site` timestamps). Service worker register failures are
+  in the local diagnostics dump (Settings → Copy diagnostics).
 - Keep the public board read-only for anonymous users; only authenticated users
   can submit or report.
 - Treat repeated reports for one score as one moderation case; the unique index

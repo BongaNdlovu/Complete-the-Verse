@@ -9,10 +9,11 @@
    and record() never mutates the progress it was handed. */
 const S = require("../js/sites");
 const P = require("../js/pilgrimage");
+const { TABLETS_CANON } = require("../js/tablets-canon");
 const { loadBank } = require("../scripts/load-bank");
 
 const bank = loadBank();
-P.attach({ SITES: S.SITES, ARCS: S.ARCS, VERSES: bank.VERSES, VIGNETTES: S.VIGNETTES });
+P.attach({ SITES: S.SITES, ARCS: S.ARCS, VERSES: bank.VERSES, VIGNETTES: S.VIGNETTES, TABLET_CANON: TABLETS_CANON });
 
 let pass = 0, fail = 0;
 function ok(name, cond, extra){
@@ -27,16 +28,21 @@ const LAST = N - 1;
 /* Walk the whole road, for the tests that need a finished journey. */
 function walkAll(){
   let p = P.blankProgress();
-  P.journey().forEach(s => {
+  P.stops().forEach(s => {
     p = P.record(p, s.id, { cleared: true, score: 100, accuracy: 100, at: 1 });
   });
   return p;
 }
-/* Clear the first `n` sites in order. */
 function walkTo(n){
   let p = P.blankProgress();
   for(let i = 0; i < n; i++){
-    p = P.record(p, P.siteAt(i).id, { cleared: true, score: 50, accuracy: 80, at: 1 });
+    const site = P.siteAt(i);
+    p = P.record(p, site.id, { cleared: true, score: 50, accuracy: 80, at: 1 });
+    P.stops().forEach(s => {
+      if(s.kind === "tablets" && s.after === site.id){
+        p = P.record(p, s.id, { cleared: true, score: 50, accuracy: 100, at: 1 });
+      }
+    });
   }
   return p;
 }
@@ -118,13 +124,18 @@ function walkTo(n){
   ok("the road is not complete", !P.isComplete(blank));
 
   const afterUr = P.record(blank, "ur", { cleared: true, score: 10, accuracy: 100, at: 1 });
-  ok("clearing Ur opens Haran", P.isUnlocked(afterUr, "haran"));
+  ok("clearing Ur opens Genesis 1", P.isUnlocked(afterUr, "genesis1"));
+  ok("Haran waits on the tablet", !P.isUnlocked(afterUr, "haran"));
   ok("but not the site after that", !P.isUnlocked(afterUr, "shechem"));
-  eq("the road moves on to Haran", P.currentSite(afterUr).id, "haran");
+  eq("the road moves on to Genesis 1", P.currentSite(afterUr).id, "genesis1");
   eq("one site is cleared", P.clearedCount(afterUr), 1);
 
-  // Failing a site must not open the next one.
+  const afterGen1 = P.record(afterUr, "genesis1", { cleared: true, score: 10, accuracy: 100, at: 2 });
+  ok("Holding Genesis 1 opens Haran", P.isUnlocked(afterGen1, "haran"));
+  eq("the road moves on to Haran", P.currentSite(afterGen1).id, "haran");
+
   const failed = P.record(blank, "ur", { cleared: false, score: 10, accuracy: 40, at: 1 });
+  ok("failing Ur does not open Genesis 1", !P.isUnlocked(failed, "genesis1"));
   ok("failing Ur does not open Haran", !P.isUnlocked(failed, "haran"));
   ok("failing Ur leaves Ur open", P.isUnlocked(failed, "ur"));
   eq("failing records no clear", P.clearedCount(failed), 0);
@@ -133,9 +144,42 @@ function walkTo(n){
   const all = walkAll();
   ok("a finished road is complete", P.isComplete(all));
   eq("every site is cleared", P.clearedCount(all), N);
-  eq("a finished road still points somewhere", P.currentSite(all).id, "patmos");
+  eq("a finished road still points somewhere", P.currentSite(all).id, P.stops()[P.stops().length - 1].id);
   ok("every site is unlocked at the end",
     P.journey().every(s => P.isUnlocked(all, s.id)));
+}
+
+/* ---------- special-edition tablet stops ---------- */
+{
+  const list = P.stops();
+  eq("the ordeal has 66 stops", list.length, 66);
+  eq("geographic road stays 46", P.count(), 46);
+  const ot = TABLETS_CANON.filter(c => c.testament === "ot");
+  const nt = TABLETS_CANON.filter(c => c.testament === "nt");
+  eq("10 OT tablets", ot.length, 10);
+  eq("10 NT tablets", nt.length, 10);
+  ok("Exodus 20 exists", !!P.stop("exodus20"));
+  ok("John 14 exists", !!P.stop("john14"));
+  TABLETS_CANON.forEach(c => {
+    ok(c.id + " after is a real site", !!P.site(c.after));
+    ok(c.id + " has 8–12 blanks", c.blanks.length >= 8 && c.blanks.length <= 12);
+  });
+  const ids = list.map(s => s.id);
+  eq("Exodus 20 follows Sinai", ids[ids.indexOf("sinai") + 1], "exodus20");
+  eq("Matthew 5 follows Capernaum", ids[ids.indexOf("capernaum") + 1], "matthew5");
+  eq("John 14 follows Matthew 5", ids[ids.indexOf("matthew5") + 1], "john14");
+  eq("Golgotha follows John 14", ids[ids.indexOf("john14") + 1], "golgotha");
+
+  let p = P.blankProgress();
+  for (let i = 0; i < list.length; i++) {
+    if (list[i].id === "exodus20") break;
+    p = P.record(p, list[i].id, { cleared: true, score: 10, accuracy: 100, at: 1 });
+  }
+  eq("current after Sinai is Exodus 20", P.currentSite(p).id, "exodus20");
+  ok("Exodus 20 is unlocked", P.isUnlocked(p, "exodus20"));
+  ok("Kadesh is not", !P.isUnlocked(p, "kadesh"));
+  p = P.record(p, "exodus20", { cleared: true, score: 100, accuracy: 100, at: 2 });
+  ok("Hold Exodus 20 opens Kadesh", P.isUnlocked(p, "kadesh"));
 }
 
 /* ---------- record() is pure ---------- */

@@ -202,9 +202,9 @@ const MENU_GROUPS = [
   { name: "The Road",   modes: ["pilgrimage"] },
   { name: "The Valley", modes: ["beat"] },
   { name: "The Tablets", modes: ["tablets"] },
-  { name: "Today",      modes: ["daily"] },
-  { name: "Practice",   modes: ["practice", "recall", "team"] },
-  { name: "Challenges", modes: ["blitz", "trial", "endless"] }
+  { name: "Today",      quiet: true, modes: ["daily"] },
+  { name: "Practice",   quiet: true, modes: ["practice", "recall", "team"] },
+  { name: "Challenges", quiet: true, modes: ["blitz", "trial", "endless"] }
 ];
 const MENU_ORDER = ["pilgrimage", "beat", "tablets", "daily", "blitz", "trial", "endless", "practice", "team"];
 
@@ -235,9 +235,19 @@ function renderMenu(){
   updateOfflineBanner();
   const prog = $("menu-road-progress");
   if(prog){
-    prog.textContent = road.complete
-      ? "Road complete · Ur to Patmos"
-      : (road.cleared+" of "+road.total+" sites · next: "+(road.current?road.current.name:"Ur"));
+    const pass = (typeof Pilgrimage !== "undefined" && Pilgrimage.spiralPass)
+      ? Pilgrimage.spiralPass(SAVE.pilgrim) : 1;
+    const std = (pass > 1 && typeof Pilgrimage.passStandard === "function")
+      ? Pilgrimage.passStandard(pass) : null;
+    if(std){
+      prog.textContent = std.title + " · " + (road.complete
+        ? "Ur to Patmos again"
+        : (road.cleared+" of "+road.total+" · next: "+(road.current?road.current.name:"Ur")));
+    } else {
+      prog.textContent = road.complete
+        ? "Road complete · Ur to Patmos"
+        : (road.cleared+" of "+road.total+" sites · next: "+(road.current?road.current.name:"Ur"));
+    }
   }
   const reviewBtn = $("menu-review-due");
   const reviewBar = $("menu-review-bar");
@@ -257,7 +267,7 @@ function renderMenu(){
     const visibleModes = g.modes.filter(k => MODES[k] && !MODES[k].hidden);
     if(!visibleModes.length) return "";
     visibleModes.forEach(k => rendered.add(k));
-    return '<div class="mode-group">' +
+    return '<div class="mode-group'+(g.quiet ? " quiet" : "")+'">' +
       '<div class="mode-group-head">' + esc(g.name) + '</div>' +
       '<div class="mode-group-cards">' +
       visibleModes.map(k => renderModeCard(k, due, dailyDone, road)).join("") +
@@ -387,6 +397,9 @@ function wireAtlas(){
   Atlas.on("begin",  id => openSiteBrief(id, "pilgrimage"));
   Atlas.on("recall", id => openSiteBrief(id, "pilgrim-recall"));
   Atlas.on("relay",  key => openRelayBrief(key));
+  Atlas.on("tablet", function(id){
+    startRun("tablets", SAVE.set.diff, { tabletChapter: id, fromRoad: true });
+  });
 
   const rail = $("atlas-rail"), toggle = $("atlas-rail-toggle");
   if(toggle && rail) toggle.addEventListener("click", ()=>{ Snd.ui(); rail.classList.toggle("hidden"); });
@@ -567,7 +580,21 @@ function openSiteBrief(siteId, mode){
    no way to see or change it at the point of play. */
 function renderSiteDiffs(){
   const host = $("sb-diffs");
-  if(host) host.innerHTML = "";
+  if(!host) return;
+  host.innerHTML = Object.keys(DIFFS).map(function(k){
+    const d = DIFFS[k];
+    const on = (SAVE.set.diff || "disciple") === k;
+    return '<button type="button" class="diff'+(on?" sel":"")+'" data-diff="'+esc(k)+'"><b>'+esc(d.name)+'</b><span>'+esc(d.desc)+'</span></button>';
+  }).join("");
+  host.querySelectorAll("[data-diff]").forEach(function(b){
+    b.addEventListener("click", function(){
+      SAVE.set.diff = b.dataset.diff;
+      persist();
+      Snd.ui();
+      if(sbMode === "relay" && pendingArcKey) openRelayBrief(pendingArcKey);
+      else if(sbSiteId) openSiteBrief(sbSiteId, sbMode);
+    });
+  });
 }
 
 /* ---- the briefing for a whole arc walked in one run ----
@@ -660,6 +687,7 @@ function recordSiteResult(cleared, total, acc){
     const arcsBefore = before.arcs.filter(a=>a.complete).length;
     const arcsAfter  = after.arcs.filter(a=>a.complete).length;
     if(arcsAfter > arcsBefore) SAVE.life.arcsCleared++;
+    if(typeof markFunnel === "function") markFunnel("site");
   }
   return {before, after, firstClear: cleared && !wasCleared};
 }
@@ -768,6 +796,41 @@ function finishIntro(skipped){
     playBootSequence({fast:!!skipped});
   }, skipped?280:900);
 }
+function presentSaveCorrupt(then){
+  if(typeof showState !== "function"){ if(then) then(); return; }
+  showState("save-corrupt", {
+    onPrimary: function(){ if(then) then(); },
+    onSecondary: function(){
+      if(typeof navigator !== "undefined" && navigator.clipboard && typeof Diag !== "undefined"){
+        navigator.clipboard.writeText(Diag.dump());
+        if(typeof toast === "function") toast("Diagnostics copied");
+      }
+      if(then) then();
+    }
+  });
+}
+function enterCoffeePath(){
+  if(typeof window !== "undefined" && window._saveCorruptPending){
+    window._saveCorruptPending = false;
+    presentSaveCorrupt(enterCoffeePath);
+    return;
+  }
+  if(typeof markFunnel === "function") markFunnel("boot");
+  const cleared = !!(SAVE.life && SAVE.life.sitesCleared);
+  const walked = !!(SAVE.pilgrim && SAVE.pilgrim.lastPlayed);
+  if(!SAVE.set.tutorialDone && !cleared){
+    SAVE.set.tutorialDone = true;
+    persist();
+    startRun("pilgrimage", SAVE.set.diff);
+    return;
+  }
+  if(cleared || walked){
+    go("atlas");
+    return;
+  }
+  go("menu");
+  if(typeof profileReady === "function" && !profileReady()) openProfileSetup(true);
+}
 function playBootSequence(opts){
   if(typeof VERSES==="undefined" || !VERSES.length){
     if(typeof showState==="function") showState("load-fail", {
@@ -794,14 +857,7 @@ function playBootSequence(opts){
       clearInterval(tick);
       if(msg) msg.textContent="The record is open.";
       setTimeout(()=>{
-        if(currentView==="boot"){
-          if(!SAVE.set.tutorialDone && typeof startTutorialRun === "function"){
-            startTutorialRun();
-          }else{
-            go("menu");
-            if(typeof profileReady==="function" && !profileReady()) openProfileSetup(true);
-          }
-        }
+        if(currentView==="boot") enterCoffeePath();
       }, fast?220:480);
     }
   }, step);

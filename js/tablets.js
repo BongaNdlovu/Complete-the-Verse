@@ -126,16 +126,28 @@ const Tablets = (function(){
     if(id === "psalm23") return true;
     if(id === "psalm91") return !!recordOf(save, "psalm23").held;
     if(id === "john1") return !!recordOf(save, "psalm91").held;
+    const ch = chapter(id);
+    if(!ch || ch.id !== id || !ch.after) return false;
+    if(recordOf(save, id).held) return true;
+    const pilgrim = save && save.pilgrim;
+    if(typeof Pilgrimage !== "undefined" && Pilgrimage.isCleared && Pilgrimage.isCleared(pilgrim, ch.after)) return true;
+    if(typeof Pilgrimage !== "undefined" && Pilgrimage.currentSite){
+      const cur = Pilgrimage.currentSite(pilgrim);
+      if(cur && cur.id === id) return true;
+    }
     return false;
   }
   function unlockLabel(id){
     if(id === "psalm91") return "Hold Psalm 23 to open";
     if(id === "john1") return "Hold Psalm 91 to open";
+    const ch = chapter(id);
+    if(ch && ch.afterName) return "Clear " + ch.afterName + " to open";
     return "Open";
   }
   return {
     BLANK_MS: BLANK_MS,
     chapters: chapters,
+    canon: [],
     chapter: chapter,
     options: options,
     held: held,

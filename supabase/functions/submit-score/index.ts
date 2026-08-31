@@ -7,7 +7,7 @@ const MAX_DAILY = 500000;
 const MAX_BLITZ = 10000;
 const MAX_SUBMISSIONS_PER_WINDOW = 20;
 const WINDOW_MS = 10 * 60 * 1000;
-const DIFFS = new Set(["watchman"]);
+const DIFFS = new Set(["disciple", "watchman"]);
 
 function json(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -69,13 +69,18 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "method" }), { status: 405 });
   }
   const auth = req.headers.get("Authorization") || "";
-  const supabase = createClient(
+  const userClient = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
     { global: { headers: { Authorization: auth } } }
   );
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await userClient.auth.getUser();
   if (!user) return json({ error: "auth" }, 401);
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
 
   const body = await req.json();
   const kind = body.kind === "blitz" ? "blitz" : "daily";

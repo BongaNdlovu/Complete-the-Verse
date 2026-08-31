@@ -24,7 +24,7 @@ const DEFAULT_SAVE = {
   pilgrim:{sites:{}, lastPlayed:"", started:0, usedIds:[]},
   /* Relics unlocked by first site clear. Shape owned by artifacts.js. */
   artifacts:{unlocked:{}, seen:{}},
-  set:{music:0.45, sfx:0.7, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"watchman",
+  set:{music:0.45, sfx:0.7, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"disciple",
        tutorialDone:false, liveWeather:true, coldOpenDone:false, urPrologueDone:false, quiet:false, contrast:false, haptics:true,
        singleTap:true,
        character:"amina", scholarId:"amina", playerName:"", profileDone:false,
@@ -36,11 +36,14 @@ let SAVE = load();
 if(typeof window !== "undefined") window.SAVE = SAVE;
 function mergeTabletsSave(s){
   const t = (s && s.tablets) || {};
-  return {
-    psalm23: Object.assign({best:0,held:false}, t.psalm23 || {}),
-    psalm91: Object.assign({best:0,held:false}, t.psalm91 || {}),
-    john1: Object.assign({best:0,held:false}, t.john1 || {})
-  };
+  const ids = (typeof Tablets !== "undefined" && Tablets.chapters)
+    ? Tablets.chapters.map(function(c){ return c.id; })
+    : ["psalm23","psalm91","john1"];
+  const out = {};
+  ids.forEach(function(id){
+    out[id] = Object.assign({best:0,held:false}, t[id] || {});
+  });
+  return out;
 }
 function mergeLoadedSave(s){
   return Object.assign(JSON.parse(JSON.stringify(DEFAULT_SAVE)), s, {
@@ -128,7 +131,7 @@ function migrateProfile(out){
   if(!out || !out.set) return;
   if(out.set.characterDone && !out.set.profileDone) out.set.profileDone = true;
   if(out.set.playerName == null) out.set.playerName = "";
-  if(out.set.diff !== "watchman") out.set.diff = "watchman";
+  if(out.set.diff !== "disciple" && out.set.diff !== "watchman") out.set.diff = "disciple";
   const id = out.set.character;
   const known = typeof Characters !== "undefined" && Characters.byId(id);
   if(!known){
@@ -289,7 +292,7 @@ const MODES = {
   /* The Pilgrimage is the core campaign and primary road mode. */
   pilgrimage:{ key:"pilgrimage", name:"The Pilgrimage", kick:"The long road", atlas:true,
     desc:"Forty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last beat is produced from memory with no options. The clock closes as you go east.",
-    tagline:"46 sites · Ur to Patmos", info:[["46","Sites"],["8","Verses each"],[modeClockLabel("pilgrimage"),"Clock"]] },
+    tagline:"46 places · 20 tablets on the road", info:[["46","Places"],["20","Tablets"],[modeClockLabel("pilgrimage"),"Clock"]] },
   beat:{ key:"beat", name:"The Valley", kick:"A Beat of Faith", atlas:false, incoming:true,
     desc:"David and Goliath in the valley of Elah. Twelve questions from 1 Samuel 17. Forty seconds each. Held only if none are wrong.",
     tagline:"Goliath · twelve questions · replay any time", info:[["12","Questions"],["40s","Clock"],["Held","None wrong"]] },
@@ -325,11 +328,21 @@ const MODES = {
     tagline:"12 verses · assemble", info:[["12","Verses"],["Assemble","No options"],[modeClockLabel("recall"),"Clock"]] }
 };
 const DIFFS = {
+  disciple:{ key:"disciple", name:"Disciple", lives:3, time:1.0, score:0.85,
+    desc:"Three lamps. The clock as it is written." },
   watchman:{ key:"watchman", name:"Watchman", lives:2, time:0.85, score:1.0,
-    desc:"Two lamps. The clock as the ordeal writes it. There is no lighter path." }
+    desc:"Two lamps. The clock as the ordeal writes it." }
 };
 function resolveDiff(key){
-  return DIFFS.watchman;
+  return DIFFS[key] || DIFFS.watchman;
+}
+function markFunnel(step){
+  if(!SAVE.life) return;
+  SAVE.life.funnel = SAVE.life.funnel || {};
+  if(SAVE.life.funnel[step]) return;
+  SAVE.life.funnel[step] = Date.now();
+  if(typeof Diag !== "undefined" && Diag.record) Diag.record({ kind: "funnel", message: String(step) });
+  persist();
 }
 const ACTS = [
   {n:"I",  name:"The Signal",          tier:1, q:8, t:14000, pal:"act1", sub:"The record opens. Familiar words establish the signal."},
@@ -589,7 +602,11 @@ function startRunRelayQueue(){
 }
 
 function startRunPowers(mode, isPilgrim){
-  if(mode==="beat" || mode==="team" || mode==="tablets") return { startPowers:{selah:0, illum:0, wind:0}, reservedIlluminate:0 };
+  if(mode==="beat" || mode==="team") return { startPowers:{selah:0, illum:0, wind:0}, reservedIlluminate:0 };
+  if(mode==="tablets"){
+    const reservedIlluminate = Math.min(2, Math.max(0, Number(SAVE.illumReserve)||0));
+    return { startPowers:{selah:0, illum:1 + reservedIlluminate, wind:0}, reservedIlluminate: reservedIlluminate };
+  }
   const leanRoad = isPilgrim || mode==="relay";
   const startPowers = mode==="blitz"
     ? {selah:0, illum:0, wind:0}
@@ -709,10 +726,22 @@ function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDra
     quickRewardAnnounced: new Set(), quickResult: null,
       reservedIlluminate: reservedIlluminate,
     beatQ: 0, beatMiss: 0, beatBDone: false, beatPlates: null, beatPlateIdx: -1,
-    tabletChapter: (options && options.tabletChapter) || "psalm23"
+    tabletChapter: (options && options.tabletChapter) || "psalm23",
+    fromRoad: !!(options && options.fromRoad)
   });
 }
+function routeRoadTabletStop(mode, diffKey, options){
+  if(!(mode==="pilgrimage" || mode==="pilgrim-recall")) return false;
+  if(typeof Pilgrimage === "undefined" || !Pilgrimage.stop) return false;
+  const wantId = pendingSiteId || (Pilgrimage.currentSite(SAVE.pilgrim)||{}).id;
+  const stop = Pilgrimage.stop(wantId);
+  if(!(stop && stop.kind === "tablets")) return false;
+  pendingSiteId = null;
+  startRun("tablets", diffKey, Object.assign({}, options || {}, { tabletChapter: stop.id, fromRoad: true }));
+  return true;
+}
 function startRun(mode, diffKey, options){
+  if(routeRoadTabletStop(mode, diffKey, options)) return;
   const D = resolveDiff(diffKey);
   const runToken = (R.runToken||0) + 1;
   pendingSeals = [];
@@ -729,6 +758,7 @@ function startRun(mode, diffKey, options){
   const blitzMs = (typeof Polish!=="undefined" && Polish.BLITZ_START_MS) || 60000;
   assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDraw, relay,
     powerStart.startPowers, powerStart.reservedIlluminate, blitzMs, options);
+  if(isPilgrim && siteId === "ur" && typeof markFunnel === "function") markFunnel("ur");
   if(R.friendRoom) startFriendRacePolling(R.friendRoom);
   document.body.classList.toggle("mode-beat", mode==="beat");
   document.body.classList.toggle("mode-tablets", mode==="tablets");
@@ -2001,9 +2031,6 @@ function loop(ts){
     }
   });
 
-  if(introAllowed()){
-    go("intro");
-    return;
-  }
-  playBootSequence({fast:false});
+  if(typeof introDone !== "undefined") introDone = true;
+  playBootSequence({fast: !!(SAVE.set.tutorialDone || (SAVE.life && SAVE.life.sitesCleared))});
 })();

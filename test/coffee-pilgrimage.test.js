@@ -41,7 +41,7 @@ const engineSrc = readEngine(ROOT);
 
 {
   ok("Boot launches directly into pilgrimage on current site",
-    /startRun\("pilgrimage"/.test(engineSrc));
+    /function enterCoffeePath/.test(engineSrc) && /startRun\("pilgrimage"/.test(engineSrc));
   ok("Boot does not route straight to menu",
     !/if\(currentView==="boot"\)\{\s*go\("menu"\);/i.test(engineSrc));
   ok("core modes are discoverable from the public menu",

@@ -32,6 +32,7 @@ var Pilgrimage = (function () {
   var ARC_LIST  = typeof ARCS   !== "undefined" ? ARCS   : [];
   var VERSE_BANK = typeof VERSES !== "undefined" ? VERSES : [];
   var VIGNETTE_LIST = typeof VIGNETTES !== "undefined" ? VIGNETTES : {};
+  var CANON_LIST = [];
 
   /* Old and New Testament split, for the third fallback ring. */
   var NT_BOOKS = {
@@ -61,6 +62,7 @@ var Pilgrimage = (function () {
     if (d.ARCS)   ARC_LIST   = d.ARCS;
     if (d.VERSES) VERSE_BANK = d.VERSES;
     if (d.VIGNETTES) VIGNETTE_LIST = d.VIGNETTES;
+    if (d.TABLET_CANON) CANON_LIST = d.TABLET_CANON;
   }
 
   function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
@@ -68,6 +70,51 @@ var Pilgrimage = (function () {
 
   /* --------------------------- the road --------------------------- */
 
+  function canonList() {
+    if (CANON_LIST && CANON_LIST.length) return CANON_LIST;
+    if (typeof Tablets !== "undefined" && Tablets.canon && Tablets.canon.length) return Tablets.canon;
+    return [];
+  }
+  function tabletOffset(parent, n) {
+    var lat = parent.coords[0] + 0.22 + n * 0.14;
+    var lng = parent.coords[1] + 0.28;
+    return [lat, lng];
+  }
+  function stops() {
+    var list = [];
+    var canon = canonList();
+    SITE_LIST.forEach(function (site) {
+      list.push(site);
+      var n = 0;
+      for (var i = 0; i < canon.length; i++) {
+        if (canon[i].after !== site.id) continue;
+        list.push({
+          id: canon[i].id,
+          kind: "tablets",
+          name: canon[i].name,
+          after: site.id,
+          parent: site.id,
+          coords: tabletOffset(site, n),
+          arc: site.arc,
+          testament: canon[i].testament
+        });
+        n++;
+      }
+    });
+    return list;
+  }
+  function stopIndexOf(id) {
+    var list = stops();
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return i;
+    return -1;
+  }
+  function stop(id) {
+    var i = stopIndexOf(id);
+    return i < 0 ? null : stops()[i];
+  }
+  function place(id) {
+    return site(id) || stop(id);
+  }
   function journey() { return SITE_LIST; }
   function count() { return SITE_LIST.length; }
 
@@ -155,22 +202,24 @@ var Pilgrimage = (function () {
   /* A site opens when the one before it has been cleared. Ur is always
      open. This is the whole gate — no keys, no currency, no detours. */
   function isUnlocked(progress, siteId) {
-    var i = indexOf(siteId);
+    var list = stops();
+    var i = stopIndexOf(siteId);
     if (i < 0) return false;
     if (i === 0) return true;
-    return isCleared(progress, SITE_LIST[i - 1].id);
+    return isCleared(progress, list[i - 1].id);
   }
 
-  /* The furthest site reached: the first one not yet cleared. When every
-     site is cleared this is the last site, so the map has somewhere to
-     point rather than falling off the end. */
   function currentIndex(progress) {
-    for (var i = 0; i < SITE_LIST.length; i++) {
-      if (!isCleared(progress, SITE_LIST[i].id)) return i;
+    var list = stops();
+    for (var i = 0; i < list.length; i++) {
+      if (!isCleared(progress, list[i].id)) return i;
     }
-    return SITE_LIST.length - 1;
+    return list.length - 1;
   }
-  function currentSite(progress) { return siteAt(currentIndex(progress)); }
+  function currentSite(progress) {
+    var list = stops();
+    return list[currentIndex(progress)] || SITE_LIST[0] || null;
+  }
 
   function clearedCount(progress) {
     var n = 0;
@@ -745,6 +794,7 @@ var Pilgrimage = (function () {
     CLOCK_OPEN: CLOCK_OPEN, CLOCK_CLOSE: CLOCK_CLOSE,
     attach: attach,
     journey: journey, count: count, indexOf: indexOf, siteAt: siteAt, site: site,
+    place: place, stops: stops, stop: stop, stopIndexOf: stopIndexOf,
     arc: arc, sitesInArc: sitesInArc, arcs: function () { return ARC_LIST; },
     positionOf: positionOf, tierFor: tierFor, clockFor: clockFor, versesFor: versesFor,
     blankProgress: blankProgress, recordOf: recordOf, isCleared: isCleared,

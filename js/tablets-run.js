@@ -114,6 +114,23 @@ function paintTabletsHud(){
   }
   const blank = ch.blanks[idx];
   if($("tablets-ref")) $("tablets-ref").textContent = blank ? blank.r : ch.r;
+  paintTabletsIllumBtn();
+}
+function tabletsOptsForBlank(){
+  const ch = tabletsChapter();
+  const blank = ch.blanks[R.tabletIdx];
+  if(!blank) return [];
+  if(R.tabletOptsIdx === R.tabletIdx && R.tabletOpts && R.tabletOpts.length) return R.tabletOpts;
+  R.tabletOpts = Tablets.options(blank);
+  R.tabletOptsIdx = R.tabletIdx;
+  return R.tabletOpts;
+}
+function paintTabletsIllumBtn(){
+  const btn = $("tablets-illum");
+  if(!btn) return;
+  const n = (R.powers && R.powers.illum) || 0;
+  btn.textContent = "Illuminate ×" + n;
+  btn.disabled = n < 1;
 }
 function paintTabletsTray(){
   const grid = $("tablets-grid");
@@ -122,11 +139,14 @@ function paintTabletsTray(){
   const ch = tabletsChapter();
   const blank = ch.blanks[R.tabletIdx];
   if(!blank) return;
-  Tablets.options(blank).forEach(function(word, i){
+  const grey = (R.tabletHintedIdx === R.tabletIdx && R.tabletGrey) ? R.tabletGrey : [];
+  tabletsOptsForBlank().forEach(function(word, i){
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "tablets-stone" + (String(word).length > 10 ? " long" : "");
+    const hinted = grey.indexOf(word) >= 0;
+    b.className = "tablets-stone" + (String(word).length > 10 ? " long" : "") + (hinted ? " hinted" : "");
     b.dataset.word = word;
+    b.disabled = hinted;
     const key = document.createElement("span");
     key.className = "tablets-key";
     key.textContent = String(i + 1);
@@ -135,26 +155,34 @@ function paintTabletsTray(){
     w.textContent = word;
     b.appendChild(key);
     b.appendChild(w);
-    b.addEventListener("click", function(){ tabletsPick(word); });
+    if(!hinted) b.addEventListener("click", function(){ tabletsPick(word); });
     grid.appendChild(b);
   });
+  paintTabletsIllumBtn();
 }
-function tabletsHear(){
-  if(!R || R.ended || R.mode !== "tablets" || R.paused) return;
-  const blank = tabletsChapter().blanks[R.tabletIdx];
-  if(!blank) return;
-  if(typeof speechSynthesis === "undefined" || typeof SpeechSynthesisUtterance === "undefined") return;
-  try{ speechSynthesis.cancel(); }catch(e){}
-  const line = (blank.prefix || "") + " blank " + (blank.suffix || "");
-  const u = new SpeechSynthesisUtterance(line);
-  u.rate = 0.92;
-  speechSynthesis.speak(u);
-  if(!tabletsReduced() && R.tabletHeardIdx !== R.tabletIdx){
-    const dur = (Tablets.BLANK_MS || 6500) / 1000;
-    R.tabletProgress = Math.max(0, (R.tabletProgress || 0) - 1 / dur);
-    R.tabletHeardIdx = R.tabletIdx;
-    paintTabletsClock();
+function tabletsIlluminate(){
+  if(!R || R.ended || R.paused || R.mode !== "tablets") return;
+  if(R.tabletHintedIdx === R.tabletIdx){
+    if(typeof toast === "function") toast("This blank is already lit");
+    return;
   }
+  if(!R.powers || R.powers.illum < 1){
+    if(typeof toast === "function") toast("No Illuminate left");
+    return;
+  }
+  const ch = tabletsChapter();
+  const blank = ch.blanks[R.tabletIdx];
+  if(!blank) return;
+  const opts = tabletsOptsForBlank();
+  const decoys = opts.filter(function(w){ return String(w).toLowerCase() !== String(blank.a).toLowerCase(); });
+  R.tabletGrey = decoys.slice(0, 2);
+  R.tabletHintedIdx = R.tabletIdx;
+  R.powers.illum--;
+  R.usedPower = true;
+  R.powersSpent = (R.powersSpent || 0) + 1;
+  if(R.illumFromReserve > 0) R.illumFromReserve--;
+  paintTabletsTray();
+  if(typeof toast === "function") toast("Illuminate — two stones dimmed");
   if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
 }
 function setTabletsPaused(on){
@@ -235,6 +263,9 @@ function tabletsFinishResolve(ok){
   }
   R.tabletIdx++;
   R.tabletProgress = 0;
+  R.tabletOpts = null;
+  R.tabletGrey = [];
+  R.tabletHintedIdx = -1;
   paintTabletsHud();
   if(R.tabletIdx >= ch.blanks.length){
     if(typeof endRun === "function") endRun("complete");
@@ -266,7 +297,9 @@ function startTabletsLoop(){
   R.tabletProgress = 0;
   R.tabletMiss = 0;
   R.tabletResolving = false;
-  R.tabletHeardIdx = -1;
+  R.tabletOpts = null;
+  R.tabletGrey = [];
+  R.tabletHintedIdx = -1;
   R.tabletTotal = ch.blanks.length;
   R.qTotal = ch.blanks.length;
   R.tabletRacing = true;
@@ -307,12 +340,10 @@ function bindTabletsChrome(){
       if(typeof quitTablets === "function") quitTablets();
     });
   }
-  const hear = $("tablets-hear");
-  if(hear && !hear._bound){
-    hear._bound = true;
-    hear.addEventListener("click", tabletsHear);
-    const canHear = typeof speechSynthesis !== "undefined";
-    hear.hidden = !canHear;
+  const illum = $("tablets-illum");
+  if(illum && !illum._bound){
+    illum._bound = true;
+    illum.addEventListener("click", tabletsIlluminate);
   }
   if(typeof window !== "undefined" && !window._tabletsKeys){
     window._tabletsKeys = true;
@@ -333,7 +364,8 @@ function bindTabletsChrome(){
       if(n >= 1 && n <= 4){
         const grid = $("tablets-grid");
         const btns = grid ? grid.querySelectorAll(".tablets-stone") : [];
-        if(btns[n - 1]) tabletsPick(btns[n - 1].dataset.word);
+        const btn = btns[n - 1];
+        if(btn && !btn.disabled) tabletsPick(btn.dataset.word);
       }
     });
   }
@@ -356,6 +388,7 @@ if(typeof window !== "undefined"){
   window.tabletsResolve = tabletsResolve;
   window.tabletsFinishResolve = tabletsFinishResolve;
   window.tabletsPick = tabletsPick;
+  window.tabletsIlluminate = tabletsIlluminate;
   window.toggleTabletsPause = toggleTabletsPause;
   window.setTabletsPaused = setTabletsPaused;
 }

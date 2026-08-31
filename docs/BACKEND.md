@@ -1,12 +1,14 @@
 # Backend — Complete the Verse (Supabase)
 
 **Org:** https://supabase.com/dashboard/org/ceftinnoxfczhbrcfjzq  
-**Project:** https://supabase.com/dashboard/project/eanjhcktflbpbjkdjtej  
+**Project:** https://supabase.com/dashboard/project/fgwfniblkuozxlbgytfk  
 **Production (Vercel):** https://complete-the-verse.vercel.app/  
 
 **Mode C:** cross-device save + Daily/Blitz leaderboards + async ghosts.
 
 The game stays playable fully offline. Cloud is optional sync + social.
+
+Canonical client project ref: `fgwfniblkuozxlbgytfk` — the same value as `js/cloud-config.js`. Do not apply migrations or deploy functions to a different project.
 
 ### Auth redirect URLs (required)
 
@@ -45,8 +47,7 @@ Run `supabase/migrations/003_score_constraints.sql` in the SQL Editor if not alr
 ### 2. Apply the schema
 
 1. Project → **SQL Editor** → New query.  
-2. Paste the full contents of  
-   `supabase/migrations/001_complete_the_verse.sql`  
+2. Paste the full contents of each file in `supabase/migrations/` in order (`001` through `005`). 
 3. **Run**.
 
 ### 3. Enable Auth
@@ -94,10 +95,10 @@ node scripts/dev-server.js
 - `profiles` — display name  
 - `saves` — full `SAVE` JSON + `revision`  
 - `daily_scores` — one row per user per day  
-- `blitz_scores` — Blitz runs (mode not shipped yet; table ready)  
+- `blitz_scores` — Scripture Blitz runs (shipped)  
 - `run_ghosts` — timeline samples for async rivals  
 
-RLS: saves = own only; boards/ghosts = public read, own write.
+RLS: saves = own only; boards = public read; score inserts and updates are service-role only via `submit-score`. Ghosts = public read, own write. Friend-race create/join UI is out of the production promise.
 
 ---
 
@@ -106,7 +107,7 @@ RLS: saves = own only; boards/ghosts = public read, own write.
 1. Every `persist()` writes **localStorage** first.  
 2. If signed in, a **debounced push** (~1.5s) upserts `saves`.  
 3. On boot / sign-in, `Cloud.syncOnBoot` **merges** remote + local (`mergeSave`) then pushes.  
-4. First recorded **Daily** of the day also upserts `daily_scores`.  
+4. First recorded **Daily** of the day invokes `submit-score`. Direct table writes from the browser are not used.  
 5. Cleared Pilgrimage sites can publish a coarse **ghost** on `run_ghosts`.
 
 `mergeSave` rules (tested in `cloud.test.js`): max of scores/XP, union of seals/`usedIds`, per-site best progress, SRS prefers higher `reps`.
@@ -126,7 +127,7 @@ If you paste those two values here (anon key is public with RLS), the config fil
 `supabase/functions/submit-score/index.ts` re-clamps scores, rate-limits submissions, and writes under the caller's own auth. The client (`js/cloud.js`) **requires this Edge Function** for every Daily/Blitz submit and fails closed if it is unreachable, so untrusted browser writes cannot enter the boards. Deploy to enable trusted submissions:
 
 ```bash
-supabase functions deploy submit-score --project-ref eanjhcktflbpbjkdjtej
+supabase functions deploy submit-score --project-ref fgwfniblkuozxlbgytfk
 ```
 
 After deploying, watch the Network tab: submissions should go to `/functions/v1/submit-score`.

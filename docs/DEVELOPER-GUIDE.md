@@ -40,7 +40,7 @@ sfx/                8 effect samples
 content/            verse QA data (quarantine.json, legacy-order.json)
 scripts/            dev server + content QA/generation scripts
 supabase/           migrations + edge function (see BACKEND-EVALUATION.md)
-test/*.test.js      52 registered test suites (see §10)
+test/*.test.js      54 registered test suites (see §10)
 docs/               living documentation and runbooks (see docs/README.md)
 docs/reports/       archived snapshot reports — not current truth
 plans/              product and smoke plans
@@ -238,17 +238,21 @@ current one resolves first.
 
 ### 6.1 Modes and menu policy
 
-`MODES` object + `MENU_ORDER = ["pilgrimage","daily","blitz","trial",
-"endless","practice"]`. Public: those six. Hidden (kept for save keys /
-results labels / atlas reachability): `recall`, `pilgrim-recall`,
-`relay`. Enter/Space on the menu opens the **first visible** mode —
-never a hidden one (that was a bug). `atlas:true` routes a mode to the
-map instead of a brief.
+`MODES` object + `MENU_ORDER` starting with `"pilgrimage"`. Public hall
+cards: Pilgrimage, The Valley (incoming), Word Tablets, Daily, Drill,
+Recall, Team, Blitz, Trial, Endless. Hidden (save keys / atlas):
+`pilgrim-recall`, `relay`. Challenges and Practice sit in quieter hall
+groups. Enter/Space on the menu opens the **first visible, non-incoming**
+mode. `atlas:true` routes a mode to the map instead of a brief.
 
-Difficulties (`DIFFS`): Pilgrim 4 lives ×1.35 clock ×0.75 score ·
-**Disciple 3 lives ×1.0 ×1.0 (the default)** · Watchman 2 lives ×0.72
-×1.6. The site brief carries a picker (`#sb-diffs` → `renderSiteDiffs`)
-which re-renders the brief on change.
+Difficulties (`DIFFS`): **Disciple 3 lives ×1.0 clock ×0.85 score (new-save default)** ·
+Watchman 2 lives ×0.85 ×1.0. Unknown keys resolve to Watchman. The site
+brief picker (`#sb-diffs`) and Settings both write `SAVE.set.diff`.
+
+Boot skips the intro film. A first session marks the tutorial complete
+and calls `startRun("pilgrimage")` at Ur. Returning players with road
+progress open the atlas. Corrupted JSON shows the `save-corrupt` state
+before that path.
 
 ### 6.2 The Pilgrimage (campaign)
 

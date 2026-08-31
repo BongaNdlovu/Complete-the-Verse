@@ -210,6 +210,10 @@ body.reduced .bootmark{animation:none}
 .mode-group-head{font-family:var(--disp);font-size:.78rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);padding-left:.2em;display:flex;align-items:center;gap:10px}
 .mode-group-head:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(217,182,103,.35),transparent)}
 .mode-group-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.mode-group.quiet .mode-group-head{color:var(--gold-dim);letter-spacing:.22em;font-size:.7rem}
+.mode-group.quiet .mode-group-cards{gap:10px}
+.mode-group.quiet .mode p{display:none}
+.mode-group.quiet .mode{padding:1em 1.05em}
 .mode{position:relative;text-align:left;padding:1.7em 1.55em 1.55em;overflow:hidden;
   background:var(--panel);box-shadow:0 0 0 1px var(--edge) inset;backdrop-filter:blur(7px);
   clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px));

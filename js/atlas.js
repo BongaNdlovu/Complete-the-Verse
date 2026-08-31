@@ -42,7 +42,7 @@ var Atlas = (function () {
   var routeLayers = [];
   var empireLayer = null, terminatorLayer = null;
   var activeId = null, progress = null;
-  var hooks = { begin: null, recall: null, relay: null, exit: null };
+  var hooks = { begin: null, recall: null, relay: null, exit: null, tablet: null };
   var termTimer = null, noteTimer = null;
   var layers = { routes: true, empires: true, borders: false, terminator: true };
   var coldOpenDone = false;
@@ -159,7 +159,8 @@ var Atlas = (function () {
     } else {
       // No Leaflet: still a working level select.
       var c = Pilgrimage.currentSite(progress);
-      showDossier(c || Pilgrimage.siteAt(0));
+      if (c && c.kind === "tablets") showTabletDossier(c);
+      else showDossier(c || Pilgrimage.siteAt(0));
       note("Map library unavailable — the journey list on the left still works", 6000);
     }
     startTerminatorClock();
@@ -358,7 +359,8 @@ var Atlas = (function () {
       clearTravelerMarker();
       return;
     }
-    var cur = Pilgrimage.site(travelerAt) || Pilgrimage.currentSite(progress);
+    var cur = (typeof Pilgrimage.place === "function" && travelerAt && Pilgrimage.place(travelerAt))
+      || Pilgrimage.currentSite(progress);
     if (!cur) return;
     travelerAt = cur.id;
     travelerLatLng = cur.coords;
@@ -374,8 +376,12 @@ var Atlas = (function () {
   }
   function walkTraveler(fromId, toId, opts) {
     opts = opts || {};
-    var to = Pilgrimage.site(toId);
-    var from = Pilgrimage.site(fromId);
+    var to = (typeof Pilgrimage.place === "function" ? Pilgrimage.place(toId) : Pilgrimage.site(toId));
+    var from = (typeof Pilgrimage.place === "function" ? Pilgrimage.place(fromId) : Pilgrimage.site(fromId));
+    if (to && to.kind === "tablets") {
+      snapTraveler(toId, to, opts);
+      return;
+    }
     if (!hasMap() || reduced() || opts.duration === 0) {
       snapTraveler(toId, to, opts);
       return;
@@ -470,8 +476,17 @@ var Atlas = (function () {
       '</div>';
   }
 
-  function classesFor(st) {
+  function tabletStops() {
+    if (!Pilgrimage.stops) return [];
+    return Pilgrimage.stops().filter(function (s) { return s.kind === "tablets"; });
+  }
+  function tabletsAfter(siteId) {
+    return tabletStops().filter(function (s) { return s.after === siteId; });
+  }
+
+  function classesFor(st, extra) {
     var c = ["site-marker"];
+    if (extra) c.push(extra);
     if (st.locked) c.push("locked");
     if (st.cleared) c.push("cleared");
     if (st.perfect) c.push("perfect");
@@ -497,6 +512,18 @@ var Atlas = (function () {
       markers[site.id] = m;
     });
 
+    tabletStops().forEach(function (stop) {
+      var st = stateOf(stop);
+      var icon = L.divIcon({
+        className: classesFor(st, "tablet-marker"),
+        html: markerHtml(stop, st, "✦"),
+        iconSize: [0, 0], iconAnchor: [0, 0]
+      });
+      var m = L.marker(stop.coords, { icon: icon, keyboard: false, riseOnHover: true }).addTo(map);
+      m.on("click", function () { sfx("ui"); select(stop.id); });
+      markers[stop.id] = m;
+    });
+
     wireMarkerDom();
     placeTravelerAtCurrent(false);
   }
@@ -505,8 +532,11 @@ var Atlas = (function () {
      and keyboard handlers are attached to the DOM rather than through
      Leaflet's event system — that way the label and the dot are both
      real, focusable controls. */
+  function markedPlaces() {
+    return Pilgrimage.journey().concat(tabletStops());
+  }
   function wireMarkerDom() {
-    Pilgrimage.journey().forEach(function (site) {
+    markedPlaces().forEach(function (site) {
       var m = markers[site.id];
       if (!m) return;
       var el = m.getElement();
@@ -522,14 +552,15 @@ var Atlas = (function () {
 
   function refreshMarkers() {
     if (!hasMap()) return;
-    Pilgrimage.journey().forEach(function (site, i) {
+    markedPlaces().forEach(function (site, i) {
       var m = markers[site.id];
       if (!m) return;
       var st = stateOf(site);
       var el = m.getElement();
       if (!el) return;
-      el.className = classesFor(st) + " leaflet-marker-icon leaflet-zoom-animated leaflet-interactive";
-      el.innerHTML = markerHtml(site, st, i + 1);
+      var extra = site.kind === "tablets" ? "tablet-marker" : "";
+      el.className = classesFor(st, extra) + " leaflet-marker-icon leaflet-zoom-animated leaflet-interactive";
+      el.innerHTML = markerHtml(site, st, site.kind === "tablets" ? "✦" : (Pilgrimage.indexOf(site.id) + 1));
     });
     wireMarkerDom();
   }
@@ -619,20 +650,23 @@ var Atlas = (function () {
   /* ------------------------------ selection ------------------------------ */
 
   function select(siteId, opts) {
-    var site = Pilgrimage.site(siteId);
+    var site = (typeof Pilgrimage.place === "function" ? Pilgrimage.place(siteId) : Pilgrimage.site(siteId));
     if (!site) return;
     var st = stateOf(site);
     var fromId = travelerAt;
     activeId = siteId;
     var willWalk = !st.locked && (fromId || travelerLatLng) && fromId !== siteId && !reduced();
     focus(siteId, willWalk ? { fly: false } : opts);
-    showDossier(site);
+    if (site.kind === "tablets") showTabletDossier(site);
+    else showDossier(site);
     refreshMarkers();
     renderRail();
-    drawEmpire(site);
-    applyLight(site);
+    var empireSite = site.kind === "tablets" ? Pilgrimage.site(site.parent) : site;
+    if (empireSite) {
+      drawEmpire(empireSite);
+      applyLight(empireSite);
+    }
     if (st.locked) {
-      /* Sealed places are not walked to — the pilgrim stays on the road. */
     } else if (willWalk) {
       walkTraveler(fromId, siteId);
     } else if (!walkAnim) {
@@ -644,7 +678,7 @@ var Atlas = (function () {
 
   function focus(siteId, opts) {
     opts = opts || {};
-    var site = Pilgrimage.site(siteId);
+    var site = (typeof Pilgrimage.place === "function" ? Pilgrimage.place(siteId) : Pilgrimage.site(siteId));
     if (!site || !hasMap()) { activeId = siteId; return; }
     activeId = siteId;
 
@@ -694,6 +728,19 @@ var Atlas = (function () {
           '<span class="nm">' + esc(s.locked ? "Sealed" : site.name) + '</span>' +
           '<span class="mk">' + (s.cleared ? "✦" : s.locked ? "·" : "▸") + '</span>' +
           '</button>';
+        tabletsAfter(site.id).forEach(function (stop) {
+          var ts = stateOf(stop);
+          var tcls = ["rail-site", "rail-tablet"];
+          if (ts.locked) tcls.push("locked");
+          if (ts.cleared) tcls.push("cleared");
+          if (current && current.id === stop.id && !ts.cleared) tcls.push("current");
+          if (activeId === stop.id) tcls.push("active");
+          html += '<button class="' + tcls.join(" ") + '" data-site="' + esc(stop.id) + '" type="button">' +
+            '<span class="ord">✦</span>' +
+            '<span class="nm">' + esc(ts.locked ? "Sealed tablet" : stop.name + " · the tablet") + '</span>' +
+            '<span class="mk">' + (ts.cleared ? "✦" : ts.locked ? "·" : "▸") + '</span>' +
+            '</button>';
+        });
       });
     });
 
@@ -842,6 +889,48 @@ var Atlas = (function () {
       return '<div class="doss-relic dim"><span class="doss-relic-glyph">?</span><div><div class="doss-relic-tag">Relic sealed</div><b>Unknown find</b><span>Clear this site to recover it</span></div></div>';
     }
     return "";
+  }
+  function showTabletDossier(stop) {
+    var host = $("atlas-dossier");
+    var body = $("atlas-doss-body");
+    var actions = $("atlas-doss-actions");
+    if (!host || !body || !stop) return;
+    var st = stateOf(stop);
+    var parent = Pilgrimage.site(stop.parent);
+    var head =
+      '<div class="doss-tag">Word Tablets</div>' +
+      '<div class="doss-name">' + esc(st.locked ? "Sealed tablet" : stop.name) + '</div>' +
+      '<div class="doss-where">' + esc(parent ? parent.name : "") + ' · Hold to open the next place</div>';
+    if (st.locked) {
+      body.innerHTML = head +
+        '<div class="doss-body doss-locked">This tablet is still sealed. Clear <b>' +
+        esc(parent ? parent.name : "the last place") + '</b> and the road opens.</div>';
+    } else {
+      body.innerHTML = head +
+        '<div class="doss-body">A special-edition chapter at this ground. Hold every blank — a miss shatters the stop.</div>';
+    }
+    if (actions) {
+      if (st.locked) {
+        actions.innerHTML = '<button class="btn ghost sm" data-atlas="goto-current" type="button">Go to the road</button>';
+      } else {
+        actions.innerHTML =
+          '<button class="btn sm" data-atlas="tablet" type="button">' +
+          (st.cleared ? "Carve again" : "Hold the tablet") + '</button>' +
+          '<button class="btn ghost sm" data-atlas="fit" type="button">Whole road</button>';
+      }
+      actions.querySelectorAll("[data-atlas]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var act = btn.dataset.atlas;
+          sfx("ui");
+          if (act === "tablet" && hooks.tablet) hooks.tablet(stop.id);
+          if (act === "fit") fitAll();
+          if (act === "goto-current") {
+            var c = Pilgrimage.currentSite(progress);
+            if (c) select(c.id);
+          }
+        });
+      });
+    }
   }
   function showDossier(site) {
     var host = $("atlas-dossier");
@@ -1036,7 +1125,24 @@ var Atlas = (function () {
 
   /* First time a site opens on the road: fly there, break the seal on the
      marker, open the dossier. Called after a clear when the next place unlocks. */
+  function celebrateTabletUnlock(stop) {
+    activeId = stop.id;
+    refreshMarkers();
+    renderRail();
+    showTabletDossier(stop);
+    var parent = Pilgrimage.site(stop.parent);
+    if (parent) { drawEmpire(parent); applyLight(parent); }
+    if (hasMap()) focus(stop.id, { fly: !reduced(), duration: 1.4, zoom: 8 });
+    note((stop.name || "The tablet") + " · the tablet is open", 4200);
+    speak("A tablet waits.");
+    sfx("power");
+  }
   function celebrateUnlock(siteId) {
+    var stop = Pilgrimage.stop && Pilgrimage.stop(siteId);
+    if (stop && stop.kind === "tablets") {
+      celebrateTabletUnlock(stop);
+      return;
+    }
     var site = Pilgrimage.site(siteId);
     if (!site) return;
     var card = $("atlas-open");
@@ -1189,8 +1295,13 @@ var Atlas = (function () {
     refreshMarkers();
     renderRail();
     renderTools();
-    var s = Pilgrimage.site(activeId) || Pilgrimage.currentSite(progress);
-    if (s) { showDossier(s); drawEmpire(s); applyLight(s); }
+    var s = (typeof Pilgrimage.place === "function" ? Pilgrimage.place(activeId) : Pilgrimage.site(activeId))
+      || Pilgrimage.currentSite(progress);
+    if (s && s.kind === "tablets") {
+      showTabletDossier(s);
+      var parent = Pilgrimage.site(s.parent);
+      if (parent) { drawEmpire(parent); applyLight(parent); }
+    } else if (s) { showDossier(s); drawEmpire(s); applyLight(s); }
   }
 
   /* Pull live weather and repaint whatever it touches. Never rejects —
@@ -1219,7 +1330,7 @@ var Atlas = (function () {
     placeTravelerAtCurrent: placeTravelerAtCurrent,
     coldOpen: coldOpen, replayColdOpen: replayColdOpen, seenColdOpen: seenColdOpen,
     renderRail: renderRail, renderTools: renderTools,
-    activeSite: function () { return Pilgrimage.site(activeId); },
+    activeSite: function () { return (typeof Pilgrimage.place === "function" ? Pilgrimage.place(activeId) : Pilgrimage.site(activeId)); },
     hasMap: hasMap,
     /* exposed for the structure tests */
     _profileSvg: profileSvg, _markerHtml: markerHtml, _stateOf: stateOf,
