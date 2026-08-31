@@ -715,7 +715,12 @@ var Pilgrimage = (function () {
          then Ur's scenery as a misleading fallback. */
       var shippedJourneyArt = {
         ur: 1, haran: 1, shechem: 1, bethel: 1, penuel: 1,
-        hebron: 1, beersheba: 1, moriah: 1, dothan: 1
+        hebron: 1, beersheba: 1, moriah: 1, dothan: 1,
+        goshen: 1, rephidim: 1, kadesh: 1, nebo: 1, jericho: 1,
+        zorah: 1, gibeah: 1, mizpah: 1,
+        shiloh: 1, tyre: 1, samaria: 1, megiddo: 1, lachish: 1, damascus: 1, babylon: 1, susa: 1,
+        bethlehem: 1, nazareth: 1, jordan: 1, capernaum: 1, golgotha: 1, emmaus: 1,
+        "damascus-road": 1, antioch: 1, ephesus: 1, corinth: 1, philippi: 1, rome: 1
       };
       if (!shippedJourneyArt[siteId] && authored.fallback) {
         return Object.assign({}, authored, { image: authored.fallback });

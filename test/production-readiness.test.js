@@ -69,6 +69,10 @@ lessonClips.forEach(([key, file]) => {
   assert(audio.includes(key + ':"audio/' + rel.split("/").pop() + '"'),
     "supplied soundtrack is mapped: " + rel);
 });
+const lessonFive = fs.readFileSync(path.join(ROOT, "audio", "voice", "lesson-five.mp3"));
+const thirtySeconds = fs.readFileSync(path.join(ROOT, "audio", "voice", "thirty-seconds.mp3"));
+assert(Buffer.compare(lessonFive, thirtySeconds) !== 0,
+  "lesson five is its own one-minute clip, not the thirty-seconds recording");
 assert(fs.existsSync(path.join(ROOT, "audio", "voice", "thirty-seconds.mp3")),
   "30-second memorization recording is present");
 assert(director.includes('"lesson five memorize the whole verse for thirty seconds then rebuild every word in order":"audio/voice/thirty-seconds.mp3"'),

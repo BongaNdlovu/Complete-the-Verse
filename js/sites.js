@@ -976,7 +976,7 @@ var VIGNETTES = {
     quote: "And the children of Israel sighed by reason of the bondage, and they cried.",
     ref: "Exodus 2:23",
     narrative: "In the fertile delta under Egyptian taskmasters, Israel groans beneath heavy mortar until God remembers His covenant.",
-    image: "assets/journey/goshen.png", fallback: "assets/artifacts/brick-goshen.png"
+    image: "assets/journey/goshen.webp", fallback: "assets/artifacts/brick-goshen.png"
   },
   midian: {
     figure: "Moses", title: "The Burning Bush",
@@ -997,7 +997,7 @@ var VIGNETTES = {
     quote: "Behold, I will stand before thee there upon the rock in Horeb; and thou shalt smite the rock.",
     ref: "Exodus 17:6",
     narrative: "In the parched wilderness, Moses strikes the granite crag, and living water gushes forth to quench the thirst of the multitude.",
-    image: "assets/journey/rephidim.png", fallback: "assets/artifacts/staff-rephidim.png"
+    image: "assets/journey/rephidim.webp", fallback: "assets/artifacts/staff-rephidim.png"
   },
   sinai: {
     figure: "Moses", title: "The Glory on Mount Sinai",
@@ -1011,21 +1011,21 @@ var VIGNETTES = {
     quote: "The land, which we passed through to search it, is an exceeding good land.",
     ref: "Numbers 14:7",
     narrative: "Returning from Canaan bearing giant clusters of grapes, Caleb and Joshua urge the congregation to trust the LORD.",
-    image: "assets/journey/kadesh.png", fallback: "assets/artifacts/spy-kadesh.png"
+    image: "assets/journey/kadesh.webp", fallback: "assets/artifacts/spy-kadesh.png"
   },
   nebo: {
     figure: "Moses", title: "The Vista from Mount Nebo",
     quote: "I have caused thee to see it with thine eyes, but thou shalt not go over thither.",
     ref: "Deuteronomy 34:4",
     narrative: "Standing on the windswept summit of Pisgah, the aged prophet gazes across the Jordan Valley at the inheritance of Israel.",
-    image: "assets/journey/nebo.png", fallback: "assets/artifacts/vista-nebo.png"
+    image: "assets/journey/nebo.webp", fallback: "assets/artifacts/vista-nebo.png"
   },
   jordan: {
-    figure: "Joshua", title: "The Crossing of Jordan",
-    quote: "The waters of Jordan shall be cut off from the waters that come down from above.",
-    ref: "Joshua 3:13",
-    narrative: "As the priests step into the flooded river bearing the Ark, the waters roll back in a heap, and Israel crosses into Canaan.",
-    image: "assets/journey/jordan.png", fallback: "assets/artifacts/shell-jordan.png"
+    figure: "Jesus & John the Baptist", title: "The Heavens Opened",
+    quote: "This is my beloved Son, in whom I am well pleased.",
+    ref: "Matthew 3:17",
+    narrative: "As Jesus rises from the rushing waters of the Jordan, the Holy Spirit descends like a dove and the Father's voice speaks.",
+    image: "assets/journey/jordan.webp", fallback: "assets/artifacts/shell-jordan.png"
   },
   gilgal: {
     figure: "Joshua", title: "The Stones of Gilgal",
@@ -1039,14 +1039,14 @@ var VIGNETTES = {
     quote: "So the people shouted when the priests blew with the trumpets... and the wall fell down flat.",
     ref: "Joshua 6:20",
     narrative: "After seven days of marching in solemn silence, the blast of rams' horns and the roar of the multitude bring down the fortress walls.",
-    image: "assets/journey/jericho.png", fallback: "assets/artifacts/trumpet-jericho.png"
+    image: "assets/journey/jericho.webp", fallback: "assets/artifacts/trumpet-jericho.png"
   },
   shiloh: {
     figure: "Samuel", title: "The Voice at Shiloh",
     quote: "Speak, LORD; for thy servant heareth.",
     ref: "1 Samuel 3:9",
     narrative: "In the sanctuary where the lamp of God burns through the night, a young boy hears his name called in the darkness.",
-    image: "assets/journey/shiloh.png", fallback: "assets/artifacts/lamp-shiloh.png"
+    image: "assets/journey/shiloh.webp", fallback: "assets/artifacts/lamp-shiloh.png"
   },
   harod: {
     figure: "Gideon", title: "The Spring of Harod",
@@ -1060,28 +1060,28 @@ var VIGNETTES = {
     quote: "And the Spirit of the LORD came mightily upon him... and he found a new jawbone of an ass.",
     ref: "Judges 15:14-15",
     narrative: "Amid the rocky crags of the Sorek Valley, the Nazarite champion breaks his bonds and scatters the Philistine host.",
-    image: "assets/journey/zorah.png", fallback: "assets/artifacts/jawbone-zorah.png"
+    image: "assets/journey/zorah.webp", fallback: "assets/artifacts/jawbone-zorah.png"
   },
   mizpah: {
     figure: "Samuel", title: "The Stone of Help",
     quote: "Hitherto hath the LORD helped us.",
     ref: "1 Samuel 7:12",
     narrative: "Samuel raises a standing stone on the ridge, naming it Ebenezer in thanksgiving for the thunderous deliverance of Israel.",
-    image: "assets/journey/mizpah.png", fallback: "assets/artifacts/ebenezer-mizpah.png"
+    image: "assets/journey/mizpah.webp", fallback: "assets/artifacts/ebenezer-mizpah.png"
   },
   gibeah: {
     figure: "Saul & Jonathan", title: "The Pass of Bozez",
     quote: "There is no restraint to the LORD to save by many or by few.",
     ref: "1 Samuel 14:6",
     narrative: "From the rocky fortress of Gibeah, Jonathan and his armour-bearer scale the sharp crags of the pass to strike the Philistine garrison.",
-    image: "assets/journey/gibeah.png", fallback: "assets/artifacts/lot-gibeah.png"
+    image: "assets/journey/gibeah.webp", fallback: "assets/artifacts/lot-gibeah.png"
   },
   bethlehem: {
-    figure: "David", title: "The Anointing of David",
-    quote: "Arise, anoint him: for this is he.",
-    ref: "1 Samuel 16:12",
-    narrative: "Brought in from the sheep pastures with ruddiness and bright eyes, David is anointed by Samuel amidst his brethren.",
-    image: "assets/journey/bethlehem.png", fallback: "assets/artifacts/lyre-jerusalem.png"
+    figure: "Jesus, Mary & Joseph", title: "The Birth of the Messiah",
+    quote: "And she brought forth her firstborn son, and wrapped him in swaddling clothes, and laid him in a manger.",
+    ref: "Luke 2:7",
+    narrative: "Under the brilliance of the eastern star, shepherds find the newborn King of kings resting in a humble rock-cut manger.",
+    image: "assets/journey/bethlehem.webp", fallback: "assets/artifacts/manger-bethlehem.png"
   },
   jerusalem: {
     figure: "David", title: "Zion, the City of David",
@@ -1095,7 +1095,7 @@ var VIGNETTES = {
     quote: "Now therefore command thou that they hew me cedar trees out of Lebanon.",
     ref: "1 Kings 5:6",
     narrative: "Gigantic cedar beams are floated down the Mediterranean coast to build the glorious house of the LORD on Mount Moriah.",
-    image: "assets/journey/tyre.png", fallback: "assets/artifacts/cedar-tyre.png"
+    image: "assets/journey/tyre.webp", fallback: "assets/artifacts/cedar-tyre.png"
   },
   carmel: {
     figure: "Elijah", title: "The Fire on Mount Carmel",
@@ -1109,14 +1109,14 @@ var VIGNETTES = {
     quote: "The houses of ivory shall perish, and the great houses shall have an end, saith the LORD.",
     ref: "Amos 3:15",
     narrative: "The hilltop capital of Israel falls to the Assyrian siege engines as the prophets' warnings come to pass.",
-    image: "assets/journey/samaria.png", fallback: "assets/artifacts/ivory-samaria.png"
+    image: "assets/journey/samaria.webp", fallback: "assets/artifacts/ivory-samaria.png"
   },
   megiddo: {
     figure: "Josiah", title: "The Plain of Megiddo",
     quote: "And king Josiah went against him; and he slew him at Megiddo.",
     ref: "2 Kings 23:29",
     narrative: "The ancient strategic pass and fortress where kings clashed and where prophecies foreshadow the final battle.",
-    image: "assets/journey/megiddo.png", fallback: "assets/artifacts/gate-megiddo.png"
+    image: "assets/journey/megiddo.webp", fallback: "assets/artifacts/gate-megiddo.png"
   },
   nineveh: {
     figure: "Jonah", title: "The Preacher at Nineveh",
@@ -1130,105 +1130,98 @@ var VIGNETTES = {
     quote: "Be strong and courageous, be not afraid nor dismayed for the king of Assyria: for there be more with us than with him.",
     ref: "2 Chronicles 32:7",
     narrative: "Hezekiah's fortress burns under Assyrian catapults, but Jerusalem looks to Isaiah's God for shelter.",
-    image: "assets/journey/lachish.png", fallback: "assets/artifacts/arrow-lachish.png"
+    image: "assets/journey/lachish.webp", fallback: "assets/artifacts/arrow-lachish.png"
   },
   babylon: {
     figure: "Daniel & Ezekiel", title: "Exile by the Euphrates",
     quote: "By the rivers of Babylon, there we sat down, yea, we wept, when we remembered Zion.",
     ref: "Psalms 137:1",
     narrative: "Beneath the blue-glazed Ishtar Gate, Daniel and the exiles resolve in their hearts not to defile themselves with the king's meat.",
-    image: "assets/journey/babylon.png", fallback: "assets/artifacts/ishtar-babylon.png"
+    image: "assets/journey/babylon.webp", fallback: "assets/artifacts/ishtar-babylon.png"
   },
   susa: {
     figure: "Esther", title: "For Such a Time as This",
     quote: "If I perish, I perish.",
     ref: "Esther 4:16",
     narrative: "In the marble halls of the Persian winter palace, Queen Esther approaches King Ahasuerus unbidden to plead for her people.",
-    image: "assets/journey/susa.png", fallback: "assets/artifacts/seal-susa.png"
+    image: "assets/journey/susa.webp", fallback: "assets/artifacts/seal-susa.png"
   },
-  "damascus-exile": {
+  damascus: {
     figure: "Naaman & Elisha", title: "The Waters of Damascus",
     quote: "Are not Abana and Pharpar, rivers of Damascus, better than all the waters of Israel?",
     ref: "2 Kings 5:12",
     narrative: "The Syrian captain learns humility in the waters of Jordan, while Damascus remains the enduring crossroads of kings.",
-    image: "assets/journey/damascus-exile.png", fallback: "assets/artifacts/scales-damascus.png"
-  },
-  "bethlehem-gospel": {
-    figure: "Jesus, Mary & Joseph", title: "The Birth of the Messiah",
-    quote: "And she brought forth her firstborn son, and wrapped him in swaddling clothes, and laid him in a manger.",
-    ref: "Luke 2:7",
-    narrative: "Under the brilliance of the eastern star, shepherds find the newborn King of kings resting in a humble rock-cut manger.",
-    image: "assets/journey/bethlehem-gospel.png", fallback: "assets/artifacts/manger-bethlehem.png"
+    image: "assets/journey/damascus.webp", fallback: "assets/artifacts/scales-damascus.png"
   },
   nazareth: {
     figure: "Jesus", title: "The Spirit of the Lord",
     quote: "This day is this scripture fulfilled in your ears.",
     ref: "Luke 4:21",
     narrative: "Standing in the hilltop synagogue of his childhood, Jesus unrolls the scroll of Isaiah and proclaims liberty to the captives.",
-    image: "assets/journey/nazareth.png", fallback: "assets/artifacts/scroll-nazareth.png"
-  },
-  "jordan-gospel": {
-    figure: "Jesus & John the Baptist", title: "The Heavens Opened",
-    quote: "This is my beloved Son, in whom I am well pleased.",
-    ref: "Matthew 3:17",
-    narrative: "As Jesus rises from the rushing waters of the Jordan, the Holy Spirit descends like a dove and the Father's voice speaks.",
-    image: "assets/journey/jordan-gospel.png", fallback: "assets/artifacts/shell-jordan.png"
+    image: "assets/journey/nazareth.webp", fallback: "assets/artifacts/scroll-nazareth.png"
   },
   capernaum: {
     figure: "Peter & Jesus", title: "Fishers of Men",
     quote: "Fear not; from henceforth thou shalt catch men.",
     ref: "Luke 5:10",
     narrative: "On the shore of the sparkling Sea of Galilee, fishermen leave their nets, boats, and families to follow the Master.",
-    image: "assets/journey/capernaum.png", fallback: "assets/artifacts/net-capernaum.png"
+    image: "assets/journey/capernaum.webp", fallback: "assets/artifacts/net-capernaum.png"
   },
   golgotha: {
     figure: "Jesus", title: "It is Finished",
     quote: "He is not here: for he is risen, as he said. Come, see the place where the Lord lay.",
     ref: "Matthew 28:6",
     narrative: "Outside the city gates, the Saviour yields up His spirit on the cross, and on the third day breaks the bonds of the tomb forever.",
-    image: "assets/journey/golgotha.png", fallback: "assets/artifacts/shroud-golgotha.png"
+    image: "assets/journey/golgotha.webp", fallback: "assets/artifacts/shroud-golgotha.png"
   },
   emmaus: {
     figure: "The Resurrected Lord", title: "The Road to Emmaus",
     quote: "Did not our heart burn within us, while he talked with us by the way, and while he opened to us the scriptures?",
     ref: "Luke 24:32",
     narrative: "Walking at twilight, two sorrowful disciples have their eyes opened as the risen Lord breaks bread at their table.",
-    image: "assets/journey/emmaus.png", fallback: "assets/artifacts/bread-emmaus.png"
+    image: "assets/journey/emmaus.webp", fallback: "assets/artifacts/bread-emmaus.png"
   },
   "damascus-road": {
     figure: "Paul", title: "The Light from Heaven",
     quote: "Saul, Saul, why persecutest thou me?",
     ref: "Acts 9:4",
     narrative: "A blinding flash brighter than the midday sun strikes the persecutor to the earth, transforming Saul into the Apostle to the Gentiles.",
-    image: "assets/journey/damascus-road.png", fallback: "assets/artifacts/river-damascus.png"
+    image: "assets/journey/damascus-road.webp", fallback: "assets/artifacts/river-damascus.png"
   },
   antioch: {
     figure: "Barnabas & Paul", title: "The Church at Antioch",
     quote: "And the disciples were called Christians first in Antioch.",
     ref: "Acts 11:26",
     narrative: "In the sprawling Syrian metropolis, Jews and Gentiles unite in the faith, commissioning Paul and Barnabas for their global mission.",
-    image: "assets/journey/antioch.png", fallback: "assets/artifacts/name-antioch.png"
+    image: "assets/journey/antioch.webp", fallback: "assets/artifacts/name-antioch.png"
   },
   ephesus: {
     figure: "Paul", title: "The Word Prevails at Ephesus",
     quote: "So mightily grew the word of God and prevailed.",
     ref: "Acts 19:20",
     narrative: "Standing against the silver shrines of Artemis, Paul ministers for three years as the Gospel sweeps through Asia Minor.",
-    image: "assets/journey/ephesus.png", fallback: "assets/artifacts/scroll-ephesus.png"
+    image: "assets/journey/ephesus.webp", fallback: "assets/artifacts/scroll-ephesus.png"
+  },
+  corinth: {
+    figure: "Paul", title: "Faith, Hope, Charity",
+    quote: "And now abideth faith, hope, charity, these three; but the greatest of these is charity.",
+    ref: "1 Corinthians 13:13",
+    narrative: "A wealthy, rough port straddling the isthmus, where Paul stayed eighteen months and wrote to a church that argued about everything.",
+    image: "assets/journey/corinth.webp", fallback: "assets/artifacts/bema-corinth.png"
   },
   philippi: {
     figure: "Paul & Silas", title: "Songs at Midnight in Philippi",
     quote: "And at midnight Paul and Silas prayed, and sang praises unto God: and the prisoners heard them.",
     ref: "Acts 16:25",
     narrative: "Beaten and bound in the inner dungeon, midnight hymns bring an earthquake that shakes the foundations and frees the captives.",
-    image: "assets/journey/philippi.png", fallback: "assets/artifacts/chain-philippi.png"
+    image: "assets/journey/philippi.webp", fallback: "assets/artifacts/chain-philippi.png"
   },
   rome: {
     figure: "Paul", title: "The Prisoner in Rome",
     quote: "Preaching the kingdom of God, and teaching those things which concern the Lord Jesus Christ, with all confidence.",
     ref: "Acts 28:31",
     narrative: "Chained to a Roman soldier in his hired house, Paul writes the epistles that would anchor churches across the ages.",
-    image: "assets/journey/rome.png", fallback: "assets/artifacts/chain-rome.png"
+    image: "assets/journey/rome.webp", fallback: "assets/artifacts/chain-rome.png"
   },
   patmos: {
     figure: "John", title: "The Revelation on Patmos",

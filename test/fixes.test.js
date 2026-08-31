@@ -155,9 +155,22 @@ ok("Moses question art is mapped in character data",
 ok("Midian uses midian.mp4", /midian:"assets\/journey\/midian\.mp4"/.test(game));
 ok("Yam Suph uses yam-suph.mp4", /"yam-suph":"assets\/journey\/yam-suph\.mp4"/.test(game));
 ok("Sinai uses sinai.mp4", /sinai:"assets\/journey\/sinai\.mp4"/.test(game));
-["midian", "yam-suph", "sinai"].forEach(id => {
+ok("Gilgal uses gilgal.mp4", /gilgal:"assets\/journey\/gilgal\.mp4"/.test(game));
+ok("Harod uses harod.mp4", /harod:"assets\/journey\/harod\.mp4"/.test(game));
+ok("Jerusalem uses jerusalem.mp4", /jerusalem:"assets\/journey\/jerusalem\.mp4"/.test(game));
+ok("Carmel uses carmel.mp4", /carmel:"assets\/journey\/carmel\.mp4"/.test(game));
+ok("Nineveh uses nineveh.mp4", /nineveh:"assets\/journey\/nineveh\.mp4"/.test(game));
+ok("Patmos uses patmos.mp4", /patmos:"assets\/journey\/patmos\.mp4"/.test(game));
+["midian", "yam-suph", "sinai", "gilgal", "harod", "jerusalem", "carmel", "nineveh", "patmos"].forEach(id => {
   const f = path.join(ROOT, "assets", "journey", id + ".mp4");
   ok(id + " ambient loop is present", fs.existsSync(f) && fs.statSync(f).size > 10000);
+});
+["goshen", "rephidim", "kadesh", "nebo", "jericho", "zorah", "gibeah", "mizpah",
+ "shiloh", "tyre", "samaria", "megiddo", "lachish", "damascus", "babylon", "susa",
+ "bethlehem", "nazareth", "jordan", "capernaum", "golgotha", "emmaus",
+ "damascus-road", "antioch", "ephesus", "corinth", "philippi", "rome"].forEach(id => {
+  const f = path.join(ROOT, "assets", "journey", id + ".webp");
+  ok(id + " journey still is present", fs.existsSync(f) && fs.statSync(f).size > 10000);
 });
 const vercelIgnore = fs.readFileSync(path.join(ROOT, ".vercelignore"), "utf8");
 ok("content tooling stays out of the deploy", /^content\/$/m.test(vercelIgnore));

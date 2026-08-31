@@ -45,7 +45,13 @@ const SITE_AMBIENT = {
   moriah:"assets/journey/moriah.mp4", dothan:"assets/journey/dothan.mp4",
   midian:"assets/journey/midian.mp4",
   "yam-suph":"assets/journey/yam-suph.mp4",
-  sinai:"assets/journey/sinai.mp4"
+  sinai:"assets/journey/sinai.mp4",
+  gilgal:"assets/journey/gilgal.mp4",
+  harod:"assets/journey/harod.mp4",
+  jerusalem:"assets/journey/jerusalem.mp4",
+  carmel:"assets/journey/carmel.mp4",
+  nineveh:"assets/journey/nineveh.mp4",
+  patmos:"assets/journey/patmos.mp4"
 };
 
 function usesWallClock(){

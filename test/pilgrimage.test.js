@@ -52,8 +52,23 @@ function walkTo(n){
   eq("siteAt is null past the end", P.siteAt(999), null);
 
   eq("a shipped journey scene is retained", P.vignette("haran").image, "assets/journey/haran.webp");
+  eq("Goshen uses its journey still", P.vignette("goshen").image, "assets/journey/goshen.webp");
+  eq("Jericho uses its journey still", P.vignette("jericho").image, "assets/journey/jericho.webp");
+  eq("Zorah uses its journey still", P.vignette("zorah").image, "assets/journey/zorah.webp");
+  eq("Damascus uses its journey still", P.vignette("damascus").image, "assets/journey/damascus.webp");
+  eq("Susa uses its journey still", P.vignette("susa").image, "assets/journey/susa.webp");
+  eq("Bethlehem uses its nativity still", P.vignette("bethlehem").image, "assets/journey/bethlehem.webp");
+  eq("Bethlehem is the nativity, not David's anointing", P.vignette("bethlehem").title, "The Birth of the Messiah");
+  eq("Jordan uses its baptism still", P.vignette("jordan").image, "assets/journey/jordan.webp");
+  eq("Jordan is the baptism, not Joshua's crossing", P.vignette("jordan").title, "The Heavens Opened");
+  eq("Corinth uses its journey still", P.vignette("corinth").image, "assets/journey/corinth.webp");
   eq("an unshipped journey scene uses its own artifact", P.vignette("sinai").image, "assets/artifacts/tablet-sinai.png");
+  eq("Gilgal without a still uses its relic", P.vignette("gilgal").image, "assets/artifacts/stone-gilgal.png");
+  eq("Harod without a still uses its relic", P.vignette("harod").image, "assets/artifacts/pitcher-harod.png");
+  eq("Jerusalem without a still uses its relic", P.vignette("jerusalem").image, "assets/artifacts/lyre-jerusalem.png");
+  eq("Patmos without a still uses its relic", P.vignette("patmos").image, "assets/artifacts/ink-patmos.png");
   ok("a site never falls back to Ur scenery", P.vignette("sinai").image !== "assets/journey/ur.webp");
+  ok("Corinth never falls back to Ur scenery", P.vignette("corinth").image !== "assets/journey/ur.webp");
 
   eq("arcs are all present", P.arcs().length, 5);
   ok("sitesInArc partitions the road",
