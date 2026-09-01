@@ -591,28 +591,91 @@ function renderResultsHabit(){
   habitEl.style.display = "";
 }
 
+function resultsNextTablets(){
+  if(R.mode!=="tablets" || typeof Tablets==="undefined" || !Tablets.nextPlayable) return null;
+  const ch = Tablets.nextPlayable(R.tabletChapter, SAVE);
+  if(!ch) return null;
+  return { name: ch.name, go: function(){
+    startRun("tablets", R.diff.key, { tabletChapter: ch.id, fromRoad: !!ch.after });
+  }};
+}
+function resultsNextPilgrim(o){
+  if(!(R.mode==="pilgrimage" || R.mode==="pilgrim-recall") || typeof Pilgrimage==="undefined") return null;
+  if(R.mode==="pilgrimage"){
+    if(!o || !o.siteCleared) return null;
+    const nxt = Pilgrimage.currentSite(SAVE.pilgrim);
+    if(!(nxt && !Pilgrimage.isCleared(SAVE.pilgrim, nxt.id))) return null;
+    return { name: nxt.name.replace(/\s*\(.*\)$/, ""), go: function(){
+      pendingSiteId = nxt.id;
+      startRun("pilgrimage", R.diff.key);
+    }};
+  }
+  const idx = Pilgrimage.indexOf(R.siteId);
+  let i = idx + 1;
+  const n = Pilgrimage.count();
+  for(; i < n; i++){
+    const s = Pilgrimage.siteAt(i);
+    if(s && Pilgrimage.isCleared(SAVE.pilgrim, s.id)){
+      return { name: s.name.replace(/\s*\(.*\)$/, ""), go: function(){
+        pendingSiteId = s.id;
+        startRun("pilgrim-recall", R.diff.key);
+      }};
+    }
+  }
+  return null;
+}
+function resultsNextRelay(){
+  if(R.mode!=="relay" || !R.relay || typeof Pilgrimage==="undefined") return null;
+  if(!R.relay.sites || !R.relay.banked || R.relay.banked.length < R.relay.sites.length) return null;
+  const arcs = Pilgrimage.arcs();
+  let seen = false;
+  let i = 0;
+  for(; i < arcs.length; i++){
+    const a = arcs[i];
+    if(a.key === R.relay.arcKey){ seen = true; continue; }
+    if(!seen) continue;
+    const st = Pilgrimage.arcStatus(SAVE.pilgrim, a.key);
+    if(st && st.open && !st.complete){
+      return { name: a.name, go: function(){
+        pendingArcKey = a.key;
+        startRun("relay", R.diff.key);
+      }};
+    }
+  }
+  return null;
+}
+function resultsNextTarget(o){
+  return resultsNextTablets() || resultsNextPilgrim(o) || resultsNextRelay();
+}
+function bindResultsNext(o, autoUnlock){
+  const nextBtn = $("res-next");
+  if(!nextBtn) return;
+  const nxt = autoUnlock ? null : resultsNextTarget(o);
+  if(!nxt){
+    nextBtn.style.display = "none";
+    nextBtn.onclick = null;
+    return;
+  }
+  nextBtn.style.display = "";
+  nextBtn.textContent = "Next · " + nxt.name;
+  nextBtn.onclick = function(){
+    Snd.unlock(); Snd.ui();
+    nxt.go();
+  };
+}
 function bindResultsRoadButtons(o, isPilgrim){
   const onRoad = isPilgrim || R.mode==="relay";
   const roadBtn=$("res-road");
+  const autoUnlock = !!(pendingUnlockId && isPilgrim && o.siteCleared && o.road && o.road.firstClear);
   if(roadBtn){
     roadBtn.style.display = onRoad ? "" : "none";
     roadBtn.onclick = ()=>{ Snd.ui(); go("atlas"); };
-  }
-  const nextBtn=$("res-next");
-  const autoUnlock = !!(pendingUnlockId && isPilgrim && o.siteCleared && o.road && o.road.firstClear);
-  if(nextBtn){
-    const nxt = isPilgrim && o.siteCleared ? Pilgrimage.currentSite(SAVE.pilgrim) : null;
-    const showNext = !!(nxt && !Pilgrimage.isCleared(SAVE.pilgrim, nxt.id));
-    nextBtn.style.display = showNext && !autoUnlock ? "" : "none";
-    if(showNext && !autoUnlock){
-      nextBtn.textContent = "On to " + nxt.name.replace(/\s*\(.*\)$/, "");
-      nextBtn.onclick = ()=>{ Snd.unlock(); Snd.ui(); openSiteBrief(nxt.id, "pilgrimage"); };
-    }
-    if(autoUnlock && roadBtn){
+    if(autoUnlock){
       roadBtn.style.display = "";
       roadBtn.textContent = "See the road open";
     }
   }
+  bindResultsNext(o, autoUnlock);
   return autoUnlock;
 }
 function renderRelayResultCopy(o){

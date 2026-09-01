@@ -289,9 +289,16 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
-  eq("the sheet rests at the mark", read(sb, "$('tablets-roll').style.transform"), "translateY(0px)");
+  eq("the whole chapter rides the sheet", read(sb, "$('tablets-roll').children.length"), 11);
+  ok("the first line is the current line", /tablets-current/.test(read(sb, "$('tablets-line-0').className")));
+  eq("the blank rests at The Hand", read(sb, "$('tablets-roll').style.transform"), "translateY(351px)");
   exec(sb, "R.tabletProgress = 0.5; alignTabletsSheet()");
-  ok("the sheet rolls with the clock", /translateY\(-/.test(read(sb, "$('tablets-roll').style.transform")));
+  const mid = parseFloat(read(sb, "$('tablets-roll').style.transform").replace(/[^\d.-]/g, ""));
+  ok("the sheet drifts toward The Mark as the clock runs", mid > 207 && mid < 351);
+  exec(sb, "R.tabletProgress = 1; alignTabletsSheet()");
+  eq("the blank meets The Mark", read(sb, "$('tablets-roll').style.transform"), "translateY(207px)");
+  ok("reduced motion skips the glide, not the alignment",
+    /body\.reduced \.tablets-roll[^}]*transition:\s*none/.test(src));
 }
 
 {

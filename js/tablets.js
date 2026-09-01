@@ -219,6 +219,26 @@ const Tablets = (function(){
   function pickLevel(id){
     return paceOf(chapter(id));
   }
+  function playableList(){
+    const out = [];
+    [1, 2, 3].forEach(function(p){
+      chapters.forEach(function(ch){
+        if(ch.tutorial) return;
+        if(paceOf(ch) === p) out.push(ch);
+      });
+    });
+    return out;
+  }
+  function nextPlayable(id, save){
+    const list = playableList();
+    let seen = false;
+    let i = 0;
+    for(; i < list.length; i++){
+      if(list[i].id === id){ seen = true; continue; }
+      if(seen && unlocked(list[i].id, save)) return list[i];
+    }
+    return null;
+  }
   function holdKick(id, save){
     if(id === "psalm23") return "Pace I held. Psalm 91 is open.";
     if(id === "psalm91") return "Pace I held. John 1 is open.";
@@ -251,6 +271,7 @@ const Tablets = (function(){
     blankMs: blankMs,
     levelName: levelName,
     pickLevel: pickLevel,
+    nextPlayable: nextPlayable,
     holdKick: holdKick
   };
 })();

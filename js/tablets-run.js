@@ -83,29 +83,76 @@ function paintTabletsClock(){
     if(left < 0.3 && !tabletsUntimed()) slot.classList.add("danger");
     else slot.classList.remove("danger");
   }
+  const mark = $("tablets-laser-mark");
+  if(mark) mark.classList.toggle("late", left < 0.3 && !tabletsUntimed());
 }
 function paintTabletsStage(answer){
   const ch = tabletsChapter();
   const i = R.tabletIdx || 0;
-  fillVerseLine($("tablets-prev"), ch.blanks[i - 1], "done", i - 1);
-  fillVerseLine($("tablets-sheet"), ch.blanks[i], answer ? "done" : "on", i);
+  ch.blanks.forEach(function(_, n){
+    const line = $("tablets-line-" + n);
+    if(!line) return;
+    const kind = n < i ? "done" : (n === i ? (answer ? "done" : "on") : "wait");
+    line.className = "tablets-line " + (kind === "done" ? "tablets-prev" : kind === "on" ? "tablets-current" : "tablets-next");
+    fillVerseLine(line, ch.blanks[n], kind, n);
+  });
   if(answer){
-    const sheet = $("tablets-sheet");
-    const carved = sheet && sheet.querySelector(".tablets-carved");
+    const cur = $("tablets-line-" + i);
+    const carved = cur && cur.querySelector(".tablets-carved");
     if(carved){
       carved.classList.add("in");
       if(answer === "miss") carved.classList.add("shattered");
     }
   }
-  fillVerseLine($("tablets-next"), ch.blanks[i + 1], "wait", i + 1);
   paintTabletsPips();
   paintTabletsClock();
+  alignTabletsSheet();
 }
 function buildTabletsSheet(){
+  const roll = $("tablets-roll");
+  const ch = tabletsChapter();
+  if(roll){
+    roll.innerHTML = "";
+    ch.blanks.forEach(function(_, n){
+      const line = document.createElement("p");
+      line.className = "tablets-line";
+      line.id = "tablets-line-" + n;
+      roll.appendChild(line);
+    });
+  }
   paintTabletsStage();
+  alignTabletsSheet(true);
+}
+/* The whole chapter rides the sheet. The blank rests at The Hand (78% of the
+   stone) and drifts up to The Mark (46%) as the clock runs — reach The Mark
+   and the tablet shatters. Line positions ride the same transform, so the
+   slot's offset inside the sheet is measured, not assumed. */
+function alignTabletsSheet(instant){
+  const roll = $("tablets-roll");
+  if(!roll || !roll.style) return;
+  const host = roll.parentNode;
+  const hostH = (host && host.clientHeight) || 450;
+  const handY = hostH * 0.78;
+  const markY = hostH * 0.46;
+  const progress = tabletsUntimed() ? 0 : Math.min(1, R.tabletProgress || 0);
+  const desiredY = handY - (handY - markY) * progress;
+  /* offsetTop ignores the live transform, so the sheet's resting offset is
+     measured cleanly no matter where the roll currently sits. */
+  const rollTop = (roll.offsetTop != null) ? roll.offsetTop : 0;
+  const slot = $("tablets-blank-" + (R.tabletIdx || 0));
+  const slotTop = (slot && slot.offsetTop != null) ? slot.offsetTop : 0;
+  const t = "translateY(" + Math.round(desiredY - rollTop - slotTop) + "px)";
+  if(instant){
+    roll.style.transition = "none";
+    roll.style.transform = t;
+    roll.style.transition = "";
+  } else {
+    roll.style.transform = t;
+  }
 }
 function alignTabletsBlank(){
   paintTabletsClock();
+  alignTabletsSheet();
 }
 function tabletsParentSite(){
   const ch = tabletsChapter();
@@ -400,6 +447,7 @@ function tabletsTick(now){
     const dur = tabletsBlankMs() / 1000;
     R.tabletProgress = (R.tabletProgress || 0) + dt / dur;
     paintTabletsClock();
+    alignTabletsSheet();
     if(R.tabletProgress >= 1){
       tabletsResolve(false);
       return;
@@ -425,7 +473,7 @@ function startTabletsLoop(){
   const ov = $("tablets-pause");
   if(ov){ ov.hidden = true; ov.classList.remove("on"); }
   paintTabletsHud();
-  paintTabletsStage();
+  buildTabletsSheet();
   paintTabletsTray();
   R.tabletLast = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
   if(typeof requestAnimationFrame === "function") R.tabletRaf = requestAnimationFrame(tabletsTick);
@@ -513,6 +561,7 @@ function startTabletsStage(){
 if(typeof window !== "undefined"){
   window.finishTabletsTutorial = finishTabletsTutorial;
   window.startTabletsStage = startTabletsStage;
+  window.alignTabletsSheet = alignTabletsSheet;
   window.stopTabletsLoop = stopTabletsLoop;
   window.tabletsResolve = tabletsResolve;
   window.tabletsFinishResolve = tabletsFinishResolve;
