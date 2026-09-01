@@ -1845,7 +1845,12 @@ function handleNavKeydown(e, k){
     e.preventDefault(); Snd.unlock(); startRun(briefMode, SAVE.set.diff); return true;
   }
   if(currentView==="sitebrief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(sbMode, SAVE.set.diff); return true; }
-  if(currentView==="results" && (k==="enter"||k===" ")){ e.preventDefault(); startRun(R.mode, R.diff.key); return true; }
+  if(currentView==="results" && (k==="enter"||k===" ")){
+    e.preventDefault();
+    if(R.mode==="tablets" && typeof tabletsRetryRun==="function") tabletsRetryRun();
+    else startRun(R.mode, R.diff.key);
+    return true;
+  }
   return false;
 }
 

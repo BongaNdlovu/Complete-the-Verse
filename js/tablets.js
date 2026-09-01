@@ -197,6 +197,12 @@ const Tablets = (function(){
     const n = clampLevel(want);
     return levelOpen(id, n, save) ? n : open;
   }
+  function graduateLevel(run, save){
+    const n = clampLevel(run && run.tabletLevel);
+    if(!(run && held(run)) || n >= 3) return n;
+    const id = (run && run.tabletChapter) || "psalm23";
+    return levelOpen(id, n + 1, save) ? n + 1 : n;
+  }
   function unlockLabel(id){
     if(id === "psalm91") return "Hold Psalm 23 to open";
     if(id === "john1") return "Hold Psalm 91 to open";
@@ -224,7 +230,8 @@ const Tablets = (function(){
     levelName: levelName,
     levelOpen: levelOpen,
     highestOpen: highestOpen,
-    pickLevel: pickLevel
+    pickLevel: pickLevel,
+    graduateLevel: graduateLevel
   };
 })();
 if(typeof module !== "undefined") module.exports = { Tablets: Tablets };

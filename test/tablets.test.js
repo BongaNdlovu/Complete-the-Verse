@@ -51,7 +51,7 @@ eq("blankMs II is BLANK_MS", Tablets.blankMs(2), 6500);
 ok("I is open on Psalm 23", Tablets.levelOpen("psalm23", 1, {}));
 ok("II waits on I", !Tablets.levelOpen("psalm23", 2, {}));
 ok("legacy Hold opens III", Tablets.levelOpen("psalm23", 3, { tablets:{ psalm23:{ held:true } } }));
-eq("highestOpen starts at 1", Tablets.highestOpen("psalm23", {}), 1);
+ok("graduateLevel is exported", typeof Tablets.graduateLevel === "function");
 eq("23 first answer is want", p23.blanks[0].a, "want");
 eq("23 last answer is ever", p23.blanks[10].a, "ever");
 ["want","pastures","waters","soul","righteousness","evil","staff","enemies","oil","mercy","ever"]
@@ -131,19 +131,25 @@ ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}
   eq("Held", read(sb, "Tablets.held(R)"), true);
   eq("I does not Hold the chapter", read(sb, "SAVE.tablets.psalm23.held"), false);
   eq("I Hold is stored", read(sb, "!!SAVE.tablets.psalm23.levels[1].held"), true);
+  eq("I graduates to II", read(sb, "Tablets.graduateLevel(R, SAVE)"), 2);
+  eq("kick names the next pace", read(sb, "$('res-kick').textContent"), "I held. II is open.");
+  eq("retry is Carve II", read(sb, "$('res-retry').textContent"), "Carve II");
   eq("91 still locked after I", read(sb, "Tablets.unlocked('psalm91', SAVE)"), false);
   eq("unique Hold counted once", read(sb, "SAVE.life.tabletHolds"), 0);
-  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "tabletsRetryRun()");
   eq("second run is II", read(sb, "R.tabletLevel"), 2);
   holdAll(sb);
   eq("psalm 23 Held on save", read(sb, "SAVE.tablets.psalm23.held"), true);
+  eq("II graduates to III", read(sb, "Tablets.graduateLevel(R, SAVE)"), 3);
   eq("unique Hold counted once", read(sb, "SAVE.life.tabletHolds"), 1);
   eq("best is 100", read(sb, "SAVE.best.tablets"), 100);
   eq("91 unlocked after II", read(sb, "Tablets.unlocked('psalm91', SAVE)"), true);
   eq("XP paid", read(sb, "SAVE.xp > 0"), true);
-  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "tabletsRetryRun()");
   eq("third run is III", read(sb, "R.tabletLevel"), 3);
   holdAll(sb);
+  eq("III stays at III", read(sb, "Tablets.graduateLevel(R, SAVE)"), 3);
+  eq("kick after III is held", read(sb, "$('res-kick').textContent"), "The manuscript held");
   eq("second Hold does not recount", read(sb, "SAVE.life.tabletHolds"), 1);
 }
 
@@ -155,6 +161,8 @@ ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}
   eq("not Held", read(sb, "Tablets.held(R)"), false);
   eq("91 stays locked", read(sb, "SAVE.tablets.psalm23.held"), false);
   eq("kick is shatter", read(sb, "$('res-kick').textContent"), "The tablet shattered");
+  eq("a miss does not graduate", read(sb, "Tablets.graduateLevel(R, SAVE)"), 1);
+  eq("retry stays Carve again", read(sb, "$('res-retry').textContent"), "Carve again");
 }
 
 {

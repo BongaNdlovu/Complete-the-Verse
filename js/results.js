@@ -377,9 +377,30 @@ function endRun(reason){
   go("results");
 }
 
+function tabletsRetryLevel(){
+  if(typeof Tablets !== "undefined" && Tablets.graduateLevel) return Tablets.graduateLevel(R, SAVE);
+  return R.tabletLevel || 1;
+}
+function tabletsRetryLabel(){
+  const now = (typeof Tablets !== "undefined" && Tablets.clampLevel) ? Tablets.clampLevel(R.tabletLevel) : (R.tabletLevel || 1);
+  const next = tabletsRetryLevel();
+  if(next > now && typeof Tablets !== "undefined" && Tablets.levelName) return "Carve " + Tablets.levelName(next);
+  return "Carve again";
+}
+function tabletsRetryRun(){
+  startRun("tablets", R.diff.key, {
+    tabletChapter: R.tabletChapter || "psalm23",
+    tabletLevel: tabletsRetryLevel(),
+    fromRoad: !!R.fromRoad
+  });
+}
 function tabletsKickText(o){
   if(o.reason==="abandon") return "The run was abandoned";
-  return (typeof Tablets!=="undefined" && Tablets.held(R)) ? "The manuscript held" : "The tablet shattered";
+  if(!(typeof Tablets!=="undefined" && Tablets.held(R))) return "The tablet shattered";
+  const now = Tablets.clampLevel(R.tabletLevel);
+  const next = Tablets.graduateLevel(R, SAVE);
+  if(next > now) return Tablets.levelName(now) + " held. " + Tablets.levelName(next) + " is open.";
+  return "The manuscript held";
 }
 function resultsKick(o){
   if(R.mode==="tablets") return tabletsKickText(o);
@@ -628,11 +649,11 @@ function renderResultsRetryReview(o){
   if(againBtn) againBtn.style.display = R.mode==="tablets" ? "none" : "";
   if(retryBtn && (R.mode==="beat" || R.mode==="team" || R.mode==="tablets")){
     retryBtn.style.display = "";
-    retryBtn.textContent = R.mode==="team" ? "Play again" : R.mode==="tablets" ? "Carve again" : retryBtn.textContent;
+    retryBtn.textContent = R.mode==="team" ? "Play again" : R.mode==="tablets" ? tabletsRetryLabel() : retryBtn.textContent;
     retryBtn.onclick = function(){
       Snd.unlock(); Snd.ui();
       if(R.mode==="team") openBrief("team");
-      else if(R.mode==="tablets") startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23", tabletLevel: R.tabletLevel, tabletTutorial: !!R.tabletTutorial, fromRoad: !!R.fromRoad });
+      else if(R.mode==="tablets") tabletsRetryRun();
       else startRun("beat", R.diff.key);
     };
     const reviewMissedBtn = $("res-review-missed");
@@ -960,6 +981,6 @@ function fillResultsInsights(v){
 $("res-again").addEventListener("click", ()=>{
   Snd.ui();
   if(R.mode==="team"){ openBrief("team"); return; }
-  if(R.mode==="tablets"){ startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23", tabletLevel: R.tabletLevel, fromRoad: !!R.fromRoad }); return; }
+  if(R.mode==="tablets"){ tabletsRetryRun(); return; }
   startRun(R.mode, R.diff.key);
 });
