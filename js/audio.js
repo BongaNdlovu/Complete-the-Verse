@@ -66,11 +66,38 @@ const Snd = (function(){
                      act:0.72, seal:0.62, level:0.68, death:0.78, victory:0.74,
                      ui:0.45, tick:0.5, tickCrit:0.58, carve:0.62, shatter:0.7 };
   let voiceHold=null, pendingVoice=null, rainAudio=null, rainWired=false, rainRequested=false;
+  function musicOut(){
+    const set = (typeof SAVE!=="undefined" && SAVE.set) ? SAVE.set : null;
+    if(!set) return 0.45;
+    if(set.musicMute) return 0;
+    let v = +set.music || 0;
+    if(set.quiet) v = Math.min(v, 0.12);
+    return Math.max(0, Math.min(1, v));
+  }
+  function sfxOut(){
+    const set = (typeof SAVE!=="undefined" && SAVE.set) ? SAVE.set : null;
+    if(!set) return 0.7;
+    if(set.sfxMute) return 0;
+    let v = set.sfx == null ? 0.7 : +set.sfx;
+    if(set.quiet) v = Math.min(v, 0.35);
+    return Math.max(0, Math.min(1, v));
+  }
+  function applyMusicGain(){
+    const v = musicOut();
+    if(mMus&&ctx) mMus.gain.setTargetAtTime(v, ctx.currentTime, .1);
+    Object.keys(trackAudio).forEach(k=>{
+      if(!trackNodes[k] && trackAudio[k]) trackAudio[k].volume = v;
+    });
+  }
+  function applySfxGain(){
+    const v = sfxOut();
+    if(mSfx && ctx) mSfx.gain.setTargetAtTime(v, ctx.currentTime, .05);
+    if(rainAudio && !(ctx && mSfx && rainWired)) rainAudio.volume = Math.max(0, Math.min(1, v * 0.5));
+  }
   function syncRainVolume(){
     if(!rainAudio) return;
     if(ctx && mSfx && rainWired){ rainAudio.volume = 1; return; }
-    const sfxVol = (typeof SAVE!=="undefined" && SAVE.set && typeof SAVE.set.sfx==="number") ? SAVE.set.sfx : 0.7;
-    rainAudio.volume = Math.max(0, Math.min(1, sfxVol * 0.5));
+    rainAudio.volume = Math.max(0, Math.min(1, sfxOut() * 0.5));
   }
   function setRain(active){
     rainRequested = !!active;
@@ -103,7 +130,7 @@ const Snd = (function(){
   }
   function duckMusic(factor, ms){
     if(!ctx||!mMus) return;
-    const base = Math.max(0, SAVE.set.music||0);
+    const base = musicOut();
     try{ mMus.gain.cancelScheduledValues(ctx.currentTime); }catch(e){}
     /* Music at 0 must stay at 0 — a 1% duck floor was leaking the bed. */
     if(base<=0){
@@ -115,19 +142,20 @@ const Snd = (function(){
     if(duckTimer) clearTimeout(duckTimer);
     duckTimer = setTimeout(function(){
       if(!ctx||!mMus) return;
-      mMus.gain.setTargetAtTime(SAVE.set.music||0, ctx.currentTime, .22);
+      mMus.gain.setTargetAtTime(musicOut(), ctx.currentTime, .22);
     }, ms||480);
   }
   function playSfx(name){
     init();
     const src=SFX[name];
     if(!src||!avail) return false;
+    if(sfxOut()<=0) return true;
     try{
       if(SFX_EXCL[name] && sfxHold[name]){
         try{ sfxHold[name].pause(); sfxHold[name].currentTime=0; }catch(e){}
       }
       const a=new Audio(src);
-      a.volume=Math.max(0,Math.min(1,(SAVE.set.sfx||0)*(SFX_GAIN[name]==null?0.7:SFX_GAIN[name])));
+      a.volume=Math.max(0,Math.min(1,sfxOut()*(SFX_GAIN[name]==null?0.7:SFX_GAIN[name])));
       if(SFX_EXCL[name]) sfxHold[name]=a;
       if(SFX_DUCK[name]) duckMusic(0.42, 380);
       const p=a.play();
@@ -144,10 +172,15 @@ const Snd = (function(){
     }
     try{
       const a = new Audio(src);
-      a.volume = Math.max(0, Math.min(1, SAVE.set.sfx==null ? 0.7 : SAVE.set.sfx));
-      if(onEnded) a.addEventListener("ended", onEnded, { once:true });
+      a.volume = sfxOut();
+      let done = false;
+      function finish(){ if(done) return; done = true; if(onEnded) onEnded(); }
+      if(onEnded){
+        a.addEventListener("ended", finish, { once:true });
+        a.addEventListener("error", finish, { once:true });
+      }
       const p = a.play();
-      if(p && p.catch) p.catch(function(){ if(onEnded) onEnded(); });
+      if(p && p.catch) p.catch(finish);
       return a;
     }catch(e){
       if(onEnded) onEnded();
@@ -170,7 +203,7 @@ const Snd = (function(){
       }
       const a=new Audio(src);
       a.preload="metadata";
-      a.volume=Math.max(0,Math.min(1,SAVE.set.sfx==null?0.7:SAVE.set.sfx));
+      a.volume=sfxOut();
       voiceHold=a;
       if(avail) duckMusic(0.2, duckMs==null?2400:duckMs);
       const p=a.play();
@@ -213,8 +246,8 @@ const Snd = (function(){
     if(ctx||!avail) return;
     try{
       ctx = new (window.AudioContext||window.webkitAudioContext)();
-      mMus = ctx.createGain(); mMus.gain.value = SAVE.set.music; mMus.connect(ctx.destination);
-      mSfx = ctx.createGain(); mSfx.gain.value = SAVE.set.sfx; mSfx.connect(ctx.destination);
+      mMus = ctx.createGain(); mMus.gain.value = musicOut(); mMus.connect(ctx.destination);
+      mSfx = ctx.createGain(); mSfx.gain.value = sfxOut(); mSfx.connect(ctx.destination);
       anal = ctx.createAnalyser(); anal.fftSize = 128; anal.smoothingTimeConstant = 0.76;
       freq = new Uint8Array(anal.frequencyBinCount);
       mMus.connect(anal); mSfx.connect(anal);
@@ -225,7 +258,7 @@ const Snd = (function(){
     const a = new Audio(TRACKS[name]);
     a.loop = true;
     a.preload = "none"; /* lazy — only fetch when this bed plays */
-    a.volume = Math.max(0, Math.min(1, SAVE.set.music||0));
+    a.volume = musicOut();
     try{
       const n = ctx.createMediaElementSource(a);
       n.connect(mMus);
@@ -254,7 +287,7 @@ const Snd = (function(){
     /* Exactly one bed: stop every other track before starting this one. */
     Object.keys(trackAudio).forEach(k=>{ if(k!==name) stopTrack(k); });
     if(trackNodes[name]) a.volume = 1;
-    else a.volume = Math.max(0, Math.min(1, SAVE.set.music||0));
+    else a.volume = musicOut();
     if(!a.paused) return;
     const p = a.play();
     if(p && p.catch) p.catch(()=>{});
@@ -324,16 +357,21 @@ const Snd = (function(){
     },
     setMusic(v){
       SAVE.set.music=v;
-      if(mMus&&ctx) mMus.gain.setTargetAtTime(v, ctx.currentTime, .1);
-      /* Tracks not routed through Web Audio still need element volume. */
-      Object.keys(trackAudio).forEach(k=>{
-        if(!trackNodes[k] && trackAudio[k]) trackAudio[k].volume = Math.max(0, Math.min(1, v||0));
-      });
+      applyMusicGain();
     },
     setSfx(v){
       SAVE.set.sfx=v;
-      if(mSfx && ctx) mSfx.gain.setTargetAtTime(v, ctx.currentTime, .05);
-      if(rainAudio && !(ctx && mSfx && rainWired)) rainAudio.volume = Math.max(0, Math.min(1, (v||0) * 0.5));
+      applySfxGain();
+    },
+    syncLevels(){ applyMusicGain(); applySfxGain(); },
+    musicLevel: musicOut,
+    sfxLevel: sfxOut,
+    toggleMute(kind){
+      if(!SAVE || !SAVE.set) return;
+      if(kind==="sfx") SAVE.set.sfxMute = !SAVE.set.sfxMute;
+      else SAVE.set.musicMute = !SAVE.set.musicMute;
+      applyMusicGain();
+      applySfxGain();
     },
     ambience(name){
       bed = name;
@@ -362,7 +400,7 @@ const Snd = (function(){
     },
     tension(level){
       if(!ctx||!mMus) return;
-      const base=Math.max(0,SAVE.set.music||0);
+      const base=musicOut();
       /* Off means off. The old .05 floor brought the bed back after mute. */
       if(base<=0){ mMus.gain.setTargetAtTime(0,ctx.currentTime,.08); return; }
       const target=base*(1+Math.min(4,level||0)*.09);

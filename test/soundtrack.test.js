@@ -115,6 +115,11 @@ assert(/base<=0/.test(game) && /tension\(level\)/.test(game),
   "tension does not revive a muted bed");
 assert(/if\(base<=0\)/.test(game) && /function duckMusic/.test(game),
   "ducking a muted bed stays silent");
+assert(/function musicOut\(/.test(game) && /musicMute/.test(game),
+  "music mute flag drives bed gain");
+assert(/function sfxOut\(/.test(game) && /sfxMute/.test(game),
+  "sfx mute flag drives effect gain");
+assert(/toggleMute\(kind\)/.test(game), "HUD can mute music or SFX without clearing the sliders");
 
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");

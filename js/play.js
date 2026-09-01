@@ -940,9 +940,7 @@ function buildChoices(q, rnd){
 function updateSiteVideoVolume(){
   const vid = $("cine-parallax-video");
   if(!vid) return;
-  const sfxVol = (typeof SAVE !== "undefined" && SAVE.set && typeof SAVE.set.sfx === "number") ? SAVE.set.sfx : 0.7;
-  const isQuiet = typeof SAVE !== "undefined" && SAVE.set && SAVE.set.quiet;
-  const base = isQuiet ? Math.min(sfxVol, 0.35) : sfxVol;
+  const base = (typeof Snd!=="undefined" && Snd.sfxLevel) ? Snd.sfxLevel() : 0.7;
   vid.volume = Math.max(0, Math.min(1, base * 0.45));
 }
 
@@ -1527,12 +1525,12 @@ function tfBind(btn){
     if(!R.tf || R.tf.resolved) return;
     stopTimer();
     R.locked = true;
+    const picked = btn;
+    afterRun(430, function(){ resolveTrueFalse(picked.dataset.val, picked, false); });
     const confirm = $("confirm-answer");
     if(confirm){ confirm.disabled = true; confirm.textContent = "Answer Locked"; }
     Snd.lock(); Snd.hush();
     Director.beat("lock");
-    const picked = btn;
-    afterRun(430, function(){ resolveTrueFalse(picked.dataset.val, picked, false); });
   });
   btn.addEventListener("keydown", function(e){
     if(e.key === "Enter" || e.key === " "){ e.preventDefault(); btn.click(); }
@@ -1602,16 +1600,17 @@ function applyCorrect(opts){
     const leftB = Math.max(0, (R.blitzEnd||0) - performance.now());
     R.blitzEnd = performance.now() + Polish.blitzAdjustMs(leftB, true);
   }
-  noteGhostProgress(); Director.impact("correct"); Snd.correct(); animateScore(); setMult(true); Director.momentum(true);
+  noteGhostProgress();
+  const offered = maybeOfferOverdrive();
+  if(!offered) afterRun(answerHoldMs(), queueAdvance);
+  Director.impact("correct"); Snd.correct(); animateScore(); setMult(true); Director.momentum(true);
   celebrateCorrectStreak();
-  if(maybeOfferOverdrive()) return true;
-  afterRun(answerHoldMs(), queueAdvance);
-  return false;
+  if(offered && typeof Cinematic !== "undefined") Cinematic.event("overdrive");
+  return offered;
 }
 function maybeOfferOverdrive(){
   if(R.mode==="beat" || R.mode==="team") return false;
   if(R.streak === MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] && !R.setpiece && R.mode !== "blitz"){
-    if(typeof Cinematic !== "undefined") Cinematic.event("overdrive");
     afterRun(700, offerOverdriveChoice);
     return true;
   }
@@ -2040,16 +2039,16 @@ function answer(choice, btn){
   if(!R.running || R.paused) return;
   stopTimer();
   R.locked = true;
-  $("confirm-answer").disabled = true;
-  $("confirm-answer").textContent = "Answer Locked";
   const q=R.q;
   const elapsed = performance.now()-R.qStart;
   const left = Math.max(0, R.tEnd - performance.now());
-  const opts=$("opts"); opts.classList.add("locked");
+  afterRun(430, ()=>resolveAnswer(q,choice,btn,elapsed,left));
+  const confirm=$("confirm-answer");
+  if(confirm){ confirm.disabled = true; confirm.textContent = "Answer Locked"; }
+  const opts=$("opts"); if(opts) opts.classList.add("locked");
   Snd.lock();Snd.hush();
   Director.beat("lock");
   document.body.classList.remove("reveal-freeze");void document.body.offsetWidth;document.body.classList.add("reveal-freeze");
-  afterRun(430, ()=>resolveAnswer(q,choice,btn,elapsed,left));
 }
 
 function recordDecision(ms){
@@ -2236,18 +2235,18 @@ function timeUp(){
   if(R.mode==="tutorial"){
     stopTimer();
     R.locked=true;
-    $("confirm-answer").disabled=true;
-    $("confirm-answer").textContent="Lesson continues";
+    const lockBtn=$("confirm-answer");
+    if(lockBtn){ lockBtn.disabled=true; lockBtn.textContent="Lesson continues"; }
     resolveTutorialAnswer(R.q, "", null);
     return;
   }
   stopTimer(); R.locked=true; R.selected=null; R.attempts++; recordDecision(R.tTotal);
   spillOil(R.streak||0);
   R.streak=0; setMult();
-  $("confirm-answer").disabled = true;
-  $("confirm-answer").textContent = "Time Expired";
+  const expired=$("confirm-answer");
+  if(expired){ expired.disabled = true; expired.textContent = "Time Expired"; }
   Director.momentum(false);Director.pressure(0);
-  const q=R.q, opts=$("opts"); opts.classList.add("locked");
+  const q=R.q, opts=$("opts"); if(opts) opts.classList.add("locked");
   if(R.typed){
     const input=$("typed-answer"); if(input) input.disabled = true;
     renderTypedVerdict({verdict:"wrong", hint:""});

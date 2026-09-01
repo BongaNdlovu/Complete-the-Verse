@@ -24,7 +24,7 @@ const DEFAULT_SAVE = {
   pilgrim:{sites:{}, lastPlayed:"", started:0, usedIds:[]},
   /* Relics unlocked by first site clear. Shape owned by artifacts.js. */
   artifacts:{unlocked:{}, seen:{}},
-  set:{music:0.45, sfx:0.7, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"disciple",
+  set:{music:0.45, sfx:0.7, musicMute:false, sfxMute:false, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"disciple",
        tutorialDone:false, tutorialSeen:false, tabletsTutorialDone:false, introPlayed:false, liveWeather:true, coldOpenDone:false, urPrologueDone:false, quiet:false, contrast:false, haptics:true,
        singleTap:true,
        character:"amina", scholarId:"amina", playerName:"", profileDone:false,
@@ -409,22 +409,18 @@ function applyLeave(plan){
     Snd.setRain(false);
   }
 }
-function enterViewChrome(view){
-  document.body.classList.toggle("cine", view==="act");
-  if(view!=="play"){
-    document.body.classList.remove("mode-typed");
-    if(view!=="tablets") applySiteSky(null);
-  }
-  if(view!=="play" && typeof syncAbrahamPresentation === "function") syncAbrahamPresentation(null);
+function enterViewCaption(view){
   if(view==="intro"){
     syncHallVideo(SAVE.set.quality);
     const cap=$("voice-caption"), stage=$("v-intro");
     if(cap && !(stage && stage.classList.contains("playing"))) cap.classList.remove("on");
+    return;
   }
-  if(view!=="play" && view!=="intro" && view!=="act" && view!=="tablets"){
-    const cap=$("voice-caption");
-    if(cap) cap.classList.remove("on");
-  }
+  if(view==="play" || view==="act" || view==="tablets") return;
+  const cap=$("voice-caption");
+  if(cap) cap.classList.remove("on");
+}
+function enterViewAmbience(view){
   if(view==="atlas"){ Backdrop.palette("menu"); Snd.ambience("menu"); openAtlas(); }
   if(view==="boot"){ Backdrop.palette("menu"); syncHallVideo(SAVE.set.quality); }
   if(view==="menu"){ Backdrop.palette("menu"); Snd.ambience("menu"); renderMenu(); syncHallVideo(SAVE.set.quality); }
@@ -435,6 +431,16 @@ function enterViewChrome(view){
     Backdrop.palette("results");
     Snd.ambience((R && R.resultTrack) || "results");
   }
+}
+function enterViewChrome(view){
+  document.body.classList.toggle("cine", view==="act");
+  if(view!=="play"){
+    document.body.classList.remove("mode-typed");
+    if(view!=="tablets") applySiteSky(null);
+  }
+  if(view!=="play" && typeof syncAbrahamPresentation === "function") syncAbrahamPresentation(null);
+  enterViewCaption(view);
+  enterViewAmbience(view);
 }
 function enterViewPanels(view){
   if(view==="study") renderStudy();
@@ -702,17 +708,30 @@ function startRunPracticeLen(mode, options, isPilgrim, siteDraw){
   if(isPilgrim) return siteDraw.verses.length;
   return 0;
 }
-function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDraw, relay, startPowers, reservedIlluminate, blitzMs, options){
-  const tabletChapter = (options && options.tabletChapter) || "psalm23";
-  const tabletTutorial = mode==="tablets" && (!!(options && options.tabletTutorial) || tabletChapter === "prayer");
-  const tabletLevel = tabletTutorial ? 1
+function startRunTabletState(mode, options){
+  const chapter = (options && options.tabletChapter) || "psalm23";
+  const tutorial = mode==="tablets" && (!!(options && options.tabletTutorial) || chapter === "prayer");
+  const level = tutorial ? 1
     : (mode==="tablets" && typeof Tablets !== "undefined" && Tablets.pickLevel)
-      ? Tablets.pickLevel(tabletChapter, SAVE, options && options.tabletLevel)
+      ? Tablets.pickLevel(chapter, SAVE, options && options.tabletLevel)
       : 1;
+  return { chapter: chapter, tutorial: tutorial, level: level, fromRoad: !!(options && options.fromRoad) };
+}
+function startRunTeamState(mode, options){
+  if(mode!=="team") return { teamSide: null, teams: null };
+  return {
+    teamSide: (options && options.teamSide)==="blue" ? "blue" : "white",
+    teams: { white:{kept:0, ms:0}, blue:{kept:0, ms:0} }
+  };
+}
+function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDraw, relay, startPowers, reservedIlluminate, blitzMs, options){
+  const tab = startRunTabletState(mode, options);
+  const team = startRunTeamState(mode, options);
+  const lives = mode==="blitz" ? 99 : D.lives;
   Object.assign(R, {
     runToken, sceneToken:0, ended:false,
     mode, diff:D, actIdx:0, qInAct:0, qTotal:0,
-    score:0, disp:0, lives: mode==="blitz" ? 99 : D.lives, maxLives: mode==="blitz" ? 99 : D.lives,
+    score:0, disp:0, lives: lives, maxLives: lives,
     streak:0, best:0, correct:0, attempts:0, missed:[], used:new Set(), usedRefs:new Set(),
     siteCommitted:{},
     powers:startPowers, usedPower:false, qUsedPower:false, powersSpent:0,
@@ -740,18 +759,18 @@ function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDra
     quoteShown: false, assemble: null,
     quickRewards: (mode!=="team" && typeof QuickRewards !== "undefined" && QuickRewards.pick)
       ? QuickRewards.pick(mode, runToken + (SAVE.runs||0)) : [],
-    teamSide: mode==="team" ? ((options && options.teamSide)==="blue" ? "blue" : "white") : null,
+    teamSide: team.teamSide,
     teamHanded: false,
     teamFilmShown: false,
     holdQuestionMusic: false,
-    teams: mode==="team" ? { white:{kept:0, ms:0}, blue:{kept:0, ms:0} } : null,
+    teams: team.teams,
     quickRewardAnnounced: new Set(), quickResult: null,
       reservedIlluminate: reservedIlluminate,
     beatQ: 0, beatMiss: 0, beatBDone: false, beatPlates: null, beatPlateIdx: -1,
-    tabletChapter: tabletChapter,
-    tabletLevel: tabletLevel,
-    tabletTutorial: tabletTutorial,
-    fromRoad: !!(options && options.fromRoad)
+    tabletChapter: tab.chapter,
+    tabletLevel: tab.level,
+    tabletTutorial: tab.tutorial,
+    fromRoad: tab.fromRoad
   });
 }
 function routeRoadTabletStop(mode, diffKey, options){
@@ -1411,9 +1430,11 @@ function offerOverdriveChoice(){
   R.running = false;
   document.body.classList.add("od-open");
   el.classList.add("on");
-  /* ===== Beat: OVERDRIVE SURGE (arming) =====
-     Shockwave from the meter + sub hit, layered under the existing gold
-     flash. One-shot; the choice overlay carries the animation. */
+  clearTimeout(R._odTimer);
+  R._odTimer = setTimeout(function(){
+    const c = $("overdrive-choice");
+    if(c && c.classList.contains("on")) resolveOverdrive("bank");
+  }, 9000);
   if(!SAVE.set.reduced){
     el.classList.remove("od-ready"); void el.offsetWidth;
     el.classList.add("od-ready");
@@ -1421,11 +1442,6 @@ function offerOverdriveChoice(){
   }
   Snd.odReady();
   Snd.power(); doFlash("gold");
-  clearTimeout(R._odTimer);
-  R._odTimer = setTimeout(function(){
-    const c = $("overdrive-choice");
-    if(c && c.classList.contains("on")) resolveOverdrive("bank");
-  }, 9000);
 }
 function resolveOverdrive(choice){
   if(R.ended) return;
@@ -1455,6 +1471,7 @@ function resolveOverdrive(choice){
 
 function setMult(pop){
   const m=multiplier(), el=$("mult");
+  if(!el) return;
   el.textContent="×"+m;
   el.classList.toggle("hot", m>1);
   if(pop && m>1){ el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
@@ -1673,6 +1690,34 @@ function checkMetaSeals(){
   if(booksC>=30) grantSeal("books30");
   if(booksC>=66) grantSeal("books66");
   if(SAVE.life.dailyDone>=7) grantSeal("daily7");
+}
+
+function paintAudioBtn(id, on){
+  const el = $(id);
+  if(!el) return;
+  el.classList.toggle("is-off", !on);
+  el.setAttribute("aria-pressed", on ? "true" : "false");
+}
+function paintAudioDock(){
+  if(typeof Snd==="undefined" || !Snd.musicLevel) return;
+  paintAudioBtn("audio-music", Snd.musicLevel() > 0);
+  paintAudioBtn("audio-sfx", Snd.sfxLevel() > 0);
+}
+function onAudioDockClick(e){
+  const b = e.target.closest("[data-audio]");
+  if(!b) return;
+  Snd.unlock();
+  Snd.toggleMute(b.getAttribute("data-audio"));
+  persist();
+  paintAudioDock();
+  if(typeof updateSiteVideoVolume==="function") updateSiteVideoVolume();
+  if(Snd.sfxLevel()>0) Snd.ui();
+}
+function bindAudioDock(){
+  const dock = $("audio-dock");
+  if(!dock) return;
+  dock.addEventListener("click", onAudioDockClick);
+  paintAudioDock();
 }
 
 /* ------------------------- PAUSE ------------------------- */
@@ -1970,6 +2015,8 @@ document.addEventListener("visibilitychange", ()=>{
     }
   }else if(currentView==="play"){
     ensureLoop();
+  }else if(currentView==="tablets" && R && R.paused && typeof setTabletsPaused==="function"){
+    setTabletsPaused(true);
   }
 });
 
@@ -1998,6 +2045,7 @@ function loop(ts){
   buildPlayerCard();
   Backdrop.init();
   applySettings();
+  bindAudioDock();
   bindTutorial();
   armIntro();
 

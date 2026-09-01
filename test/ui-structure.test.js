@@ -107,6 +107,13 @@ assert(html.includes('id="score"'), "score remains on play HUD");
 assert(html.includes('id="confirm-answer"'), "Lock Answer control required");
 assert(html.includes('id="play-control"'), "play action row hosts I'm Done");
 assert(html.includes('id="play-quit"'), "play view offers a Quit control");
+assert(html.includes('id="audio-dock"'), "play HUD offers music and SFX toggles");
+assert(html.includes('id="audio-music"') && html.includes('id="audio-sfx"'), "music and SFX toggle ids present");
+assert(html.includes('data-audio="music"') && html.includes('data-audio="sfx"'), "audio toggles name their layer");
+assert(css.includes("body.view-play #audio-dock") && css.includes("body.view-tablets #audio-dock") && css.includes("body.cine #audio-dock"),
+  "audio toggles show during play, tablets, and act cards");
+assert(/function paintAudioDock\(/.test(game) && /toggleMute\(/.test(game),
+  "audio dock bind and mute live in the engine");
 assert(html.includes('id="play-candle"'), "play view offers the progress candle");
 
 assert(css.includes("min-height:52px"), "mobile Lock CTA min-height 52px");

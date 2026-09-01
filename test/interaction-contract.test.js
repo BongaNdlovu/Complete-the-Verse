@@ -38,8 +38,34 @@ ok("cinematic beats are priority gated", cinematic.includes("BEAT_PRIORITY") && 
 ok("cinematic events have a shared dispatcher", cinematic.includes("function event(kind, payload)"));
 ok("cinematic events are used by answer resolution", play.includes('Cinematic.event("streak"') && play.includes('Cinematic.event("miss"'));
 
-ok("walker uses seven transitions for eight frames", atlasCss.includes("steps(7)"));
-ok("walker stops on the last frame", atlasCss.includes("-280px 0"));
+const seq = fs.readFileSync(path.join(ROOT, "js", "sequences.js"), "utf8");
+const tablets = fs.readFileSync(path.join(ROOT, "js", "tablets-run.js"), "utf8");
+const audio = fs.readFileSync(path.join(ROOT, "js", "audio.js"), "utf8");
+const shim = fs.readFileSync(path.join(ROOT, "scripts", "test-shim.js"), "utf8");
+
+function sliceFn(src, start, end){
+  const i = src.indexOf(start);
+  const j = src.indexOf(end, i + 1);
+  return i >= 0 && j > i ? src.slice(i, j) : "";
+}
+ok("answer schedules resolve before locking the grid", (()=>{
+  const fn = sliceFn(play, "function answer(", "function recordDecision");
+  return fn.indexOf("afterRun(430") >= 0 && fn.indexOf("afterRun(430") < fn.indexOf("opts.classList");
+})());
+ok("true/false schedules resolve before lock chrome", (()=>{
+  const fn = sliceFn(play, "function tfBind(", "function tfMarkButtons");
+  return fn.indexOf("afterRun(430") >= 0 && fn.indexOf("afterRun(430") < fn.indexOf("Snd.lock");
+})());
+ok("fillBlank schedules unlock before painting the blank", (()=>{
+  const fn = sliceFn(seq, "function fillBlank", "function resolvePassage");
+  return fn.indexOf("afterRun") >= 0 && fn.indexOf("afterRun") < fn.indexOf("querySelectorAll");
+})());
+ok("tabletsResolve schedules finish before paint", (()=>{
+  const fn = sliceFn(tablets, "function tabletsResolve(ok)", "function tabletsUnlockGrid");
+  return fn.indexOf("setTimeout") >= 0 && fn.indexOf("setTimeout") < fn.indexOf("tabletsResolveMiss");
+})());
+ok("playFile continues on media error", audio.includes('addEventListener("error"') && audio.includes("function finish()"));
+ok("empty class tokens throw in the test DOM", shim.includes('if(x==="") throw'));
 
 if(fail){
   console.log("FAIL — interaction contract · " + pass + " passed · " + fail + " failed");

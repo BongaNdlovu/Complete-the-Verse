@@ -78,32 +78,37 @@ function renderBlankOptions(){
 function fillBlank(val, btn){
   const st = R.passage;
   if(!st || !R.running || R.paused || R.locked) return;
-  R.locked = true;
   const b = st.p.blanks[st.idx];
+  if(!b) return;
+  R.locked = true;
   const ok = val === b.a;
-  const span = $("verse").querySelectorAll(".pblank")[st.idx];
-  span.classList.remove("active");
-  span.textContent = ok ? b.a : val;
-  span.classList.add(ok ? "filled" : "bad", "reveal");
-
-  answerButtons().forEach(x=>{
-    if(x.dataset.val===b.a) x.classList.add("right");
-    else if(x===btn) x.classList.add("bad");
-    else x.classList.add("mute");
-  });
-  $("opts").classList.add("locked");
-  if(ok){ Snd.correct(); doFlash("gold"); Director.impact("correct"); if(typeof reactAbraham === "function") reactAbraham(true); }
-  else { st.wrong++; if(typeof reactAbraham === "function") reactAbraham(false); Snd.wrong(); doFlash("red"); Director.impact("wrong"); shakeUI(true); }
-
+  const spanIdx = st.idx;
   st.idx++;
   R.setpiece.remaining = st.p.blanks.length - st.idx;
-  updateChips();
   afterRun(ok ? 700 : 1000, ()=>{
     if(R.passage!==st) return;
     R.locked = false;
     if(st.idx >= st.p.blanks.length) resolvePassage();
     else renderBlankOptions();
   });
+  const verse = $("verse");
+  const span = verse && verse.querySelectorAll(".pblank")[spanIdx];
+  if(span){
+    span.classList.remove("active");
+    span.textContent = ok ? b.a : val;
+    span.classList.add(ok ? "filled" : "bad", "reveal");
+  }
+
+  answerButtons().forEach(x=>{
+    if(x.dataset.val===b.a) x.classList.add("right");
+    else if(x===btn) x.classList.add("bad");
+    else x.classList.add("mute");
+  });
+  const opts = $("opts");
+  if(opts) opts.classList.add("locked");
+  if(ok){ Snd.correct(); doFlash("gold"); Director.impact("correct"); if(typeof reactAbraham === "function") reactAbraham(true); }
+  else { st.wrong++; if(typeof reactAbraham === "function") reactAbraham(false); Snd.wrong(); doFlash("red"); Director.impact("wrong"); shakeUI(true); }
+  updateChips();
 }
 function resolvePassage(){
   const st = R.passage; if(!st) return;
@@ -271,12 +276,17 @@ function resolveRecon(){
   R.recon = null;
   stopTimer(); R.locked = true;
   const right = st.slots.reduce((n,f,i)=> n + (f===i ? 1 : 0), 0);
-  $("recon-slots").querySelectorAll(".slot").forEach((el,i)=>{
+  const slots = $("recon-slots");
+  if(slots) slots.querySelectorAll(".slot").forEach((el,i)=>{
     el.classList.remove("empty","full");
     el.classList.add(st.slots[i]===i ? "ok" : "no");
-    if(st.slots[i]!==i) el.querySelector("span").textContent = st.frags[i];
+    if(st.slots[i]!==i){
+      const sp = el.querySelector("span");
+      if(sp) sp.textContent = st.frags[i];
+    }
   });
-  $("verse").innerHTML = '<span class="recon-prompt">'+
+  const verseEl = $("verse");
+  if(verseEl) verseEl.innerHTML = '<span class="recon-prompt">'+
     (right===st.frags.length ? "The passage stands whole" : "Fragments out of order")+'</span>';
   finishSequence({book:st.p.b, id:st.p.id, right, total:st.frags.length, base:200});
 }
@@ -294,13 +304,13 @@ function finishSequence(o){
     animateScore();
   }
   if(perfect){
+    afterRun(1700, nextQuestion);
     if(typeof reactAbraham === "function") reactAbraham(true);
     R.correct++; R.streak++; R.best = Math.max(R.best, R.streak);
     R.booksRun.add(o.book);
     Snd.correct(); doFlash("gold");
     Director.callout(SetPieces.label()+" restored");
     setMult(true); Director.momentum(true);
-    afterRun(1700, nextQuestion);
   } else {
     if(typeof reactAbraham === "function") reactAbraham(false);
     R.streak = 0; setMult();

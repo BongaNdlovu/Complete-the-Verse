@@ -18,7 +18,8 @@ function makeElement(id){
     // has to be too.
     classList:{
       _s:new Set(),
-      add(...c){ c.forEach(x=>this._s.add(x)); }, remove(...c){ c.forEach(x=>this._s.delete(x)); },
+      add(...c){ c.forEach(x=>{ if(x==="") throw new Error("The token provided must not be empty."); this._s.add(x); }); },
+      remove(...c){ c.forEach(x=>{ if(x==="") throw new Error("The token provided must not be empty."); this._s.delete(x); }); },
       toggle(c,f){ const on = f===undefined ? !this._s.has(c) : !!f; on?this._s.add(c):this._s.delete(c); return on; },
       contains(c){ return this._s.has(c); },
       get length(){ return this._s.size; },

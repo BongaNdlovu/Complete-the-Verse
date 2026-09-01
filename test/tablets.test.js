@@ -117,6 +117,12 @@ ok("illuminate control is in the view", html.indexOf('id="tablets-illum"') >= 0)
 ok("remaining counter is in the view", html.indexOf('id="tablets-remain"') >= 0);
 ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}toggleTabletsPause/.test(gameSrc));
 ok("hit does not add an empty class", !/classList\.add\("in", answer === "miss"/.test(src));
+ok("resolve timeout is armed before paint", (()=>{
+  const i = src.indexOf("function tabletsResolve(ok)");
+  const j = src.indexOf("function tabletsUnlockGrid");
+  const fn = i >= 0 && j > i ? src.slice(i, j) : "";
+  return fn.indexOf("setTimeout") >= 0 && fn.indexOf("setTimeout") < fn.indexOf("tabletsResolveMiss");
+})());
 ok("walker and companion sit on the hold", html.indexOf('id="tablets-walker-sprite"') >= 0 && html.indexOf('id="tablets-companion"') >= 0);
 ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*snapTraveler/.test(fs.readFileSync(path.join(ROOT, "js", "atlas.js"), "utf8")));
 
@@ -261,6 +267,14 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   eq("tutorial is done", read(sb, "SAVE.set.tabletsTutorialDone"), true);
   eq("prayer pays no XP", read(sb, "SAVE.xp"), 0);
   eq("prayer is not a chapter Hold", read(sb, "!(SAVE.tablets.prayer && SAVE.tablets.prayer.held)"), true);
+}
+
+{
+  const sb = boot();
+  let threw = false;
+  try { exec(sb, '$("tablets-sheet").classList.add("")'); }
+  catch (e) { threw = true; }
+  ok("empty class token throws in the shim", threw);
 }
 
 {

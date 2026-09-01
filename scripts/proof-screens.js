@@ -57,6 +57,91 @@ function check(name, cond, extra) {
   else { failed++; console.log("FAIL", name, extra || ""); }
 }
 
+async function waitReady(c) {
+  for (let i = 0; i < 25; i++) {
+    try { if (await c.eval("Boolean(window.SAVE && window.go)")) break; } catch (e) {}
+    await sleep(400);
+  }
+}
+
+function checkPlayChrome(st, tag) {
+  check(tag + " did not throw", st.view != null);
+  if (st.view === "play" || st.view === "tablets" || st.view === "act") {
+    check(tag + " profile overlay closed", st.pickerOn === false);
+    check(tag + " atlas vignette closed", st.vignetteOn === false);
+  }
+  if (st.view === "play" && st.mode !== "recall" && st.mode !== "pilgrim-recall" && st.mode !== "beat") {
+    check(tag + " answers on screen", st.ansInView === true, "ans="+st.ans);
+  }
+}
+
+async function runShots(c, snap, screens, prefix) {
+  for (const [label, code, file] of screens) {
+    const tag = prefix ? prefix + " " + label : label;
+    try { await c.eval(code); }
+    catch (e) { check(tag + " eval", false, String(e.message || e)); }
+    await sleep(prefix ? 400 : 450);
+    const st = await snap(prefix ? prefix + "-" + label : label);
+    checkPlayChrome(st, tag);
+    await c.shot(file);
+  }
+}
+
+async function proofDesktopOpen(c, snap) {
+  await c.eval(`SAVE.set.quality='high'; SAVE.set.reduced=false; SAVE.set.voice=true; SAVE.set.introPlayed=false; SAVE.set.tutorialDone=false; persist(); introReady=true; introDone=false; introStarted=false; introTapPending=false; go("intro")`);
+  await sleep(400);
+  let st = await snap("intro-idle");
+  check("intro view is on", st.view === "intro" && st.introOn);
+  check("intro video is sourced", String(st.introSrc).indexOf("assets/intro.mp4") >= 0);
+  await c.shot("desktop-01-intro.png");
+
+  await c.eval(`beginIntroPlayback()`);
+  await sleep(800);
+  st = await snap("intro-playing");
+  check("intro starts playback", st.introPlaying === true);
+  check("intro voice caption is on", st.captionOn === true && st.caption.length > 8);
+  await c.shot("desktop-02-intro-playing.png");
+
+  await c.eval(`finishIntro(true)`);
+  await sleep(500);
+  await c.eval(`SAVE.set.tutorialDone=false; persist(); enterCoffeePath()`);
+  await sleep(600);
+  st = await snap("tutorial-l1");
+  check("tutorial is the live mode", st.mode === "tutorial" && st.view === "play");
+  check("tutorial guide is visible", st.guideOn === true && st.guide.length > 8);
+  check("lesson voice caption is visible", st.captionOn === true);
+  check("tutorial is not stamped done", st.tutorialDone === false);
+  check("tutorial shows four answers", st.ans === 4, "ans="+st.ans);
+  check("tutorial answers are on screen", st.ansInView === true);
+  await c.shot("desktop-03-tutorial.png");
+  await c.eval(`SAVE.set.playerName="Proof"; SAVE.set.profileDone=true; persist(); if(typeof closeCharacterPicker==="function") closeCharacterPicker();`);
+  check("tutorial overlay is closed", st.pickerOn === false);
+}
+
+async function proofPhoneOpen(c, snap) {
+  await c.send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+  await c.eval(`introReady=true; introDone=false; introStarted=false; introTapPending=false; SAVE.set.introPlayed=false; persist(); var stg=$("v-intro"); if(stg){ stg.classList.remove("playing","leaving"); } var card=$("intro-start"); if(card) card.removeAttribute("hidden"); go("intro")`);
+  await sleep(350);
+  let st = await snap("phone-intro");
+  check("phone intro is on", st.view === "intro");
+  await c.shot("phone-01-intro.png");
+  await c.eval(`beginIntroPlayback()`);
+  await sleep(600);
+  st = await snap("phone-intro-playing");
+  check("phone intro caption", st.captionOn === true);
+  await c.shot("phone-02-intro-playing.png");
+  await c.eval(`finishIntro(true)`);
+  await sleep(500);
+  await c.eval(`SAVE.set.tutorialSeen=false; SAVE.set.tutorialDone=false; persist(); enterCoffeePath()`);
+  await sleep(500);
+  st = await snap("phone-tutorial");
+  check("phone tutorial is live", st.mode === "tutorial" && st.guideOn);
+  check("phone tutorial has four answers", st.ans === 4, "ans="+st.ans);
+  check("phone tutorial answers are on screen", st.ansInView === true);
+  await c.shot("phone-03-tutorial.png");
+  await c.eval(`SAVE.set.playerName="Proof"; SAVE.set.profileDone=true; persist(); if(typeof closeCharacterPicker==="function") closeCharacterPicker();`);
+}
+
 (async () => {
   const profile = path.join(os.tmpdir(), "ctv-proof-" + Date.now());
   const chrome = spawn(CHROME, [
@@ -71,17 +156,10 @@ function check(name, cond, extra) {
   await c.send("Runtime.enable");
   await c.send("Emulation.setDeviceMetricsOverride", { width: 1920, height: 1080, deviceScaleFactor: 1, mobile: false });
   try { await c.send("Emulation.setAutoplayPolicy", { policy: "noUserGestureRequired" }); } catch (e) {}
-  for (let i = 0; i < 25; i++) {
-    try { if (await c.eval("Boolean(window.SAVE && window.go)")) break; } catch (e) {}
-    await sleep(400);
-  }
-
+  await waitReady(c);
   await c.eval(`localStorage.clear(); location.reload(true)`);
   await sleep(2500);
-  for (let i = 0; i < 25; i++) {
-    try { if (await c.eval("Boolean(window.SAVE && window.go)")) break; } catch (e) {}
-    await sleep(400);
-  }
+  await waitReady(c);
 
   const snap = async (label) => {
     const info = await c.eval(`({
@@ -118,35 +196,7 @@ function check(name, cond, extra) {
     return info;
   };
 
-  await c.eval(`SAVE.set.quality='high'; SAVE.set.reduced=false; SAVE.set.voice=true; SAVE.set.introPlayed=false; SAVE.set.tutorialDone=false; persist(); introReady=true; introDone=false; introStarted=false; introTapPending=false; go("intro")`);
-  await sleep(400);
-  let st = await snap("intro-idle");
-  check("intro view is on", st.view === "intro" && st.introOn);
-  check("intro video is sourced", String(st.introSrc).indexOf("assets/intro.mp4") >= 0);
-  await c.shot("desktop-01-intro.png");
-
-  await c.eval(`beginIntroPlayback()`);
-  await sleep(800);
-  st = await snap("intro-playing");
-  check("intro starts playback", st.introPlaying === true);
-  check("intro voice caption is on", st.captionOn === true && st.caption.length > 8);
-  await c.shot("desktop-02-intro-playing.png");
-
-  await c.eval(`finishIntro(true)`);
-  await sleep(500);
-  await c.eval(`SAVE.set.tutorialDone=false; persist(); enterCoffeePath()`);
-  await sleep(600);
-  st = await snap("tutorial-l1");
-  check("tutorial is the live mode", st.mode === "tutorial" && st.view === "play");
-  check("tutorial guide is visible", st.guideOn === true && st.guide.length > 8);
-  check("lesson voice caption is visible", st.captionOn === true);
-  check("tutorial is not stamped done", st.tutorialDone === false);
-  check("tutorial shows four answers", st.ans === 4, "ans="+st.ans);
-  check("tutorial answers are on screen", st.ansInView === true);
-  await c.shot("desktop-03-tutorial.png");
-  await c.eval(`SAVE.set.playerName="Proof"; SAVE.set.profileDone=true; persist(); if(typeof closeCharacterPicker==="function") closeCharacterPicker();`);
-  check("tutorial overlay is closed", st.pickerOn === false);
-
+  await proofDesktopOpen(c, snap);
   const screens = [
     ["menu", `if(typeof completeTutorialRun==="function" && R && R.mode==="tutorial") completeTutorialRun(); else { if(R){ R.ended=true; R.running=false; } go("menu"); }`, "desktop-04-menu.png"],
     ["atlas", `go("atlas")`, "desktop-05-atlas.png"],
@@ -171,45 +221,9 @@ function check(name, cond, extra) {
     ["sitebrief", `openSiteBrief("ur")`, "desktop-24-sitebrief.png"],
     ["results", `startRun("daily","watchman"); endRun("abandon")`, "desktop-25-results.png"]
   ];
+  await runShots(c, snap, screens, "");
 
-  for (const [label, code, file] of screens) {
-    try { await c.eval(code); }
-    catch (e) { check(label + " eval", false, String(e.message || e)); }
-    await sleep(450);
-    st = await snap(label);
-    check(label + " did not throw", st.view != null);
-    if (st.view === "play" || st.view === "tablets" || st.view === "act") {
-      check(label + " profile overlay closed", st.pickerOn === false);
-      check(label + " atlas vignette closed", st.vignetteOn === false);
-    }
-    if (st.view === "play" && st.mode !== "recall" && st.mode !== "pilgrim-recall" && st.mode !== "beat") {
-      check(label + " answers on screen", st.ansInView === true, "ans="+st.ans);
-    }
-    await c.shot(file);
-  }
-
-  await c.send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
-  await c.eval(`introReady=true; introDone=false; introStarted=false; introTapPending=false; SAVE.set.introPlayed=false; persist(); var stg=$("v-intro"); if(stg){ stg.classList.remove("playing","leaving"); } var card=$("intro-start"); if(card) card.removeAttribute("hidden"); go("intro")`);
-  await sleep(350);
-  st = await snap("phone-intro");
-  check("phone intro is on", st.view === "intro");
-  await c.shot("phone-01-intro.png");
-  await c.eval(`beginIntroPlayback()`);
-  await sleep(600);
-  st = await snap("phone-intro-playing");
-  check("phone intro caption", st.captionOn === true);
-  await c.shot("phone-02-intro-playing.png");
-  await c.eval(`finishIntro(true)`);
-  await sleep(500);
-  await c.eval(`SAVE.set.tutorialDone=false; persist(); enterCoffeePath()`);
-  await sleep(500);
-  st = await snap("phone-tutorial");
-  check("phone tutorial is live", st.mode === "tutorial" && st.guideOn);
-  check("phone tutorial has four answers", st.ans === 4, "ans="+st.ans);
-  check("phone tutorial answers are on screen", st.ansInView === true);
-  await c.shot("phone-03-tutorial.png");
-  await c.eval(`SAVE.set.playerName="Proof"; SAVE.set.profileDone=true; persist(); if(typeof closeCharacterPicker==="function") closeCharacterPicker();`);
-
+  await proofPhoneOpen(c, snap);
   const phone = [
     ["menu", `if(typeof completeTutorialRun==="function" && R && R.mode==="tutorial") completeTutorialRun(); else { if(R){ R.ended=true; R.running=false; } go("menu"); }`, "phone-04-menu.png"],
     ["atlas", `go("atlas")`, "phone-05-atlas.png"],
@@ -233,21 +247,7 @@ function check(name, cond, extra) {
     ["sitebrief", `openSiteBrief("ur")`, "phone-23-sitebrief.png"],
     ["results", `startRun("daily","watchman"); endRun("abandon")`, "phone-24-results.png"]
   ];
-  for (const [label, code, file] of phone) {
-    try { await c.eval(code); }
-    catch (e) { check("phone " + label + " eval", false, String(e.message || e)); }
-    await sleep(400);
-    st = await snap("phone-" + label);
-    check("phone " + label + " did not throw", st.view != null);
-    if (st.view === "play" || st.view === "tablets" || st.view === "act") {
-      check("phone " + label + " profile overlay closed", st.pickerOn === false);
-      check("phone " + label + " atlas vignette closed", st.vignetteOn === false);
-    }
-    if (st.view === "play" && st.mode !== "recall" && st.mode !== "pilgrim-recall" && st.mode !== "beat") {
-      check("phone " + label + " answers on screen", st.ansInView === true, "ans="+st.ans);
-    }
-    await c.shot(file);
-  }
+  await runShots(c, snap, phone, "phone");
 
   console.log("EXCEPTIONS", c.errors.length ? c.errors.join(" | ") : "none");
   check("no runtime exceptions", c.errors.length === 0, c.errors.join(" | "));

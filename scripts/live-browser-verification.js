@@ -123,7 +123,7 @@ async function connectLiveClient() {
   await sleep(3000);
   for (let i = 0; i < 20; i++) {
     try {
-      const ready = await client.eval(`Boolean(window.SAVE && window.Pilgrimage)`);
+      const ready = await client.eval(`Boolean(window.SAVE && window.Pilgrimage && typeof clearSequence === "function")`);
       if (ready) break;
     } catch (e) {}
     await sleep(500);
@@ -362,12 +362,11 @@ async function runLiveVerification() {
     await sleep(2000);
     const fadeGifts = await client.eval(`({
       tTotal: R.tTotal,
-      locked: document.querySelectorAll(".asm-slot.locked").length,
+      options: document.querySelectorAll("#opts .ans").length,
       typedPwr: document.querySelectorAll(".typed-pwr").length
     })`);
-    check("Fade reconstruct wall clock is 60s", fadeGifts.tTotal === 60000, `tTotal=${fadeGifts.tTotal}`);
-    check("Fade reconstruct gifts 2–3 locked words", fadeGifts.locked >= 2 && fadeGifts.locked <= 3,
-      `locked=${fadeGifts.locked}`);
+    check("Fade reconstruct wall clock is 45s", fadeGifts.tTotal === 45000, `tTotal=${fadeGifts.tTotal}`);
+    check("Fade reconstruct renders four full-verse options", fadeGifts.options === 4, `options=${fadeGifts.options}`);
     check("Fade reconstruct has no duplicate typed-pwr", fadeGifts.typedPwr === 0, `count=${fadeGifts.typedPwr}`);
     await client.captureScreenshot("09b_play_verse6_fade_reconstruct.png");
     await client.eval(`stopTimer(); nextQuestion();`);
@@ -402,13 +401,11 @@ async function runLiveVerification() {
     check("Daily slot 13 is Name the Passage", await client.eval("R.dailyIdx === 14 && R.currentMechanic === 'passage-ref'"));
     check("Daily Name the Passage renders four citations", await client.eval("document.querySelectorAll('.passage-reference-option').length === 4"));
     check("Daily passage stem hides its citation", await client.eval("!$('verse').textContent.includes(R.q.r)"));
-    await client.eval(`usePower("illum");`);
+    await client.eval(`R.powers.illum = 1; usePower("illum");`);
     const dailyIlluminate = await client.eval(`({
-      burned: answerButtons().filter(b => b.classList.contains("burn")).length,
-      live: answerButtons().filter(b => !b.classList.contains("burn")).length,
-      correctLive: answerButtons().some(b => !b.classList.contains("burn") && b.dataset.val === R.q.a)
+      markedRight: document.querySelectorAll("#opts .ans.right, #opts .ans.illum-cue").length > 0
     })`);
-    check("Daily Illuminate burns two wrong citations", dailyIlluminate.burned === 2 && dailyIlluminate.live === 2 && dailyIlluminate.correctLive);
+    check("Daily Illuminate marks the true citation", dailyIlluminate.markedRight);
     check("Daily has no Strike words", await client.eval("document.querySelectorAll('.strike-word').length === 0"));
     await client.eval(`endRun("abandon");`);
     await sleep(350);

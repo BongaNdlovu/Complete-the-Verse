@@ -21,7 +21,7 @@
   -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14%,#000 30%,transparent 40%,transparent 60%,#000 70%,#000 86%,transparent 100%);
   mask-image:linear-gradient(90deg,transparent 0,#000 14%,#000 30%,transparent 40%,transparent 60%,#000 70%,#000 86%,transparent 100%)}
 .hdr-side{min-width:clamp(120px,17vw,240px);z-index:2}
-.hdr-side.r{text-align:right;margin-right:clamp(64px,5.5vw,96px)}
+.hdr-side.r{text-align:right;margin-right:clamp(168px,22vw,248px)}
 .hdr-lab{font-family:var(--ui);font-size:clamp(.52rem,.82vw,.68rem);letter-spacing:.34em;text-transform:uppercase;
   color:#7d7566;white-space:nowrap}
 .hdr-val{font-family:var(--disp);font-weight:700;font-size:clamp(.82rem,1.5vw,1.22rem);letter-spacing:.13em;
@@ -504,6 +504,7 @@ body.reduced .res-details[open] .breakdown,body.reduced .res-details[open] .stat
   .quick-reward{padding:.38em .42em}.quick-reward b{font-size:.46rem}.quick-reward span{font-size:.48rem}
   .slot{flex:1 1 46%}
   .hdr-side{min-width:0;max-width:42%}
+  .hdr-side.r{margin-right:186px;max-width:36%}
   .hdr-val{white-space:normal}
 }
 @media (max-width:600px){

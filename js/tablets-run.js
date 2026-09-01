@@ -90,7 +90,8 @@ function paintTabletsStage(answer){
   fillVerseLine($("tablets-prev"), ch.blanks[i - 1], "done", i - 1);
   fillVerseLine($("tablets-sheet"), ch.blanks[i], answer ? "done" : "on", i);
   if(answer){
-    const carved = $("tablets-sheet").querySelector(".tablets-carved");
+    const sheet = $("tablets-sheet");
+    const carved = sheet && sheet.querySelector(".tablets-carved");
     if(carved){
       carved.classList.add("in");
       if(answer === "miss") carved.classList.add("shattered");
@@ -120,23 +121,22 @@ function tabletsReact(ok){
   clearTimeout(fig._t);
   fig._t = setTimeout(function(){ fig.classList.remove("success", "failure"); }, ok ? 1100 : 820);
 }
-function paintTabletsCast(){
-  const ch = tabletsChapter();
-  const site = tabletsParentSite();
+function paintTabletsWalker(){
   const spec = (typeof Characters !== "undefined" && Characters.walkerSpec && typeof SAVE !== "undefined")
     ? Characters.walkerSpec(SAVE.set.scholarId || SAVE.set.character, SAVE.pilgrim)
     : null;
   const walker = $("tablets-walker-sprite");
-  if(walker){
-    const idle = (spec && spec.idle) || "assets/traveler/idle.png";
-    walker.style.backgroundImage = "url('" + idle + "')";
-  }
+  if(walker) walker.style.backgroundImage = "url('" + ((spec && spec.idle) || "assets/traveler/idle.png") + "')";
+}
+function paintTabletsPlaceCard(ch, site){
   const place = $("tablets-place");
   const sub = $("tablets-place-sub");
   const kicker = $("tablets-place-kicker");
   if(kicker) kicker.textContent = site ? "The tablet" : (R.tabletTutorial ? "First Hold" : "The Hall");
   if(place) place.textContent = site ? (ch.afterName || site.name) : (R.tabletTutorial ? "The Lord's Prayer" : "The Hall");
   if(sub) sub.textContent = site ? (ch.name + " · " + (site.modernCountry || "")) : (ch.subtitle || "");
+}
+function paintTabletsCompanion(site){
   const fig = $("tablets-companion");
   const img = $("tablets-companion-img");
   const sign = $("tablets-companion-sign");
@@ -149,6 +149,13 @@ function paintTabletsCast(){
     fig.hidden = true;
     fig.setAttribute("hidden", "");
   }
+}
+function paintTabletsCast(){
+  const ch = tabletsChapter();
+  const site = tabletsParentSite();
+  paintTabletsWalker();
+  paintTabletsPlaceCard(ch, site);
+  paintTabletsCompanion(site);
 }
 function paintTabletsHud(){
   const ch = tabletsChapter();
@@ -255,7 +262,7 @@ function setTabletsPaused(on){
   }
   if(R.paused){
     stopTabletsLoop();
-  } else {
+  } else if(!R.tabletResolving){
     R.tabletLast = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
     R.tabletRacing = true;
     if(typeof requestAnimationFrame === "function") R.tabletRaf = requestAnimationFrame(tabletsTick);
@@ -310,23 +317,16 @@ function finishTabletsTutorial(){
   }
   if(typeof openBrief === "function") openBrief("tablets");
 }
-function tabletsResolve(ok){
-  if(!R || R.ended || R.paused || R.mode !== "tablets" || R.tabletResolving) return;
-  const ch = tabletsChapter();
-  R.tabletResolving = true;
-  stopTabletsLoop();
-  R.attempts = (R.attempts || 0) + 1;
-  if(!ok){
-    if(!R.tabletTutorial) R.tabletMiss = (R.tabletMiss || 0) + 1;
-    if(typeof Snd !== "undefined" && Snd.shatter) Snd.shatter();
-    paintTabletsStage("miss");
-    tabletsReact(false);
-    const failedGrid = $("tablets-grid");
-    if(failedGrid) failedGrid.classList.add("locked");
-    tabletsShatter();
-    setTimeout(function(){ tabletsFinishResolve(false); }, 800);
-    return;
-  }
+function tabletsResolveMiss(){
+  if(!R.tabletTutorial) R.tabletMiss = (R.tabletMiss || 0) + 1;
+  if(typeof Snd !== "undefined" && Snd.shatter) Snd.shatter();
+  paintTabletsStage("miss");
+  tabletsReact(false);
+  const failedGrid = $("tablets-grid");
+  if(failedGrid) failedGrid.classList.add("locked");
+  tabletsShatter();
+}
+function tabletsResolveHit(){
   R.correct = (R.correct || 0) + 1;
   R.score = (R.score || 0) + 1;
   R.streak = (R.streak || 0) + 1;
@@ -336,7 +336,19 @@ function tabletsResolve(ok){
   tabletsReact(true);
   const grid = $("tablets-grid");
   if(grid) grid.classList.add("locked");
-  setTimeout(function(){ tabletsFinishResolve(true); }, 500);
+}
+function tabletsResolve(ok){
+  if(!R || R.ended || R.paused || R.mode !== "tablets" || R.tabletResolving) return;
+  R.tabletResolving = true;
+  stopTabletsLoop();
+  R.attempts = (R.attempts || 0) + 1;
+  setTimeout(function(){ tabletsFinishResolve(ok); }, ok ? 500 : 800);
+  if(!ok){ tabletsResolveMiss(); return; }
+  tabletsResolveHit();
+}
+function tabletsUnlockGrid(){
+  const grid = $("tablets-grid");
+  if(grid) grid.classList.remove("locked");
 }
 function tabletsFinishResolve(ok){
   if(!R || R.ended || R.mode !== "tablets" || !R.tabletResolving) return;
@@ -348,11 +360,10 @@ function tabletsFinishResolve(ok){
       R.tabletOpts = null;
       R.tabletGrey = [];
       R.tabletHintedIdx = -1;
-      const grid = $("tablets-grid");
-      if(grid) grid.classList.remove("locked");
+      tabletsUnlockGrid();
+      resumeTabletsRace();
       paintTabletsStage();
       paintTabletsTray();
-      resumeTabletsRace();
       return;
     }
     if(typeof endRun === "function") endRun("death");
@@ -363,15 +374,16 @@ function tabletsFinishResolve(ok){
   R.tabletOpts = null;
   R.tabletGrey = [];
   R.tabletHintedIdx = -1;
-  paintTabletsHud();
   if(R.tabletIdx >= ch.blanks.length){
     if(R.tabletTutorial) finishTabletsTutorial();
     else if(typeof endRun === "function") endRun("complete");
     return;
   }
+  tabletsUnlockGrid();
+  resumeTabletsRace();
+  paintTabletsHud();
   paintTabletsStage();
   paintTabletsTray();
-  resumeTabletsRace();
 }
 function resumeTabletsRace(){
   if(!R || R.ended || R.paused || R.mode !== "tablets") return;

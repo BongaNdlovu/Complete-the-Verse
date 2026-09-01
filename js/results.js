@@ -249,19 +249,11 @@ function recordRoadTabletHold(id, pct){
   const nxt = Pilgrimage.currentSite(SAVE.pilgrim);
   if(nxt && nxt.id !== id && Pilgrimage.isUnlocked(SAVE.pilgrim, nxt.id)) pendingUnlockId = nxt.id;
 }
-function persistTabletsRecord(){
-  if(R.tabletTutorial) return { road: null, isRecord: false, prevBest: 0, dailyRecorded: false };
-  const pct = Math.round(((R.tabletIdx || 0) / (R.tabletTotal || 1)) * 100);
-  const prevBest = SAVE.best.tablets || 0;
-  const isRecord = pct > prevBest;
-  if(isRecord) SAVE.best.tablets = pct;
-  const id = R.tabletChapter || "psalm23";
-  const n = (typeof Tablets !== "undefined" && Tablets.clampLevel) ? Tablets.clampLevel(R.tabletLevel) : 1;
+function persistTabletsChapter(id, n, pct, nowHeld){
   if(!SAVE.tablets) SAVE.tablets = {};
   if(!SAVE.tablets[id]) SAVE.tablets[id] = {best:0,held:false};
   const rec = Object.assign({best:0,held:false}, SAVE.tablets[id] || {});
   rec.best = Math.max(rec.best || 0, pct);
-  const nowHeld = typeof Tablets !== "undefined" && Tablets.held(R);
   if(!rec.levels) rec.levels = {};
   const lv = Object.assign({best:0,held:false}, rec.levels[n] || rec.levels[String(n)] || {});
   lv.best = Math.max(lv.best || 0, pct);
@@ -271,12 +263,24 @@ function persistTabletsRecord(){
   if(chapterHold && !rec.held) SAVE.life.tabletHolds = (SAVE.life.tabletHolds || 0) + 1;
   if(chapterHold) rec.held = true;
   SAVE.tablets[id] = rec;
-  const oil = (R.correct || 0) * 2;
-  if(oil){
-    SAVE.oil = (SAVE.oil || 0) + oil;
-    SAVE.life.oilEarned = (SAVE.life.oilEarned || 0) + oil;
-  }
   if(chapterHold) recordRoadTabletHold(id, pct);
+}
+function persistTabletsOil(){
+  const oil = (R.correct || 0) * 2;
+  if(!oil) return;
+  SAVE.oil = (SAVE.oil || 0) + oil;
+  SAVE.life.oilEarned = (SAVE.life.oilEarned || 0) + oil;
+}
+function persistTabletsRecord(){
+  if(R.tabletTutorial) return { road: null, isRecord: false, prevBest: 0, dailyRecorded: false };
+  const pct = Math.round(((R.tabletIdx || 0) / (R.tabletTotal || 1)) * 100);
+  const prevBest = SAVE.best.tablets || 0;
+  const isRecord = pct > prevBest;
+  if(isRecord) SAVE.best.tablets = pct;
+  const id = R.tabletChapter || "psalm23";
+  const n = (typeof Tablets !== "undefined" && Tablets.clampLevel) ? Tablets.clampLevel(R.tabletLevel) : 1;
+  persistTabletsChapter(id, n, pct, typeof Tablets !== "undefined" && Tablets.held(R));
+  persistTabletsOil();
   return { road: null, isRecord: isRecord, prevBest: prevBest, dailyRecorded: false };
 }
 function persistRunRecords(reason, ctx, total){

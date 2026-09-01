@@ -139,11 +139,12 @@ const Director = (function(){
   }
   function speakFallback(text){
     if(!("speechSynthesis" in window)) return;
+    if(Snd.sfxLevel()<=0) return;
     try{
       speechSynthesis.cancel();
       const u=new SpeechSynthesisUtterance(text);
       u.voice=bestVoice();
-      u.rate=.84;u.pitch=.76;u.volume=Math.min(1,.78*(SAVE.set.sfx==null?.7:SAVE.set.sfx));
+      u.rate=.84;u.pitch=.76;u.volume=Math.min(1,.78*Snd.sfxLevel());
       speechSynthesis.speak(u);
     }catch(e){}
   }

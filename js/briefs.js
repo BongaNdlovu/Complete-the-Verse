@@ -379,6 +379,19 @@ function paintTabletsBrief(on){
   group("New Testament", nt, hallOpen ? "New Testament" : "New Testament · Hold John 1 to open");
   group("On the road", road);
 }
+function paintBriefModeChrome(mode){
+  const hide = mode==="team" || mode==="tablets";
+  const start = $("brief-start");
+  const pick = $("brief-team-pick");
+  const diffs = $("diffs");
+  const diffLab = $("brief-difflabel");
+  if(start) start.style.display = hide ? "none" : "";
+  if(pick) pick.hidden = mode!=="team";
+  if(diffs) diffs.style.display = hide ? "none" : "";
+  if(diffLab) diffLab.style.display = hide ? "none" : "";
+  if(!hide) renderDiffs();
+  paintTabletsBrief(mode==="tablets");
+}
 function openBrief(mode){
   const m = MODES[mode];
   if(!m || m.incoming){
@@ -394,18 +407,7 @@ function openBrief(mode){
   $("brief-title").textContent = m.name;
   $("brief-desc").textContent = m.desc;
   $("brief-info").innerHTML = m.info.map(i=>'<div class="bi"><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("");
-  const team = mode==="team";
-  const tablets = mode==="tablets";
-  const start = $("brief-start");
-  const pick = $("brief-team-pick");
-  const diffs = $("diffs");
-  const diffLab = $("brief-difflabel");
-  if(start) start.style.display = (team || tablets) ? "none" : "";
-  if(pick) pick.hidden = !team;
-  if(diffs) diffs.style.display = (team || tablets) ? "none" : "";
-  if(diffLab) diffLab.style.display = (team || tablets) ? "none" : "";
-  if(!team && !tablets) renderDiffs();
-  paintTabletsBrief(tablets);
+  paintBriefModeChrome(mode);
   go("brief");
 }
 function renderDiffs(){

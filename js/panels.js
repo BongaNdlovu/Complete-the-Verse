@@ -550,8 +550,16 @@ function bindSettingsDiag(){
   });
 }
 function bindSettingsHandlers(){
-  $("set-music").addEventListener("input", e=>{ Snd.unlock(); Snd.setMusic(parseFloat(e.target.value)); persist(); });
-  $("set-sfx").addEventListener("input", e=>{ Snd.unlock(); Snd.setSfx(parseFloat(e.target.value)); persist(); });
+  $("set-music").addEventListener("input", e=>{
+    SAVE.set.musicMute = false;
+    Snd.unlock(); Snd.setMusic(parseFloat(e.target.value)); persist();
+    if(typeof paintAudioDock==="function") paintAudioDock();
+  });
+  $("set-sfx").addEventListener("input", e=>{
+    SAVE.set.sfxMute = false;
+    Snd.unlock(); Snd.setSfx(parseFloat(e.target.value)); persist();
+    if(typeof paintAudioDock==="function") paintAudioDock();
+  });
   bindSettingsDiag();
   const charBtn = $("set-character");
   if(charBtn) charBtn.addEventListener("click", ()=>{ Snd.ui(); openSkinPicker(); });
@@ -690,9 +698,8 @@ function applySettings(){
   }
   document.body.classList.add("quality-"+quality);
   syncHallVideo(quality);
-  let mus = SAVE.set.music, sfx = SAVE.set.sfx;
-  if(SAVE.set.quiet){ mus = Math.min(mus, 0.12); sfx = Math.min(sfx, 0.35); }
-  Snd.setMusic(mus); Snd.setSfx(sfx);
+  if(typeof Snd!=="undefined" && Snd.syncLevels) Snd.syncLevels();
+  if(typeof paintAudioDock==="function") paintAudioDock();
   if(typeof updateSiteVideoVolume==="function") updateSiteVideoVolume();
   Live.configure({enabled: SAVE.set.liveWeather !== false});
   Director.syncFx();

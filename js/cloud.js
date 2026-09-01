@@ -465,6 +465,17 @@ var Cloud = (function () {
   /* Server-trusted path: the submit-score Edge Function re-clamps and writes
      under the caller's own auth (see supabase/functions/). Board writes fail
      closed when the trusted path is unavailable; the local record remains. */
+  function edgeRejectReason(res) {
+    if (res && res.error) {
+      var em = String((res.error && res.error.message) || (res.data && res.data.error) || "").toLowerCase();
+      if (/429|rate/.test(em) || (res.data && res.data.error === "rate-limited")) return "rate-limited";
+      return res.data && res.data.error === "auth" ? "signed-out" : "edge-error";
+    }
+    if (!(res && res.data && res.data.error)) return null;
+    if (res.data.error === "rate-limited") return "rate-limited";
+    if (res.data.error === "auth") return "signed-out";
+    return "edge-error";
+  }
   async function submitViaEdge(kind, payload) {
     var sb = ensureClient();
     if (!sb || !sb.functions || typeof sb.functions.invoke !== "function") {
@@ -474,16 +485,8 @@ var Cloud = (function () {
       var res = await withTimeout(sb.functions.invoke("submit-score", {
         body: Object.assign({ kind: kind }, payload)
       }), 8000);
-      if (res && res.error) {
-        var em = String((res.error && res.error.message) || res.data && res.data.error || "").toLowerCase();
-        if (/429|rate/.test(em) || (res.data && res.data.error === "rate-limited")) return { ok: false, reason: "rate-limited" };
-        return { ok: false, reason: res.data && res.data.error === "auth" ? "signed-out" : "edge-error" };
-      }
-      if (res && res.data && res.data.error) {
-        if (res.data.error === "rate-limited") return { ok: false, reason: "rate-limited" };
-        if (res.data.error === "auth") return { ok: false, reason: "signed-out" };
-        return { ok: false, reason: "edge-error" };
-      }
+      var reason = edgeRejectReason(res);
+      if (reason) return { ok: false, reason: reason };
       return { ok: true, via: "edge" };
     } catch (e) {
       return { ok: false, reason: "edge-unreachable" };
