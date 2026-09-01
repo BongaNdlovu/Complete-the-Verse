@@ -151,7 +151,9 @@ function refreshResultsSubmitTrust(){
 function trackBoardSubmit(p){
   if(p && typeof p.then==="function") p.then(function(res){
     if(res && res.ok === false && typeof toast === "function"){
-      toast("Leaderboard unavailable — your local record is safe");
+      toast(res.reason === "rate-limited"
+        ? (Cloud.authNotice ? Cloud.authNotice("rate-limited") : "Too many attempts. Wait a few minutes.")
+        : "Leaderboard unavailable — your local record is safe");
     }
     refreshResultsSubmitTrust();
   }, function(){
@@ -175,7 +177,7 @@ function upsertRaceGhost(isPilgrim, siteCleared, total, survivedMs){
   }, { siteId: R.siteId || null, cleared: ov ? ov.cleared : null, total: ov ? ov.total : null,
     campaign: R.mode === "trial" });
 }
-function endRunCloudSubmit(dailyRecorded, isPilgrim, siteCleared, total, acc, survivedMs){
+function endRunCloudSubmit(dailyRecorded, isPilgrim, siteCleared, total, acc, survivedMs, reason){
   if(R.mode==="team") return;
   if(!(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn())) return;
   if(dailyRecorded){
@@ -184,14 +186,20 @@ function endRunCloudSubmit(dailyRecorded, isPilgrim, siteCleared, total, acc, su
       score: total,
       accuracy: Math.round(acc*100),
       duration_ms: survivedMs,
-      diff: R.diff.key
+      diff: R.diff.key,
+      correct: R.correct||0,
+      attempts: R.attempts||0,
+      best: R.best||0,
+      baseScore: R.score||0,
+      reason: reason
     }));
   }
   if(R.mode==="blitz"){
     trackBoardSubmit(Cloud.submitBlitzScore({
       score: R.correct||0,
       survived_ms: survivedMs,
-      diff: R.diff.key
+      diff: R.diff.key,
+      correct: R.correct||0
     }));
   }
   upsertRaceGhost(isPilgrim, siteCleared, total, survivedMs);
@@ -208,6 +216,18 @@ function endRunContext(reason){
 
 function endRunScore(reason, ctx){
   const acc = R.attempts ? R.correct/R.attempts : 0;
+  if(R.mode==="daily" && typeof Polish!=="undefined" && Polish.settleDaily){
+    const s = Polish.settleDaily({
+      baseScore: R.score,
+      best: R.best,
+      correct: R.correct,
+      attempts: R.attempts,
+      diff: R.diff.key,
+      reason: reason
+    });
+    return { acc: acc, baseScore: R.score, streakBonus: s.streakBonus, accBonus: s.accBonus,
+      survivalBonus: s.survivalBonus, firstClearBonus: 0, total: s.total };
+  }
   const baseScore = R.score;
   const streakBonus = Math.round(R.best * 120 * R.diff.score);
   const accBonus = Math.round(acc * 1200 * R.diff.score);
@@ -367,7 +387,7 @@ function endRun(reason){
   endRunGhosts(ctx.isPilgrim, scored.total, survivedMs);
   if(R.mode==="blitz") SAVE.life.blitzBest = Math.max(SAVE.life.blitzBest||0, R.correct||0);
   endRunJournal(ctx.isPilgrim, ctx.siteCleared, scored.total, scored.acc);
-  endRunCloudSubmit(saved.dailyRecorded, ctx.isPilgrim, ctx.siteCleared, scored.total, scored.acc, survivedMs);
+  endRunCloudSubmit(saved.dailyRecorded, ctx.isPilgrim, ctx.siteCleared, scored.total, scored.acc, survivedMs, reason);
   renderResults({reason, total: scored.total, baseScore: scored.baseScore, streakBonus: scored.streakBonus,
     accBonus: scored.accBonus, survivalBonus: scored.survivalBonus, acc: scored.acc,
     xpGain: saved.xpGain, beforeLvl: saved.beforeLvl, afterInfo: saved.afterInfo,
@@ -550,6 +570,10 @@ function renderResultsBestLine(o){
     const rec = SAVE.tablets && SAVE.tablets[R.tabletChapter] || {best:0,held:false};
     best = (rec.held ? "Hold recorded" : "The Hold broke") + " · " + (R.tabletChapter || "psalm23") + " best — " + (rec.best||0) + "%";
     $("res-best").textContent = best;
+    return;
+  }
+  if(!MODES[R.mode]){
+    $("res-best").textContent = "";
     return;
   }
   if(R.mode==="blitz"){
@@ -904,9 +928,13 @@ function fillResultsBoard(mode){
       Cloud.isSignedIn() ? Cloud.fetchMyDailyRank(todayKey()) : Promise.resolve(null),
       (typeof Cloud.fetchDailyEntryCount === "function") ? Cloud.fetchDailyEntryCount(todayKey()) : Promise.resolve(0)
     ]).then(([rows, mine, entryCount])=>{
+      if(mine && rows) rows.forEach(function(r){ if(r.id === mine.id) r.mine = true; });
       if(!rows.length){
+        const fail = Cloud.boardLoadFailed && Cloud.boardLoadFailed();
         el.innerHTML = '<div class="mtitle">Daily board · '+esc(todayKey())+trustTag+'</div>'+
-          '<div class="empty">No scores yet today. Be the first — finish a Daily Trial while signed in.</div>';
+          '<div class="empty">'+(fail
+            ? "Could not load the board. Check your connection."
+            : "No scores yet today. Be the first — finish a Daily Trial while signed in.")+'</div>';
         return;
       }
       /* Placement data for the results beat, and this run's rank becomes
@@ -939,8 +967,13 @@ function fillResultsBoard(mode){
       Cloud.fetchBlitzBoard(15),
       Cloud.isSignedIn() ? Cloud.fetchMyBlitzRank() : Promise.resolve(null)
     ]).then(([rows, mine])=>{
+      if(mine && rows) rows.forEach(function(r){ if(r.id === mine.id) r.mine = true; });
       if(!rows.length){
-        el.innerHTML = '<div class="mtitle">Blitz board'+trustTag+'</div><div class="empty">No blitz scores yet. Survive a Blitz run while signed in.</div>';
+        const fail = Cloud.boardLoadFailed && Cloud.boardLoadFailed();
+        el.innerHTML = '<div class="mtitle">Blitz board'+trustTag+'</div>'+
+          '<div class="empty">'+(fail
+            ? "Could not load the board. Check your connection."
+            : "No blitz scores yet. Survive a Blitz run while signed in.")+'</div>';
         return;
       }
       let html = '<div class="mtitle">Blitz board'+trustTag+'</div>'+

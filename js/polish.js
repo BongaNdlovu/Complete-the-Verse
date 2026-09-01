@@ -41,7 +41,12 @@ var Polish = (function () {
       score: Math.round(clamp(row.score, 0, MAX_DAILY_SCORE)),
       accuracy: clamp(row.accuracy, 0, MAX_ACCURACY),
       duration_ms: row.duration_ms == null ? null : Math.round(clamp(row.duration_ms, 0, MAX_DURATION_MS)),
-      diff: String(row.diff || "watchman").slice(0, 32)
+      diff: String(row.diff || "watchman").slice(0, 32),
+      correct: Math.max(0, row.correct | 0),
+      attempts: Math.max(0, row.attempts | 0),
+      best: Math.max(0, row.best | 0),
+      baseScore: Math.max(0, Math.round(Number(row.baseScore) || 0)),
+      reason: String(row.reason || "").slice(0, 16)
     };
   }
 
@@ -50,8 +55,67 @@ var Polish = (function () {
     return {
       score: Math.round(clamp(row.score, 0, MAX_BLITZ_SCORE)),
       survived_ms: Math.round(clamp(row.survived_ms, 0, MAX_DURATION_MS)),
-      diff: String(row.diff || "watchman").slice(0, 32)
+      diff: String(row.diff || "watchman").slice(0, 32),
+      correct: Math.max(0, row.correct == null ? (row.score | 0) : row.correct | 0)
     };
+  }
+
+  var DIFF_SCORE = { disciple: 0.85, watchman: 1 };
+  var DAILY_MAX_ATTEMPTS = 20;
+  var DAILY_MAX_BASE = 348000;
+
+  function diffScore(diff) {
+    var key = String(diff || "watchman");
+    return DIFF_SCORE[key] != null ? DIFF_SCORE[key] : DIFF_SCORE.watchman;
+  }
+
+  function settleDaily(row) {
+    row = row || {};
+    var ds = diffScore(row.diff);
+    var correct = Math.max(0, row.correct | 0);
+    var attempts = Math.max(0, row.attempts | 0);
+    var best = Math.max(0, row.best | 0);
+    var base = Math.max(0, Math.round(Number(row.baseScore) || 0));
+    var acc = attempts ? correct / attempts : 0;
+    var streakBonus = Math.round(best * 120 * ds);
+    var accBonus = Math.round(acc * 1200 * ds);
+    var survivalBonus = Math.round(correct * 60 * ds);
+    var sum = base + streakBonus + accBonus + survivalBonus;
+    var total = String(row.reason || "") === "abandon" ? Math.round(sum * 0.85) : sum;
+    return {
+      total: total,
+      accuracy: Math.round(acc * 100),
+      streakBonus: streakBonus,
+      accBonus: accBonus,
+      survivalBonus: survivalBonus
+    };
+  }
+
+  function plausibleDaily(row) {
+    row = row || {};
+    var correct = row.correct | 0;
+    var attempts = row.attempts | 0;
+    var best = row.best | 0;
+    var base = Math.round(Number(row.baseScore) || 0);
+    if (attempts < 1 || attempts > DAILY_MAX_ATTEMPTS) return false;
+    if (correct < 0 || correct > attempts) return false;
+    if (best < 0 || best > correct) return false;
+    if (base < 0 || base > DAILY_MAX_BASE) return false;
+    var settled = settleDaily(row);
+    if (Math.abs((row.accuracy | 0) - settled.accuracy) > 1) return false;
+    if (Math.abs((row.score | 0) - settled.total) > 1) return false;
+    return true;
+  }
+
+  function plausibleBlitz(row) {
+    row = row || {};
+    var score = row.score | 0;
+    var correct = row.correct == null ? score : row.correct | 0;
+    if (score !== correct) return false;
+    if (score < 0 || score > MAX_BLITZ_SCORE) return false;
+    var survived = row.survived_ms | 0;
+    if (survived < 0 || survived > MAX_DURATION_MS) return false;
+    return true;
   }
 
   /* SRS health for the 66-book heatmap. */
@@ -439,6 +503,9 @@ var Polish = (function () {
     clamp: clamp,
     clampDailyScore: clampDailyScore,
     clampBlitzScore: clampBlitzScore,
+    settleDaily: settleDaily,
+    plausibleDaily: plausibleDaily,
+    plausibleBlitz: plausibleBlitz,
     bookMastery: bookMastery,
     heatmapMatrix: heatmapMatrix,
     sampleGhost: sampleGhost,

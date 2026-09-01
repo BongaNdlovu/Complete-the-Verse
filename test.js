@@ -21,6 +21,7 @@ const SUITE = [
   ["srs logic", "test/srs.test.js"],
   ["recall logic", "test/recall.test.js"],
   ["onboarding", "test/onboarding.test.js"],
+  ["first-run funnel", "test/first-run.test.js"],
   ["question mechanics", "test/question-mechanics.test.js"],
   ["clocks and powers", "test/clocks-powers.test.js"],
   ["all game modes", "test/all-game-modes.test.js"],

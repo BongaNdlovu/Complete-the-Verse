@@ -228,8 +228,32 @@ assert(fs.existsSync(paulQ) && fs.statSync(paulQ).size < 1500000,
 /* Leaderboards require the trusted function, rate limiting and moderation. */
 assert(/trusted-submit-unavailable/.test(cloud) && !/via: "direct"/.test(cloud),
   "browser score writes fail closed without the trusted function");
+assert(/boardLoadFailed/.test(cloud) && /authNotice/.test(cloud),
+  "board load failure is distinct from an empty board");
+assert(/Cloud\.boardLoadFailed/.test(panels) && /Cloud\.boardLoadFailed/.test(results),
+  "records and results split empty boards from failed loads");
+assert(/return \{ ok: true, reason: "sent" \}/.test(cloud),
+  "unknown magic-link errors do not enumerate accounts");
+assert(/select\("id, display_name, updated_at"\)/.test(cloud),
+  "profile fetch is not a wildcard select");
+assert(/select\("id, score, accuracy, diff, profiles\(display_name\)"\)/.test(cloud) &&
+  /select\("id, score, survived_ms, diff, profiles\(display_name\)"\)/.test(cloud),
+  "public boards do not select user_id");
+assert(!/json\(\{ error: error\.message \}/.test(edge),
+  "submit-score never returns postgres text");
 assert(/MAX_SUBMISSIONS_PER_WINDOW/.test(edge) && /rate-limited/.test(edge) &&
   /validDate/.test(edge), "edge submission validates dates and rate limits callers");
+assert(/function settleDaily/.test(read("js/polish.js")) && /function settleDaily/.test(edge) &&
+  /plausibleDaily/.test(edge) && /plausibleBlitz/.test(edge),
+  "submit-score recomputes daily settlement and checks blitz verse counts");
+assert(/upsertBlitzScore/.test(edge) && /onConflict: "user_id"/.test(edge) &&
+  !/insertBlitzScore/.test(edge),
+  "blitz writes are best-only upserts");
+assert(/blitz_scores_user_uidx/.test(read("supabase/migrations/20260901104635_blitz_best_only.sql")),
+  "blitz unique user index is migrated");
+assert(/best_score, timeline, meta, profiles\(display_name\)/.test(cloud) &&
+  !/meta, user_id, profiles\(display_name\)/.test(cloud),
+  "ghost fetch does not select user_id");
 assert(/score_submission_log/.test(migration) && /leaderboard_reports/.test(migration) &&
   /enable row level security/.test(migration) && /revoke update, delete/.test(migration),
   "leaderboard abuse logging and report isolation are migrated");

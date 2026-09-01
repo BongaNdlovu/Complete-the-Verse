@@ -116,6 +116,9 @@ ok("no hear control", html.indexOf('id="tablets-hear"') < 0);
 ok("illuminate control is in the view", html.indexOf('id="tablets-illum"') >= 0);
 ok("remaining counter is in the view", html.indexOf('id="tablets-remain"') >= 0);
 ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}toggleTabletsPause/.test(gameSrc));
+ok("hit does not add an empty class", !/classList\.add\("in", answer === "miss"/.test(src));
+ok("walker and companion sit on the hold", html.indexOf('id="tablets-walker-sprite"') >= 0 && html.indexOf('id="tablets-companion"') >= 0);
+ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*snapTraveler/.test(fs.readFileSync(path.join(ROOT, "js", "atlas.js"), "utf8")));
 
 {
   const sb = boot();
@@ -125,7 +128,12 @@ ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}
   eq("no Selah or Wind", read(sb, "R.powers.selah + R.powers.wind"), 0);
   eq("chapter is Psalm 23", read(sb, "R.tabletChapter"), "psalm23");
   eq("starts on I", read(sb, "R.tabletLevel"), 1);
+  eq("Psalm 23 paints 11 pips", read(sb, "$('tablets-pips').children.length"), 11);
   eq("91 still locked", read(sb, "Tablets.unlocked('psalm91', SAVE)"), false);
+  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("a hit advances", read(sb, "R.tabletIdx"), 1);
+  eq("the clock restarts after a hit", read(sb, "R.tabletRacing"), true);
+  eq("resolving clears", read(sb, "!!R.tabletResolving"), false);
   holdAll(sb);
   eq("clean 23 ends complete", read(sb, "R.ended"), true);
   eq("Held", read(sb, "Tablets.held(R)"), true);
@@ -181,6 +189,7 @@ ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}
   exec(sb, "SAVE.tablets.psalm23.held = true; SAVE.tablets.psalm91.held = true; persist(); startRun('tablets','watchman',{tabletChapter:'john1'})");
   eq("John 1 starts when unlocked", read(sb, "R.tabletChapter"), "john1");
   eq("51 blanks in John 1", read(sb, "R.tabletTotal"), 51);
+  eq("John 1 skips a 51-pip strip", read(sb, "$('tablets-pips').children.length"), 0);
   holdAll(sb);
   exec(sb, "startRun('tablets','watchman',{tabletChapter:'john1'})");
   holdAll(sb);
@@ -252,6 +261,17 @@ ok("Esc pauses tablets instead of leaving", /currentView==="tablets"[\s\S]{0,80}
   eq("tutorial is done", read(sb, "SAVE.set.tabletsTutorialDone"), true);
   eq("prayer pays no XP", read(sb, "SAVE.xp"), 0);
   eq("prayer is not a chapter Hold", read(sb, "!(SAVE.tablets.prayer && SAVE.tablets.prayer.held)"), true);
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman',{tabletChapter:'genesis1'})");
+  eq("Genesis 1 opens", read(sb, "R.tabletChapter"), "genesis1");
+  eq("place is Ur", read(sb, "$('tablets-place').textContent"), "Ur");
+  eq("companion is Abram", read(sb, "$('tablets-companion-sign').textContent"), "Abram");
+  eq("companion is shown", read(sb, "!$('tablets-companion').hidden"), true);
+  exec(sb, "paintTabletsStage('hit')");
+  eq("a carved hit does not throw", read(sb, "R.tabletIdx"), 0);
 }
 
 if (fail) {

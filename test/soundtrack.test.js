@@ -106,8 +106,8 @@ assert(/function stopBeds\(/.test(game), "stopBeds helper");
 assert(/playBeatCinema\(plates\)\{[\s\S]{0,120}Snd\.stopBeds/.test(game),
   "Valley Beat cinema stops leftover beds before VO");
 assert(/function hushStageMedia\(/.test(game), "stage films hush rain, loops, and beds");
-assert(/R\.holdQuestionMusic = true/.test(game) && /maybePlayUrPrologue\(/.test(game),
-  "Ur film holds the road bed until the picture ends");
+assert(/R\.holdQuestionMusic = true/.test(game) && /maybePlayTeamPrologue\(/.test(game),
+  "Team film holds the road bed until the picture ends");
 assert(/TRACKS\[bed\]/.test(game), "unlock resumes current track bed");
 assert(/if\(TRACKS\[name\]\)/.test(game), "ambience prefers TRACKS over synth pad");
 

@@ -51,6 +51,7 @@
       <video id="intro-video" class="intro-video" src="assets/intro.mp4" muted playsinline preload="none" poster="assets/intro.jpg" disablepictureinpicture aria-hidden="true"></video>
     <div class="intro-veil" id="intro-veil"></div>
     <div class="intro-start" id="intro-start">
+      <div class="bootmark" aria-hidden="true"><img src="assets/intro-cross.png" alt="" width="110" height="165"></div>
       <div class="kick">The Scripture Trial</div>
       <div class="h-xl">Complete<br>The Verse</div>
       <div class="intro-hint">Tap to begin</div>
@@ -61,7 +62,7 @@
   <!-- ============ BOOT ============ -->
   <section class="view on" id="v-boot">
     <div class="boot-inner">
-      <div class="bootmark" aria-hidden="true"><i></i></div>
+      <div class="bootmark" aria-hidden="true"><img src="assets/intro-cross.png" alt="" width="110" height="165"></div>
       <div class="kick" id="boot-kick">The Scripture Trial · Preparing the record</div>
       <div class="h-xl boot-title">Complete<br>The Verse</div>
       <div class="fil boot-rule"><i></i></div>
@@ -355,7 +356,7 @@
       <div class="site-quote-ref" id="site-quote-ref"></div>
     </div>
     <div id="ur-prologue" aria-label="Opening film">
-      <video id="ur-prologue-video" src="assets/ur-prologue.mp4" playsinline preload="none" disablepictureinpicture></video>
+      <video id="ur-prologue-video" playsinline preload="none" disablepictureinpicture></video>
       <button type="button" class="intro-skip" id="ur-prologue-skip">Skip</button>
     </div>
    </div>
@@ -379,6 +380,14 @@
         </div>
       </header>
       <div class="tablets-stage" id="tablets-stage">
+        <aside class="tablets-ground" id="tablets-ground">
+          <i class="tablets-walker-sprite" id="tablets-walker-sprite" aria-hidden="true"></i>
+          <div class="tablets-place-card">
+            <span class="tablets-place-kicker" id="tablets-place-kicker">The tablet</span>
+            <b id="tablets-place">The Hall</b>
+            <span id="tablets-place-sub"></span>
+          </div>
+        </aside>
         <div class="tablets-ms">
           <p class="tablets-prev" id="tablets-prev"></p>
           <div class="tablets-hero">
@@ -391,6 +400,11 @@
           </div>
           <p class="tablets-next" id="tablets-next"></p>
         </div>
+        <figure class="tablets-companion" id="tablets-companion" hidden>
+          <div class="tablets-companion-aura"></div>
+          <img id="tablets-companion-img" src="assets/characters/abram/question.png" alt="" decoding="async">
+          <figcaption id="tablets-companion-sign">Abram</figcaption>
+        </figure>
       </div>
       <div class="tablets-tray">
         <div class="tablets-tray-lab">Choose the missing word</div>

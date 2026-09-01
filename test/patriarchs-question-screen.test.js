@@ -74,8 +74,8 @@ assert(css.includes('data-mechanic="typed"') && css.includes('data-mechanic="clo
 assert(css.includes('data-mechanic="passage"') && css.includes('data-mechanic="reconstruct"'),
   "passage and reconstruction get their own treatment");
 assert(css.includes("body.abraham-active:has(#pause.on)"), "pause hides the character focus layer");
-assert(/@media \(max-width:600px\)[\s\S]*\.question-abraham\{display:none!important\}/.test(css),
-  "phone layout hides the full-body layer when space is tight");
+assert(/@media \(max-width:900px\)[\s\S]*\.question-abraham\{display:none!important\}/.test(css),
+  "phone and tablet hide the full-body layer when space is tight");
 assert(/renderPassageReferenceQuestion\(q, dur, scene\)/.test(play) && /renderClozeQuestion\(q, dur, scene\)/.test(play) &&
        /renderDuelQuestion\(q, dur, scene\)/.test(play) && /renderFadeQuestion\(q, dur, scene\)/.test(play) &&
        /renderTrueFalseQuestion\(q, dur, scene\)/.test(play),

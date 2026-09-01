@@ -381,8 +381,12 @@ function renderRecords(){
       ? Promise.all([Cloud.fetchDailyBoard(todayKey(), 25), Cloud.isSignedIn()?Cloud.fetchMyDailyRank(todayKey()):null])
       : Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn()?Cloud.fetchMyBlitzRank():null]);
     p.then(([rows, mine])=>{
+      if(mine && rows) rows.forEach(function(r){ if(r.id === mine.id) r.mine = true; });
       if(!rows || !rows.length){
-        el.innerHTML='<div class="mtitle">'+title+'</div><div class="empty">No scores yet. Sign in and finish a run to appear here.</div>';
+        const fail = Cloud.boardLoadFailed && Cloud.boardLoadFailed();
+        el.innerHTML='<div class="mtitle">'+esc(title)+'</div><div class="empty">'+(fail
+          ? "Could not reach the board."
+          : "No scores yet. Sign in and finish a run to appear here.")+'</div>';
         return;
       }
       let html = '<div class="mtitle">'+title+'</div><div class="lb global-lb">';
@@ -449,7 +453,7 @@ function bindLeaderboardReports(host, board){
       btn.disabled = true;
       const res = await Cloud.reportScore(board, btn.dataset.reportScore, reason);
       btn.disabled = false;
-      toast(res.ok ? "Report submitted for moderation" : (res.reason || "Report could not be submitted"));
+      toast(res.ok ? "Report submitted for moderation" : "Report could not be submitted");
     });
   });
 }
@@ -563,7 +567,7 @@ function bindSettingsHandlers(){
       updatePlayerCard();
       if(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn()){
         Cloud.setDisplayName(SAVE.set.playerName).then(res=>{
-          toast(res.ok ? "Name saved" : (res.reason || "Saved locally"));
+          toast(res.ok ? "Name saved" : (Cloud.authNotice ? Cloud.authNotice(res.reason) : "Saved locally"));
           if(res.ok){ updateCloudChip(); renderSettings(); }
         });
       } else toast("Name saved");
@@ -594,7 +598,7 @@ function bindSettingsHandlers(){
       signInBtn.disabled = true;
       const res = await Cloud.signInWithEmail(email);
       signInBtn.disabled = false;
-      toast(res.ok ? "Check your email for the sign-in link" : (res.reason || "Sign-in failed"));
+      toast(Cloud.authNotice ? Cloud.authNotice(res.ok ? "sent" : res.reason) : (res.ok ? "Check your email for the sign-in link" : "Sign-in failed"));
     });
   }
   const signOutBtn = $("cloud-signout");
@@ -607,7 +611,7 @@ function bindSettingsHandlers(){
   if(cloudNameSave){
     cloudNameSave.addEventListener("click", async ()=>{
       const res = await Cloud.setDisplayName(($("cloud-name") && $("cloud-name").value) || "");
-      toast(res.ok ? "Display name saved" : (res.reason || "Could not save name"));
+      toast(res.ok ? "Display name saved" : (Cloud.authNotice ? Cloud.authNotice(res.reason) : "Could not save name"));
       if(res.ok) renderSettings();
     });
   }
@@ -624,7 +628,7 @@ function bindSettingsHandlers(){
           onSecondary: function(){ hideState(); if(syncBtn) syncBtn.click(); }
         });
       } else {
-        toast(res.ok ? (res.merged ? "Cloud merge complete" : "Cloud save updated") : (res.reason || "Sync failed"));
+        toast(res.ok ? (res.merged ? "Cloud merge complete" : "Cloud save updated") : (res.reason === "stale-revision" ? "Another device saved first. Sync again." : "Sync failed"));
       }
       renderSettings();
     });

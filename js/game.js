@@ -25,7 +25,7 @@ const DEFAULT_SAVE = {
   /* Relics unlocked by first site clear. Shape owned by artifacts.js. */
   artifacts:{unlocked:{}, seen:{}},
   set:{music:0.45, sfx:0.7, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"disciple",
-       tutorialDone:false, tabletsTutorialDone:false, liveWeather:true, coldOpenDone:false, urPrologueDone:false, quiet:false, contrast:false, haptics:true,
+       tutorialDone:false, tutorialSeen:false, tabletsTutorialDone:false, introPlayed:false, liveWeather:true, coldOpenDone:false, urPrologueDone:false, quiet:false, contrast:false, haptics:true,
        singleTap:true,
        character:"amina", scholarId:"amina", playerName:"", profileDone:false,
        vkb:false,
@@ -411,9 +411,20 @@ function applyLeave(plan){
 }
 function enterViewChrome(view){
   document.body.classList.toggle("cine", view==="act");
-  if(view!=="play"){ applySiteSky(null); document.body.classList.remove("mode-typed"); }
+  if(view!=="play"){
+    document.body.classList.remove("mode-typed");
+    if(view!=="tablets") applySiteSky(null);
+  }
   if(view!=="play" && typeof syncAbrahamPresentation === "function") syncAbrahamPresentation(null);
-  if(view==="intro"){ syncHallVideo(SAVE.set.quality); }
+  if(view==="intro"){
+    syncHallVideo(SAVE.set.quality);
+    const cap=$("voice-caption"), stage=$("v-intro");
+    if(cap && !(stage && stage.classList.contains("playing"))) cap.classList.remove("on");
+  }
+  if(view!=="play" && view!=="intro" && view!=="act" && view!=="tablets"){
+    const cap=$("voice-caption");
+    if(cap) cap.classList.remove("on");
+  }
   if(view==="atlas"){ Backdrop.palette("menu"); Snd.ambience("menu"); openAtlas(); }
   if(view==="boot"){ Backdrop.palette("menu"); syncHallVideo(SAVE.set.quality); }
   if(view==="menu"){ Backdrop.palette("menu"); Snd.ambience("menu"); renderMenu(); syncHallVideo(SAVE.set.quality); }
@@ -439,10 +450,13 @@ function go(view){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
   const el = $("v-"+view); if(el) el.classList.add("on");
   currentView = view;
+  if((view==="play" || view==="tablets" || view==="atlas") && typeof closeCharacterPicker === "function") closeCharacterPicker();
+  if(view!=="atlas" && typeof Atlas!=="undefined" && Atlas.closeVignette) Atlas.closeVignette();
   enterViewChrome(view);
   enterViewPanels(view);
   updatePlayerCard();
   document.body.classList.toggle("view-play", view==="play");
+  document.body.classList.toggle("view-tablets", view==="tablets");
   if(view==="play" || view==="tablets") syncHallVideo(SAVE.set.quality);
   if(typeof Director!=="undefined" && Director.syncFx) Director.syncFx();
   if(view==="play") ensureLoop(); else if(!(plan && plan.stopLoop===false)) stopLoop();
@@ -2024,6 +2038,9 @@ function loop(ts){
           }
         });
       }
+      if(ev && ev.event==="SIGNED_OUT" && currentView==="play"){
+        toast("Session ended. Your run stays on this device.");
+      }
       updateCloudChip();
       if(currentView==="settings") renderSettings();
     });
@@ -2053,6 +2070,10 @@ function loop(ts){
     }
   });
 
-  if(typeof introDone !== "undefined") introDone = true;
-  playBootSequence({fast: !!(SAVE.set.tutorialDone || (SAVE.life && SAVE.life.sitesCleared))});
+  if(typeof introAllowed === "function" && introAllowed() && !SAVE.set.introPlayed){
+    go("intro");
+  } else {
+    if(typeof introDone !== "undefined") introDone = true;
+    playBootSequence({fast: !!(SAVE.set.tutorialDone || (SAVE.life && SAVE.life.sitesCleared))});
+  }
 })();

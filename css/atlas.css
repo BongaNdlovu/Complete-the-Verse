@@ -95,9 +95,19 @@ body:not(:has(#v-atlas.on)) .route-line { animation-play-state: paused; }
 .site-marker.locked .node-dot::after { background: var(--parch-dim); width: 3px; height: 3px; }
 .site-marker.locked .node-label { opacity: .38; border-style: dashed; color: var(--parch-dim); }
 
-.tablet-marker .node-dot { border-radius: 2px; width: 13px; height: 13px; left: -6px; top: -6px; }
-.tablet-marker .node-dot::after { border-radius: 1px; width: 4px; height: 4px; }
+.tablet-marker .node-dot {
+  border-radius: 2px; width: 16px; height: 20px; left: -8px; top: -10px;
+  background: linear-gradient(180deg, #3a2a16, #120c08);
+  border: 2px solid #c4a46a;
+  box-shadow: 0 0 10px rgba(217,182,103,.45);
+}
+.tablet-marker .node-dot::after {
+  border-radius: 0; width: 7px; height: 2px; background: #e2c07a;
+  box-shadow: 0 4px 0 #c4a46a, 0 8px 0 #9a7a42;
+}
 .tablet-marker .node-label b { font-style: italic; letter-spacing: .04em; }
+.tablet-marker.current .node-dot,
+.tablet-marker.active .node-dot { transform: scale(1.2); box-shadow: 0 0 18px var(--gold-hot); }
 
 /* cleared — filled and sealed */
 .site-marker.cleared .node-dot { background: rgba(217,182,103,.9); border-color: var(--gold-hot); box-shadow: 0 0 14px rgba(217,182,103,.75); }
@@ -306,6 +316,9 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
 .rail-site.locked .ord { color: #b4aa98; }
 .rail-site.cleared .nm { color: var(--gold); }
 .rail-site.current .nm { color: var(--gold-hot); text-shadow: 0 0 14px rgba(217,182,103,.7); }
+.rail-tablet { padding-left: 1.4em; }
+.rail-tablet .nm { font-style: italic; letter-spacing: .04em; }
+.rail-tablet .ord { color: var(--gold); }
 
 /* ---------------------------------------------------------------- dossier */
 

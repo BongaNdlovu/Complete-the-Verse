@@ -378,10 +378,6 @@ var Atlas = (function () {
     opts = opts || {};
     var to = (typeof Pilgrimage.place === "function" ? Pilgrimage.place(toId) : Pilgrimage.site(toId));
     var from = (typeof Pilgrimage.place === "function" ? Pilgrimage.place(fromId) : Pilgrimage.site(fromId));
-    if (to && to.kind === "tablets") {
-      snapTraveler(toId, to, opts);
-      return;
-    }
     if (!hasMap() || reduced() || opts.duration === 0) {
       snapTraveler(toId, to, opts);
       return;
@@ -684,14 +680,23 @@ var Atlas = (function () {
 
     var zoom = opts.zoom || Math.max(map.getZoom(), 7);
     var fly = opts.fly !== false && !reduced();
+    var size = map.getSize && map.getSize();
+    if (size && (!size.x || !size.y)) fly = false;
     if (fly) map.flyTo(site.coords, zoom, { duration: opts.duration || 1.8, easeLinearity: .22 });
     else map.setView(site.coords, zoom, { animate: false });
   }
 
   function fitAll() {
     if (!hasMap()) return;
-    var pts = Pilgrimage.journey().map(function (s) { return s.coords; });
-    map.flyToBounds(L.latLngBounds(pts).pad(0.12), { duration: reduced() ? 0 : 2.2 });
+    var size = map.getSize && map.getSize();
+    if (size && (!size.x || !size.y)) return;
+    var pts = Pilgrimage.journey().map(function (s) { return s.coords; }).filter(function (c) {
+      return c && isFinite(c[0]) && isFinite(c[1]);
+    });
+    if (pts.length < 2) return;
+    try {
+      map.flyToBounds(L.latLngBounds(pts).pad(0.12), { duration: reduced() ? 0 : 2.2 });
+    } catch (e) {}
   }
 
   /* ------------------------------ rail ------------------------------ */
@@ -1094,6 +1099,7 @@ var Atlas = (function () {
         select(current.id, { fly: hasMap() && !reduced(), duration: 2.6 });
         if (Pilgrimage.clearedCount(progress) === 0) {
           setTimeout(function () {
+            if (typeof currentView === "string" && currentView !== "atlas") return;
             openJourneyVignette("ur");
           }, reduced() ? 300 : 2600);
         }

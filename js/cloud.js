@@ -275,6 +275,28 @@ var Cloud = (function () {
     return !!(user && user.id);
   }
 
+  var lastBoardError = null;
+  function boardLoadFailed() {
+    return lastBoardError;
+  }
+  function authNotice(reason) {
+    if (reason === "offline") return "You're offline. Try again when you reconnect.";
+    if (reason === "invalid-email") return "Enter a valid email address.";
+    if (reason === "rate-limited") return "Too many attempts. Wait a few minutes.";
+    if (reason === "not-configured") return "Cloud is not available on this build.";
+    if (reason === "unavailable") return "Could not send the link. Try again.";
+    if (reason === "signed-out") return "Sign in to post scores.";
+    if (reason === "name-too-short") return "Name needs at least two letters.";
+    if (reason === "trusted-submit-unavailable") return "Trusted leaderboard submission is unavailable.";
+    return "Check your email for the sign-in link.";
+  }
+  function withTimeout(p, ms) {
+    return new Promise(function (resolve, reject) {
+      var t = setTimeout(function () { reject(new Error("timeout")); }, ms || 8000);
+      Promise.resolve(p).then(function (v) { clearTimeout(t); resolve(v); }, function (e) { clearTimeout(t); reject(e); });
+    });
+  }
+
   async function init() {
     if (!configured()) return { ok: false, reason: "not-configured" };
     var sb = ensureClient();
@@ -299,7 +321,7 @@ var Cloud = (function () {
   async function refreshProfile() {
     var sb = ensureClient();
     if (!sb || !user) return null;
-    var res = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle();
+    var res = await sb.from("profiles").select("id, display_name, updated_at").eq("id", user.id).maybeSingle();
     if (res.data) profile = res.data;
     return profile;
   }
@@ -307,15 +329,24 @@ var Cloud = (function () {
   async function signInWithEmail(email) {
     var sb = ensureClient();
     if (!sb) return { ok: false, reason: "not-configured" };
-    var res = await sb.auth.signInWithOtp({
-      email: String(email || "").trim(),
-      options: { emailRedirectTo: typeof location !== "undefined" ? location.href.split("#")[0] : undefined }
-    });
-    if (res.error) {
-      emit("onError", { message: res.error.message });
-      return { ok: false, reason: res.error.message };
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return { ok: false, reason: "offline" };
+    email = String(email || "").trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, reason: "invalid-email" };
+    try {
+      var res = await withTimeout(sb.auth.signInWithOtp({
+        email: email,
+        options: { emailRedirectTo: typeof location !== "undefined" ? location.href.split("#")[0] : undefined }
+      }), 8000);
+      if (res.error) {
+        var msg = String(res.error.message || "").toLowerCase();
+        if (/rate|too many/.test(msg)) return { ok: false, reason: "rate-limited" };
+        if (/invalid/.test(msg) && /email/.test(msg)) return { ok: false, reason: "invalid-email" };
+        return { ok: true, reason: "sent" };
+      }
+      return { ok: true, reason: "sent" };
+    } catch (e) {
+      return { ok: false, reason: (typeof navigator !== "undefined" && navigator.onLine === false) ? "offline" : "unavailable" };
     }
-    return { ok: true, message: "Check your email for the sign-in link." };
   }
 
   async function signOut() {
@@ -338,7 +369,7 @@ var Cloud = (function () {
       display_name: name,
       updated_at: new Date().toISOString()
     }).eq("id", user.id);
-    if (res.error) return { ok: false, reason: res.error.message };
+    if (res.error) return { ok: false, reason: "rejected" };
     await refreshProfile();
     return { ok: true, profile: profile };
   }
@@ -353,7 +384,7 @@ var Cloud = (function () {
       var res = await sb.from("saves").select("payload, revision, client_updated_at")
         .eq("user_id", user.id).maybeSingle();
       if (res.error) {
-        emit("onError", { message: res.error.message });
+        emit("onError", { message: "Could not load cloud progress." });
         return null;
       }
       if (!res.data) return null;
@@ -389,8 +420,8 @@ var Cloud = (function () {
       };
       var res = await sb.from("saves").upsert(row, { onConflict: "user_id" });
       if (res.error) {
-        emit("onError", { message: res.error.message });
-        return { ok: false, reason: res.error.message };
+        emit("onError", { message: "Could not save cloud progress." });
+        return { ok: false, reason: "rejected" };
       }
       lastRevision = nextRev;
       emit("onSync", { direction: "push", revision: nextRev });
@@ -440,11 +471,19 @@ var Cloud = (function () {
       return { ok: false, reason: "no-edge" };
     }
     try {
-      var res = await sb.functions.invoke("submit-score", {
+      var res = await withTimeout(sb.functions.invoke("submit-score", {
         body: Object.assign({ kind: kind }, payload)
-      });
-      if (res && res.error) return { ok: false, reason: res.error.message || "edge-error" };
-      if (res && res.data && res.data.error) return { ok: false, reason: res.data.error };
+      }), 8000);
+      if (res && res.error) {
+        var em = String((res.error && res.error.message) || res.data && res.data.error || "").toLowerCase();
+        if (/429|rate/.test(em) || (res.data && res.data.error === "rate-limited")) return { ok: false, reason: "rate-limited" };
+        return { ok: false, reason: res.data && res.data.error === "auth" ? "signed-out" : "edge-error" };
+      }
+      if (res && res.data && res.data.error) {
+        if (res.data.error === "rate-limited") return { ok: false, reason: "rate-limited" };
+        if (res.data.error === "auth") return { ok: false, reason: "signed-out" };
+        return { ok: false, reason: "edge-error" };
+      }
       return { ok: true, via: "edge" };
     } catch (e) {
       return { ok: false, reason: "edge-unreachable" };
@@ -461,7 +500,12 @@ var Cloud = (function () {
       score: c.score | 0,
       accuracy: Number(c.accuracy) || 0,
       duration_ms: c.duration_ms == null ? null : c.duration_ms | 0,
-      diff: c.diff || "watchman"
+      diff: c.diff || "watchman",
+      correct: c.correct | 0,
+      attempts: c.attempts | 0,
+      best: c.best | 0,
+      baseScore: c.baseScore | 0,
+      reason: c.reason || ""
     };
     var edge = await submitViaEdge("daily", payload);
     if (edge.ok) {
@@ -471,8 +515,8 @@ var Cloud = (function () {
     }
     /* No trusted write path is available; keep this local result intact. */
     lastSubmitVia = null;
-    emit("onError", { message: "Trusted leaderboard submission is unavailable." });
-    return { ok: false, reason: "trusted-submit-unavailable", via: "none" };
+    emit("onError", { message: authNotice(edge.reason === "rate-limited" ? "rate-limited" : "trusted-submit-unavailable") });
+    return { ok: false, reason: edge.reason === "rate-limited" ? "rate-limited" : "trusted-submit-unavailable", via: "none" };
   }
 
   async function submitBlitzScore(row) {
@@ -483,7 +527,8 @@ var Cloud = (function () {
     var payload = {
       score: c.score | 0,
       survived_ms: c.survived_ms | 0,
-      diff: c.diff || "watchman"
+      diff: c.diff || "watchman",
+      correct: c.correct | 0
     };
     var edge = await submitViaEdge("blitz", payload);
     if (edge.ok) {
@@ -492,62 +537,72 @@ var Cloud = (function () {
       return { ok: true, score: payload.score, via: "edge" };
     }
     lastSubmitVia = null;
-    emit("onError", { message: "Trusted leaderboard submission is unavailable." });
-    return { ok: false, reason: "trusted-submit-unavailable", via: "none" };
+    emit("onError", { message: authNotice(edge.reason === "rate-limited" ? "rate-limited" : "trusted-submit-unavailable") });
+    return { ok: false, reason: edge.reason === "rate-limited" ? "rate-limited" : "trusted-submit-unavailable", via: "none" };
   }
 
   async function fetchDailyBoard(playDate, limit) {
+    lastBoardError = null;
     var sb = ensureClient();
-    if (!sb) return [];
+    if (!sb) { lastBoardError = "not-configured"; return []; }
     limit = limit || 20;
-    var res = await sb.from("daily_scores")
-      .select("id, score, accuracy, diff, user_id, profiles(display_name)")
-      .eq("play_date", playDate)
-      .order("score", { ascending: false })
-      .limit(limit);
-    if (res.error) return [];
-    return (res.data || []).map(function (r, i) {
-      var raw = (r.profiles && r.profiles.display_name) || "Pilgrim";
-      var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
-        ? (Polish.sanitizeDisplayName(raw) || "Pilgrim") : String(raw).slice(0, 32);
-      return {
-        rank: i + 1,
-        id: r.id,
-        score: r.score,
-        accuracy: r.accuracy,
-        diff: r.diff,
-        name: name,
-        user_id: r.user_id,
-        mine: !!(user && r.user_id === user.id)
-      };
-    });
+    try {
+      var res = await withTimeout(sb.from("daily_scores")
+        .select("id, score, accuracy, diff, profiles(display_name)")
+        .eq("play_date", playDate)
+        .order("score", { ascending: false })
+        .limit(limit), 8000);
+      if (res.error) { lastBoardError = "load-failed"; return []; }
+      return (res.data || []).map(function (r, i) {
+        var raw = (r.profiles && r.profiles.display_name) || "Pilgrim";
+        var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
+          ? (Polish.sanitizeDisplayName(raw) || "Pilgrim") : String(raw).slice(0, 32);
+        return {
+          rank: i + 1,
+          id: r.id,
+          score: r.score,
+          accuracy: r.accuracy,
+          diff: r.diff,
+          name: name,
+          mine: false
+        };
+      });
+    } catch (e) {
+      lastBoardError = (typeof navigator !== "undefined" && navigator.onLine === false) ? "offline" : "timeout";
+      return [];
+    }
   }
 
   async function fetchBlitzBoard(limit) {
+    lastBoardError = null;
     var sb = ensureClient();
-    if (!sb) return [];
+    if (!sb) { lastBoardError = "not-configured"; return []; }
     limit = limit || 20;
-    var res = await sb.from("blitz_scores")
-      .select("id, score, survived_ms, diff, user_id, profiles(display_name)")
-      .order("score", { ascending: false })
-      .order("survived_ms", { ascending: false })
-      .limit(limit);
-    if (res.error) return [];
-    return (res.data || []).map(function (r, i) {
-      var raw = (r.profiles && r.profiles.display_name) || "Pilgrim";
-      var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
-        ? (Polish.sanitizeDisplayName(raw) || "Pilgrim") : String(raw).slice(0, 32);
-      return {
-        rank: i + 1,
-        id: r.id,
-        score: r.score,
-        survived_ms: r.survived_ms,
-        diff: r.diff,
-        name: name,
-        user_id: r.user_id,
-        mine: !!(user && r.user_id === user.id)
-      };
-    });
+    try {
+      var res = await withTimeout(sb.from("blitz_scores")
+        .select("id, score, survived_ms, diff, profiles(display_name)")
+        .order("score", { ascending: false })
+        .order("survived_ms", { ascending: false })
+        .limit(limit), 8000);
+      if (res.error) { lastBoardError = "load-failed"; return []; }
+      return (res.data || []).map(function (r, i) {
+        var raw = (r.profiles && r.profiles.display_name) || "Pilgrim";
+        var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
+          ? (Polish.sanitizeDisplayName(raw) || "Pilgrim") : String(raw).slice(0, 32);
+        return {
+          rank: i + 1,
+          id: r.id,
+          score: r.score,
+          survived_ms: r.survived_ms,
+          diff: r.diff,
+          name: name,
+          mine: false
+        };
+      });
+    } catch (e) {
+      lastBoardError = (typeof navigator !== "undefined" && navigator.onLine === false) ? "offline" : "timeout";
+      return [];
+    }
   }
 
   /* How many players posted a score on a given date (for "of M" on the
@@ -555,68 +610,81 @@ var Cloud = (function () {
   async function fetchDailyEntryCount(playDate) {
     var sb = ensureClient();
     if (!sb || !playDate) return 0;
-    var res = await sb.from("daily_scores")
-      .select("id", { count: "exact", head: true })
-      .eq("play_date", playDate);
-    if (res.error) return 0;
-    return (res.count != null) ? Number(res.count) : 0;
+    try {
+      var res = await withTimeout(sb.from("daily_scores")
+        .select("id", { count: "exact", head: true })
+        .eq("play_date", playDate), 8000);
+      if (res.error) return 0;
+      return (res.count != null) ? Number(res.count) : 0;
+    } catch (e) {
+      return 0;
+    }
   }
 
   /* Best daily score for a signed-in user on a given date (for "you" row). */
   async function fetchMyDailyRank(playDate) {
     var sb = ensureClient();
     if (!sb || !user) return null;
-    var res = await sb.from("daily_scores")
-      .select("id, score, accuracy, diff, user_id, profiles(display_name)")
-      .eq("play_date", playDate)
-      .order("score", { ascending: false })
-      .limit(100);
-    if (res.error || !res.data) return null;
-    var rows = res.data;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].user_id === user.id) {
-        var raw = (rows[i].profiles && rows[i].profiles.display_name) || "You";
-        return {
-          id: rows[i].id,
-          rank: i + 1,
-          score: rows[i].score,
-          accuracy: rows[i].accuracy,
-          diff: rows[i].diff,
-          name: raw,
-          mine: true,
-          total: rows.length
-        };
-      }
+    try {
+      var mine = await withTimeout(sb.from("daily_scores")
+        .select("id, score, accuracy, diff, profiles(display_name)")
+        .eq("play_date", playDate)
+        .eq("user_id", user.id)
+        .maybeSingle(), 8000);
+      if (mine.error || !mine.data) return null;
+      var above = await withTimeout(sb.from("daily_scores")
+        .select("id", { count: "exact", head: true })
+        .eq("play_date", playDate)
+        .gt("score", mine.data.score), 8000);
+      var raw = (mine.data.profiles && mine.data.profiles.display_name) || "You";
+      var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
+        ? (Polish.sanitizeDisplayName(raw) || "You") : String(raw).slice(0, 32);
+      return {
+        id: mine.data.id,
+        rank: ((above.count != null) ? Number(above.count) : 0) + 1,
+        score: mine.data.score,
+        accuracy: mine.data.accuracy,
+        diff: mine.data.diff,
+        name: name,
+        mine: true
+      };
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   async function fetchMyBlitzRank() {
     var sb = ensureClient();
     if (!sb || !user) return null;
-    var res = await sb.from("blitz_scores")
-      .select("id, score, survived_ms, diff, user_id, profiles(display_name)")
-      .order("score", { ascending: false })
-      .order("survived_ms", { ascending: false })
-      .limit(100);
-    if (res.error || !res.data) return null;
-    var rows = res.data;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].user_id === user.id) {
-        var raw = (rows[i].profiles && rows[i].profiles.display_name) || "You";
-        return {
-          id: rows[i].id,
-          rank: i + 1,
-          score: rows[i].score,
-          survived_ms: rows[i].survived_ms,
-          diff: rows[i].diff,
-          name: raw,
-          mine: true,
-          total: rows.length
-        };
-      }
+    try {
+      var mine = await withTimeout(sb.from("blitz_scores")
+        .select("id, score, survived_ms, diff, profiles(display_name)")
+        .eq("user_id", user.id)
+        .order("score", { ascending: false })
+        .order("survived_ms", { ascending: false })
+        .limit(1)
+        .maybeSingle(), 8000);
+      if (mine.error || !mine.data) return null;
+      var s = mine.data.score;
+      var ms = mine.data.survived_ms;
+      var above = await withTimeout(sb.from("blitz_scores")
+        .select("id", { count: "exact", head: true })
+        .or("score.gt." + s + ",and(score.eq." + s + ",survived_ms.gt." + ms + ")"), 8000);
+      var raw = (mine.data.profiles && mine.data.profiles.display_name) || "You";
+      var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
+        ? (Polish.sanitizeDisplayName(raw) || "You") : String(raw).slice(0, 32);
+      return {
+        id: mine.data.id,
+        rank: ((above.count != null) ? Number(above.count) : 0) + 1,
+        score: mine.data.score,
+        survived_ms: mine.data.survived_ms,
+        diff: mine.data.diff,
+        name: name,
+        mine: true
+      };
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   async function reportScore(board, scoreId, reason) {
@@ -631,7 +699,7 @@ var Cloud = (function () {
     var res = await sb.from("leaderboard_reports").insert({
       reporter_id: user.id, board: board, score_id: scoreId, reason: reason
     });
-    if (res.error) return { ok: false, reason: res.error.message };
+    if (res.error) return { ok: false, reason: "rejected" };
     return { ok: true };
   }
 
@@ -649,7 +717,7 @@ var Cloud = (function () {
       meta: meta || {},
       updated_at: new Date().toISOString()
     }, { onConflict: "user_id,mode,run_key" });
-    if (res.error) return { ok: false, reason: res.error.message };
+    if (res.error) return { ok: false, reason: "rejected" };
     return { ok: true };
   }
 
@@ -658,19 +726,21 @@ var Cloud = (function () {
     if (!sb) return [];
     limit = limit || 5;
     var res = await sb.from("run_ghosts")
-      .select("best_score, timeline, meta, user_id, profiles(display_name)")
+      .select("best_score, timeline, meta, profiles(display_name)")
       .eq("mode", mode)
       .eq("run_key", runKey)
       .order("best_score", { ascending: false })
       .limit(limit);
     if (res.error) return [];
     return (res.data || []).map(function (r) {
+      var raw = (r.profiles && r.profiles.display_name) || "Pilgrim";
+      var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
+        ? (Polish.sanitizeDisplayName(raw) || "Pilgrim") : String(raw).slice(0, 32);
       return {
-        name: (r.profiles && r.profiles.display_name) || "Pilgrim",
+        name: name,
         best_score: r.best_score,
         timeline: r.timeline,
-        meta: r.meta,
-        mine: !!(user && r.user_id === user.id)
+        meta: r.meta
       };
     });
   }
@@ -733,6 +803,8 @@ var Cloud = (function () {
     loadSdk: loadSdk,
     mergeSave: mergeSave,
     isSignedIn: isSignedIn,
+    boardLoadFailed: boardLoadFailed,
+    authNotice: authNotice,
     user: sessionUser,
     profile: function () { return profile; },
     signInWithEmail: signInWithEmail,

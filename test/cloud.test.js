@@ -130,6 +130,13 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
   eq("remote chapter kept", m.tablets.john14.best, 50);
 }
 
+{
+  eq("authNotice offline", Cloud.authNotice("offline"), "You're offline. Try again when you reconnect.");
+  eq("authNotice rate-limited", Cloud.authNotice("rate-limited"), "Too many attempts. Wait a few minutes.");
+  eq("authNotice hides unknown errors", Cloud.authNotice("User already registered"), "Check your email for the sign-in link.");
+  eq("boardLoadFailed idle", Cloud.boardLoadFailed(), null);
+}
+
 console.log((fail ? "FAIL" : "PASS") + " — cloud · " + pass + " assertions passed" + (fail ? " · " + fail + " FAILED" : ""));
 process.exit(fail ? 1 : 0);
 

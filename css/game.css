@@ -155,15 +155,11 @@ body.reduced .intro-hint{animation:none}
 /* ================= BOOT ================= */
 #v-boot{align-items:center;justify-content:center;text-align:center;padding:0 6vw}
 .boot-inner{display:flex;flex-direction:column;align-items:center;max-width:42rem}
-.bootmark{width:clamp(56px,8vw,78px);height:clamp(56px,8vw,78px);margin-bottom:3.2vh;position:relative;
-  border:1px solid rgba(213,173,98,.32);border-radius:50%;
-  box-shadow:0 0 0 5px rgba(213,173,98,.05),0 0 40px rgba(157,106,42,.18)}
-.bootmark:before,.bootmark:after{content:"";position:absolute;background:linear-gradient(180deg,var(--gold-hot),var(--gold-deep));
-  box-shadow:0 0 16px rgba(217,182,103,.55)}
-.bootmark:before{left:50%;top:18%;width:1.5px;height:64%;transform:translateX(-50%)}
-.bootmark:after{top:50%;left:18%;width:64%;height:1.5px;transform:translateY(-50%)}
-.bootmark i{position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;
-  transform:rotate(45deg);background:var(--gold-hot);box-shadow:0 0 14px var(--gold)}
+.bootmark{width:clamp(78px,11vw,118px);margin-bottom:3.2vh;position:relative;border:0;border-radius:0;box-shadow:none;
+  filter:drop-shadow(0 10px 16px rgba(0,0,0,.75))}
+.bootmark img{display:block;width:100%;height:auto}
+.bootmark:before,.bootmark:after{content:none}
+.bootmark i{display:none}
 .bootmark{animation:bm 3.6s ease-in-out infinite}
 @keyframes bm{0%,100%{filter:drop-shadow(0 0 10px rgba(217,182,103,.35))}50%{filter:drop-shadow(0 0 22px rgba(255,227,166,.7))}}
 .boot-title{margin-top:1.4vh}

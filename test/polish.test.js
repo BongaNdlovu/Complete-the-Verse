@@ -33,10 +33,27 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
   eq("daily score capped", d.score, Polish.MAX_DAILY_SCORE);
   eq("accuracy capped at 100", d.accuracy, 100);
   eq("duration non-negative", d.duration_ms, 0);
+  eq("daily negative score floored", Polish.clampDailyScore({ score: -99 }).score, 0);
 
   const b = Polish.clampBlitzScore({ score: -3, survived_ms: 1e12 });
   eq("blitz score floor 0", b.score, 0);
   ok("blitz duration capped", b.survived_ms <= 7200000);
+}
+
+{
+  const a = Polish.settleDaily({ baseScore: 1500, best: 5, correct: 10, attempts: 10, diff: "watchman", reason: "complete" });
+  eq("daily complete settlement", a.total, 3900);
+  eq("daily complete accuracy", a.accuracy, 100);
+  ok("daily complete plausible", Polish.plausibleDaily({
+    score: 3900, accuracy: 100, baseScore: 1500, best: 5, correct: 10, attempts: 10, diff: "watchman", reason: "complete"
+  }));
+  const ab = Polish.settleDaily({ baseScore: 1500, best: 5, correct: 10, attempts: 10, diff: "watchman", reason: "abandon" });
+  eq("daily abandon settlement", ab.total, 3315);
+  ok("inflated daily rejected", !Polish.plausibleDaily({
+    score: 500000, accuracy: 100, baseScore: 1500, best: 5, correct: 10, attempts: 10, diff: "watchman", reason: "complete"
+  }));
+  ok("blitz score must match verses", Polish.plausibleBlitz({ score: 47, correct: 47, survived_ms: 83000 }));
+  ok("blitz mismatch rejected", !Polish.plausibleBlitz({ score: 9000, correct: 47, survived_ms: 83000 }));
 }
 
 /* blitz timer */

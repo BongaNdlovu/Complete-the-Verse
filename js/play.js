@@ -243,6 +243,7 @@ function completeTutorialRun(){
   if(guide) guide.hidden=true;
   document.body.classList.remove("onboarding","mode-typed","speed-round");
   SAVE.set.tutorialDone=true;
+  SAVE.set.tutorialSeen=true;
   persist();
   go("menu");
   if(typeof profileReady==="function" && !profileReady()){
@@ -808,36 +809,9 @@ function playStageFilm(src, done){
   if(typeof vid.addEventListener === "function") vid.addEventListener("loadeddata", onReady);
   try{ if(typeof vid.load === "function") vid.load(); }catch(e){}
 }
-function playUrPrologue(done){
-  markUrPrologueDone();
-  playStageFilm("assets/ur-prologue.mp4", done);
-}
-function maybePlayUrPrologue(v, dur){
-  if(R.mode !== "pilgrimage" || R.siteId !== "ur" || R.siteIdx !== 1) return false;
-  if(SAVE.set && SAVE.set.urPrologueDone) return false;
-  if(typeof Pilgrimage !== "undefined" && Pilgrimage.clearedCount(SAVE.pilgrim) > 0){
-    markUrPrologueDone();
-    return false;
-  }
-  if(!urPrologueAllowed()){
-    markUrPrologueDone();
-    return false;
-  }
-  R.quoteShown = true;
-  R.holdQuestionMusic = true;
-  renderQuestion(v, dur);
-  stopTimer();
-  const armed = R.tTotal || dur;
-  playUrPrologue(function(){
-    R.holdQuestionMusic = false;
-    if(R.q === v && currentView === "play" && !R.ended){
-      if(typeof cueQuestionMusic === "function") cueQuestionMusic();
-      if(typeof syncCinematicBackdrop === "function") syncCinematicBackdrop();
-      witnessLook(false);
-      startTimer(armed);
-    }
-  });
-  return true;
+function maybePlayUrPrologue(){
+  if(R.mode === "pilgrimage" && R.siteId === "ur") markUrPrologueDone();
+  return false;
 }
 
 function maybePlayTeamPrologue(v, dur){

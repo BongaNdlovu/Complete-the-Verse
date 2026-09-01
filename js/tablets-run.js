@@ -60,6 +60,7 @@ function paintTabletsPips(){
   const ch = tabletsChapter();
   const idx = R.tabletIdx || 0;
   host.innerHTML = "";
+  if(ch.blanks.length > 20) return;
   ch.blanks.forEach(function(_, i){
     const pip = document.createElement("i");
     pip.className = "tablets-pip" + (i < idx ? " done" : (i === idx ? " on" : ""));
@@ -90,7 +91,10 @@ function paintTabletsStage(answer){
   fillVerseLine($("tablets-sheet"), ch.blanks[i], answer ? "done" : "on", i);
   if(answer){
     const carved = $("tablets-sheet").querySelector(".tablets-carved");
-    if(carved) carved.classList.add("in", answer === "miss" ? "shattered" : "");
+    if(carved){
+      carved.classList.add("in");
+      if(answer === "miss") carved.classList.add("shattered");
+    }
   }
   fillVerseLine($("tablets-next"), ch.blanks[i + 1], "wait", i + 1);
   paintTabletsPips();
@@ -102,11 +106,56 @@ function buildTabletsSheet(){
 function alignTabletsBlank(){
   paintTabletsClock();
 }
+function tabletsParentSite(){
+  const ch = tabletsChapter();
+  if(!(ch && ch.after) || typeof Pilgrimage === "undefined" || !Pilgrimage.site) return null;
+  return Pilgrimage.site(ch.after) || null;
+}
+function tabletsReact(ok){
+  const fig = $("tablets-companion");
+  if(!fig || fig.hidden) return;
+  fig.classList.remove("success", "failure");
+  void fig.offsetWidth;
+  fig.classList.add(ok ? "success" : "failure");
+  clearTimeout(fig._t);
+  fig._t = setTimeout(function(){ fig.classList.remove("success", "failure"); }, ok ? 1100 : 820);
+}
+function paintTabletsCast(){
+  const ch = tabletsChapter();
+  const site = tabletsParentSite();
+  const spec = (typeof Characters !== "undefined" && Characters.walkerSpec && typeof SAVE !== "undefined")
+    ? Characters.walkerSpec(SAVE.set.scholarId || SAVE.set.character, SAVE.pilgrim)
+    : null;
+  const walker = $("tablets-walker-sprite");
+  if(walker){
+    const idle = (spec && spec.idle) || "assets/traveler/idle.png";
+    walker.style.backgroundImage = "url('" + idle + "')";
+  }
+  const place = $("tablets-place");
+  const sub = $("tablets-place-sub");
+  const kicker = $("tablets-place-kicker");
+  if(kicker) kicker.textContent = site ? "The tablet" : (R.tabletTutorial ? "First Hold" : "The Hall");
+  if(place) place.textContent = site ? (ch.afterName || site.name) : (R.tabletTutorial ? "The Lord's Prayer" : "The Hall");
+  if(sub) sub.textContent = site ? (ch.name + " · " + (site.modernCountry || "")) : (ch.subtitle || "");
+  const fig = $("tablets-companion");
+  const img = $("tablets-companion-img");
+  const sign = $("tablets-companion-sign");
+  if(fig && site && typeof companionQuestionSrc === "function"){
+    fig.hidden = false;
+    fig.removeAttribute("hidden");
+    if(img) img.src = companionQuestionSrc(site);
+    if(sign) sign.textContent = typeof companionQuestionName === "function" ? companionQuestionName(site) : "";
+  } else if(fig){
+    fig.hidden = true;
+    fig.setAttribute("hidden", "");
+  }
+}
 function paintTabletsHud(){
   const ch = tabletsChapter();
   const pct = tabletsPct();
   const rec = Tablets.recordOf(typeof SAVE !== "undefined" ? SAVE : null, ch.id);
   const idx = R.tabletIdx || 0;
+  paintTabletsCast();
   if($("tablets-chapter")) $("tablets-chapter").textContent = ch.name;
   if($("tablets-sub")){
     const pace = R.tabletTutorial ? "Learn the Hold" : ((Tablets.levelName && Tablets.levelName(R.tabletLevel)) || "I");
@@ -216,11 +265,24 @@ function toggleTabletsPause(){
   if(!R || R.mode !== "tablets" || R.ended) return;
   setTabletsPaused(!R.paused);
 }
+function tabletsMarkPicked(word){
+  const grid = $("tablets-grid");
+  if(!grid) return;
+  const btns = grid.children || [];
+  let i = 0;
+  for(; i < btns.length; i++){
+    const b = btns[i];
+    if(!b || !b.classList) continue;
+    if(b.dataset && b.dataset.word === word) b.classList.add("picked");
+    else b.classList.remove("picked");
+  }
+}
 function tabletsPick(word){
   if(!R || R.ended || R.paused || R.mode !== "tablets") return;
   const ch = tabletsChapter();
   const blank = ch.blanks[R.tabletIdx];
   if(!blank) return;
+  tabletsMarkPicked(word);
   const got = String(word || "").toLowerCase().trim();
   const need = String(blank.a || "").toLowerCase().trim();
   if(got === need) tabletsResolve(true);
@@ -258,6 +320,7 @@ function tabletsResolve(ok){
     if(!R.tabletTutorial) R.tabletMiss = (R.tabletMiss || 0) + 1;
     if(typeof Snd !== "undefined" && Snd.shatter) Snd.shatter();
     paintTabletsStage("miss");
+    tabletsReact(false);
     const failedGrid = $("tablets-grid");
     if(failedGrid) failedGrid.classList.add("locked");
     tabletsShatter();
@@ -270,6 +333,7 @@ function tabletsResolve(ok){
   R.best = Math.max(R.best || 0, R.streak);
   if(typeof Snd !== "undefined" && Snd.carve) Snd.carve();
   paintTabletsStage("hit");
+  tabletsReact(true);
   const grid = $("tablets-grid");
   if(grid) grid.classList.add("locked");
   setTimeout(function(){ tabletsFinishResolve(true); }, 500);
@@ -288,9 +352,7 @@ function tabletsFinishResolve(ok){
       if(grid) grid.classList.remove("locked");
       paintTabletsStage();
       paintTabletsTray();
-      R.tabletRacing = true;
-      R.tabletLast = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
-      if(typeof requestAnimationFrame === "function") R.tabletRaf = requestAnimationFrame(tabletsTick);
+      resumeTabletsRace();
       return;
     }
     if(typeof endRun === "function") endRun("death");
@@ -309,6 +371,13 @@ function tabletsFinishResolve(ok){
   }
   paintTabletsStage();
   paintTabletsTray();
+  resumeTabletsRace();
+}
+function resumeTabletsRace(){
+  if(!R || R.ended || R.paused || R.mode !== "tablets") return;
+  R.tabletRacing = true;
+  R.tabletLast = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+  if(typeof requestAnimationFrame === "function") R.tabletRaf = requestAnimationFrame(tabletsTick);
 }
 function tabletsTick(now){
   if(!R || R.ended || R.paused || R.mode !== "tablets" || !R.tabletRacing) return;
@@ -406,17 +475,28 @@ function bindTabletsChrome(){
     });
   }
 }
+function tabletsSpeakStart(){
+  if(!(typeof Director !== "undefined" && Director.speak)) return;
+  if(R.tabletTutorial) Director.speak("Learn the Hold. Choose the missing word.", true);
+  else Director.speak("Carve the missing word. One miss shatters the Hold.", true);
+}
 function startTabletsStage(){
   bindTabletsChrome();
   const ch = tabletsChapter();
+  const site = tabletsParentSite();
   if($("hud-round")) $("hud-round").textContent = ch.name;
-  if(typeof applySiteSky === "function") applySiteSky(null);
   if(typeof Snd !== "undefined"){
     if(Snd.stopBeds) Snd.stopBeds();
     if(Snd.ambience) Snd.ambience("indigo");
   }
+  if(site && typeof Backdrop !== "undefined" && Backdrop.palette && typeof Pilgrimage !== "undefined"){
+    const arc = Pilgrimage.arc ? Pilgrimage.arc(site.arc) : null;
+    Backdrop.palette((arc && arc.pal) || "act2");
+  }
   go("tablets");
+  if(typeof applySiteSky === "function") applySiteSky(site ? site.id : null);
   startTabletsLoop();
+  tabletsSpeakStart();
 }
 if(typeof window !== "undefined"){
   window.finishTabletsTutorial = finishTabletsTutorial;

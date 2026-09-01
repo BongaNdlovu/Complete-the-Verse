@@ -758,7 +758,7 @@ function recordSiteResult(cleared, total, acc){
 /* ------------------------- FIRST-RUN TUTORIAL ------------------------- */
 let pendingPostTutorialAction = null;
 function showTutorialIfNeeded(){
-  if(SAVE.set.tutorialDone){
+  if(SAVE.set.tutorialSeen){
     if(!profileReady()) openProfileSetup(true);
     return;
   }
@@ -779,7 +779,9 @@ function runTutorialAction(action){
   }
 }
 function finishTutorial(action){
-  SAVE.set.tutorialDone = true; persist();
+  SAVE.set.tutorialDone = true;
+  SAVE.set.tutorialSeen = true;
+  persist();
   const el=$("tutorial"); if(el) el.classList.remove("on");
   if(!profileReady()){
     pendingPostTutorialAction = action;
@@ -849,6 +851,7 @@ function beginIntroPlayback(){
 function finishIntro(skipped){
   if(introDone) return;
   introDone=true;
+  if(SAVE.set){ SAVE.set.introPlayed = true; persist(); }
   const v=$("intro-video"), stage=$("v-intro");
   if(skipped && typeof Snd!=="undefined" && Snd.stopVoice) Snd.stopVoice();
   if(stage) stage.classList.add("leaving");
@@ -880,10 +883,8 @@ function enterCoffeePath(){
   if(typeof markFunnel === "function") markFunnel("boot");
   const cleared = !!(SAVE.life && SAVE.life.sitesCleared);
   const walked = !!(SAVE.pilgrim && SAVE.pilgrim.lastPlayed);
-  if(!SAVE.set.tutorialDone && !cleared){
-    SAVE.set.tutorialDone = true;
-    persist();
-    startRun("pilgrimage", SAVE.set.diff);
+  if(!SAVE.set.tutorialSeen){
+    showTutorialIfNeeded();
     return;
   }
   if(cleared || walked){

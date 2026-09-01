@@ -73,15 +73,12 @@ function armMedia(sb) {
   const sb = boot();
   armMedia(sb);
   exec(sb, "SAVE.set.quality='high'; SAVE.set.reduced=false; Snd.ambience('menu'); pendingSiteId='ur'; startRun('pilgrimage','disciple')");
-  eq("Ur film holds the road bed", read(sb, "R.holdQuestionMusic"), true);
-  eq("Ur film clears the menu bed", read(sb, "Snd.currentBed()"), null);
-  ok("Ur film is on", read(sb, "$('ur-prologue').classList.contains('on')"));
-  eq("Ur film started", read(sb, "$('ur-prologue-video')._plays || 0"), 1);
-  eq("site loop is paused under the film", read(sb, "$('cine-parallax-video').paused"), true);
-  eq("rain is off under the film", read(sb, "Snd.rainActive()"), false);
-  exec(sb, "hideUrPrologue(true)");
-  eq("road bed starts after the film", read(sb, "Snd.currentBed()"), "heroes");
-  eq("hold lifts after the film", read(sb, "R.holdQuestionMusic"), false);
+  eq("Ur does not hold the road bed for a film", read(sb, "R.holdQuestionMusic"), false);
+  ok("Ur film overlay stays off", !read(sb, "$('ur-prologue').classList.contains('on')"));
+  eq("Ur film never starts", read(sb, "$('ur-prologue-video')._plays || 0"), 0);
+  ok("Ur spends the film flag without playing", read(sb, "SAVE.set.urPrologueDone"));
+  exec(sb, "if(typeof hideSiteQuote==='function') hideSiteQuote()");
+  eq("road bed starts on the first verse", read(sb, "Snd.currentBed()"), "heroes");
 }
 
 if (fail) {

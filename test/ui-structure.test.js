@@ -37,6 +37,8 @@ assert(html.includes('id="tablets-pause"'), "tablets pause overlay present");
 assert(!html.includes('id="tablets-hear"'), "tablets hear control removed");
 assert(html.includes('id="tablets-illum"'), "tablets illuminate control present");
 assert(html.includes('id="tablets-remain"'), "tablets remaining counter present");
+assert(html.includes('id="tablets-walker-sprite"'), "tablets walker token present");
+assert(html.includes('id="tablets-companion"'), "tablets companion present");
 assert(html.includes('id="intro-video"'), "intro video element present");
 assert(fs.existsSync(path.join(ROOT, "assets", "intro.mp4")), "assets/intro.mp4 exists");
 assert(fs.existsSync(path.join(ROOT, "audio", "voice", "intro-word.mp3")), "intro voice file exists");
@@ -51,12 +53,10 @@ assert(fs.statSync(path.join(ROOT, "assets", "hall.mp4")).size < 14 * 1024 * 102
   "hall.mp4 stays under 14MB for the web pack");
 assert(html.includes("assets/hall.mp4"), "hall video is sourced in the page");
 assert(html.includes('id="ur-prologue"') && html.includes('id="ur-prologue-skip"'),
-  "Ur opening film overlay and skip are in the play stage");
-assert(html.includes("assets/ur-prologue.mp4"), "Ur opening film path wired");
-assert(fs.existsSync(path.join(ROOT, "assets", "ur-prologue.mp4")), "assets/ur-prologue.mp4 exists");
-assert(fs.statSync(path.join(ROOT, "assets", "ur-prologue.mp4")).size < 2 * 1024 * 1024,
-  "Ur opening film stays under 2MB");
-assert(/function maybePlayUrPrologue/.test(game), "Ur opening film plays before the first verse");
+  "stage film overlay and skip are in the play stage");
+assert(!html.includes("assets/ur-prologue.mp4"), "Abraham Ur film is not sourced");
+assert(/function maybePlayUrPrologue\(\)\{[\s\S]{0,140}return false/.test(game),
+  "Ur start does not play an opening film");
 assert(/function maybePlayTeamPrologue/.test(game), "Team Mode plays a film before the first team");
 assert(css.includes(".team-mark"), "Team Mode paints White/Blue side marks");
 assert(css.includes("body.biblical-thriller.team-white .hdr-rule"), "White Team tints the play header");
