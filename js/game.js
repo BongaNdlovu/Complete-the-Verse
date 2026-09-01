@@ -624,17 +624,17 @@ function startRunRelayQueue(){
 }
 
 function startRunPowers(mode, isPilgrim){
-  if(mode==="beat" || mode==="team") return { startPowers:{selah:0, illum:0, wind:0}, reservedIlluminate:0 };
+  if(mode==="beat" || mode==="team") return { startPowers:{selah:0, illum:0, winnow:0, wind:0}, reservedIlluminate:0 };
   if(mode==="tablets"){
     const reservedIlluminate = Math.min(2, Math.max(0, Number(SAVE.illumReserve)||0));
-    return { startPowers:{selah:0, illum:1 + reservedIlluminate, wind:0}, reservedIlluminate: reservedIlluminate };
+    return { startPowers:{selah:0, illum:1 + reservedIlluminate, winnow:2, wind:0}, reservedIlluminate: reservedIlluminate };
   }
   const leanRoad = isPilgrim || mode==="relay";
   const startPowers = mode==="blitz"
-    ? {selah:0, illum:0, wind:0}
+    ? {selah:0, illum:0, winnow:0, wind:0}
     : leanRoad
-    ? {selah:1, illum:0, wind:0}
-    : {selah:1, illum:0, wind:1};
+    ? {selah:1, illum:0, winnow:0, wind:0}
+    : {selah:1, illum:0, winnow:0, wind:1};
   const reservedIlluminate = Math.min(2, Math.max(0, Number(SAVE.illumReserve)||0));
   startPowers.illum += reservedIlluminate;
   return { startPowers: startPowers, reservedIlluminate: reservedIlluminate };

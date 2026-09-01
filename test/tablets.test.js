@@ -175,8 +175,15 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
+  eq("two lamps start the Hold", read(sb, "R.tabletLives"), 2);
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
-  eq("a miss ends the run", read(sb, "R.ended"), true);
+  eq("the first miss spends a lamp, not the run", read(sb, "R.ended"), false);
+  eq("one lamp is gone", read(sb, "R.tabletMiss"), 1);
+  eq("the same blank re-arms", read(sb, "R.tabletIdx"), 0);
+  eq("the clock restarts after the crack", read(sb, "R.tabletRacing"), true);
+  eq("lamps read one", read(sb, "$('tablets-lamps').textContent"), "Lamps ×1");
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  eq("the second miss ends the run", read(sb, "R.ended"), true);
   eq("not Held", read(sb, "Tablets.held(R)"), false);
   eq("91 stays locked", read(sb, "SAVE.tablets.psalm23.held"), false);
   eq("kick is shatter", read(sb, "$('res-kick').textContent"), "The tablet shattered");
@@ -220,14 +227,34 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   eq("Illuminate starts at 1", read(sb, "R.powers.illum"), 1);
+  eq("Winnow starts at 2", read(sb, "R.powers.winnow"), 2);
+  eq("two lamps shown", read(sb, "$('tablets-lamps').textContent"), "Lamps ×2");
   exec(sb, "tabletsIlluminate()");
   eq("hint spends Illuminate", read(sb, "R.powers.illum"), 0);
   eq("two decoys greyed", read(sb, "R.tabletGrey.length"), 2);
   eq("answer and one fake remain", read(sb, "$('tablets-grid').children.filter(function(c){ return !c.classList.contains('hinted'); }).length"), 2);
   exec(sb, "tabletsIlluminate()");
   eq("already hinted does not spend", read(sb, "R.powers.illum"), 0);
+  exec(sb, "tabletsWinnow()");
+  eq("winnow takes the last fake", read(sb, "R.powers.winnow"), 1);
+  eq("winnow greys one more stone", read(sb, "tabletsGreyWords().length"), 3);
+  eq("only the true stone stays", read(sb, "$('tablets-grid').children.filter(function(c){ return !c.classList.contains('hinted'); }).length"), 1);
   for (let i = 0; i < 11; i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("perfect run after a hint still Holds", read(sb, "Tablets.held(R)"), true);
+  eq("perfect run after hints still Holds", read(sb, "Tablets.held(R)"), true);
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "tabletsWinnow()");
+  eq("winnow spends one charge", read(sb, "R.powers.winnow"), 1);
+  eq("one false stone falls away", read(sb, "$('tablets-grid').children.filter(function(c){ return !c.classList.contains('hinted'); }).length"), 3);
+  exec(sb, "tabletsWinnow()");
+  eq("the second charge works on the same blank once", read(sb, "R.powers.winnow"), 1);
+  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  exec(sb, "tabletsWinnow()");
+  eq("winnow re-arms on the next blank", read(sb, "R.tabletWinnowIdx"), 1);
+  eq("charges carry across blanks", read(sb, "R.powers.winnow"), 0);
 }
 
 {

@@ -171,11 +171,18 @@ body.view-tablets .voice-caption{bottom:max(168px,calc(env(safe-area-inset-botto
 .tablets-stone:hover,.tablets-stone:focus-visible{filter:brightness(1.08);box-shadow:0 0 22px rgba(217,182,103,.4)}
 .tablets-stone.picked{filter:brightness(1.12);box-shadow:0 0 0 2px #ffe3a6,0 0 22px rgba(217,182,103,.55)}
 .tablets-stone.hinted{opacity:.28;pointer-events:none;filter:grayscale(.8)}
-.tablets-tray-tools{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:10px;flex-wrap:wrap}
+.tablets-tray-tools{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px;flex-wrap:wrap}
 .tablets-tray-tools button{
   min-height:44px;padding:0 1em;font-family:var(--ui);letter-spacing:.16em;text-transform:uppercase;
-  font-size:.62rem;color:var(--gold);box-shadow:0 0 0 1px rgba(217,182,103,.35) inset}
-.tablets-tray-tools button:hover,.tablets-tray-tools button:focus-visible{color:var(--gold-hot)}
+  font-size:.62rem;color:var(--gold);box-shadow:0 0 0 1px rgba(217,182,103,.35) inset;
+  background:rgba(8,9,12,.6)}
+.tablets-tray-tools button.tablets-power{padding:0 1.1em;font-size:.64rem;color:#ffe7b5;
+  box-shadow:0 0 0 1px rgba(225,183,99,.6) inset,0 0 12px rgba(217,182,103,.14)}
+.tablets-tray-tools button.tablets-power:hover,.tablets-tray-tools button.tablets-power:focus-visible{
+  color:var(--gold-hot);box-shadow:0 0 0 1px var(--gold-hot) inset,0 0 14px rgba(217,182,103,.35)}
+.tablets-tray-tools button:disabled{opacity:.35;cursor:not-allowed;box-shadow:0 0 0 1px rgba(217,182,103,.2) inset}
+.tablets-lamps{font-family:var(--ui);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-hot)}
+.tablets-lamps.low{color:#ff8a8a}
 .tablets-keys-hint{font-family:var(--ui);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#8a7a62}
 .tablets-foot{
   flex:0 0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
@@ -253,4 +260,11 @@ body.reduced .tablets-roll,body.motion-calm .tablets-roll{transition:none!import
 }
 @media (max-width:900px){
   .tablets-companion{display:none!important}
+}
+/* Between 901 and 1150px the stone needs its width — slim the companion and
+   the ground so the picture keeps clear air instead of hugging the sheet. */
+@media (min-width:901px) and (max-width:1150px){
+  .tablets-companion{width:clamp(88px,12vw,150px)}
+  .tablets-companion img{max-height:min(34vh,300px)}
+  .tablets-ground{width:clamp(64px,10vw,116px)}
 }

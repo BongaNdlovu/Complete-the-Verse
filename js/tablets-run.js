@@ -238,12 +238,28 @@ function tabletsOptsForBlank(){
   R.tabletOptsIdx = R.tabletIdx;
   return R.tabletOpts;
 }
+function paintTabletsPowers(){
+  const illum = $("tablets-illum");
+  if(illum){
+    const n = (R.powers && R.powers.illum) || 0;
+    illum.textContent = "Illuminate ×" + n;
+    illum.disabled = n < 1;
+  }
+  const winnow = $("tablets-winnow");
+  if(winnow){
+    const n = (R.powers && R.powers.winnow) || 0;
+    winnow.textContent = "Winnow ×" + n;
+    winnow.disabled = n < 1;
+  }
+  const lamps = $("tablets-lamps");
+  if(lamps){
+    const left = Math.max(0, (R.tabletLives || 1) - (R.tabletMiss || 0));
+    lamps.textContent = "Lamps ×" + left;
+    lamps.classList.toggle("low", left <= 1);
+  }
+}
 function paintTabletsIllumBtn(){
-  const btn = $("tablets-illum");
-  if(!btn) return;
-  const n = (R.powers && R.powers.illum) || 0;
-  btn.textContent = "Illuminate ×" + n;
-  btn.disabled = n < 1;
+  paintTabletsPowers();
 }
 function paintTabletsTray(){
   const grid = $("tablets-grid");
@@ -253,7 +269,7 @@ function paintTabletsTray(){
   const ch = tabletsChapter();
   const blank = ch.blanks[R.tabletIdx];
   if(!blank) return;
-  const grey = (R.tabletHintedIdx === R.tabletIdx && R.tabletGrey) ? R.tabletGrey : [];
+  const grey = tabletsGreyWords();
   tabletsOptsForBlank().forEach(function(word, i){
     const b = document.createElement("button");
     b.type = "button";
@@ -288,7 +304,10 @@ function tabletsIlluminate(){
   const blank = ch.blanks[R.tabletIdx];
   if(!blank) return;
   const opts = tabletsOptsForBlank();
-  const decoys = opts.filter(function(w){ return String(w).toLowerCase() !== String(blank.a).toLowerCase(); });
+  const grey = tabletsGreyWords();
+  const decoys = opts.filter(function(w){
+    return String(w).toLowerCase() !== String(blank.a).toLowerCase() && grey.indexOf(w) < 0;
+  });
   R.tabletGrey = decoys.slice(0, 2);
   R.tabletHintedIdx = R.tabletIdx;
   R.powers.illum--;
@@ -297,6 +316,46 @@ function tabletsIlluminate(){
   if(R.illumFromReserve > 0) R.illumFromReserve--;
   paintTabletsTray();
   if(typeof toast === "function") toast("Illuminate — two stones dimmed");
+  if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
+}
+/* Every greyed stone for the current blank — Illuminate dims two, Winnow
+   casts one aside; together they can clear the tray to the true word. */
+function tabletsGreyWords(){
+  const grey = (R.tabletHintedIdx === R.tabletIdx && R.tabletGrey) ? R.tabletGrey.slice() : [];
+  if(R.tabletWinnowIdx === R.tabletIdx && R.tabletWinnow){
+    R.tabletWinnow.forEach(function(w){ if(grey.indexOf(w) < 0) grey.push(w); });
+  }
+  return grey;
+}
+function tabletsWinnow(){
+  if(!R || R.ended || R.paused || R.mode !== "tablets") return;
+  if(R.tabletWinnowIdx === R.tabletIdx){
+    if(typeof toast === "function") toast("This blank is already winnowed");
+    return;
+  }
+  if(!R.powers || (R.powers.winnow || 0) < 1){
+    if(typeof toast === "function") toast("No Winnow left");
+    return;
+  }
+  const ch = tabletsChapter();
+  const blank = ch.blanks[R.tabletIdx];
+  if(!blank) return;
+  const opts = tabletsOptsForBlank();
+  const grey = tabletsGreyWords();
+  const decoys = opts.filter(function(w){
+    return String(w).toLowerCase() !== String(blank.a).toLowerCase() && grey.indexOf(w) < 0;
+  });
+  if(decoys.length < 1){
+    if(typeof toast === "function") toast("Nothing left to winnow");
+    return;
+  }
+  R.tabletWinnow = [decoys[0]];
+  R.tabletWinnowIdx = R.tabletIdx;
+  R.powers.winnow--;
+  R.usedPower = true;
+  R.powersSpent = (R.powersSpent || 0) + 1;
+  paintTabletsTray();
+  if(typeof toast === "function") toast("Winnow — a false stone falls away");
   if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
 }
 function setTabletsPaused(on){
@@ -402,13 +461,18 @@ function tabletsFinishResolve(ok){
   const ch = tabletsChapter();
   R.tabletResolving = false;
   if(!ok){
-    if(R.tabletTutorial){
+    if(R.tabletTutorial || (R.tabletMiss || 0) < (R.tabletLives || 1)){
+      /* A lamp is spent, not the run: the true word shows shattered, then
+         the same blank re-arms for a second attempt. */
       R.tabletProgress = 0;
       R.tabletOpts = null;
       R.tabletGrey = [];
+      R.tabletWinnow = [];
       R.tabletHintedIdx = -1;
+      R.tabletWinnowIdx = -1;
       tabletsUnlockGrid();
       resumeTabletsRace();
+      paintTabletsHud();
       paintTabletsStage();
       paintTabletsTray();
       return;
@@ -420,7 +484,9 @@ function tabletsFinishResolve(ok){
   R.tabletProgress = 0;
   R.tabletOpts = null;
   R.tabletGrey = [];
+  R.tabletWinnow = [];
   R.tabletHintedIdx = -1;
+  R.tabletWinnowIdx = -1;
   if(R.tabletIdx >= ch.blanks.length){
     if(R.tabletTutorial) finishTabletsTutorial();
     else if(typeof endRun === "function") endRun("complete");
@@ -461,10 +527,13 @@ function startTabletsLoop(){
   R.tabletIdx = 0;
   R.tabletProgress = 0;
   R.tabletMiss = 0;
+  R.tabletLives = 2;
   R.tabletResolving = false;
   R.tabletOpts = null;
   R.tabletGrey = [];
   R.tabletHintedIdx = -1;
+  R.tabletWinnow = [];
+  R.tabletWinnowIdx = -1;
   R.tabletTotal = ch.blanks.length;
   R.qTotal = ch.blanks.length;
   R.tabletRacing = true;
@@ -510,6 +579,11 @@ function bindTabletsChrome(){
     illum._bound = true;
     illum.addEventListener("click", tabletsIlluminate);
   }
+  const winnow = $("tablets-winnow");
+  if(winnow && !winnow._bound){
+    winnow._bound = true;
+    winnow.addEventListener("click", tabletsWinnow);
+  }
   if(typeof window !== "undefined" && !window._tabletsKeys){
     window._tabletsKeys = true;
     window.addEventListener("keydown", function(e){
@@ -523,6 +597,8 @@ function bindTabletsChrome(){
         }
         return;
       }
+      if(k === "i"){ e.preventDefault(); tabletsIlluminate(); return; }
+      if(k === "w"){ e.preventDefault(); tabletsWinnow(); return; }
       const letters = { a:0, b:1, c:2, d:3 };
       let n = parseInt(e.key, 10);
       if(k in letters) n = letters[k] + 1;
@@ -538,7 +614,7 @@ function bindTabletsChrome(){
 function tabletsSpeakStart(){
   if(!(typeof Director !== "undefined" && Director.speak)) return;
   if(R.tabletTutorial) Director.speak("Learn the Hold. Choose the missing word.", true);
-  else Director.speak("Carve the missing word. One miss shatters the Hold.", true);
+  else Director.speak("Carve the missing word. Two lamps guard the tablet.", true);
 }
 function startTabletsStage(){
   bindTabletsChrome();
@@ -567,6 +643,7 @@ if(typeof window !== "undefined"){
   window.tabletsFinishResolve = tabletsFinishResolve;
   window.tabletsPick = tabletsPick;
   window.tabletsIlluminate = tabletsIlluminate;
+  window.tabletsWinnow = tabletsWinnow;
   window.toggleTabletsPause = toggleTabletsPause;
   window.setTabletsPaused = setTabletsPaused;
 }

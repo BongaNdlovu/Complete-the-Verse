@@ -156,17 +156,19 @@ body:not(:has(#v-atlas.on)) .route-line { animation-play-state: paused; }
   pointer-events: none;
 }
 .traveler-walker {
-  display: block; width: 56px; height: 92px;
+  display: block; width: 51.7px; height: 92px; margin: 0 auto;
   background-image: var(--walker-idle, url("../assets/traveler/idle.png"));
   background-repeat: no-repeat;
   background-position: center bottom;
   background-size: contain;
   filter: drop-shadow(0 0 10px rgba(217,182,103,.65));
 }
+/* Every scholar strip is 8 frames of 269x479; scaled to 92px tall one frame
+   is 51.67px wide, so the strip draws at 413.33px and steps 7 frames. */
 .traveler-marker.is-walking .traveler-walker,
 .traveler-node.walking .traveler-walker {
   background-image: var(--walker-walk, url("../assets/traveler/walk.png"));
-  background-size: 448px 92px;
+  background-size: 413.33px 92px;
   background-position: 0 0;
   animation: pilgrimWalk .72s steps(7) infinite;
   will-change: transform, background-position;
@@ -177,11 +179,11 @@ body:not(:has(#v-atlas.on)) .route-line { animation-play-state: paused; }
 }
 @keyframes pilgrimWalk {
   from { background-position: 0 0; }
-  to { background-position: -392px 0; }
+  to { background-position: -361.66px 0; }
 }
 @keyframes pilgrimWalkWest {
   from { background-position: 0 0; transform: scaleX(-1); }
-  to { background-position: -392px 0; transform: scaleX(-1); }
+  to { background-position: -361.66px 0; transform: scaleX(-1); }
 }
 .traveler-shadow {
   display: block; width: 36px; height: 9px; margin: 0 auto;
