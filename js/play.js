@@ -137,7 +137,7 @@ const TUTORIAL_GUIDE = [
 
 const TUTORIAL_VOICE = [
   "Lesson one. Choose the phrase that completes the verse.",
-  "Lesson two. Name the passage for the verse shown.",
+  "Name the Passage: Select its book, chapter, and verse.",
   "Lesson three. Tap the missing words in sequence.",
   "Lesson four. Discern the true Scripture reading.",
   "Lesson five. Memorize the whole verse for one minute, then choose the true King James line.",
@@ -1195,6 +1195,9 @@ function renderPassageReferenceQuestion(q, dur, scene){
   $("confirm-answer").style.display = "none";
   const how = $("warn-how");
   if(how) how.innerHTML = "Name the Passage<br>Select its book, chapter, and verse";
+  if(typeof Director!=="undefined" && Director.speak && !R.tutorial){
+    Director.speak("Name the Passage: Select its book, chapter, and verse.");
+  }
   const refEl = $("ref");
   if(refEl) refEl.textContent = "Passage identification · King James Version";
 

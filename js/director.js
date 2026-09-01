@@ -132,7 +132,13 @@ const Director = (function(){
     "memorize the whole verse for thirty seconds then rebuild every word in order":"audio/voice/thirty-seconds.mp3",
     "thirty second memorization tutorial":"audio/voice/thirty-seconds.mp3",
     "thirty seconds":"audio/voice/thirty-seconds.mp3",
-    "lesson six assemble the verse from memory":"audio/voice/lesson-six.mp3"
+    "lesson six assemble the verse from memory":"audio/voice/lesson-six.mp3",
+    "name the passage select its book chapter and verse":"audio/voice/name-the-passage.mp3",
+    "carve the missing word one miss shatters the hold":"audio/voice/tablets-carve.mp3",
+    "learn the hold choose the missing word":"audio/voice/tablets-learn.mp3",
+    "a tablet waits":"audio/voice/tablets-waits.mp3",
+    "the hold stands the next chapter is open":"audio/voice/tablets-held.mp3",
+    "the tablet shattered the word remains to be learned":"audio/voice/tablets-shatter.mp3"
   };
   function voiceKey(text){
     return String(text||"").toLowerCase().replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();
