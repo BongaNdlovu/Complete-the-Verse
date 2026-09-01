@@ -200,15 +200,19 @@ function gradeTutorialChoice(q, choice, btn){
     return { ok:Recall.isCorrect(graded.verdict), graded:graded };
   }
   const choiceNorm = (typeof choice === "string") ? choice.trim().replace(/\s+/g, ' ').toLowerCase() : "";
-  const targetNorm = (typeof q.a === "string") ? q.a.trim().replace(/\s+/g, ' ').toLowerCase() : "";
-  const ok = (choice === q.a) || (choiceNorm !== "" && choiceNorm === targetNorm);
+  /* The Fade lesson's reconstruction pick offers whole verses, exactly as a
+     real run does — the pick must be graded against the whole verse. */
+  const fadeTarget = (R.currentMechanic === "fade" && R.fadePhase === "reconstruct") ? fullVerseText(q) : null;
+  const targetRaw = fadeTarget || q.a;
+  const targetNorm = (typeof targetRaw === "string") ? targetRaw.trim().replace(/\s+/g, ' ').toLowerCase() : "";
+  const ok = (choice === targetRaw) || (choiceNorm !== "" && choiceNorm === targetNorm);
   answerButtons().forEach(function(b){
     b.classList.remove("sel");
-    if(b.dataset.val===q.a) b.classList.add("right");
+    if(b.dataset.val===targetRaw) b.classList.add("right");
     else if(b===btn) b.classList.add("bad");
     else b.classList.add("mute");
   });
-  return { ok:ok, graded:null };
+  return { ok:ok, graded:null, target:targetRaw };
 }
 function resolveTutorialAnswer(q, choice, btn){
   if(R.q!==q || R.mode!=="tutorial") return;
@@ -222,7 +226,7 @@ function resolveTutorialAnswer(q, choice, btn){
   }
   R.tutorial.attempts++;
   if(ok) R.tutorial.correct++;
-  updateTutorialGuide(R.tutorial.index, ok ? "Well done. The lesson continues." : "The true verse reads: "+q.a);
+  updateTutorialGuide(R.tutorial.index, ok ? "Well done. The lesson continues." : "The true verse reads: "+(gradedPack.target || q.a));
   if(ok) Snd.correct(); else Snd.wrong();
   if(typeof Director!=="undefined" && Director.impact) Director.impact(ok?"correct":"wrong");
   /* Lesson five pays its card too: a mastered memorization grants an

@@ -54,7 +54,15 @@ run("resolveAnswer(R.q, R.q.a, null, 1000, 20000); tutorialNextQuestion();");
 ok("lesson five teaches Fade-to-Memory", read("R.tutorial.index === 4 && R.currentMechanic === 'fade' && R.q.r === 'Philippians 4:13'"));
 ok("lesson five answer is KJV", read("R.q.a") === "strengtheneth me");
 ok("lesson five offers I'm Done", read("!!$('fade-done')"));
-run("resolveAnswer(R.q, R.q.a, null, 1000, 20000); tutorialNextQuestion();");
+// The reconstruction pick offers whole verses; choosing the true verse must grade correct.
+run("startFadePick(R.q, R.sceneToken)");
+ok("lesson five reconstructs from whole verses",
+  read("R.fadePhase === 'reconstruct' && fadePickChoices(R.q).indexOf(fullVerseText(R.q)) >= 0"));
+const correctAfterFour = read("R.tutorial.correct");
+run("resolveAnswer(R.q, fullVerseText(R.q), null, 1000, 20000);");
+ok("choosing the true verse in lesson five grades correct",
+  read("R.tutorial.correct") === correctAfterFour + 1);
+run("tutorialNextQuestion();");
 
 // Lesson 6: Assembled Recall
 ok("lesson six is assembled recall", read("R.tutorial.index === 5 && R.typed === true && !!R.assemble"));

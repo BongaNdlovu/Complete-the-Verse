@@ -13,3 +13,8 @@ supabase/.temp/
 # Local agent tooling
 .agents/
 skills-lock.json
+
+# Local proof and generated report artifacts
+.tmp-live/
+.tmp-proof/
+test-artifacts/

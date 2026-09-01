@@ -8,8 +8,8 @@ continue to work offline.
 ## Release gate
 
 Apply migrations 001_complete_the_verse.sql, 002_lock_trigger_functions.sql,
-003_score_constraints.sql, 004_leaderboard_moderation.sql, and
-005_edge_only_scores.sql, then deploy:
+003_score_constraints.sql, 004_leaderboard_moderation.sql,
+005_edge_only_scores.sql, and 20260901104635_blitz_best_only.sql, then deploy:
 
     supabase functions deploy submit-score --project-ref fgwfniblkuozxlbgytfk
 

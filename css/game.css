@@ -559,7 +559,11 @@ body.cine #audio-dock{display:flex}
 body.view-play #audio-dock{right:clamp(100px,14vw,176px)}
 body.cine #audio-dock{top:calc(5.4vh + 8px);right:max(14px,env(safe-area-inset-right))}
 body.view-tablets #audio-dock{
-  top:max(10px,env(safe-area-inset-top));right:clamp(168px,22vw,228px)}
+  top:max(10px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right))}
+/* The dock is 94px wide; the tablets header reserves that span so the
+   Tablet/Streak/Best stats can never slide beneath it. */
+body.view-tablets .tablets-top{
+  padding-right:calc(max(14px,env(safe-area-inset-right)) + 106px)}
 .audio-tog{
   position:relative;color:var(--gold-dim);
   background:rgba(8,9,12,.92);
@@ -574,9 +578,6 @@ body.view-tablets #audio-dock{
   box-shadow:0 0 0 1px var(--gold-hot) inset,0 0 14px rgba(217,182,103,.35)}
 @media (max-width:900px){
   body.view-play #audio-dock{right:98px}
-}
-@media (max-width:640px){
-  body.view-tablets #audio-dock{right:156px}
 }
 
 /* ================= PLAY STAGE ================= */
