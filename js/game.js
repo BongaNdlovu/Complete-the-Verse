@@ -25,7 +25,7 @@ const DEFAULT_SAVE = {
   /* Relics unlocked by first site clear. Shape owned by artifacts.js. */
   artifacts:{unlocked:{}, seen:{}},
   set:{music:0.45, sfx:0.7, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"disciple",
-       tutorialDone:false, liveWeather:true, coldOpenDone:false, urPrologueDone:false, quiet:false, contrast:false, haptics:true,
+       tutorialDone:false, tabletsTutorialDone:false, liveWeather:true, coldOpenDone:false, urPrologueDone:false, quiet:false, contrast:false, haptics:true,
        singleTap:true,
        character:"amina", scholarId:"amina", playerName:"", profileDone:false,
        vkb:false,
@@ -41,7 +41,9 @@ function mergeTabletsSave(s){
     : ["psalm23","psalm91","john1"];
   const out = {};
   ids.forEach(function(id){
-    out[id] = Object.assign({best:0,held:false}, t[id] || {});
+    const rec = Object.assign({best:0,held:false}, t[id] || {});
+    if(t[id] && t[id].levels) rec.levels = t[id].levels;
+    out[id] = rec;
   });
   return out;
 }
@@ -297,8 +299,8 @@ const MODES = {
     desc:"David and Goliath in the valley of Elah. Twelve questions from 1 Samuel 17. Forty seconds each. Held only if none are wrong.",
     tagline:"Goliath · twelve questions · replay any time", info:[["12","Questions"],["40s","Clock"],["Held","None wrong"]] },
   tablets:{ key:"tablets", name:"Word Tablets", kick:"Fill the Word", atlas:false,
-    desc:"Carve the missing KJV word before the clock runs out. One miss shatters the Hold. Hold Psalm 23 to open Psalm 91, then John 1.",
-    tagline:"Psalm 23 · 91 · John 1", info:[["6.5s","Each blank"],["Hold","One miss"],["Psalm 23","Then 91, John 1"]] },
+    desc:"Carve the missing KJV word before the clock runs out. One miss shatters the Hold. Learn the prayer, then Hold Psalm 23 to open Psalm 91, then John 1.",
+    tagline:"I · II · III · the hall", info:[["I–III","Pace"],["Hold","One miss"],["Prayer","Then the hall"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, assembled word for word.",
     tagline:"Assemble · cleared sites", info:[["8","Verses"],["Assemble","No options"],[modeClockLabel("pilgrim-recall"),"Clock"]] },
@@ -687,6 +689,12 @@ function startRunPracticeLen(mode, options, isPilgrim, siteDraw){
   return 0;
 }
 function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDraw, relay, startPowers, reservedIlluminate, blitzMs, options){
+  const tabletChapter = (options && options.tabletChapter) || "psalm23";
+  const tabletTutorial = mode==="tablets" && (!!(options && options.tabletTutorial) || tabletChapter === "prayer");
+  const tabletLevel = tabletTutorial ? 1
+    : (mode==="tablets" && typeof Tablets !== "undefined" && Tablets.pickLevel)
+      ? Tablets.pickLevel(tabletChapter, SAVE, options && options.tabletLevel)
+      : 1;
   Object.assign(R, {
     runToken, sceneToken:0, ended:false,
     mode, diff:D, actIdx:0, qInAct:0, qTotal:0,
@@ -726,7 +734,9 @@ function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDra
     quickRewardAnnounced: new Set(), quickResult: null,
       reservedIlluminate: reservedIlluminate,
     beatQ: 0, beatMiss: 0, beatBDone: false, beatPlates: null, beatPlateIdx: -1,
-    tabletChapter: (options && options.tabletChapter) || "psalm23",
+    tabletChapter: tabletChapter,
+    tabletLevel: tabletLevel,
+    tabletTutorial: tabletTutorial,
     fromRoad: !!(options && options.fromRoad)
   });
 }
@@ -1734,6 +1744,13 @@ function updateCandle(){
 }
 function quitTablets(){
   if(R.ended || currentView!=="tablets") return;
+  if(R.tabletTutorial){
+    if(typeof stopTabletsLoop === "function") stopTabletsLoop();
+    R.ended = true;
+    Snd.ui();
+    go("menu");
+    return;
+  }
   if(R.attempts && typeof confirm === "function" && !confirm("Leave this run? It will be recorded as abandoned.")) return;
   Snd.ui();
   abandonRun();

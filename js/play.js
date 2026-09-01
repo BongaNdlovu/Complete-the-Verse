@@ -1014,14 +1014,52 @@ function syncCinematicBackdrop(){
   else stopSiteAmbientVideo(vid, el);
 }
 
-function companionQuestionSrc(arc){
-  return arc === "exodus"
-    ? "assets/characters/moses/question.png"
-    : "assets/characters/abram/question.png";
+var COMPANION_SITE = {
+  jerusalem: ["assets/characters/solomon/question.png", "King Solomon"],
+  shiloh: ["assets/characters/solomon/question.png", "King Solomon"],
+  tyre: ["assets/characters/solomon/question.png", "King Solomon"],
+  samaria: ["assets/characters/solomon/question.png", "King Solomon"],
+  jericho: ["assets/characters/joshua/question.png", "Joshua"],
+  gilgal: ["assets/characters/joshua/question.png", "Joshua"],
+  carmel: ["assets/characters/elijah/question.png", "Elijah"],
+  megiddo: ["assets/characters/elijah/question.png", "Elijah"],
+  lachish: ["assets/characters/elijah/question-exile.png", "Elijah"],
+  damascus: ["assets/characters/elijah/question-exile.png", "Elijah"],
+  nineveh: ["assets/characters/jonah/question.png", "Jonah"],
+  babylon: ["assets/characters/daniel/question.png", "Daniel"],
+  susa: ["assets/characters/daniel/question.png", "Daniel"],
+  gibeah: ["assets/characters/samson/question.png", "Samson"],
+  mizpah: ["assets/characters/samson/question.png", "Samson"],
+  bethlehem: ["assets/characters/jesus/question.png", "Jesus"],
+  nazareth: ["assets/characters/jesus/question.png", "Jesus"],
+  capernaum: ["assets/characters/jesus/question.png", "Jesus"],
+  golgotha: ["assets/characters/jesus/question.png", "Jesus"],
+  emmaus: ["assets/characters/jesus/question.png", "Jesus"],
+  jordan: ["assets/characters/baptist/question.png", "John the Baptist"],
+  "damascus-road": ["assets/characters/paul/question.png", "Paul"],
+  antioch: ["assets/characters/paul/question.png", "Paul"],
+  ephesus: ["assets/characters/paul/question.png", "Paul"],
+  corinth: ["assets/characters/paul/question.png", "Paul"],
+  philippi: ["assets/characters/paul/question.png", "Paul"],
+  rome: ["assets/characters/paul/question.png", "Paul"]
+};
+function companionQuestionSrc(site){
+  if(site && COMPANION_SITE[site.id]) return COMPANION_SITE[site.id][0];
+  const arc = site && site.arc;
+  if(arc === "exodus") return "assets/characters/moses/question.png";
+  if(arc === "judges") return "assets/characters/gideon/question.png";
+  return "assets/characters/abram/question.png";
+}
+function companionQuestionName(site){
+  if(site && COMPANION_SITE[site.id]) return COMPANION_SITE[site.id][1];
+  const arc = site && site.arc;
+  if(arc === "exodus") return "Moses";
+  if(arc === "judges") return "Gideon";
+  return "Abram";
 }
 
 function isCompanionPlay(site){
-  return !!(site && (site.arc === "patriarchs" || site.arc === "exodus")
+  return !!(site && (site.arc === "patriarchs" || site.arc === "exodus" || site.arc === "judges" || COMPANION_SITE[site.id])
     && R && (R.mode === "pilgrimage" || R.mode === "pilgrim-recall" || R.mode === "relay")
     && currentView === "play");
 }
@@ -1036,8 +1074,11 @@ function syncAbrahamPresentation(mechanic){
     : R && R.recon ? "reconstruct"
     : mechanic || (R && R.typed ? "typed" : "choice");
   const img = el.querySelector("img");
-  const src = companionQuestionSrc(site && site.arc);
+  const src = companionQuestionSrc(site);
   if(img && img.getAttribute("src") !== src) img.src = src;
+  const sign = $("question-abraham-sign");
+  const name = companionQuestionName(site);
+  if(sign && sign.textContent !== name) sign.textContent = name;
   clearTimeout(el._reactionTimer);
   el.classList.remove("success", "failure");
   el.classList.toggle("on", active);

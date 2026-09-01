@@ -1,6 +1,13 @@
 function tabletsReduced(){
   return !!(document.body && (document.body.classList.contains("reduced") || document.body.classList.contains("motion-calm")));
 }
+function tabletsUntimed(){
+  return tabletsReduced() || !!(typeof R !== "undefined" && R && R.tabletTutorial);
+}
+function tabletsBlankMs(){
+  if(typeof Tablets !== "undefined" && Tablets.blankMs) return Tablets.blankMs(R && R.tabletLevel);
+  return (typeof Tablets !== "undefined" && Tablets.BLANK_MS) ? Tablets.BLANK_MS : 6500;
+}
 function stopTabletsLoop(){
   if(typeof R === "undefined" || !R) return;
   if(R.tabletRaf){
@@ -18,7 +25,7 @@ function tabletsPct(){
   return Math.round(((R.tabletIdx || 0) / total) * 100);
 }
 function tabletsClockLeft(){
-  if(tabletsReduced()) return 1;
+  if(tabletsUntimed()) return 1;
   return Math.max(0, 1 - (R.tabletProgress || 0));
 }
 function fillVerseLine(host, blank, kind, idx){
@@ -65,14 +72,14 @@ function paintTabletsClock(){
   const bar = fill && fill.parentNode;
   const left = tabletsClockLeft();
   if(fill) fill.style.width = (left * 100) + "%";
-  if(bar && bar.classList) bar.classList.toggle("late", left < 0.3 && !tabletsReduced());
+  if(bar && bar.classList) bar.classList.toggle("late", left < 0.3 && !tabletsUntimed());
   if(lab){
-    if(tabletsReduced()) lab.textContent = "Untimed Hold";
-    else lab.textContent = (left * ((Tablets.BLANK_MS || 6500) / 1000)).toFixed(1) + "s left";
+    if(tabletsUntimed()) lab.textContent = "Untimed Hold";
+    else lab.textContent = (left * (tabletsBlankMs() / 1000)).toFixed(1) + "s left";
   }
   const slot = $("tablets-blank-" + (R.tabletIdx || 0));
   if(slot){
-    if(left < 0.3 && !tabletsReduced()) slot.classList.add("danger");
+    if(left < 0.3 && !tabletsUntimed()) slot.classList.add("danger");
     else slot.classList.remove("danger");
   }
 }
@@ -101,7 +108,10 @@ function paintTabletsHud(){
   const rec = Tablets.recordOf(typeof SAVE !== "undefined" ? SAVE : null, ch.id);
   const idx = R.tabletIdx || 0;
   if($("tablets-chapter")) $("tablets-chapter").textContent = ch.name;
-  if($("tablets-sub")) $("tablets-sub").textContent = ch.subtitle || "KJV";
+  if($("tablets-sub")){
+    const pace = R.tabletTutorial ? "Learn the Hold" : ((Tablets.levelName && Tablets.levelName(R.tabletLevel)) || "I");
+    $("tablets-sub").textContent = pace + " · " + (ch.subtitle || "KJV");
+  }
   if($("tablets-remain")) $("tablets-remain").textContent = Math.min(idx + 1, ch.blanks.length) + " / " + ch.blanks.length;
   if($("tablets-streak")) $("tablets-streak").textContent = String(R.streak || 0);
   if($("tablets-best")) $("tablets-best").textContent = (rec.best || 0) + "%";
@@ -135,6 +145,7 @@ function paintTabletsIllumBtn(){
 function paintTabletsTray(){
   const grid = $("tablets-grid");
   if(!grid) return;
+  grid.classList.remove("locked");
   grid.innerHTML = "";
   const ch = tabletsChapter();
   const blank = ch.blanks[R.tabletIdx];
@@ -227,6 +238,16 @@ function tabletsShatter(){
     stage.classList.remove("tablets-shake");
   }, 600);
 }
+function finishTabletsTutorial(){
+  stopTabletsLoop();
+  R.ended = true;
+  R.tabletRacing = false;
+  if(typeof SAVE !== "undefined" && SAVE.set){
+    SAVE.set.tabletsTutorialDone = true;
+    if(typeof persist === "function") persist();
+  }
+  if(typeof openBrief === "function") openBrief("tablets");
+}
 function tabletsResolve(ok){
   if(!R || R.ended || R.paused || R.mode !== "tablets" || R.tabletResolving) return;
   const ch = tabletsChapter();
@@ -234,7 +255,7 @@ function tabletsResolve(ok){
   stopTabletsLoop();
   R.attempts = (R.attempts || 0) + 1;
   if(!ok){
-    R.tabletMiss = (R.tabletMiss || 0) + 1;
+    if(!R.tabletTutorial) R.tabletMiss = (R.tabletMiss || 0) + 1;
     if(typeof Snd !== "undefined" && Snd.shatter) Snd.shatter();
     paintTabletsStage("miss");
     const failedGrid = $("tablets-grid");
@@ -258,6 +279,20 @@ function tabletsFinishResolve(ok){
   const ch = tabletsChapter();
   R.tabletResolving = false;
   if(!ok){
+    if(R.tabletTutorial){
+      R.tabletProgress = 0;
+      R.tabletOpts = null;
+      R.tabletGrey = [];
+      R.tabletHintedIdx = -1;
+      const grid = $("tablets-grid");
+      if(grid) grid.classList.remove("locked");
+      paintTabletsStage();
+      paintTabletsTray();
+      R.tabletRacing = true;
+      R.tabletLast = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+      if(typeof requestAnimationFrame === "function") R.tabletRaf = requestAnimationFrame(tabletsTick);
+      return;
+    }
     if(typeof endRun === "function") endRun("death");
     return;
   }
@@ -268,7 +303,8 @@ function tabletsFinishResolve(ok){
   R.tabletHintedIdx = -1;
   paintTabletsHud();
   if(R.tabletIdx >= ch.blanks.length){
-    if(typeof endRun === "function") endRun("complete");
+    if(R.tabletTutorial) finishTabletsTutorial();
+    else if(typeof endRun === "function") endRun("complete");
     return;
   }
   paintTabletsStage();
@@ -279,8 +315,8 @@ function tabletsTick(now){
   const last = R.tabletLast || now;
   const dt = Math.min((now - last) / 1000, 0.1);
   R.tabletLast = now;
-  if(!tabletsReduced()){
-    const dur = (typeof Tablets !== "undefined" && Tablets.BLANK_MS) ? Tablets.BLANK_MS / 1000 : 6.5;
+  if(!tabletsUntimed()){
+    const dur = tabletsBlankMs() / 1000;
     R.tabletProgress = (R.tabletProgress || 0) + dt / dur;
     paintTabletsClock();
     if(R.tabletProgress >= 1){
@@ -383,6 +419,7 @@ function startTabletsStage(){
   startTabletsLoop();
 }
 if(typeof window !== "undefined"){
+  window.finishTabletsTutorial = finishTabletsTutorial;
   window.startTabletsStage = startTabletsStage;
   window.stopTabletsLoop = stopTabletsLoop;
   window.tabletsResolve = tabletsResolve;

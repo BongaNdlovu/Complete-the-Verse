@@ -227,6 +227,14 @@ var Cloud = (function () {
         best: maxNum(x.best, y.best),
         held: !!(x.held || y.held)
       };
+      var lv = {}, n;
+      for (n = 1; n <= 3; n++) {
+        var lx = (x.levels && (x.levels[n] || x.levels[String(n)])) || {};
+        var ly = (y.levels && (y.levels[n] || y.levels[String(n)])) || {};
+        if (!(lx.held || lx.best || ly.held || ly.best)) continue;
+        lv[n] = { best: maxNum(lx.best, ly.best), held: !!(lx.held || ly.held) };
+      }
+      if (Object.keys(lv).length) out[k].levels = lv;
     });
     return out;
   }

@@ -230,25 +230,33 @@ function recordRoadTabletHold(id, pct){
   if(nxt && nxt.id !== id && Pilgrimage.isUnlocked(SAVE.pilgrim, nxt.id)) pendingUnlockId = nxt.id;
 }
 function persistTabletsRecord(){
+  if(R.tabletTutorial) return { road: null, isRecord: false, prevBest: 0, dailyRecorded: false };
   const pct = Math.round(((R.tabletIdx || 0) / (R.tabletTotal || 1)) * 100);
   const prevBest = SAVE.best.tablets || 0;
   const isRecord = pct > prevBest;
   if(isRecord) SAVE.best.tablets = pct;
   const id = R.tabletChapter || "psalm23";
+  const n = (typeof Tablets !== "undefined" && Tablets.clampLevel) ? Tablets.clampLevel(R.tabletLevel) : 1;
   if(!SAVE.tablets) SAVE.tablets = {};
   if(!SAVE.tablets[id]) SAVE.tablets[id] = {best:0,held:false};
   const rec = Object.assign({best:0,held:false}, SAVE.tablets[id] || {});
   rec.best = Math.max(rec.best || 0, pct);
   const nowHeld = typeof Tablets !== "undefined" && Tablets.held(R);
-  if(nowHeld && !rec.held) SAVE.life.tabletHolds = (SAVE.life.tabletHolds || 0) + 1;
-  if(nowHeld) rec.held = true;
+  if(!rec.levels) rec.levels = {};
+  const lv = Object.assign({best:0,held:false}, rec.levels[n] || rec.levels[String(n)] || {});
+  lv.best = Math.max(lv.best || 0, pct);
+  if(nowHeld) lv.held = true;
+  rec.levels[n] = lv;
+  const chapterHold = nowHeld && n >= 2;
+  if(chapterHold && !rec.held) SAVE.life.tabletHolds = (SAVE.life.tabletHolds || 0) + 1;
+  if(chapterHold) rec.held = true;
   SAVE.tablets[id] = rec;
   const oil = (R.correct || 0) * 2;
   if(oil){
     SAVE.oil = (SAVE.oil || 0) + oil;
     SAVE.life.oilEarned = (SAVE.life.oilEarned || 0) + oil;
   }
-  if(nowHeld) recordRoadTabletHold(id, pct);
+  if(chapterHold) recordRoadTabletHold(id, pct);
   return { road: null, isRecord: isRecord, prevBest: prevBest, dailyRecorded: false };
 }
 function persistRunRecords(reason, ctx, total){
@@ -624,7 +632,7 @@ function renderResultsRetryReview(o){
     retryBtn.onclick = function(){
       Snd.unlock(); Snd.ui();
       if(R.mode==="team") openBrief("team");
-      else if(R.mode==="tablets") startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23", fromRoad: !!R.fromRoad });
+      else if(R.mode==="tablets") startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23", tabletLevel: R.tabletLevel, tabletTutorial: !!R.tabletTutorial, fromRoad: !!R.fromRoad });
       else startRun("beat", R.diff.key);
     };
     const reviewMissedBtn = $("res-review-missed");
@@ -952,6 +960,6 @@ function fillResultsInsights(v){
 $("res-again").addEventListener("click", ()=>{
   Snd.ui();
   if(R.mode==="team"){ openBrief("team"); return; }
-  if(R.mode==="tablets"){ startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23", fromRoad: !!R.fromRoad }); return; }
+  if(R.mode==="tablets"){ startRun("tablets", R.diff.key, { tabletChapter: R.tabletChapter || "psalm23", tabletLevel: R.tabletLevel, fromRoad: !!R.fromRoad }); return; }
   startRun(R.mode, R.diff.key);
 });

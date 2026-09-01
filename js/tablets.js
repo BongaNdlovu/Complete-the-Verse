@@ -1,5 +1,7 @@
 const Tablets = (function(){
   const BLANK_MS = 6500;
+  const LEVEL_MS = [9000, 6500, 4000];
+  const LEVEL_NAME = ["I", "II", "III"];
   const chapters = [
     {
       id:"psalm23", name:"Psalm 23", r:"Psalm 23:1-6", subtitle:"The LORD is my shepherd",
@@ -94,6 +96,21 @@ const Tablets = (function(){
         { r:"John 1:50", prefix:"Because I said unto thee, I saw thee under the fig tree, believest thou? thou shalt see greater things than", a:"these", suffix:".", d:["this","before","now"] },
         { r:"John 1:51", prefix:"Verily, verily, I say unto you, Hereafter ye shall see heaven open, and the angels of God ascending and descending upon the Son of", a:"man", suffix:".", d:["God","David","Joseph"] }
       ]
+    },
+    {
+      id:"prayer", name:"The Lord's Prayer", r:"Matthew 6:9-13", subtitle:"After this manner therefore pray ye", tutorial:true,
+      blanks:[
+        { r:"Matthew 6:9", prefix:"After this manner therefore pray ye: Our", a:"Father", suffix:"which art in heaven,", d:["Master","King","Lord"] },
+        { r:"Matthew 6:9", prefix:"Hallowed be thy", a:"name", suffix:".", d:["word","throne","glory"] },
+        { r:"Matthew 6:9", prefix:"Our Father which art in", a:"heaven", suffix:", Hallowed be thy name.", d:["earth","glory","Zion"] },
+        { r:"Matthew 6:10", prefix:"Thy", a:"kingdom", suffix:"come.", d:["power","church","spirit"] },
+        { r:"Matthew 6:10", prefix:"Thy", a:"will", suffix:"be done in earth, as it is in heaven.", d:["word","law","work"] },
+        { r:"Matthew 6:11", prefix:"Give us this day our daily", a:"bread", suffix:".", d:["meat","water","wine"] },
+        { r:"Matthew 6:12", prefix:"And forgive us our", a:"debts", suffix:", as we forgive our debtors.", d:["sins","trespass","faults"] },
+        { r:"Matthew 6:13", prefix:"And lead us not into", a:"temptation", suffix:",", d:["darkness","trial","sorrow"] },
+        { r:"Matthew 6:13", prefix:"but deliver us from", a:"evil", suffix:":", d:["death","fear","wrath"] },
+        { r:"Matthew 6:13", prefix:"For thine is the kingdom, and the power, and the glory, for ever.", a:"Amen", suffix:".", d:["Yea","Selah","Peace"] }
+      ]
     }
   ];
   function chapter(id){
@@ -122,12 +139,37 @@ const Tablets = (function(){
     const pack = (save && save.tablets) || {};
     return pack[id] || { best:0, held:false };
   }
+  function levelOf(save, id, n){
+    const rec = recordOf(save, id);
+    const pack = rec.levels || {};
+    return pack[n] || pack[String(n)] || { best:0, held:false };
+  }
+  function levelHeld(save, id, n){
+    if(recordOf(save, id).held && n <= 2) return true;
+    return !!levelOf(save, id, n).held;
+  }
+  function clampLevel(n){
+    n = n|0;
+    if(n < 1) return 1;
+    if(n > 3) return 3;
+    return n;
+  }
+  function blankMs(level){
+    return LEVEL_MS[clampLevel(level) - 1] || BLANK_MS;
+  }
+  function levelName(level){
+    return LEVEL_NAME[clampLevel(level) - 1] || "I";
+  }
   function unlocked(id, save){
+    if(id === "prayer") return true;
     if(id === "psalm23") return true;
     if(id === "psalm91") return !!recordOf(save, "psalm23").held;
     if(id === "john1") return !!recordOf(save, "psalm91").held;
     const ch = chapter(id);
-    if(!ch || ch.id !== id || !ch.after) return false;
+    if(!ch || ch.id !== id) return false;
+    if(ch.tutorial) return true;
+    if(ch.hall) return !!recordOf(save, "john1").held;
+    if(!ch.after) return false;
     if(recordOf(save, id).held) return true;
     const pilgrim = save && save.pilgrim;
     if(typeof Pilgrimage !== "undefined" && Pilgrimage.isCleared && Pilgrimage.isCleared(pilgrim, ch.after)) return true;
@@ -137,23 +179,52 @@ const Tablets = (function(){
     }
     return false;
   }
+  function levelOpen(id, n, save){
+    n = clampLevel(n);
+    if(!unlocked(id, save)) return false;
+    if(n === 1) return true;
+    if(n === 2) return levelHeld(save, id, 1);
+    return levelHeld(save, id, 2);
+  }
+  function highestOpen(id, save){
+    if(levelOpen(id, 3, save)) return 3;
+    if(levelOpen(id, 2, save)) return 2;
+    return 1;
+  }
+  function pickLevel(id, save, want){
+    const open = highestOpen(id, save);
+    if(want == null || want === "") return open;
+    const n = clampLevel(want);
+    return levelOpen(id, n, save) ? n : open;
+  }
   function unlockLabel(id){
     if(id === "psalm91") return "Hold Psalm 23 to open";
     if(id === "john1") return "Hold Psalm 91 to open";
     const ch = chapter(id);
+    if(ch && ch.hall) return "Hold John 1 to open";
     if(ch && ch.afterName) return "Clear " + ch.afterName + " to open";
     return "Open";
   }
   return {
     BLANK_MS: BLANK_MS,
+    LEVEL_MS: LEVEL_MS,
     chapters: chapters,
     canon: [],
+    hall: [],
     chapter: chapter,
     options: options,
     held: held,
     unlocked: unlocked,
     unlockLabel: unlockLabel,
-    recordOf: recordOf
+    recordOf: recordOf,
+    levelOf: levelOf,
+    levelHeld: levelHeld,
+    clampLevel: clampLevel,
+    blankMs: blankMs,
+    levelName: levelName,
+    levelOpen: levelOpen,
+    highestOpen: highestOpen,
+    pickLevel: pickLevel
   };
 })();
 if(typeof module !== "undefined") module.exports = { Tablets: Tablets };

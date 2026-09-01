@@ -150,7 +150,7 @@ assert(/function urPrologueAllowed[\s\S]{0,220}heavyMediaAllowed\(\)/.test(play)
   "Ur prologue uses the heavy-media gate");
 assert(/MAX_AUDIO_ENTRIES\s*=\s*25/.test(sw) && /trimCache/.test(sw),
   "audio runtime caching is bounded with an LRU cap of 25 entries");
-assert(/js\/tablets\.js/.test(sw) && /js\/tablets-canon\.js/.test(sw) && /js\/tablets-run\.js/.test(sw),
+assert(/js\/tablets\.js/.test(sw) && /js\/tablets-canon\.js/.test(sw) && /js\/tablets-hall\.js/.test(sw) && /js\/tablets-run\.js/.test(sw),
   "Word Tablets scripts are precached for offline play");
 assert(/privacy\.html/.test(sw) && fs.existsSync(path.join(ROOT, "privacy.html")),
   "privacy page ships and is precached");
@@ -191,6 +191,39 @@ assert(journey.every((id) => !fs.existsSync(path.join(ROOT, "assets", "journey",
 const mosesQ = path.join(ROOT, "assets", "characters", "moses", "question.png");
 assert(fs.existsSync(mosesQ) && fs.statSync(mosesQ).size < 1500000,
   "Moses question art stays under the 1.5MB payload cap");
+const gideonQ = path.join(ROOT, "assets", "characters", "gideon", "question.png");
+assert(fs.existsSync(gideonQ) && fs.statSync(gideonQ).size < 1500000,
+  "Gideon question art stays under the 1.5MB payload cap");
+const solomonQ = path.join(ROOT, "assets", "characters", "solomon", "question.png");
+assert(fs.existsSync(solomonQ) && fs.statSync(solomonQ).size < 1500000,
+  "Solomon question art stays under the 1.5MB payload cap");
+const joshuaQ = path.join(ROOT, "assets", "characters", "joshua", "question.png");
+assert(fs.existsSync(joshuaQ) && fs.statSync(joshuaQ).size < 1500000,
+  "Joshua question art stays under the 1.5MB payload cap");
+const elijahQ = path.join(ROOT, "assets", "characters", "elijah", "question.png");
+assert(fs.existsSync(elijahQ) && fs.statSync(elijahQ).size < 1500000,
+  "Elijah question art stays under the 1.5MB payload cap");
+const elijahExileQ = path.join(ROOT, "assets", "characters", "elijah", "question-exile.png");
+assert(fs.existsSync(elijahExileQ) && fs.statSync(elijahExileQ).size < 1500000,
+  "Elijah exile question art stays under the 1.5MB payload cap");
+const jonahQ = path.join(ROOT, "assets", "characters", "jonah", "question.png");
+assert(fs.existsSync(jonahQ) && fs.statSync(jonahQ).size < 1500000,
+  "Jonah question art stays under the 1.5MB payload cap");
+const danielQ = path.join(ROOT, "assets", "characters", "daniel", "question.png");
+assert(fs.existsSync(danielQ) && fs.statSync(danielQ).size < 1500000,
+  "Daniel question art stays under the 1.5MB payload cap");
+const samsonQ = path.join(ROOT, "assets", "characters", "samson", "question.png");
+assert(fs.existsSync(samsonQ) && fs.statSync(samsonQ).size < 1500000,
+  "Samson question art stays under the 1.5MB payload cap");
+const jesusQ = path.join(ROOT, "assets", "characters", "jesus", "question.png");
+assert(fs.existsSync(jesusQ) && fs.statSync(jesusQ).size < 1500000,
+  "Jesus question art stays under the 1.5MB payload cap");
+const baptistQ = path.join(ROOT, "assets", "characters", "baptist", "question.png");
+assert(fs.existsSync(baptistQ) && fs.statSync(baptistQ).size < 1500000,
+  "John the Baptist question art stays under the 1.5MB payload cap");
+const paulQ = path.join(ROOT, "assets", "characters", "paul", "question.png");
+assert(fs.existsSync(paulQ) && fs.statSync(paulQ).size < 1500000,
+  "Paul question art stays under the 1.5MB payload cap");
 
 /* Leaderboards require the trusted function, rate limiting and moderation. */
 assert(/trusted-submit-unavailable/.test(cloud) && !/via: "direct"/.test(cloud),

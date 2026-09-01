@@ -131,7 +131,11 @@ const chars = fs.readdirSync(path.join(ROOT, "assets", "characters"));
 const SCHOLAR_FOLDERS = ["amina","elias","soojin","yusef","lucia","priya","thomas","dawit"];
 ok("character folders carry only wired art",
    chars.every(c => {
-     const expected = (c === "abram" || c === "moses")
+     const expected = c === "elijah"
+       ? ["question.png", "question-exile.png"]
+       : (c === "gideon" || c === "solomon" || c === "joshua" || c === "jonah" || c === "daniel" || c === "samson" || c === "jesus" || c === "baptist" || c === "paul")
+       ? ["question.png"]
+       : (c === "abram" || c === "moses")
        ? ["portrait.png", "question.png", "token.png"]
        : SCHOLAR_FOLDERS.indexOf(c) >= 0
          ? ["portrait.png", "token.png", "idle.png", "walk.png"]
@@ -140,7 +144,11 @@ ok("character folders carry only wired art",
    }),
    chars.filter(c => {
      const f = fs.readdirSync(path.join(ROOT, "assets", "characters", c)).sort().join();
-     const expected = (c === "abram" || c === "moses")
+     const expected = c === "elijah"
+       ? ["question.png", "question-exile.png"]
+       : (c === "gideon" || c === "solomon" || c === "joshua" || c === "jonah" || c === "daniel" || c === "samson" || c === "jesus" || c === "baptist" || c === "paul")
+       ? ["question.png"]
+       : (c === "abram" || c === "moses")
        ? ["portrait.png", "question.png", "token.png"]
        : SCHOLAR_FOLDERS.indexOf(c) >= 0
          ? ["portrait.png", "token.png", "idle.png", "walk.png"]

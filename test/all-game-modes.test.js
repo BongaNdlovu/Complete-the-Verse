@@ -43,7 +43,7 @@ const PREFIX = [
   "js/assemble.js", "js/meta.js", "js/flow.js",
   "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js",
   "js/characters.js", "js/artifacts.js",
-  "js/live.js", "js/atlas.js", "js/beat.js", "js/tablets.js", "js/tablets-canon.js"
+  "js/live.js", "js/atlas.js", "js/beat.js", "js/tablets.js", "js/tablets-canon.js", "js/tablets-hall.js"
 ];
 const FILES = PREFIX.concat(ENGINE_FILES, ["js/tablets-run.js"]);
 
@@ -80,6 +80,7 @@ console.log("\n--- HALL MENU ---");
     assert(html.indexOf('data-mode="' + k + '"') < 0, k + " stays off hall");
   });
   ["practice", "recall", "team", "trial", "endless", "daily", "blitz", "tablets"].forEach(k => {
+    if(k === "tablets") exec(sb, "SAVE.set.tabletsTutorialDone = true;");
     exec(sb, `openBrief(${JSON.stringify(k)});`);
     eq(k + " brief opens", read(sb, `currentView==="brief" && briefMode===${JSON.stringify(k)}`), true);
   });

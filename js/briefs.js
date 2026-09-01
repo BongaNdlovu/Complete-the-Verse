@@ -301,35 +301,92 @@ function renderMenu(){
 
 /* ------------------------- BRIEF ------------------------- */
 let briefMode = "trial";
+function tabletsBriefChapter(ch){
+  if(ch.tutorial){
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "tablets-ch-btn";
+    b.dataset.chapter = ch.id;
+    b.dataset.tutorial = "1";
+    const title = document.createElement("b");
+    title.textContent = ch.name;
+    const sub = document.createElement("span");
+    sub.textContent = "Untimed · learn the Hold";
+    b.appendChild(title);
+    b.appendChild(sub);
+    return b;
+  }
+  const wrap = document.createElement("div");
+  wrap.className = "tablets-ch";
+  const locked = !Tablets.unlocked(ch.id, SAVE);
+  const rec = Tablets.recordOf(SAVE, ch.id);
+  const name = document.createElement("b");
+  name.textContent = ch.name;
+  const sub = document.createElement("span");
+  sub.textContent = locked
+    ? (Tablets.unlockLabel ? Tablets.unlockLabel(ch.id) : "Locked")
+    : (ch.blanks.length + " blanks · best " + (rec.best || 0) + "%");
+  wrap.appendChild(name);
+  wrap.appendChild(sub);
+  const row = document.createElement("div");
+  row.className = "tablets-lv";
+  [1, 2, 3].forEach(function(n){
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "tablets-lv-btn";
+    chip.dataset.chapter = ch.id;
+    chip.dataset.level = String(n);
+    chip.textContent = Tablets.levelName ? Tablets.levelName(n) : String(n);
+    chip.disabled = locked || !(Tablets.levelOpen && Tablets.levelOpen(ch.id, n, SAVE));
+    row.appendChild(chip);
+  });
+  wrap.appendChild(row);
+  return wrap;
+}
 function paintTabletsBrief(on){
   const host = $("brief-tablets-pick");
   if(!host) return;
   host.hidden = !on;
   if(!on){ host.innerHTML = ""; return; }
   host.innerHTML = "";
+  const prayer = [];
+  const trilogy = [];
+  const ot = [];
+  const nt = [];
+  const road = [];
   Tablets.chapters.forEach(function(ch){
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "tablets-ch-btn";
-    b.dataset.chapter = ch.id;
-    const locked = !Tablets.unlocked(ch.id, SAVE);
-    b.disabled = locked;
-    const title = document.createElement("b");
-    title.textContent = ch.name;
-    const sub = document.createElement("span");
-    const rec = Tablets.recordOf(SAVE, ch.id);
-    sub.textContent = locked
-      ? (Tablets.unlockLabel ? Tablets.unlockLabel(ch.id) : "Locked")
-      : (ch.blanks.length + " blanks · best " + (rec.best || 0) + "%");
-    b.appendChild(title);
-    b.appendChild(sub);
-    host.appendChild(b);
+    if(ch.tutorial) prayer.push(ch);
+    else if(ch.hall && ch.testament === "ot") ot.push(ch);
+    else if(ch.hall && ch.testament === "nt") nt.push(ch);
+    else if(ch.after) road.push(ch);
+    else trilogy.push(ch);
   });
+  const hallOpen = Tablets.unlocked("genesis3", SAVE);
+  function group(label, list, note){
+    if(!list.length) return;
+    const box = document.createElement("div");
+    box.className = "tablets-ch-group";
+    const lab = document.createElement("p");
+    lab.className = "tablets-ch-lab";
+    lab.textContent = note || label;
+    box.appendChild(lab);
+    list.forEach(function(ch){ box.appendChild(tabletsBriefChapter(ch)); });
+    host.appendChild(box);
+  }
+  group("The prayer", prayer);
+  group("The Tablets", trilogy);
+  group("Old Testament", ot, hallOpen ? "Old Testament" : "Old Testament · Hold John 1 to open");
+  group("New Testament", nt, hallOpen ? "New Testament" : "New Testament · Hold John 1 to open");
+  group("On the road", road);
 }
 function openBrief(mode){
   const m = MODES[mode];
   if(!m || m.incoming){
     if(m && m.incoming && typeof toast==="function") toast(m.name+" is incoming.");
+    return;
+  }
+  if(mode==="tablets" && SAVE.set && !SAVE.set.tabletsTutorialDone){
+    startRun("tablets", SAVE.set.diff, { tabletChapter: "prayer", tabletTutorial: true });
     return;
   }
   briefMode = mode;
@@ -373,7 +430,12 @@ if(tabletsPickHost) tabletsPickHost.addEventListener("click", function(e){
   const btn = e.target.closest("[data-chapter]");
   if(!btn || btn.disabled) return;
   Snd.unlock();
-  startRun("tablets", SAVE.set.diff, { tabletChapter: btn.dataset.chapter });
+  const id = btn.dataset.chapter;
+  if(btn.dataset.tutorial){
+    startRun("tablets", SAVE.set.diff, { tabletChapter: id, tabletTutorial: true });
+    return;
+  }
+  startRun("tablets", SAVE.set.diff, { tabletChapter: id, tabletLevel: parseInt(btn.dataset.level, 10) || 1 });
 });
 
 /* ------------------------- THE PILGRIMAGE -------------------------

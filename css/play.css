@@ -1386,7 +1386,7 @@ body.reduced .cloze-chip.illuminate-target {
 }
 .question-abraham-aura{
   position:absolute;
-  inset:12% -13% 3%;
+  inset:12% -13% 1.7em;
   z-index:0;
   border-radius:50%;
   background:radial-gradient(ellipse at 50% 62%,rgba(211,154,63,.28),rgba(116,24,19,.14) 42%,transparent 72%);
@@ -1395,15 +1395,31 @@ body.reduced .cloze-chip.illuminate-target {
 }
 .question-abraham img{
   position:absolute;
-  inset:0;
+  inset:0 0 1.55em;
   z-index:1;
   display:block;
-  width:100%;
-  height:100%;
+  width:auto;
+  height:auto;
   object-fit:contain;
   object-position:center bottom;
   filter:drop-shadow(0 18px 18px rgba(0,0,0,.72)) drop-shadow(0 0 16px rgba(224,171,78,.2));
   animation:abrahamFloat 7s ease-in-out infinite;
+}
+#question-abraham-sign{
+  position:absolute;
+  left:10%;
+  right:10%;
+  bottom:0;
+  z-index:2;
+  margin:0;
+  text-align:center;
+  font-family:var(--body);
+  font-style:italic;
+  font-weight:500;
+  font-size:clamp(.58rem,.85vw,.74rem);
+  letter-spacing:.2em;
+  color:var(--gold-dim);
+  text-shadow:0 1px 10px #000,0 0 14px rgba(0,0,0,.85);
 }
 @keyframes abrahamFloat{
   0%,100%{transform:translateY(0) rotate(0)}
