@@ -133,7 +133,7 @@ function alignTabletsSheet(instant){
   const host = roll.parentNode;
   const hostH = (host && host.clientHeight) || 450;
   const handY = hostH * 0.78;
-  const markY = hostH * 0.46;
+  const markY = hostH * 0.40;
   const progress = tabletsUntimed() ? 0 : Math.min(1, R.tabletProgress || 0);
   const desiredY = handY - (handY - markY) * progress;
   /* offsetTop ignores the live transform, so the sheet's resting offset is

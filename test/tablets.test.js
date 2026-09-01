@@ -321,9 +321,9 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   eq("the blank rests at The Hand", read(sb, "$('tablets-roll').style.transform"), "translateY(351px)");
   exec(sb, "R.tabletProgress = 0.5; alignTabletsSheet()");
   const mid = parseFloat(read(sb, "$('tablets-roll').style.transform").replace(/[^\d.-]/g, ""));
-  ok("the sheet drifts toward The Mark as the clock runs", mid > 207 && mid < 351);
+  ok("the sheet drifts toward The Mark as the clock runs", mid > 180 && mid < 351);
   exec(sb, "R.tabletProgress = 1; alignTabletsSheet()");
-  eq("the blank meets The Mark", read(sb, "$('tablets-roll').style.transform"), "translateY(207px)");
+  eq("the blank meets The Mark", read(sb, "$('tablets-roll').style.transform"), "translateY(180px)");
   ok("reduced motion skips the glide, not the alignment",
     /body\.reduced \.tablets-roll[^}]*transition:\s*none/.test(src));
 }
