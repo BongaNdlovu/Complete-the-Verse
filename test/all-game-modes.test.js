@@ -43,7 +43,7 @@ const PREFIX = [
   "js/assemble.js", "js/meta.js", "js/flow.js",
   "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js",
   "js/characters.js", "js/artifacts.js",
-  "js/live.js", "js/atlas.js", "js/beat.js", "js/tablets.js", "js/tablets-canon.js", "js/tablets-hall.js"
+  "js/live.js", "js/atlas.js", "js/beat.js", "js/tablets.js", "js/tablets-canon.js", "js/tablets-hall.js", "js/tablets-more.js"
 ];
 const FILES = PREFIX.concat(ENGINE_FILES, ["js/tablets-run.js"]);
 

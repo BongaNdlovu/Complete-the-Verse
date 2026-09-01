@@ -41,9 +41,9 @@ function mergeTabletsSave(s){
     : ["psalm23","psalm91","john1"];
   const out = {};
   ids.forEach(function(id){
-    const rec = Object.assign({best:0,held:false}, t[id] || {});
-    if(t[id] && t[id].levels) rec.levels = t[id].levels;
-    out[id] = rec;
+    /* Old saves carried per-level `levels`; a chapter lives at one pace now,
+       so the leftover replay records are dropped on merge. */
+    out[id] = Object.assign({best:0,held:false}, t[id] || {});
   });
   return out;
 }
@@ -1540,14 +1540,47 @@ function shakeUI(soft){
        {transform:"translate(-4px,-2px)"},{transform:"translate(3px,2px)"},{transform:"translate(0,0)"}];
   v.animate(frames, {duration:soft?360:420, easing:"cubic-bezier(.36,.07,.19,.97)"});
 }
+var hudPopTimer = null;
 function popScore(t){
-  const p=document.createElement("div"); p.className="pop"; p.textContent=t;
-  p.style.left="50%"; p.style.top="44%"; document.body.appendChild(p);
-  setTimeout(()=>p.remove(),1450);
+  var stampOverlay = document.getElementById("combo-stamp-overlay");
+  if(stampOverlay && stampOverlay.children && stampOverlay.children.length > 0){
+    return;
+  }
+  if(hudPopTimer){ clearTimeout(hudPopTimer); hudPopTimer = null; }
+  var p = document.getElementById("hud-pop");
+  if(!p){
+    p = document.createElement("div");
+    p.id = "hud-pop";
+    p.style.left = "50%";
+    p.style.top = "44%";
+    document.body.appendChild(p);
+  }
+  p.textContent = t;
+  p.className = "";
+  void p.offsetWidth;
+  p.className = "pop";
+  hudPopTimer = setTimeout(function(){
+    if(p && p.parentNode) p.parentNode.removeChild(p);
+    hudPopTimer = null;
+  }, 1450);
 }
+var hudToastTimer = null;
 function toast(t){
-  const p=document.createElement("div"); p.className="toast"; p.textContent=t;
-  document.body.appendChild(p); setTimeout(()=>p.remove(),2700);
+  if(hudToastTimer){ clearTimeout(hudToastTimer); hudToastTimer = null; }
+  var p = document.getElementById("hud-toast");
+  if(!p){
+    p = document.createElement("div");
+    p.id = "hud-toast";
+    document.body.appendChild(p);
+  }
+  p.textContent = t;
+  p.className = "";
+  void p.offsetWidth;
+  p.className = "toast";
+  hudToastTimer = setTimeout(function(){
+    if(p && p.parentNode) p.parentNode.removeChild(p);
+    hudToastTimer = null;
+  }, 2700);
 }
 function spillOil(streak){
   if(R.mode==="team") return 0;

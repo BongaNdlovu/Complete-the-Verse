@@ -249,21 +249,17 @@ function recordRoadTabletHold(id, pct){
   const nxt = Pilgrimage.currentSite(SAVE.pilgrim);
   if(nxt && nxt.id !== id && Pilgrimage.isUnlocked(SAVE.pilgrim, nxt.id)) pendingUnlockId = nxt.id;
 }
-function persistTabletsChapter(id, n, pct, nowHeld){
+function persistTabletsChapter(id, pct, nowHeld){
   if(!SAVE.tablets) SAVE.tablets = {};
   if(!SAVE.tablets[id]) SAVE.tablets[id] = {best:0,held:false};
   const rec = Object.assign({best:0,held:false}, SAVE.tablets[id] || {});
   rec.best = Math.max(rec.best || 0, pct);
-  if(!rec.levels) rec.levels = {};
-  const lv = Object.assign({best:0,held:false}, rec.levels[n] || rec.levels[String(n)] || {});
-  lv.best = Math.max(lv.best || 0, pct);
-  if(nowHeld) lv.held = true;
-  rec.levels[n] = lv;
-  const chapterHold = nowHeld && n >= 2;
-  if(chapterHold && !rec.held) SAVE.life.tabletHolds = (SAVE.life.tabletHolds || 0) + 1;
-  if(chapterHold) rec.held = true;
+  /* One pace per chapter: a clean Hold is the chapter's Hold, counted once. */
+  const firstHold = nowHeld && !rec.held;
+  if(firstHold) SAVE.life.tabletHolds = (SAVE.life.tabletHolds || 0) + 1;
+  if(nowHeld) rec.held = true;
   SAVE.tablets[id] = rec;
-  if(chapterHold) recordRoadTabletHold(id, pct);
+  if(nowHeld) recordRoadTabletHold(id, pct);
 }
 function persistTabletsOil(){
   const oil = (R.correct || 0) * 2;
@@ -278,8 +274,7 @@ function persistTabletsRecord(){
   const isRecord = pct > prevBest;
   if(isRecord) SAVE.best.tablets = pct;
   const id = R.tabletChapter || "psalm23";
-  const n = (typeof Tablets !== "undefined" && Tablets.clampLevel) ? Tablets.clampLevel(R.tabletLevel) : 1;
-  persistTabletsChapter(id, n, pct, typeof Tablets !== "undefined" && Tablets.held(R));
+  persistTabletsChapter(id, pct, typeof Tablets !== "undefined" && Tablets.held(R));
   persistTabletsOil();
   return { road: null, isRecord: isRecord, prevBest: prevBest, dailyRecorded: false };
 }
@@ -401,29 +396,20 @@ function endRun(reason){
   go("results");
 }
 
-function tabletsRetryLevel(){
-  if(typeof Tablets !== "undefined" && Tablets.graduateLevel) return Tablets.graduateLevel(R, SAVE);
-  return R.tabletLevel || 1;
-}
-function tabletsRetryLabel(){
-  const now = (typeof Tablets !== "undefined" && Tablets.clampLevel) ? Tablets.clampLevel(R.tabletLevel) : (R.tabletLevel || 1);
-  const next = tabletsRetryLevel();
-  if(next > now && typeof Tablets !== "undefined" && Tablets.levelName) return "Carve " + Tablets.levelName(next);
-  return "Carve again";
-}
+/* A chapter lives at one pace, so a retry always re-carves the same chapter. */
 function tabletsRetryRun(){
   startRun("tablets", R.diff.key, {
     tabletChapter: R.tabletChapter || "psalm23",
-    tabletLevel: tabletsRetryLevel(),
     fromRoad: !!R.fromRoad
   });
+}
+function tabletsRetryLabel(){
+  return "Carve again";
 }
 function tabletsKickText(o){
   if(o.reason==="abandon") return "The run was abandoned";
   if(!(typeof Tablets!=="undefined" && Tablets.held(R))) return "The tablet shattered";
-  const now = Tablets.clampLevel(R.tabletLevel);
-  const next = Tablets.graduateLevel(R, SAVE);
-  if(next > now) return Tablets.levelName(now) + " held. " + Tablets.levelName(next) + " is open.";
+  if(typeof Tablets!=="undefined" && Tablets.holdKick) return Tablets.holdKick(R.tabletChapter || "psalm23", SAVE);
   return "The manuscript held";
 }
 function resultsKick(o){

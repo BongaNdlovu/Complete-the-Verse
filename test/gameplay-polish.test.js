@@ -226,6 +226,13 @@ assert(/@keyframes lampFlicker/.test(gameCss) && /@keyframes lampGutter/.test(ga
 assert(/\.hrt\.lamp\.last\{animation:none/.test(gameCss),
   "lamps do not use the heart pulse");
 
+/* --- singleton reward overlays --- */
+assert(/hud-toast/.test(game) && /hudToastTimer/.test(game), "toast reuses singleton #hud-toast");
+assert(/hud-pop/.test(game) && /combo-stamp-overlay/.test(game), "popScore reuses singleton #hud-pop and respects active combo stamp");
+assert(/hud-mission-callout/.test(game) && /hudCalloutTimer/.test(game), "Director.callout reuses singleton #hud-mission-callout");
+assert(/replaceChildren|innerHTML\s*=\s*""/.test(game), "showComboStamp clears previous cards before appending");
+assert(/\.voice-caption\.on\s*~\s*\.toast/.test(gameCss), "toast is lifted when voice caption is active");
+
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");
   fails.forEach((f) => console.error(" - " + f));

@@ -57,6 +57,12 @@ assert("Illuminate marks the correct citation",
 assert("Illuminate does not burn wrong citations",
   read("answerButtons().filter(b => b.classList.contains('burn')).length === 0"));
 
+const playSource = fs.readFileSync(path.join(ROOT, "js", "play.js"), "utf8");
+assert("live passage-ref is silent and does not call Director.speak",
+  !/Director\.speak\("Name the Passage/.test(playSource));
+assert("tutorial still defines TUTORIAL_VOICE for lesson 2",
+  /TUTORIAL_VOICE\s*=\s*\[[\s\S]*?Name the Passage: Select its book/.test(playSource));
+
 // Test wrong click
 run("answerButtons().find(b => b.dataset.val !== __question.a).click()");
 assert("passage-ref wrong click locks the question", read("R.locked === true && R.running === false"));

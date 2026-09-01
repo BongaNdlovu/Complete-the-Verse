@@ -170,9 +170,23 @@ const Director = (function(){
     lastVoice=Date.now();
     speakFallback(text);
   }
+  var hudCalloutTimer = null;
   function callout(text){
-    const p=document.createElement("div");p.className="mission-callout";p.textContent=text;
-    document.body.appendChild(p);setTimeout(()=>p.remove(),1500);
+    if(hudCalloutTimer){ clearTimeout(hudCalloutTimer); hudCalloutTimer = null; }
+    var p = document.getElementById("hud-mission-callout");
+    if(!p){
+      p = document.createElement("div");
+      p.id = "hud-mission-callout";
+      document.body.appendChild(p);
+    }
+    p.textContent = text;
+    p.className = "";
+    void p.offsetWidth;
+    p.className = "mission-callout";
+    hudCalloutTimer = setTimeout(function(){
+      if(p && p.parentNode) p.parentNode.removeChild(p);
+      hudCalloutTimer = null;
+    }, 1500);
   }
   function setAct(i){
     clearBody(["act-","pressure-"]);

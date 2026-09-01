@@ -214,7 +214,12 @@ var Cinematic = (function () {
       '<div class="combo-stamp-text">' + label + '</div>' +
       '<div class="combo-stamp-streak">' + streak + ' in a row</div>';
 
-    container.appendChild(stamp);
+    if (typeof container.replaceChildren === "function") {
+      container.replaceChildren(stamp);
+    } else {
+      container.innerHTML = "";
+      container.appendChild(stamp);
+    }
     playStampChime(mult);
 
     setTimeout(function () {

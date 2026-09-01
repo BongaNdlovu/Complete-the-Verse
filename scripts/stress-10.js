@@ -9,7 +9,7 @@ const { ENGINE_FILES } = require("./engine-source");
 
 const PREFIX = [
   "js/verses.js", "js/verses-extra.js", "js/verses-more.js", "js/verses-ascent.js",
-  "js/verses-tf.js", "js/beat.js", "js/tablets.js", "js/tablets-canon.js", "js/tablets-hall.js",
+  "js/verses-tf.js", "js/beat.js", "js/tablets.js", "js/tablets-canon.js", "js/tablets-hall.js", "js/tablets-more.js",
   "js/passages.js", "js/legacy-ids.js",
   "js/bank.js", "js/srs.js", "js/recall.js", "js/assemble.js", "js/meta.js", "js/flow.js",
   "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js",

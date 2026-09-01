@@ -1195,9 +1195,6 @@ function renderPassageReferenceQuestion(q, dur, scene){
   $("confirm-answer").style.display = "none";
   const how = $("warn-how");
   if(how) how.innerHTML = "Name the Passage<br>Select its book, chapter, and verse";
-  if(typeof Director!=="undefined" && Director.speak && !R.tutorial){
-    Director.speak("Name the Passage: Select its book, chapter, and verse.");
-  }
   const refEl = $("ref");
   if(refEl) refEl.textContent = "Passage identification · King James Version";
 
@@ -2134,8 +2131,6 @@ function celebrateCorrectStreak(){
   if(typeof Cinematic !== "undefined" && (R.streak === 3 || R.streak === 5 || R.streak === 8 || R.streak === 12)){
     Cinematic.event("streak", {streak:R.streak, mult:multiplier()});
   }
-  if(R.streak===5)Director.callout("Unbroken ×5");
-  if(R.streak===10)Director.callout("Perfect Recall");
   if(R.streak>=10 && !hasSeal("recall")) grantSeal("recall");
   if(R.streak>=20 && !hasSeal("flame")) grantSeal("flame");
   if(R.fast>=10 && !hasSeal("swift")) grantSeal("swift");

@@ -2,9 +2,10 @@ const Tablets = (function(){
   const BLANK_MS = 6500;
   const LEVEL_MS = [9000, 6500, 4000];
   const LEVEL_NAME = ["I", "II", "III"];
+  const HOLDS_TO_OPEN = 3;
   const chapters = [
     {
-      id:"psalm23", name:"Psalm 23", r:"Psalm 23:1-6", subtitle:"The LORD is my shepherd",
+      id:"psalm23", name:"Psalm 23", r:"Psalm 23:1-6", subtitle:"The LORD is my shepherd", pace:1,
       blanks:[
         { r:"Psalm 23:1", prefix:"The LORD is my shepherd; I shall not", a:"want", suffix:".", d:["fear","fall","fail"] },
         { r:"Psalm 23:2", prefix:"He maketh me to lie down in green", a:"pastures", suffix:":", d:["meadows","valleys","fields"] },
@@ -20,7 +21,7 @@ const Tablets = (function(){
       ]
     },
     {
-      id:"psalm91", name:"Psalm 91", r:"Psalm 91", subtitle:"The secret place of the most High",
+      id:"psalm91", name:"Psalm 91", r:"Psalm 91", subtitle:"The secret place of the most High", pace:1,
       blanks:[
         { r:"Psalm 91:1", prefix:"He that dwelleth in the secret place of the most High shall abide under the shadow of the", a:"Almighty", suffix:".", d:["Father","Rock","King"] },
         { r:"Psalm 91:2", prefix:"I will say of the LORD, He is my refuge and my", a:"fortress", suffix:": my God; in him will I trust.", d:["strength","shield","tower"] },
@@ -42,7 +43,7 @@ const Tablets = (function(){
       ]
     },
     {
-      id:"john1", name:"John 1", r:"John 1", subtitle:"In the beginning was the Word",
+      id:"john1", name:"John 1", r:"John 1", subtitle:"In the beginning was the Word", pace:1,
       blanks:[
         { r:"John 1:1", prefix:"In the beginning was the", a:"Word", suffix:", and the Word was with God, and the Word was God.", d:["Light","Law","Voice"] },
         { r:"John 1:2", prefix:"The same was in the beginning with", a:"God", suffix:".", d:["man","heaven","us"] },
@@ -139,20 +140,38 @@ const Tablets = (function(){
     const pack = (save && save.tablets) || {};
     return pack[id] || { best:0, held:false };
   }
-  function levelOf(save, id, n){
-    const rec = recordOf(save, id);
-    const pack = rec.levels || {};
-    return pack[n] || pack[String(n)] || { best:0, held:false };
-  }
-  function levelHeld(save, id, n){
-    if(recordOf(save, id).held && n <= 2) return true;
-    return !!levelOf(save, id, n).held;
-  }
   function clampLevel(n){
     n = n|0;
     if(n < 1) return 1;
     if(n > 3) return 3;
     return n;
+  }
+  /* A chapter lives at one pace. The clock and the graduation ladder both
+     read the chapter, not a replay level — II and III are other chapters. */
+  function paceOf(ch){
+    if(!ch || ch.tutorial) return 1;
+    return clampLevel(ch.pace || 1);
+  }
+  function heldCountAtPace(save, pace){
+    if(typeof save === "number" && (typeof pace === "object" || !pace)){
+      const t = save; save = pace; pace = t;
+    }
+    let n = 0;
+    chapters.forEach(function(ch){
+      if(ch.tutorial || paceOf(ch) !== pace) return;
+      if(recordOf(save, ch.id).held) n++;
+    });
+    return n;
+  }
+  function paceGateOpen(pace, save){
+    if(typeof pace === "object" && (typeof save === "number" || typeof save === "undefined")){
+      const t = pace; pace = save; save = t;
+    }
+    if(!pace || pace <= 1) return true;
+    return heldCountAtPace(save, pace - 1) >= HOLDS_TO_OPEN;
+  }
+  function paceGateLabel(pace){
+    return pace >= 3 ? "Hold 3 at Pace II to open" : "Hold 3 at Pace I to open";
   }
   function blankMs(level){
     return LEVEL_MS[clampLevel(level) - 1] || BLANK_MS;
@@ -168,7 +187,13 @@ const Tablets = (function(){
     const ch = chapter(id);
     if(!ch || ch.id !== id) return false;
     if(ch.tutorial) return true;
-    if(ch.hall) return !!recordOf(save, "john1").held;
+    if(ch.hall){
+      /* Hall chapters climb the pace ladder: II needs 3 pace-I Holds. */
+      if(!paceGateOpen(paceOf(ch), save)) return false;
+      return !!recordOf(save, "john1").held;
+    }
+    /* Road chapters keep their site as the gate — a tablet stop must always
+       be playable when the pilgrim walks onto it. */
     if(!ch.after) return false;
     if(recordOf(save, id).held) return true;
     const pilgrim = save && save.pilgrim;
@@ -179,59 +204,54 @@ const Tablets = (function(){
     }
     return false;
   }
-  function levelOpen(id, n, save){
-    n = clampLevel(n);
-    if(!unlocked(id, save)) return false;
-    if(n === 1) return true;
-    if(n === 2) return levelHeld(save, id, 1);
-    return levelHeld(save, id, 2);
-  }
-  function highestOpen(id, save){
-    if(levelOpen(id, 3, save)) return 3;
-    if(levelOpen(id, 2, save)) return 2;
-    return 1;
-  }
-  function pickLevel(id, save, want){
-    const open = highestOpen(id, save);
-    if(want == null || want === "") return open;
-    const n = clampLevel(want);
-    return levelOpen(id, n, save) ? n : open;
-  }
-  function graduateLevel(run, save){
-    const n = clampLevel(run && run.tabletLevel);
-    if(!(run && held(run)) || n >= 3) return n;
-    const id = (run && run.tabletChapter) || "psalm23";
-    return levelOpen(id, n + 1, save) ? n + 1 : n;
-  }
-  function unlockLabel(id){
+  function unlockLabel(id, save){
     if(id === "psalm91") return "Hold Psalm 23 to open";
     if(id === "john1") return "Hold Psalm 91 to open";
     const ch = chapter(id);
-    if(ch && ch.hall) return "Hold John 1 to open";
-    if(ch && ch.afterName) return "Clear " + ch.afterName + " to open";
-    return "Open";
+    if(!ch || ch.id !== id) return "Open";
+    if(ch.tutorial) return "Open";
+    if(ch.after) return "Clear " + (ch.afterName || ch.after) + " to open";
+    if(ch.hall && save && !recordOf(save, "john1").held) return "Hold John 1 to open";
+    return paceGateLabel(paceOf(ch));
+  }
+  /* A run always starts at the chapter's own pace; the ladder is across
+     chapters, so there is no per-chapter replay level to pick. */
+  function pickLevel(id){
+    return paceOf(chapter(id));
+  }
+  function holdKick(id, save){
+    if(id === "psalm23") return "Pace I held. Psalm 91 is open.";
+    if(id === "psalm91") return "Pace I held. John 1 is open.";
+    if(id === "john1") return "Pace I held. The Hall is open.";
+    const ch = chapter(id);
+    const pace = paceOf(ch);
+    if(pace === 1) return paceGateOpen(2, save) ? "Pace II is open." : "Pace I held. Pace II opens after 3 Holds.";
+    if(pace === 2) return paceGateOpen(3, save) ? "Pace III is open." : "Pace II held. Pace III opens after 3 Holds.";
+    return "The manuscript held";
   }
   return {
     BLANK_MS: BLANK_MS,
     LEVEL_MS: LEVEL_MS,
+    HOLDS_TO_OPEN: HOLDS_TO_OPEN,
     chapters: chapters,
     canon: [],
     hall: [],
+    more: [],
     chapter: chapter,
     options: options,
     held: held,
     unlocked: unlocked,
     unlockLabel: unlockLabel,
     recordOf: recordOf,
-    levelOf: levelOf,
-    levelHeld: levelHeld,
+    paceOf: paceOf,
+    heldCountAtPace: heldCountAtPace,
+    paceGateOpen: paceGateOpen,
+    paceGateLabel: paceGateLabel,
     clampLevel: clampLevel,
     blankMs: blankMs,
     levelName: levelName,
-    levelOpen: levelOpen,
-    highestOpen: highestOpen,
     pickLevel: pickLevel,
-    graduateLevel: graduateLevel
+    holdKick: holdKick
   };
 })();
 if(typeof module !== "undefined") module.exports = { Tablets: Tablets };

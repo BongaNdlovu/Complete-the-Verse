@@ -476,6 +476,7 @@ input[type=range]::-moz-range-thumb{width:13px;height:13px;background:var(--gold
   opacity:0;visibility:hidden;transition:opacity .2s ease,transform .2s ease,visibility .2s}
 .voice-caption.on{opacity:1;visibility:visible;transform:translate(-50%,0)}
 body.view-play .voice-caption{bottom:max(108px,calc(env(safe-area-inset-bottom) + 96px))}
+body.view-play .voice-caption.on ~ .toast, body.view-play .voice-caption.on ~ #hud-toast{bottom:max(168px,calc(env(safe-area-inset-bottom) + 156px))}
 body.reduced .voice-caption{transition:none}
 .cloud-chip{margin:1rem auto .2rem;width:fit-content;padding:.35rem .75rem;border:1px solid rgba(232,196,120,.3);
   font-family:var(--ui);font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-dim)}

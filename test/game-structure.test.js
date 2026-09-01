@@ -32,7 +32,7 @@ const css   = fs.readFileSync(path.join(ROOT, "css", "game.css"), "utf8");
  "js/passages.js", "js/bank.js", "js/srs.js", "js/recall.js",
  "js/legacy-ids.js",
  "js/sites.js", "js/empires.js", "js/geo.js", "js/pilgrimage.js", "js/live.js",
- "js/atlas.js", "js/tablets.js", "js/tablets-canon.js", "js/tablets-hall.js", "js/tablets-run.js", "js/game.js",
+ "js/atlas.js", "js/tablets.js", "js/tablets-canon.js", "js/tablets-hall.js", "js/tablets-more.js", "js/tablets-run.js", "js/game.js",
  "scripts/verse-qa.js", "scripts/qa-verses.js", "scripts/load-atlas.js",
  "content/QUARANTINE.md", "content/quarantine.json"
 ].forEach(f => assert(fs.existsSync(path.join(ROOT, f)), f + " exists"));
@@ -58,8 +58,10 @@ assert(index.indexOf('src="js/tablets.js"') < index.indexOf('src="js/tablets-can
   "tablets-canon.js loads after tablets.js");
 assert(index.indexOf('src="js/tablets-canon.js"') < index.indexOf('src="js/tablets-hall.js"'),
   "tablets-hall.js loads after tablets-canon.js");
-assert(index.indexOf('src="js/tablets-hall.js"') < index.indexOf('src="js/pilgrimage.js"'),
-  "tablets-hall.js loads before pilgrimage.js");
+assert(index.indexOf('src="js/tablets-hall.js"') < index.indexOf('src="js/tablets-more.js"'),
+  "tablets-more.js loads after tablets-hall.js");
+assert(index.indexOf('src="js/tablets-more.js"') < index.indexOf('src="js/pilgrimage.js"'),
+  "tablets-more.js loads before pilgrimage.js");
 assert(index.indexOf("vendor/leaflet/leaflet.js") < index.indexOf('src="js/atlas.js"'),
   "Leaflet loads before the atlas that uses it");
 let prev = -1;

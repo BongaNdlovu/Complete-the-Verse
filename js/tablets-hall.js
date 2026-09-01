@@ -1,7 +1,7 @@
 (function(){
   const HALL = [
     {
-      id:"genesis3", name:"Genesis 3", r:"Genesis 3", subtitle:"Hast thou eaten of the tree", hall:true, testament:"ot",
+      id:"genesis3", pace:1, name:"Genesis 3", r:"Genesis 3", subtitle:"Hast thou eaten of the tree", hall:true, testament:"ot",
       blanks:[
         { r:"Genesis 3:1", prefix:"Now the serpent was more", a:"subtil", suffix:"than any beast of the field which the LORD God had made.", d:["subtle","crafty","wise"] },
         { r:"Genesis 3:4", prefix:"And the serpent said unto the woman, Ye shall not surely", a:"die", suffix:":", d:["fall","sin","eat"] },
@@ -14,7 +14,7 @@
       ]
     },
     {
-      id:"exodus14", name:"Exodus 14", r:"Exodus 14", subtitle:"Stand still, and see the salvation of the LORD", hall:true, testament:"ot",
+      id:"exodus14", pace:2, name:"Exodus 14", r:"Exodus 14", subtitle:"Stand still, and see the salvation of the LORD", hall:true, testament:"ot",
       blanks:[
         { r:"Exodus 14:13", prefix:"And Moses said unto the people, Fear ye not, stand still, and see the salvation of the", a:"LORD", suffix:",", d:["Most High","Almighty","God"] },
         { r:"Exodus 14:14", prefix:"The LORD shall fight for you, and ye shall hold your", a:"peace", suffix:".", d:["tongue","place","rest"] },
@@ -27,7 +27,7 @@
       ]
     },
     {
-      id:"ruth1", name:"Ruth 1", r:"Ruth 1", subtitle:"Whither thou goest, I will go", hall:true, testament:"ot",
+      id:"ruth1", pace:1, name:"Ruth 1", r:"Ruth 1", subtitle:"Whither thou goest, I will go", hall:true, testament:"ot",
       blanks:[
         { r:"Ruth 1:16", prefix:"And Ruth said, Intreat me not to leave thee, or to return from following after", a:"thee", suffix:":", d:["him","us","her"] },
         { r:"Ruth 1:16", prefix:"for whither thou goest, I will", a:"go", suffix:";", d:["stay","come","walk"] },
@@ -40,7 +40,7 @@
       ]
     },
     {
-      id:"job38", name:"Job 38", r:"Job 38", subtitle:"Where wast thou when I laid the foundations", hall:true, testament:"ot",
+      id:"job38", pace:3, name:"Job 38", r:"Job 38", subtitle:"Where wast thou when I laid the foundations", hall:true, testament:"ot",
       blanks:[
         { r:"Job 38:2", prefix:"Who is this that darkeneth counsel by words without", a:"knowledge", suffix:"?", d:["wisdom","understanding","truth"] },
         { r:"Job 38:4", prefix:"Where wast thou when I laid the foundations of the", a:"earth", suffix:"? declare, if thou hast understanding.", d:["world","deep","heavens"] },
@@ -53,7 +53,7 @@
       ]
     },
     {
-      id:"psalm1", name:"Psalm 1", r:"Psalm 1", subtitle:"Blessed is the man", hall:true, testament:"ot",
+      id:"psalm1", pace:1, name:"Psalm 1", r:"Psalm 1", subtitle:"Blessed is the man", hall:true, testament:"ot",
       blanks:[
         { r:"Psalm 1:1", prefix:"Blessed is the man that walketh not in the counsel of the", a:"ungodly", suffix:",", d:["wicked","sinners","proud"] },
         { r:"Psalm 1:2", prefix:"But his delight is in the law of the", a:"LORD", suffix:"; and in his law doth he meditate day and night.", d:["Most High","Almighty","God"] },
@@ -66,7 +66,7 @@
       ]
     },
     {
-      id:"psalm121", name:"Psalm 121", r:"Psalm 121", subtitle:"I will lift up mine eyes unto the hills", hall:true, testament:"ot",
+      id:"psalm121", pace:1, name:"Psalm 121", r:"Psalm 121", subtitle:"I will lift up mine eyes unto the hills", hall:true, testament:"ot",
       blanks:[
         { r:"Psalm 121:1", prefix:"I will lift up mine eyes unto the hills, from whence cometh my", a:"help", suffix:".", d:["hope","strength","peace"] },
         { r:"Psalm 121:2", prefix:"My help cometh from the LORD, which made heaven and", a:"earth", suffix:".", d:["sea","all","man"] },
@@ -79,7 +79,7 @@
       ]
     },
     {
-      id:"ecclesiastes3", name:"Ecclesiastes 3", r:"Ecclesiastes 3", subtitle:"To every thing there is a season", hall:true, testament:"ot",
+      id:"ecclesiastes3", pace:2, name:"Ecclesiastes 3", r:"Ecclesiastes 3", subtitle:"To every thing there is a season", hall:true, testament:"ot",
       blanks:[
         { r:"Ecclesiastes 3:1", prefix:"To every thing there is a season, and a time to every purpose under the", a:"heaven", suffix:":", d:["sun","earth","sky"] },
         { r:"Ecclesiastes 3:2", prefix:"A time to be born, and a time to", a:"die", suffix:";", d:["live","sleep","end"] },
@@ -92,7 +92,7 @@
       ]
     },
     {
-      id:"isaiah40", name:"Isaiah 40", r:"Isaiah 40", subtitle:"They that wait upon the LORD", hall:true, testament:"ot",
+      id:"isaiah40", pace:2, name:"Isaiah 40", r:"Isaiah 40", subtitle:"They that wait upon the LORD", hall:true, testament:"ot",
       blanks:[
         { r:"Isaiah 40:1", prefix:"Comfort ye, comfort ye my people, saith your", a:"God", suffix:".", d:["King","LORD","Father"] },
         { r:"Isaiah 40:3", prefix:"The voice of him that crieth in the wilderness, Prepare ye the way of the", a:"LORD", suffix:",", d:["King","Christ","Most High"] },
@@ -105,7 +105,7 @@
       ]
     },
     {
-      id:"jeremiah29", name:"Jeremiah 29", r:"Jeremiah 29", subtitle:"Thoughts of peace, and not of evil", hall:true, testament:"ot",
+      id:"jeremiah29", pace:3, name:"Jeremiah 29", r:"Jeremiah 29", subtitle:"Thoughts of peace, and not of evil", hall:true, testament:"ot",
       blanks:[
         { r:"Jeremiah 29:7", prefix:"And seek the peace of the city whither I have caused you to be carried away", a:"captives", suffix:",", d:["exiles","strangers","servants"] },
         { r:"Jeremiah 29:11", prefix:"For I know the thoughts that I think toward you, saith the LORD, thoughts of", a:"peace", suffix:", and not of evil,", d:["mercy","hope","good"] },
@@ -118,7 +118,7 @@
       ]
     },
     {
-      id:"ezekiel37", name:"Ezekiel 37", r:"Ezekiel 37", subtitle:"Can these bones live", hall:true, testament:"ot",
+      id:"ezekiel37", pace:3, name:"Ezekiel 37", r:"Ezekiel 37", subtitle:"Can these bones live", hall:true, testament:"ot",
       blanks:[
         { r:"Ezekiel 37:3", prefix:"And he said unto me, Son of man, can these bones", a:"live", suffix:"? And I answered, O Lord GOD, thou knowest.", d:["rise","stand","speak"] },
         { r:"Ezekiel 37:4", prefix:"Again he said unto me, Prophesy upon these bones, and say unto them, O ye dry bones, hear the word of the", a:"LORD", suffix:".", d:["Most High","Almighty","God"] },
@@ -131,7 +131,7 @@
       ]
     },
     {
-      id:"matthew11", name:"Matthew 11", r:"Matthew 11", subtitle:"Come unto me, all ye that labour", hall:true, testament:"nt",
+      id:"matthew11", pace:1, name:"Matthew 11", r:"Matthew 11", subtitle:"Come unto me, all ye that labour", hall:true, testament:"nt",
       blanks:[
         { r:"Matthew 11:28", prefix:"Come unto me, all ye that labour and are heavy laden, and I will give you", a:"rest", suffix:".", d:["peace","life","joy"] },
         { r:"Matthew 11:29", prefix:"Take my yoke upon you, and learn of me; for I am meek and lowly in", a:"heart", suffix:":", d:["spirit","mind","soul"] },
@@ -144,7 +144,7 @@
       ]
     },
     {
-      id:"mark16", name:"Mark 16", r:"Mark 16", subtitle:"He is risen; he is not here", hall:true, testament:"nt",
+      id:"mark16", pace:1, name:"Mark 16", r:"Mark 16", subtitle:"He is risen; he is not here", hall:true, testament:"nt",
       blanks:[
         { r:"Mark 16:6", prefix:"And he saith unto them, Be not affrighted: Ye seek Jesus of Nazareth, which was crucified: he is risen; he is not", a:"here", suffix:":", d:["dead","gone","lost"] },
         { r:"Mark 16:6", prefix:"behold the place where they laid", a:"him", suffix:".", d:["Jesus","the Lord","them"] },
@@ -157,7 +157,7 @@
       ]
     },
     {
-      id:"luke15", name:"Luke 15", r:"Luke 15", subtitle:"This my son was dead, and is alive again", hall:true, testament:"nt",
+      id:"luke15", pace:1, name:"Luke 15", r:"Luke 15", subtitle:"This my son was dead, and is alive again", hall:true, testament:"nt",
       blanks:[
         { r:"Luke 15:4", prefix:"What man of you, having an hundred sheep, if he lose one of them, doth not leave the ninety and nine in the wilderness, and go after that which is", a:"lost", suffix:", until he find it?", d:["gone","strayed","hurt"] },
         { r:"Luke 15:6", prefix:"Rejoice with me; for I have found my sheep which was", a:"lost", suffix:".", d:["dead","gone","stolen"] },
@@ -170,7 +170,7 @@
       ]
     },
     {
-      id:"john11", name:"John 11", r:"John 11", subtitle:"I am the resurrection, and the life", hall:true, testament:"nt",
+      id:"john11", pace:1, name:"John 11", r:"John 11", subtitle:"I am the resurrection, and the life", hall:true, testament:"nt",
       blanks:[
         { r:"John 11:25", prefix:"Jesus said unto her, I am the resurrection, and the", a:"life", suffix:":", d:["way","truth","light"] },
         { r:"John 11:25", prefix:"he that believeth in me, though he were dead, yet shall he", a:"live", suffix:":", d:["rise","stand","wake"] },
@@ -183,7 +183,7 @@
       ]
     },
     {
-      id:"acts9", name:"Acts 9", r:"Acts 9", subtitle:"Saul, Saul, why persecutest thou me", hall:true, testament:"nt",
+      id:"acts9", pace:2, name:"Acts 9", r:"Acts 9", subtitle:"Saul, Saul, why persecutest thou me", hall:true, testament:"nt",
       blanks:[
         { r:"Acts 9:3", prefix:"And as he journeyed, he came near Damascus: and suddenly there shined round about him a light from", a:"heaven", suffix:":", d:["God","the sun","glory"] },
         { r:"Acts 9:4", prefix:"And he fell to the earth, and heard a voice saying unto him, Saul, Saul, why persecutest thou", a:"me", suffix:"?", d:["us","them","him"] },
@@ -196,7 +196,7 @@
       ]
     },
     {
-      id:"romans12", name:"Romans 12", r:"Romans 12", subtitle:"A living sacrifice", hall:true, testament:"nt",
+      id:"romans12", pace:3, name:"Romans 12", r:"Romans 12", subtitle:"A living sacrifice", hall:true, testament:"nt",
       blanks:[
         { r:"Romans 12:1", prefix:"I beseech you therefore, brethren, by the mercies of God, that ye present your bodies a living", a:"sacrifice", suffix:", holy, acceptable unto God, which is your reasonable service.", d:["offering","gift","altar"] },
         { r:"Romans 12:2", prefix:"And be not conformed to this world: but be ye transformed by the renewing of your", a:"mind", suffix:",", d:["heart","soul","spirit"] },
@@ -209,7 +209,7 @@
       ]
     },
     {
-      id:"philippians2", name:"Philippians 2", r:"Philippians 2", subtitle:"Let this mind be in you", hall:true, testament:"nt",
+      id:"philippians2", pace:2, name:"Philippians 2", r:"Philippians 2", subtitle:"Let this mind be in you", hall:true, testament:"nt",
       blanks:[
         { r:"Philippians 2:3", prefix:"Let nothing be done through strife or vainglory; but in lowliness of mind let each esteem other better than", a:"themselves", suffix:".", d:["himself","ourselves","yourselves"] },
         { r:"Philippians 2:5", prefix:"Let this mind be in you, which was also in Christ", a:"Jesus", suffix:":", d:["the Lord","our Lord","Jesus Christ"] },
@@ -222,7 +222,7 @@
       ]
     },
     {
-      id:"hebrews11", name:"Hebrews 11", r:"Hebrews 11", subtitle:"Faith is the substance of things hoped for", hall:true, testament:"nt",
+      id:"hebrews11", pace:3, name:"Hebrews 11", r:"Hebrews 11", subtitle:"Faith is the substance of things hoped for", hall:true, testament:"nt",
       blanks:[
         { r:"Hebrews 11:1", prefix:"Now faith is the substance of things hoped for, the evidence of things not", a:"seen", suffix:".", d:["known","held","named"] },
         { r:"Hebrews 11:3", prefix:"Through faith we understand that the worlds were framed by the word of", a:"God", suffix:",", d:["the LORD","his mouth","power"] },
@@ -235,7 +235,7 @@
       ]
     },
     {
-      id:"james1", name:"James 1", r:"James 1", subtitle:"Count it all joy", hall:true, testament:"nt",
+      id:"james1", pace:2, name:"James 1", r:"James 1", subtitle:"Count it all joy", hall:true, testament:"nt",
       blanks:[
         { r:"James 1:2", prefix:"My brethren, count it all joy when ye fall into divers", a:"temptations", suffix:";", d:["trials","troubles","sorrows"] },
         { r:"James 1:3", prefix:"Knowing this, that the trying of your faith worketh", a:"patience", suffix:".", d:["hope","peace","strength"] },
@@ -248,7 +248,7 @@
       ]
     },
     {
-      id:"firstjohn4", name:"1 John 4", r:"1 John 4", subtitle:"God is love", hall:true, testament:"nt",
+      id:"firstjohn4", pace:2, name:"1 John 4", r:"1 John 4", subtitle:"God is love", hall:true, testament:"nt",
       blanks:[
         { r:"1 John 4:7", prefix:"Beloved, let us love one another: for love is of God; and every one that loveth is born of God, and knoweth", a:"God", suffix:".", d:["truth","light","life"] },
         { r:"1 John 4:8", prefix:"He that loveth not knoweth not God; for God is", a:"love", suffix:".", d:["light","life","truth"] },

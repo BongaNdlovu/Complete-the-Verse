@@ -152,21 +152,21 @@ body:not(:has(#v-atlas.on)) .route-line { animation-play-state: paused; }
 /* Standalone pilgrim marker (walks the road between sites). */
 .traveler-marker { pointer-events: none; z-index: 650 !important; }
 .traveler-node {
-  position: absolute; left: -20px; top: -74px; width: 40px; height: 80px;
+  position: absolute; left: -28px; top: -96px; width: 56px; height: 100px;
   pointer-events: none;
 }
 .traveler-walker {
-  display: block; width: 40px; height: 72px;
+  display: block; width: 56px; height: 92px;
   background-image: var(--walker-idle, url("../assets/traveler/idle.png"));
   background-repeat: no-repeat;
   background-position: center bottom;
   background-size: contain;
-  filter: drop-shadow(0 0 6px rgba(217,182,103,.45));
+  filter: drop-shadow(0 0 10px rgba(217,182,103,.65));
 }
 .traveler-marker.is-walking .traveler-walker,
 .traveler-node.walking .traveler-walker {
   background-image: var(--walker-walk, url("../assets/traveler/walk.png"));
-  background-size: 320px 72px;
+  background-size: 448px 92px;
   background-position: 0 0;
   animation: pilgrimWalk .72s steps(7) infinite;
   will-change: transform, background-position;
@@ -177,16 +177,16 @@ body:not(:has(#v-atlas.on)) .route-line { animation-play-state: paused; }
 }
 @keyframes pilgrimWalk {
   from { background-position: 0 0; }
-  to { background-position: -280px 0; }
+  to { background-position: -392px 0; }
 }
 @keyframes pilgrimWalkWest {
   from { background-position: 0 0; transform: scaleX(-1); }
-  to { background-position: -280px 0; transform: scaleX(-1); }
+  to { background-position: -392px 0; transform: scaleX(-1); }
 }
 .traveler-shadow {
-  display: block; width: 26px; height: 7px; margin: 0 auto;
-  border-radius: 50%; background: rgba(0,0,0,.4);
-  filter: blur(1px);
+  display: block; width: 36px; height: 9px; margin: 0 auto;
+  border-radius: 50%; background: rgba(0,0,0,.5);
+  filter: blur(1.5px);
 }
 .traveler-marker.is-walking .traveler-shadow,
 .traveler-node.walking .traveler-shadow {
@@ -302,8 +302,8 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
 .arc-relay:hover { color: var(--gold-hot); border-color: var(--gold); background: rgba(217,182,103,.14); }
 
 .rail-site {
-  display: flex; align-items: center; gap: 9px; width: 100%; text-align: left;
-  min-height: 44px; padding: .62em .6em; border-left: 2px solid transparent; cursor: pointer;
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  min-height: 44px; padding: .7em 1em; border-left: 2px solid transparent; cursor: pointer;
   transition: background .2s ease, border-color .2s ease;
 }
 .rail-site:hover { background: rgba(217,182,103,.08); }
@@ -316,7 +316,7 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
 .rail-site.locked .ord { color: #b4aa98; }
 .rail-site.cleared .nm { color: var(--gold); }
 .rail-site.current .nm { color: var(--gold-hot); text-shadow: 0 0 14px rgba(217,182,103,.7); }
-.rail-tablet { padding-left: 1.4em; }
+.rail-tablet { padding-left: 2.2em; }
 .rail-tablet .nm { font-style: italic; letter-spacing: .04em; }
 .rail-tablet .ord { color: var(--gold); }
 
@@ -326,7 +326,7 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
   position: absolute; top: 0; right: 0; bottom: 0; width: min(392px, 92vw); z-index: 490;
   display: flex; flex-direction: column;
   background: linear-gradient(264deg, rgba(4,5,10,.96), rgba(6,7,11,.88) 72%, transparent);
-  padding: calc(var(--safe-t) + 40px) 18px 16px;
+  padding: calc(var(--safe-t) + 40px) max(20px, env(safe-area-inset-right)) 16px 20px;
   transition: transform .55s cubic-bezier(.16,.84,.28,1), opacity .4s ease;
 }
 .atlas-dossier.hidden { transform: translateX(102%); opacity: 0; pointer-events: none; }
@@ -368,7 +368,7 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
 .doss-live .lv-row b { color: var(--parch); font-weight: 600; }
 .doss-live .lv-row b.dim { color: #b4aa98; font-weight: 400; }
 
-.doss-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; border-top: 1px solid var(--edge); }
+.doss-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--edge); }
 .doss-locked { font-family: var(--ui); font-size: .68rem; letter-spacing: .14em; color: var(--parch-dim);
   text-transform: uppercase; line-height: 1.6; }
 .doss-locked b { color: var(--gold); }

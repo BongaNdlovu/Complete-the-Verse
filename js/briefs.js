@@ -302,46 +302,31 @@ function renderMenu(){
 /* ------------------------- BRIEF ------------------------- */
 let briefMode = "trial";
 function tabletsBriefChapter(ch){
-  if(ch.tutorial){
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "tablets-ch-btn";
-    b.dataset.chapter = ch.id;
-    b.dataset.tutorial = "1";
-    const title = document.createElement("b");
-    title.textContent = ch.name;
-    const sub = document.createElement("span");
-    sub.textContent = "Untimed · learn the Hold";
-    b.appendChild(title);
-    b.appendChild(sub);
-    return b;
-  }
-  const wrap = document.createElement("div");
-  wrap.className = "tablets-ch";
-  const locked = !Tablets.unlocked(ch.id, SAVE);
-  const rec = Tablets.recordOf(SAVE, ch.id);
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "tablets-ch-btn";
+  b.dataset.chapter = ch.id;
   const name = document.createElement("b");
   name.textContent = ch.name;
   const sub = document.createElement("span");
+  b.appendChild(name);
+  b.appendChild(sub);
+  if(ch.tutorial){
+    b.dataset.tutorial = "1";
+    sub.textContent = "Untimed · learn the Hold";
+    return b;
+  }
+  const locked = !Tablets.unlocked(ch.id, SAVE);
+  const rec = Tablets.recordOf(SAVE, ch.id);
   sub.textContent = locked
-    ? (Tablets.unlockLabel ? Tablets.unlockLabel(ch.id) : "Locked")
-    : (ch.blanks.length + " blanks · best " + (rec.best || 0) + "%");
-  wrap.appendChild(name);
-  wrap.appendChild(sub);
-  const row = document.createElement("div");
-  row.className = "tablets-lv";
-  [1, 2, 3].forEach(function(n){
-    const chip = document.createElement("button");
-    chip.type = "button";
-    chip.className = "tablets-lv-btn";
-    chip.dataset.chapter = ch.id;
-    chip.dataset.level = String(n);
-    chip.textContent = Tablets.levelName ? Tablets.levelName(n) : String(n);
-    chip.disabled = locked || !(Tablets.levelOpen && Tablets.levelOpen(ch.id, n, SAVE));
-    row.appendChild(chip);
-  });
-  wrap.appendChild(row);
-  return wrap;
+    ? (Tablets.unlockLabel ? Tablets.unlockLabel(ch.id, SAVE) : "Locked")
+    : (ch.blanks.length + " blanks · " + (Tablets.levelName ? Tablets.levelName(ch.pace || 1) : ch.pace || 1));
+  const best = document.createElement("i");
+  best.className = "tablets-ch-best";
+  best.textContent = locked ? "·" : (rec.best || 0) + "%";
+  b.appendChild(best);
+  b.disabled = locked;
+  return b;
 }
 function paintTabletsBrief(on){
   const host = $("brief-tablets-pick");
@@ -350,18 +335,12 @@ function paintTabletsBrief(on){
   if(!on){ host.innerHTML = ""; return; }
   host.innerHTML = "";
   const prayer = [];
-  const trilogy = [];
-  const ot = [];
-  const nt = [];
-  const road = [];
+  const paces = [[], [], []];
   Tablets.chapters.forEach(function(ch){
     if(ch.tutorial) prayer.push(ch);
-    else if(ch.hall && ch.testament === "ot") ot.push(ch);
-    else if(ch.hall && ch.testament === "nt") nt.push(ch);
-    else if(ch.after) road.push(ch);
-    else trilogy.push(ch);
+    else paces[(Tablets.paceOf ? Tablets.paceOf(ch) : (ch.pace || 1)) - 1].push(ch);
   });
-  const hallOpen = Tablets.unlocked("genesis3", SAVE);
+  const names = ["Pace I", "Pace II", "Pace III"];
   function group(label, list, note){
     if(!list.length) return;
     const box = document.createElement("div");
@@ -374,10 +353,9 @@ function paintTabletsBrief(on){
     host.appendChild(box);
   }
   group("The prayer", prayer);
-  group("The Tablets", trilogy);
-  group("Old Testament", ot, hallOpen ? "Old Testament" : "Old Testament · Hold John 1 to open");
-  group("New Testament", nt, hallOpen ? "New Testament" : "New Testament · Hold John 1 to open");
-  group("On the road", road);
+  group(names[0], paces[0]);
+  group(names[1], paces[1], Tablets.paceGateOpen && Tablets.paceGateOpen(2, SAVE) ? names[1] : "Pace II · Hold 3 at Pace I to open");
+  group(names[2], paces[2], Tablets.paceGateOpen && Tablets.paceGateOpen(3, SAVE) ? names[2] : "Pace III · Hold 3 at Pace II to open");
 }
 function paintBriefModeChrome(mode){
   const hide = mode==="team" || mode==="tablets";
@@ -437,7 +415,8 @@ if(tabletsPickHost) tabletsPickHost.addEventListener("click", function(e){
     startRun("tablets", SAVE.set.diff, { tabletChapter: id, tabletTutorial: true });
     return;
   }
-  startRun("tablets", SAVE.set.diff, { tabletChapter: id, tabletLevel: parseInt(btn.dataset.level, 10) || 1 });
+  /* The chapter's pace is baked in; the run starts there. */
+  startRun("tablets", SAVE.set.diff, { tabletChapter: id });
 });
 
 /* ------------------------- THE PILGRIMAGE -------------------------

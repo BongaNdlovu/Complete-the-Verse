@@ -1,7 +1,7 @@
 (function(){
   const CANON = [
     {
-      id:"genesis1", name:"Genesis 1", r:"Genesis 1", subtitle:"In the beginning God created", after:"ur", afterName:"Ur", testament:"ot",
+      id:"genesis1", pace:2, name:"Genesis 1", r:"Genesis 1", subtitle:"In the beginning God created", after:"ur", afterName:"Ur", testament:"ot",
       blanks:[
         { r:"Genesis 1:1", prefix:"In the beginning God created the heaven and the", a:"earth", suffix:".", d:["world","deep","light"] },
         { r:"Genesis 1:2", prefix:"And the earth was without form, and void; and darkness was upon the face of the", a:"deep", suffix:".", d:["waters","void","night"] },
@@ -16,7 +16,7 @@
       ]
     },
     {
-      id:"genesis12", name:"Genesis 12", r:"Genesis 12", subtitle:"Get thee out of thy country", after:"haran", afterName:"Haran", testament:"ot",
+      id:"genesis12", pace:1, name:"Genesis 12", r:"Genesis 12", subtitle:"Get thee out of thy country", after:"haran", afterName:"Haran", testament:"ot",
       blanks:[
         { r:"Genesis 12:1", prefix:"Now the LORD had said unto Abram, Get thee out of thy country, and from thy kindred, and from thy father's", a:"house", suffix:",", d:["land","tent","people"] },
         { r:"Genesis 12:1", prefix:"unto a land that I will shew", a:"thee", suffix:":", d:["you","him","it"] },
@@ -29,7 +29,7 @@
       ]
     },
     {
-      id:"genesis22", name:"Genesis 22", r:"Genesis 22", subtitle:"Take now thy son, thine only son", after:"moriah", afterName:"Moriah", testament:"ot",
+      id:"genesis22", pace:3, name:"Genesis 22", r:"Genesis 22", subtitle:"Take now thy son, thine only son", after:"moriah", afterName:"Moriah", testament:"ot",
       blanks:[
         { r:"Genesis 22:2", prefix:"And he said, Take now thy son, thine only son Isaac, whom thou", a:"lovest", suffix:",", d:["knowest","fearest","keepest"] },
         { r:"Genesis 22:2", prefix:"and get thee into the land of Moriah; and offer him there for a burnt offering upon one of the", a:"mountains", suffix:"which I will tell thee of.", d:["hills","altars","places"] },
@@ -44,7 +44,7 @@
       ]
     },
     {
-      id:"exodus20", name:"Exodus 20", r:"Exodus 20", subtitle:"The ten words on the mount", after:"sinai", afterName:"Sinai", testament:"ot",
+      id:"exodus20", pace:2, name:"Exodus 20", r:"Exodus 20", subtitle:"The ten words on the mount", after:"sinai", afterName:"Sinai", testament:"ot",
       blanks:[
         { r:"Exodus 20:3", prefix:"Thou shalt have no other gods before", a:"me", suffix:".", d:["him","us","thee"] },
         { r:"Exodus 20:4", prefix:"Thou shalt not make unto thee any graven", a:"image", suffix:",", d:["idol","likeness","altar"] },
@@ -59,7 +59,7 @@
       ]
     },
     {
-      id:"deuteronomy6", name:"Deuteronomy 6", r:"Deuteronomy 6", subtitle:"Hear, O Israel", after:"nebo", afterName:"Nebo", testament:"ot",
+      id:"deuteronomy6", pace:1, name:"Deuteronomy 6", r:"Deuteronomy 6", subtitle:"Hear, O Israel", after:"nebo", afterName:"Nebo", testament:"ot",
       blanks:[
         { r:"Deuteronomy 6:4", prefix:"Hear, O Israel: The LORD our God is one", a:"LORD", suffix:":", d:["God","King","Name"] },
         { r:"Deuteronomy 6:5", prefix:"And thou shalt love the LORD thy God with all thine heart, and with all thy soul, and with all thy", a:"might", suffix:".", d:["mind","strength","spirit"] },
@@ -72,7 +72,7 @@
       ]
     },
     {
-      id:"joshua1", name:"Joshua 1", r:"Joshua 1", subtitle:"Be strong and of a good courage", after:"gilgal", afterName:"Gilgal", testament:"ot",
+      id:"joshua1", pace:1, name:"Joshua 1", r:"Joshua 1", subtitle:"Be strong and of a good courage", after:"gilgal", afterName:"Gilgal", testament:"ot",
       blanks:[
         { r:"Joshua 1:2", prefix:"Moses my servant is dead; now therefore arise, go over this Jordan, thou, and all this people, unto the land which I do give to them, even to the children of", a:"Israel", suffix:".", d:["Abraham","Jacob","Judah"] },
         { r:"Joshua 1:5", prefix:"There shall not any man be able to stand before thee all the days of thy life: as I was with Moses, so I will be with", a:"thee", suffix:":", d:["you","him","us"] },
@@ -85,7 +85,7 @@
       ]
     },
     {
-      id:"psalm51", name:"Psalm 51", r:"Psalm 51", subtitle:"Create in me a clean heart", after:"jerusalem", afterName:"Jerusalem", testament:"ot",
+      id:"psalm51", pace:3, name:"Psalm 51", r:"Psalm 51", subtitle:"Create in me a clean heart", after:"jerusalem", afterName:"Jerusalem", testament:"ot",
       blanks:[
         { r:"Psalm 51:1", prefix:"Have mercy upon me, O God, according to thy lovingkindness: according unto the multitude of thy tender mercies blot out my", a:"transgressions", suffix:".", d:["iniquities","sins","offences"] },
         { r:"Psalm 51:2", prefix:"Wash me throughly from mine iniquity, and cleanse me from my", a:"sin", suffix:".", d:["guilt","stain","shame"] },
@@ -100,7 +100,7 @@
       ]
     },
     {
-      id:"proverbs3", name:"Proverbs 3", r:"Proverbs 3", subtitle:"Trust in the LORD with all thine heart", after:"shiloh", afterName:"Shiloh", testament:"ot",
+      id:"proverbs3", pace:2, name:"Proverbs 3", r:"Proverbs 3", subtitle:"Trust in the LORD with all thine heart", after:"shiloh", afterName:"Shiloh", testament:"ot",
       blanks:[
         { r:"Proverbs 3:5", prefix:"Trust in the LORD with all thine", a:"heart", suffix:";", d:["soul","mind","might"] },
         { r:"Proverbs 3:5", prefix:"and lean not unto thine own", a:"understanding", suffix:".", d:["wisdom","strength","counsel"] },
@@ -113,7 +113,7 @@
       ]
     },
     {
-      id:"isaiah53", name:"Isaiah 53", r:"Isaiah 53", subtitle:"He is despised and rejected of men", after:"lachish", afterName:"Lachish", testament:"ot",
+      id:"isaiah53", pace:3, name:"Isaiah 53", r:"Isaiah 53", subtitle:"He is despised and rejected of men", after:"lachish", afterName:"Lachish", testament:"ot",
       blanks:[
         { r:"Isaiah 53:3", prefix:"He is despised and rejected of men; a man of sorrows, and acquainted with", a:"grief", suffix:":", d:["pain","shame","death"] },
         { r:"Isaiah 53:4", prefix:"Surely he hath borne our griefs, and carried our", a:"sorrows", suffix:":", d:["sins","pains","burdens"] },
@@ -128,7 +128,7 @@
       ]
     },
     {
-      id:"daniel6", name:"Daniel 6", r:"Daniel 6", subtitle:"My God hath sent his angel", after:"babylon", afterName:"Babylon", testament:"ot",
+      id:"daniel6", pace:3, name:"Daniel 6", r:"Daniel 6", subtitle:"My God hath sent his angel", after:"babylon", afterName:"Babylon", testament:"ot",
       blanks:[
         { r:"Daniel 6:10", prefix:"Now when Daniel knew that the writing was signed, he went into his house; and his windows being open in his chamber toward Jerusalem, he kneeled upon his knees three times a day, and prayed, and gave thanks before his", a:"God", suffix:",", d:["King","Lord","Father"] },
         { r:"Daniel 6:16", prefix:"Then the king commanded, and they brought Daniel, and cast him into the den of", a:"lions", suffix:".", d:["beasts","fire","stone"] },
@@ -141,7 +141,7 @@
       ]
     },
     {
-      id:"luke2", name:"Luke 2", r:"Luke 2", subtitle:"For unto you is born this day", after:"bethlehem", afterName:"Bethlehem", testament:"nt",
+      id:"luke2", pace:1, name:"Luke 2", r:"Luke 2", subtitle:"For unto you is born this day", after:"bethlehem", afterName:"Bethlehem", testament:"nt",
       blanks:[
         { r:"Luke 2:7", prefix:"And she brought forth her firstborn son, and wrapped him in swaddling clothes, and laid him in a", a:"manger", suffix:";", d:["crib","bed","stall"] },
         { r:"Luke 2:10", prefix:"And the angel said unto them, Fear not: for, behold, I bring you good tidings of great", a:"joy", suffix:",", d:["peace","hope","glory"] },
@@ -156,7 +156,7 @@
       ]
     },
     {
-      id:"john3", name:"John 3", r:"John 3", subtitle:"Ye must be born again", after:"jordan", afterName:"Jordan", testament:"nt",
+      id:"john3", pace:1, name:"John 3", r:"John 3", subtitle:"Ye must be born again", after:"jordan", afterName:"Jordan", testament:"nt",
       blanks:[
         { r:"John 3:3", prefix:"Jesus answered and said unto him, Verily, verily, I say unto thee, Except a man be born again, he cannot see the kingdom of", a:"God", suffix:".", d:["heaven","man","light"] },
         { r:"John 3:5", prefix:"Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of", a:"God", suffix:".", d:["heaven","man","life"] },
@@ -169,7 +169,7 @@
       ]
     },
     {
-      id:"matthew5", name:"Matthew 5", r:"Matthew 5", subtitle:"Blessed are the poor in spirit", after:"capernaum", afterName:"Capernaum", testament:"nt",
+      id:"matthew5", pace:2, name:"Matthew 5", r:"Matthew 5", subtitle:"Blessed are the poor in spirit", after:"capernaum", afterName:"Capernaum", testament:"nt",
       blanks:[
         { r:"Matthew 5:3", prefix:"Blessed are the poor in spirit: for theirs is the kingdom of", a:"heaven", suffix:".", d:["God","life","peace"] },
         { r:"Matthew 5:4", prefix:"Blessed are they that mourn: for they shall be", a:"comforted", suffix:".", d:["healed","kept","lifted"] },
@@ -184,7 +184,7 @@
       ]
     },
     {
-      id:"john14", name:"John 14", r:"John 14", subtitle:"I am the way, the truth, and the life", after:"capernaum", afterName:"Capernaum", testament:"nt",
+      id:"john14", pace:2, name:"John 14", r:"John 14", subtitle:"I am the way, the truth, and the life", after:"capernaum", afterName:"Capernaum", testament:"nt",
       blanks:[
         { r:"John 14:1", prefix:"Let not your heart be", a:"troubled", suffix:": ye believe in God, believe also in me.", d:["afraid","weary","moved"] },
         { r:"John 14:2", prefix:"In my Father's house are many", a:"mansions", suffix:":", d:["rooms","places","thrones"] },
@@ -199,7 +199,7 @@
       ]
     },
     {
-      id:"matthew28", name:"Matthew 28", r:"Matthew 28", subtitle:"He is not here: for he is risen", after:"golgotha", afterName:"Golgotha", testament:"nt",
+      id:"matthew28", pace:1, name:"Matthew 28", r:"Matthew 28", subtitle:"He is not here: for he is risen", after:"golgotha", afterName:"Golgotha", testament:"nt",
       blanks:[
         { r:"Matthew 28:5", prefix:"And the angel answered and said unto the women, Fear not ye: for I know that ye seek Jesus, which was", a:"crucified", suffix:".", d:["buried","slain","taken"] },
         { r:"Matthew 28:6", prefix:"He is not here: for he is risen, as he", a:"said", suffix:".", d:["spake","promised","told"] },
@@ -212,7 +212,7 @@
       ]
     },
     {
-      id:"acts2", name:"Acts 2", r:"Acts 2", subtitle:"And they were all filled with the Holy Ghost", after:"emmaus", afterName:"Emmaus", testament:"nt",
+      id:"acts2", pace:2, name:"Acts 2", r:"Acts 2", subtitle:"And they were all filled with the Holy Ghost", after:"emmaus", afterName:"Emmaus", testament:"nt",
       blanks:[
         { r:"Acts 2:1", prefix:"And when the day of Pentecost was fully come, they were all with one accord in one", a:"place", suffix:".", d:["house","mind","spirit"] },
         { r:"Acts 2:2", prefix:"And suddenly there came a sound from heaven as of a rushing mighty", a:"wind", suffix:",", d:["fire","voice","cloud"] },
@@ -227,7 +227,7 @@
       ]
     },
     {
-      id:"ephesians2", name:"Ephesians 2", r:"Ephesians 2", subtitle:"For by grace are ye saved through faith", after:"ephesus", afterName:"Ephesus", testament:"nt",
+      id:"ephesians2", pace:3, name:"Ephesians 2", r:"Ephesians 2", subtitle:"For by grace are ye saved through faith", after:"ephesus", afterName:"Ephesus", testament:"nt",
       blanks:[
         { r:"Ephesians 2:1", prefix:"And you hath he quickened, who were dead in trespasses and", a:"sins", suffix:";", d:["debts","works","flesh"] },
         { r:"Ephesians 2:4", prefix:"But God, who is rich in mercy, for his great love wherewith he loved", a:"us", suffix:",", d:["you","them","me"] },
@@ -240,7 +240,7 @@
       ]
     },
     {
-      id:"corinthians13", name:"1 Corinthians 13", r:"1 Corinthians 13", subtitle:"And now abideth faith, hope, charity", after:"corinth", afterName:"Corinth", testament:"nt",
+      id:"corinthians13", pace:3, name:"1 Corinthians 13", r:"1 Corinthians 13", subtitle:"And now abideth faith, hope, charity", after:"corinth", afterName:"Corinth", testament:"nt",
       blanks:[
         { r:"1 Corinthians 13:1", prefix:"Though I speak with the tongues of men and of angels, and have not charity, I am become as sounding brass, or a tinkling", a:"cymbal", suffix:".", d:["bell","drum","harp"] },
         { r:"1 Corinthians 13:2", prefix:"And though I have the gift of prophecy, and understand all mysteries, and all knowledge; and though I have all faith, so that I could remove mountains, and have not charity, I am", a:"nothing", suffix:".", d:["empty","vain","lost"] },
@@ -255,7 +255,7 @@
       ]
     },
     {
-      id:"romans8", name:"Romans 8", r:"Romans 8", subtitle:"There is therefore now no condemnation", after:"rome", afterName:"Rome", testament:"nt",
+      id:"romans8", pace:3, name:"Romans 8", r:"Romans 8", subtitle:"There is therefore now no condemnation", after:"rome", afterName:"Rome", testament:"nt",
       blanks:[
         { r:"Romans 8:1", prefix:"There is therefore now no condemnation to them which are in Christ Jesus, who walk not after the flesh, but after the", a:"Spirit", suffix:".", d:["truth","word","law"] },
         { r:"Romans 8:14", prefix:"For as many as are led by the Spirit of God, they are the sons of", a:"God", suffix:".", d:["light","Abraham","heaven"] },
@@ -270,7 +270,7 @@
       ]
     },
     {
-      id:"revelation21", name:"Revelation 21", r:"Revelation 21", subtitle:"And I saw a new heaven and a new earth", after:"patmos", afterName:"Patmos", testament:"nt",
+      id:"revelation21", pace:3, name:"Revelation 21", r:"Revelation 21", subtitle:"And I saw a new heaven and a new earth", after:"patmos", afterName:"Patmos", testament:"nt",
       blanks:[
         { r:"Revelation 21:1", prefix:"And I saw a new heaven and a new", a:"earth", suffix:":", d:["world","city","sea"] },
         { r:"Revelation 21:1", prefix:"for the first heaven and the first earth were passed away; and there was no more", a:"sea", suffix:".", d:["night","death","pain"] },
