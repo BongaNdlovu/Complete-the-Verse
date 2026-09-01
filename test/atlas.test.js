@@ -420,8 +420,10 @@ function walkTo(P, n){
   const icons = a.log.icons.filter(i => (i.className || "").indexOf("traveler") >= 0);
   ok("setTraveler draws a traveler icon", icons.length > 0);
   const html = (icons[icons.length - 1] && icons[icons.length - 1].html) || "";
-  ok("the idle sprite is the chosen scholar", html.indexOf("assets/characters/elias/idle.png") >= 0, html.slice(0, 180));
-  ok("the walk sprite is the chosen scholar", html.indexOf("assets/characters/elias/walk.png") >= 0);
+  /* The sprite rides in a CSS custom property that css/atlas.css consumes,
+     so its url resolves against css/ — the injected path must climb out. */
+  ok("the idle sprite is the chosen scholar", html.indexOf("../assets/characters/elias/idle.png") >= 0, html.slice(0, 180));
+  ok("the walk sprite is the chosen scholar", html.indexOf("../assets/characters/elias/walk.png") >= 0);
   ok("the old face overlay is gone", html.indexOf("traveler-face") < 0);
 
   a.Atlas.setTraveler({
@@ -434,7 +436,7 @@ function walkTo(P, n){
   a.Atlas.setTraveler(null);
   const html3 = a.log.icons.filter(i => (i.className || "").indexOf("traveler") >= 0).pop().html;
   ok("clearing the spec falls back to the default traveler",
-    html3.indexOf("assets/traveler/idle.png") >= 0);
+    html3.indexOf("../assets/traveler/idle.png") >= 0);
 }
 
 /* ---------- an untouched map does no work ---------- */

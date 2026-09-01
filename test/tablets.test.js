@@ -76,6 +76,8 @@ p23.blanks.concat(p91.blanks).forEach(function(blank){
 ok("Psalm 23 is unlocked", Tablets.unlocked("psalm23", {}));
 ok("Psalm 91 locked until Hold", !Tablets.unlocked("psalm91", { tablets:{ psalm23:{ held:false } } }));
 ok("Psalm 91 opens after Hold", Tablets.unlocked("psalm91", { tablets:{ psalm23:{ held:true } } }));
+eq("next after 23 is 91 once held", Tablets.nextPlayable("psalm23", { tablets:{ psalm23:{ held:true } } }).id, "psalm91");
+ok("no next after 23 until Hold", !Tablets.nextPlayable("psalm23", {}));
 ok("John 1 locked until Psalm 91 Hold", !Tablets.unlocked("john1", { tablets:{ psalm23:{ held:true }, psalm91:{ held:false } } }));
 ok("John 1 opens after Psalm 91 Hold", Tablets.unlocked("john1", { tablets:{ psalm23:{ held:true }, psalm91:{ held:true } } }));
 eq("John 1 has 51 blanks", Tablets.chapter("john1").blanks.length, 51);
@@ -123,6 +125,8 @@ ok("no Google Fonts", !/fonts\.googleapis/.test(src));
 ok("current line wraps as ordinary text", /\.tablets-current\{[^}]*display:\s*block/.test(src));
 ok("blank sits in the line", /\.tablets-blank\{[^}]*inline-flex/.test(src));
 ok("pause overlay is in the view", html.indexOf('id="tablets-pause"') >= 0);
+ok("the manuscript can roll", html.indexOf('id="tablets-roll"') >= 0);
+ok("the manuscript clips instead of scrolling by hand", /\.tablets-ms\{[^}]*overflow:\s*hidden/.test(src));
 ok("no hear control", html.indexOf('id="tablets-hear"') < 0);
 ok("illuminate control is in the view", html.indexOf('id="tablets-illum"') >= 0);
 ok("remaining counter is in the view", html.indexOf('id="tablets-remain"') >= 0);
@@ -160,6 +164,11 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   eq("unique Hold counted once", read(sb, "SAVE.life.tabletHolds"), 1);
   eq("best is 100", read(sb, "SAVE.best.tablets"), 100);
   eq("91 unlocked after Psalm 23 Hold", read(sb, "Tablets.unlocked('psalm91', SAVE)"), true);
+  eq("next challenge is Psalm 91", read(sb, "$('res-next').textContent"), "Next · Psalm 91");
+  eq("next challenge is shown", read(sb, "$('res-next').style.display !== 'none'"), true);
+  exec(sb, "$('res-next').onclick()");
+  eq("next challenge starts Psalm 91", read(sb, "R.tabletChapter"), "psalm91");
+  eq("next challenge is in the Hold", read(sb, "currentView"), "tablets");
   eq("XP paid", read(sb, "SAVE.xp > 0"), true);
 }
 
@@ -172,6 +181,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   eq("91 stays locked", read(sb, "SAVE.tablets.psalm23.held"), false);
   eq("kick is shatter", read(sb, "$('res-kick').textContent"), "The tablet shattered");
   eq("retry stays Carve again", read(sb, "$('res-retry').textContent"), "Carve again");
+  eq("shatter hides next challenge", read(sb, "$('res-next').style.display"), "none");
 }
 
 {
@@ -278,10 +288,20 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 
 {
   const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  eq("the sheet rests at the mark", read(sb, "$('tablets-roll').style.transform"), "translateY(0px)");
+  exec(sb, "R.tabletProgress = 0.5; alignTabletsSheet()");
+  ok("the sheet rolls with the clock", /translateY\(-/.test(read(sb, "$('tablets-roll').style.transform")));
+}
+
+{
+  const sb = boot();
   exec(sb, "SAVE.set.tabletsTutorialDone = true; openBrief('tablets')");
   eq("brief view open", read(sb, "currentView"), "brief");
-  ok("no tablets-lv chips in brief reading list", read(sb, "!$('brief-tablets-pick').innerHTML.includes('tablets-lv')"));
-  ok("brief includes Pace I section", read(sb, "!!$('brief-tablets-pick').querySelector('.tablets-pace-head')"));
+  /* The reading list is one column of pace groups: prayer + I + II + III. */
+  eq("brief has prayer + three pace sections", read(sb, "$('brief-tablets-pick').children.length"), 4);
+  eq("first section is the prayer", read(sb, "$('brief-tablets-pick').children[0].children[0].textContent"), "The prayer");
+  ok("no per-level chips in the brief", !/tablets-lv/.test(fs.readFileSync(path.join(ROOT, "js", "briefs.js"), "utf8")));
 }
 
 if (fail) {

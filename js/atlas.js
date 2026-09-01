@@ -302,9 +302,17 @@ var Atlas = (function () {
     }
   }
 
+  /* The vars are consumed inside css/atlas.css, and browsers resolve url()
+     inside a custom property against the sheet that USES the var — so a
+     page-relative sprite path must climb out of css/ or the sprite 404s. */
+  function sheetRelative(path) {
+    var p = String(path || "");
+    if (/^(data:|https?:|\/|\.\.\/)/.test(p)) return p;
+    return "../" + p;
+  }
   function walkerCssVars() {
-    var idle = travelerIdle || "assets/traveler/idle.png";
-    var walk = travelerWalk || "assets/traveler/walk.png";
+    var idle = sheetRelative(travelerIdle || "assets/traveler/idle.png");
+    var walk = sheetRelative(travelerWalk || "assets/traveler/walk.png");
     return "--walker-idle:url('" + esc(idle) + "');--walker-walk:url('" + esc(walk) + "')";
   }
 
