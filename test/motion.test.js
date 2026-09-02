@@ -16,10 +16,11 @@ function assert(cond, msg) { if (!cond) fails.push(msg); }
 
 const gameCss = fs.readFileSync(path.join(ROOT, "css", "game.css"), "utf8") + "\n" + fs.readFileSync(path.join(ROOT, "css", "play.css"), "utf8");
 const atlasCss = fs.readFileSync(path.join(ROOT, "css", "atlas.css"), "utf8");
+const tabletsCss = fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8");
 const { readEngine } = require("../scripts/engine-source");
 const game = readEngine(ROOT);
 const atlas = fs.readFileSync(path.join(ROOT, "js", "atlas.js"), "utf8");
-const css = gameCss + "\n" + atlasCss;
+const css = gameCss + "\n" + atlasCss + "\n" + tabletsCss;
 
 /* --- overlays fade; they do not snap display --- */
 const overlays = [
@@ -139,7 +140,9 @@ const reducedHooks = [
   [".ring.crit", "ring pulse"],
   [".verse-stage:after", "trial sweep"],
   [".play-candle", "play candle flame"],
-  [".menu-signin", "menu sign-in pulse"]
+  [".menu-signin", "menu sign-in pulse"],
+  ["#tablets-fx", "tablets canvas fx"],
+  [".tablets-flying-word", "tablets flying word"]
 ];
 const reducedSelectors = [...css.matchAll(/body\.reduced[^{]*\{/g)].map((m) => m[0]);
 reducedHooks.forEach(([hook, name]) => {

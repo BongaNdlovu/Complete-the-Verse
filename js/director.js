@@ -282,6 +282,9 @@ const Director = (function(){
   }
   function tabletEnding(){
     const held = typeof Tablets!=="undefined" && Tablets.held(R);
+    if(R && R.tabletTimeout){
+      return {key:"defeated",title:"The Tablet Shattered",copy:"The sand ran out. The blank stayed empty when the Hold closed.",voice:"The tablet shattered. The word remains to be learned."};
+    }
     return held
       ? {key:"perfect",title:"The Hold Stands",copy:"Every word is carved. The next chapter opens.",voice:"The hold stands. The next chapter is open."}
       : {key:"defeated",title:"The Tablet Shattered",copy:"The missing word is shown. Carry it into your next carving.",voice:"The tablet shattered. The word remains to be learned."};

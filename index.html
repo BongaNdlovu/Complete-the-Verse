@@ -370,41 +370,59 @@
   </section>
 
   <section class="view" id="v-tablets" aria-label="Word Tablets">
+    <div id="tablets-aura"></div>
     <div class="tablets-wrap">
       <header class="tablets-top">
         <div class="tablets-chip">
           <b id="tablets-chapter">Psalm 23</b>
           <span id="tablets-sub">The LORD is my shepherd</span>
         </div>
+        <div class="tablets-tier" id="tablets-tier">
+          <span id="tablets-tier-name">DEVOTED</span>
+          <span class="tablets-mult" id="tablets-mult">1.0×</span>
+        </div>
         <div class="tablets-stats">
           <div class="tablets-stat"><b id="tablets-remain">1 / 11</b><span>Tablet</span></div>
           <div class="tablets-stat"><b id="tablets-streak">0</b><span>Streak</span></div>
+          <div class="tablets-stat"><b id="tablets-favor">0</b><span>Favor</span></div>
           <div class="tablets-stat"><b id="tablets-best">0%</b><span>Best</span></div>
         </div>
         <div class="tablets-actions">
+          <button type="button" class="tablets-iconbtn" id="tablets-theme">Stone</button>
           <button type="button" class="tablets-iconbtn" id="tablets-pause-btn">Pause</button>
           <button type="button" class="tablets-iconbtn" id="tablets-quit">Quit</button>
         </div>
       </header>
       <div class="tablets-stage" id="tablets-stage">
+        <canvas id="tablets-fx"></canvas>
         <aside class="tablets-ground" id="tablets-ground">
-          <i class="tablets-walker-sprite" id="tablets-walker-sprite" aria-hidden="true"></i>
-          <div class="tablets-place-card">
-            <span class="tablets-place-kicker" id="tablets-place-kicker">The tablet</span>
-            <b id="tablets-place">The Hall</b>
-            <span id="tablets-place-sub"></span>
+          <div class="tablets-scene-img">
+            <i class="tablets-walker-sprite" id="tablets-walker-sprite" aria-hidden="true"></i>
           </div>
+          <span class="tablets-place-kicker" id="tablets-place-kicker">The tablet</span>
+          <b id="tablets-place">The Hall</b>
+          <span id="tablets-place-sub"></span>
         </aside>
         <div class="tablets-ms" id="tablets-ms">
+          <div class="tablets-fracture" id="tablets-fracture"></div>
           <div class="tablets-ref-pill" id="tablets-ref">Psalm 23:1</div>
-          <div class="tablets-tut-callout" id="tablets-tut-callout" hidden></div>
-          <div class="tablets-roll" id="tablets-roll"></div>
-          <div class="tablets-laser tablets-laser-entry" aria-hidden="true"><i></i><span>The Hand</span></div>
-          <div class="tablets-laser tablets-laser-mark" aria-hidden="true"><i></i><span>The Mark</span></div>
-          <div class="tablets-clock" aria-label="Time remaining">
-            <i class="tablets-clock-fill" id="tablets-clock-fill"></i>
+          <div class="tablets-mark-row" aria-hidden="true">
+            <span class="tablets-mark-line"></span>
+            <span class="tablets-mark">The Mark</span>
+            <span class="tablets-mark-line"></span>
           </div>
-          <div class="tablets-clock-lab" id="tablets-clock-lab">6.5s</div>
+          <div class="tablets-slot" id="tablets-slot">— — —</div>
+          <p class="tablets-verse" id="tablets-verse"></p>
+          <div class="tablets-tut-callout" id="tablets-tut-callout" hidden></div>
+          <div class="tablets-sand">
+            <div class="tablets-sand-row">
+              <span>Molten sand</span>
+              <b class="tablets-clock-lab" id="tablets-clock-lab">40.0s</b>
+            </div>
+            <div class="tablets-clock" aria-label="Time remaining">
+              <i class="tablets-clock-fill" id="tablets-clock-fill"></i>
+            </div>
+          </div>
         </div>
         <figure class="tablets-companion" id="tablets-companion" hidden>
           <div class="tablets-companion-aura"></div>
@@ -413,24 +431,37 @@
         </figure>
       </div>
       <div class="tablets-tray">
-        <div class="tablets-tray-lab">Choose the missing word</div>
+        <div class="tablets-tray-lab"><span class="tablets-orn"></span>Choose the missing word<span class="tablets-orn"></span></div>
         <div class="tablets-grid" id="tablets-grid"></div>
         <div class="tablets-tray-tools">
-          <span class="tablets-lamps" id="tablets-lamps">Lamps ×2</span>
-          <button type="button" class="tablets-power" id="tablets-illum">Illuminate ×1</button>
-          <button type="button" class="tablets-power" id="tablets-winnow">Winnow ×2</button>
-          <span class="tablets-keys-hint">Keys 1–4 · I · W</span>
+          <span class="tablets-lamps" id="tablets-lamps">Lamps ×<b id="tablets-lamps-n">2</b></span>
+          <button type="button" class="tablets-power" id="tablets-illum">Illuminate ×<b id="tablets-illum-n">1</b><i class="tablets-hotkey">I</i></button>
+          <button type="button" class="tablets-power" id="tablets-winnow">Winnow ×<b id="tablets-winnow-n">2</b><i class="tablets-hotkey">W</i></button>
+          <button type="button" class="tablets-surge" id="tablets-surge">
+            <span>Surge</span>
+            <i class="tablets-surge-track"><b class="tablets-surge-fill" id="tablets-surge-fill"></b></i>
+            <em id="tablets-surge-status">0%</em>
+            <i class="tablets-hotkey">S</i>
+          </button>
+          <span class="tablets-keys-hint">1–4 · I · W · S</span>
         </div>
       </div>
       <footer class="tablets-foot">
         <div class="tablets-hold">Two lamps guard the Hold</div>
-        <div class="tablets-pips" id="tablets-pips" aria-hidden="true"></div>
-        <div class="tablets-track">
+        <div class="tablets-track" id="tablets-track">
           <i class="tablets-fill" id="tablets-fill"></i>
           <i class="tablets-ghost" id="tablets-ghost" hidden></i>
+          <div class="tablets-pips" id="tablets-pips" aria-hidden="true"></div>
         </div>
         <div class="tablets-pct" id="tablets-pct">0%</div>
       </footer>
+      <div class="tablets-blessing" id="tablets-blessing">
+        <b id="tablets-blessing-icon">M</b>
+        <span>
+          <i>Celestial visitation</i>
+          <em id="tablets-blessing-text">Manna Jar Discovered (+15s)</em>
+        </span>
+      </div>
       <div id="tablets-pause" class="tablets-pause" hidden>
         <div class="tablets-pause-card">
           <div class="kick">Paused</div>

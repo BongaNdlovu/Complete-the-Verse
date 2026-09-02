@@ -368,7 +368,7 @@ function tabletsBriefChapter(ch){
   const rec = Tablets.recordOf(SAVE, ch.id);
   sub.textContent = locked
     ? (Tablets.unlockLabel ? Tablets.unlockLabel(ch.id, SAVE) : "Locked")
-    : (ch.blanks.length + " blanks · " + (Tablets.levelName ? Tablets.levelName(ch.pace || 1) : ch.pace || 1));
+    : (ch.blanks.length + " blanks · Pace " + (Tablets.levelName ? Tablets.levelName(ch.pace || 1) : ch.pace || 1) + " · " + ((Tablets.clockS && Tablets.clockS(ch.pace || 1)) || 40) + "s");
   const best = document.createElement("i");
   best.className = "tablets-ch-best";
   best.textContent = locked ? "·" : (rec.best || 0) + "%";
