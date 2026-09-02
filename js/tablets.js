@@ -101,16 +101,14 @@ const Tablets = (function(){
     {
       id:"prayer", name:"The Lord's Prayer", r:"Matthew 6:9-13", subtitle:"After this manner therefore pray ye", tutorial:true,
       blanks:[
-        { r:"Matthew 6:9", prefix:"After this manner therefore pray ye: Our", a:"Father", suffix:"which art in heaven,", d:["Master","King","Lord"] },
-        { r:"Matthew 6:9", prefix:"Hallowed be thy", a:"name", suffix:".", d:["word","throne","glory"] },
-        { r:"Matthew 6:9", prefix:"Our Father which art in", a:"heaven", suffix:", Hallowed be thy name.", d:["earth","glory","Zion"] },
-        { r:"Matthew 6:10", prefix:"Thy", a:"kingdom", suffix:"come.", d:["power","church","spirit"] },
-        { r:"Matthew 6:10", prefix:"Thy", a:"will", suffix:"be done in earth, as it is in heaven.", d:["word","law","work"] },
-        { r:"Matthew 6:11", prefix:"Give us this day our daily", a:"bread", suffix:".", d:["meat","water","wine"] },
-        { r:"Matthew 6:12", prefix:"And forgive us our", a:"debts", suffix:", as we forgive our debtors.", d:["sins","trespass","faults"] },
-        { r:"Matthew 6:13", prefix:"And lead us not into", a:"temptation", suffix:",", d:["darkness","trial","sorrow"] },
-        { r:"Matthew 6:13", prefix:"but deliver us from", a:"evil", suffix:":", d:["death","fear","wrath"] },
-        { r:"Matthew 6:13", prefix:"For thine is the kingdom, and the power, and the glory, for ever.", a:"Amen", suffix:".", d:["Yea","Selah","Peace"] }
+        { r:"Matthew 6:9", prefix:"Our", a:"Father", suffix:"which art in heaven, Hallowed be thy name.", d:["Master","Maker","Lord"] },
+        { r:"Matthew 6:9", prefix:"Our Father which art in heaven, Hallowed be thy", a:"name", suffix:".", d:["glory","word","throne"] },
+        { r:"Matthew 6:10", prefix:"Thy", a:"kingdom", suffix:"come. Thy will be done in earth, as it is in heaven.", d:["power","glory","spirit"] },
+        { r:"Matthew 6:10", prefix:"Thy kingdom come. Thy", a:"will", suffix:"be done in earth, as it is in heaven.", d:["word","law","peace"] },
+        { r:"Matthew 6:11", prefix:"Give us this day our daily", a:"bread", suffix:".", d:["portion","manna","food"] },
+        { r:"Matthew 6:12", prefix:"And forgive us our debts, as we forgive our", a:"debtors", suffix:".", d:["enemies","brothers","neighbors"] },
+        { r:"Matthew 6:13", prefix:"And lead us not into temptation, but deliver us from", a:"evil", suffix:":", d:["darkness","sin","trouble"] },
+        { r:"Matthew 6:13", prefix:"For thine is the kingdom, and the power, and the", a:"glory", suffix:", for ever. Amen.", d:["honor","praise","might"] }
       ]
     }
   ];

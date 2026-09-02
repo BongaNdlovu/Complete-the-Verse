@@ -138,7 +138,8 @@ const reducedHooks = [
   [".smoke-wisp", "smoke"],
   [".ring.crit", "ring pulse"],
   [".verse-stage:after", "trial sweep"],
-  [".play-candle", "play candle flame"]
+  [".play-candle", "play candle flame"],
+  [".menu-signin", "menu sign-in pulse"]
 ];
 const reducedSelectors = [...css.matchAll(/body\.reduced[^{]*\{/g)].map((m) => m[0]);
 reducedHooks.forEach(([hook, name]) => {

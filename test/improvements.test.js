@@ -43,6 +43,8 @@ assert(/blitz:\s*\{\s*key:"blitz"/.test(game), "Scripture Blitz mode defined");
 assert(/trial:\{ key:"trial"/.test(game), "trial mode defined");
 assert(!/trial:\{ key:"trial"[^}]*hidden:true/.test(game), "trial is on the menu");
 assert(/id="cloud-chip"/.test(index), "cloud status chip");
+assert(/id="menu-signin"/.test(index), "menu offers sign in");
+assert(/@keyframes menuSignPulse/.test(css), "sign-in button pulsates");
 assert(/id="offline-banner"/.test(index), "offline banner");
 assert(/id="res-board"/.test(index), "results leaderboard host");
 assert(/id="res-insights"/.test(index), "insights host");

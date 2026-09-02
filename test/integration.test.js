@@ -543,6 +543,18 @@ read(sb, "invalidateRun();");
   ok("cloud-chip omits Honor system when via edge", read(s, "document.getElementById('cloud-chip').textContent.indexOf('Honor system') < 0"));
 }
 
+{
+  const s = boot();
+  read(s, "Cloud = { configured: ()=>true, isSignedIn: ()=>false, initLazy: ()=>Promise.resolve({ok:true}), signInWithEmail: ()=>Promise.resolve({ok:true, reason:'sent'}), authNotice: ()=>'Check your email for the sign-in link.' };");
+  read(s, "updateCloudChip();");
+  ok("guest sees Sign in on the menu", read(s, "!document.getElementById('menu-signin').hidden"));
+  read(s, "document.getElementById('menu-signin').click()");
+  ok("Sign in opens the email form", read(s, "!document.getElementById('menu-signin-form').hidden"));
+  ok("Sign in tucks away once the form is open", read(s, "!!document.getElementById('menu-signin').hidden"));
+  read(s, "Cloud.isSignedIn = ()=>true; Cloud.profile = ()=>({display_name:'Pilgrim'}); Cloud.lastSubmitVia = ()=>'edge'; updateCloudChip();");
+  ok("signed-in hides Sign in", read(s, "!!document.getElementById('menu-signin').hidden"));
+}
+
 /* ---------- tutorial CTA is Walk to Ur and routes to atlas ---------- */
 {
   const s = boot();

@@ -168,29 +168,77 @@ function openCharacterPicker(force){
 
 
 /* ------------------------- MENU ------------------------- */
-function updateCloudChip(){
-  const el = $("cloud-chip");
-  if(!el) return;
-  if(typeof Cloud==="undefined" || !Cloud.configured()){
-    el.textContent = "Local only"; el.className = "cloud-chip dim"; return;
-  }
-  if(typeof navigator !== "undefined" && navigator.onLine === false){
-    el.textContent = "Offline"; el.className = "cloud-chip warn"; return;
-  }
-  if(typeof Cloud.isSyncing === "function" && Cloud.isSyncing()){
-    el.textContent = "Syncing…"; el.className = "cloud-chip syncing"; return;
-  }
-  if(typeof Cloud.lastError === "function" && Cloud.lastError()){
-    el.textContent = "Sync error"; el.className = "cloud-chip warn";
-    el.title = Cloud.lastError();
+function paintMenuSignin(){
+  const btn = $("menu-signin");
+  const form = $("menu-signin-form");
+  const guest = typeof Cloud!=="undefined" && Cloud.configured() && !Cloud.isSignedIn();
+  const formOpen = !!(form && !form.hidden);
+  if(btn) btn.hidden = !guest || formOpen;
+  if(form && !guest) form.hidden = true;
+}
+function sendMenuSignIn(){
+  const email = ($("menu-email") && $("menu-email").value || "").trim();
+  if(!email){ if(typeof toast==="function") toast("Enter an email address"); return; }
+  if(typeof Cloud==="undefined" || !Cloud.signInWithEmail){
+    if(typeof toast==="function") toast("Cloud is not available");
     return;
   }
-  if(Cloud.isSignedIn()){
-    const who = (Cloud.profile() && Cloud.profile().display_name) || "Synced";
-    const trust = (typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct") ? " (Honor system)" : "";
-    el.textContent = "☁ "+who+trust; el.className = "cloud-chip on"; return;
+  const send = $("menu-send-link");
+  if(send) send.disabled = true;
+  const done = function(res){
+    if(send) send.disabled = false;
+    if(typeof toast!=="function") return;
+    toast(Cloud.authNotice ? Cloud.authNotice(res && res.ok ? "sent" : (res && res.reason)) : (res && res.ok ? "Check your email for the sign-in link" : "Sign-in failed"));
+  };
+  const run = function(){ return Cloud.signInWithEmail(email).then(done); };
+  if(Cloud.initLazy) Cloud.initLazy().then(run).catch(function(){ done({ ok:false, reason:"unavailable" }); });
+  else run().catch(function(){ done({ ok:false, reason:"unavailable" }); });
+}
+function bindMenuSignin(){
+  const btn = $("menu-signin");
+  const form = $("menu-signin-form");
+  if(btn && !btn._bound){
+    btn._bound = true;
+    btn.addEventListener("click", function(){
+      if(typeof Snd!=="undefined" && Snd.ui) Snd.ui();
+      if(!form) return;
+      form.hidden = false;
+      btn.hidden = true;
+      const email = $("menu-email");
+      if(email && email.focus) email.focus();
+    });
   }
-  el.textContent = "Cloud ready"; el.className = "cloud-chip";
+  if(form && !form._bound){
+    form._bound = true;
+    form.hidden = true;
+    form.addEventListener("submit", function(e){
+      if(e && e.preventDefault) e.preventDefault();
+      sendMenuSignIn();
+    });
+  }
+}
+function updateCloudChip(){
+  const el = $("cloud-chip");
+  if(el){
+    el.title = "";
+    if(typeof Cloud==="undefined" || !Cloud.configured()){
+      el.textContent = "Local only"; el.className = "cloud-chip dim";
+    } else if(typeof navigator !== "undefined" && navigator.onLine === false){
+      el.textContent = "Offline"; el.className = "cloud-chip warn";
+    } else if(typeof Cloud.isSyncing === "function" && Cloud.isSyncing()){
+      el.textContent = "Syncing…"; el.className = "cloud-chip syncing";
+    } else if(typeof Cloud.lastError === "function" && Cloud.lastError()){
+      el.textContent = "Sync error"; el.className = "cloud-chip warn";
+      el.title = Cloud.lastError();
+    } else if(Cloud.isSignedIn()){
+      const who = (Cloud.profile() && Cloud.profile().display_name) || "Synced";
+      const trust = (typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct") ? " (Honor system)" : "";
+      el.textContent = "☁ "+who+trust; el.className = "cloud-chip on";
+    } else {
+      el.textContent = "Cloud ready"; el.className = "cloud-chip";
+    }
+  }
+  paintMenuSignin();
 }
 function updateOfflineBanner(){
   const b = $("offline-banner");
@@ -398,6 +446,7 @@ function renderDiffs(){
     '<span class="stats">'+d.lives+' lamps · clock ×'+d.time.toFixed(2)+'</span></div>';
 }
 $("brief-start").addEventListener("click", ()=>{ Snd.unlock(); startRun(briefMode, SAVE.set.diff); });
+bindMenuSignin();
 const teamPick = $("brief-team-pick");
 if(teamPick) teamPick.addEventListener("click", function(e){
   const btn = e.target.closest("[data-team]");

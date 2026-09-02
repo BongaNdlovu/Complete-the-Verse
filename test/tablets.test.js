@@ -94,7 +94,7 @@ eq("48 Pace III playable chapters", Tablets.chapters.filter(c => !c.tutorial && 
 ok("hall stays off the road", Tablets.hall.every(function(c){ return !c.after && c.hall; }));
 ok("hall locked until John 1", !Tablets.unlocked("genesis3", { tablets:{ john1:{ held:false } } }));
 ok("hall opens after John 1 Hold", Tablets.unlocked("genesis3", { tablets:{ john1:{ held:true } } }));
-eq("prayer has 10 blanks", Tablets.chapter("prayer").blanks.length, 10);
+eq("prayer has 8 blanks", Tablets.chapter("prayer").blanks.length, 8);
 ok("prayer is unlocked", Tablets.unlocked("prayer", {}));
 
 Tablets.chapters.forEach(function(ch){
@@ -336,6 +336,16 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   eq("brief has prayer + three pace sections", read(sb, "$('brief-tablets-pick').children.length"), 4);
   eq("first section is the prayer", read(sb, "$('brief-tablets-pick').children[0].children[0].textContent"), "The prayer");
   ok("no per-level chips in the brief", !/tablets-lv/.test(fs.readFileSync(path.join(ROOT, "js", "briefs.js"), "utf8")));
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman',{tabletChapter:'prayer',tabletTutorial:true})");
+  eq("tutorial callout is visible", read(sb, "!$('tablets-tut-callout').hidden"), true);
+  ok("tutorial callout gives step guidance", read(sb, "$('tablets-tut-callout').textContent.includes('Father')"));
+  exec(sb, "tabletsPick('Father')");
+  ok("hit triggers just-placed class", read(sb, "$('tablets-line-0').children.some(c => c.classList.contains('just-placed'))"));
+  ok("score popup is rendered", read(sb, "$('tablets-ms').children.some(c => c.classList.contains('tablets-score-popup'))"));
 }
 
 if (fail) {

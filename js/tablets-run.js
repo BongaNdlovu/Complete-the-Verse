@@ -86,6 +86,95 @@ function paintTabletsClock(){
   const mark = $("tablets-laser-mark");
   if(mark) mark.classList.toggle("late", left < 0.3 && !tabletsUntimed());
 }
+function spawnTabletsScorePopup(text, slotEl){
+  const ms = $("tablets-ms");
+  if(!ms) return;
+  const popup = document.createElement("div");
+  popup.className = "tablets-score-popup";
+  popup.textContent = text;
+  if(slotEl){
+    const msRect = ms.getBoundingClientRect ? ms.getBoundingClientRect() : { left:0, top:0, width:500, height:400 };
+    const slotRect = slotEl.getBoundingClientRect ? slotEl.getBoundingClientRect() : { left:200, top:200, width:80, height:30 };
+    const left = slotRect.left + (slotRect.width || 0) / 2 - msRect.left;
+    const top = slotRect.top + (slotRect.height || 0) / 2 - msRect.top;
+    popup.style.left = Math.max(50, Math.min((ms.clientWidth || 500) - 50, left)) + "px";
+    popup.style.top = Math.max(30, Math.min((ms.clientHeight || 400) - 30, top)) + "px";
+  } else {
+    popup.style.left = "50%";
+    popup.style.top = "50%";
+  }
+  ms.appendChild(popup);
+  setTimeout(function(){
+    try{ popup.remove(); }catch(e){}
+  }, 900);
+}
+function tabletsPlayGoldChime(){
+  if(typeof Snd !== "undefined" && Snd.ctx){
+    try{
+      const ctx = Snd.ctx;
+      if(ctx.state === "suspended") ctx.resume();
+      const t = ctx.currentTime;
+      const freqs = [523.25, 659.25, 783.99, 1046.5];
+      freqs.forEach(function(f, i){
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.setValueAtTime(f, t);
+        const d = i * 0.025;
+        g.gain.setValueAtTime(0.001, t);
+        g.gain.setValueAtTime(0.18 / (i + 1), t + d);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.55);
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.start(t + d);
+        o.stop(t + d + 0.55);
+      });
+    }catch(e){}
+  }
+}
+function tabletsPlayDangerWarn(){
+  if(typeof Snd !== "undefined" && Snd.ctx){
+    try{
+      const ctx = Snd.ctx;
+      if(ctx.state === "suspended") ctx.resume();
+      const t = ctx.currentTime;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(220, t);
+      o.frequency.linearRampToValueAtTime(196, t + 0.09);
+      g.gain.setValueAtTime(0.09, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start(t);
+      o.stop(t + 0.09);
+    }catch(e){}
+  }
+}
+function paintTabletsTutorialCallout(){
+  const callout = $("tablets-tut-callout");
+  if(!callout) return;
+  if(!R || !R.tabletTutorial){
+    callout.hidden = true;
+    callout.textContent = "";
+    return;
+  }
+  const idx = R.tabletIdx || 0;
+  const prompts = [
+    "The Lord's Prayer · Tap the missing word 'Father' below (or press key 1–4)",
+    "The manuscript glides upward as each sacred word is engraved",
+    "In the true ordeal, the blank rises toward The Mark. Here, take all the time you need",
+    "If you ever need guidance on the road, use Illuminate to dim false stones",
+    "Or use Winnow to cast aside a decoy",
+    "Keep carving steadily — two lamps guard the Hold",
+    "Almost complete · Let no word be lost",
+    "Final word · Engrave it to seal your first Hold and open the Hall!"
+  ];
+  const msg = prompts[idx] || "Carve the missing word to complete the prayer.";
+  callout.textContent = msg;
+  callout.hidden = false;
+}
 function paintTabletsStage(answer){
   const ch = tabletsChapter();
   const i = R.tabletIdx || 0;
@@ -98,9 +187,21 @@ function paintTabletsStage(answer){
   });
   if(answer){
     const cur = $("tablets-line-" + i);
-    const carved = cur && cur.querySelector(".tablets-carved");
+    let carved = null;
+    if(cur){
+      if(cur.children){
+        for(let ci = 0; ci < cur.children.length; ci++){
+          if(cur.children[ci].className && cur.children[ci].className.includes("tablets-carved")){
+            carved = cur.children[ci];
+            break;
+          }
+        }
+      }
+      if(!carved && cur.querySelector) carved = cur.querySelector(".tablets-carved");
+    }
     if(carved){
       carved.classList.add("in");
+      if(answer === "hit") carved.classList.add("just-placed");
       if(answer === "miss") carved.classList.add("shattered");
     }
   }
@@ -120,13 +221,15 @@ function buildTabletsSheet(){
       roll.appendChild(line);
     });
   }
+  R.tabletLastY = null;
   paintTabletsStage();
   alignTabletsSheet(true);
 }
-/* The whole chapter rides the sheet. The blank rests at The Hand (78% of the
-   stone) and drifts up to The Mark (46%) as the clock runs — reach The Mark
-   and the tablet shatters. Line positions ride the same transform, so the
-   slot's offset inside the sheet is measured, not assumed. */
+/* Unidirectional Upward Glide:
+   The reading focal line rests comfortably at 62% of the viewport. As time
+   runs, the active blank glides steadily upward toward The Mark (38%).
+   When a word is solved, the transition to the next blank glides strictly
+   upward without bouncing down. */
 function alignTabletsSheet(instant){
   const roll = $("tablets-roll");
   if(!roll || !roll.style) return;
@@ -135,16 +238,22 @@ function alignTabletsSheet(instant){
   const handY = hostH * 0.78;
   const markY = hostH * 0.40;
   const progress = tabletsUntimed() ? 0 : Math.min(1, R.tabletProgress || 0);
-  const desiredY = handY - (handY - markY) * progress;
-  /* offsetTop ignores the live transform, so the sheet's resting offset is
-     measured cleanly no matter where the roll currently sits. */
+  const drift = (handY - markY) * progress;
   const rollTop = (roll.offsetTop != null) ? roll.offsetTop : 0;
   const slot = $("tablets-blank-" + (R.tabletIdx || 0));
   const slotTop = (slot && slot.offsetTop != null) ? slot.offsetTop : 0;
-  const t = "translateY(" + Math.round(desiredY - rollTop - slotTop) + "px)";
+  let targetY = (handY - rollTop - slotTop) - drift;
+
+  if(!instant && R.tabletLastY != null){
+    targetY = Math.min(targetY, R.tabletLastY);
+  }
+  R.tabletLastY = targetY;
+
+  const t = "translateY(" + Math.round(targetY) + "px)";
   if(instant){
     roll.style.transition = "none";
     roll.style.transform = t;
+    if(roll.offsetHeight != null) void roll.offsetHeight;
     roll.style.transition = "";
   } else {
     roll.style.transform = t;
@@ -228,6 +337,7 @@ function paintTabletsHud(){
   const blank = ch.blanks[idx];
   if($("tablets-ref")) $("tablets-ref").textContent = blank ? blank.r : ch.r;
   paintTabletsIllumBtn();
+  paintTabletsTutorialCallout();
 }
 function tabletsOptsForBlank(){
   const ch = tabletsChapter();
@@ -318,8 +428,6 @@ function tabletsIlluminate(){
   if(typeof toast === "function") toast("Illuminate — two stones dimmed");
   if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
 }
-/* Every greyed stone for the current blank — Illuminate dims two, Winnow
-   casts one aside; together they can clear the tray to the true word. */
 function tabletsGreyWords(){
   const grey = (R.tabletHintedIdx === R.tabletIdx && R.tabletGrey) ? R.tabletGrey.slice() : [];
   if(R.tabletWinnowIdx === R.tabletIdx && R.tabletWinnow){
@@ -421,6 +529,8 @@ function finishTabletsTutorial(){
     SAVE.set.tabletsTutorialDone = true;
     if(typeof persist === "function") persist();
   }
+  if(typeof toast === "function") toast("The Lord's Prayer is held. The Hall is open.");
+  if(typeof Snd !== "undefined" && Snd.victory) Snd.victory();
   if(typeof openBrief === "function") openBrief("tablets");
 }
 function tabletsResolveMiss(){
@@ -437,7 +547,13 @@ function tabletsResolveHit(){
   R.score = (R.score || 0) + 1;
   R.streak = (R.streak || 0) + 1;
   R.best = Math.max(R.best || 0, R.streak);
+  const bonus = Math.min(R.streak, 5);
+  const pts = 100 * bonus;
+  const label = R.streak > 1 ? ("+" + pts + " COMBO ×" + R.streak) : "+100 GOLD";
+  const slot = $("tablets-blank-" + (R.tabletIdx || 0));
+  spawnTabletsScorePopup(label, slot);
   if(typeof Snd !== "undefined" && Snd.carve) Snd.carve();
+  tabletsPlayGoldChime();
   paintTabletsStage("hit");
   tabletsReact(true);
   const grid = $("tablets-grid");
@@ -462,14 +578,13 @@ function tabletsFinishResolve(ok){
   R.tabletResolving = false;
   if(!ok){
     if(R.tabletTutorial || (R.tabletMiss || 0) < (R.tabletLives || 1)){
-      /* A lamp is spent, not the run: the true word shows shattered, then
-         the same blank re-arms for a second attempt. */
       R.tabletProgress = 0;
       R.tabletOpts = null;
       R.tabletGrey = [];
       R.tabletWinnow = [];
       R.tabletHintedIdx = -1;
       R.tabletWinnowIdx = -1;
+      R.dangerWarned = false;
       tabletsUnlockGrid();
       resumeTabletsRace();
       paintTabletsHud();
@@ -487,6 +602,7 @@ function tabletsFinishResolve(ok){
   R.tabletWinnow = [];
   R.tabletHintedIdx = -1;
   R.tabletWinnowIdx = -1;
+  R.dangerWarned = false;
   if(R.tabletIdx >= ch.blanks.length){
     if(R.tabletTutorial) finishTabletsTutorial();
     else if(typeof endRun === "function") endRun("complete");
@@ -512,6 +628,10 @@ function tabletsTick(now){
   if(!tabletsUntimed()){
     const dur = tabletsBlankMs() / 1000;
     R.tabletProgress = (R.tabletProgress || 0) + dt / dur;
+    if(R.tabletProgress > 0.7 && !R.dangerWarned){
+      R.dangerWarned = true;
+      tabletsPlayDangerWarn();
+    }
     paintTabletsClock();
     alignTabletsSheet();
     if(R.tabletProgress >= 1){
@@ -534,6 +654,8 @@ function startTabletsLoop(){
   R.tabletHintedIdx = -1;
   R.tabletWinnow = [];
   R.tabletWinnowIdx = -1;
+  R.dangerWarned = false;
+  R.tabletLastY = null;
   R.tabletTotal = ch.blanks.length;
   R.qTotal = ch.blanks.length;
   R.tabletRacing = true;

@@ -85,7 +85,14 @@
         <div class="fil"><i></i></div>
         <p class="menu-subtitle">
           The words appear. One phrase is taken away. Complete it before the final second falls.</p>
-        <div class="cloud-chip dim" id="cloud-chip" aria-live="polite">Local only</div>
+        <div class="menu-sign" id="menu-sign">
+          <div class="cloud-chip dim" id="cloud-chip" aria-live="polite">Local only</div>
+          <button type="button" class="btn sm menu-signin pulse" id="menu-signin" hidden>Sign in</button>
+          <form class="menu-signin-form" id="menu-signin-form" hidden>
+            <input id="menu-email" type="email" name="email" placeholder="you@example.com" autocomplete="email" inputmode="email" aria-label="Email">
+            <button type="submit" class="btn sm" id="menu-send-link">Send link</button>
+          </form>
+        </div>
         <div class="menu-road" id="menu-road-progress"></div>
       </div>
       <div id="menu-review-bar" style="display:none;margin:1.2vh auto;text-align:center">
@@ -388,8 +395,9 @@
             <span id="tablets-place-sub"></span>
           </div>
         </aside>
-        <div class="tablets-ms">
+        <div class="tablets-ms" id="tablets-ms">
           <div class="tablets-ref-pill" id="tablets-ref">Psalm 23:1</div>
+          <div class="tablets-tut-callout" id="tablets-tut-callout" hidden></div>
           <div class="tablets-roll" id="tablets-roll"></div>
           <div class="tablets-laser tablets-laser-entry" aria-hidden="true"><i></i><span>The Hand</span></div>
           <div class="tablets-laser tablets-laser-mark" aria-hidden="true"><i></i><span>The Mark</span></div>
