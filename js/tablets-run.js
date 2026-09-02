@@ -553,21 +553,23 @@ function tabletsResolveHit(){
   const slot = $("tablets-slot");
   spawnTabletsScorePopup("+" + favor + " FAVOR", slot);
   if(typeof Snd !== "undefined" && Snd.carve) Snd.carve();
-  tabletsPlayGoldChime();
-  paintTabletsTablet("hit");
-  tabletsPulseSpeech();
   tabletsReact(true);
   const grid = $("tablets-grid");
   if(grid) grid.classList.add("locked");
   const picked = tabletsStoneButtons().filter(function(b){ return b.classList && b.classList.contains("selected"); })[0];
-  tabletsFlyWord(picked, slot, (tabletsChapter().blanks[R.tabletIdx] || {}).a, function(){});
+  const word = (tabletsChapter().blanks[R.tabletIdx] || {}).a;
+  tabletsFlyWord(picked, slot, word, function(){
+    paintTabletsTablet("hit");
+    tabletsPulseSpeech();
+    tabletsPlayGoldChime();
+  });
   if(!R.tabletTutorial) tabletsRollBlessing();
 }
 function tabletsResolve(ok){
   if(!R || R.ended || R.paused || R.mode !== "tablets" || R.tabletResolving) return;
   R.tabletResolving = true;
   R.attempts = (R.attempts || 0) + 1;
-  setTimeout(function(){ tabletsFinishResolve(ok); }, ok ? 500 : 800);
+  setTimeout(function(){ tabletsFinishResolve(ok); }, ok ? 1000 : 800);
   if(!ok){ tabletsResolveMiss(); return; }
   tabletsResolveHit();
 }
@@ -644,7 +646,7 @@ function tabletsTick(now){
   if(!tabletsUntimed() && !R.surgeOn) tabletsBurnSand(dt);
   if(R.ended) return;
   tabletsTickTrauma(dt);
-  drawTabletsFx(dt, now);
+  drawTabletsFx(dt);
   paintTabletsClock();
   paintTabletsSurge();
   R.tabletRaf = requestAnimationFrame(tabletsTick);
@@ -843,7 +845,7 @@ function tabletsCycleStone(){
   tabletsApplyStone(next);
   if(typeof toast === "function") toast("Stone · " + (TABLET_STONE_NAMES[next] || next));
 }
-var tabletsFx = { ctx:null, canvas:null, embers:[], sparks:[], rays:[], w:0, h:0 };
+var tabletsFx = { ctx:null, canvas:null, embers:[], sparks:[], w:0, h:0 };
 function tabletsFxSize(){
   const canvas = tabletsFx.canvas || $("tablets-fx");
   const stage = $("tablets-stage");
@@ -851,11 +853,6 @@ function tabletsFxSize(){
   tabletsFx.canvas = canvas;
   tabletsFx.w = canvas.width = stage.clientWidth || 800;
   tabletsFx.h = canvas.height = stage.clientHeight || 450;
-  tabletsFx.rays = [
-    { x: tabletsFx.w * 0.15, angle: 0.35, width: 90, base: 0.07 },
-    { x: tabletsFx.w * 0.50, angle: 0.20, width: 140, base: 0.09 },
-    { x: tabletsFx.w * 0.85, angle: 0.05, width: 100, base: 0.06 }
-  ];
 }
 function tabletsFxInit(){
   tabletsFx.ctx = null;
@@ -871,7 +868,7 @@ function tabletsFxInit(){
   tabletsFx.ctx = ctx;
   tabletsFxSize();
   let i = 0;
-  for(; i < 45; i++) tabletsFx.embers.push(tabletsFxMakeEmber(true));
+  for(; i < 8; i++) tabletsFx.embers.push(tabletsFxMakeEmber(true));
 }
 function tabletsFxMakeEmber(randomY){
   return {
@@ -898,28 +895,12 @@ function spawnTabletsSparks(x, y, count){
     });
   }
 }
-function drawTabletsFx(dt, now){
+function drawTabletsFx(dt){
   const ctx = tabletsFx.ctx;
   if(!ctx) return;
   const w = tabletsFx.w;
   const h = tabletsFx.h;
   ctx.clearRect(0, 0, w, h);
-  const time = (now || 0) * 0.002;
-  (tabletsFx.rays || []).forEach(function(ray){
-    const alpha = Math.max(0.02, ray.base + Math.sin(time + ray.x) * 0.02 + ((R && R.streak) || 0) * 0.012);
-    const grad = ctx.createLinearGradient(ray.x, 0, ray.x + (h * ray.angle), h);
-    grad.addColorStop(0, "rgba(255,230,150," + alpha + ")");
-    grad.addColorStop(0.6, "rgba(220,160,60," + (alpha * 0.4) + ")");
-    grad.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.moveTo(ray.x - ray.width * 0.5, 0);
-    ctx.lineTo(ray.x + ray.width * 0.5, 0);
-    ctx.lineTo(ray.x + (h * ray.angle) + ray.width, h);
-    ctx.lineTo(ray.x + (h * ray.angle) - ray.width, h);
-    ctx.closePath();
-    ctx.fill();
-  });
   tabletsFx.embers.forEach(function(p){
     p.x += p.vx * (dt * 60);
     p.y += p.vy * (dt * 60);
@@ -948,27 +929,36 @@ function drawTabletsFx(dt, now){
   }
 }
 function tabletsFlyWord(fromBtn, toSlot, text, done){
-  if(!text){ if(done) done(); return; }
-  if(tabletsReduced() || !fromBtn || !toSlot || !fromBtn.getBoundingClientRect){
+  function land(){
     if(done) done();
+  }
+  if(!text){ land(); return; }
+  if(tabletsReduced() || !fromBtn || !toSlot || !fromBtn.getBoundingClientRect){
+    land();
     return;
   }
   const start = fromBtn.getBoundingClientRect();
   const target = toSlot.getBoundingClientRect();
+  if(!start.width || (start.left === target.left && start.top === target.top)){
+    land();
+    return;
+  }
   const flyer = document.createElement("div");
   flyer.className = "tablets-flying-word";
   flyer.textContent = text;
   flyer.style.left = (start.left + start.width / 2) + "px";
   flyer.style.top = (start.top + start.height / 2) + "px";
   document.body.appendChild(flyer);
-  spawnTabletsSparks(start.left, start.top, 10);
+  spawnTabletsSparks(start.left + start.width / 2, start.top + start.height / 2, 10);
   requestAnimationFrame(function(){
     flyer.style.left = (target.left + target.width / 2) + "px";
     flyer.style.top = (target.top + target.height / 2) + "px";
+    flyer.style.transform = "translate(-50%,-50%) scale(1.15)";
   });
   setTimeout(function(){
+    spawnTabletsSparks(target.left + target.width / 2, target.top + target.height / 2, 16);
     try{ flyer.remove(); }catch(e){}
-    if(done) done();
+    land();
   }, 460);
 }
 if(typeof window !== "undefined"){

@@ -6,17 +6,17 @@
 <title>Complete the Verse — A Trial of Scripture</title>
 <meta name="description" content="A biblical-thriller verse game on the King James Version: complete the missing phrase before the clock falls, walk the 46-site pilgrimage from Ur to Patmos, and train every verse with spaced repetition. Assemble from memory. A sixth act waits.">
 <meta name="theme-color" content="#04040a">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="assets/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta property="og:title" content="Complete the Verse — A Trial of Scripture">
 <meta property="og:description" content="One phrase is taken away. Complete it before the final second falls. 899 verses · 66 books · a pilgrimage from Ur to Patmos.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://complete-the-verse.vercel.app/">
-<meta property="og:image" content="https://complete-the-verse.vercel.app/assets/intro.jpg">
+<meta property="og:image" content="https://complete-the-verse.vercel.app/assets/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cinzel+Decorative:wght@700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&family=Barlow+Condensed:wght@300;400;600&display=swap" rel="stylesheet">
 <!-- Leaflet is vendored, not on a CDN: the game opens straight off the
      disk and must not need a network to reach its own map library. -->
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
@@ -51,9 +51,8 @@
       <video id="intro-video" class="intro-video" src="assets/intro.mp4" muted playsinline preload="none" poster="assets/intro.jpg" disablepictureinpicture aria-hidden="true"></video>
     <div class="intro-veil" id="intro-veil"></div>
     <div class="intro-start" id="intro-start">
-      <div class="bootmark" aria-hidden="true"><img src="assets/intro-cross.png" alt="" width="110" height="165"></div>
+      <img class="game-logo" src="assets/logo.jpg" alt="Complete the Verse" width="1024" height="1024">
       <div class="kick">The Scripture Trial</div>
-      <div class="h-xl">Complete<br>The Verse</div>
       <div class="intro-hint">Tap to begin</div>
     </div>
     <button class="intro-skip" id="intro-skip" type="button" hidden>Skip</button>
@@ -62,10 +61,8 @@
   <!-- ============ BOOT ============ -->
   <section class="view on" id="v-boot">
     <div class="boot-inner">
-      <div class="bootmark" aria-hidden="true"><img src="assets/intro-cross.png" alt="" width="110" height="165"></div>
+      <img class="game-logo" src="assets/logo.jpg" alt="Complete the Verse" width="1024" height="1024">
       <div class="kick" id="boot-kick">The Scripture Trial · Preparing the record</div>
-      <div class="h-xl boot-title">Complete<br>The Verse</div>
-      <div class="fil boot-rule"><i></i></div>
       <p class="boot-verse">The word of God is quick, and powerful, and sharper than any twoedged sword.</p>
       <p class="boot-ref">Hebrews 4:12 · King James</p>
       <div class="bootbar" id="boot-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Opening the record">
@@ -81,8 +78,7 @@
     <div class="scrollpad">
       <div class="menu-brand">
         <div class="kick">King James Version &nbsp;·&nbsp; 66 Books &nbsp;·&nbsp; One final answer</div>
-        <div class="h-xl" style="margin-top:1.4vh">Complete<br>The Verse</div>
-        <div class="fil"><i></i></div>
+        <img class="game-logo" src="assets/logo.jpg" alt="Complete the Verse" width="1024" height="1024">
         <p class="menu-subtitle">
           The words appear. One phrase is taken away. Complete it before the final second falls.</p>
         <div class="menu-sign" id="menu-sign">

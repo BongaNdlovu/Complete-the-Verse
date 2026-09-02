@@ -963,6 +963,26 @@ function boardRowHtml(r, extra){
     '<span class="nm">'+esc(r.name)+(r.mine?' <i class="you-pill">You</i>':'')+arrow+'</span>'+
     '<b>'+esc(extra || fmt(r.score))+'</b></div>';
 }
+function fillTabletsLocalBoard(el){
+  if(!el || typeof Tablets === "undefined") return;
+  const pack = (typeof SAVE !== "undefined" && SAVE.tablets) || {};
+  const cur = (typeof R !== "undefined" && R && R.tabletChapter) || "";
+  const rows = (Tablets.chapters || []).filter(function(ch){
+    return !ch.tutorial && pack[ch.id] && (pack[ch.id].best || pack[ch.id].held);
+  }).sort(function(a, b){
+    return (pack[b.id].best || 0) - (pack[a.id].best || 0);
+  }).slice(0, 8);
+  if(!rows.length) return;
+  el.style.display = "";
+  el.innerHTML = '<div class="mtitle">The Hold · local</div>' + rows.map(function(ch, i){
+    return boardRowHtml({
+      rank: i + 1,
+      name: ch.name,
+      mine: ch.id === cur,
+      score: pack[ch.id].best || 0
+    }, (pack[ch.id].best || 0) + "%");
+  }).join("");
+}
 function fillResultsBoard(mode){
   const el = $("res-board");
   if(!el) return;
@@ -970,6 +990,10 @@ function fillResultsBoard(mode){
   el.style.display = "none";
   renderPlacement();
   lastDailyRank = loadLastDailyRank();
+  if(mode==="tablets"){
+    fillTabletsLocalBoard(el);
+    return;
+  }
   if(typeof Cloud==="undefined" || !Cloud.configured()) return;
   const trustTag = (typeof Cloud!=="undefined" && typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct")
     ? ' <span class="trust-pill">(Honor system)</span>' : '';

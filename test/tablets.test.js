@@ -165,6 +165,8 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   eq("Held", read(sb, "Tablets.held(R)"), true);
   eq("psalm 23 Held on save", read(sb, "SAVE.tablets.psalm23.held"), true);
   eq("kick is Hold on Pace I", read(sb, "$('res-kick').textContent"), "Pace I held. Psalm 91 is open.");
+  ok("Hold board is shown", read(sb, "$('res-board').style.display !== 'none'"));
+  ok("Hold board names Psalm 23", read(sb, "$('res-board').innerHTML.indexOf('Psalm 23') >= 0"));
   eq("retry is Carve again", read(sb, "$('res-retry').textContent"), "Carve again");
   eq("unique Hold counted once", read(sb, "SAVE.life.tabletHolds"), 1);
   eq("best is 100", read(sb, "SAVE.best.tablets"), 100);
@@ -419,7 +421,11 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 ok("timeout copy names the sand", /The sand ran out\. The blank stayed empty when the Hold closed/.test(
   fs.readFileSync(path.join(ROOT, "js", "director.js"), "utf8")));
 ok("brief names the chapter clock", /clockS/.test(fs.readFileSync(path.join(ROOT, "js", "briefs.js"), "utf8")));
-ok("cache is 1.8.44", /ctv-v1\.8\.44/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
+ok("cache is 1.8.47", /ctv-v1\.8\.47/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
+ok("Hold fonts include Cinzel Decorative and Inter", /Cinzel\+Decorative/.test(html) && /family=Inter/.test(html));
+ok("the Hold does not paint god-rays", !/tabletsFx\.rays/.test(src));
+ok("the Hold keeps a few embers", /i < 8/.test(src) && !/i < 45/.test(src));
+ok("a hit registers after the fly", /tabletsFlyWord[\s\S]{0,220}paintTabletsTablet\("hit"\)/.test(src));
 ok("torch scene is in the view", html.indexOf("tablets-scene-svg") >= 0);
 ok("candle is in the scene", html.indexOf('id="tablets-candle"') >= 0);
 ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);

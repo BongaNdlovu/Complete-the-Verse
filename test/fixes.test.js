@@ -204,8 +204,9 @@ ok("content tooling stays out of the deploy", /^content\/$/m.test(vercelIgnore))
 /* §4.5 / §4.6 — dialog semantics and store presence. */
 ok("pause is a dialog", /id="pause" role="dialog" aria-modal="true"/.test(index));
 ok("pause takes focus when opened", /\$\("pause-resume"\)\.focus/.test(game) || /resume\.focus\(\)/.test(game));
-ok("favicon is linked", /rel="icon" href="assets\/favicon\.svg"/.test(index));
-ok("favicon exists", fs.existsSync(path.join(ROOT, "assets", "favicon.svg")));
+ok("favicon is linked", /rel="icon" href="assets\/favicon\.png"/.test(index));
+ok("favicon exists", fs.existsSync(path.join(ROOT, "assets", "favicon.png")));
+ok("game logo exists", fs.existsSync(path.join(ROOT, "assets", "logo.jpg")));
 ok("manifest is linked and present",
    /rel="manifest" href="manifest\.webmanifest"/.test(index) &&
    fs.existsSync(path.join(ROOT, "manifest.webmanifest")));
