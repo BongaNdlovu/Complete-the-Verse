@@ -482,8 +482,10 @@ function settingsAccountHtml(){
       '<button class="btn ghost sm" id="cloud-sync" type="button">Sync</button></div>';
   }
   return '<div class="setrow account"><div><label>Cloud account</label><small>Sign in to sync the Pilgrimage across devices and appear on leaderboards. <a href="privacy.html">Privacy</a></small></div></div>'+
-    '<div class="setrow"><div><label>Email magic link</label><small>We email a one-tap sign-in. No password.</small></div>'+
-    '<div class="cloud-name"><input id="cloud-email" type="email" placeholder="you@example.com" autocomplete="email"><button class="btn sm" id="cloud-signin" type="button">Send link</button></div></div>';
+    '<div class="setrow"><div><label>Email sign-in</label><small>We email a one-tap magic link & 6-digit code.</small></div>'+
+    '<div class="cloud-name"><input id="cloud-email" type="email" placeholder="you@example.com" value="'+esc((typeof localStorage!=="undefined"?localStorage.getItem("cloud_pending_email"):"")||"")+'" autocomplete="email"><button class="btn sm" id="cloud-signin" type="button">Send code</button></div></div>'+
+    '<div class="setrow"><div><label>Enter 6-digit code</label><small>Email link expired or pre-scanned? Type the 6-digit code here.</small></div>'+
+    '<div class="cloud-name"><input id="cloud-otp" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="123456" autocomplete="one-time-code"><button class="btn ghost sm" id="cloud-verify-otp" type="button">Confirm code</button></div></div>';
 }
 function renderSettings(){
   const s=SAVE.set;
@@ -606,7 +608,26 @@ function bindSettingsHandlers(){
       signInBtn.disabled = true;
       const res = await Cloud.signInWithEmail(email);
       signInBtn.disabled = false;
-      toast(Cloud.authNotice ? Cloud.authNotice(res.ok ? "sent" : res.reason) : (res.ok ? "Check your email for the sign-in link" : "Sign-in failed"));
+      toast(Cloud.authNotice ? Cloud.authNotice(res.ok ? "sent" : res.reason) : (res.ok ? "Check your email for the sign-in code/link" : "Sign-in failed"));
+    });
+  }
+  const verifyOtpBtn = $("cloud-verify-otp");
+  if(verifyOtpBtn){
+    verifyOtpBtn.addEventListener("click", async ()=>{
+      const email = ($("cloud-email") && $("cloud-email").value || "").trim();
+      const token = ($("cloud-otp") && $("cloud-otp").value || "").trim();
+      if(!email){ toast("Enter your email address above"); return; }
+      if(!token){ toast("Enter the 6-digit code from your email"); return; }
+      verifyOtpBtn.disabled = true;
+      const res = await Cloud.verifyOtp(email, token);
+      verifyOtpBtn.disabled = false;
+      if(res.ok){
+        if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
+        renderSettings();
+        toast("Signed in successfully");
+      } else {
+        toast(Cloud.authNotice ? Cloud.authNotice(res.reason) : "Invalid code. Try again.");
+      }
     });
   }
   const signOutBtn = $("cloud-signout");

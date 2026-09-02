@@ -134,7 +134,10 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
   eq("authNotice offline", Cloud.authNotice("offline"), "You're offline. Try again when you reconnect.");
   eq("authNotice rate-limited", Cloud.authNotice("rate-limited"), "Too many attempts. Wait a few minutes.");
   eq("authNotice hides unknown errors", Cloud.authNotice("User already registered"), "Check your email for the sign-in link.");
+  ok("authNotice otp-expired", Cloud.authNotice("otp-expired").includes("expired"));
   eq("boardLoadFailed idle", Cloud.boardLoadFailed(), null);
+  eq("verifyOtp exists", typeof Cloud.verifyOtp, "function");
+  eq("checkUrlAuthError exists", typeof Cloud.checkUrlAuthError, "function");
 }
 
 console.log((fail ? "FAIL" : "PASS") + " — cloud · " + pass + " assertions passed" + (fail ? " · " + fail + " FAILED" : ""));

@@ -279,6 +279,31 @@ var Cloud = (function () {
   function boardLoadFailed() {
     return lastBoardError;
   }
+  function checkUrlAuthError() {
+    if (typeof location === "undefined") return null;
+    var hash = location.hash || "";
+    var search = location.search || "";
+    var raw = hash.indexOf("error=") >= 0 ? hash.slice(1) : (search.indexOf("error=") >= 0 ? search.slice(1) : "");
+    if (!raw) return null;
+    try {
+      var params = new URLSearchParams(raw);
+      var err = params.get("error");
+      var errCode = params.get("error_code");
+      var errDesc = params.get("error_description");
+      if (err || errCode) {
+        if (typeof history !== "undefined" && history.replaceState) {
+          var clean = (location.origin || "") + (location.pathname || "");
+          history.replaceState(null, "", clean);
+        }
+        return {
+          error: err,
+          code: errCode,
+          description: errDesc ? decodeURIComponent(errDesc.replace(/\+/g, " ")) : "Authentication error"
+        };
+      }
+    } catch(e) {}
+    return null;
+  }
   function authNotice(reason) {
     if (reason === "offline") return "You're offline. Try again when you reconnect.";
     if (reason === "invalid-email") return "Enter a valid email address.";
@@ -288,6 +313,10 @@ var Cloud = (function () {
     if (reason === "signed-out") return "Sign in to post scores.";
     if (reason === "name-too-short") return "Name needs at least two letters.";
     if (reason === "trusted-submit-unavailable") return "Trusted leaderboard submission is unavailable.";
+    if (reason === "otp-expired" || reason === "link-expired") return "Email code or link expired / pre-scanned. Enter the 6-digit code from your email or request a new one.";
+    if (reason === "invalid-token") return "Invalid 6-digit code. Check your email.";
+    if (reason === "missing-token") return "Enter the 6-digit code from your email.";
+    if (reason === "verified") return "Signed in successfully.";
     return "Check your email for the sign-in link.";
   }
   function withTimeout(p, ms) {
@@ -302,6 +331,15 @@ var Cloud = (function () {
     var sb = ensureClient();
     if (!sb) return { ok: false, reason: "no-sdk" };
 
+    var urlErr = checkUrlAuthError();
+    if (urlErr) {
+      emit("onError", {
+        message: (urlErr.code === "otp_expired" || urlErr.error === "access_denied")
+          ? "Email link expired or was pre-scanned by your email provider. Enter the 6-digit code from your email to sign in."
+          : (urlErr.description || "Sign-in link error")
+      });
+    }
+
     var sess = await sb.auth.getSession();
     if (sess.data && sess.data.session) {
       user = sess.data.session.user;
@@ -315,7 +353,7 @@ var Cloud = (function () {
       emit("onAuth", { event: event, user: user, profile: profile });
     });
 
-    return { ok: true, user: user };
+    return { ok: true, user: user, urlError: urlErr };
   }
 
   async function refreshProfile() {
@@ -333,9 +371,15 @@ var Cloud = (function () {
     email = String(email || "").trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, reason: "invalid-email" };
     try {
+      if (typeof localStorage !== "undefined") {
+        try { localStorage.setItem("cloud_pending_email", email); } catch(e){}
+      }
+      var redir = (typeof location !== "undefined" && location.origin)
+        ? (location.origin + location.pathname).split("#")[0]
+        : undefined;
       var res = await withTimeout(sb.auth.signInWithOtp({
         email: email,
-        options: { emailRedirectTo: typeof location !== "undefined" ? location.href.split("#")[0] : undefined }
+        options: { emailRedirectTo: redir }
       }), 8000);
       if (res.error) {
         var msg = String(res.error.message || "").toLowerCase();
@@ -346,6 +390,37 @@ var Cloud = (function () {
       return { ok: true, reason: "sent" };
     } catch (e) {
       return { ok: false, reason: (typeof navigator !== "undefined" && navigator.onLine === false) ? "offline" : "unavailable" };
+    }
+  }
+
+  async function verifyOtp(email, token) {
+    var sb = ensureClient();
+    if (!sb) return { ok: false, reason: "not-configured" };
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return { ok: false, reason: "offline" };
+    email = String(email || (typeof localStorage !== "undefined" ? localStorage.getItem("cloud_pending_email") : "") || "").trim();
+    token = String(token || "").trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, reason: "invalid-email" };
+    if (!token || token.length < 6) return { ok: false, reason: "invalid-token" };
+    try {
+      var res = await withTimeout(sb.auth.verifyOtp({
+        email: email,
+        token: token,
+        type: "email"
+      }), 10000);
+      if (res.error) {
+        var msg = String(res.error.message || "").toLowerCase();
+        if (/expired/.test(msg)) return { ok: false, reason: "otp-expired" };
+        return { ok: false, reason: "invalid-token", message: res.error.message };
+      }
+      if (res.data && res.data.user) {
+        user = res.data.user;
+        await refreshProfile();
+        emit("onAuth", { event: "SIGNED_IN", user: user, profile: profile });
+        return { ok: true, reason: "verified", user: user, profile: profile };
+      }
+      return { ok: false, reason: "no-session" };
+    } catch (e) {
+      return { ok: false, reason: "unavailable" };
     }
   }
 
@@ -808,9 +883,11 @@ var Cloud = (function () {
     isSignedIn: isSignedIn,
     boardLoadFailed: boardLoadFailed,
     authNotice: authNotice,
+    checkUrlAuthError: checkUrlAuthError,
     user: sessionUser,
     profile: function () { return profile; },
     signInWithEmail: signInWithEmail,
+    verifyOtp: verifyOtp,
     signOut: signOut,
     setDisplayName: setDisplayName,
     pullSave: pullSave,
