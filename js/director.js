@@ -135,6 +135,8 @@ const Director = (function(){
     "lesson six assemble the verse from memory":"audio/voice/lesson-six.mp3",
     "name the passage select its book chapter and verse":"audio/voice/name-the-passage.mp3",
     "carve the missing word one miss shatters the hold":"audio/voice/tablets-carve.mp3",
+    "carve the missing word two lamps guard the tablet":"audio/voice/tablets-carve.mp3",
+    "winnow a false stone falls away":"audio/voice/tablets-winnow.mp3",
     "learn the hold choose the missing word":"audio/voice/tablets-learn.mp3",
     "a tablet waits":"audio/voice/tablets-waits.mp3",
     "the hold stands the next chapter is open":"audio/voice/tablets-held.mp3",

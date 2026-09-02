@@ -464,6 +464,7 @@ function tabletsWinnow(){
   R.powersSpent = (R.powersSpent || 0) + 1;
   paintTabletsTray();
   if(typeof toast === "function") toast("Winnow — a false stone falls away");
+  if(typeof Director !== "undefined" && Director.speak) Director.speak("Winnow — a false stone falls away.", true);
   if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
 }
 function setTabletsPaused(on){

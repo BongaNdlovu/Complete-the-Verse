@@ -42,6 +42,8 @@ const LINES = [
   { key: "that place is still sealed", file: "map-sealed.mp3" },
   { key: "name the passage select its book chapter and verse", file: "name-the-passage.mp3" },
   { key: "carve the missing word one miss shatters the hold", file: "tablets-carve.mp3" },
+  { key: "carve the missing word two lamps guard the tablet", file: "tablets-carve.mp3" },
+  { key: "winnow a false stone falls away", file: "tablets-winnow.mp3" },
   { key: "learn the hold choose the missing word", file: "tablets-learn.mp3" },
   { key: "a tablet waits", file: "tablets-waits.mp3" },
   { key: "the hold stands the next chapter is open", file: "tablets-held.mp3" },
