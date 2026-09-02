@@ -400,25 +400,32 @@
           <div class="tablets-scene-img">
             <svg class="tablets-scene-svg" viewBox="0 0 240 160" aria-hidden="true">
               <defs>
-                <radialGradient id="tabTorch" cx="50%" cy="40%" r="55%">
-                  <stop offset="0%" stop-color="#ffbe54" stop-opacity="0.95"/>
-                  <stop offset="40%" stop-color="#bf6017" stop-opacity="0.5"/>
-                  <stop offset="100%" stop-color="#140b05" stop-opacity="0"/>
-                </radialGradient>
                 <linearGradient id="tabWall" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#0a0502"/>
-                  <stop offset="50%" stop-color="#24160a"/>
-                  <stop offset="100%" stop-color="#080402"/>
+                  <stop offset="0%" stop-color="#070301"/>
+                  <stop offset="50%" stop-color="#1c1208"/>
+                  <stop offset="100%" stop-color="#060301"/>
                 </linearGradient>
+                <radialGradient id="tabPool" cx="50%" cy="78%" r="42%">
+                  <stop offset="0%" stop-color="#ffc45c" stop-opacity="0.55"/>
+                  <stop offset="45%" stop-color="#c45a14" stop-opacity="0.22"/>
+                  <stop offset="100%" stop-color="#080401" stop-opacity="0"/>
+                </radialGradient>
               </defs>
               <rect width="240" height="160" fill="url(#tabWall)"/>
-              <path d="M20,160 L20,60 Q120,15 220,60 L220,160 Z" fill="#180e07" stroke="#3d2711" stroke-width="2"/>
-              <path d="M50,160 L50,80 Q120,40 190,80 L190,160 Z" fill="#100804" stroke="#2a1a0b" stroke-width="1.5"/>
-              <circle cx="120" cy="85" r="55" fill="url(#tabTorch)"/>
-              <ellipse cx="120" cy="85" rx="3.5" ry="7" fill="#ffe082"/>
-              <path d="M120,105 C116,105 113,108 113,112 C113,114 114,116 116,118 C112,122 109,128 108,138 L132,138 C131,128 128,122 124,118 C126,116 127,114 127,112 C127,108 124,105 120,105 Z" fill="#080503"/>
+              <path d="M6,160 L6,70 Q120,6 234,70 L234,160 Z" fill="#140c06" stroke="#3a2610" stroke-width="2"/>
+              <path d="M34,160 L34,86 Q120,24 206,86 L206,160 Z" fill="#0e0804" stroke="#2a1a0b" stroke-width="1.6"/>
+              <path d="M62,160 L62,100 Q120,48 178,100 L178,160 Z" fill="#090502" stroke="#1c1208"/>
+              <path d="M6,160 L120,118 L234,160 Z" fill="#080503"/>
+              <path d="M44,160 L120,126 L196,160" fill="none" stroke="#2c1c0c" stroke-width="1"/>
+              <ellipse cx="120" cy="134" rx="32" ry="9" fill="url(#tabPool)"/>
             </svg>
-            <i class="tablets-walker-sprite" id="tablets-walker-sprite" aria-hidden="true"></i>
+            <div id="tablets-candle" class="play-candle tablets-candle blaze" aria-hidden="true">
+              <i class="pcand-halo"></i>
+              <i class="pcand-flame lamp-flame"></i>
+              <i class="pcand-wick"></i>
+              <i class="pcand-wax"></i>
+              <i class="pcand-holder"></i>
+            </div>
           </div>
           <i class="tablets-scene-gem" aria-hidden="true"></i>
           <span class="tablets-place-kicker" id="tablets-place-kicker">The tablet</span>
@@ -430,7 +437,7 @@
           <div class="tablets-ref-pill" id="tablets-ref">Psalm 23:1</div>
           <div class="tablets-mark-row" aria-hidden="true">
             <span class="tablets-mark-line"></span>
-            <span class="tablets-mark">The Mark</span>
+            <span class="tablets-mark">✦ The Mark ✦</span>
             <span class="tablets-mark-line"></span>
           </div>
           <div class="tablets-slot" id="tablets-slot">— — —</div>

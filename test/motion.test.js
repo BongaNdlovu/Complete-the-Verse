@@ -143,7 +143,8 @@ const reducedHooks = [
   [".menu-signin", "menu sign-in pulse"],
   ["#tablets-fx", "tablets canvas fx"],
   [".tablets-flying-word", "tablets flying word"],
-  [".tablets-speech", "tablets speech pulse"]
+  [".tablets-speech", "tablets speech pulse"],
+  [".tablets-candle", "tablets scene candle"]
 ];
 const reducedSelectors = [...css.matchAll(/body\.reduced[^{]*\{/g)].map((m) => m[0]);
 reducedHooks.forEach(([hook, name]) => {

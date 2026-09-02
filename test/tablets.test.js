@@ -141,7 +141,8 @@ ok("resolve timeout is armed before paint", (()=>{
   const fn = i >= 0 && j > i ? src.slice(i, j) : "";
   return fn.indexOf("setTimeout") >= 0 && fn.indexOf("setTimeout") < fn.indexOf("tabletsResolveMiss");
 })());
-ok("walker and companion sit on the hold", html.indexOf('id="tablets-walker-sprite"') >= 0 && html.indexOf('id="tablets-companion"') >= 0);
+ok("companion sits on the hold", html.indexOf('id="tablets-companion"') >= 0);
+ok("the scene has a candle, not a walker", html.indexOf('id="tablets-candle"') >= 0 && html.indexOf('id="tablets-walker-sprite"') < 0);
 ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*snapTraveler/.test(fs.readFileSync(path.join(ROOT, "js", "atlas.js"), "utf8")));
 
 {
@@ -418,8 +419,9 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 ok("timeout copy names the sand", /The sand ran out\. The blank stayed empty when the Hold closed/.test(
   fs.readFileSync(path.join(ROOT, "js", "director.js"), "utf8")));
 ok("brief names the chapter clock", /clockS/.test(fs.readFileSync(path.join(ROOT, "js", "briefs.js"), "utf8")));
-ok("cache is 1.8.43", /ctv-v1\.8\.43/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
+ok("cache is 1.8.44", /ctv-v1\.8\.44/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
 ok("torch scene is in the view", html.indexOf("tablets-scene-svg") >= 0);
+ok("candle is in the scene", html.indexOf('id="tablets-candle"') >= 0);
 ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
 
 {
