@@ -421,7 +421,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 ok("timeout copy names the sand", /The sand ran out\. The blank stayed empty when the Hold closed/.test(
   fs.readFileSync(path.join(ROOT, "js", "director.js"), "utf8")));
 ok("brief names the chapter clock", /clockS/.test(fs.readFileSync(path.join(ROOT, "js", "briefs.js"), "utf8")));
-ok("cache is 1.8.50", /ctv-v1\.8\.50/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
+ok("cache is 1.8.51", /ctv-v1\.8\.51/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
 ok("Hold fonts include Cinzel Decorative and Inter", /Cinzel\+Decorative/.test(html) && /family=Inter/.test(html));
 ok("the Hold does not paint god-rays", !/tabletsFx\.rays/.test(src));
 ok("the Hold has no screen wash overlay", !/#v-tablets:after/.test(fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8")));

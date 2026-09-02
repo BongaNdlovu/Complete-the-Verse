@@ -532,13 +532,14 @@ body.reduced .res-details[open] .breakdown,body.reduced .res-details[open] .stat
   .assembly.on{width:100%;margin-top:14px}
   .slot{flex:1 1 100%;min-width:0;font-size:.86rem}
   .frag{flex:1 1 100%;font-size:.86rem}
-  .hdr{height:auto;padding:8px 12px 12px;flex-wrap:wrap}
+  .hdr{height:auto;padding:8px 12px 18px;flex-wrap:wrap}
   /* One cramped row makes the site/round title collide with the memory
      tier (the old margin-right reservation was sized for desktop). Wrap
-     the right side onto its own row; the 26px top pad clears the floating
-     audio dock (bottom ≈54px) and Quit button that overlay row one. */
+     the right side onto its own row: raised clear of the floating audio
+     dock (bottom ≈56px) and with air under it before the crimson rule. */
   .hdr-side{min-width:0;flex:0 1 auto}
-  .hdr-side.r{flex:1 1 100%;margin-right:0;max-width:none;text-align:right;padding-top:26px}
+  .hdr-side.r{flex:1 1 100%;margin-right:0;max-width:none;text-align:right;padding-top:18px}
+  .hdr-side.r .hdr-val{font-size:.7rem}
   .hdr-val{white-space:normal;font-size:.8rem}
   .hdr-lab{font-size:.56rem}
   #v-play .act-track{position:static;transform:none;width:100%;margin:0;padding:0}
