@@ -27,7 +27,7 @@ const DEFAULT_SAVE = {
   set:{music:0.45, sfx:0.7, musicMute:false, sfxMute:false, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"disciple",
        tutorialDone:false, tutorialSeen:false, tabletsTutorialDone:false, introPlayed:false, liveWeather:true, coldOpenDone:false, urPrologueDone:false, quiet:false, contrast:false, haptics:true,
        singleTap:true,
-       character:"amina", scholarId:"amina", playerName:"", profileDone:false, tabletStone:"sandstone",
+       character:"amina", scholarId:"amina", playerName:"", profileDone:false, tabletStone:"sandstone", tabletTrial:false,
        vkb:false,
        /* legacy keys kept so old saves merge cleanly */
        characterDone:false}

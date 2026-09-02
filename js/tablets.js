@@ -1,6 +1,5 @@
 const Tablets = (function(){
-  const LEVEL_S = [40, 30, 20];
-  const BONUS_S = 5;
+  const BLANK_S = 25;
   const LEVEL_NAME = ["I", "II", "III"];
   const HOLDS_TO_OPEN = 3;
   const chapters = [
@@ -171,8 +170,8 @@ const Tablets = (function(){
   function paceGateLabel(pace){
     return pace >= 3 ? "Hold 3 at Pace II to open" : "Hold 3 at Pace I to open";
   }
-  function clockS(level){
-    return LEVEL_S[clampLevel(level) - 1] || LEVEL_S[0];
+  function clockS(){
+    return BLANK_S;
   }
   function levelName(level){
     return LEVEL_NAME[clampLevel(level) - 1] || "I";
@@ -248,8 +247,7 @@ const Tablets = (function(){
     return "The manuscript held";
   }
   return {
-    LEVEL_S: LEVEL_S,
-    BONUS_S: BONUS_S,
+    BLANK_S: BLANK_S,
     HOLDS_TO_OPEN: HOLDS_TO_OPEN,
     chapters: chapters,
     canon: [],

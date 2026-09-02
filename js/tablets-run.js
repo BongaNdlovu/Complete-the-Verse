@@ -21,11 +21,8 @@ function tabletsPct(){
   return Math.round(((R.tabletIdx || 0) / total) * 100);
 }
 function tabletsClockMax(){
-  if(typeof Tablets !== "undefined" && Tablets.clockS) return Tablets.clockS(R && R.tabletLevel);
-  return 40;
-}
-function tabletsBonusS(){
-  return (typeof Tablets !== "undefined" && Tablets.BONUS_S) ? Tablets.BONUS_S : 5;
+  if(typeof Tablets !== "undefined" && Tablets.clockS) return Tablets.clockS();
+  return 25;
 }
 function tabletsTier(streak){
   if(streak >= 8) return { name:"DIVINE PRESENCE", mult:4 };
@@ -544,7 +541,7 @@ function tabletsResolveMiss(){
 }
 function tabletsHitFavor(){
   const t = tabletsTier(R.streak || 0);
-  const mult = t.mult * (R.surgeOn ? 3 : 1);
+  const mult = t.mult * (R.surgeOn ? 3 : 1) * (R.tabletTrial ? 2.5 : 1);
   return Math.round((120 + (R.tabletClock || 0) * 8) * mult);
 }
 function tabletsChargeSurge(elapsed){
@@ -557,7 +554,6 @@ function tabletsResolveHit(){
   R.score = (R.score || 0) + 1;
   R.streak = (R.streak || 0) + 1;
   R.best = Math.max(R.best || 0, R.streak);
-  if(!R.tabletTutorial) R.tabletClock = (R.tabletClock || 0) + tabletsBonusS();
   const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
   tabletsChargeSurge((now - (R.tabletBlankStart || now)) / 1000);
   const favor = tabletsHitFavor();
@@ -567,6 +563,7 @@ function tabletsResolveHit(){
   if(typeof Snd !== "undefined" && Snd.carve) Snd.carve();
   tabletsPlayGoldChime();
   paintTabletsTablet("hit");
+  tabletsPulseSpeech();
   tabletsReact(true);
   const grid = $("tablets-grid");
   if(grid) grid.classList.add("locked");
@@ -617,6 +614,10 @@ function tabletsFinishResolve(ok){
     else if(typeof endRun === "function") endRun("complete");
     return;
   }
+  if(!R.tabletTutorial){
+    R.tabletClock = tabletsClockMax();
+    R.tabletLastWarnSec = -1;
+  }
   tabletsUnlockGrid();
   paintTabletsHud();
   paintTabletsTablet();
@@ -624,7 +625,8 @@ function tabletsFinishResolve(ok){
 }
 function tabletsBurnSand(dt){
   if(!R || R.ended || R.surgeOn || tabletsUntimed()) return;
-  R.tabletClock = Math.max(0, (R.tabletClock || 0) - dt);
+  const rate = R.tabletTrial ? 1.35 : 1;
+  R.tabletClock = Math.max(0, (R.tabletClock || 0) - dt * rate);
   const sec = Math.floor(R.tabletClock);
   if(R.tabletClock <= 5 && sec !== R.tabletLastWarnSec){
     R.tabletLastWarnSec = sec;
@@ -685,6 +687,34 @@ function startTabletsLoop(){
   R.tabletLast = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
   if(typeof requestAnimationFrame === "function") R.tabletRaf = requestAnimationFrame(tabletsTick);
 }
+function tabletsPulseSpeech(){
+  const el = $("tablets-speech");
+  if(!el || tabletsReduced()) return;
+  el.hidden = false;
+  el.classList.add("active");
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){ el.classList.remove("active"); el.hidden = true; }, 2000);
+}
+function tabletsApplyTrial(on){
+  if(typeof R !== "undefined" && R) R.tabletTrial = !!on;
+  const el = $("v-tablets");
+  if(el) el.classList.toggle("trial-mode", !!on);
+  const btn = $("tablets-trial");
+  if(btn){
+    btn.classList.toggle("on", !!on);
+    btn.textContent = on ? "Trial on" : "Trial";
+  }
+}
+function tabletsToggleTrial(){
+  if(!R || R.mode !== "tablets") return;
+  const on = !R.tabletTrial;
+  tabletsApplyTrial(on);
+  if(typeof SAVE !== "undefined" && SAVE.set){
+    SAVE.set.tabletTrial = on;
+    if(typeof persist === "function") persist();
+  }
+  if(typeof toast === "function") toast(on ? "Trial · sand runs faster, Favor is 2.5×" : "Trial off");
+}
 function tabletsBindOnce(id, fn){
   const el = $(id);
   if(el && !el._bound){
@@ -707,6 +737,7 @@ function bindTabletsChrome(){
   tabletsBindOnce("tablets-winnow", tabletsWinnow);
   tabletsBindOnce("tablets-surge", tabletsSurge);
   tabletsBindOnce("tablets-theme", tabletsCycleStone);
+  tabletsBindOnce("tablets-trial", tabletsToggleTrial);
   if(typeof window !== "undefined" && !window._tabletsKeys){
     window._tabletsKeys = true;
     window.addEventListener("keydown", tabletsOnKey);
@@ -742,6 +773,7 @@ function tabletsSpeakStart(){
 function startTabletsStage(){
   bindTabletsChrome();
   tabletsApplyStone((typeof SAVE !== "undefined" && SAVE.set && SAVE.set.tabletStone) || "sandstone");
+  tabletsApplyTrial(!!(typeof SAVE !== "undefined" && SAVE.set && SAVE.set.tabletTrial));
   tabletsFxInit();
   const ch = tabletsChapter();
   const site = tabletsParentSite();
@@ -773,9 +805,12 @@ function tabletsSurge(){
 function tabletsRollBlessing(){
   if(Math.random() >= 0.22) return;
   const picks = [
-    { icon:"M", text:"Manna Jar Discovered (+15s Sand)", apply:function(){ R.tabletClock = (R.tabletClock || 0) + 15; } },
-    { icon:"C", text:"Golden Censer (+1 Lamp Restored)", apply:function(){ R.tabletLives = (R.tabletLives || 2) + 1; } },
-    { icon:"S", text:"Shekinah Glory (+35% Surge Charge)", apply:function(){ R.surge = Math.min(100, (R.surge || 0) + 35); } }
+    { icon:"🏺", text:"Manna Jar Discovered (+15s Sand)", apply:function(){
+      const cap = R.tabletClockMax || tabletsClockMax();
+      R.tabletClock = Math.min(cap, (R.tabletClock || 0) + 15);
+    } },
+    { icon:"🕯️", text:"Golden Censer (+1 Lamp Restored)", apply:function(){ R.tabletLives = (R.tabletLives || 2) + 1; } },
+    { icon:"✨", text:"Shekinah Glory (+35% Surge Charge)", apply:function(){ R.surge = Math.min(100, (R.surge || 0) + 35); } }
   ];
   const b = picks[Math.floor(Math.random() * picks.length)];
   b.apply();
@@ -958,6 +993,7 @@ if(typeof window !== "undefined"){
   window.tabletsBurnSand = tabletsBurnSand;
   window.tabletsSurge = tabletsSurge;
   window.tabletsCycleStone = tabletsCycleStone;
+  window.tabletsToggleTrial = tabletsToggleTrial;
   window.tabletsRollBlessing = tabletsRollBlessing;
   window.tabletsTier = tabletsTier;
   window.paintTabletsHud = paintTabletsHud;

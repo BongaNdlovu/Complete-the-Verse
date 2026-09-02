@@ -49,11 +49,9 @@ const p23 = Tablets.chapter("psalm23");
 const p91 = Tablets.chapter("psalm91");
 eq("Psalm 23 has 11 blanks", p23.blanks.length, 11);
 eq("Psalm 91 has 17 blanks", p91.blanks.length, 17);
-eq("LEVEL_S is 40/30/20", Tablets.LEVEL_S.join(","), "40,30,20");
-eq("BONUS_S is 5", Tablets.BONUS_S, 5);
-eq("clockS 1 is 40", Tablets.clockS(1), 40);
-eq("clockS 2 is 30", Tablets.clockS(2), 30);
-eq("clockS 3 is 20", Tablets.clockS(3), 20);
+eq("BLANK_S is 25", Tablets.BLANK_S, 25);
+eq("clockS is 25", Tablets.clockS(), 25);
+eq("clockS ignores pace", Tablets.clockS(3), 25);
 eq("Psalm 23 pace is 1", Tablets.paceOf(p23), 1);
 eq("Psalm 91 pace is 1", Tablets.paceOf(p91), 1);
 eq("John 1 pace is 1", Tablets.paceOf(Tablets.chapter("john1")), 1);
@@ -181,10 +179,10 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
-  eq("Pace I starts with 40s", read(sb, "R.tabletClock"), 40);
+  eq("a blank starts with 25s", read(sb, "R.tabletClock"), 25);
   stubRandom(sb, 0.9);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("a carve banks 5s", read(sb, "R.tabletClock"), 45);
+  eq("the next blank resets to 25s", read(sb, "R.tabletClock"), 25);
   exec(sb, "R.tabletClock = 0.05; tabletsBurnSand(0.1)");
   eq("empty sand ends the run", read(sb, "R.ended"), true);
   eq("timeout is recorded", read(sb, "!!R.tabletTimeout"), true);
@@ -325,7 +323,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   const sb = boot();
   exec(sb, "startRun('tablets','watchman',{tabletChapter:'genesis1'})");
   eq("Genesis 1 opens", read(sb, "R.tabletChapter"), "genesis1");
-  eq("Pace II starts with 30s", read(sb, "R.tabletClock"), 30);
+  eq("Genesis 1 starts with 25s", read(sb, "R.tabletClock"), 25);
   eq("place is Ur", read(sb, "$('tablets-place').textContent"), "Ur");
   eq("companion is Abram", read(sb, "$('tablets-companion-sign').textContent"), "Abram");
   eq("companion is shown", read(sb, "!$('tablets-companion').hidden"), true);
@@ -371,7 +369,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   exec(sb, "startRun('tablets','watchman')");
   stubRandom(sb, 0.9);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("first carve Favor is 720", read(sb, "R.favor"), 720);
+  eq("first carve Favor is 480", read(sb, "R.favor"), 480);
   eq("fast hit charges surge 34", read(sb, "R.surge"), 34);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
@@ -386,20 +384,21 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   stubRandom(sb, 0.1);
+  exec(sb, "R.tabletClock = 10");
   const before = read(sb, "({clock:R.tabletClock,lives:R.tabletLives,surge:R.surge})");
-  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  exec(sb, "tabletsRollBlessing()");
   const after = read(sb, "({clock:R.tabletClock,lives:R.tabletLives,surge:R.surge})");
-  ok("a blessing changes clock, lives, or surge", after.clock !== before.clock + 5 || after.lives !== before.lives || after.surge !== 34);
+  ok("a blessing changes clock, lives, or surge", after.clock !== before.clock || after.lives !== before.lives || after.surge !== before.surge);
 }
 
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   stubRandom(sb, 0.9);
-  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("no blessing at 0.9 clock", read(sb, "R.tabletClock"), 45);
+  exec(sb, "R.tabletClock = 10; tabletsRollBlessing()");
+  eq("no blessing at 0.9 clock", read(sb, "R.tabletClock"), 10);
   eq("no blessing at 0.9 lives", read(sb, "R.tabletLives"), 2);
-  eq("no blessing at 0.9 surge", read(sb, "R.surge"), 34);
+  eq("no blessing at 0.9 surge", read(sb, "R.surge"), 0);
 }
 
 {
@@ -419,7 +418,22 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 ok("timeout copy names the sand", /The sand ran out\. The blank stayed empty when the Hold closed/.test(
   fs.readFileSync(path.join(ROOT, "js", "director.js"), "utf8")));
 ok("brief names the chapter clock", /clockS/.test(fs.readFileSync(path.join(ROOT, "js", "briefs.js"), "utf8")));
-ok("cache is 1.8.42", /ctv-v1\.8\.42/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
+ok("cache is 1.8.43", /ctv-v1\.8\.43/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
+ok("torch scene is in the view", html.indexOf("tablets-scene-svg") >= 0);
+ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "tabletsToggleTrial()");
+  eq("trial is on", read(sb, "!!R.tabletTrial"), true);
+  ok("trial class is on the view", read(sb, "$('v-tablets').classList.contains('trial-mode')"));
+  exec(sb, "R.tabletClock = 10; tabletsBurnSand(1)");
+  eq("trial drains 1.35s", Math.abs(read(sb, "R.tabletClock") - 8.65) < 0.001, true);
+  stubRandom(sb, 0.9);
+  exec(sb, "R.tabletClock = 25; R.streak = 0; R.favor = 0; tabletsResolve(true)");
+  eq("trial Favor is 2.5×", read(sb, "R.favor"), 1200);
+}
 
 unstubRandom();
 if (fail) {

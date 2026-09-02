@@ -388,6 +388,7 @@
           <div class="tablets-stat"><b id="tablets-best">0%</b><span>Best</span></div>
         </div>
         <div class="tablets-actions">
+          <button type="button" class="tablets-iconbtn" id="tablets-trial">Trial</button>
           <button type="button" class="tablets-iconbtn" id="tablets-theme">Stone</button>
           <button type="button" class="tablets-iconbtn" id="tablets-pause-btn">Pause</button>
           <button type="button" class="tablets-iconbtn" id="tablets-quit">Quit</button>
@@ -397,8 +398,29 @@
         <canvas id="tablets-fx"></canvas>
         <aside class="tablets-ground" id="tablets-ground">
           <div class="tablets-scene-img">
+            <svg class="tablets-scene-svg" viewBox="0 0 240 160" aria-hidden="true">
+              <defs>
+                <radialGradient id="tabTorch" cx="50%" cy="40%" r="55%">
+                  <stop offset="0%" stop-color="#ffbe54" stop-opacity="0.95"/>
+                  <stop offset="40%" stop-color="#bf6017" stop-opacity="0.5"/>
+                  <stop offset="100%" stop-color="#140b05" stop-opacity="0"/>
+                </radialGradient>
+                <linearGradient id="tabWall" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#0a0502"/>
+                  <stop offset="50%" stop-color="#24160a"/>
+                  <stop offset="100%" stop-color="#080402"/>
+                </linearGradient>
+              </defs>
+              <rect width="240" height="160" fill="url(#tabWall)"/>
+              <path d="M20,160 L20,60 Q120,15 220,60 L220,160 Z" fill="#180e07" stroke="#3d2711" stroke-width="2"/>
+              <path d="M50,160 L50,80 Q120,40 190,80 L190,160 Z" fill="#100804" stroke="#2a1a0b" stroke-width="1.5"/>
+              <circle cx="120" cy="85" r="55" fill="url(#tabTorch)"/>
+              <ellipse cx="120" cy="85" rx="3.5" ry="7" fill="#ffe082"/>
+              <path d="M120,105 C116,105 113,108 113,112 C113,114 114,116 116,118 C112,122 109,128 108,138 L132,138 C131,128 128,122 124,118 C126,116 127,114 127,112 C127,108 124,105 120,105 Z" fill="#080503"/>
+            </svg>
             <i class="tablets-walker-sprite" id="tablets-walker-sprite" aria-hidden="true"></i>
           </div>
+          <i class="tablets-scene-gem" aria-hidden="true"></i>
           <span class="tablets-place-kicker" id="tablets-place-kicker">The tablet</span>
           <b id="tablets-place">The Hall</b>
           <span id="tablets-place-sub"></span>
@@ -413,11 +435,12 @@
           </div>
           <div class="tablets-slot" id="tablets-slot">— — —</div>
           <p class="tablets-verse" id="tablets-verse"></p>
+          <div class="tablets-speech" id="tablets-speech" hidden><i></i><i></i><i></i><i></i></div>
           <div class="tablets-tut-callout" id="tablets-tut-callout" hidden></div>
           <div class="tablets-sand">
             <div class="tablets-sand-row">
               <span>Molten sand</span>
-              <b class="tablets-clock-lab" id="tablets-clock-lab">40.0s</b>
+              <b class="tablets-clock-lab" id="tablets-clock-lab">25.0s</b>
             </div>
             <div class="tablets-clock" aria-label="Time remaining">
               <i class="tablets-clock-fill" id="tablets-clock-fill"></i>
@@ -456,7 +479,7 @@
         <div class="tablets-pct" id="tablets-pct">0%</div>
       </footer>
       <div class="tablets-blessing" id="tablets-blessing">
-        <b id="tablets-blessing-icon">M</b>
+        <b id="tablets-blessing-icon">🏺</b>
         <span>
           <i>Celestial visitation</i>
           <em id="tablets-blessing-text">Manna Jar Discovered (+15s)</em>
