@@ -12,7 +12,7 @@
       stale cache eviction.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.8.47";
+const CACHE_VERSION = "ctv-v1.8.49";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MAX_AUDIO_ENTRIES = 25;
@@ -23,7 +23,7 @@ const PRECACHE_ASSETS = [
   "index.html",
   "manifest.webmanifest",
   "assets/favicon.png",
-  "assets/logo.jpg",
+  "assets/logo.webp",
   "assets/intro.jpg",
   "assets/intro-cross.png",
   "vendor/leaflet/leaflet.css",

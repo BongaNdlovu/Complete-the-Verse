@@ -421,9 +421,11 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 ok("timeout copy names the sand", /The sand ran out\. The blank stayed empty when the Hold closed/.test(
   fs.readFileSync(path.join(ROOT, "js", "director.js"), "utf8")));
 ok("brief names the chapter clock", /clockS/.test(fs.readFileSync(path.join(ROOT, "js", "briefs.js"), "utf8")));
-ok("cache is 1.8.47", /ctv-v1\.8\.47/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
+ok("cache is 1.8.49", /ctv-v1\.8\.49/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
 ok("Hold fonts include Cinzel Decorative and Inter", /Cinzel\+Decorative/.test(html) && /family=Inter/.test(html));
 ok("the Hold does not paint god-rays", !/tabletsFx\.rays/.test(src));
+ok("the Hold has no screen wash overlay", !/#v-tablets:after/.test(fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8")));
+ok("Hold aura stays off until surge", /#tablets-aura\{[^}]*animation:\s*none/.test(fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8")));
 ok("the Hold keeps a few embers", /i < 8/.test(src) && !/i < 45/.test(src));
 ok("a hit registers after the fly", /tabletsFlyWord[\s\S]{0,220}paintTabletsTablet\("hit"\)/.test(src));
 ok("torch scene is in the view", html.indexOf("tablets-scene-svg") >= 0);
