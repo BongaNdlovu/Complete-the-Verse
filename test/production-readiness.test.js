@@ -135,9 +135,9 @@ assert(/!path\.includes\("audio\/"\)/.test(sw) && /!path\.endsWith\("\.mp3"\)/.t
   "audio is explicitly excluded from precaching");
 assert(!/assets\/beats\/goliath/.test(sw),
   "David Beat stills are not precached — they load when that mode starts");
-const questionStill = path.join(ROOT, "assets", "beats", "goliath", "question.jpeg");
+const questionStill = path.join(ROOT, "assets", "beats", "goliath", "question.webp");
 assert(fs.existsSync(questionStill) && fs.statSync(questionStill).size < 700000,
-  "beat question still is a compact JPEG");
+  "beat question still is a compact WebP");
 ["up.webp", "down.webp"].forEach(function (file) {
   const abs = path.join(ROOT, "assets", "judge", file);
   assert(fs.existsSync(abs) && fs.statSync(abs).size < 500000, "judge burst is compact: " + file);
