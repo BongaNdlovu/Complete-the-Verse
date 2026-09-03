@@ -67,6 +67,14 @@ const SITE_AMBIENT = {
   nineveh:"assets/journey/nineveh.mp4",
   babylon:"assets/journey/babylon.mp4",
   susa:"assets/journey/susa.mp4",
+  bethlehem:"assets/journey/bethlehem.mp4",
+  nazareth:"assets/journey/nazareth.mp4",
+  jordan:"assets/journey/jordan.mp4",
+  capernaum:"assets/journey/capernaum.mp4",
+  golgotha:"assets/journey/golgotha.mp4",
+  emmaus:"assets/journey/emmaus.mp4",
+  "damascus-road":"assets/journey/damascus-road.mp4",
+  antioch:"assets/journey/antioch.mp4",
   patmos:"assets/journey/patmos.mp4"
 };
 
