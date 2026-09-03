@@ -394,6 +394,23 @@ function endRun(reason){
     road: saved.road, siteCleared: ctx.siteCleared, firstClearBonus: scored.firstClearBonus,
     survivedMs: survivedMs, quickRewards: saved.quickRewardResult});
   go("results");
+  prefetchNextSiteMedia();
+}
+
+function prefetchNextSiteMedia(){
+  try{
+    if(typeof Pilgrimage === "undefined" || !SAVE || !SAVE.pilgrim) return;
+    const nxt = Pilgrimage.currentSite(SAVE.pilgrim);
+    if(!nxt || !nxt.id) return;
+    if(typeof Image === "undefined") return;
+    /* VIGNETTES is the authored journey art (sites.js); the mp4 loops stay
+       on the play view's own loader, images alone are cheap to warm. */
+    const vig = typeof VIGNETTES !== "undefined" && VIGNETTES[nxt.id];
+    if(vig && vig.image && !vig.image.endsWith(".mp4")){
+      const img = new Image();
+      img.src = vig.image;
+    }
+  }catch(e){}
 }
 
 /* A chapter lives at one pace, so a retry always re-carves the same chapter. */

@@ -703,6 +703,12 @@ function syncHallVideo(quality){
   const p=v.play();
   if(p&&p.catch) p.catch(()=>{});
 }
+function autoQuality(quality){
+  if(SAVE.set.qualityLocked) return quality;
+  if(typeof navigator !== "undefined" && navigator.connection && navigator.connection.saveData) return "low";
+  if(window.matchMedia && matchMedia("(max-width:720px), (pointer:coarse)").matches && quality === "high") return "balanced";
+  return quality;
+}
 function applySettings(){
   const systemReduced=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
   const motionMode = SAVE.set.motion || (SAVE.set.reduced ? "reduced" : "full");
@@ -712,11 +718,8 @@ function applySettings(){
   document.body.classList.toggle("motion-calm", isCalm);
   document.body.classList.toggle("contrast", !!SAVE.set.contrast);
   document.body.classList.remove("quality-high","quality-balanced","quality-low");
-  let quality=["high","balanced","low"].includes(SAVE.set.quality)?SAVE.set.quality:"high";
-  /* Prefer efficient profile on small/touch devices unless the player chose. */
-  if(!SAVE.set.qualityLocked && window.matchMedia && matchMedia("(max-width:720px), (pointer:coarse)").matches){
-    if(quality==="high") quality="balanced";
-  }
+  /* Prefer efficient profile on small/touch devices or saveData unless the player chose. */
+  let quality = autoQuality(["high","balanced","low"].includes(SAVE.set.quality)?SAVE.set.quality:"high");
   document.body.classList.add("quality-"+quality);
   syncHallVideo(quality);
   if(typeof Snd!=="undefined" && Snd.syncLevels) Snd.syncLevels();

@@ -15,7 +15,9 @@
 const CACHE_VERSION = "ctv-v1.8.52";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
+const MEDIA_CACHE = "ctv-media-" + CACHE_VERSION;
 const MAX_AUDIO_ENTRIES = 25;
+const MAX_MEDIA_ENTRIES = 30;
 
 /* Core shell files to precache for offline support. Audio files are excluded. */
 const PRECACHE_ASSETS = [
@@ -90,6 +92,15 @@ function isAudio(url) {
   return url.pathname.includes("/audio/") || url.pathname.endsWith(".mp3") || url.pathname.endsWith(".ogg") || url.pathname.endsWith(".wav");
 }
 
+/* Helper to check if a URL is heavy dynamic media */
+function isMedia(url) {
+  return url.pathname.includes("/assets/journey/") ||
+         url.pathname.includes("/assets/beats/") ||
+         url.pathname.includes("/assets/characters/") ||
+         url.pathname.endsWith(".mp4") ||
+         url.pathname.endsWith(".webm");
+}
+
 /* Trim cache entries according to LRU cap */
 async function trimCache(cacheName, maxEntries) {
   const cache = await caches.open(cacheName);
@@ -122,7 +133,7 @@ self.addEventListener("activate", (event) => {
       caches.keys().then((keys) => {
         return Promise.all(
           keys.map((key) => {
-            if (key !== CACHE_NAME && key !== AUDIO_CACHE) {
+            if (key !== CACHE_NAME && key !== AUDIO_CACHE && key !== MEDIA_CACHE) {
               return caches.delete(key);
             }
           })
@@ -176,6 +187,29 @@ self.addEventListener("fetch", (event) => {
           if (cached) return cached;
           return caches.match("index.html") || caches.match("./");
         })
+    );
+    return;
+  }
+
+  /* Dynamic Media Strategy: Cache-first with LRU bounded eviction cap.
+     Byte-range requests (video/audio seeks) bypass the cache: storing a
+     206 partial would poison later full plays. */
+  if (isMedia(url) && !request.headers.get("range")) {
+    event.respondWith(
+      caches.open(MEDIA_CACHE).then(async (cache) => {
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        try {
+          const networkResponse = await fetch(request);
+          if (networkResponse && networkResponse.status === 200 && url.origin === self.location.origin) {
+            cache.put(request, networkResponse.clone());
+            trimCache(MEDIA_CACHE, MAX_MEDIA_ENTRIES);
+          }
+          return networkResponse;
+        } catch (err) {
+          return cached || new Response("", { status: 404, statusText: "Offline Media Unavailable" });
+        }
+      })
     );
     return;
   }

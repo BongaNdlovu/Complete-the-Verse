@@ -249,6 +249,26 @@ async function proofPhoneOpen(c, snap) {
   ];
   await runShots(c, snap, phone, "phone");
 
+  const sweepScreens = [
+    ["play", `endRun("abandon"); startRun("daily","watchman")`, "play.png"],
+    ["brief", `endRun("abandon"); openBrief("daily")`, "brief.png"],
+    ["results", `startRun("daily","watchman"); endRun("abandon")`, "results.png"],
+    ["atlas", `go("atlas")`, "atlas.png"]
+  ];
+
+  for (const [w, h, tag] of [[360, 740, "sweep-compact"], [844, 390, "sweep-landscape"]]) {
+    await c.send("Emulation.setDeviceMetricsOverride", { width: w, height: h, deviceScaleFactor: 2, mobile: true });
+    await sleep(250);
+    for (const [label, code, file] of sweepScreens) {
+      const fullTag = `${tag}-${label}`;
+      try { await c.eval(code); } catch(e) { check(fullTag + " eval", false, String(e.message || e)); }
+      await sleep(350);
+      const st = await snap(fullTag);
+      checkPlayChrome(st, fullTag);
+      await c.shot(`${tag}-${file}`);
+    }
+  }
+
   console.log("EXCEPTIONS", c.errors.length ? c.errors.join(" | ") : "none");
   check("no runtime exceptions", c.errors.length === 0, c.errors.join(" | "));
   console.log("PROOF", passed, "passed", failed, "failed", "shots in .tmp-proof");
