@@ -29,11 +29,20 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 class CDP {
   constructor(url) { this.url = url; this.ws = null; this.cb = new Map(); }
+  _failPending(reason) {
+    const pending = this.cb;
+    this.cb = new Map();
+    for (const { reject } of pending.values()) reject(new Error(reason));
+  }
   connect() {
     return new Promise((resolve, reject) => {
       this.ws = new WebSocket(this.url);
       this.ws.onopen = () => resolve();
-      this.ws.onerror = reject;
+      this.ws.onerror = () => {
+        this._failPending("CDP connection error");
+        reject(new Error("CDP connection error: " + this.url));
+      };
+      this.ws.onclose = () => this._failPending("CDP connection closed");
       this.ws.onmessage = ev => {
         const msg = JSON.parse(ev.data);
         if (msg.id && this.cb.has(msg.id)) {
@@ -49,7 +58,12 @@ class CDP {
     return new Promise((resolve, reject) => {
       const id = nextId++;
       this.cb.set(id, { resolve, reject });
-      this.ws.send(JSON.stringify({ id, method, params }));
+      try {
+        this.ws.send(JSON.stringify({ id, method, params }));
+      } catch (e) {
+        this.cb.delete(id);
+        reject(e);
+      }
     });
   }
   async eval(expression) {
@@ -67,7 +81,11 @@ class CDP {
     fs.writeFileSync(path.join(SHOT, name), Buffer.from(res.data, "base64"));
     console.log("  SHOT  " + name);
   }
-  close() { if (this.ws) this.ws.close(); }
+  close() {
+    if (!this.ws) return;
+    try { this.ws.close(); } catch (e) {}
+    this._failPending("CDP connection closed");
+  }
 }
 
 async function connect() {
@@ -214,7 +232,16 @@ async function launchChrome() {
     "--user-data-dir=" + profile
   ], { stdio: "ignore" });
   await sleep(1200);
-  return chrome;
+  return { chrome, profile };
+}
+
+async function stopChrome(chrome, profile) {
+  try { chrome.kill(); } catch (e) {}
+  await new Promise(resolve => {
+    const t = setTimeout(resolve, 2000);
+    chrome.once("exit", () => { clearTimeout(t); resolve(); });
+  });
+  try { fs.rmSync(profile, { recursive: true, force: true }); } catch (e) {}
 }
 
 /* ---- intro / boot ---- */
@@ -601,7 +628,7 @@ async function valleyToast(c) {
 
 async function main() {
   await ensureDevServer();
-  const chrome = await launchChrome();
+  const { chrome, profile } = await launchChrome();
 
   let c;
   try {
@@ -625,7 +652,7 @@ async function main() {
     await valleyToast(c);
   } finally {
     if (c) c.close();
-    chrome.kill();
+    await stopChrome(chrome, profile);
   }
 
   console.log("\nscreenshots: " + SHOT);
