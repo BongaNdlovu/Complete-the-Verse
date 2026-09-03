@@ -662,6 +662,7 @@ function openSiteBrief(siteId, mode){
   $("sb-hint").textContent = (sbMode === "pilgrim-recall"
     ? "Type the missing phrase · Keyboard if you want the board · Enter to lock · Esc pauses"
     : "A–D or 1–4 or tap to answer · last 2 assembled · S Selah · I Illuminate · Esc pauses") + finale;
+  $("sb-hint").classList.add("kb-hint");
 
   renderSiteDiffs();
   go("sitebrief");
@@ -722,6 +723,7 @@ function openRelayBrief(arcKey){
   $("sb-live").innerHTML = "";
   $("sb-start").textContent = "Walk it";
   $("sb-hint").textContent = "Lives do not come back · every site you pass stays cleared, even if the road ends you";
+  $("sb-hint").classList.remove("kb-hint");
   renderSiteDiffs();
   go("sitebrief");
 }

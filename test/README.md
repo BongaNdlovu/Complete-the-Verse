@@ -11,7 +11,7 @@ Every suite resolves the repo with `require("../scripts/repo-root")`. Engine con
 | Play loop | `clocks-powers`, `question-mechanics`, `answering`, `truefalse`, `onboarding`, `beats` |
 | Modes / campaign | `all-game-modes`, `arc1-deep-verification`, `coffee-pilgrimage`, `menu-modes` |
 | Cloud / save | `cloud`, `diag`, `friend-race` |
-| Views / chrome | `atlas`, `sites`, `ui-structure`, `patriarchs-question-screen`, `motion` |
+| Views / chrome | `atlas`, `sites`, `ui-structure`, `mobile-layout`, `patriarchs-question-screen`, `motion` |
 | Engine contract | `engine-modules`, `integration`, `game-structure`, `e2e-game-elements` |
 | Production locks | `production-readiness`, `metadata`, `sky3d`, `fixes` |
 

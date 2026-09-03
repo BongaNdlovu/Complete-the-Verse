@@ -522,8 +522,8 @@ body.reduced .res-details[open] .breakdown,body.reduced .res-details[open] .stat
   .verse-main.vlen-md{font-size:clamp(.96rem,5.05vw,1.48rem)}
   .verse-main.vlen-lg{font-size:clamp(.88rem,4.6vw,1.3rem)}
   .verse-main.vlen-xl{font-size:clamp(.84rem,4.15vw,1.16rem)}
-  .answers{width:100%;margin-top:20px;gap:10px}
-  .ans{flex:1 1 100%;font-size:.84rem}
+  .answers{width:100%;margin-top:20px;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ans{font-size:.84rem}
   .control{margin-top:20px;flex-wrap:wrap;gap:14px}
   .clockbar{width:min(120px,28vw);align-items:flex-end}
   .hud-time{align-items:flex-end}
@@ -532,15 +532,11 @@ body.reduced .res-details[open] .breakdown,body.reduced .res-details[open] .stat
   .assembly.on{width:100%;margin-top:14px}
   .slot{flex:1 1 100%;min-width:0;font-size:.86rem}
   .frag{flex:1 1 100%;font-size:.86rem}
-  .hdr{height:auto;padding:8px 12px 18px;flex-wrap:wrap}
-  /* One cramped row makes the site/round title collide with the memory
-     tier (the old margin-right reservation was sized for desktop). Wrap
-     the right side onto its own row: raised clear of the floating audio
-     dock (bottom ≈56px) and with air under it before the crimson rule. */
-  .hdr-side{min-width:0;flex:0 1 auto}
-  .hdr-side.r{flex:1 1 100%;margin-right:0;max-width:none;text-align:right;padding-top:18px}
+  .hdr{height:auto;padding:6px 12px;flex-wrap:nowrap;padding-right:176px}
+  .hdr-side{min-width:0;flex:1 1 0}
+  .hdr-side.r{flex:1 1 0;margin-right:0;max-width:none;text-align:right;padding-top:0}
   .hdr-side.r .hdr-val{font-size:.7rem}
-  .hdr-val{white-space:normal;font-size:.8rem}
+  .hdr-val{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.8rem}
   .hdr-lab{font-size:.56rem}
   #v-play .act-track{position:static;transform:none;width:100%;margin:0;padding:0}
 }
@@ -1660,3 +1656,68 @@ body.reduced .beat-fx-run #backdrop{animation:none}
 .answers.beat-match,
 .biblical-thriller .answers.beat-match{grid-template-columns:repeat(3,minmax(0,1fr))}
 body.mode-beat .ans .ans-copy{overflow-wrap:anywhere}
+
+/* Phone play shell. Must sit after .biblical-thriller rules so it wins
+   the cascade: rails stay one strip, answers stay a 2×2, the dock stays
+   in-flow, and the decorative footer does not eat the last 50px. */
+@media (max-width:600px){
+  body.biblical-thriller #v-play .hdr{
+    height:auto;min-height:44px;padding:4px 10px;padding-right:176px;flex-wrap:nowrap}
+  body.biblical-thriller #v-play .hdr-side.l{display:none}
+  body.biblical-thriller #v-play .hdr-side{min-width:0;max-width:none;flex:1 1 0}
+  body.biblical-thriller #v-play .hdr-side.r{
+    flex:1 1 auto;margin-right:0;max-width:none;padding-top:0;text-align:left}
+  body.biblical-thriller #v-play .hdr-lab{font-size:.62rem;letter-spacing:.14em}
+  body.biblical-thriller #v-play .hdr-val{
+    font-size:.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.biblical-thriller #v-play .stage{
+    display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto minmax(0,1fr);
+    align-items:center;overflow:hidden;padding:4px 10px 6px;gap:4px 0}
+  body.biblical-thriller #v-play .rail{
+    position:static;top:auto;bottom:auto;left:auto;right:auto;
+    width:auto;min-width:0;flex-direction:row;align-items:center;
+    padding:2px 6px;gap:8px;background:none;border:0}
+  body.biblical-thriller #v-play .rail.l{grid-column:1;grid-row:1;justify-self:start;justify-content:flex-start}
+  body.biblical-thriller #v-play .rail.r{grid-column:2;grid-row:1;justify-self:end;justify-content:flex-end;text-align:right;align-items:center}
+  body.biblical-thriller #v-play .rail-lab{display:none}
+  body.biblical-thriller #v-play .rail.r > :nth-child(3),
+  body.biblical-thriller #v-play .multbadge{display:none}
+  body.biblical-thriller #v-play .play-top-stack{grid-column:1/-1;grid-row:2;width:100%;gap:2px;margin:0}
+  body.biblical-thriller #v-play .quick-rewards{display:none}
+  body.biblical-thriller #v-play .act-track{width:100%;padding:0 0 2px;gap:3px}
+  body.biblical-thriller #v-play .act-step{height:4px;overflow:hidden}
+  body.biblical-thriller #v-play .act-step span{display:none}
+  body.biblical-thriller #v-play .question-content{
+    grid-column:1/-1;grid-row:3;width:100%;max-height:none;min-height:0;justify-content:flex-end;padding:0}
+  body.biblical-thriller #v-play .question-body{
+    min-height:0;padding-bottom:4px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+  body.biblical-thriller #v-play .verse-stage{
+    width:100%;margin-top:6px;padding:10px 8px;flex:1 1 auto;min-height:0;overflow-y:auto}
+  body.biblical-thriller #v-play .answers{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;margin-top:8px;gap:8px;flex:0 0 auto}
+  body.biblical-thriller #v-play .answers.typed{
+    display:flex;flex-direction:column;align-items:center;grid-template-columns:none}
+  body.biblical-thriller #v-play .typewrap{width:100%;max-width:100%}
+  body.biblical-thriller #v-play .ans{min-height:48px;font-size:.84rem;flex:none}
+  body.biblical-thriller #v-play .assembly,
+  body.biblical-thriller #v-play .cloze-stage,
+  body.biblical-thriller #v-play .duel-stage,
+  body.biblical-thriller #v-play .tf-stage,
+  body.biblical-thriller #v-play .control{flex:0 0 auto}
+  body.biblical-thriller #v-play .control{margin-top:8px;gap:8px}
+  body.biblical-thriller #v-play .confirm-answer:disabled{display:none}
+  body.biblical-thriller #v-play .warn{max-width:none;text-align:center;font-size:.62rem}
+  body.biblical-thriller #v-play .powerbar{
+    position:static;flex-wrap:nowrap;justify-content:stretch;gap:4px;margin:4px 0 0;
+    padding:4px 0 max(8px,env(safe-area-inset-bottom,0px));background:none}
+  body.biblical-thriller #v-play .pwr{
+    flex:1 1 0;min-width:0;white-space:normal;letter-spacing:.06em;font-size:.62rem;
+    line-height:1.15;padding:.3em .25em;text-align:center}
+  body.biblical-thriller #v-play .pwr em{display:block;margin-left:0;opacity:.7}
+  body.biblical-thriller #v-play .ftr{height:0;overflow:hidden;box-shadow:none;border:0}
+  body.biblical-thriller #v-play .assembly.on{width:100%;margin-top:8px}
+  body.biblical-thriller #v-play .clockbar{width:auto;min-width:64px}
+  body.biblical-thriller.onboarding #v-play .question-content{padding-top:3.2rem}
+  body.biblical-thriller #tutorial-guide{padding:.4rem .7rem;width:min(540px,calc(100% - 16px))}
+  body.biblical-thriller #v-play .confirm-answer{min-width:min(220px,70vw)}
+}

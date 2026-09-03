@@ -36,6 +36,7 @@ const SUITE = [
   ["engine modules", "test/engine-modules.test.js"],
   ["game structure", "test/game-structure.test.js"],
   ["ui structure", "test/ui-structure.test.js"],
+  ["mobile layout", "test/mobile-layout.test.js"],
   ["atlas data", "test/sites.test.js"],
   ["atlas view", "test/atlas.test.js"],
   ["soundtrack", "test/soundtrack.test.js"],

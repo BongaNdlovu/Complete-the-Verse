@@ -300,7 +300,7 @@ const MODES = {
     tagline:"Goliath · twelve questions · replay any time", info:[["12","Questions"],["40s","Clock"],["Held","None wrong"]] },
   tablets:{ key:"tablets", name:"Word Tablets", kick:"Fill the Word", atlas:false,
     desc:"Carve the missing KJV word before the clock runs out. One miss shatters the Hold. Learn the prayer, then Hold Psalm 23 to open Psalm 91, then John 1.",
-    tagline:"I · II · III · the hall", info:[["I–III","Pace"],["Hold","One miss"],["Prayer","Then the hall"]] },
+    tagline:"Pace I–III · the hall", info:[["I–III","Pace"],["Hold","One miss"],["Prayer","Then the hall"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, assembled word for word.",
     tagline:"Assemble · cleared sites", info:[["8","Verses"],["Assemble","No options"],[modeClockLabel("pilgrim-recall"),"Clock"]] },

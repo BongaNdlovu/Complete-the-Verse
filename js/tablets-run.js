@@ -114,7 +114,9 @@ function paintTabletsTutorialCallout(){
     return;
   }
   const prompts = [
-    "Tap FATHER below (or press 1–4)",
+    (window.matchMedia && matchMedia("(pointer:coarse)").matches)
+      ? "Tap FATHER below"
+      : "Tap FATHER below (or press 1–4)",
     "The word flies into the carved slot",
     "In the true Hold the sand runs; here it stands still",
     "Illuminate glows the true stone for a breath",

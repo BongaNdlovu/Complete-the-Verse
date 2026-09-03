@@ -411,7 +411,7 @@ bank answers nearest in length — numbered fakes were removed.
 
 ## 10. Testing — the three styles (know which one you are writing)
 
-`node test.js` runs 56 suites in a fixed order: content gate → pure
+`node test.js` runs 57 suites in a fixed order: content gate → pure
 logic → integration sandbox → structural/static suites. CI also runs
 `npm run lint` (Oxlint `complexity` max 20) before the suite.
 

@@ -165,13 +165,30 @@ async function runLiveVerification() {
       const selah = !!bar.querySelector('[data-pw="selah"]');
       const illum = !!bar.querySelector('[data-pw="illum"]');
       const typedPwr = document.querySelectorAll(".typed-pwr").length;
+      const answers = Array.from(document.querySelectorAll("#opts .ans")).map(el => {
+        const r = el.getBoundingClientRect();
+        return { top: r.top, bottom: r.bottom, left: r.left, right: r.right };
+      });
+      const overlap = answers.filter(a =>
+        a.bottom > br.top + 2 && a.top < br.bottom - 2 &&
+        a.right > br.left + 2 && a.left < br.right - 2);
+      const allOnScreen = !answers.length || answers.every(a =>
+        a.top >= pr.top - 2 && a.bottom <= pr.bottom + 2 && a.bottom <= br.top + 4);
       return { ok: inside && selah && illum, inside, selah, illum, typedPwr,
-        barTop: Math.round(br.top), playBottom: Math.round(pr.bottom) };
+        barTop: Math.round(br.top), playBottom: Math.round(pr.bottom),
+        answerCount: answers.length, overlapCount: overlap.length, allOnScreen,
+        lastAnsBottom: answers.length ? Math.round(answers[answers.length - 1].bottom) : 0 };
     })()`);
     check(`${label}: powerbar fully inside #v-play`, geom.inside,
       `barTop=${geom.barTop}, playBottom=${geom.playBottom}`);
     check(`${label}: Selah and Illuminate visible`, geom.selah && geom.illum);
     check(`${label}: no duplicate .typed-pwr buttons`, geom.typedPwr === 0, `count=${geom.typedPwr}`);
+    if (geom.answerCount) {
+      check(`${label}: answers do not intersect powerbar`, geom.overlapCount === 0,
+        `overlap=${geom.overlapCount} lastAns=${geom.lastAnsBottom} barTop=${geom.barTop}`);
+      check(`${label}: four answers visible above the dock`, geom.allOnScreen,
+        `lastAns=${geom.lastAnsBottom} barTop=${geom.barTop} playBottom=${geom.playBottom}`);
+    }
     return geom;
   }
 

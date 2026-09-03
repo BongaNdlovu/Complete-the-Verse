@@ -10,8 +10,10 @@
    page from a test harness, checking it on a phone on the same network,
    or anything that wants a real origin. Node only, no dependencies.
 
-     node scripts/dev-server.js  ->  http://localhost:8781 */
+     node scripts/dev-server.js  ->  http://localhost:8781
+                                    + the LAN URL to open on a phone */
 const http = require("http");
+const os = require("os");
 const fs = require("fs");
 const path = require("path");
 
@@ -78,4 +80,17 @@ http.createServer(function (req, res) {
   });
 }).listen(PORT, function () {
   console.log("Complete the Verse — http://localhost:" + PORT);
+  /* Phone testing: the server binds every interface, so any device on
+     the same network can reach it. Print the addresses so nobody has to
+     run ipconfig. */
+  var seen = {};
+  Object.keys(os.networkInterfaces()).forEach(function (name) {
+    (os.networkInterfaces()[name] || []).forEach(function (net) {
+      var v4 = net.family === "IPv4" || net.family === 4;
+      if (v4 && !net.internal && !seen[net.address]) {
+        seen[net.address] = true;
+        console.log("  on your phone (same Wi-Fi): http://" + net.address + ":" + PORT);
+      }
+    });
+  });
 });

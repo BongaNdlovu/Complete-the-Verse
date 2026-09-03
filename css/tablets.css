@@ -417,3 +417,43 @@ body.reduced #tablets-fx,body.motion-calm #tablets-fx{display:none}
   .tablets-companion{width:clamp(88px,12vw,150px)}
   .tablets-companion img{max-height:min(34vh,300px)}
 }
+
+/* Phone shell: the 640px wrap made a 179px header and a 354px tray, so the
+   stone card was shorter than its own content. One-row chrome, stones stay
+   tappable, verse card keeps the remaining height. */
+@media (max-width:640px){
+  .tablets-top{
+    flex-wrap:nowrap;align-items:center;gap:6px;
+    padding:6px 8px;padding-right:calc(max(14px,env(safe-area-inset-right)) + 100px);
+    min-height:48px}
+  .tablets-chip{flex:1 1 0;min-width:0}
+  .tablets-chip span,.tablets-stats,.tablets-tier{display:none}
+  .tablets-chip b{font-size:.82rem;letter-spacing:.1em}
+  .tablets-actions{gap:4px}
+  .tablets-iconbtn{padding:0 .55em;min-height:40px;font-size:.55rem;letter-spacing:.1em}
+  .tablets-stage{padding:8px 10px;overflow:hidden;align-items:stretch}
+  .tablets-ms{padding:12px 14px 10px;margin:0;border-radius:12px;flex:1 1 auto;min-height:0;
+    display:flex;flex-direction:column;justify-content:center;align-self:stretch;width:100%;max-width:100%}
+  .tablets-mark-row{display:none}
+  .tablets-ref-pill{font-size:.9rem;margin-bottom:4px;letter-spacing:.14em}
+  .tablets-slot{height:36px;margin-bottom:8px;font-size:.82rem}
+  .tablets-verse{font-size:1.02rem;min-height:0;margin-bottom:8px;flex:1 1 auto}
+  .tablets-sand{padding-top:6px}
+  .tablets-sand-row span{font-size:.58rem}
+  .tablets-clock-lab{font-size:.9rem}
+  .tablets-clock{height:8px;margin:4px 2px 0}
+  .tablets-tray{padding:8px 10px 6px}
+  .tablets-tray-lab{display:none}
+  .tablets-keys-hint{display:none}
+  .tablets-grid{gap:8px}
+  .tablets-stone{height:56px;border-radius:8px}
+  .tablets-word{font-size:.92rem;letter-spacing:.08em}
+  .tablets-key{width:22px;height:22px;top:5px;left:6px;font-size:.62rem}
+  .tablets-tray-tools{margin-top:8px;gap:6px}
+  .tablets-tray-tools button,.tablets-lamps,.tablets-surge{
+    min-height:40px;padding:6px 8px;font-size:.58rem}
+  .tablets-surge{width:auto;min-width:0;flex:1 1 120px}
+  .tablets-foot{padding:6px 10px max(8px,env(safe-area-inset-bottom));gap:8px}
+  .tablets-hold{display:none}
+  .tablets-pct{font-size:.82rem;min-width:2.6em}
+}

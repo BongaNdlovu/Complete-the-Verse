@@ -307,10 +307,10 @@ body.fx-lock #grain,body.fx-correct #grain,body.fx-act #grain{opacity:.22;animat
 12%{opacity:1;transform:translate(-50%,-10px) scale(1.22);filter:none}
 55%{opacity:1;transform:translate(-50%,-42px) scale(1.05)}
 100%{opacity:0;transform:translate(-50%,-110px) scale(.92);filter:blur(2px)}}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:12vh;z-index:26;pointer-events:none;
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:26;pointer-events:none;
   font-family:var(--ui);letter-spacing:.28em;text-transform:uppercase;font-size:.68rem;color:var(--gold-hot);
   background:rgba(6,7,11,.86);padding:.9em 1.6em;box-shadow:0 0 0 1px var(--gold) inset;
-  backdrop-filter:blur(8px);animation:ts 2.6s ease-out forwards}
+  backdrop-filter:blur(8px);animation:ts 2.6s ease-out forwards;max-width:calc(100% - 24px);text-align:center}
 @keyframes ts{0%{opacity:0;transform:translate(-50%,16px)}12%,72%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-10px)}}
 
 /* ================= RESULTS ================= */
@@ -570,7 +570,7 @@ body.blitz-edge-3{box-shadow:inset 0 0 0 5px rgba(200,30,20,.75);animation:blitz
 @media (max-width:720px){
   .answers .ans{min-height:3rem;padding:.85rem .75rem}
   .confirm-answer{min-height:3.1rem;font-size:1rem}
-  .powerbar{position:relative;bottom:auto;padding-bottom:env(safe-area-inset-bottom,8px);background:linear-gradient(transparent,rgba(10,6,4,.92) 30%)}
+  .powerbar{position:relative;bottom:auto;padding-bottom:env(safe-area-inset-bottom,8px);background:none}
   .heatgrid{grid-template-columns:repeat(8,minmax(0,1fr))}
 }
 .empty{text-align:center;color:var(--parch-dim);font-style:italic;padding:6vh 0}
@@ -1028,6 +1028,7 @@ body.quality-low #v-results:before{animation:none!important}
 .vkb-key.danger{color:var(--blood-hot)}
 @media (hover:none) and (pointer:coarse){
   .vkb-key{height:44px;max-width:none}
+  .kb-hint,.tablets-hotkey{display:none!important}
 }
 body.mode-typed .verse-main{font-size:clamp(1.08rem,2.5vw,1.94rem);line-height:1.28}
 body.mode-typed .verse-main.vlen-md{font-size:clamp(1rem,2.25vw,1.7rem)}
@@ -1296,7 +1297,38 @@ body.reduced.wiping #v-play .stage{animation:none}
 
 @media (max-width:600px){
   .typed-input{font-size:clamp(.95rem,4.4vw,1.2rem);padding:.75em .8em}
-  .asm-tile,.asm-slot{min-height:2.5em}
+  .asm-tile,.asm-slot,.cloze-chip{min-height:44px;min-width:44px}
+  .heatgrid{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .heatcell{min-height:0}
+  .searchbar{width:100%;max-width:100%}
+  .searchbar input{flex:1 1 100%;min-width:0}
+  .searchbar select{flex:1 1 calc(50% - 4px);min-width:0}
+  .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%;max-width:100%}
+  .stat{min-width:0}
+  .insight-grid{grid-template-columns:1fr}
+  .ending-stage,.res-insights,.res-details,.breakdown,.res-board{max-width:100%;width:100%;box-sizing:border-box}
+  .view .scrollpad{overflow-x:hidden;max-width:100%}
+  .kick,.hdr-lab,.mode .tagline,.mtitle{font-size:max(.72rem,12px);letter-spacing:.16em}
+  .audio-tog{min-width:44px;min-height:44px}
+  .kb-hint,.tablets-keys-hint{display:none!important}
+  #brief-tablets-pick{max-height:none;overflow:visible;width:100%}
+  .cloud-name{flex-direction:column;align-items:stretch;justify-content:flex-start;width:100%}
+  .cloud-name input{width:100%;min-width:0;box-sizing:border-box}
+  .menu-signin-form{flex-direction:column;align-items:stretch}
+  .menu-signin-form input{width:100%;min-width:0}
+  #v-records .panelhead{flex-direction:column;align-items:stretch;gap:12px}
+  #v-records .tabs{width:100%}
+  .tab{padding:.5em .65em;letter-spacing:.1em;flex:1 1 auto;text-align:center}
+  .pause-stats{flex-wrap:wrap;gap:16px 24px}
+  .sealgrid{grid-template-columns:1fr;width:100%}
+  .relic-grid{grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+  .char-grid,.char-sec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .lbrow{grid-template-columns:32px 1fr auto;gap:8px;padding:.7em .75em}
+  .lbrow .dt{display:none}
+  .bb{grid-template-columns:minmax(0,1fr) 2fr 44px;gap:8px}
+  .inspect-grid{grid-template-columns:1fr}
+  .jv-card{padding:1.2rem 1rem 1.4rem;width:min(840px,94vw)}
+  .char-panel{padding:1rem .9rem 1.2rem;max-height:92vh}
 }
 
 /* ==================================================================
