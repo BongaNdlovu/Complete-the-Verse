@@ -127,11 +127,37 @@ function paintTabletsTutorialCallout(){
   callout.textContent = msg;
   callout.hidden = false;
 }
-function paintTabletsVerse(blank, carved){
-  const verse = $("tablets-verse");
-  if(!verse) return;
-  verse.innerHTML = "";
-  if(!blank){ verse.textContent = ""; return; }
+/* Multi-gap steps: Pace I carves 2 words per stone-setting, Pace II carves
+   3, Pace III carves 4. Steps group consecutive blanks at run start, so all
+   144 authored chapters work unchanged. The prayer tutorial stays single-gap. */
+function tabletsGapCount(){
+  if(typeof R !== "undefined" && R && R.tabletTutorial) return 1;
+  const lvl = (typeof R !== "undefined" && R && R.tabletLevel) || 1;
+  return Math.min(4, Math.max(1, (lvl | 0) + 1));
+}
+function tabletsBuildSteps(ch, k){
+  const steps = [];
+  const blanks = (ch && ch.blanks) || [];
+  for(let i = 0; i < blanks.length; i += k) steps.push(blanks.slice(i, i + k));
+  return steps;
+}
+function tabletsStepBlanks(){
+  const steps = (typeof R !== "undefined" && R && R.tabletSteps) || [];
+  return steps[(R && R.tabletIdx) || 0] || [];
+}
+function tabletsGapBlank(){
+  const step = tabletsStepBlanks();
+  return step[(R && R.gapIdx) || 0] || step[0] || null;
+}
+function tabletsGapKey(){
+  return (((R && R.tabletIdx) || 0) + ":" + ((R && R.gapIdx) || 0));
+}
+function paintTabletsVerseLine(host, blank, carved){
+  const line = document.createElement("div");
+  line.className = "tablets-gap-line";
+  const ref = document.createElement("span");
+  ref.className = "tablets-gap-ref";
+  ref.textContent = blank.r;
   const pre = document.createElement("span");
   pre.textContent = blank.prefix + " ";
   const mid = document.createElement("span");
@@ -139,9 +165,24 @@ function paintTabletsVerse(blank, carved){
   mid.textContent = carved ? blank.a : "___";
   const suf = document.createElement("span");
   suf.textContent = blank.suffix ? (" " + blank.suffix) : "";
-  verse.appendChild(pre);
-  verse.appendChild(mid);
-  verse.appendChild(suf);
+  line.appendChild(ref);
+  line.appendChild(pre);
+  line.appendChild(mid);
+  line.appendChild(suf);
+  host.appendChild(line);
+}
+function paintTabletsVerse(stepBlanks, gapIdx, answer){
+  const verse = $("tablets-verse");
+  if(!verse) return;
+  verse.innerHTML = "";
+  if(verse.dataset) verse.dataset.gaps = String((stepBlanks || []).length || 1);
+  if(!stepBlanks || !stepBlanks.length){ verse.textContent = ""; return; }
+  stepBlanks.forEach(function(blank, gi){
+    /* A hit carves through the current gap; earlier gaps stay carved, later
+       gaps stay empty. A miss keeps whatever was already carved. */
+    const carved = (answer === "hit" || answer === "done") ? gi <= gapIdx : gi < gapIdx;
+    paintTabletsVerseLine(verse, blank, carved);
+  });
 }
 function paintTabletsSlot(blank, kind){
   const slot = $("tablets-slot");
@@ -162,15 +203,27 @@ function tabletsShowFracture(){
 }
 function paintTabletsTablet(answer){
   const ch = tabletsChapter();
-  const i = R.tabletIdx || 0;
-  const blank = ch.blanks[i];
+  const step = tabletsStepBlanks();
+  const gap = tabletsGapBlank();
   const refEl = $("tablets-ref");
-  if(refEl) refEl.textContent = blank ? blank.r : ch.r;
-  paintTabletsVerse(blank, answer === "hit" || answer === "done");
-  paintTabletsSlot(blank, answer === "hit" ? "hit" : "");
+  if(refEl) refEl.textContent = gap ? gap.r : ch.r;
+  paintTabletsVerse(step, (R && R.gapIdx) || 0, answer);
+  paintTabletsSlot(gap, answer === "hit" ? "hit" : "");
   if(answer === "miss") tabletsShowFracture();
   paintTabletsPips();
   paintTabletsClock();
+  tabletsKeepGapInView();
+}
+/* On small screens a tall multi-gap card scrolls inside the stage: keep
+   the active gap line visible after every repaint. No-op on desktop
+   (nothing overflows) and in tests (shim no-op). */
+function tabletsKeepGapInView(){
+  try{
+    const verse = $("tablets-verse");
+    if(!verse || !verse.children || verse.children.length < 2) return;
+    const line = verse.children[Math.min((R && R.gapIdx) || 0, verse.children.length - 1)];
+    if(line && typeof line.scrollIntoView === "function") line.scrollIntoView({ block: "nearest" });
+  }catch(e){}
 }
 function paintTabletsStage(answer){
   paintTabletsTablet(answer);
@@ -180,10 +233,11 @@ function paintTabletsPips(){
   if(!host) return;
   host.innerHTML = "";
   const ch = tabletsChapter();
+  const steps = (R && R.tabletSteps) || [];
   const idx = R.tabletIdx || 0;
   if(ch.blanks.length > 20) return;
-  const n = ch.blanks.length;
-  ch.blanks.forEach(function(_, i){
+  const n = steps.length || 1;
+  steps.forEach(function(_, i){
     const pip = document.createElement("i");
     pip.className = "tablets-pip" + (i < idx ? " done" : (i === idx ? " on" : ""));
     pip.style.left = (n > 1 ? (i / (n - 1)) * 96 + 2 : 50) + "%";
@@ -271,11 +325,16 @@ function paintTabletsSurge(){
   const aura = $("tablets-aura");
   if(aura) aura.classList.toggle("active", !!R.surgeOn);
 }
+function tabletsRemainText(){
+  const steps = (typeof R !== "undefined" && R && R.tabletSteps) || [];
+  const total = steps.length || 1;
+  const idx = (typeof R !== "undefined" && R && R.tabletIdx) || 0;
+  return Math.min(idx + 1, total) + " / " + total;
+}
 function paintTabletsHud(){
   const ch = tabletsChapter();
   const pct = tabletsPct();
   const rec = Tablets.recordOf(typeof SAVE !== "undefined" ? SAVE : null, ch.id);
-  const idx = R.tabletIdx || 0;
   paintTabletsCast();
   const chEl = $("tablets-chapter");
   if(chEl) chEl.textContent = ch.name;
@@ -285,7 +344,7 @@ function paintTabletsHud(){
     subEl.textContent = pace + " · " + (ch.subtitle || "KJV");
   }
   const remEl = $("tablets-remain");
-  if(remEl) remEl.textContent = Math.min(idx + 1, ch.blanks.length) + " / " + ch.blanks.length;
+  if(remEl) remEl.textContent = tabletsRemainText();
   const strkEl = $("tablets-streak");
   if(strkEl) strkEl.textContent = String(R.streak || 0);
   const favEl = $("tablets-favor");
@@ -299,12 +358,12 @@ function paintTabletsHud(){
   paintTabletsTutorialCallout();
 }
 function tabletsOptsForBlank(){
-  const ch = tabletsChapter();
-  const blank = ch.blanks[R.tabletIdx];
+  const blank = tabletsGapBlank();
   if(!blank) return [];
-  if(R.tabletOptsIdx === R.tabletIdx && R.tabletOpts && R.tabletOpts.length) return R.tabletOpts;
+  const key = tabletsGapKey();
+  if(R.tabletOptsIdx === key && R.tabletOpts && R.tabletOpts.length) return R.tabletOpts;
   R.tabletOpts = Tablets.options(blank);
-  R.tabletOptsIdx = R.tabletIdx;
+  R.tabletOptsIdx = key;
   return R.tabletOpts;
 }
 function paintTabletsPowers(){
@@ -347,8 +406,7 @@ function paintTabletsTray(){
   if(!grid) return;
   grid.classList.remove("locked");
   grid.innerHTML = "";
-  const ch = tabletsChapter();
-  const blank = ch.blanks[R.tabletIdx];
+  const blank = tabletsGapBlank();
   if(!blank) return;
   const grey = tabletsGreyWords();
   const badges = ["A", "B", "C", "D"];
@@ -371,11 +429,26 @@ function paintTabletsTray(){
     if(!dimmed) b.addEventListener("click", function(){ tabletsPick(word); });
     grid.appendChild(b);
   });
+  paintTabletsTrayWord();
   paintTabletsIllumBtn();
 }
+function paintTabletsTrayWord(){
+  const lab = $("tablets-tray-word");
+  if(!lab) return;
+  const step = tabletsStepBlanks();
+  const k = step.length;
+  if(k > 1){
+    const g = Math.min(((R && R.gapIdx) || 0) + 1, k);
+    const compact = (typeof window !== "undefined" && window.matchMedia &&
+      window.matchMedia("(max-width: 640px)").matches);
+    lab.textContent = compact ? ("Word " + g + " of " + k)
+      : ("Word " + g + " of " + k + " · Choose the missing word");
+  } else {
+    lab.textContent = "Choose the missing word";
+  }
+}
 function tabletsTrueStone(){
-  const ch = tabletsChapter();
-  const blank = ch.blanks[R.tabletIdx];
+  const blank = tabletsGapBlank();
   if(!blank) return null;
   const need = String(blank.a || "").toLowerCase().trim();
   const btns = tabletsStoneButtons();
@@ -387,7 +460,7 @@ function tabletsTrueStone(){
 }
 function tabletsIlluminate(){
   if(!R || R.ended || R.paused || R.mode !== "tablets") return;
-  if(R.tabletHintedIdx === R.tabletIdx){
+  if(R.tabletHintedIdx === tabletsGapKey()){
     if(typeof toast === "function") toast("This blank is already lit");
     return;
   }
@@ -397,7 +470,7 @@ function tabletsIlluminate(){
   }
   const target = tabletsTrueStone();
   if(!target) return;
-  R.tabletHintedIdx = R.tabletIdx;
+  R.tabletHintedIdx = tabletsGapKey();
   R.powers.illum--;
   R.usedPower = true;
   R.powersSpent = (R.powersSpent || 0) + 1;
@@ -409,12 +482,12 @@ function tabletsIlluminate(){
   if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
 }
 function tabletsGreyWords(){
-  if(R.tabletWinnowIdx === R.tabletIdx && R.tabletWinnow) return R.tabletWinnow.slice();
+  if(R.tabletWinnowIdx === tabletsGapKey() && R.tabletWinnow) return R.tabletWinnow.slice();
   return [];
 }
 function tabletsWinnow(){
   if(!R || R.ended || R.paused || R.mode !== "tablets") return;
-  if(R.tabletWinnowIdx === R.tabletIdx){
+  if(R.tabletWinnowIdx === tabletsGapKey()){
     if(typeof toast === "function") toast("This blank is already winnowed");
     return;
   }
@@ -422,8 +495,7 @@ function tabletsWinnow(){
     if(typeof toast === "function") toast("No Winnow left");
     return;
   }
-  const ch = tabletsChapter();
-  const blank = ch.blanks[R.tabletIdx];
+  const blank = tabletsGapBlank();
   if(!blank) return;
   const opts = tabletsOptsForBlank();
   const grey = tabletsGreyWords();
@@ -435,7 +507,7 @@ function tabletsWinnow(){
     return;
   }
   R.tabletWinnow = decoys.slice(0, 2);
-  R.tabletWinnowIdx = R.tabletIdx;
+  R.tabletWinnowIdx = tabletsGapKey();
   R.powers.winnow--;
   R.usedPower = true;
   R.powersSpent = (R.powersSpent || 0) + 1;
@@ -473,8 +545,7 @@ function tabletsMarkPicked(word){
 }
 function tabletsPick(word){
   if(!R || R.ended || R.paused || R.mode !== "tablets") return;
-  const ch = tabletsChapter();
-  const blank = ch.blanks[R.tabletIdx];
+  const blank = tabletsGapBlank();
   if(!blank) return;
   tabletsMarkPicked(word);
   const got = String(word || "").toLowerCase().trim();
@@ -538,7 +609,9 @@ function tabletsHitFavor(){
 }
 function tabletsChargeSurge(elapsed){
   if(R.tabletTutorial) return;
-  const add = elapsed < 4 ? 34 : 18;
+  /* Steps now carve 2–4 gaps each, so each gap charges roughly half the
+     old per-blank rate — Surge stays earned, not ambient. */
+  const add = elapsed < 4 ? 17 : 9;
   R.surge = Math.min(100, (R.surge || 0) + add);
 }
 function tabletsResolveHit(){
@@ -557,7 +630,7 @@ function tabletsResolveHit(){
   const grid = $("tablets-grid");
   if(grid) grid.classList.add("locked");
   const picked = tabletsStoneButtons().filter(function(b){ return b.classList && b.classList.contains("selected"); })[0];
-  const word = (tabletsChapter().blanks[R.tabletIdx] || {}).a;
+  const word = (tabletsGapBlank() || {}).a;
   tabletsFlyWord(picked, slot, word, function(){
     paintTabletsTablet("hit");
     tabletsPulseSpeech();
@@ -587,7 +660,6 @@ function tabletsResetBlankAids(){
 }
 function tabletsFinishResolve(ok){
   if(!R || R.ended || R.mode !== "tablets" || !R.tabletResolving) return;
-  const ch = tabletsChapter();
   R.tabletResolving = false;
   if(!ok){
     if(R.tabletTutorial || (R.tabletMiss || 0) < (R.tabletLives || 1)){
@@ -601,9 +673,16 @@ function tabletsFinishResolve(ok){
     if(typeof endRun === "function") endRun("death");
     return;
   }
-  R.tabletIdx++;
+  /* A carved gap advances within the step; only a finished step moves the
+     stone-setting forward. Each gap re-arms the tray and the sand. */
+  const step = tabletsStepBlanks();
+  R.gapIdx = (R.gapIdx || 0) + 1;
+  if(R.gapIdx >= step.length){
+    R.tabletIdx++;
+    R.gapIdx = 0;
+  }
   tabletsResetBlankAids();
-  if(R.tabletIdx >= ch.blanks.length){
+  if(R.tabletIdx >= ((R && R.tabletSteps) || []).length){
     if(R.tabletTutorial) finishTabletsTutorial();
     else if(typeof endRun === "function") endRun("complete");
     return;
@@ -655,6 +734,8 @@ function startTabletsLoop(){
   stopTabletsLoop();
   const ch = tabletsChapter();
   R.tabletIdx = 0;
+  R.gapIdx = 0;
+  R.tabletSteps = tabletsBuildSteps(ch, tabletsGapCount());
   R.tabletClock = tabletsClockMax();
   R.tabletClockMax = R.tabletClock;
   R.tabletTimeout = false;
@@ -668,7 +749,7 @@ function startTabletsLoop(){
   R.surgeLeft = 0;
   R.trauma = 0;
   tabletsResetBlankAids();
-  R.tabletTotal = ch.blanks.length;
+  R.tabletTotal = R.tabletSteps.length;
   R.qTotal = ch.blanks.length;
   R.tabletRacing = true;
   R.paused = false;

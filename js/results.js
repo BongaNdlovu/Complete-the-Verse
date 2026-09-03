@@ -676,6 +676,7 @@ function bindResultsNext(o, autoUnlock){
   }
   nextBtn.style.display = "";
   nextBtn.textContent = nxt.label || ("Next · " + nxt.name);
+  nextBtn.title = "Shortcut: N";
   nextBtn.onclick = function(){
     Snd.unlock(); Snd.ui();
     nxt.go();

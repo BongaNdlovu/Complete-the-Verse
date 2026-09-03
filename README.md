@@ -14,7 +14,7 @@ There is no bundler and no TypeScript. Classic `<script>` tags and globals are o
 ## How to test and lint
 
 ```bash
-npm test          # node test.js — 55 suites
+  npm test          # node test.js — 56 suites
 npm run lint      # Oxlint cyclomatic complexity, max 20
 ```
 

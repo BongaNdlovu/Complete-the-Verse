@@ -41,8 +41,7 @@ function stubRandom(sb, n) {
 }
 function unstubRandom() { Math.random = origRandom; }
 function holdAll(sb) {
-  const n = read(sb, "R.tabletTotal");
-  for (let i = 0; i < n; i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  for (let i = 0; i < 600 && !read(sb, "R.ended"); i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
 }
 
 const p23 = Tablets.chapter("psalm23");
@@ -153,11 +152,12 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   eq("no Selah or Wind", read(sb, "R.powers.selah + R.powers.wind"), 0);
   eq("chapter is Psalm 23", read(sb, "R.tabletChapter"), "psalm23");
   eq("starts on Pace I", read(sb, "R.tabletLevel"), 1);
-  eq("Psalm 23 paints 11 pips", read(sb, "$('tablets-pips').children.length"), 11);
+  eq("Psalm 23 paints 6 step pips", read(sb, "$('tablets-pips').children.length"), 6);
   eq("91 still locked", read(sb, "Tablets.unlocked('psalm91', SAVE)"), false);
   stubRandom(sb, 0.9);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("a hit advances", read(sb, "R.tabletIdx"), 1);
+  eq("a hit advances the gap", read(sb, "R.gapIdx"), 1);
+  eq("the step holds until every gap is carved", read(sb, "R.tabletIdx"), 0);
   eq("the clock keeps racing after a hit", read(sb, "R.tabletRacing"), true);
   eq("resolving clears", read(sb, "!!R.tabletResolving"), false);
   holdAll(sb);
@@ -216,7 +216,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   const sb = boot();
   exec(sb, "SAVE.tablets.psalm23 = { held: true }; persist(); startRun('tablets','watchman',{tabletChapter:'psalm91'})");
   eq("Psalm 91 starts when unlocked", read(sb, "R.tabletChapter"), "psalm91");
-  eq("17 tablets", read(sb, "R.tabletTotal"), 17);
+  eq("Psalm 91 chunks into 9 steps", read(sb, "R.tabletTotal"), 9);
   holdAll(sb);
   eq("91 Held", read(sb, "SAVE.tablets.psalm91.held"), true);
 }
@@ -225,7 +225,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   const sb = boot();
   exec(sb, "SAVE.tablets.psalm23 = { held: true }; SAVE.tablets.psalm91 = { held: true }; persist(); startRun('tablets','watchman',{tabletChapter:'john1'})");
   eq("John 1 starts when unlocked", read(sb, "R.tabletChapter"), "john1");
-  eq("51 blanks in John 1", read(sb, "R.tabletTotal"), 51);
+  eq("John 1 chunks into 26 steps", read(sb, "R.tabletTotal"), 26);
   eq("John 1 skips a 51-pip strip", read(sb, "$('tablets-pips').children.length"), 0);
   holdAll(sb);
   eq("John 1 Held", read(sb, "SAVE.tablets.john1.held"), true);
@@ -273,7 +273,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   stubRandom(sb, 0.9);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   exec(sb, "tabletsWinnow()");
-  eq("winnow re-arms on the next blank", read(sb, "R.tabletWinnowIdx"), 1);
+  eq("winnow re-arms on the next gap", read(sb, "R.tabletWinnowIdx"), "0:1");
   eq("charges carry across blanks", read(sb, "R.powers.winnow"), 0);
 }
 
@@ -341,7 +341,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   exec(sb, "tabletsPick('want')");
   eq("the slot takes the carved word", read(sb, "$('tablets-slot').textContent"), "want");
   ok("the slot glows", read(sb, "$('tablets-slot').classList.contains('glow')"));
-  ok("the verse keeps the prefix", read(sb, "$('tablets-verse').children.map(function(c){ return c.textContent; }).join('').indexOf('The LORD') >= 0"));
+  ok("the verse keeps the prefix", read(sb, "$('tablets-verse').children.map(function(l){ return l.children.map(function(c){ return c.textContent; }).join(''); }).join('').indexOf('The LORD') >= 0"));
   exec(sb, "tabletsFinishResolve(true); tabletsResolve(false)");
   ok("a miss opens the fracture", read(sb, "$('tablets-fracture').classList.contains('active')"));
 }
@@ -363,7 +363,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   exec(sb, "tabletsPick('Father')");
   eq("the slot takes Father", read(sb, "$('tablets-slot').textContent"), "Father");
   ok("the slot glows on a hit", read(sb, "$('tablets-slot').classList.contains('glow')"));
-  ok("the verse keeps Our", read(sb, "$('tablets-verse').children.map(function(c){ return c.textContent; }).join('').indexOf('Our') >= 0"));
+  ok("the verse keeps Our", read(sb, "$('tablets-verse').children.map(function(l){ return l.children.map(function(c){ return c.textContent; }).join(''); }).join('').indexOf('Our') >= 0"));
   ok("score popup is rendered", read(sb, "$('tablets-ms').children.some(c => c.classList.contains('tablets-score-popup'))"));
 }
 
@@ -373,7 +373,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   stubRandom(sb, 0.9);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   eq("first carve Favor is 480", read(sb, "R.favor"), 480);
-  eq("fast hit charges surge 34", read(sb, "R.surge"), 34);
+  eq("fast hit charges surge 17", read(sb, "R.surge"), 17);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   eq("streak 3 is ANOINTED", read(sb, "tabletsTier(R.streak).name"), "ANOINTED");
@@ -443,6 +443,86 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   stubRandom(sb, 0.9);
   exec(sb, "R.tabletClock = 25; R.streak = 0; R.favor = 0; tabletsResolve(true)");
   eq("trial Favor is 2.5×", read(sb, "R.favor"), 1200);
+}
+
+{
+  // Multi-gap steps: Pace I carves 2 words, II carves 3, III carves 4.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  eq("Pace I carves 2 gaps per step", read(sb, "tabletsGapCount()"), 2);
+  eq("Psalm 23 chunks 11 blanks into 6 steps", read(sb, "R.tabletTotal"), 6);
+  eq("first step holds 2 gaps", read(sb, "R.tabletSteps[0].length"), 2);
+  eq("last step is the short tail", read(sb, "R.tabletSteps[5].length"), 1);
+  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("first carve advances the gap", read(sb, "R.gapIdx"), 1);
+  eq("the step holds", read(sb, "R.tabletIdx"), 0);
+  eq("remain counts steps", read(sb, "$('tablets-remain').textContent"), "1 / 6");
+  eq("tray names the gap", read(sb, "$('tablets-tray-word').textContent"), "Word 2 of 2 · Choose the missing word");
+  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("second carve advances the step", read(sb, "R.tabletIdx"), 1);
+  eq("the gap re-arms", read(sb, "R.gapIdx"), 0);
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman',{tabletChapter:'genesis1'})");
+  eq("Pace II carves 3 gaps per step", read(sb, "tabletsGapCount()"), 3);
+  eq("Genesis 1 chunks 10 blanks into 4 steps", read(sb, "R.tabletTotal"), 4);
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman',{tabletChapter:'genesis22'})");
+  eq("Pace III carves 4 gaps per step", read(sb, "tabletsGapCount()"), 4);
+  eq("Genesis 22 chunks 10 blanks into 3 steps", read(sb, "R.tabletTotal"), 3);
+}
+
+{
+  // A miss spends a lamp but keeps already-carved gaps.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  eq("the miss spends a lamp", read(sb, "R.tabletMiss"), 1);
+  eq("the miss holds the gap", read(sb, "R.gapIdx"), 1);
+  ok("the first gap stays carved",
+    read(sb, "$('tablets-verse').children[0].children.map(function(c){ return c.textContent; }).join('').indexOf('want') >= 0"));
+  ok("the tray re-arms for the next gap",
+    read(sb, "tabletsOptsForBlank().indexOf('pastures') >= 0"));
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman',{tabletChapter:'prayer',tabletTutorial:true})");
+  eq("the tutorial stays single-gap", read(sb, "tabletsGapCount()"), 1);
+  eq("the prayer keeps 8 steps", read(sb, "R.tabletTotal"), 8);
+}
+
+{
+  // Winnow and Illuminate are per gap, not per step.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "tabletsWinnow()");
+  eq("winnow keys the first gap", read(sb, "R.tabletWinnowIdx"), "0:0");
+  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  exec(sb, "tabletsWinnow()");
+  eq("winnow re-arms on the next gap", read(sb, "R.tabletWinnowIdx"), "0:1");
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  holdAll(sb);
+  eq("six steps still Hold", read(sb, "Tablets.held(R)"), true);
+  eq("best is 100 across steps", read(sb, "SAVE.best.tablets"), 100);
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  eq("two gaps share one setting", read(sb, "R.tabletSteps[0].map(function(b){ return b.r; }).join('|')"), "Psalm 23:1|Psalm 23:2");
+  ok("every gap line prints its own ref",
+    read(sb, "(function(){ paintTabletsTablet(); var ls = $('tablets-verse').children; return ls.length > 0 && ls.filter(function(l){ return l.children[0].textContent.indexOf('Psalm 23:') === 0; }).length === ls.length; })()"));
 }
 
 unstubRandom();

@@ -673,10 +673,10 @@ function openSiteBrief(siteId, mode){
 function renderSiteDiffs(){
   const host = $("sb-diffs");
   if(!host) return;
-  host.innerHTML = Object.keys(DIFFS).map(function(k){
+  host.innerHTML = Object.keys(DIFFS).map(function(k, di){
     const d = DIFFS[k];
     const on = (SAVE.set.diff || "disciple") === k;
-    return '<button type="button" class="diff'+(on?" sel":"")+'" data-diff="'+esc(k)+'"><b>'+esc(d.name)+'</b><span>'+esc(d.desc)+'</span></button>';
+    return '<button type="button" class="diff'+(on?" sel":"")+'" data-diff="'+esc(k)+'" title="Shortcut: '+(di+1)+'"><b>'+esc(d.name)+'</b><span>'+esc(d.desc)+'</span></button>';
   }).join("");
   host.querySelectorAll("[data-diff]").forEach(function(b){
     b.addEventListener("click", function(){

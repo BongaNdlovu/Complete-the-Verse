@@ -1239,7 +1239,7 @@ function renderClozeQuestion(q, dur, scene){
   R.currentMechanic = "cloze";
   $("confirm-answer").style.display = "none";
   const how = $("warn-how");
-  if(how) how.innerHTML = "1-2-3 Rapid Cloze<br>Tap missing words in sequence";
+  if(how) how.innerHTML = "1-2-3 Rapid Cloze<br>Tap missing words in sequence · keys 1–9, ⌫ unfills";
 
   const refEl = $("ref");
   if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";
@@ -1323,6 +1323,33 @@ function renderClozeQuestion(q, dur, scene){
   }
 
   clozeState.render = function(){ renderSlots(); renderBank(); };
+  /* Keyboard parity: number keys tap the matching live chip, Backspace
+     unfills the last word — the same path as a tap, so sounds and the
+     auto-complete check stay identical. */
+  clozeState.pickByIndex = function(i){
+    if(R.locked || !R.running || R.paused || R.q !== q) return false;
+    const avail = bankPool.filter(function(w){
+      return filled.filter(function(x){ return x === w; }).length <
+        bankPool.filter(function(y){ return y === w; }).length;
+    });
+    const w = avail[i];
+    if(w == null || filled.length >= words.length) return false;
+    filled.push(w);
+    Snd.ui();
+    renderSlots();
+    renderBank();
+    if(filled.length === words.length) answer(filled.join(" "), null);
+    return true;
+  };
+  clozeState.unfillLast = function(){
+    if(R.locked || !R.running || R.paused || R.q !== q) return false;
+    if(!filled.length) return false;
+    filled.pop();
+    Snd.ui();
+    renderSlots();
+    renderBank();
+    return true;
+  };
   renderSlots();
   renderBank();
   renderPowers();
@@ -1804,7 +1831,7 @@ function illuminateFadePick(){
 function renderFadeQuestion(q, dur, scene){
   R.currentMechanic = "fade";
   const how = $("warn-how");
-  if(how) how.innerHTML = "Fade-to-Memory<br>Memorize the whole verse — reconstruction follows";
+  if(how) how.innerHTML = "Fade-to-Memory<br>Memorize the whole verse — reconstruction follows · D = I'm Done";
 
   const refEl = $("ref");
   if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";

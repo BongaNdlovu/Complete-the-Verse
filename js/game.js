@@ -1918,8 +1918,67 @@ function handleEscapeNav(){
   else if(currentView==="sitebrief") go("atlas");
   else if(currentView!=="menu") go("menu");
 }
+function handlePausedKeys(e, k){
+  if(typeof R === "undefined" || !R || !R.paused) return false;
+  if(currentView !== "play" && currentView !== "tablets") return false;
+  /* Paused: R resumes, Q quits. Anything else falls through to native
+     focus handling, but never to the play router below. */
+  if(k === "r"){
+    e.preventDefault();
+    if(currentView === "tablets"){ if(typeof toggleTabletsPause === "function") toggleTabletsPause(); }
+    else if(typeof togglePause === "function") togglePause();
+    return true;
+  }
+  if(k === "q"){
+    e.preventDefault();
+    if(currentView === "tablets"){ if(typeof quitTablets === "function") quitTablets(); }
+    else if(typeof quitPlay === "function") quitPlay();
+    return true;
+  }
+  return true;
+}
+function handleResultsKeys(e, k){
+  if(currentView !== "results") return false;
+  if(k === "enter" || k === " "){
+    e.preventDefault();
+    if(R.mode === "tablets" && typeof tabletsRetryRun === "function") tabletsRetryRun();
+    else startRun(R.mode, R.diff.key);
+    return true;
+  }
+  if(k === "n"){
+    e.preventDefault();
+    const nb = $("res-next");
+    if(nb && nb.style.display !== "none") nb.click();
+    return true;
+  }
+  return false;
+}
+function handleBriefKeys(e, k){
+  if(currentView === "brief" && k === "enter"){
+    if(briefMode === "team") return true;
+    e.preventDefault(); Snd.unlock(); startRun(briefMode, SAVE.set.diff); return true;
+  }
+  if(currentView === "sitebrief" && k === "enter"){ e.preventDefault(); Snd.unlock(); startRun(sbMode, SAVE.set.diff); return true; }
+  if((currentView === "brief" || currentView === "sitebrief") && (k === "1" || k === "2")){
+    const pills = document.querySelectorAll("[data-diff]");
+    const b = pills[parseInt(k, 10) - 1];
+    if(b){ e.preventDefault(); b.click(); return true; }
+  }
+  return false;
+}
+function handleAtlasKeys(e, k){
+  if(currentView !== "atlas" || k !== "c") return false;
+  try{
+    if(typeof Pilgrimage !== "undefined" && Pilgrimage.currentSite && typeof Atlas !== "undefined" && Atlas.focus){
+      const cur = Pilgrimage.currentSite(typeof SAVE !== "undefined" ? SAVE.pilgrim : null);
+      if(cur){ e.preventDefault(); Atlas.focus(cur.id, { duration: 1.2 }); return true; }
+    }
+  }catch(err){}
+  return false;
+}
 function handleNavKeydown(e, k){
   if(k==="escape"){ handleEscapeNav(); return true; }
+  if(handlePausedKeys(e, k)) return true;
   if(currentView==="intro"){
     e.preventDefault();
     if(k==="escape") finishIntro(true);
@@ -1932,17 +1991,9 @@ function handleNavKeydown(e, k){
     if(MODES[first].atlas) go("atlas"); else openBrief(first);
     return true;
   }
-  if(currentView==="brief" && (k==="enter")){
-    if(briefMode==="team") return true;
-    e.preventDefault(); Snd.unlock(); startRun(briefMode, SAVE.set.diff); return true;
-  }
-  if(currentView==="sitebrief" && (k==="enter")){ e.preventDefault(); Snd.unlock(); startRun(sbMode, SAVE.set.diff); return true; }
-  if(currentView==="results" && (k==="enter"||k===" ")){
-    e.preventDefault();
-    if(R.mode==="tablets" && typeof tabletsRetryRun==="function") tabletsRetryRun();
-    else startRun(R.mode, R.diff.key);
-    return true;
-  }
+  if(handleBriefKeys(e, k)) return true;
+  if(handleResultsKeys(e, k)) return true;
+  if(handleAtlasKeys(e, k)) return true;
   return false;
 }
 
@@ -1960,7 +2011,18 @@ function handlePlayTypedKeys(e, k){
   return false;
 }
 
+function handleClozeKeys(e, k){
+  if(!(R.currentMechanic === "cloze" && R.cloze && typeof R.cloze.pickByIndex === "function")) return false;
+  if(k === "backspace"){ e.preventDefault(); R.cloze.unfillLast(); return true; }
+  /* S/I stay powers; every other key is swallowed here so stale option
+     buttons from the previous question can never answer this one. */
+  if(k === "s" || k === "i") return false;
+  const idx = (k>="1"&&k<="9") ? parseInt(k,10)-1 : "abcdef".indexOf(k);
+  if(idx >= 0){ e.preventDefault(); R.cloze.pickByIndex(idx); }
+  return true;
+}
 function handlePlayMechanicKeys(e, k){
+  if(handleClozeKeys(e, k)) return true;
   if(R.currentMechanic === "truefalse"){
     if(k === "t" || k === "arrowleft" || k === "1"){
       e.preventDefault();
@@ -1989,6 +2051,12 @@ function handlePlayMechanicKeys(e, k){
 }
 
 function handlePlayChoiceKeys(e, k){
+  /* Choice keys only answer live option buttons. Typed, cloze, and
+     pre-reconstruction fade screens have none — without this guard a
+     number key would click a stale button from the previous question. */
+  if(R.typed) return;
+  if(R.currentMechanic === "cloze") return;
+  if(R.currentMechanic === "fade" && R.fadePhase !== "reconstruct") return;
   const idx = (k>="1"&&k<="9") ? parseInt(k,10)-1 : "abcdefghi".indexOf(k);
   if(idx < 0) return;
   const b = answerButtons()[idx];
@@ -2004,6 +2072,17 @@ function handlePlayChoiceKeys(e, k){
   }
 }
 
+function handleFadeKeys(e, k){
+  if(!(R.currentMechanic === "fade" && R.fadePhase !== "reconstruct")) return false;
+  /* Memorize/dissolve show no live options: D ends memorizing early,
+     everything else is swallowed so stale buttons stay dead. */
+  if(R.fadePhase === "memorize" && k === "d"){
+    e.preventDefault();
+    const done = $("fade-done");
+    if(done) done.click();
+  }
+  return true;
+}
 function handlePlayKeydown(e, k){
   if((e.ctrlKey||e.altKey||e.metaKey) && (k==="s"||k==="i")){
     e.preventDefault();
@@ -2014,6 +2093,7 @@ function handlePlayKeydown(e, k){
   if(handlePlayMechanicKeys(e, k)) return;
   if(k==="s"){ usePower("selah"); return; }
   if(k==="i"){ usePower("illum"); return; }
+  if(handleFadeKeys(e, k)) return;
   if(k==="enter" || k===" "){
     e.preventDefault();
     if(R.recon){

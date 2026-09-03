@@ -157,6 +157,29 @@ body.view-tablets .voice-caption{display:none!important}
   text-shadow:0 1px 1px rgba(255,255,255,.32),0 -1px 2px rgba(0,0,0,.95)}
 .tablets-blank-word{color:#c7943f;text-shadow:0 0 12px rgba(229,181,88,.7);font-weight:700;letter-spacing:.04em}
 .tablets-blank-word.in{color:#ffe38d;text-shadow:0 0 18px var(--gold-hot)}
+.tablets-gap-line{display:block;text-align:center;margin:2px 0}
+.tablets-gap-ref{display:inline-block;font-size:.62em;letter-spacing:.14em;color:var(--gold-dim);
+  border:1px solid rgba(217,182,103,.35);border-radius:999px;padding:1px 10px;margin-right:10px;
+  vertical-align:middle}
+/* Multi-gap settings set data-gaps on the verse: more lines, smaller type
+   so the stone card keeps fitting without scrolling. */
+#tablets-verse[data-gaps="2"]{font-size:clamp(1.05rem,2.2vw,1.5rem);min-height:0}
+#tablets-verse[data-gaps="3"]{font-size:clamp(1rem,2.1vw,1.35rem);min-height:0}
+#tablets-verse[data-gaps="4"]{font-size:clamp(.95rem,2vw,1.25rem);min-height:0}
+@media (max-width:640px){
+  #tablets-verse[data-gaps]{font-size:1.02rem;min-height:0}
+  #tablets-verse .tablets-gap-ref{display:none}
+  .tablets-gap-line{margin:3px 0}
+  .tablets-ms{padding:14px 14px 12px}
+  /* Tall multi-gap cards center until they fit, then scroll instead of
+     overlapping the header — the stone tray below always stays reachable. */
+  .tablets-stage{overflow-y:auto}
+  .tablets-ms{margin-top:auto;margin-bottom:auto}
+}
+@media (max-height:500px){
+  .tablets-stage{overflow-y:auto}
+  .tablets-ms{margin-top:auto;margin-bottom:auto}
+}
 .tablets-speech{display:none;align-items:center;justify-content:center;gap:4px;height:16px;margin:2px 0 8px}
 .tablets-speech.active{display:flex}
 .tablets-speech i{
