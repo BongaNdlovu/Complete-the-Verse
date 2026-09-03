@@ -16,6 +16,26 @@
   --tab-bg-1:#283a54;--tab-bg-2:#1a273b;--tab-bg-3:#0e1724;
   --tab-border:#4b6b99;--tab-border-bot:#070b12;--tab-slot-bg:rgba(8,16,28,.9);--tab-text:#e8f0fa}
 body.view-tablets .voice-caption{display:none!important}
+/* Scribe-library backdrop for the tablets play screen. The image is set by
+   JS only after it is preloaded (and skipped entirely under Data Saver),
+   so the gradient below remains the zero-download fallback. */
+.tablets-bg{
+  position:absolute;inset:0;pointer-events:none;opacity:0;
+  background-position:center 40%;background-size:cover;background-repeat:no-repeat;
+  transition:opacity .6s ease}
+#v-tablets.has-library-bg .tablets-bg{opacity:1}
+#v-tablets.has-library-bg .tablets-wrap{background:transparent}
+#v-tablets.has-library-bg .tablets-bg::before,
+#v-tablets.has-library-bg .tablets-bg::after{content:"";position:absolute;inset:0}
+/* per-theme tint over the photo */
+#v-tablets.has-library-bg .tablets-bg::before{background:rgba(214,164,96,.10)}
+#v-tablets.has-library-bg.stone-basalt .tablets-bg::before{background:rgba(26,32,46,.34)}
+#v-tablets.has-library-bg.stone-limestone .tablets-bg::before{background:rgba(222,180,110,.14)}
+#v-tablets.has-library-bg.stone-lapis .tablets-bg::before{background:rgba(20,44,88,.36)}
+/* readability scrim: darker at the header and dock edges */
+#v-tablets.has-library-bg .tablets-bg::after{
+  background:linear-gradient(180deg,rgba(8,5,2,.66) 0%,rgba(10,6,3,.30) 34%,rgba(10,6,3,.40) 66%,rgba(6,4,2,.74) 100%)}
+@media (prefers-reduced-motion:reduce){.tablets-bg{transition:none}}
 #tablets-aura{
   position:absolute;inset:0;pointer-events:none;z-index:8;opacity:0;
   box-shadow:inset 0 0 70px rgba(255,215,90,.55),inset 0 0 140px rgba(255,160,30,.3);

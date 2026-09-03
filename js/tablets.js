@@ -246,6 +246,30 @@ const Tablets = (function(){
     if(pace === 2) return paceGateOpen(3, save) ? "Pace III is open." : "Pace II held. Pace III opens after 3 Holds.";
     return "The manuscript held";
   }
+  /* Scribe-library backdrop for the play screen. One attempt, on first
+     entry: skipped under Data Saver, preloaded off the render path, and
+     only revealed once decoded so the gradient never shows a half-loaded image. */
+  var BACKDROP_DIR = "assets/tablets/library-bg-";
+  var backdropStarted = false;
+  function ensureBackdrop(){
+    if(backdropStarted) return;
+    backdropStarted = true;
+    try{
+      var conn = typeof navigator !== "undefined" && navigator.connection;
+      if(conn && conn.saveData) return;
+      var view = document.getElementById("v-tablets");
+      var stage = view && view.querySelector(".tablets-bg");
+      if(!view || !stage) return;
+      var wide = typeof matchMedia === "function" && matchMedia("(min-width: 700px)").matches;
+      var src = BACKDROP_DIR + (wide ? "1400" : "800") + ".webp";
+      var img = new Image();
+      img.onload = function(){
+        stage.style.backgroundImage = "url('" + src + "')";
+        view.classList.add("has-library-bg");
+      };
+      img.src = src;
+    }catch(e){}
+  }
   return {
     BLANK_S: BLANK_S,
     HOLDS_TO_OPEN: HOLDS_TO_OPEN,
@@ -268,7 +292,8 @@ const Tablets = (function(){
     levelName: levelName,
     pickLevel: pickLevel,
     nextPlayable: nextPlayable,
-    holdKick: holdKick
+    holdKick: holdKick,
+    ensureBackdrop: ensureBackdrop
   };
 })();
 if(typeof module !== "undefined") module.exports = { Tablets: Tablets };

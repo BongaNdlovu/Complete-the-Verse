@@ -439,6 +439,7 @@ function enterViewChrome(view){
     if(view!=="tablets") applySiteSky(null);
   }
   if(view!=="play" && typeof syncAbrahamPresentation === "function") syncAbrahamPresentation(null);
+  if(view==="tablets" && typeof Tablets!=="undefined" && Tablets.ensureBackdrop) Tablets.ensureBackdrop();
   enterViewCaption(view);
   enterViewAmbience(view);
 }

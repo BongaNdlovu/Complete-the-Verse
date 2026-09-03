@@ -97,6 +97,7 @@ function isMedia(url) {
   return url.pathname.includes("/assets/journey/") ||
          url.pathname.includes("/assets/beats/") ||
          url.pathname.includes("/assets/characters/") ||
+         url.pathname.includes("/assets/tablets/") ||
          url.pathname.endsWith(".mp4") ||
          url.pathname.endsWith(".webm");
 }
