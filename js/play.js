@@ -57,8 +57,16 @@ const SITE_AMBIENT = {
   gibeah:"assets/journey/gibeah.mp4",
   mizpah:"assets/journey/mizpah.mp4",
   jerusalem:"assets/journey/jerusalem.mp4",
+  shiloh:"assets/journey/shiloh.mp4",
+  tyre:"assets/journey/tyre.mp4",
+  samaria:"assets/journey/samaria.mp4",
   carmel:"assets/journey/carmel.mp4",
+  megiddo:"assets/journey/megiddo.mp4",
+  lachish:"assets/journey/lachish.mp4",
+  damascus:"assets/journey/damascus.mp4",
   nineveh:"assets/journey/nineveh.mp4",
+  babylon:"assets/journey/babylon.mp4",
+  susa:"assets/journey/susa.mp4",
   patmos:"assets/journey/patmos.mp4"
 };
 
