@@ -1662,7 +1662,10 @@ body.mode-beat .ans .ans-copy{overflow-wrap:anywhere}
    in-flow, and the decorative footer does not eat the last 50px. */
 @media (max-width:600px){
   body.biblical-thriller #v-play .hdr{
-    height:auto;min-height:44px;padding:4px 10px;padding-right:176px;flex-wrap:nowrap}
+    height:auto;min-height:44px;padding:4px 10px;padding-right:168px;flex-wrap:nowrap}
+  body.biblical-thriller #v-play .play-quit{
+    top:calc(env(safe-area-inset-top) + 4px);
+    right:calc(96px + env(safe-area-inset-right, 0px))}
   body.biblical-thriller #v-play .hdr-side.l{display:none}
   body.biblical-thriller #v-play .hdr-side{min-width:0;max-width:none;flex:1 1 0}
   body.biblical-thriller #v-play .hdr-side.r{

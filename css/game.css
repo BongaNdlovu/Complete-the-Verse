@@ -1329,6 +1329,12 @@ body.reduced.wiping #v-play .stage{animation:none}
   .inspect-grid{grid-template-columns:1fr}
   .jv-card{padding:1.2rem 1rem 1.4rem;width:min(840px,94vw)}
   .char-panel{padding:1rem .9rem 1.2rem;max-height:92vh}
+  #v-study .panelhead{order:0;width:100%}
+  #v-study .searchbar{order:1}
+  #v-study .listwrap{order:2;min-height:min(28vh,240px)}
+  #v-study .journey-journal{order:3;width:100%}
+  #v-study .thin-places{order:4;width:100%}
+  #v-study .book-heatmap{order:5;width:100%}
 }
 
 /* ==================================================================
@@ -1819,6 +1825,25 @@ body.reduced .jv-card {
   #inspect-kicker{padding-right:48px}
   .jv-card{padding:1.1rem .85rem 1.2rem;max-height:min(90vh,760px)}
   #jv-kick{padding-right:52px;padding-left:8px}
+  .char-panel{
+    display:flex;flex-direction:column;overflow:hidden;
+    padding:.8rem .8rem .7rem;max-height:92vh}
+  .char-grid{flex:1 1 auto;min-height:0;overflow-y:auto;margin-top:1vh}
+  .char-panel .footer{flex:0 0 auto;margin-top:.6vh;padding-top:.5rem}
+  #v-sitebrief .kick{order:0}
+  #v-sitebrief .h-lg{order:1}
+  #v-sitebrief .fil{order:2}
+  #v-sitebrief .brief-site{order:3}
+  #v-sitebrief .briefinfo{order:4;margin-top:1vh!important}
+  #v-sitebrief .scrollpad > div:has(#sb-start){order:5;margin-top:1.2vh!important}
+  #v-sitebrief .diffs{order:6}
+  #v-sitebrief .brief-live{order:7;display:none}
+  #v-sitebrief .hint{order:8}
+  #v-sitebrief .sb-hero-media{max-height:22vh;margin:.4vh auto .8vh}
+  #v-sitebrief .brief-quote{font-size:clamp(.95rem,4.2vw,1.1rem)}
+  body.view-play #audio-dock{
+    top:calc(env(safe-area-inset-top) + 4px);
+    right:max(8px,env(safe-area-inset-right))}
 }
 .doss-vignette-btn {
   margin-top: 10px;

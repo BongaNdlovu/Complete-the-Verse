@@ -1104,7 +1104,8 @@ var Atlas = (function () {
         card.removeEventListener("click", finish);
       }
       if (current) {
-        select(current.id, { fly: hasMap() && !reduced(), duration: 2.6 });
+        select(current.id, { fly: false });
+        if (hasMap()) fitAll();
         if (Pilgrimage.clearedCount(progress) === 0) {
           setTimeout(function () {
             if (typeof currentView === "string" && currentView !== "atlas") return;

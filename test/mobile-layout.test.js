@@ -61,6 +61,20 @@ assert("assemble chips meet 44px on phones",
 
 assert("atlas tools sit on the bottom safe area on phones",
   /@media \(max-width: 720px\)[\s\S]*\.atlas-tools \{[\s\S]*bottom: max\(10px, env\(safe-area-inset-bottom\)\)/.test(atlas));
+assert("phone atlas hides the Leaflet scale under Night",
+  /@media \(max-width: 720px\)[\s\S]*#v-atlas \.leaflet-bottom\.leaflet-left \{ display: none; \}/.test(atlas));
+assert("phone atlas tools sit above the dossier sheet",
+  /@media \(max-width: 720px\)[\s\S]*\.atlas-dossier:not\(\.hidden\) ~ \.atlas-tools \{[\s\S]*bottom: calc\(min\(62vh, 520px\) \+ 8px\)/.test(atlas));
+assert("phone Study Hall lists verses before the heatmap",
+  /@media \(max-width:600px\)[\s\S]*#v-study \.listwrap\{order:2/.test(game));
+assert("phone scholar confirm stays in the sheet footer",
+  /@media \(max-width:600px\)[\s\S]*\.char-panel \.footer\{flex:0 0 auto/.test(game));
+assert("phone site brief hides weather so Begin stays on screen",
+  /@media \(max-width:600px\)[\s\S]*#v-sitebrief \.brief-live\{order:7;display:none\}/.test(game));
+assert("phone site brief puts Begin above the ordeal cards",
+  /@media \(max-width:600px\)[\s\S]*#v-sitebrief \.scrollpad > div:has\(#sb-start\)\{order:5/.test(game));
+assert("phone play audio dock sits on the quit side, not the clock",
+  /@media \(max-width:600px\)[\s\S]*body\.view-play #audio-dock\{[\s\S]*right:max\(8px,env\(safe-area-inset-right\)\)/.test(game));
 
 const tablets = fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8");
 assert("tablets phone header does not wrap",
