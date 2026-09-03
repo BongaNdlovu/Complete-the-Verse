@@ -31,7 +31,7 @@ assert(/gideon\/question\.png/.test(play), "Judges swaps in the Gideon question 
 assert(/solomon\/question\.png/.test(play), "Jerusalem, Shiloh, Tyre, and Samaria use Solomon");
 assert(/joshua\/question\.png/.test(play), "Jericho and Gilgal use Joshua");
 assert(/elijah\/question\.png/.test(play), "Carmel and Megiddo use Elijah");
-assert(/elijah\/question-exile\.png/.test(play), "Lachish and Damascus use the later Elijah plate");
+assert(/elisha\/question\.png/.test(play), "Lachish and Damascus use the Elisha plate");
 assert(/jonah\/question\.png/.test(play), "Nineveh uses Jonah");
 assert(/daniel\/question\.png/.test(play), "Babylon and Susa use Daniel");
 assert(/samson\/question\.png/.test(play), "Gibeah and Mizpah use Samson");
@@ -48,6 +48,8 @@ const joshua = path.join(ROOT, "assets", "characters", "joshua", "question.png")
 assert(fs.existsSync(joshua) && fs.statSync(joshua).size > 1000, "Joshua question artwork is present");
 const elijah = path.join(ROOT, "assets", "characters", "elijah", "question.png");
 assert(fs.existsSync(elijah) && fs.statSync(elijah).size > 1000, "Elijah question artwork is present");
+const elisha = path.join(ROOT, "assets", "characters", "elisha", "question.png");
+assert(fs.existsSync(elisha) && fs.statSync(elisha).size > 1000, "Elisha question artwork is present");
 assert(/abraham-active/.test(play) && /R\.passage/.test(play) && /R\.recon/.test(play),
   "the body state and dense mechanic variants are synced");
 assert(/syncAbrahamPresentation\(mechanic/.test(play), "normal questions sync the character layer");
