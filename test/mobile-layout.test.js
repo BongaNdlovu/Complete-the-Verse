@@ -45,7 +45,13 @@ assert("toasts sit on the bottom safe area, not 12vh",
 assert("coarse pointers hide keyboard-only hints",
   /pointer:coarse\)\{[\s\S]*\.kb-hint/.test(game));
 assert("narrow viewports hide keyboard-only hints",
-  /@media \(max-width:600px\)[\s\S]*\.kb-hint,\.tablets-keys-hint\{display:none!important\}/.test(game));
+  /@media \(max-width:600px\)[\s\S]*\.kb-hint,\.tablets-keys-hint,\.tablets-hotkey\{display:none!important\}/.test(game));
+assert("how-to-play keyboard chords are marked kb-hint",
+  /class="kb-hint"> \(or press A–D \/ 1–4\)/.test(html));
+assert("phone inspect art shrinks so the close button stays on screen",
+  /@media \(max-width:600px\)[\s\S]*\.inspect-art\{width:min\(160px,42vw\)/.test(game));
+assert("phone journey kicker clears the close button",
+  /@media \(max-width:600px\)[\s\S]*#jv-kick\{padding-right:52px/.test(game));
 assert("tablets brief list is a page scroll on phones",
   /@media \(max-width:600px\)[\s\S]*#brief-tablets-pick\{max-height:none/.test(game));
 assert("brief keyboard legend is marked kb-hint",

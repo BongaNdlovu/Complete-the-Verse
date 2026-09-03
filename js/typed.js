@@ -490,14 +490,9 @@ function renderTypedQuestion(q, dur, scene){
   syncTypedLock();
   const how=$("warn-how");
   if(how){
-    const coarse = window.matchMedia && matchMedia("(pointer:coarse)").matches;
     how.innerHTML = isFadeAssembly()
-      ? (coarse
-        ? "Rebuild the whole verse in order<br>Drag or tap to place each word"
-        : "Rebuild the whole verse in order<br>Drag, tap or press Enter to place each word")
-      : (coarse
-        ? "Place the missing words<br>Drag or tap — lift a card to swap or replace"
-        : "Place the missing words<br>Drag, tap or press Enter — lift a card to swap or replace");
+      ? "Rebuild the whole verse in order<br>Drag or tap to place each word<span class=\"kb-hint\">, or press Enter</span>"
+      : "Place the missing words<br>Drag or tap — lift a card to swap or replace<span class=\"kb-hint\"> · press Enter</span>";
   }
   renderPowers();
   syncTypedPowerButtons();

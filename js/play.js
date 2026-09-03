@@ -1239,7 +1239,7 @@ function renderClozeQuestion(q, dur, scene){
   R.currentMechanic = "cloze";
   $("confirm-answer").style.display = "none";
   const how = $("warn-how");
-  if(how) how.innerHTML = "1-2-3 Rapid Cloze<br>Tap missing words in sequence · keys 1–9, ⌫ unfills";
+  if(how) how.innerHTML = "1-2-3 Rapid Cloze<br>Tap missing words in sequence<span class=\"kb-hint\"> · keys 1–9, ⌫ unfills</span>";
 
   const refEl = $("ref");
   if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";
@@ -1397,11 +1397,11 @@ function renderDuelQuestion(q, dur, scene){
 
   duelStage.innerHTML = 
     '<div role="button" tabindex="0" class="duel-card" id="duel-left" data-val="' + esc(isLeftTrue ? q.a : fakePhrase) + '" aria-label="Reading Alpha">' +
-      '<div class="duel-tag">Reading Alpha (← / A / 1)</div>' +
+      '<div class="duel-tag">Reading Alpha<span class="kb-hint"> (← / A / 1)</span></div>' +
       '<span class="duel-verse-text">' + highlightVerse(leftText) + '</span>' +
     '</div>' +
     '<div role="button" tabindex="0" class="duel-card" id="duel-right" data-val="' + esc(!isLeftTrue ? q.a : fakePhrase) + '" aria-label="Reading Beta">' +
-      '<div class="duel-tag">Reading Beta (→ / D / 2)</div>' +
+      '<div class="duel-tag">Reading Beta<span class="kb-hint"> (→ / D / 2)</span></div>' +
       '<span class="duel-verse-text">' + highlightVerse(rightText) + '</span>' +
     '</div>';
 
@@ -1523,7 +1523,7 @@ function renderTrueFalseQuestion(q, dur, scene){
   R.tf = {claim: claim, resolved: false, illuminated: false};
   $("confirm-answer").style.display = "none";
   const how = $("warn-how");
-  if(how) how.innerHTML = "The Judgement<br>True or False — T / F keys";
+  if(how) how.innerHTML = "The Judgement<br>True or False<span class=\"kb-hint\"> — T / F keys</span>";
   const refEl = $("ref");
   if(refEl) refEl.textContent = "Out of " + claim.b + " — KJV";
 
@@ -1831,7 +1831,7 @@ function illuminateFadePick(){
 function renderFadeQuestion(q, dur, scene){
   R.currentMechanic = "fade";
   const how = $("warn-how");
-  if(how) how.innerHTML = "Fade-to-Memory<br>Memorize the whole verse — reconstruction follows · D = I'm Done";
+  if(how) how.innerHTML = "Fade-to-Memory<br>Memorize the whole verse — reconstruction follows<span class=\"kb-hint\"> · D = I'm Done</span>";
 
   const refEl = $("ref");
   if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";
@@ -1994,7 +1994,7 @@ function renderQuestion(q, dur){
   if(R.typed) return renderTypedQuestion(q, dur, scene);
   const how=$("warn-how");
   if(how) how.innerHTML = (SAVE.set.singleTap === false)
-    ? "Select a phrase, then lock it<br>Enter or Space confirms"
+    ? "Select a phrase, then lock it<span class=\"kb-hint\"><br>Enter or Space confirms</span>"
     : "Tap a phrase to answer";
   renderStandardChoices(q, dur, scene);
   renderPowers();

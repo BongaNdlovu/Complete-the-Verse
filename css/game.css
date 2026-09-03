@@ -1310,7 +1310,7 @@ body.reduced.wiping #v-play .stage{animation:none}
   .view .scrollpad{overflow-x:hidden;max-width:100%}
   .kick,.hdr-lab,.mode .tagline,.mtitle{font-size:max(.72rem,12px);letter-spacing:.16em}
   .audio-tog{min-width:44px;min-height:44px}
-  .kb-hint,.tablets-keys-hint{display:none!important}
+  .kb-hint,.tablets-keys-hint,.tablets-hotkey{display:none!important}
   #brief-tablets-pick{max-height:none;overflow:visible;width:100%}
   .cloud-name{flex-direction:column;align-items:stretch;justify-content:flex-start;width:100%}
   .cloud-name input{width:100%;min-width:0;box-sizing:border-box}
@@ -1809,6 +1809,16 @@ body.reduced .jv-card {
   font-size: clamp(.84rem, 1.4vw, .95rem);
   line-height: 1.6;
   color: var(--parch-dim);
+}
+@media (max-width:600px){
+  .inspect-card{max-height:min(88vh,740px);padding:.9rem .85rem 1rem}
+  .inspect-art{width:min(160px,42vw);height:min(160px,42vw);margin:.4vh auto .5vh}
+  .inspect-copy{margin:.6vh auto;font-size:.92rem}
+  .inspect-grid{margin:.8vh 0}
+  .inspect-cell{padding:.5em .65em}
+  #inspect-kicker{padding-right:48px}
+  .jv-card{padding:1.1rem .85rem 1.2rem;max-height:min(90vh,760px)}
+  #jv-kick{padding-right:52px;padding-left:8px}
 }
 .doss-vignette-btn {
   margin-top: 10px;
