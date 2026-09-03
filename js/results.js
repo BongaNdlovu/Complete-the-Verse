@@ -591,8 +591,26 @@ function renderResultsHabit(){
   habitEl.style.display = "";
 }
 
+function resultsNextRoadContinue(){
+  if(R.mode!=="tablets" || !R.fromRoad) return null;
+  if(typeof Pilgrimage==="undefined" || typeof tabletsHeld==="function" && !tabletsHeld()) return null;
+  if(typeof Tablets!=="undefined" && Tablets.held && !Tablets.held(R)) return null;
+  var nxt = Pilgrimage.currentSite(SAVE.pilgrim);
+  if(!nxt || Pilgrimage.isCleared(SAVE.pilgrim, nxt.id)) return null;
+  var name = String(nxt.name||"").replace(/\s*\(.*\)$/, "");
+  return { name: name, label: "Continue · " + name, stop: nxt, go: function(){
+    if(nxt.kind === "tablets"){
+      startRun("tablets", R.diff.key, { tabletChapter: nxt.id, fromRoad: true });
+      return;
+    }
+    if(typeof openSiteBrief === "function"){ openSiteBrief(nxt.id, "pilgrimage"); return; }
+    pendingSiteId = nxt.id;
+    startRun("pilgrimage", R.diff.key);
+  }};
+}
 function resultsNextTablets(){
   if(R.mode!=="tablets" || typeof Tablets==="undefined" || !Tablets.nextPlayable) return null;
+  if(R.fromRoad) return null;
   const ch = Tablets.nextPlayable(R.tabletChapter, SAVE);
   if(!ch) return null;
   return { name: ch.name, go: function(){
@@ -645,7 +663,7 @@ function resultsNextRelay(){
   return null;
 }
 function resultsNextTarget(o){
-  return resultsNextTablets() || resultsNextPilgrim(o) || resultsNextRelay();
+  return resultsNextRoadContinue() || resultsNextTablets() || resultsNextPilgrim(o) || resultsNextRelay();
 }
 function bindResultsNext(o, autoUnlock){
   const nextBtn = $("res-next");
@@ -657,7 +675,7 @@ function bindResultsNext(o, autoUnlock){
     return;
   }
   nextBtn.style.display = "";
-  nextBtn.textContent = "Next · " + nxt.name;
+  nextBtn.textContent = nxt.label || ("Next · " + nxt.name);
   nextBtn.onclick = function(){
     Snd.unlock(); Snd.ui();
     nxt.go();
@@ -720,7 +738,30 @@ function renderResultsRoadChrome(o){
   return autoUnlock;
 }
 
+/* Held a tablet — the road continues on its own. After a beat on the
+   results screen the map flies to the next open site and its brief opens;
+   any button the player presses instead (another chapter, run it back,
+   the hall) cancels it through afterResults' run-token and view guards. */
+function scheduleTabletsRoadContinue(){
+  if(R.mode!=="tablets" || !tabletsHeld()) return;
+  if(typeof Pilgrimage==="undefined" || typeof Atlas==="undefined" || typeof openSiteBrief==="undefined") return;
+  const nxt = Pilgrimage.currentSite(SAVE.pilgrim);
+  if(!nxt || Pilgrimage.isCleared(SAVE.pilgrim, nxt.id)) return;
+  const siteName = String(nxt.name||"").replace(/\s*\(.*\)$/, "");
+  if(typeof toast === "function") toast("The Hold stands — the road continues to " + siteName);
+  afterResults(3200, function(){
+    Snd.ui();
+    go("atlas");
+    Atlas.focus(nxt.id, { duration: 1.6 });
+    if(nxt.kind === "tablets") return;
+    setTimeout(function(){
+      if(currentView!=="atlas") return;
+      openSiteBrief(nxt.id);
+    }, 1900);
+  });
+}
 function renderResultsRetryReview(o){
+  if(R.mode==="tablets") scheduleTabletsRoadContinue();
   const retryBtn = $("res-retry");
   const againBtn = $("res-again");
   if(againBtn) againBtn.style.display = R.mode==="tablets" ? "none" : "";

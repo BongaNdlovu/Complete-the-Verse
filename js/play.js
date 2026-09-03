@@ -1655,19 +1655,76 @@ function fadePhraseAsVerse(q, phrase){
   if(suffix) text += /^[.,;:!?]/.test(suffix) ? suffix : " " + suffix;
   return text;
 }
+/* One-word near-misses a skimming eye reads as the verse it memorized:
+   archaic-to-modern swaps, article flips and conjunction changes, first
+   occurrence only so every fake differs from the truth by a single word.
+   These replace the old always-different stock pads as the primary
+   reconstruction challenge. */
+const FADE_LINE_EDITS = [
+  [/^The\b/, "A"], [/^A\b/, "The"],
+  [/\bthe\b/, "a"], [/\ba\b/, "the"],
+  [/\bshall\b/, "will"], [/\bwill\b/, "shall"],
+  [/\bshould\b/, "would"], [/\bwould\b/, "should"],
+  [/\bthee\b/, "you"], [/\bthou\b/, "you"], [/\bthy\b/, "your"], [/\bthine\b/, "your"],
+  [/\bye\b/, "you"], [/\byou\b/, "ye"],
+  [/\bhath\b/, "has"], [/\bdoth\b/, "does"], [/\bdoeth\b/, "does"],
+  [/\bsaith\b/, "says"], [/\bgoeth\b/, "goes"], [/\bcometh\b/, "comes"],
+  [/\bmaketh\b/, "makes"], [/\btaketh\b/, "takes"], [/\bgiveth\b/, "gives"],
+  [/\bknoweth\b/, "knows"], [/\bloveth\b/, "loves"],
+  [/\bshew\b/, "show"], [/\bunto\b/, "to"], [/\bupon\b/, "on"],
+  [/\bamong\b/, "amongst"], [/\btoward\b/, "towards"],
+  [/\bheaven\b/, "heavens"], [/\bheavens\b/, "heaven"],
+  [/\bsin\b/, "sins"], [/\bword\b/, "words"], [/\bwords\b/, "word"],
+  [/\bverily\b/, "truly"], [/\bbehold\b/, "see"],
+  [/\bthis\b/, "that"], [/\bthese\b/, "those"], [/\bthose\b/, "these"],
+  [/\band\b/, "or"], [/\bor\b/, "and"]
+];
+function fadeLineEdits(text){
+  const out = [];
+  FADE_LINE_EDITS.forEach(function(rule){
+    if(!rule[0].test(text)) return;
+    const edited = text.replace(rule[0], rule[1]);
+    if(edited !== text && out.indexOf(edited) < 0) out.push(edited);
+  });
+  return out;
+}
 function fadePickChoices(q){
   const truth = fullVerseText(q);
   const seen = {};
   seen[truth] = 1;
-  const pads = (q.d || []).concat(["the shadow of the deep","a still small voice","the dust of the ground"]);
-  const fakes = [];
-  pads.forEach(function(d){
-    if(fakes.length >= 3) return;
-    const line = fadePhraseAsVerse(q, d);
-    if(!seen[line]){ seen[line] = 1; fakes.push(line); }
-  });
   const rnd = R.mode==="daily" && R.daily && R.daily.rnd ? R.daily.rnd : Math.random;
-  return shuffle([truth].concat(fakes.slice(0, 3)), rnd);
+  const fakes = [];
+  function pushFake(line){
+    line = String(line || "").trim();
+    if(!line || fakes.length >= 3 || seen[line]) return;
+    seen[line] = 1;
+    fakes.push(line);
+  }
+  /* 1) one-word edits of the memorized line — the trap that costs a lamp.
+     Three close fakes where the verse allows it; the eye must know the line. */
+  const edits = fadeLineEdits(truth);
+  while(edits.length && fakes.length < 3){
+    pushFake(edits.splice(Math.floor(rnd()*edits.length), 1)[0]);
+  }
+  /* 2) the verse's own designed decoy phrases */
+  (q.d || []).forEach(function(d){
+    pushFake(fadePhraseAsVerse(q, d));
+  });
+  /* 3) answers from sibling verses of the same book — same voice, different verse */
+  if(fakes.length < 3 && typeof VERSES !== "undefined" && VERSES.forEach){
+    const sibs = [];
+    VERSES.forEach(function(v){
+      if(v && v.b === q.b && v.id !== q.id && v.a && v.a !== q.a && sibs.indexOf(v.a) < 0) sibs.push(v.a);
+    });
+    while(sibs.length && fakes.length < 3){
+      pushFake(fadePhraseAsVerse(q, sibs.splice(Math.floor(rnd()*sibs.length), 1)[0]));
+    }
+  }
+  /* 4) the old stock pads survive only as a starving-bank fallback */
+  ["the shadow of the deep","a still small voice","the dust of the ground"].forEach(function(d){
+    pushFake(fadePhraseAsVerse(q, d));
+  });
+  return shuffle([truth].concat(fakes), rnd);
 }
 function fadeCleanupMemoryChrome(){
   ["fade-bar","fade-done"].forEach(function(id){

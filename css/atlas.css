@@ -150,13 +150,21 @@ body:not(:has(#v-atlas.on)) .route-line { animation-play-state: paused; }
   animation: unlockLabel 1.6s ease-out;
 }
 /* Standalone pilgrim marker (walks the road between sites). */
-.traveler-marker { pointer-events: none; z-index: 650 !important; }
+.traveler-marker {
+  pointer-events: none;
+  z-index: 650 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 .traveler-node {
   position: absolute; left: -28px; top: -96px; width: 56px; height: 100px;
   pointer-events: none;
+  background: transparent !important;
 }
 .traveler-walker {
   display: block; width: 51.7px; height: 92px; margin: 0 auto;
+  background-color: transparent;
   background-image: var(--walker-idle, url("../assets/traveler/idle.png"));
   background-repeat: no-repeat;
   background-position: center bottom;
