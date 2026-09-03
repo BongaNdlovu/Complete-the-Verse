@@ -19,8 +19,8 @@ Hall "The Valley"
   → cinema B  (five stills + VO/SFX, Heartbeat bed)
   → Q6 … Q12
   → results
-       Held  + win.png   if 12/12 and zero misses
-       Scarred + loss.png otherwise (including quit / timeout miss)
+       Held  + win.webp   if 12/12 and zero misses
+       Scarred + loss.webp otherwise (including quit / timeout miss)
 ```
 
 Cinema A still exists in `Beat.cinemaA` but **must not play**. The opening film replaced it. Cinema B still plays after question 5 (`R.beatQ === 5 && !R.beatBDone`).
@@ -57,7 +57,7 @@ Required pieces for this story:
 | `prologue.mp4` | Opening film. H.264 `yuv420p` + AAC, `+faststart`. Played via `playStageFilm`. |
 | `01.jpeg` … `15.jpeg` | Cinema / question plates. Do not overwrite `15.jpeg` for a win still; it is Q11. |
 | `question.jpeg` | Q1 plate. |
-| `win.png` / `loss.png` | Results stills. `#v-results` has already dropped `mode-beat`, so CSS keys off `.beat-win` / `.beat-loss`. |
+| `win.webp` / `loss.webp` | Results stills. `#v-results` has already dropped `mode-beat`, so CSS keys off `.beat-win` / `.beat-loss`. |
 | `vo-*.mp3` | Spoken lines on cinema plates. Exclusive voice channel (`Snd.playVoice`). |
 | `sfx-*.mp3` | Crowd, wind-shield, breath, thud. `Snd.playFile`. |
 
@@ -154,7 +154,7 @@ To write another match: two `rows` with distinct `id`s, a `scatter` that include
 
 ## 7. Results
 
-`go("results")` clears `mode-beat`. Skin is `#v-results.beat-win` or `.beat-loss` (`paintResultsSkin`). CSS paints `win.png` / `loss.png` on `:before` with a veil; copy sits in the upper third (`.scrollpad`). Kick text stays **Held** / **Scarred**. Retry is `startRun("beat", …)`.
+`go("results")` clears `mode-beat`. Skin is `#v-results.beat-win` or `.beat-loss` (`paintResultsSkin`). CSS paints `win.webp` / `loss.webp` on `:before` with a veil; copy sits in the upper third (`.scrollpad`). Kick text stays **Held** / **Scarred**. Retry is `startRun("beat", …)`.
 
 A Hold also sets `SAVE.life.beatGoliathHeld`.
 

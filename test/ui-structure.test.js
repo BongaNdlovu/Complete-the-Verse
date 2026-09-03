@@ -69,8 +69,8 @@ assert(fs.statSync(path.join(ROOT, "assets", "team-prologue.mp4")).size < 2 * 10
 const beatPrologue = path.join(ROOT, "assets", "beats", "goliath", "prologue.mp4");
 assert(fs.existsSync(beatPrologue), "assets/beats/goliath/prologue.mp4 exists");
 assert(fs.statSync(beatPrologue).size < 20 * 1024 * 1024, "Valley prologue film stays under 20MB");
-assert(fs.existsSync(path.join(ROOT, "assets", "beats", "goliath", "win.png")), "Valley win still exists");
-assert(fs.existsSync(path.join(ROOT, "assets", "beats", "goliath", "loss.png")), "Valley loss still exists");
+  assert(fs.existsSync(path.join(ROOT, "assets", "beats", "goliath", "win.webp")), "Valley win still exists");
+  assert(fs.existsSync(path.join(ROOT, "assets", "beats", "goliath", "loss.webp")), "Valley loss still exists");
 assert(game.includes('playStageFilm("assets/beats/goliath/prologue.mp4"'),
   "Valley start plays the prologue film");
 assert(!/function startBeatStage\(\)\{[\s\S]*?playBeatCinema\(Beat\.cinemaA\)/.test(game),

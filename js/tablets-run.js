@@ -982,6 +982,9 @@ function drawTabletsFx(dt){
   const w = tabletsFx.w;
   const h = tabletsFx.h;
   ctx.clearRect(0, 0, w, h);
+  if(typeof R !== "undefined" && R && typeof R.tabletClock === "number" && R.tabletClock <= 5 && !tabletsUntimed()){
+    return;
+  }
   tabletsFx.embers.forEach(function(p){
     p.x += p.vx * (dt * 60);
     p.y += p.vy * (dt * 60);

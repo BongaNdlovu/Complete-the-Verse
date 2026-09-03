@@ -55,7 +55,7 @@ eq("Q12 head Jerusalem", qs[11].rows[0].a, "Jerusalem");
 eq("Q12 armour tent", qs[11].rows[1].a, "David's tent");
 ok("Q12 scatter Nob", qs[11].scatter.indexOf("Nob") >= 0);
 ok("Q12 stem is 17:54", qs[11].stem.indexOf("brought it to") >= 0 && qs[11].stem.indexOf("armour") >= 0);
-eq("cinema A 1 is valley VO", Beat.cinemaA[0].still + Beat.cinemaA[0].vo, "01.jpegvo-01-valley.mp3");
+eq("cinema A 1 is valley VO", Beat.cinemaA[0].still + Beat.cinemaA[0].vo, "01.webpvo-01-valley.mp3");
 eq("cinema A 3 is defy", Beat.cinemaA[2].vo, "vo-03-defy.mp3");
 eq("cinema A 5 is crowd only", Beat.cinemaA[4].sfx, "sfx-05-crowd.mp3");
 eq("cinema B 6 is wind-shield under youth", Beat.cinemaB[0].sfx, "sfx-06-wind-shield.mp3");
@@ -76,15 +76,15 @@ ok("no ESV Eliab frame", !/presumption/.test(src) && !/evil of your heart/.test(
 ok("armour not armor", /armour/.test(src) && !/\barmor\b/.test(src));
 
 const goliath = path.join(ROOT, "assets", "beats", "goliath");
-["01.jpeg","02.jpeg","03.jpeg","04.jpeg","05.jpeg","06.jpeg","07.jpeg","08.jpeg","09.jpeg","10.jpeg",
+ ["01.webp","02.webp","03.webp","04.webp","05.webp","06.webp","07.webp","08.webp","09.webp","10.webp",
  "vo-01-valley.mp3","vo-02-ridge.mp3","vo-03-defy.mp3","vo-04-again.mp3","vo-06-youth.mp3",
  "vo-08-staves.mp3","vo-09-flesh.mp3","vo-10-name.mp3",
  "sfx-05-crowd.mp3","sfx-06-wind-shield.mp3","sfx-07-breath.mp3","sfx-10-thud.mp3",
- "question.jpeg","win.png","loss.png","prologue.mp4"].forEach(function(f){
+  "question.webp","win.webp","loss.webp","prologue.mp4"].forEach(function(f){
   const p = path.join(goliath, f);
   ok(f + " exists", fs.existsSync(p) && fs.statSync(p).size > 1000);
 });
-ok("question still is compact", fs.statSync(path.join(goliath, "question.jpeg")).size < 700000);
+ok("question still is compact", fs.statSync(path.join(goliath, "question.webp")).size < 700000);
 ok("prologue under 20MB", fs.statSync(path.join(goliath, "prologue.mp4")).size < 20 * 1024 * 1024);
 ok("Fear of the Dark exists", fs.statSync(path.join(ROOT, "audio", "fear-of-the-dark.mp3")).size > 100000);
 const gameSrc = fs.readFileSync(path.join(ROOT, "js", "game.js"), "utf8");

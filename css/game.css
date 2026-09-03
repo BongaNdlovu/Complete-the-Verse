@@ -83,7 +83,7 @@ body.hall-ready.biblical-thriller #v-records:before,
 body.hall-ready.biblical-thriller #v-settings:before{opacity:0;animation:none}
 body.quality-low #hall-bg,body.reduced #hall-bg{display:none!important;opacity:0}
 #app{position:relative;z-index:10;width:100%;height:100%}
-.view{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
+.view{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;overscroll-behavior:none}
 .view.on{display:flex}
 .view.on>*{animation:vIn .7s cubic-bezier(.16,.84,.28,1) both}
 @keyframes vIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
@@ -512,7 +512,7 @@ body.reduced .menu-signin.pulse,body.motion-calm .menu-signin.pulse{animation:no
     linear-gradient(180deg,#1a120a 0%,#0c0805 100%);
   border:1px solid #8e6d2b;border-bottom:2px solid #3a2710;
   box-shadow:0 18px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,236,190,.1);
-  font-family:'Inter',system-ui,sans-serif}
+  font-family:'Barlow Condensed',system-ui,sans-serif}
 .res-board .mtitle{
   font-family:'Cinzel Decorative',Cinzel,Georgia,serif;font-size:.72rem;letter-spacing:.22em;
   color:var(--gold-hot);text-transform:uppercase;margin:0 0 .85rem;padding:0 0 .7rem;
@@ -906,9 +906,20 @@ body.quality-balanced #grain{opacity:.06;animation-duration:1.2s}
 body.quality-balanced #cinematic-fx{opacity:.62}
 body.quality-balanced .smoke-wisp{filter:blur(28px)}
 body.quality-low #grain,body.quality-low #cinematic-fx,body.quality-low #viz{display:none!important}
+body.quality-low .smoke-wisp{display:none!important}
+body.quality-low #tablets-fx{display:none!important}
 body.quality-low .playercard,body.quality-low .mode,
 body.quality-low .pwr,body.quality-low #pause,body.quality-low .setpiece-card,
-body.quality-low .toast{backdrop-filter:none!important}
+body.quality-low .iconbtn,body.quality-low #overdrive-choice,body.quality-low #tutorial,
+body.quality-low #character-pick,body.quality-low .seventh-lamp-cinematic,
+body.quality-low .relic-inspect-modal,body.quality-low .journey-vignette-modal,
+body.quality-low .jv-era,body.quality-low .lbrow,body.quality-low .node-label,
+body.quality-low .char-panel,body.quality-low .atlas-tools,body.quality-low .modal-backdrop,
+body.quality-low .powerbar,body.quality-low .fil,body.quality-low .diff,
+body.quality-low .toast,
+body.reduced .playercard,body.reduced .mode,body.reduced .pwr,body.reduced #pause,
+body.reduced .char-panel,body.reduced .powerbar,body.reduced .toast,
+body.reduced .relic-inspect-modal,body.reduced .journey-vignette-modal{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 body.quality-low .stage:before,body.quality-low #v-menu:before,
 body.quality-low #v-brief:before,body.quality-low #v-act:before,
 body.quality-low #v-results:before{animation:none!important}

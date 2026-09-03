@@ -3,7 +3,7 @@
   --disp:'Cinzel',Georgia,serif;
   --disp-orn:'Cinzel Decorative',Cinzel,Georgia,serif;
   --body:'EB Garamond',Georgia,'Times New Roman',serif;
-  --ui:'Inter',system-ui,sans-serif;
+  --ui:'Barlow Condensed','Helvetica Neue',sans-serif;
   --tab-bg-1:#7a6347;--tab-bg-2:#564430;--tab-bg-3:#3a2c1d;
   --tab-border:#947b59;--tab-border-bot:#23180e;--tab-slot-bg:rgba(20,13,7,.85);--tab-text:#23170d}
 #v-tablets.stone-basalt{
@@ -173,11 +173,11 @@ body.view-tablets .voice-caption{display:none!important}
   .tablets-ms{padding:14px 14px 12px}
   /* Tall multi-gap cards center until they fit, then scroll instead of
      overlapping the header — the stone tray below always stays reachable. */
-  .tablets-stage{overflow-y:auto}
+  .tablets-stage{overflow-y:auto;overscroll-behavior:none}
   .tablets-ms{margin-top:auto;margin-bottom:auto}
 }
 @media (max-height:500px){
-  .tablets-stage{overflow-y:auto}
+  .tablets-stage{overflow-y:auto;overscroll-behavior:none}
   .tablets-ms{margin-top:auto;margin-bottom:auto}
 }
 .tablets-speech{display:none;align-items:center;justify-content:center;gap:4px;height:16px;margin:2px 0 8px}

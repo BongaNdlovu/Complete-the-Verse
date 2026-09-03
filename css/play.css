@@ -322,7 +322,7 @@ body.onboarding .rail.r > :not(.hud-time){display:none}
 
 .play-quit{
   position:absolute;top:clamp(12px,1.6vh,22px);right:clamp(14px,2.2vw,34px);z-index:10;
-  min-height:38px;padding:0 1.1em;display:flex;align-items:center;justify-content:center;
+  min-height:44px;padding:0 1.1em;display:flex;align-items:center;justify-content:center;
   font-family:var(--ui);letter-spacing:.22em;text-transform:uppercase;font-size:.62rem;
   color:var(--gold-dim);background:rgba(8,9,12,.85);box-shadow:0 0 0 1px rgba(213,173,98,.28) inset;
   border-radius:3px;cursor:pointer;transition:all .2s ease}
@@ -449,7 +449,7 @@ body.reduced #lock-seal{transition:none}
   opacity:0;visibility:hidden}
 #judge-burst.on{visibility:visible;animation:judgeInOut .88s ease forwards}
 #judge-burst i{
-  --cell-h:min(100vh,148vw);--cell-w:calc(var(--cell-h) * 512 / 944);
+  --cell-h:min(100vh,148vw);--cell-h:min(100dvh,148vw);--cell-w:calc(var(--cell-h) * 512 / 944);
   display:block;width:var(--cell-w);height:var(--cell-h);
   background-repeat:no-repeat;background-position:0 0;
   background-size:calc(var(--cell-w) * 8) var(--cell-h);
@@ -511,7 +511,7 @@ body.reduced .res-details[open] .breakdown,body.reduced .res-details[open] .stat
   .rail{position:static;flex-direction:row;align-items:center;justify-content:space-between;
     width:100%;gap:10px;padding:6px 12px}
   .rail.r{text-align:left;align-items:center}
-  .stage{justify-content:flex-start;padding:10px 14px 16px;overflow-y:auto;gap:8px}
+  .stage{justify-content:flex-start;padding:10px 14px 16px;overflow-y:auto;gap:8px;overscroll-behavior:none}
   .question-content{flex:1 1 auto;min-height:0;padding-bottom:0}
   .question-body{padding-bottom:12px}
   .play-top-stack{width:100%;gap:6px}
@@ -543,6 +543,22 @@ body.reduced .res-details[open] .breakdown,body.reduced .res-details[open] .stat
   .hdr-val{white-space:normal;font-size:.8rem}
   .hdr-lab{font-size:.56rem}
   #v-play .act-track{position:static;transform:none;width:100%;margin:0;padding:0}
+}
+
+/* Short landscape screens (phones held sideways): the verse, all four
+   answers and the lock button must fit without scrolling mid-clock.
+   body. prefix outranks the width breakpoints wherever they collide. */
+@media (max-height:500px){
+  body.biblical-thriller #tutorial-guide{padding:.45rem .8rem}
+  body.biblical-thriller .tutorial-guide-copy{font-size:.78rem}
+  body.biblical-thriller.onboarding .question-content{padding-top:4.2rem}
+  body.biblical-thriller .verse-main{font-size:clamp(.95rem,4.6vh,1.3rem);margin-top:6px}
+  body.biblical-thriller .answers{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:10px;gap:8px}
+  body.biblical-thriller .ans{min-height:50px;font-size:.74rem}
+  body.biblical-thriller .control{margin-top:10px}
+  body.biblical-thriller .powerbar{margin:6px 0 4px}
+  body.biblical-thriller .confirm-answer{min-height:44px}
+  body.biblical-thriller .hdr{padding:6px 12px}
 }
 
 
@@ -632,13 +648,13 @@ body.hall-ready.biblical-thriller #v-results.beat-loss:before{
 body.hall-ready.biblical-thriller #v-results.beat-win:before{
   background-image:
     linear-gradient(180deg,rgba(0,0,0,.7) 0%,rgba(0,0,0,.28) 24%,rgba(0,0,0,.16) 52%,rgba(0,0,0,.62) 100%),
-    url("../assets/beats/goliath/win.png");
+    url("../assets/beats/goliath/win.webp");
 }
 .biblical-thriller #v-results.beat-loss:before,
 body.hall-ready.biblical-thriller #v-results.beat-loss:before{
   background-image:
     linear-gradient(180deg,rgba(0,0,0,.7) 0%,rgba(0,0,0,.28) 24%,rgba(0,0,0,.16) 52%,rgba(0,0,0,.62) 100%),
-    url("../assets/beats/goliath/loss.png");
+    url("../assets/beats/goliath/loss.webp");
 }
 .biblical-thriller #v-results.beat-win:after,
 .biblical-thriller #v-results.beat-loss:after{

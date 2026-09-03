@@ -30,7 +30,7 @@ function checkRef(ref, fromFile) {
 }
 
 // CSS url(...) references
-for (const css of ['game.css', 'play.css', 'atlas.css']) {
+for (const css of ['game.css', 'play.css', 'atlas.css', 'tablets.css']) {
   const src = fs.readFileSync(path.join(root, 'css', css), 'utf8');
   for (const m of src.matchAll(/url\(\s*['"]?([^'")]+)['"]?\s*\)/g)) {
     let ref = m[1];
@@ -53,3 +53,55 @@ for (const f of fs.readdirSync(jsDir).filter(f => f.endsWith('.js'))) {
 console.log(issues === 0
   ? `ASSET CHECK CLEAN${resolvedFallbacks ? ` — ${resolvedFallbacks} journey scenes resolve to shipped artifacts` : ''}`
   : `ASSET CHECK FOUND ${issues} missing file(s)`);
+
+/* Payload budgets: lazy media is fetched mid-run on phones, so per-file
+   caps keep a single site visit cheap. Caps mirror the shipped maxima
+   with headroom — tighten them when the media diet advances. */
+const SIZE_CAPS = [
+  { dir: "assets/beats", ext: [".webp"], max: 260 * 1024, why: "beat still (<=250KB budget)" },
+  { dir: "assets/beats", ext: [".mp4"], max: 20 * 1024 * 1024, why: "beat film" },
+  { dir: "assets/journey", ext: [".mp4"], max: 3 * 1024 * 1024, why: "journey loop (<=3MB budget)" },
+  { dir: "assets/journey", ext: [".webp"], max: 220 * 1024, why: "journey still" },
+  { dir: "assets/characters", ext: [".png"], max: 1024 * 1024, why: "character art (1.5MB budget)" },
+  { dir: "assets/artifacts", ext: [".png"], max: 512 * 1024, why: "relic" },
+  { dir: "audio", ext: [".mp3"], max: 4 * 1024 * 1024, why: "audio bed (<=4MB ceiling)" },
+];
+
+const FOLDER_CAPS = [
+  { dir: "assets/beats/goliath", max: 26 * 1024 * 1024, why: "Goliath beat folder total" },
+  { dir: "audio", max: 50 * 1024 * 1024, why: "All audio total" },
+];
+for (const cap of SIZE_CAPS) {
+  const dir = path.join(root, cap.dir);
+  if (!fs.existsSync(dir)) continue;
+  for (const f of fs.readdirSync(dir, { recursive: true })) {
+    if (!cap.ext.some(e => String(f).toLowerCase().endsWith(e))) continue;
+    const p = path.join(dir, f);
+    let st = null;
+    try { st = fs.statSync(p); } catch (e) { continue; }
+    if (!st.isFile() || st.size <= cap.max) continue;
+    console.log(`OVERSIZE: ${path.relative(root, p)} is ${Math.round(st.size / 1024)}KB (cap ${Math.round(cap.max / 1024)}KB, ${cap.why})`);
+  }
+}
+
+for (const fcap of FOLDER_CAPS) {
+  const dir = path.join(root, fcap.dir);
+  if (!fs.existsSync(dir)) continue;
+  let total = 0;
+  for (const f of fs.readdirSync(dir, { recursive: true })) {
+    const p = path.join(dir, f);
+    try {
+      const st = fs.statSync(p);
+      if (st.isFile()) total += st.size;
+    } catch (e) {}
+  }
+  if (total > fcap.max) {
+    console.log(`OVERSIZE FOLDER: ${fcap.dir} is ${(total / (1024 * 1024)).toFixed(2)}MB (cap ${(fcap.max / (1024 * 1024)).toFixed(2)}MB, ${fcap.why})`);
+    issues++;
+  }
+}
+
+if (issues > 0) {
+  console.log(`ASSET CHECK FOUND ${issues} issue(s)`);
+  process.exitCode = 1;
+}
