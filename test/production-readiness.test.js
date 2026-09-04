@@ -291,6 +291,28 @@ assert(/SAVE\.books/.test(panels) && /data-practice-book/.test(panels),
 assert(/'speechSynthesis'\s*in\s*window/.test(panels) && /SpeechSynthesisUtterance/.test(panels),
   "Listen & Rebuild study action is guarded by speechSynthesis feature detection");
 
+/* TWA Digital Asset Links: file contract only, not an emulator job. */
+const assetlinksPath = path.join(ROOT, ".well-known", "assetlinks.json");
+assert(fs.existsSync(assetlinksPath), ".well-known/assetlinks.json exists");
+let assetlinks;
+try {
+  assetlinks = JSON.parse(read(".well-known/assetlinks.json"));
+} catch (err) {
+  assetlinks = null;
+}
+assert(Array.isArray(assetlinks) && assetlinks.length > 0,
+  ".well-known/assetlinks.json is a JSON array");
+const twaLink = Array.isArray(assetlinks) && assetlinks.find((entry) =>
+  entry && entry.target && entry.target.package_name === "app.completetheverse.twa");
+assert(twaLink, "assetlinks.json names package app.completetheverse.twa");
+const fingerprints = twaLink && twaLink.target && twaLink.target.sha256_cert_fingerprints;
+assert(Array.isArray(fingerprints) && fingerprints.some((fp) =>
+  typeof fp === "string" && /^[0-9A-F]{2}(:[0-9A-F]{2}){31}$/i.test(fp)),
+  "assetlinks.json has a SHA-256 fingerprint");
+assert(/Content-Type/.test(read("vercel.json")) &&
+  /\.well-known\/assetlinks\.json/.test(read("vercel.json")),
+  "Vercel serves assetlinks.json as application/json");
+
 if (failures.length) {
   console.error("FAIL (" + failures.length + ")");
   failures.forEach((failure) => console.error(" - " + failure));

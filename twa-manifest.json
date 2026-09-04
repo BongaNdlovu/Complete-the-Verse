@@ -1,0 +1,49 @@
+{
+  "packageId": "app.completetheverse.twa",
+  "host": "complete-the-verse.vercel.app",
+  "name": "Complete the Verse — A Trial of Scripture",
+  "launcherName": "Complete the Verse",
+  "display": "standalone",
+  "themeColor": "#04040A",
+  "themeColorDark": "#04040A",
+  "navigationColor": "#04040A",
+  "navigationColorDark": "#04040A",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#04040A",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://complete-the-verse.vercel.app/assets/icon-512.png",
+  "maskableIconUrl": "https://complete-the-verse.vercel.app/assets/icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersionName": "1.8.3",
+  "appVersionCode": 183,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://complete-the-verse.vercel.app/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://complete-the-verse.vercel.app/",
+  "minSdkVersion": 21,
+  "orientation": "any",
+  "fingerprints": [
+    {
+      "name": "release",
+      "value": "85:EB:F6:93:7D:23:74:30:7F:C1:E8:24:64:61:7C:CE:69:DA:A0:90:B8:62:16:3A:F7:62:71:66:A5:11:DE:AF"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "displayOverride": [],
+  "appVersion": "1.8.3"
+}

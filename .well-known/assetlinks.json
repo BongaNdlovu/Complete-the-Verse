@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.completetheverse.twa",
+      "sha256_cert_fingerprints": [
+        "85:EB:F6:93:7D:23:74:30:7F:C1:E8:24:64:61:7C:CE:69:DA:A0:90:B8:62:16:3A:F7:62:71:66:A5:11:DE:AF"
+      ]
+    }
+  }
+]

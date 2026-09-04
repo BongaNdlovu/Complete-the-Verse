@@ -21,3 +21,14 @@ test-artifacts/
 
 # Promo video workspace (sources, renders, deps stay local)
 remotion-video/
+
+# Android TWA signing material and Gradle outputs (never commit)
+*.keystore
+*.jks
+*.apk
+*.aab
+*.apks
+local.properties
+android/**/build/
+android/.gradle/
+.twa-signing.env

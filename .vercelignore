@@ -16,3 +16,5 @@ scripts/
 .git/
 .gitignore
 .DS_Store
+android/
+twa-manifest.json
