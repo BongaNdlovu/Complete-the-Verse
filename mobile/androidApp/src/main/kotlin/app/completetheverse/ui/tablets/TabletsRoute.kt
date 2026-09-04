@@ -93,7 +93,9 @@ fun TabletsRoute(
     }
 
     fun leaveHold() {
+        viewModel.promoteIfEnded()
         when {
+            viewModel.uiPhase == TabletsUiPhase.Results -> viewModel.backToLibrary(bank)
             viewModel.uiPhase == TabletsUiPhase.Hold && viewModel.tutorial -> {
                 viewModel.confirmLeave(bank, saves)
                 onExit()
@@ -101,7 +103,6 @@ fun TabletsRoute(
             viewModel.uiPhase == TabletsUiPhase.Hold && !viewModel.paused -> viewModel.pause()
             viewModel.uiPhase == TabletsUiPhase.Hold && viewModel.confirmAbandon -> viewModel.stay()
             viewModel.uiPhase == TabletsUiPhase.Hold -> viewModel.resume()
-            viewModel.uiPhase == TabletsUiPhase.Results -> viewModel.backToLibrary(bank)
             else -> onExit()
         }
     }

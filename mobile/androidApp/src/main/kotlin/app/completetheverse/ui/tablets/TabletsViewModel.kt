@@ -121,12 +121,21 @@ class TabletsViewModel : ViewModel() {
 
     fun tickClock() {
         val s = session ?: return
+        if (s.ended || s.phase == TabletsPhase.Results || s.phase == TabletsPhase.TutorialDone) {
+            promoteIfEnded(s)
+            return
+        }
         if (pausedByHide || s.phase != TabletsPhase.Playing || s.untimed) {
             remainingMs = s.remainingMs()
             return
         }
         s.tickTo(SystemClock.elapsedRealtime())
         publish()
+        promoteIfEnded(s)
+    }
+
+    fun promoteIfEnded() {
+        promoteIfEnded(session ?: return)
     }
 
     fun onHidden() {
@@ -265,20 +274,28 @@ class TabletsViewModel : ViewModel() {
             val cur = session ?: return@launch
             cur.finishResolve()
             save = cur.save
-            when (cur.phase) {
-                TabletsPhase.TutorialDone -> {
-                    result = cur.result
-                    session = null
-                    uiPhase = TabletsUiPhase.Library
-                    groups = Tablets.library(cur.bank, save)
-                }
-                TabletsPhase.Results -> {
-                    result = cur.result
-                    uiPhase = TabletsUiPhase.Results
-                }
-                else -> token++
-            }
+            if (!promoteIfEnded(cur)) token++
             publish()
+        }
+    }
+
+    private fun promoteIfEnded(s: TabletsSession): Boolean {
+        when (s.phase) {
+            TabletsPhase.TutorialDone -> {
+                result = s.result
+                save = s.save
+                session = null
+                uiPhase = TabletsUiPhase.Library
+                groups = Tablets.library(s.bank, save)
+                return true
+            }
+            TabletsPhase.Results -> {
+                result = s.result
+                save = s.save
+                uiPhase = TabletsUiPhase.Results
+                return true
+            }
+            else -> return false
         }
     }
 
