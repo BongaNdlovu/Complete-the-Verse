@@ -20,6 +20,7 @@ import app.completetheverse.core.bank.Verse
 import app.completetheverse.core.characters.Scholars
 import app.completetheverse.core.cloud.Cloud
 import app.completetheverse.core.save.Save
+import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.components.HallToast
 import app.completetheverse.ui.components.QuitDialog
@@ -118,16 +119,11 @@ fun CtvApp(
 
     LaunchedEffect(saveGeneration) {
         if (saveGeneration == 0) return@LaunchedEffect
-        if (screen != CtvScreen.Boot) return@LaunchedEffect
-        val save = saves.snapshot()
-        screen = when {
-            !Save.introPlayed(save) -> CtvScreen.Intro
-            !Save.profileReady(save) -> CtvScreen.CharacterPick(false)
-            else -> CtvScreen.Hall
-        }
+        screen = reconcileOnboarding(screen, saves.snapshot())
     }
 
     fun finishIntro() {
+        if (saveGeneration == 0) return
         val next = Save.markIntroPlayed(saves.snapshot())
         saves.persistAsync(next)
         screen = if (!Save.profileReady(next)) {
@@ -141,15 +137,15 @@ fun CtvApp(
         screen = CtvScreen.Hall
     }
 
-    BackHandler(enabled = screen !is CtvScreen.Hall || showQuit) {
+    val introActive = saveGeneration > 0 && screen is CtvScreen.Intro
+    BackHandler(enabled = !introActive && (saveGeneration == 0 || screen !is CtvScreen.Hall || showQuit)) {
         when {
             showQuit -> showQuit = false
-            screen is CtvScreen.Intro -> finishIntro()
+            saveGeneration == 0 || screen is CtvScreen.Boot -> showQuit = true
             screen is CtvScreen.CharacterPick -> {
                 val pick = screen as CtvScreen.CharacterPick
                 if (pick.fromSettings) screen = CtvScreen.Settings else showQuit = true
             }
-            screen is CtvScreen.Boot -> showQuit = true
             else -> afterHallBack()
         }
     }
@@ -170,7 +166,7 @@ fun CtvApp(
             .fillMaxSize()
             .background(CtvColors.inkAlt),
     ) {
-        when (val current = screen) {
+        when (val current = if (saveGeneration == 0) CtvScreen.Boot else screen) {
             CtvScreen.Boot -> BootSplash()
             CtvScreen.Intro -> IntroScreen(onFinished = { finishIntro() })
             is CtvScreen.CharacterPick -> CharacterPickScreen(
@@ -178,6 +174,7 @@ fun CtvApp(
                 initialScholarId = scholar.id,
                 fromSettings = current.fromSettings,
                 onConfirm = { name, scholarId ->
+                    if (saveGeneration == 0) return@CharacterPickScreen
                     saves.persistAsync(Save.commitProfile(saves.snapshot(), name, scholarId))
                     screen = if (current.fromSettings) CtvScreen.Settings else CtvScreen.Hall
                 },
@@ -235,7 +232,10 @@ fun CtvApp(
                     settings = next
                     settingsStore.save(next)
                 },
-                onChangeAvatar = { screen = CtvScreen.CharacterPick(true) },
+                onChangeAvatar = {
+                    if (saveGeneration == 0) return@SettingsScreen
+                    screen = CtvScreen.CharacterPick(true)
+                },
                 onBack = { screen = CtvScreen.Hall },
             )
             CtvScreen.Practice -> PracticeRoute(
@@ -271,6 +271,16 @@ fun CtvApp(
                 if (toast == message) toast = null
             }
         }
+    }
+}
+
+private fun reconcileOnboarding(current: CtvScreen, save: SaveBlob): CtvScreen {
+    if (!Save.introPlayed(save)) return CtvScreen.Intro
+    if (!Save.profileReady(save)) return CtvScreen.CharacterPick(false)
+    return when (current) {
+        CtvScreen.Boot, CtvScreen.Intro -> CtvScreen.Hall
+        is CtvScreen.CharacterPick -> if (current.fromSettings) current else CtvScreen.Hall
+        else -> current
     }
 }
 

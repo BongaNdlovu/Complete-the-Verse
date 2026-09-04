@@ -67,6 +67,16 @@ class ScholarsTest {
     }
 
     @Test
+    fun combineLocalSnapshotsPrefersMemoryIntroAndProfile() {
+        val memory = Save.markIntroPlayed(Save.commitProfile(Save.DEFAULT, "Jo", "dawit"))
+        val merged = Save.combineLocalSnapshots(memory, Save.DEFAULT)
+        assertTrue(Save.introPlayed(merged))
+        assertTrue(Save.profileReady(merged))
+        assertEquals("dawit", Save.scholarId(merged))
+        assertEquals("Jo", Save.playerName(merged))
+    }
+
+    @Test
     fun scholarIdNeverReturnsABiblicalFigure() {
         val withFigure = Save.patchSet(
             Save.DEFAULT,

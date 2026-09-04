@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -81,16 +82,27 @@ fun IntroScreen(
     modifier: Modifier = Modifier,
 ) {
     var booting by rememberSaveable { mutableStateOf(false) }
+    var fast by rememberSaveable { mutableStateOf(false) }
     var bootIndex by rememberSaveable { mutableIntStateOf(0) }
+    var completed by remember { mutableStateOf(false) }
 
-    BackHandler { onFinished() }
+    fun beginBoot(fromSkip: Boolean) {
+        if (fromSkip) fast = true
+        booting = true
+    }
 
-    if (booting) {
-        LaunchedEffect(Unit) {
-            for (i in BOOT_MSGS.indices) {
-                bootIndex = i
-                delay(if (i == BOOT_MSGS.lastIndex) 420 else 380)
-            }
+    BackHandler { beginBoot(fromSkip = true) }
+
+    LaunchedEffect(booting, fast) {
+        if (!booting || completed) return@LaunchedEffect
+        val step = if (fast) 160L else 380L
+        val last = if (fast) 220L else 420L
+        for (i in BOOT_MSGS.indices) {
+            bootIndex = i
+            delay(if (i == BOOT_MSGS.lastIndex) last else step)
+        }
+        if (!completed) {
+            completed = true
             onFinished()
         }
     }
@@ -98,7 +110,7 @@ fun IntroScreen(
     IntroFrame(
         modifier = modifier.then(
             if (!booting) {
-                Modifier.clickable(role = Role.Button) { booting = true }
+                Modifier.clickable(role = Role.Button) { beginBoot(fromSkip = false) }
             } else {
                 Modifier
             },
@@ -159,7 +171,7 @@ fun IntroScreen(
             )
         }
         Spacer(Modifier.weight(1f))
-        GhostButton("Skip", onClick = onFinished)
+        GhostButton("Skip", onClick = { beginBoot(fromSkip = true) })
         Spacer(Modifier.height(8.dp))
     }
 }

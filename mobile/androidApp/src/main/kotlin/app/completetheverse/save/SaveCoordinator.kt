@@ -45,8 +45,18 @@ class SaveCoordinator(
      * cloud pull), persist, and publish. Survives cancellation.
      */
     suspend fun persistMerged(extra: SaveBlob? = null): SaveBlob =
+        persistLocked(candidate = null, extra = extra)
+
+    fun persistAsync(candidate: SaveBlob? = null) {
+        if (candidate != null) memory = candidate
+        ioScope.launch { persistLocked(candidate = candidate, extra = null) }
+    }
+
+    private suspend fun persistLocked(candidate: SaveBlob?, extra: SaveBlob?): SaveBlob =
         withContext(NonCancellable + Dispatchers.IO) {
             mutex.withLock {
+                // Candidate is the in-memory successor under this lock, not a cloud extra.
+                if (candidate != null) memory = candidate
                 val disk = repo.load()
                 val merged = Save.combineLocalSnapshots(memory, disk, extra)
                 repo.persist(merged)
@@ -54,10 +64,4 @@ class SaveCoordinator(
                 merged
             }
         }
-
-    fun persistAsync(candidate: SaveBlob? = null) {
-        if (candidate != null) publish(candidate)
-        // Candidate is already memory; overlay-vs-disk is enough (no cloud extra).
-        ioScope.launch { persistMerged() }
-    }
 }
