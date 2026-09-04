@@ -22,6 +22,7 @@ This directory contains development servers, QA tools, and data generators for C
 - [`gen-plans.js`](./gen-plans.js) — Generates plan artifacts from verse data.
 - [`build-verse-extra.js`](./build-verse-extra.js) — Compiles generated verses into `js/verses-extra.js`. Reads `scripts/verse-extra-plans.js`.
 - [`verse-extra-plans.js`](./verse-extra-plans.js) — Generated build input for `build-verse-extra.js`.
+- [`export-content.mjs`](./export-content.mjs) — Writes `shared/content/*.json` from the JS verse, site, and tablet banks (`npm run content:export`). `--check` fails if the committed JSON is stale (`npm run content:check`).
 
 ---
 

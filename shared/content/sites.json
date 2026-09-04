@@ -1,0 +1,2529 @@
+{
+  "arcs": [
+    {
+      "books": [
+        "Genesis",
+        "Joshua",
+        "Nehemiah",
+        "Romans",
+        "Galatians",
+        "Hebrews",
+        "James"
+      ],
+      "colour": "#f3c258",
+      "era": "c. 2100 – 1800 BC",
+      "key": "patriarchs",
+      "n": "I",
+      "name": "The Patriarchs",
+      "pal": "act1",
+      "sub": "A man leaves a city he will never see again, on the strength of a promise."
+    },
+    {
+      "books": [
+        "Exodus",
+        "Leviticus",
+        "Numbers",
+        "Deuteronomy",
+        "Joshua",
+        "Psalms",
+        "Hebrews"
+      ],
+      "colour": "#e76f51",
+      "era": "c. 1700 – 1200 BC",
+      "key": "exodus",
+      "n": "II",
+      "name": "The Exodus",
+      "pal": "act2",
+      "sub": "A nation is carried out of Egypt, and spends forty years learning to trust the One who carried it."
+    },
+    {
+      "books": [
+        "Judges",
+        "Ruth",
+        "1 Samuel",
+        "Psalms",
+        "Hebrews"
+      ],
+      "colour": "#a3543d",
+      "era": "c. 1200 – 1020 BC",
+      "key": "judges",
+      "n": "III",
+      "name": "The Judges",
+      "pal": "act3",
+      "sub": "There is no king. Deliverers rise and fall, and every man does what is right in his own eyes."
+    },
+    {
+      "books": [
+        "1 Samuel",
+        "2 Samuel",
+        "1 Kings",
+        "2 Kings",
+        "1 Chronicles",
+        "2 Chronicles",
+        "Ezra",
+        "Nehemiah",
+        "Esther",
+        "Job",
+        "Psalms",
+        "Proverbs",
+        "Ecclesiastes",
+        "Song of Solomon",
+        "Isaiah",
+        "Jeremiah",
+        "Lamentations",
+        "Ezekiel",
+        "Daniel",
+        "Hosea",
+        "Joel",
+        "Amos",
+        "Obadiah",
+        "Jonah",
+        "Micah",
+        "Nahum",
+        "Habakkuk",
+        "Zephaniah",
+        "Haggai",
+        "Zechariah",
+        "Malachi"
+      ],
+      "colour": "#457b9d",
+      "era": "c. 1000 – 430 BC",
+      "key": "kingdom",
+      "n": "IV",
+      "name": "Kingdom & Exile",
+      "pal": "act4",
+      "sub": "The throne rises, the prophets warn, the walls come down, and the people are carried east."
+    },
+    {
+      "books": [
+        "Matthew",
+        "Mark",
+        "Luke",
+        "John",
+        "Acts",
+        "Romans",
+        "1 Corinthians",
+        "2 Corinthians",
+        "Galatians",
+        "Ephesians",
+        "Philippians",
+        "Colossians",
+        "1 Thessalonians",
+        "2 Thessalonians",
+        "1 Timothy",
+        "2 Timothy",
+        "Titus",
+        "Philemon",
+        "Hebrews",
+        "James",
+        "1 Peter",
+        "2 Peter",
+        "1 John",
+        "2 John",
+        "3 John",
+        "Jude",
+        "Revelation"
+      ],
+      "colour": "#e9d6a8",
+      "era": "c. 5 BC – AD 95",
+      "key": "gospel",
+      "n": "V",
+      "name": "The Gospel & The Church",
+      "pal": "act5",
+      "sub": "The Word is made flesh, the tomb is emptied, and the message runs to the edge of the empire."
+    }
+  ],
+  "empires": {
+    "assyria": {
+      "colour": "#9a5f4e",
+      "name": "The Assyrian Empire",
+      "when": "c. 700 BC"
+    },
+    "babylon": {
+      "colour": "#5f7fa8",
+      "name": "The Babylonian Empire",
+      "when": "c. 580 BC"
+    },
+    "canaan": {
+      "colour": "#b08d55",
+      "name": "Canaanite city-states",
+      "when": "c. 1850 BC"
+    },
+    "egypt": {
+      "colour": "#d8a13c",
+      "name": "Egypt, New Kingdom",
+      "when": "c. 1250 BC"
+    },
+    "israel": {
+      "colour": "#c96f4a",
+      "name": "Israel enters Canaan",
+      "when": "c. 1210 BC"
+    },
+    "monarchy": {
+      "colour": "#8fb46b",
+      "name": "The United Monarchy",
+      "when": "c. 1000 BC"
+    },
+    "persia": {
+      "colour": "#6f8fbd",
+      "name": "The Persian Empire",
+      "when": "c. 500 BC"
+    },
+    "rome": {
+      "colour": "#a8474a",
+      "name": "The Roman Empire",
+      "when": "c. AD 60"
+    },
+    "ur3": {
+      "colour": "#c8a24a",
+      "name": "Sumer & Akkad",
+      "when": "c. 2100 BC"
+    }
+  },
+  "homeView": {
+    "center": [
+      34.5,
+      36
+    ],
+    "zoom": 5
+  },
+  "routes": {
+    "exodus": {
+      "colour": "#e76f51",
+      "coords": [
+        [
+          28.486,
+          35.008
+        ],
+        [
+          28.8,
+          34.2
+        ],
+        [
+          29.5,
+          33.2
+        ],
+        [
+          30.4,
+          32.2
+        ],
+        [
+          30.7986,
+          31.8333
+        ],
+        [
+          30.2,
+          32.55
+        ],
+        [
+          29.52,
+          32.88
+        ],
+        [
+          28.72,
+          33.62
+        ],
+        [
+          28.5392,
+          33.975
+        ],
+        [
+          29.6,
+          34.2
+        ],
+        [
+          30.6725,
+          34.4269
+        ],
+        [
+          29.55,
+          34.95
+        ],
+        [
+          30.32,
+          35.44
+        ],
+        [
+          30.9,
+          35.45
+        ],
+        [
+          31.7683,
+          35.7256
+        ],
+        [
+          31.85,
+          35.48
+        ],
+        [
+          31.8711,
+          35.4444
+        ]
+      ],
+      "label": "The Exodus"
+    },
+    "gospel": {
+      "colour": "#e9d6a8",
+      "coords": [
+        [
+          31.7042,
+          35.2072
+        ],
+        [
+          32.7009,
+          35.2035
+        ],
+        [
+          31.837,
+          35.547
+        ],
+        [
+          32.8807,
+          35.5751
+        ],
+        [
+          32.2,
+          35.52
+        ],
+        [
+          31.8711,
+          35.4444
+        ],
+        [
+          31.7784,
+          35.2297
+        ],
+        [
+          31.8392,
+          34.9892
+        ],
+        [
+          32.5,
+          35.3
+        ],
+        [
+          33.47,
+          36.19
+        ],
+        [
+          34.5,
+          36.3
+        ],
+        [
+          36.2021,
+          36.1603
+        ],
+        [
+          36.8,
+          34.6
+        ],
+        [
+          37.5,
+          30.5
+        ],
+        [
+          37.9395,
+          27.3417
+        ],
+        [
+          37.7,
+          24.5
+        ],
+        [
+          37.9061,
+          22.8791
+        ],
+        [
+          41.012,
+          24.286
+        ],
+        [
+          40,
+          18
+        ],
+        [
+          41.8925,
+          12.4853
+        ],
+        [
+          39,
+          20
+        ],
+        [
+          37.3086,
+          26.5478
+        ]
+      ],
+      "label": "The Gospel & The Church"
+    },
+    "judges": {
+      "colour": "#a3543d",
+      "coords": [
+        [
+          32.5506,
+          35.357
+        ],
+        [
+          32.4,
+          35.2
+        ],
+        [
+          32.1,
+          35.05
+        ],
+        [
+          31.7747,
+          34.9856
+        ],
+        [
+          31.78,
+          35.12
+        ],
+        [
+          31.8236,
+          35.2308
+        ],
+        [
+          31.885,
+          35.2167
+        ]
+      ],
+      "label": "The Judges"
+    },
+    "kingdom": {
+      "colour": "#457b9d",
+      "coords": [
+        [
+          31.7767,
+          35.2345
+        ],
+        [
+          32.0556,
+          35.2897
+        ],
+        [
+          32.08,
+          34.76
+        ],
+        [
+          32.83,
+          35.07
+        ],
+        [
+          33.2705,
+          35.2038
+        ],
+        [
+          32.9,
+          35.3
+        ],
+        [
+          32.2764,
+          35.1897
+        ],
+        [
+          32.6725,
+          35.088
+        ],
+        [
+          32.585,
+          35.185
+        ],
+        [
+          32,
+          35
+        ],
+        [
+          31.5654,
+          34.8492
+        ],
+        [
+          31.8,
+          35.2
+        ],
+        [
+          32.7,
+          35.6
+        ],
+        [
+          33.2,
+          36
+        ],
+        [
+          33.5138,
+          36.2765
+        ],
+        [
+          35.13,
+          36.75
+        ],
+        [
+          36.2,
+          37.1
+        ],
+        [
+          36.8,
+          40.5
+        ],
+        [
+          36.3597,
+          43.1526
+        ],
+        [
+          34.5,
+          43.8
+        ],
+        [
+          32.5355,
+          44.4275
+        ],
+        [
+          32.1892,
+          48.2577
+        ]
+      ],
+      "label": "Kingdom & Exile"
+    },
+    "patriarchs": {
+      "colour": "#f3c258",
+      "coords": [
+        [
+          30.9626,
+          46.1031
+        ],
+        [
+          32.5355,
+          44.4275
+        ],
+        [
+          34.45,
+          40.9
+        ],
+        [
+          35.95,
+          39.03
+        ],
+        [
+          36.8642,
+          39.0308
+        ],
+        [
+          36.2021,
+          36.1603
+        ],
+        [
+          35.13,
+          36.75
+        ],
+        [
+          33.5138,
+          36.2765
+        ],
+        [
+          32.9,
+          35.8
+        ],
+        [
+          32.2137,
+          35.2807
+        ],
+        [
+          31.85,
+          35.4
+        ],
+        [
+          31.5326,
+          35.0998
+        ],
+        [
+          31.2447,
+          34.8406
+        ],
+        [
+          31.4,
+          35
+        ],
+        [
+          31.7738,
+          35.2372
+        ],
+        [
+          31.9308,
+          35.2211
+        ],
+        [
+          32,
+          35.42
+        ],
+        [
+          32.1833,
+          35.6167
+        ],
+        [
+          32.3,
+          35.4
+        ],
+        [
+          32.4139,
+          35.2394
+        ]
+      ],
+      "label": "The Patriarchs"
+    }
+  },
+  "sites": [
+    {
+      "arc": "patriarchs",
+      "archaeology": "Great Ziggurat of Ur (Tell el-Muqayyar)",
+      "books": [
+        "Genesis",
+        "Nehemiah",
+        "Joshua",
+        "Hebrews"
+      ],
+      "climate": {
+        "hi": 45,
+        "lo": 27,
+        "type": "desert"
+      },
+      "context": "Where the journey begins.",
+      "coords": [
+        30.9626,
+        46.1031
+      ],
+      "description": "A paramount Sumerian city near the head of the Persian Gulf, with a moon-god temple complex, courtyard housing and river trade reaching the Indus. Abraham's family departs from here, and never comes back.",
+      "elevation": 10,
+      "empire": "ur3",
+      "era": "c. 2100 – 1900 BC",
+      "id": "ur",
+      "modernCountry": "Iraq",
+      "name": "UR OF THE CHALDEES",
+      "place": "Sumerian Euphrates basin",
+      "quote": "And they went forth with them from Ur of the Chaldees, to go into the land of Canaan.",
+      "quoteRef": "Genesis 11:31",
+      "region": "Lower Mesopotamia",
+      "scripture": "Genesis 11:31 · Nehemiah 9:7 · Hebrews 11:8",
+      "tag": "PATRIARCHAL ROUTE"
+    },
+    {
+      "arc": "patriarchs",
+      "archaeology": "Harran mound & beehive dwellings",
+      "books": [
+        "Genesis",
+        "Acts",
+        "Hebrews",
+        "Romans"
+      ],
+      "climate": {
+        "hi": 40,
+        "lo": 22,
+        "type": "semi-arid"
+      },
+      "context": "The pivot of the migration.",
+      "coords": [
+        36.8642,
+        39.0308
+      ],
+      "description": "A commercial crossroads on the Balikh where Terah settled and died, and where the promise was renewed before Abraham turned southwest toward a land he had never seen.",
+      "elevation": 380,
+      "empire": "ur3",
+      "era": "c. 1900 BC",
+      "id": "haran",
+      "modernCountry": "Turkey",
+      "name": "HARAN",
+      "place": "Upper Euphrates trade hub",
+      "quote": "So Abram departed, as the LORD had spoken unto him… and Abram was seventy and five years old when he departed out of Haran.",
+      "quoteRef": "Genesis 12:4",
+      "region": "Northern Mesopotamia",
+      "scripture": "Genesis 11:31 – 12:4 · Acts 7:2-4",
+      "tag": "PATRIARCHAL ROUTE"
+    },
+    {
+      "arc": "patriarchs",
+      "archaeology": "Tell Balata · Jacob's Well",
+      "books": [
+        "Genesis",
+        "Joshua",
+        "John",
+        "Judges"
+      ],
+      "climate": {
+        "hi": 30,
+        "lo": 18,
+        "type": "mediterranean"
+      },
+      "context": "The first altar in the land of promise.",
+      "coords": [
+        32.2137,
+        35.2807
+      ],
+      "description": "The first stop inside Canaan, set in the saddle between two mountains that would later stage the blessings and the curses. Joshua renewed the covenant on this ground at the end of his life.",
+      "elevation": 550,
+      "empire": "canaan",
+      "era": "c. 1850 – 1200 BC",
+      "id": "shechem",
+      "modernCountry": "Palestine",
+      "name": "SHECHEM",
+      "place": "The pass between Ebal and Gerizim",
+      "quote": "And there builded he an altar unto the LORD, who appeared unto him.",
+      "quoteRef": "Genesis 12:7",
+      "region": "Canaan highlands",
+      "scripture": "Genesis 12:6-7 · Joshua 24:1 · John 4:5-6",
+      "tag": "PATRIARCHAL ROUTE"
+    },
+    {
+      "arc": "patriarchs",
+      "archaeology": "Cave of Machpelah",
+      "books": [
+        "Genesis",
+        "2 Samuel",
+        "Joshua",
+        "Numbers"
+      ],
+      "climate": {
+        "hi": 28,
+        "lo": 16,
+        "type": "mediterranean"
+      },
+      "context": "The family home and the ancestral tomb.",
+      "coords": [
+        31.5326,
+        35.0998
+      ],
+      "description": "The patriarchal home, and the first piece of the promised land actually owned — a burial cave bought at full price, holding Sarah, Abraham, Isaac, Rebekah, Jacob and Leah.",
+      "elevation": 930,
+      "empire": "canaan",
+      "era": "c. 1850 BC – present",
+      "id": "hebron",
+      "modernCountry": "Palestine",
+      "name": "HEBRON (MAMRE)",
+      "place": "The highest city on the Judean ridge",
+      "quote": "Then Abram removed his tent, and came and dwelt in the plain of Mamre, which is in Hebron, and built there an altar unto the LORD.",
+      "quoteRef": "Genesis 13:18",
+      "region": "Judean highlands",
+      "scripture": "Genesis 13:18 · Genesis 23:19 · 2 Samuel 5:3",
+      "tag": "PATRIARCHAL ROUTE"
+    },
+    {
+      "arc": "patriarchs",
+      "archaeology": "Tel Sheva · four-horned altar",
+      "books": [
+        "Genesis",
+        "1 Kings",
+        "Amos",
+        "Joshua"
+      ],
+      "climate": {
+        "hi": 34,
+        "lo": 20,
+        "type": "desert"
+      },
+      "context": "The southern marker of Israel.",
+      "coords": [
+        31.2447,
+        34.8406
+      ],
+      "description": "The wells at the edge of the Negev, where Abraham and Isaac settled water disputes and swore treaties. \"From Dan to Beersheba\" became the standard measure of the whole land.",
+      "elevation": 260,
+      "empire": "canaan",
+      "era": "c. 1800 – 700 BC",
+      "id": "beersheba",
+      "modernCountry": "Israel",
+      "name": "BEERSHEBA",
+      "place": "Wells at the desert threshold",
+      "quote": "Wherefore he called that place Beersheba; because there they sware both of them.",
+      "quoteRef": "Genesis 21:31",
+      "region": "Northern Negev",
+      "scripture": "Genesis 21:31 · Genesis 26:23-25 · 1 Kings 19:3",
+      "tag": "PATRIARCHAL ROUTE"
+    },
+    {
+      "arc": "patriarchs",
+      "archaeology": "Temple Mount · the threshing floor of Araunah",
+      "books": [
+        "Genesis",
+        "Hebrews",
+        "James",
+        "2 Chronicles"
+      ],
+      "climate": {
+        "hi": 29,
+        "lo": 17,
+        "type": "mediterranean"
+      },
+      "context": "Where the ram was caught in the thicket.",
+      "coords": [
+        31.7738,
+        35.2372
+      ],
+      "description": "The mountain Abraham climbed with the knife and the wood, and came down with his son still alive. Later generations built the Temple on this same ridge — Scripture returns to a place centuries later, and this one it never leaves.",
+      "elevation": 740,
+      "empire": "canaan",
+      "era": "c. 1870 BC",
+      "id": "moriah",
+      "modernCountry": "Israel",
+      "name": "THE LAND OF MORIAH",
+      "place": "The ridge that would become Zion",
+      "quote": "And Abraham called the name of that place Jehovahjireh: as it is said to this day, In the mount of the LORD it shall be seen.",
+      "quoteRef": "Genesis 22:14",
+      "region": "Judean mountains",
+      "scripture": "Genesis 22:2 · Genesis 22:14 · Hebrews 11:17 · 2 Chronicles 3:1",
+      "tag": "PATRIARCHAL ROUTE"
+    },
+    {
+      "arc": "patriarchs",
+      "archaeology": "Beitin ridge settlement",
+      "books": [
+        "Genesis",
+        "1 Kings",
+        "Amos",
+        "Hosea"
+      ],
+      "climate": {
+        "hi": 29,
+        "lo": 17,
+        "type": "mediterranean"
+      },
+      "context": "Abraham's altar and Jacob's ladder.",
+      "coords": [
+        31.9308,
+        35.2211
+      ],
+      "description": "A high point on the ridge route where Abraham pitched his tent, and where Jacob — running for his life — slept on a stone and saw a ladder set up to heaven. He called it the House of God.",
+      "elevation": 880,
+      "empire": "canaan",
+      "era": "c. 1850 – 722 BC",
+      "id": "bethel",
+      "modernCountry": "Palestine",
+      "name": "BETHEL",
+      "place": "The central watershed road",
+      "quote": "Surely the LORD is in this place; and I knew it not.",
+      "quoteRef": "Genesis 28:16",
+      "region": "Ephraim highlands",
+      "scripture": "Genesis 12:8 · Genesis 28:12-19",
+      "tag": "PATRIARCHAL ROUTE"
+    },
+    {
+      "arc": "patriarchs",
+      "archaeology": "The Jabbok ford approaches",
+      "books": [
+        "Genesis",
+        "Hosea",
+        "Hebrews",
+        "Romans"
+      ],
+      "climate": {
+        "hi": 34,
+        "lo": 20,
+        "type": "semi-arid"
+      },
+      "context": "Where Jacob becomes Israel.",
+      "coords": [
+        32.1833,
+        35.6167
+      ],
+      "description": "A lonely ford on the Jabbok where Jacob, returning home after twenty years, wrestled until daybreak and would not let go until he was blessed — and limped away with a new name.",
+      "elevation": 50,
+      "empire": "canaan",
+      "era": "c. 1850 BC",
+      "id": "penuel",
+      "modernCountry": "Jordan",
+      "name": "PENUEL",
+      "place": "The ford of the Jabbok",
+      "quote": "And Jacob called the name of the place Peniel: for I have seen God face to face, and my life is preserved.",
+      "quoteRef": "Genesis 32:30",
+      "region": "East of Jordan",
+      "scripture": "Genesis 32:24-30 · Genesis 32:28",
+      "tag": "PATRIARCHAL ROUTE"
+    },
+    {
+      "arc": "patriarchs",
+      "archaeology": "Tell Dothan",
+      "books": [
+        "Genesis",
+        "2 Kings",
+        "Psalms",
+        "Acts"
+      ],
+      "climate": {
+        "hi": 30,
+        "lo": 18,
+        "type": "mediterranean"
+      },
+      "context": "Where a brother was sold, and a servant saw.",
+      "coords": [
+        32.4139,
+        35.2394
+      ],
+      "description": "A cistern town on the north road where Joseph's brothers sold him, and where, centuries later, Elisha's servant saw the mountain full of horses and chariots of fire. The pit and the opened eyes belong to the same ground.",
+      "elevation": 347,
+      "empire": "canaan",
+      "era": "c. 1700 BC · 850 BC",
+      "id": "dothan",
+      "modernCountry": "Palestine",
+      "name": "DOTHAN",
+      "place": "The pasture road toward the Jezreel",
+      "quote": "And they took him, and cast him into a pit: and the pit was empty, there was no water in it.",
+      "quoteRef": "Genesis 37:24",
+      "region": "Northern Samaria",
+      "scripture": "Genesis 37:17-28 · 2 Kings 6:13-17",
+      "tag": "PATRIARCHAL ROUTE"
+    },
+    {
+      "arc": "exodus",
+      "archaeology": "Magha'ir Shu'ayb · the oasis of Al-Bad'",
+      "books": [
+        "Exodus",
+        "Acts",
+        "Hebrews",
+        "Numbers"
+      ],
+      "climate": {
+        "hi": 38,
+        "lo": 24,
+        "type": "desert"
+      },
+      "context": "The bush, and the name I AM.",
+      "coords": [
+        28.486,
+        35.008
+      ],
+      "description": "The far country Moses fled to after he killed the Egyptian, where he kept Jethro's flock and turned aside to a bush that burned and was not consumed. The Exodus begins not in the brickyards, but with a shepherd taking off his shoes.",
+      "elevation": 220,
+      "empire": "egypt",
+      "era": "c. 1280 BC",
+      "id": "midian",
+      "modernCountry": "Saudi Arabia",
+      "name": "MIDIAN",
+      "place": "The wilderness east of the Gulf of Aqaba",
+      "quote": "And he said, Draw not nigh hither: put off thy shoes from off thy feet, for the place whereon thou standest is holy ground.",
+      "quoteRef": "Exodus 3:5",
+      "region": "Northwest Arabia",
+      "scripture": "Exodus 3:1-5 · Exodus 3:14 · Acts 7:30",
+      "tag": "EXODUS TRAIL"
+    },
+    {
+      "arc": "exodus",
+      "archaeology": "Avaris (Tell el-Dab'a) & Pi-Ramesses",
+      "books": [
+        "Exodus",
+        "Genesis",
+        "Psalms",
+        "Acts"
+      ],
+      "climate": {
+        "hi": 36,
+        "lo": 22,
+        "type": "desert"
+      },
+      "context": "Four hundred years of waiting, and one night of leaving.",
+      "coords": [
+        30.7986,
+        31.8333
+      ],
+      "description": "The fertile delta given to Joseph's family in the famine, and the brickyards their descendants were broken in. Excavation at Tell el-Dab'a shows a large Semitic population here long before it became the Ramesside capital.",
+      "elevation": 10,
+      "empire": "egypt",
+      "era": "c. 1700 – 1250 BC",
+      "id": "goshen",
+      "modernCountry": "Egypt",
+      "name": "GOSHEN (RAMESES)",
+      "place": "Lower Egypt floodplain",
+      "quote": "And the children of Israel journeyed from Rameses to Succoth, about six hundred thousand on foot that were men, beside children.",
+      "quoteRef": "Exodus 12:37",
+      "region": "Eastern Nile delta",
+      "scripture": "Genesis 47:6 · Exodus 12:37",
+      "tag": "EXODUS TRAIL"
+    },
+    {
+      "arc": "exodus",
+      "archaeology": "The Bitter Lakes corridor · traditional sea crossing",
+      "books": [
+        "Exodus",
+        "Hebrews",
+        "Psalms",
+        "Isaiah"
+      ],
+      "climate": {
+        "hi": 35,
+        "lo": 22,
+        "type": "desert"
+      },
+      "context": "Dry land through the sea.",
+      "coords": [
+        29.52,
+        32.88
+      ],
+      "description": "The water that opened for a nation on foot and closed on the chariots that followed. Whether the crossing was the Bitter Lakes or a gulf further south, this is the night Israel stopped being slaves and started being a people.",
+      "elevation": 2,
+      "empire": "egypt",
+      "era": "c. 1250 BC",
+      "id": "yam-suph",
+      "modernCountry": "Egypt",
+      "name": "YAM SUPH (THE SEA)",
+      "place": "The reed sea between delta and wilderness",
+      "quote": "And Moses stretched out his hand over the sea; and the LORD caused the sea to go back by a strong east wind all that night, and made the sea dry land, and the waters were divided.",
+      "quoteRef": "Exodus 14:21",
+      "region": "Eastern Egypt",
+      "scripture": "Exodus 14:21-22 · Exodus 15:1 · Hebrews 11:29",
+      "tag": "EXODUS TRAIL"
+    },
+    {
+      "arc": "exodus",
+      "archaeology": "Wadi Feiran oasis approaches",
+      "books": [
+        "Exodus",
+        "Numbers",
+        "Deuteronomy",
+        "Psalms",
+        "1 Corinthians"
+      ],
+      "climate": {
+        "hi": 34,
+        "lo": 18,
+        "type": "desert"
+      },
+      "context": "Water from the rock, and the first battle.",
+      "coords": [
+        28.72,
+        33.62
+      ],
+      "description": "A dry station in the wilderness where the people nearly stoned Moses for water, where the rock was struck, and where Amalek was held off only while Moses' hands stayed raised.",
+      "elevation": 900,
+      "empire": "egypt",
+      "era": "c. 1250 BC",
+      "id": "rephidim",
+      "modernCountry": "Egypt",
+      "name": "REPHIDIM",
+      "place": "The last camp before the mountain",
+      "quote": "Behold, I will stand before thee there upon the rock in Horeb; and thou shalt smite the rock, and there shall come water out of it.",
+      "quoteRef": "Exodus 17:6",
+      "region": "Southern Sinai",
+      "scripture": "Exodus 17:1-13 · Exodus 17:6",
+      "tag": "EXODUS TRAIL"
+    },
+    {
+      "arc": "exodus",
+      "archaeology": "Jebel Musa · St Catherine's plateau",
+      "books": [
+        "Exodus",
+        "Deuteronomy",
+        "Leviticus",
+        "Hebrews"
+      ],
+      "climate": {
+        "hi": 30,
+        "lo": 14,
+        "type": "highland-desert"
+      },
+      "context": "The covenant, and the highest point on the road.",
+      "coords": [
+        28.5392,
+        33.975
+      ],
+      "description": "The mountain of the Law, rising over 2,200 m out of the southern Sinai massif — the highest ground on the entire journey, by a wide margin. The Law was given here, and broken here, and given again.",
+      "elevation": 2285,
+      "empire": "egypt",
+      "era": "c. 1250 BC",
+      "id": "sinai",
+      "modernCountry": "Egypt",
+      "name": "MOUNT SINAI (HOREB)",
+      "place": "Granite ranges above the Red Sea",
+      "quote": "And mount Sinai was altogether on a smoke, because the LORD descended upon it in fire.",
+      "quoteRef": "Exodus 19:18",
+      "region": "Sinai peninsula",
+      "scripture": "Exodus 19:18 · Exodus 20:1-17 · Deuteronomy 5:2",
+      "tag": "EXODUS TRAIL"
+    },
+    {
+      "arc": "exodus",
+      "archaeology": "Ain el-Qudeirat oasis fortress",
+      "books": [
+        "Numbers",
+        "Deuteronomy",
+        "Hebrews",
+        "Psalms"
+      ],
+      "climate": {
+        "hi": 35,
+        "lo": 19,
+        "type": "desert"
+      },
+      "context": "The turning point that cost a generation.",
+      "coords": [
+        30.6725,
+        34.4269
+      ],
+      "description": "The oasis that served as Israel's base for a generation. Twelve spies went out from here and ten came back afraid — and that refusal, at this spring, bought forty years of wandering.",
+      "elevation": 460,
+      "empire": "egypt",
+      "era": "c. 1250 – 1210 BC",
+      "id": "kadesh",
+      "modernCountry": "Egypt",
+      "name": "KADESH BARNEA",
+      "place": "The largest spring in northern Sinai",
+      "quote": "And they went and came to Moses… unto the wilderness of Paran, to Kadesh; and brought back word unto them.",
+      "quoteRef": "Numbers 13:26",
+      "region": "Wilderness of Zin",
+      "scripture": "Numbers 13:26 · Numbers 14:1-4 · Numbers 20:1",
+      "tag": "EXODUS TRAIL"
+    },
+    {
+      "arc": "exodus",
+      "archaeology": "Siyagha summit basilica",
+      "books": [
+        "Deuteronomy",
+        "Numbers",
+        "Joshua",
+        "Psalms"
+      ],
+      "climate": {
+        "hi": 32,
+        "lo": 19,
+        "type": "semi-arid"
+      },
+      "context": "The last vantage point of Moses.",
+      "coords": [
+        31.7683,
+        35.7256
+      ],
+      "description": "The Moabite ridge looking out over the Jordan valley, nearly a kilometre above the river below. Moses climbed it, saw the whole land, and died within sight of the thing he had spent forty years walking toward.",
+      "elevation": 710,
+      "empire": "israel",
+      "era": "c. 1210 BC",
+      "id": "nebo",
+      "modernCountry": "Jordan",
+      "name": "MOUNT NEBO",
+      "place": "The escarpment above the Dead Sea",
+      "quote": "I have caused thee to see it with thine eyes, but thou shalt not go over thither.",
+      "quoteRef": "Deuteronomy 34:4",
+      "region": "Plains of Moab",
+      "scripture": "Deuteronomy 34:1-5",
+      "tag": "EXODUS TRAIL"
+    },
+    {
+      "arc": "exodus",
+      "archaeology": "The Jordan ford camps east of Jericho",
+      "books": [
+        "Joshua",
+        "1 Samuel",
+        "Hosea",
+        "Amos",
+        "Judges"
+      ],
+      "climate": {
+        "hi": 39,
+        "lo": 24,
+        "type": "desert"
+      },
+      "context": "Where Egypt's reproach was rolled away.",
+      "coords": [
+        31.85,
+        35.48
+      ],
+      "description": "The base camp after the crossing, where twelve stones from the riverbed stood as a sign, the manna ceased, and a new generation was marked for the land they had just entered.",
+      "elevation": -240,
+      "empire": "israel",
+      "era": "c. 1210 BC",
+      "id": "gilgal",
+      "modernCountry": "Palestine",
+      "name": "GILGAL",
+      "place": "The first camp west of Jordan",
+      "quote": "And the LORD said unto Joshua, This day have I rolled away the reproach of Egypt from off you. Wherefore the name of the place is called Gilgal unto this day.",
+      "quoteRef": "Joshua 5:9",
+      "region": "Jordan rift valley",
+      "scripture": "Joshua 4:19-24 · Joshua 5:9 · 1 Samuel 11:14",
+      "tag": "EXODUS TRAIL"
+    },
+    {
+      "arc": "exodus",
+      "archaeology": "Tell es-Sultan · Elisha's Spring",
+      "books": [
+        "Joshua",
+        "Hebrews",
+        "Luke",
+        "2 Kings"
+      ],
+      "climate": {
+        "hi": 39,
+        "lo": 24,
+        "type": "desert"
+      },
+      "context": "The gate into the promised land.",
+      "coords": [
+        31.8711,
+        35.4444
+      ],
+      "description": "A spring-fed oasis and one of the oldest continuously inhabited places known, sitting 258 m below sea level — the lowest ground on the journey, and the first city taken as Israel came into Canaan.",
+      "elevation": -258,
+      "empire": "israel",
+      "era": "c. 9000 BC – present",
+      "id": "jericho",
+      "modernCountry": "Palestine",
+      "name": "JERICHO",
+      "place": "The lowest city on earth, −258 m",
+      "quote": "So the people shouted when the priests blew with the trumpets… and the wall fell down flat.",
+      "quoteRef": "Joshua 6:20",
+      "region": "Jordan rift valley",
+      "scripture": "Joshua 6:20 · Hebrews 11:30",
+      "tag": "EXODUS TRAIL"
+    },
+    {
+      "arc": "judges",
+      "archaeology": "Ma'ayan Harod · the foot of Mount Gilboa",
+      "books": [
+        "Judges",
+        "Hebrews",
+        "Psalms",
+        "1 Samuel"
+      ],
+      "climate": {
+        "hi": 33,
+        "lo": 20,
+        "type": "mediterranean"
+      },
+      "context": "Where a host was thinned to three hundred.",
+      "coords": [
+        32.5506,
+        35.357
+      ],
+      "description": "The water where Gideon sent home the fearful and then the kneelers, until three hundred men who lapped like dogs were left to face a host like locusts. Pitchers, torches, and a shout — The sword of the LORD, and of Gideon.",
+      "elevation": 15,
+      "empire": "israel",
+      "era": "c. 1150 BC",
+      "id": "harod",
+      "modernCountry": "Israel",
+      "name": "THE SPRING OF HAROD",
+      "place": "The spring under Gilboa",
+      "quote": "And the LORD said unto Gideon, By the three hundred men that lapped will I save you, and deliver the Midianites into thine hand.",
+      "quoteRef": "Judges 7:7",
+      "region": "Jezreel valley",
+      "scripture": "Judges 7:1-7 · Judges 7:20",
+      "tag": "THE JUDGES"
+    },
+    {
+      "arc": "judges",
+      "archaeology": "Tel Tzora · Tel Batash (Timnah)",
+      "books": [
+        "Judges",
+        "Hebrews",
+        "1 Samuel",
+        "Psalms"
+      ],
+      "climate": {
+        "hi": 31,
+        "lo": 18,
+        "type": "mediterranean"
+      },
+      "context": "Where strength was a vow, and then a prayer.",
+      "coords": [
+        31.7747,
+        34.9856
+      ],
+      "description": "The ridge where a Nazirite was born, and the valley where he tore a lion, loved a Philistine, and at the last pulled a house down on himself. Strength and ruin share the same few miles of lowland.",
+      "elevation": 280,
+      "empire": "israel",
+      "era": "c. 1100 BC",
+      "id": "zorah",
+      "modernCountry": "Israel",
+      "name": "ZORAH & TIMNAH",
+      "place": "The Philistine border hills",
+      "quote": "And Samson called unto the LORD, and said, O Lord GOD, remember me, I pray thee, and strengthen me, I pray thee, only this once, O God.",
+      "quoteRef": "Judges 16:28",
+      "region": "The Shephelah",
+      "scripture": "Judges 13:2 · Judges 16:28-30",
+      "tag": "THE JUDGES"
+    },
+    {
+      "arc": "judges",
+      "archaeology": "Tell el-Ful",
+      "books": [
+        "Judges",
+        "1 Samuel",
+        "Hosea",
+        "Psalms"
+      ],
+      "climate": {
+        "hi": 29,
+        "lo": 17,
+        "type": "mediterranean"
+      },
+      "context": "The last darkness before a king.",
+      "coords": [
+        31.8236,
+        35.2308
+      ],
+      "description": "The town that closes the book of Judges in horror, and later becomes Saul's capital. Between the outrage and the crown the refrain is the same: there was no king, and every man did what was right in his own eyes.",
+      "elevation": 838,
+      "empire": "israel",
+      "era": "c. 1100 – 1010 BC",
+      "id": "gibeah",
+      "modernCountry": "Israel",
+      "name": "GIBEAH OF BENJAMIN",
+      "place": "The hill just north of Jerusalem",
+      "quote": "In those days there was no king in Israel: every man did that which was right in his own eyes.",
+      "quoteRef": "Judges 21:25",
+      "region": "Benjamin highlands",
+      "scripture": "Judges 19:14 · Judges 21:25 · 1 Samuel 10:26",
+      "tag": "THE JUDGES"
+    },
+    {
+      "arc": "judges",
+      "archaeology": "Tell en-Nasbeh",
+      "books": [
+        "1 Samuel",
+        "Judges",
+        "Psalms",
+        "Jeremiah"
+      ],
+      "climate": {
+        "hi": 29,
+        "lo": 17,
+        "type": "mediterranean"
+      },
+      "context": "Hitherto hath the LORD helped us.",
+      "coords": [
+        31.885,
+        35.2167
+      ],
+      "description": "The assembly ground of the tribes, where Israel gathered against Benjamin, and where Samuel later set a stone and named it Ebenezer. The Judges end here; the kingdom is asked for on this ridge.",
+      "elevation": 784,
+      "empire": "israel",
+      "era": "c. 1050 – 580 BC",
+      "id": "mizpah",
+      "modernCountry": "Palestine",
+      "name": "MIZPAH",
+      "place": "The watchtower north of Gibeah",
+      "quote": "Then Samuel took a stone, and set it between Mizpeh and Shen, and called the name of it Ebenezer, saying, Hitherto hath the LORD helped us.",
+      "quoteRef": "1 Samuel 7:12",
+      "region": "Benjamin highlands",
+      "scripture": "1 Samuel 7:5-12 · Judges 20:1 · Jeremiah 40:6",
+      "tag": "THE JUDGES"
+    },
+    {
+      "arc": "kingdom",
+      "archaeology": "Temple Mount · City of David",
+      "books": [
+        "2 Samuel",
+        "1 Kings",
+        "Psalms",
+        "2 Chronicles",
+        "Isaiah"
+      ],
+      "climate": {
+        "hi": 29,
+        "lo": 17,
+        "type": "mediterranean"
+      },
+      "context": "The heart of the kingdom.",
+      "coords": [
+        31.7767,
+        35.2345
+      ],
+      "description": "Taken by David as the capital of a united kingdom and made the site of Solomon's Temple. Burned by Babylon in 586 BC, rebuilt after the exile, and argued over ever since.",
+      "elevation": 754,
+      "empire": "monarchy",
+      "era": "c. 3000 BC – present",
+      "id": "jerusalem",
+      "modernCountry": "Israel",
+      "name": "JERUSALEM (ZION)",
+      "place": "The ridge between the Kidron and the Hinnom",
+      "quote": "Nevertheless David took the strong hold of Zion: the same is the city of David.",
+      "quoteRef": "2 Samuel 5:7",
+      "region": "Judean mountains",
+      "scripture": "2 Samuel 5:7 · 1 Kings 8:1 · Psalm 122:1",
+      "tag": "KINGDOM & EXILE"
+    },
+    {
+      "arc": "kingdom",
+      "archaeology": "Tel Shiloh · tabernacle platform",
+      "books": [
+        "Joshua",
+        "1 Samuel",
+        "Psalms",
+        "Jeremiah",
+        "Judges"
+      ],
+      "climate": {
+        "hi": 29,
+        "lo": 17,
+        "type": "mediterranean"
+      },
+      "context": "Where the tabernacle stood before Zion.",
+      "coords": [
+        32.0556,
+        35.2897
+      ],
+      "description": "The resting place of the tabernacle for generations, where Hannah prayed and Samuel heard his name in the night — and where the ark was lost to the Philistines when the priesthood failed.",
+      "elevation": 700,
+      "empire": "monarchy",
+      "era": "c. 1200 – 1050 BC",
+      "id": "shiloh",
+      "modernCountry": "Palestine",
+      "name": "SHILOH",
+      "place": "The ridge road north of Bethel",
+      "quote": "And the whole congregation of the children of Israel assembled together at Shiloh, and set up the tabernacle of the congregation there.",
+      "quoteRef": "Joshua 18:1",
+      "region": "Ephraim highlands",
+      "scripture": "Joshua 18:1 · 1 Samuel 1:3 · 1 Samuel 3:21 · Jeremiah 7:12",
+      "tag": "KINGDOM & EXILE"
+    },
+    {
+      "arc": "kingdom",
+      "archaeology": "Phoenician island harbour",
+      "books": [
+        "1 Kings",
+        "Ezekiel",
+        "Matthew",
+        "2 Chronicles"
+      ],
+      "climate": {
+        "hi": 30,
+        "lo": 23,
+        "type": "coastal"
+      },
+      "context": "Where the Temple's cedar came from.",
+      "coords": [
+        33.2705,
+        35.2038
+      ],
+      "description": "The sea powers that supplied the cedar, the gold and the craftsmen for Solomon's Temple, and whose purple dye and alphabet travelled the whole Mediterranean. Ezekiel later sang its funeral.",
+      "elevation": 10,
+      "empire": "monarchy",
+      "era": "c. 2000 BC – present",
+      "id": "tyre",
+      "modernCountry": "Lebanon",
+      "name": "TYRE & SIDON",
+      "place": "A fortified island port",
+      "quote": "And Hiram king of Tyre sent his servants unto Solomon… for Hiram was ever a lover of David.",
+      "quoteRef": "1 Kings 5:1",
+      "region": "Phoenician coast",
+      "scripture": "1 Kings 5:1 · Ezekiel 27:3 · Matthew 15:21",
+      "tag": "KINGDOM & EXILE"
+    },
+    {
+      "arc": "kingdom",
+      "archaeology": "Omride acropolis & ivory house",
+      "books": [
+        "1 Kings",
+        "2 Kings",
+        "Amos",
+        "Hosea",
+        "Micah"
+      ],
+      "climate": {
+        "hi": 30,
+        "lo": 18,
+        "type": "mediterranean"
+      },
+      "context": "The capital lost to Assyria.",
+      "coords": [
+        32.2764,
+        35.1897
+      ],
+      "description": "The capital Omri built on a defensible hill, famous for its ivory-inlaid palace and condemned for it by Amos and Hosea. Its fall in 722 BC ended the northern kingdom for good.",
+      "elevation": 430,
+      "empire": "assyria",
+      "era": "c. 880 – 722 BC",
+      "id": "samaria",
+      "modernCountry": "Palestine",
+      "name": "SAMARIA (SEBASTE)",
+      "place": "An isolated hill above the Shechem road",
+      "quote": "In the ninth year of Hoshea the king of Assyria took Samaria, and carried Israel away into Assyria.",
+      "quoteRef": "2 Kings 17:6",
+      "region": "Northern kingdom of Israel",
+      "scripture": "1 Kings 16:24 · Amos 6:1 · 2 Kings 17:6",
+      "tag": "KINGDOM & EXILE"
+    },
+    {
+      "arc": "kingdom",
+      "archaeology": "El-Muhraqa · the Carmel ridge",
+      "books": [
+        "1 Kings",
+        "James",
+        "Malachi",
+        "2 Kings"
+      ],
+      "climate": {
+        "hi": 30,
+        "lo": 20,
+        "type": "mediterranean"
+      },
+      "context": "The God that answereth by fire.",
+      "coords": [
+        32.6725,
+        35.088
+      ],
+      "description": "The mountain where Elijah rebuilt an altar in twelve stones, soaked it three times, and called down fire in front of four hundred and fifty prophets of Baal. How long halt ye between two opinions, he asked, and the fire answered.",
+      "elevation": 482,
+      "empire": "monarchy",
+      "era": "c. 860 BC",
+      "id": "carmel",
+      "modernCountry": "Israel",
+      "name": "MOUNT CARMEL",
+      "place": "The high ridge above the sea road",
+      "quote": "Then the fire of the LORD fell, and consumed the burnt sacrifice, and the wood, and the stones, and the dust, and licked up the water that was in the trench.",
+      "quoteRef": "1 Kings 18:38",
+      "region": "The Carmel range",
+      "scripture": "1 Kings 18:21-39 · 1 Kings 18:38 · James 5:17",
+      "tag": "KINGDOM & EXILE"
+    },
+    {
+      "arc": "kingdom",
+      "archaeology": "Tel Megiddo · the great gate & stables",
+      "books": [
+        "1 Kings",
+        "2 Kings",
+        "2 Chronicles",
+        "Zechariah",
+        "Judges",
+        "Revelation"
+      ],
+      "climate": {
+        "hi": 32,
+        "lo": 19,
+        "type": "mediterranean"
+      },
+      "context": "Where kings die at the pass.",
+      "coords": [
+        32.585,
+        35.185
+      ],
+      "description": "A fortress city on the narrow pass between the coast and the inland road — Solomonic gates, chariot cities, and the place good king Josiah fell. The valley below would later lend its name to Armageddon.",
+      "elevation": 150,
+      "empire": "monarchy",
+      "era": "c. 1000 – 609 BC",
+      "id": "megiddo",
+      "modernCountry": "Israel",
+      "name": "MEGIDDO",
+      "place": "The pass that commands the plain",
+      "quote": "In his days Pharaoh-nechoh king of Egypt went up against the king of Assyria to the river Euphrates: and king Josiah went against him; and he slew him at Megiddo, when he had seen him.",
+      "quoteRef": "2 Kings 23:29",
+      "region": "Jezreel valley",
+      "scripture": "1 Kings 9:15 · 2 Kings 23:29 · 2 Chronicles 35:22 · Zechariah 12:11",
+      "tag": "KINGDOM & EXILE"
+    },
+    {
+      "arc": "kingdom",
+      "archaeology": "Tel Lachish · the Assyrian siege ramp",
+      "books": [
+        "2 Kings",
+        "Isaiah",
+        "2 Chronicles",
+        "Jeremiah"
+      ],
+      "climate": {
+        "hi": 32,
+        "lo": 19,
+        "type": "mediterranean"
+      },
+      "context": "Where Assyria came up against Judah.",
+      "coords": [
+        31.5654,
+        34.8492
+      ],
+      "description": "The fortress Sennacherib took while Hezekiah watched from Jerusalem. The siege ramp still leans against the tell, and the palace reliefs in Nineveh show the same ramp from the other side — a city remembered by the army that broke it.",
+      "elevation": 250,
+      "empire": "assyria",
+      "era": "c. 701 BC",
+      "id": "lachish",
+      "modernCountry": "Israel",
+      "name": "LACHISH",
+      "place": "Judah's second city",
+      "quote": "Now in the fourteenth year of king Hezekiah did Sennacherib king of Assyria come up against all the fenced cities of Judah, and took them.",
+      "quoteRef": "2 Kings 18:13",
+      "region": "The Shephelah of Judah",
+      "scripture": "2 Kings 18:13-17 · Isaiah 36:1-2 · 2 Chronicles 32:9",
+      "tag": "KINGDOM & EXILE"
+    },
+    {
+      "arc": "kingdom",
+      "archaeology": "The Barada oasis & the old city walls",
+      "books": [
+        "2 Kings",
+        "1 Kings",
+        "Isaiah",
+        "Amos"
+      ],
+      "climate": {
+        "hi": 36,
+        "lo": 18,
+        "type": "semi-arid"
+      },
+      "context": "The northern rival, and the road north.",
+      "coords": [
+        33.5138,
+        36.2765
+      ],
+      "description": "The Aramaean capital watered by the Barada, fought over through the whole age of the kings. Naaman's rivers ran here, and he had to be talked into a muddier one.",
+      "elevation": 680,
+      "empire": "assyria",
+      "era": "c. 2500 BC – present",
+      "id": "damascus",
+      "modernCountry": "Syria",
+      "name": "DAMASCUS",
+      "place": "The Barada river oasis",
+      "quote": "Are not Abana and Pharpar, rivers of Damascus, better than all the waters of Israel?",
+      "quoteRef": "2 Kings 5:12",
+      "region": "Syrian oasis basin",
+      "scripture": "1 Kings 20:34 · 2 Kings 5:12 · Isaiah 17:1",
+      "tag": "KINGDOM & EXILE"
+    },
+    {
+      "arc": "kingdom",
+      "archaeology": "Kuyunjik mound · palace of Sennacherib",
+      "books": [
+        "Jonah",
+        "Nahum",
+        "2 Kings",
+        "Isaiah",
+        "Zephaniah"
+      ],
+      "climate": {
+        "hi": 43,
+        "lo": 26,
+        "type": "desert"
+      },
+      "context": "The power that carried off the north.",
+      "coords": [
+        36.3597,
+        43.1526
+      ],
+      "description": "The Assyrian capital on the Tigris, holding Ashurbanipal's library and some twelve kilometres of wall. Jonah preached here and it repented; Nahum promised the fall that came in 612 BC.",
+      "elevation": 220,
+      "empire": "assyria",
+      "era": "c. 1800 – 612 BC",
+      "id": "nineveh",
+      "modernCountry": "Iraq",
+      "name": "NINEVEH",
+      "place": "The imperial Assyrian capital",
+      "quote": "Now Nineveh was an exceeding great city of three days' journey.",
+      "quoteRef": "Jonah 3:3",
+      "region": "Upper Tigris, Assyria",
+      "scripture": "Jonah 3:3-4 · Nahum 1:1 · 2 Kings 19:36",
+      "tag": "KINGDOM & EXILE"
+    },
+    {
+      "arc": "kingdom",
+      "archaeology": "Ishtar Gate · Etemenanki ziggurat",
+      "books": [
+        "Daniel",
+        "Jeremiah",
+        "Psalms",
+        "2 Kings",
+        "Lamentations",
+        "Ezekiel"
+      ],
+      "climate": {
+        "hi": 44,
+        "lo": 26,
+        "type": "desert"
+      },
+      "context": "Seventy years by the river.",
+      "coords": [
+        32.5355,
+        44.4275
+      ],
+      "description": "Nebuchadnezzar's capital of blue-glazed gates and processional ways, where Judah spent seventy years and where Daniel outlasted four kings. The exile ends where the journey began — back on the Euphrates.",
+      "elevation": 34,
+      "empire": "babylon",
+      "era": "c. 2300 – 539 BC",
+      "id": "babylon",
+      "modernCountry": "Iraq",
+      "name": "BABYLON",
+      "place": "The Euphrates metropolis",
+      "quote": "By the rivers of Babylon, there we sat down, yea, we wept, when we remembered Zion.",
+      "quoteRef": "Psalm 137:1",
+      "region": "Lower Mesopotamia",
+      "scripture": "2 Kings 25:8-11 · Psalm 137:1 · Daniel 1:1-4",
+      "tag": "KINGDOM & EXILE"
+    },
+    {
+      "arc": "kingdom",
+      "archaeology": "Apadana palace of Darius",
+      "books": [
+        "Esther",
+        "Nehemiah",
+        "Daniel",
+        "Ezra"
+      ],
+      "climate": {
+        "hi": 46,
+        "lo": 28,
+        "type": "desert"
+      },
+      "context": "The court that signed the decree to return.",
+      "coords": [
+        32.1892,
+        48.2577
+      ],
+      "description": "The Achaemenid winter capital at the eastern end of the Royal Road, where Esther became queen for such a time as this, and where Nehemiah heard that the walls of Jerusalem were still down.",
+      "elevation": 65,
+      "empire": "persia",
+      "era": "c. 2000 – 330 BC",
+      "id": "susa",
+      "modernCountry": "Iran",
+      "name": "SUSA (SHUSHAN)",
+      "place": "The royal Persian citadel",
+      "quote": "That in those days, when the king Ahasuerus sat on the throne of his kingdom, which was in Shushan the palace.",
+      "quoteRef": "Esther 1:2",
+      "region": "Elam · the Persian empire",
+      "scripture": "Esther 1:2 · Nehemiah 1:1 · Daniel 8:2",
+      "tag": "KINGDOM & EXILE"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "Church of the Nativity",
+      "books": [
+        "Luke",
+        "Matthew",
+        "Micah",
+        "John"
+      ],
+      "climate": {
+        "hi": 28,
+        "lo": 16,
+        "type": "mediterranean"
+      },
+      "context": "The promise takes a body.",
+      "coords": [
+        31.7042,
+        35.2072
+      ],
+      "description": "The village Micah named seven hundred years early — little among the thousands of Judah, and the birthplace of David and of David's greater son. The journey turns here from promise to person.",
+      "elevation": 775,
+      "empire": "rome",
+      "era": "c. 5 BC",
+      "id": "bethlehem",
+      "modernCountry": "Palestine",
+      "name": "BETHLEHEM",
+      "place": "The shepherds' fields, six miles from Jerusalem",
+      "quote": "And she brought forth her firstborn son… and laid him in a manger; because there was no room for them in the inn.",
+      "quoteRef": "Luke 2:7",
+      "region": "Judean highlands",
+      "scripture": "Micah 5:2 · Luke 2:7 · Matthew 2:1",
+      "tag": "THE GOSPEL"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "First-century village terraces & Mary's Well",
+      "books": [
+        "Luke",
+        "John",
+        "Matthew",
+        "Mark"
+      ],
+      "climate": {
+        "hi": 31,
+        "lo": 19,
+        "type": "mediterranean"
+      },
+      "context": "Thirty hidden years.",
+      "coords": [
+        32.7009,
+        35.2035
+      ],
+      "description": "A small Galilean village of no reputation — \"can there any good thing come out of Nazareth?\" — where thirty of the thirty-three years were quietly spent, and where the hometown crowd tried to throw him off a cliff.",
+      "elevation": 350,
+      "empire": "rome",
+      "era": "c. 5 BC – AD 28",
+      "id": "nazareth",
+      "modernCountry": "Israel",
+      "name": "NAZARETH",
+      "place": "A hill village above the Jezreel valley",
+      "quote": "And he came to Nazareth, where he had been brought up: and, as his custom was, he went into the synagogue on the sabbath day, and stood up for to read.",
+      "quoteRef": "Luke 4:16",
+      "region": "Lower Galilee",
+      "scripture": "Luke 4:16-21 · John 1:46 · Matthew 2:23",
+      "tag": "THE GOSPEL"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "Bethany-beyond-Jordan · Qasr el-Yahud",
+      "books": [
+        "Matthew",
+        "Mark",
+        "Luke",
+        "John",
+        "Acts"
+      ],
+      "climate": {
+        "hi": 38,
+        "lo": 22,
+        "type": "desert"
+      },
+      "context": "Where the ministry is opened from heaven.",
+      "coords": [
+        31.837,
+        35.547
+      ],
+      "description": "The same river Israel crossed into the land, and the water where John baptized — where the heavens opened, the Spirit descended, and a voice named the beloved Son before the public ministry began.",
+      "elevation": -350,
+      "empire": "rome",
+      "era": "c. AD 27",
+      "id": "jordan",
+      "modernCountry": "Palestine",
+      "name": "THE JORDAN",
+      "place": "The river of the crossing and the baptism",
+      "quote": "And Jesus, when he was baptized, went up straightway out of the water: and, lo, the heavens were opened unto him.",
+      "quoteRef": "Matthew 3:16",
+      "region": "Jordan rift valley",
+      "scripture": "Matthew 3:13-17 · Mark 1:9-11 · Luke 3:21-22 · John 1:29-34",
+      "tag": "THE GOSPEL"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "White limestone synagogue · Peter's house",
+      "books": [
+        "Matthew",
+        "Mark",
+        "Luke",
+        "John"
+      ],
+      "climate": {
+        "hi": 37,
+        "lo": 23,
+        "type": "semi-arid"
+      },
+      "context": "The ministry's home water.",
+      "coords": [
+        32.8807,
+        35.5751
+      ],
+      "description": "The lakeside town that became the base of operations — a customs post and fishing harbour where the first disciples were called off their boats, and where most of the miracles happened.",
+      "elevation": -210,
+      "empire": "rome",
+      "era": "c. AD 28 – 30",
+      "id": "capernaum",
+      "modernCountry": "Israel",
+      "name": "CAPERNAUM & GALILEE",
+      "place": "The north shore, 210 m below sea level",
+      "quote": "Follow me, and I will make you fishers of men.",
+      "quoteRef": "Matthew 4:19",
+      "region": "Sea of Galilee",
+      "scripture": "Matthew 4:13-19 · Mark 2:1 · John 6:35",
+      "tag": "THE GOSPEL"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "Church of the Holy Sepulchre",
+      "books": [
+        "John",
+        "Luke",
+        "Matthew",
+        "Mark",
+        "1 Corinthians",
+        "Hebrews"
+      ],
+      "climate": {
+        "hi": 29,
+        "lo": 17,
+        "type": "mediterranean"
+      },
+      "context": "The hinge of the whole journey.",
+      "coords": [
+        31.7784,
+        35.2297
+      ],
+      "description": "A quarry face and a garden tomb just outside the city wall — five hundred metres from the Temple Mount, and the hinge the whole road has been bending toward since Ur.",
+      "elevation": 760,
+      "empire": "rome",
+      "era": "c. AD 30",
+      "id": "golgotha",
+      "modernCountry": "Israel",
+      "name": "GOLGOTHA & THE TOMB",
+      "place": "The place of a skull",
+      "quote": "He is not here, but is risen.",
+      "quoteRef": "Luke 24:6",
+      "region": "Jerusalem, outside the second wall",
+      "scripture": "John 19:17-18 · Luke 24:6 · 1 Corinthians 15:3-4",
+      "tag": "THE GOSPEL"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "Emmaus Nicopolis basilica & Roman road",
+      "books": [
+        "Luke",
+        "John",
+        "Acts",
+        "Romans"
+      ],
+      "climate": {
+        "hi": 31,
+        "lo": 19,
+        "type": "mediterranean"
+      },
+      "context": "Where the Scriptures were opened.",
+      "coords": [
+        31.8392,
+        34.9892
+      ],
+      "description": "A road, an evening, and two people walking away from the city in disappointment — who had the whole of Moses and the prophets explained to them by a stranger, and only recognised him when he broke the bread.",
+      "elevation": 150,
+      "empire": "rome",
+      "era": "c. AD 30",
+      "id": "emmaus",
+      "modernCountry": "Israel",
+      "name": "EMMAUS",
+      "place": "Threescore furlongs from Jerusalem",
+      "quote": "Did not our heart burn within us, while he talked with us by the way, and while he opened to us the scriptures?",
+      "quoteRef": "Luke 24:32",
+      "region": "The Ayalon valley",
+      "scripture": "Luke 24:13-35",
+      "tag": "THE GOSPEL"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "The southern approach to the old city",
+      "books": [
+        "Acts",
+        "Galatians",
+        "Romans",
+        "1 Timothy",
+        "Philippians"
+      ],
+      "climate": {
+        "hi": 36,
+        "lo": 18,
+        "type": "semi-arid"
+      },
+      "context": "The persecutor is turned around.",
+      "coords": [
+        33.47,
+        36.19
+      ],
+      "description": "Not the city but the road outside it, where a man carrying warrants against the church was knocked flat by a light and stood up blind, and three days later became its most relentless missionary.",
+      "elevation": 700,
+      "empire": "rome",
+      "era": "c. AD 34",
+      "id": "damascus-road",
+      "modernCountry": "Syria",
+      "name": "THE DAMASCUS ROAD",
+      "place": "On the road, still short of the gate",
+      "quote": "And he fell to the earth, and heard a voice saying unto him, Saul, Saul, why persecutest thou me?",
+      "quoteRef": "Acts 9:4",
+      "region": "The Damascus plain",
+      "scripture": "Acts 9:3-6 · Acts 22:6-11 · Galatians 1:15-16",
+      "tag": "THE CHURCH"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "Grotto of St Peter",
+      "books": [
+        "Acts",
+        "Galatians",
+        "Romans",
+        "Ephesians"
+      ],
+      "climate": {
+        "hi": 33,
+        "lo": 21,
+        "type": "mediterranean"
+      },
+      "context": "Where the mission was launched.",
+      "coords": [
+        36.2021,
+        36.1603
+      ],
+      "description": "Third city of the Roman empire, and the first church where Jew and Gentile ate at the same table. The base from which Paul and Barnabas were sent out — the hinge between the homeland and the world.",
+      "elevation": 70,
+      "empire": "rome",
+      "era": "c. AD 40 – 60",
+      "id": "antioch",
+      "modernCountry": "Turkey",
+      "name": "ANTIOCH",
+      "place": "The Orontes valley gateway",
+      "quote": "And the disciples were called Christians first in Antioch.",
+      "quoteRef": "Acts 11:26",
+      "region": "Northern Levant · the Orontes",
+      "scripture": "Acts 11:26 · Acts 13:1-3",
+      "tag": "THE CHURCH"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "Temple of Artemis · the great theatre",
+      "books": [
+        "Acts",
+        "Ephesians",
+        "Revelation",
+        "1 Timothy",
+        "2 Timothy"
+      ],
+      "climate": {
+        "hi": 33,
+        "lo": 21,
+        "type": "mediterranean"
+      },
+      "context": "Two years that shook Asia.",
+      "coords": [
+        37.9395,
+        27.3417
+      ],
+      "description": "A port and temple city where the gospel ran for two years, the silversmiths rioted over lost trade, and the magic books were burned in the street. Later the first of the seven churches to be written to.",
+      "elevation": 20,
+      "empire": "rome",
+      "era": "c. AD 52 – 95",
+      "id": "ephesus",
+      "modernCountry": "Turkey",
+      "name": "EPHESUS",
+      "place": "The harbour city of the Cayster",
+      "quote": "So mightily grew the word of God and prevailed.",
+      "quoteRef": "Acts 19:20",
+      "region": "Roman Asia",
+      "scripture": "Acts 19:20 · Ephesians 6:11-12 · Revelation 2:4",
+      "tag": "THE CHURCH"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "The Bema · temple of Apollo · Acrocorinth",
+      "books": [
+        "1 Corinthians",
+        "2 Corinthians",
+        "Acts",
+        "Romans"
+      ],
+      "climate": {
+        "hi": 32,
+        "lo": 21,
+        "type": "mediterranean"
+      },
+      "context": "The difficult church that got the best letters.",
+      "coords": [
+        37.9061,
+        22.8791
+      ],
+      "description": "A wealthy, rough port straddling the isthmus, where Paul stayed eighteen months and wrote to a church that argued about everything. The letters back to it are the most practical in the New Testament.",
+      "elevation": 80,
+      "empire": "rome",
+      "era": "c. AD 50 – 57",
+      "id": "corinth",
+      "modernCountry": "Greece",
+      "name": "CORINTH",
+      "place": "The isthmus between two seas",
+      "quote": "And now abideth faith, hope, charity, these three; but the greatest of these is charity.",
+      "quoteRef": "1 Corinthians 13:13",
+      "region": "Achaia, Greece",
+      "scripture": "Acts 18:9-11 · 1 Corinthians 13:13 · 2 Corinthians 12:9",
+      "tag": "THE CHURCH"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "The Roman forum · prison tradition · river baptism site",
+      "books": [
+        "Acts",
+        "Philippians",
+        "1 Thessalonians",
+        "2 Corinthians",
+        "Romans"
+      ],
+      "climate": {
+        "hi": 31,
+        "lo": 18,
+        "type": "mediterranean"
+      },
+      "context": "Where the gospel crosses into Europe.",
+      "coords": [
+        41.012,
+        24.286
+      ],
+      "description": "The first European landing of the gospel — a Roman colony where Lydia believed by the riverside, a jailer was baptized at midnight, and a letter later taught the church to rejoice always.",
+      "elevation": 60,
+      "empire": "rome",
+      "era": "c. AD 49 – 62",
+      "id": "philippi",
+      "modernCountry": "Greece",
+      "name": "PHILIPPI",
+      "place": "A colony on the Via Egnatia",
+      "quote": "And a vision appeared to Paul in the night; There stood a man of Macedonia, and prayed him, saying, Come over into Macedonia, and help us.",
+      "quoteRef": "Acts 16:9",
+      "region": "Macedonia",
+      "scripture": "Acts 16:9-14 · Acts 16:25-31 · Philippians 1:3-6 · Philippians 4:4",
+      "tag": "THE CHURCH"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "The Forum · the Mamertine prison",
+      "books": [
+        "Acts",
+        "Romans",
+        "Philippians",
+        "2 Timothy",
+        "Colossians",
+        "Philemon"
+      ],
+      "climate": {
+        "hi": 31,
+        "lo": 19,
+        "type": "mediterranean"
+      },
+      "context": "The gospel reaches the capital.",
+      "coords": [
+        41.8925,
+        12.4853
+      ],
+      "description": "The capital Paul reached in chains and preached in for two years at his own hired house. Acts ends here mid-sentence, with the message loose in the empire and the prisoner still talking.",
+      "elevation": 21,
+      "empire": "rome",
+      "era": "c. AD 60 – 68",
+      "id": "rome",
+      "modernCountry": "Italy",
+      "name": "ROME",
+      "place": "The centre of the known world",
+      "quote": "Preaching the kingdom of God… with all confidence, no man forbidding him.",
+      "quoteRef": "Acts 28:31",
+      "region": "Italy · the imperial capital",
+      "scripture": "Acts 28:30-31 · Romans 1:16 · 2 Timothy 4:7",
+      "tag": "THE CHURCH"
+    },
+    {
+      "arc": "gospel",
+      "archaeology": "The Cave of the Apocalypse",
+      "books": [
+        "Revelation",
+        "1 John",
+        "John",
+        "2 Peter",
+        "Jude"
+      ],
+      "climate": {
+        "hi": 29,
+        "lo": 23,
+        "type": "mediterranean"
+      },
+      "context": "The last place, and the last word.",
+      "coords": [
+        37.3086,
+        26.5478
+      ],
+      "description": "A bare rock in the Aegean where an old man was sent to be forgotten, and where instead the last book was given — the road that started at a Chaldean city ends looking at a city coming down out of heaven.",
+      "elevation": 160,
+      "empire": "rome",
+      "era": "c. AD 95",
+      "id": "patmos",
+      "modernCountry": "Greece",
+      "name": "PATMOS",
+      "place": "A prison island off the coast of Asia",
+      "quote": "And I saw a new heaven and a new earth: for the first heaven and the first earth were passed away.",
+      "quoteRef": "Revelation 21:1",
+      "region": "The Aegean · the Dodecanese",
+      "scripture": "Revelation 1:9 · Revelation 21:1-4 · Revelation 22:20",
+      "tag": "THE CHURCH"
+    }
+  ],
+  "vignettes": {
+    "antioch": {
+      "fallback": "assets/artifacts/name-antioch.png",
+      "figure": "Barnabas & Paul",
+      "image": "assets/journey/antioch.webp",
+      "narrative": "In the sprawling Syrian metropolis, Jews and Gentiles unite in the faith, commissioning Paul and Barnabas for their global mission.",
+      "quote": "And the disciples were called Christians first in Antioch.",
+      "ref": "Acts 11:26",
+      "title": "The Church at Antioch"
+    },
+    "babylon": {
+      "fallback": "assets/artifacts/ishtar-babylon.png",
+      "figure": "Daniel & Ezekiel",
+      "image": "assets/journey/babylon.webp",
+      "narrative": "Beneath the blue-glazed Ishtar Gate, Daniel and the exiles resolve in their hearts not to defile themselves with the king's meat.",
+      "quote": "By the rivers of Babylon, there we sat down, yea, we wept, when we remembered Zion.",
+      "ref": "Psalms 137:1",
+      "title": "Exile by the Euphrates"
+    },
+    "beersheba": {
+      "fallback": "assets/artifacts/altar-beersheba.png",
+      "figure": "Abraham",
+      "image": "assets/journey/beersheba.webp",
+      "narrative": "At the edge of the southern desert, Abraham plants a tamarisk tree and calls on the name of the everlasting God.",
+      "quote": "Wherefore he called that place Beersheba; because there they sware both of them.",
+      "ref": "Genesis 21:31",
+      "title": "The Well of Beersheba"
+    },
+    "bethel": {
+      "fallback": "assets/artifacts/stone-bethel.png",
+      "figure": "Jacob",
+      "image": "assets/journey/bethel.webp",
+      "narrative": "Fleeing into the night with a stone for a pillow, Jacob beholds angels ascending and descending a stairway to heaven.",
+      "quote": "Surely the LORD is in this place; and I knew it not.",
+      "ref": "Genesis 28:16",
+      "title": "Jacob's Ladder"
+    },
+    "bethlehem": {
+      "fallback": "assets/artifacts/manger-bethlehem.png",
+      "figure": "Jesus, Mary & Joseph",
+      "image": "assets/journey/bethlehem.webp",
+      "narrative": "Under the brilliance of the eastern star, shepherds find the newborn King of kings resting in a humble rock-cut manger.",
+      "quote": "And she brought forth her firstborn son, and wrapped him in swaddling clothes, and laid him in a manger.",
+      "ref": "Luke 2:7",
+      "title": "The Birth of the Messiah"
+    },
+    "capernaum": {
+      "fallback": "assets/artifacts/net-capernaum.png",
+      "figure": "Peter & Jesus",
+      "image": "assets/journey/capernaum.webp",
+      "narrative": "On the shore of the sparkling Sea of Galilee, fishermen leave their nets, boats, and families to follow the Master.",
+      "quote": "Fear not; from henceforth thou shalt catch men.",
+      "ref": "Luke 5:10",
+      "title": "Fishers of Men"
+    },
+    "carmel": {
+      "fallback": "assets/artifacts/altar-carmel.png",
+      "figure": "Elijah",
+      "image": "assets/journey/carmel.png",
+      "narrative": "Before the prophets of Baal and all Israel, Elijah calls upon the God of Abraham, and fire consumes the soaked sacrifice.",
+      "quote": "The God that answereth by fire, let him be God.",
+      "ref": "1 Kings 18:24",
+      "title": "The Fire on Mount Carmel"
+    },
+    "corinth": {
+      "fallback": "assets/artifacts/bema-corinth.png",
+      "figure": "Paul",
+      "image": "assets/journey/corinth.webp",
+      "narrative": "A wealthy, rough port straddling the isthmus, where Paul stayed eighteen months and wrote to a church that argued about everything.",
+      "quote": "And now abideth faith, hope, charity, these three; but the greatest of these is charity.",
+      "ref": "1 Corinthians 13:13",
+      "title": "Faith, Hope, Charity"
+    },
+    "damascus": {
+      "fallback": "assets/artifacts/scales-damascus.png",
+      "figure": "Naaman & Elisha",
+      "image": "assets/journey/damascus.webp",
+      "narrative": "The Syrian captain learns humility in the waters of Jordan, while Damascus remains the enduring crossroads of kings.",
+      "quote": "Are not Abana and Pharpar, rivers of Damascus, better than all the waters of Israel?",
+      "ref": "2 Kings 5:12",
+      "title": "The Waters of Damascus"
+    },
+    "damascus-road": {
+      "fallback": "assets/artifacts/river-damascus.png",
+      "figure": "Paul",
+      "image": "assets/journey/damascus-road.webp",
+      "narrative": "A blinding flash brighter than the midday sun strikes the persecutor to the earth, transforming Saul into the Apostle to the Gentiles.",
+      "quote": "Saul, Saul, why persecutest thou me?",
+      "ref": "Acts 9:4",
+      "title": "The Light from Heaven"
+    },
+    "dothan": {
+      "fallback": "assets/artifacts/pit-dothan.png",
+      "figure": "Joseph",
+      "image": "assets/journey/dothan.webp",
+      "narrative": "Stripped of his coat of many colours, young Joseph is cast into an empty cistern before being sold into Egyptian bondage.",
+      "quote": "Come now therefore, and let us slay him, and cast him into some pit.",
+      "ref": "Genesis 37:20",
+      "title": "The Pit of Dothan"
+    },
+    "emmaus": {
+      "fallback": "assets/artifacts/bread-emmaus.png",
+      "figure": "The Resurrected Lord",
+      "image": "assets/journey/emmaus.webp",
+      "narrative": "Walking at twilight, two sorrowful disciples have their eyes opened as the risen Lord breaks bread at their table.",
+      "quote": "Did not our heart burn within us, while he talked with us by the way, and while he opened to us the scriptures?",
+      "ref": "Luke 24:32",
+      "title": "The Road to Emmaus"
+    },
+    "ephesus": {
+      "fallback": "assets/artifacts/scroll-ephesus.png",
+      "figure": "Paul",
+      "image": "assets/journey/ephesus.webp",
+      "narrative": "Standing against the silver shrines of Artemis, Paul ministers for three years as the Gospel sweeps through Asia Minor.",
+      "quote": "So mightily grew the word of God and prevailed.",
+      "ref": "Acts 19:20",
+      "title": "The Word Prevails at Ephesus"
+    },
+    "gibeah": {
+      "fallback": "assets/artifacts/lot-gibeah.png",
+      "figure": "Saul & Jonathan",
+      "image": "assets/journey/gibeah.webp",
+      "narrative": "From the rocky fortress of Gibeah, Jonathan and his armour-bearer scale the sharp crags of the pass to strike the Philistine garrison.",
+      "quote": "There is no restraint to the LORD to save by many or by few.",
+      "ref": "1 Samuel 14:6",
+      "title": "The Pass of Bozez"
+    },
+    "gilgal": {
+      "fallback": "assets/artifacts/stone-gilgal.png",
+      "figure": "Joshua",
+      "image": "assets/journey/gilgal.png",
+      "narrative": "Twelve riverbed stones are hoisted from the riverbed and piled at Gilgal as a perpetual monument of divine deliverance.",
+      "quote": "What mean ye by these stones? Then ye shall let your children know, saying, Israel came over this Jordan on dry land.",
+      "ref": "Joshua 4:21-22",
+      "title": "The Stones of Gilgal"
+    },
+    "golgotha": {
+      "fallback": "assets/artifacts/shroud-golgotha.png",
+      "figure": "Jesus",
+      "image": "assets/journey/golgotha.webp",
+      "narrative": "Outside the city gates, the Saviour yields up His spirit on the cross, and on the third day breaks the bonds of the tomb forever.",
+      "quote": "He is not here: for he is risen, as he said. Come, see the place where the Lord lay.",
+      "ref": "Matthew 28:6",
+      "title": "It is Finished"
+    },
+    "goshen": {
+      "fallback": "assets/artifacts/brick-goshen.png",
+      "figure": "Moses",
+      "image": "assets/journey/goshen.webp",
+      "narrative": "In the fertile delta under Egyptian taskmasters, Israel groans beneath heavy mortar until God remembers His covenant.",
+      "quote": "And the children of Israel sighed by reason of the bondage, and they cried.",
+      "ref": "Exodus 2:23",
+      "title": "The Brickmakers of Goshen"
+    },
+    "haran": {
+      "fallback": "assets/artifacts/beehive-haran.png",
+      "figure": "Abram",
+      "image": "assets/journey/haran.webp",
+      "narrative": "At the crossroads of the northern trade routes, the voice of the Almighty calls Abram southwest into the unknown.",
+      "quote": "Get thee out of thy country, and from thy kindred, and from thy father's house, unto a land that I will shew thee.",
+      "ref": "Genesis 12:1",
+      "title": "The Call at Haran"
+    },
+    "harod": {
+      "fallback": "assets/artifacts/pitcher-harod.png",
+      "figure": "Gideon",
+      "image": "assets/journey/harod.png",
+      "narrative": "At the cool waters beneath Mount Gilboa, Gideon watches his warriors drink, paring the army down to three hundred clay jars and torches.",
+      "quote": "By the three hundred men that lapped will I save you, and deliver the Midianites into thine hand.",
+      "ref": "Judges 7:7",
+      "title": "The Spring of Harod"
+    },
+    "hebron": {
+      "fallback": "assets/artifacts/cave-hebron.png",
+      "figure": "Abraham",
+      "image": "assets/journey/hebron.webp",
+      "narrative": "Beneath the ancient terebinth trees, Abraham pitches his tent and acquires the burial cave of Machpelah for his seed.",
+      "quote": "Then Abram removed his tent, and came and dwelt in the plain of Mamre, which is in Hebron.",
+      "ref": "Genesis 13:18",
+      "title": "The Oaks of Mamre"
+    },
+    "jericho": {
+      "fallback": "assets/artifacts/trumpet-jericho.png",
+      "figure": "Joshua",
+      "image": "assets/journey/jericho.webp",
+      "narrative": "After seven days of marching in solemn silence, the blast of rams' horns and the roar of the multitude bring down the fortress walls.",
+      "quote": "So the people shouted when the priests blew with the trumpets... and the wall fell down flat.",
+      "ref": "Joshua 6:20",
+      "title": "The Trumpets of Jericho"
+    },
+    "jerusalem": {
+      "fallback": "assets/artifacts/lyre-jerusalem.png",
+      "figure": "David",
+      "image": "assets/journey/jerusalem.png",
+      "narrative": "Scaling the water shaft of the Jebusite stronghold, David establishes the royal citadel and brings up the Ark with joy.",
+      "quote": "So David dwelt in the fort, and called it the city of David.",
+      "ref": "2 Samuel 5:9",
+      "title": "Zion, the City of David"
+    },
+    "jordan": {
+      "fallback": "assets/artifacts/shell-jordan.png",
+      "figure": "Jesus & John the Baptist",
+      "image": "assets/journey/jordan.webp",
+      "narrative": "As Jesus rises from the rushing waters of the Jordan, the Holy Spirit descends like a dove and the Father's voice speaks.",
+      "quote": "This is my beloved Son, in whom I am well pleased.",
+      "ref": "Matthew 3:17",
+      "title": "The Heavens Opened"
+    },
+    "kadesh": {
+      "fallback": "assets/artifacts/spy-kadesh.png",
+      "figure": "Joshua & Caleb",
+      "image": "assets/journey/kadesh.webp",
+      "narrative": "Returning from Canaan bearing giant clusters of grapes, Caleb and Joshua urge the congregation to trust the LORD.",
+      "quote": "The land, which we passed through to search it, is an exceeding good land.",
+      "ref": "Numbers 14:7",
+      "title": "The Spies of Kadesh"
+    },
+    "lachish": {
+      "fallback": "assets/artifacts/arrow-lachish.png",
+      "figure": "Hezekiah & Isaiah",
+      "image": "assets/journey/lachish.webp",
+      "narrative": "Hezekiah's fortress burns under Assyrian catapults, but Jerusalem looks to Isaiah's God for shelter.",
+      "quote": "Be strong and courageous, be not afraid nor dismayed for the king of Assyria: for there be more with us than with him.",
+      "ref": "2 Chronicles 32:7",
+      "title": "The Siege of Lachish"
+    },
+    "megiddo": {
+      "fallback": "assets/artifacts/gate-megiddo.png",
+      "figure": "Josiah",
+      "image": "assets/journey/megiddo.webp",
+      "narrative": "The ancient strategic pass and fortress where kings clashed and where prophecies foreshadow the final battle.",
+      "quote": "And king Josiah went against him; and he slew him at Megiddo.",
+      "ref": "2 Kings 23:29",
+      "title": "The Plain of Megiddo"
+    },
+    "midian": {
+      "fallback": "assets/artifacts/sandal-midian.png",
+      "figure": "Moses",
+      "image": "assets/journey/midian.png",
+      "narrative": "Tending sheep on the backside of the desert, Moses stops before a desert thorn bush blazing with fire yet unconsumed.",
+      "quote": "Put off thy shoes from off thy feet, for the place whereon thou standest is holy ground.",
+      "ref": "Exodus 3:5",
+      "title": "The Burning Bush"
+    },
+    "mizpah": {
+      "fallback": "assets/artifacts/ebenezer-mizpah.png",
+      "figure": "Samuel",
+      "image": "assets/journey/mizpah.webp",
+      "narrative": "Samuel raises a standing stone on the ridge, naming it Ebenezer in thanksgiving for the thunderous deliverance of Israel.",
+      "quote": "Hitherto hath the LORD helped us.",
+      "ref": "1 Samuel 7:12",
+      "title": "The Stone of Help"
+    },
+    "moriah": {
+      "fallback": "assets/artifacts/thicket-moriah.png",
+      "figure": "Abraham",
+      "image": "assets/journey/moriah.webp",
+      "narrative": "Ascending the silent ridge with wood and fire, Abraham's faith is proved as a ram caught in the thicket is offered instead.",
+      "quote": "God will provide himself a lamb for a burnt offering, my son.",
+      "ref": "Genesis 22:8",
+      "title": "The Mount of Moriah"
+    },
+    "nazareth": {
+      "fallback": "assets/artifacts/scroll-nazareth.png",
+      "figure": "Jesus",
+      "image": "assets/journey/nazareth.webp",
+      "narrative": "Standing in the hilltop synagogue of his childhood, Jesus unrolls the scroll of Isaiah and proclaims liberty to the captives.",
+      "quote": "This day is this scripture fulfilled in your ears.",
+      "ref": "Luke 4:21",
+      "title": "The Spirit of the Lord"
+    },
+    "nebo": {
+      "fallback": "assets/artifacts/vista-nebo.png",
+      "figure": "Moses",
+      "image": "assets/journey/nebo.webp",
+      "narrative": "Standing on the windswept summit of Pisgah, the aged prophet gazes across the Jordan Valley at the inheritance of Israel.",
+      "quote": "I have caused thee to see it with thine eyes, but thou shalt not go over thither.",
+      "ref": "Deuteronomy 34:4",
+      "title": "The Vista from Mount Nebo"
+    },
+    "nineveh": {
+      "fallback": "assets/artifacts/library-nineveh.png",
+      "figure": "Jonah",
+      "image": "assets/journey/nineveh.png",
+      "narrative": "Walking three days through the colossal Assyrian capital, Jonah's single message brings the king and citizens to sackcloth and ashes.",
+      "quote": "Yet forty days, and Nineveh shall be overthrown. So the people of Nineveh believed God.",
+      "ref": "Jonah 3:4-5",
+      "title": "The Preacher at Nineveh"
+    },
+    "patmos": {
+      "fallback": "assets/artifacts/ink-patmos.png",
+      "figure": "John",
+      "image": "assets/journey/patmos.png",
+      "narrative": "Exiled on the rocky Aegean island on the Lord's Day, John beholds the glorified Christ and the celestial New Jerusalem coming down from heaven.",
+      "quote": "I am Alpha and Omega, the beginning and the ending, saith the Lord, which is, and which was, and which is to come, the Almighty.",
+      "ref": "Revelation 1:8",
+      "title": "The Revelation on Patmos"
+    },
+    "penuel": {
+      "fallback": "assets/artifacts/ford-penuel.png",
+      "figure": "Jacob",
+      "image": "assets/journey/penuel.webp",
+      "narrative": "At the solitary ford of the Jabbok, Jacob wrestles through the night and limps into the sunrise bearing the name Israel.",
+      "quote": "I will not let thee go, except thou bless me.",
+      "ref": "Genesis 32:26",
+      "title": "The Wrestling at Penuel"
+    },
+    "philippi": {
+      "fallback": "assets/artifacts/chain-philippi.png",
+      "figure": "Paul & Silas",
+      "image": "assets/journey/philippi.webp",
+      "narrative": "Beaten and bound in the inner dungeon, midnight hymns bring an earthquake that shakes the foundations and frees the captives.",
+      "quote": "And at midnight Paul and Silas prayed, and sang praises unto God: and the prisoners heard them.",
+      "ref": "Acts 16:25",
+      "title": "Songs at Midnight in Philippi"
+    },
+    "rephidim": {
+      "fallback": "assets/artifacts/staff-rephidim.png",
+      "figure": "Moses",
+      "image": "assets/journey/rephidim.webp",
+      "narrative": "In the parched wilderness, Moses strikes the granite crag, and living water gushes forth to quench the thirst of the multitude.",
+      "quote": "Behold, I will stand before thee there upon the rock in Horeb; and thou shalt smite the rock.",
+      "ref": "Exodus 17:6",
+      "title": "Water from the Rock"
+    },
+    "rome": {
+      "fallback": "assets/artifacts/chain-rome.png",
+      "figure": "Paul",
+      "image": "assets/journey/rome.webp",
+      "narrative": "Chained to a Roman soldier in his hired house, Paul writes the epistles that would anchor churches across the ages.",
+      "quote": "Preaching the kingdom of God, and teaching those things which concern the Lord Jesus Christ, with all confidence.",
+      "ref": "Acts 28:31",
+      "title": "The Prisoner in Rome"
+    },
+    "samaria": {
+      "fallback": "assets/artifacts/ivory-samaria.png",
+      "figure": "Amos & Hosea",
+      "image": "assets/journey/samaria.webp",
+      "narrative": "The hilltop capital of Israel falls to the Assyrian siege engines as the prophets' warnings come to pass.",
+      "quote": "The houses of ivory shall perish, and the great houses shall have an end, saith the LORD.",
+      "ref": "Amos 3:15",
+      "title": "The Ivory Houses of Samaria"
+    },
+    "shechem": {
+      "fallback": "assets/artifacts/well-shechem.png",
+      "figure": "Abram",
+      "image": "assets/journey/shechem.webp",
+      "narrative": "Standing between the heights of Ebal and Gerizim, Abram builds an altar of stone to mark the land of promise.",
+      "quote": "Unto thy seed will I give this land: and there builded he an altar unto the LORD.",
+      "ref": "Genesis 12:7",
+      "title": "The First Altar in Canaan"
+    },
+    "shiloh": {
+      "fallback": "assets/artifacts/lamp-shiloh.png",
+      "figure": "Samuel",
+      "image": "assets/journey/shiloh.webp",
+      "narrative": "In the sanctuary where the lamp of God burns through the night, a young boy hears his name called in the darkness.",
+      "quote": "Speak, LORD; for thy servant heareth.",
+      "ref": "1 Samuel 3:9",
+      "title": "The Voice at Shiloh"
+    },
+    "sinai": {
+      "fallback": "assets/artifacts/tablet-sinai.png",
+      "figure": "Moses",
+      "image": "assets/journey/sinai.png",
+      "narrative": "Wrapped in thunder, lightning, and thick cloud, Moses ascends into the presence of God to receive the stone tablets.",
+      "quote": "And mount Sinai was altogether on a smoke, because the LORD descended upon it in fire.",
+      "ref": "Exodus 19:18",
+      "title": "The Glory on Mount Sinai"
+    },
+    "susa": {
+      "fallback": "assets/artifacts/seal-susa.png",
+      "figure": "Esther",
+      "image": "assets/journey/susa.webp",
+      "narrative": "In the marble halls of the Persian winter palace, Queen Esther approaches King Ahasuerus unbidden to plead for her people.",
+      "quote": "If I perish, I perish.",
+      "ref": "Esther 4:16",
+      "title": "For Such a Time as This"
+    },
+    "tyre": {
+      "fallback": "assets/artifacts/cedar-tyre.png",
+      "figure": "Solomon & Hiram",
+      "image": "assets/journey/tyre.webp",
+      "narrative": "Gigantic cedar beams are floated down the Mediterranean coast to build the glorious house of the LORD on Mount Moriah.",
+      "quote": "Now therefore command thou that they hew me cedar trees out of Lebanon.",
+      "ref": "1 Kings 5:6",
+      "title": "The Cedars of Lebanon"
+    },
+    "ur": {
+      "fallback": "assets/artifacts/ziggurat-ur.png",
+      "figure": "Abram",
+      "image": "assets/journey/ur.webp",
+      "narrative": "Leaving the shadow of the great ziggurat behind, Abram sets out with his household into the desert on the strength of an unseen promise.",
+      "quote": "And they went forth with them from Ur of the Chaldees, to go into the land of Canaan.",
+      "ref": "Genesis 11:31",
+      "title": "Abram Departs Ur"
+    },
+    "yam-suph": {
+      "fallback": "assets/artifacts/wheel-yam-suph.png",
+      "figure": "Moses",
+      "image": "assets/journey/yam-suph.png",
+      "narrative": "With Pharaoh's chariots pursuing behind and waters before, Moses lifts his rod as the sea splits into towering walls of water.",
+      "quote": "Fear ye not, stand still, and see the salvation of the LORD.",
+      "ref": "Exodus 14:13",
+      "title": "The Parting of the Sea"
+    },
+    "zorah": {
+      "fallback": "assets/artifacts/jawbone-zorah.png",
+      "figure": "Samson",
+      "image": "assets/journey/zorah.webp",
+      "narrative": "Amid the rocky crags of the Sorek Valley, the Nazarite champion breaks his bonds and scatters the Philistine host.",
+      "quote": "And the Spirit of the LORD came mightily upon him... and he found a new jawbone of an ass.",
+      "ref": "Judges 15:14-15",
+      "title": "The Strong Man of Dan"
+    }
+  }
+}

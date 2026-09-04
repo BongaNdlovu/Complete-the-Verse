@@ -23,6 +23,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check shared content JSON
+        run: npm run content:check
+
       - name: Lint complexity
         run: npm run lint
 

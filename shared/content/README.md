@@ -1,0 +1,1 @@
+Generated from the JS banks by `node scripts/export-content.mjs` (run from the repo root). Do not edit by hand; CI runs `node scripts/export-content.mjs --check` and fails if these files drift from `js/verses*.js`, `js/sites.js`, and `js/tablets*.js`.

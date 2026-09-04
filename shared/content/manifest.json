@@ -1,0 +1,23 @@
+{
+  "files": [
+    "sites.json",
+    "tablets.json",
+    "verses.json"
+  ],
+  "sourceHash": "edfb354979706051b3cc460085de4a5974699136e0e77545b397d7cab4458210",
+  "sources": [
+    "js/bank.js",
+    "js/passages.js",
+    "js/sites.js",
+    "js/tablets-canon.js",
+    "js/tablets-hall.js",
+    "js/tablets-more.js",
+    "js/tablets.js",
+    "js/verses-ascent.js",
+    "js/verses-extra.js",
+    "js/verses-more.js",
+    "js/verses-notes.js",
+    "js/verses-tf.js",
+    "js/verses.js"
+  ]
+}

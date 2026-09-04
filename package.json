@@ -6,6 +6,8 @@
     "test": "node test.js",
     "lint": "oxlint",
     "start": "node scripts/dev-server.js",
+    "content:export": "node scripts/export-content.mjs",
+    "content:check": "node scripts/export-content.mjs --check",
     "optimise-media": "node scripts/optimise-media.js",
     "optimize-media": "node scripts/optimise-media.js"
   },
