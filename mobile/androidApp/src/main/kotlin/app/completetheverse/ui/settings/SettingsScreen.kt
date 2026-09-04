@@ -19,6 +19,10 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -70,7 +74,7 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Column {
+                Column(Modifier.weight(1f).padding(end = 12.dp)) {
                     Kick("Settings")
                     Spacer(Modifier.height(4.dp))
                     GoldHeadline("The Lamp Room")
@@ -195,11 +199,20 @@ private fun VolumeControls(
     onLevel: (Float) -> Unit,
     onMute: (Boolean) -> Unit,
 ) {
+    var sliding by remember { mutableStateOf<Float?>(null) }
     Column(horizontalAlignment = Alignment.End) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Slider(
-                value = level,
-                onValueChange = onLevel,
+                value = sliding ?: level,
+                onValueChange = { value ->
+                    if (sliding == null && muted) onMute(false)
+                    sliding = value
+                },
+                onValueChangeFinished = {
+                    val value = sliding ?: level
+                    sliding = null
+                    onLevel(value)
+                },
                 valueRange = 0f..1f,
                 steps = 19,
                 modifier = Modifier.width(140.dp),

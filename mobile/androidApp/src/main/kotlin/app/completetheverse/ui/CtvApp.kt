@@ -10,6 +10,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,15 +31,38 @@ private sealed interface CtvScreen {
     data class ComingSoon(val kick: String, val title: String) : CtvScreen
 }
 
+private val CtvScreenSaver = Saver<CtvScreen, String>(
+    save = { screen ->
+        when (screen) {
+            CtvScreen.Hall -> "hall"
+            CtvScreen.Settings -> "settings"
+            is CtvScreen.ComingSoon -> "soon\u001f${screen.kick}\u001f${screen.title}"
+        }
+    },
+    restore = { saved ->
+        val parts = saved.split('\u001f')
+        when (parts[0]) {
+            "settings" -> CtvScreen.Settings
+            "soon" -> CtvScreen.ComingSoon(
+                parts.getOrElse(1) { "" },
+                parts.getOrElse(2) { "" },
+            )
+            else -> CtvScreen.Hall
+        }
+    },
+)
+
 @Composable
 fun CtvApp(
     settingsStore: SettingsStore,
     onQuit: () -> Unit,
 ) {
-    var screen by remember { mutableStateOf<CtvScreen>(CtvScreen.Hall) }
+    var screen by rememberSaveable(stateSaver = CtvScreenSaver) {
+        mutableStateOf<CtvScreen>(CtvScreen.Hall)
+    }
     var settings by remember { mutableStateOf(settingsStore.load()) }
-    var showQuit by remember { mutableStateOf(false) }
-    var toast by remember { mutableStateOf<String?>(null) }
+    var showQuit by rememberSaveable { mutableStateOf(false) }
+    var toast by rememberSaveable { mutableStateOf<String?>(null) }
 
     BackHandler(enabled = screen !is CtvScreen.Hall || showQuit) {
         if (showQuit) showQuit = false else screen = CtvScreen.Hall

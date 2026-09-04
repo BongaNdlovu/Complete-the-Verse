@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +28,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -131,7 +134,7 @@ fun Filigree(modifier: Modifier = Modifier) {
         Box(
             Modifier
                 .size(7.dp)
-                .background(CtvColors.bloodHot, diamond()),
+                .background(CtvColors.gold, diamond()),
         )
         Box(
             Modifier
@@ -181,15 +184,17 @@ fun GhostButton(
     Text(
         text = text.uppercase(),
         modifier = modifier
+            .defaultMinSize(minHeight = 44.dp)
             .clip(shape)
             .border(1.dp, CtvColors.edge, shape)
-            .clickable(onClick = onClick)
+            .clickable(role = Role.Button, onClick = onClick)
             .padding(
                 start = if (small) 18.dp else 28.dp,
                 top = if (small) 12.dp else 16.dp,
                 end = if (small) 16.dp else 24.dp,
                 bottom = if (small) 10.dp else 14.dp,
-            ),
+            )
+            .wrapContentHeight(Alignment.CenterVertically),
         color = CtvColors.gold,
         fontFamily = CtvFonts.display,
         fontWeight = FontWeight.SemiBold,
@@ -210,6 +215,7 @@ fun GoldButton(
     Text(
         text = text.uppercase(),
         modifier = modifier
+            .defaultMinSize(minHeight = 44.dp)
             .clip(shape)
             .background(
                 Brush.verticalGradient(
@@ -217,13 +223,14 @@ fun GoldButton(
                 ),
                 shape,
             )
-            .clickable(onClick = onClick)
+            .clickable(role = Role.Button, onClick = onClick)
             .padding(
                 start = if (small) 18.dp else 28.dp,
                 top = if (small) 12.dp else 16.dp,
                 end = if (small) 16.dp else 24.dp,
                 bottom = if (small) 10.dp else 14.dp,
-            ),
+            )
+            .wrapContentHeight(Alignment.CenterVertically),
         color = CtvColors.buttonInk,
         fontFamily = CtvFonts.display,
         fontWeight = FontWeight.SemiBold,
@@ -273,7 +280,8 @@ fun <T> SegControl(
             Text(
                 text = label.uppercase(),
                 modifier = Modifier
-                    .clickable { onSelect(value) }
+                    .defaultMinSize(minHeight = 44.dp)
+                    .clickable(role = Role.Button) { onSelect(value) }
                     .then(
                         if (on) {
                             Modifier.background(
@@ -283,7 +291,8 @@ fun <T> SegControl(
                             Modifier
                         },
                     )
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                    .padding(horizontal = 12.dp)
+                    .wrapContentHeight(Alignment.CenterVertically),
                 color = if (on) CtvColors.buttonInk else CtvColors.parchDim,
                 fontFamily = CtvFonts.ui,
                 fontWeight = FontWeight.SemiBold,

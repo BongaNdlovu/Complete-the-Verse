@@ -22,5 +22,5 @@ object CtvColors {
     val buttonInk = Color(0xFF150F04)
     val panelTop = Color(0xE61E1B19)
     val panelBot = Color(0xF5070708)
-    val kick = Color(0xFFB99A66)
+    val kick = goldDim
 }
