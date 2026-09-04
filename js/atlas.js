@@ -164,6 +164,7 @@ var Atlas = (function () {
       note("Map library unavailable — the journey list on the left still works", 6000);
     }
     startTerminatorClock();
+    bindDossierSheet();
   }
 
   function unmount() {
@@ -1330,6 +1331,56 @@ var Atlas = (function () {
       }
       return readings;
     });
+  }
+
+  var sheetFrac = 0.42;
+  function phoneAtlas() {
+    return !!(window.matchMedia && window.matchMedia("(max-width:720px)").matches);
+  }
+  function applySheet(frac, remeasure) {
+    sheetFrac = Math.max(0.18, Math.min(0.9, frac));
+    var host = $("v-atlas");
+    if (host && host.style && typeof host.style.setProperty === "function") {
+      host.style.setProperty("--atlas-sheet", (Math.round(sheetFrac * 1000) / 10) + "vh");
+    }
+    if (host && host.classList) host.classList.toggle("sheet-full", sheetFrac > 0.72);
+    if (remeasure !== false && hasMap()) {
+      requestAnimationFrame(function () { if (map) map.invalidateSize(); });
+    }
+  }
+  function snapSheet() {
+    applySheet(sheetFrac < 0.3 ? 0.2 : (sheetFrac < 0.64 ? 0.42 : 0.86));
+  }
+  function cycleSheet() {
+    applySheet(sheetFrac < 0.3 ? 0.42 : (sheetFrac < 0.64 ? 0.86 : 0.2));
+  }
+  function bindDossierSheet() {
+    var handle = $("atlas-doss-handle");
+    if (!handle || handle._sheetBound) return;
+    handle._sheetBound = true;
+    var drag = null;
+    handle.addEventListener("pointerdown", function (e) {
+      if (!phoneAtlas()) return;
+      drag = { y: e.clientY, start: sheetFrac, h: window.innerHeight || 1, moved: false };
+      if (handle.setPointerCapture && e.pointerId != null) {
+        try { handle.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+    });
+    handle.addEventListener("pointermove", function (e) {
+      if (!drag) return;
+      var dy = drag.y - e.clientY;
+      if (Math.abs(dy) > 6) drag.moved = true;
+      applySheet(drag.start + dy / drag.h, false);
+    });
+    function endDrag() {
+      if (!drag) return;
+      var moved = drag.moved;
+      drag = null;
+      if (moved) snapSheet();
+      else cycleSheet();
+    }
+    handle.addEventListener("pointerup", endDrag);
+    handle.addEventListener("pointercancel", endDrag);
   }
 
   return {

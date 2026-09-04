@@ -59,7 +59,8 @@ function makeEl(id, tag){
   el.appendChild = c => { el.children.push(c); c.parent = el; return c; };
   el.remove = () => { if(el.parent) el.parent.children = el.parent.children.filter(x => x !== el); };
   el.closest = () => null;
-  el.focus = () => {};
+  el.setPointerCapture = function () {};
+  el.releasePointerCapture = function () {};
   /* Good enough for the markup atlas.js writes: find the elements whose
      rendered HTML carries a given attribute, and hand back stubs whose
      dataset is parsed out of it. */
@@ -95,8 +96,8 @@ function makeDocument(){
   };
   /* Every id the atlas markup provides. */
   ["atlas-map", "atlas-rail", "atlas-rail-list", "atlas-dossier", "atlas-doss-body",
-   "atlas-doss-actions", "atlas-layers", "atlas-note", "atlas-open", "atlas-fill",
-   "atlas-count", "atlas-zin", "atlas-zout", "atlas-zfit", "atlas-rail-toggle"
+   "atlas-doss-actions", "atlas-doss-handle", "atlas-layers", "atlas-note", "atlas-open", "atlas-fill",
+   "atlas-count", "atlas-zin", "atlas-zout", "atlas-zfit", "atlas-rail-toggle", "v-atlas"
   ].forEach(doc._add);
   return doc;
 }

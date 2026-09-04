@@ -180,7 +180,7 @@ const atlas = fs.readFileSync(path.join(ROOT, "css", "atlas.css"), "utf8");
 const atlasJs = fs.readFileSync(path.join(ROOT, "js", "atlas.js"), "utf8");
 
 [ "v-atlas", "atlas-map", "atlas-rail", "atlas-rail-list", "atlas-dossier",
-  "atlas-doss-body", "atlas-doss-actions", "atlas-layers", "atlas-note",
+  "atlas-doss-body", "atlas-doss-actions", "atlas-doss-handle", "atlas-layers", "atlas-note",
   "atlas-open", "atlas-fill", "atlas-count", "atlas-zin", "atlas-zout",
   "atlas-zfit", "atlas-rail-toggle"
 ].forEach(id => assert(html.includes('id="' + id + '"'), "atlas markup provides #" + id));

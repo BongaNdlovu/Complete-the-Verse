@@ -63,8 +63,14 @@ assert("atlas tools sit on the bottom safe area on phones",
   /@media \(max-width: 720px\)[\s\S]*\.atlas-tools \{[\s\S]*bottom: max\(10px, env\(safe-area-inset-bottom\)\)/.test(atlas));
 assert("phone atlas hides the Leaflet scale under Night",
   /@media \(max-width: 720px\)[\s\S]*#v-atlas \.leaflet-bottom\.leaflet-left \{ display: none; \}/.test(atlas));
-assert("phone atlas tools sit above the dossier sheet",
-  /@media \(max-width: 720px\)[\s\S]*\.atlas-dossier:not\(\.hidden\) ~ \.atlas-tools \{[\s\S]*bottom: calc\(min\(62vh, 520px\) \+ 8px\)/.test(atlas));
+assert("phone atlas tools follow the dossier sheet height",
+  /@media \(max-width: 720px\)[\s\S]*\.atlas-dossier:not\(\.hidden\) ~ \.atlas-tools \{[\s\S]*bottom: calc\(var\(--atlas-sheet\) \+ 8px\)/.test(atlas));
+assert("phone atlas dossier is a variable-height sheet",
+  /@media \(max-width: 720px\)[\s\S]*\.atlas-dossier \{[\s\S]*height: var\(--atlas-sheet\)/.test(atlas));
+assert("phone atlas exposes a drag handle for the dossier",
+  /id="atlas-doss-handle"/.test(html));
+assert("atlas.js binds the dossier sheet handle",
+  /function bindDossierSheet/.test(fs.readFileSync(path.join(ROOT, "js", "atlas.js"), "utf8")));
 assert("phone Study Hall lists verses before the heatmap",
   /@media \(max-width:600px\)[\s\S]*#v-study \.listwrap\{order:2/.test(game));
 assert("phone scholar confirm stays in the sheet footer",
