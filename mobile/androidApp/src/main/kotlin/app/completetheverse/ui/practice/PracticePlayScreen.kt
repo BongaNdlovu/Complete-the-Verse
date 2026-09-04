@@ -1,0 +1,438 @@
+package app.completetheverse.ui.practice
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
+import app.completetheverse.core.assemble.Assemble
+import app.completetheverse.core.assemble.AssembleBoard
+import app.completetheverse.core.assemble.TapTarget
+import app.completetheverse.core.bank.Bank
+import app.completetheverse.core.bank.Verse
+import app.completetheverse.core.practice.Practice
+import app.completetheverse.ui.components.GhostButton
+import app.completetheverse.ui.components.GoldButton
+import app.completetheverse.ui.components.HallBackdrop
+import app.completetheverse.ui.theme.CtvColors
+import app.completetheverse.ui.theme.CtvFonts
+import app.completetheverse.ui.theme.SkewButtonShape
+
+private val LETTERS = listOf("A", "B", "C", "D")
+
+@Composable
+fun PracticePlayScreen(
+    verse: Verse,
+    index: Int,
+    total: Int,
+    remainingMs: Long,
+    assemble: AssembleBoard?,
+    assembleTick: Int,
+    choices: List<String>,
+    locked: Boolean,
+    lastCorrect: Boolean?,
+    selected: String?,
+    onChoice: (String) -> Unit,
+    onAssembleChange: () -> Unit,
+    onLockAssemble: () -> Unit,
+    onHall: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val sec = ((remainingMs + 999) / 1000).coerceAtLeast(0)
+    val crit = sec <= 5 && !locked
+    val frac = (remainingMs.toFloat() / Practice.WALL_PICK_MS).coerceIn(0f, 1f)
+    Box(modifier.fillMaxSize()) {
+        HallBackdrop()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            PlayHeader(index = index, total = total, sec = sec, crit = crit, frac = frac, onHall = onHall)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 18.dp, bottom = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                VerseStem(verse, lastCorrect)
+                Text(
+                    text = "${verse.r}  —  KJV",
+                    modifier = Modifier.padding(top = 14.dp),
+                    color = CtvColors.goldDim,
+                    fontFamily = CtvFonts.body,
+                    fontStyle = FontStyle.Italic,
+                    fontSize = 15.sp,
+                    letterSpacing = 0.08.em,
+                )
+                Spacer(Modifier.height(18.dp))
+                if (assemble != null) {
+                    AssembleBoardUi(
+                        board = assemble,
+                        tick = assembleTick,
+                        locked = locked,
+                        lastCorrect = lastCorrect,
+                        onChange = onAssembleChange,
+                        onLock = onLockAssemble,
+                    )
+                } else {
+                    McqGrid(
+                        choices = choices,
+                        locked = locked,
+                        selected = selected,
+                        answer = verse.a,
+                        lastCorrect = lastCorrect,
+                        onChoice = onChoice,
+                    )
+                    Text(
+                        text = if (locked) "Answer locked" else "Tap a phrase to answer",
+                        modifier = Modifier.padding(top = 14.dp),
+                        color = CtvColors.parchDim,
+                        fontFamily = CtvFonts.ui,
+                        fontSize = 11.sp,
+                        letterSpacing = 0.16.em,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlayHeader(
+    index: Int,
+    total: Int,
+    sec: Long,
+    crit: Boolean,
+    frac: Float,
+    onHall: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .widthIn(max = 720.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        GhostButton("Hall", onClick = onHall, small = true)
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+            Text(
+                text = "THE DRILL",
+                color = CtvColors.gold,
+                fontFamily = CtvFonts.display,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                letterSpacing = 0.18.em,
+            )
+            Text(
+                text = "Q ${index + 1} / $total",
+                color = CtvColors.goldDim,
+                fontFamily = CtvFonts.ui,
+                fontSize = 11.sp,
+                letterSpacing = 0.16.em,
+            )
+        }
+        Column(horizontalAlignment = Alignment.End, modifier = Modifier.widthIn(min = 88.dp)) {
+            Text(
+                text = "00:" + sec.toString().padStart(2, '0'),
+                color = if (crit) CtvColors.bloodHot else CtvColors.goldHot,
+                fontFamily = CtvFonts.display,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+            )
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .background(Color(0xB808090C)),
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth(frac)
+                        .height(4.dp)
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(Color(0xFFFFE8AE), CtvColors.gold, CtvColors.blood),
+                            ),
+                        ),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun VerseStem(verse: Verse, lastCorrect: Boolean?) {
+    val sep = Bank.stemSep(verse.s)
+    val filled = lastCorrect != null
+    Text(
+        text = buildAnnotatedString {
+            withStyle(SpanStyle(color = Color(0xFFF4EFE4))) { append(verse.p) }
+            append(" ")
+            if (filled) {
+                withStyle(
+                    SpanStyle(
+                        color = if (lastCorrect == true) CtvColors.goldHot else CtvColors.bloodHot,
+                    ),
+                ) { append(verse.a) }
+            } else {
+                withStyle(
+                    SpanStyle(
+                        color = Color.Transparent,
+                        textDecoration = TextDecoration.Underline,
+                    ),
+                ) { append("   ") }
+            }
+            append(sep)
+            withStyle(SpanStyle(color = Color(0xFFF4EFE4))) { append(verse.s) }
+        },
+        modifier = Modifier.widthIn(max = 640.dp),
+        fontFamily = CtvFonts.body,
+        fontSize = 22.sp,
+        lineHeight = 30.sp,
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
+private fun McqGrid(
+    choices: List<String>,
+    locked: Boolean,
+    selected: String?,
+    answer: String,
+    lastCorrect: Boolean?,
+    onChoice: (String) -> Unit,
+) {
+    Column(
+        modifier = Modifier.widthIn(max = 640.dp).fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        choices.chunked(2).forEach { row ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                row.forEachIndexed { inner, choice ->
+                    val i = choices.indexOf(choice).coerceAtLeast(0)
+                    val state = when {
+                        lastCorrect == null -> if (choice == selected) "sel" else "idle"
+                        choice == answer -> "right"
+                        choice == selected -> "bad"
+                        else -> "mute"
+                    }
+                    ChoiceButton(
+                        letter = LETTERS.getOrElse(i) { "" },
+                        text = choice,
+                        state = state,
+                        enabled = !locked,
+                        onClick = { onChoice(choice) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                if (row.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChoiceButton(
+    letter: String,
+    text: String,
+    state: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val bg = when (state) {
+        "right" -> Brush.verticalGradient(listOf(Color(0xFF1D5E3C), Color(0xFF08251A)))
+        "bad" -> Brush.verticalGradient(listOf(Color(0xFF6B171C), Color(0xFF25070A)))
+        "sel" -> Brush.verticalGradient(listOf(Color(0xFF4A3D1C), Color(0xFF191307)))
+        else -> Brush.verticalGradient(listOf(Color(0xFF31353D), Color(0xFF0A0C10)))
+    }
+    val fg = when (state) {
+        "right" -> Color(0xFFE9FFF2)
+        "bad" -> Color(0xFFFFDEDF)
+        else -> Color(0xFFDDD6C6)
+    }
+    val border = when (state) {
+        "right" -> CtvColors.green
+        "bad" -> CtvColors.bloodHot
+        "sel" -> CtvColors.goldHot
+        else -> Color(0xFF4A4E57)
+    }
+    Text(
+        text = buildAnnotatedString {
+            withStyle(SpanStyle(color = CtvColors.goldDim, fontWeight = FontWeight.Medium)) {
+                append("$letter.  ")
+            }
+            append(text)
+        },
+        modifier = modifier
+            .alpha(if (state == "mute") 0.34f else 1f)
+            .background(bg)
+            .border(1.dp, border)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 16.dp),
+        color = fg,
+        fontFamily = CtvFonts.body,
+        fontSize = 16.sp,
+        textAlign = TextAlign.Center,
+    )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun AssembleBoardUi(
+    board: AssembleBoard,
+    tick: Int,
+    locked: Boolean,
+    lastCorrect: Boolean?,
+    onChange: () -> Unit,
+    onLock: () -> Unit,
+) {
+    val unused = tick
+    val lifted = Assemble.liftedTile(board)?.id
+    Column(
+        modifier = Modifier.widthIn(max = 640.dp).fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = if (unused < 0) "" else "PLACE THE WORDS",
+            color = CtvColors.goldDim,
+            fontFamily = CtvFonts.ui,
+            fontSize = 11.sp,
+            letterSpacing = 0.22.em,
+            modifier = Modifier.padding(bottom = 10.dp),
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            board.placed.forEachIndexed { slot, tile ->
+                val filled = tile != null
+                val slotState = when {
+                    lastCorrect == true && filled -> "ok"
+                    lastCorrect == false && filled -> "no"
+                    else -> if (filled) "full" else "empty"
+                }
+                Text(
+                    text = if (filled) tile!!.word else " ",
+                    modifier = Modifier
+                        .widthIn(min = 88.dp)
+                        .background(
+                            if (slotState == "empty") Color(0xB306070A) else Color(0xE61C1F26),
+                        )
+                        .border(
+                            1.dp,
+                            when (slotState) {
+                                "ok" -> CtvColors.green
+                                "no" -> CtvColors.bloodHot
+                                "full" -> CtvColors.gold
+                                else -> Color(0xFF4A4E57)
+                            },
+                        )
+                        .clickable(enabled = !locked) {
+                            Assemble.resolveTap(board, TapTarget(slot = slot))
+                            onChange()
+                        }
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                    color = Color(0xFFF2E8D4),
+                    fontFamily = CtvFonts.body,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Assemble.remaining(board).forEach { tile ->
+                val on = tile.id == lifted
+                Text(
+                    text = tile.word,
+                    modifier = Modifier
+                        .background(
+                            Brush.verticalGradient(
+                                if (on) listOf(Color(0xFF4A3D1C), Color(0xFF191307))
+                                else listOf(Color(0xFF31353D), Color(0xFF0A0C10)),
+                            ),
+                        )
+                        .border(1.dp, if (on) CtvColors.goldHot else Color(0xFF4A4E57))
+                        .clickable(enabled = !locked) {
+                            Assemble.resolveTap(board, TapTarget(tileId = tile.id))
+                            onChange()
+                        }
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    color = Color(0xFFDDD6C6),
+                    fontFamily = CtvFonts.body,
+                    fontSize = 16.sp,
+                )
+            }
+        }
+        Spacer(Modifier.height(18.dp))
+        val ready = Assemble.isFilled(board)
+        if (ready) {
+            GoldButton(
+                text = if (locked) "Answer locked" else "Lock answer",
+                onClick = onLock,
+                small = true,
+            )
+        } else {
+            val shape = SkewButtonShape(10.dp)
+            Text(
+                text = "PLACE THE WORDS",
+                modifier = Modifier
+                    .alpha(0.35f)
+                    .border(1.dp, CtvColors.edge, shape)
+                    .padding(horizontal = 18.dp, vertical = 12.dp),
+                color = CtvColors.gold,
+                fontFamily = CtvFonts.display,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 11.sp,
+                letterSpacing = 0.24.em,
+            )
+        }
+    }
+}

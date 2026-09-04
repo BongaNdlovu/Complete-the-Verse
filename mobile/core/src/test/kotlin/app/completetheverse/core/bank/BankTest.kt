@@ -1,0 +1,124 @@
+package app.completetheverse.core.bank
+
+import app.completetheverse.core.practice.Practice
+import app.completetheverse.core.save.Save
+import app.completetheverse.core.srs.Srs
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+
+class BankTest {
+    @Test
+    fun parseInlineVerseShape() {
+        val raw = """
+            {
+              "booksOrder": ["Genesis"],
+              "verses": [{
+                "id": "genesis-1-1~heaven-and-the-earth",
+                "p": "In the beginning God created the",
+                "a": "heaven and the earth",
+                "s": ".",
+                "d": ["heavens and the earth", "earth and the heaven"],
+                "r": "Genesis 1:1",
+                "b": "Genesis",
+                "t": 1
+              }]
+            }
+        """.trimIndent()
+        val bank = Bank.parse(raw)
+        assertEquals(1, bank.verses.size)
+        val v = bank.verses[0]
+        assertEquals("genesis-1-1~heaven-and-the-earth", v.id)
+        assertEquals("heaven and the earth", v.a)
+        assertEquals(listOf("heavens and the earth", "earth and the heaven"), v.d)
+        assertEquals("Genesis 1:1", v.r)
+        assertEquals("Genesis", v.b)
+        assertEquals(1, v.t)
+        assertEquals(v.id, Bank.verseId(v))
+        assertEquals("", Bank.stemSep("."))
+        assertEquals(" ", Bank.stemSep("in the cloud"))
+    }
+
+    @Test
+    fun parseSharedVersesJson() {
+        val raw = javaClass.getResourceAsStream("/content/verses.json")!!.bufferedReader().use { it.readText() }
+        val bank = Bank.parse(raw)
+        assertTrue(bank.verses.size >= 800)
+        val first = bank.byId["genesis-1-1~heaven-and-the-earth"]
+        assertEquals("heaven and the earth", first!!.a)
+        assertEquals("Genesis", first.b)
+        assertTrue(first.d.isNotEmpty())
+        assertTrue(bank.verses.all { it.id.isNotEmpty() && it.p.isNotEmpty() && it.a.isNotEmpty() && it.r.isNotEmpty() })
+    }
+}
+
+class PracticeTest {
+    @Test
+    fun drillIsFifteenDueFirst() {
+        val verses = (1..20).map { n ->
+            Verse(id = "v$n", p = "p$n", a = "answer $n extra", s = ".", d = listOf("x", "y", "z"), r = "R $n", b = "Book", t = 1)
+        }
+        val T = 100
+        val overdue = Srs.freshCard().copy(reps = 2, ivl = 10, due = T - 9, last = T - 10)
+        val cardFor: (Verse) -> app.completetheverse.core.srs.SrsCard? = { v ->
+            when (v.id) {
+                "v1" -> overdue.copy(due = T + 5)
+                "v2" -> overdue
+                else -> null
+            }
+        }
+        val drill = Practice.buildDrill(verses, cardFor, T, rng = null, limit = Practice.LENGTH)
+        assertEquals(15, drill.size)
+        assertEquals("v2", drill[0].id)
+        assertTrue(Practice.usesAssemble(4, verses[0]))
+        assertFalse(Practice.usesAssemble(0, verses[0]))
+        assertFalse(Practice.usesAssemble(4, verses[0].copy(a = "one")))
+    }
+
+    @Test
+    fun applyAnswerWritesSrsIntoSaveBlob() {
+        val verse = Verse(
+            id = "genesis-1-1~heaven-and-the-earth",
+            p = "In the beginning God created the",
+            a = "heaven and the earth",
+            s = ".",
+            d = listOf("heavens and the earth"),
+            r = "Genesis 1:1",
+            b = "Genesis",
+            t = 1,
+        )
+        val recorded = Practice.applyAnswer(
+            save = Save.DEFAULT,
+            verse = verse,
+            correct = true,
+            timedOut = false,
+            fraction = 0.2,
+            today = 20000,
+            mode = "choice",
+        )
+        val card = Srs.cardsFromSave(recorded.save["srs"])[verse.id]
+        assertEquals(1, card!!.reps)
+        assertEquals(5, card.lastQuality)
+        assertEquals("choice", card.lastMode)
+        assertTrue(Practice.choiceMatches(verse.a, verse.a))
+        assertFalse(Practice.choiceMatches("heavens and the earth", verse.a))
+    }
+
+    @Test
+    fun timeoutGradesZero() {
+        val verse = Verse(id = "v1", p = "p", a = "the world", s = ".", d = listOf("the earth"), r = "R", b = "B", t = 1)
+        val recorded = Practice.applyAnswer(
+            save = Save.DEFAULT,
+            verse = verse,
+            correct = false,
+            timedOut = true,
+            fraction = 1.0,
+            today = 10,
+            mode = "choice",
+        )
+        assertEquals(0, recorded.quality)
+        assertEquals(0, recorded.card.reps)
+        assertEquals(1, recorded.card.lapses)
+    }
+}

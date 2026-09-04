@@ -16,10 +16,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.completetheverse.core.bank.Verse
+import app.completetheverse.save.DataStoreSaveRepository
 import app.completetheverse.ui.components.HallToast
 import app.completetheverse.ui.components.QuitDialog
 import app.completetheverse.ui.hall.ComingSoonScreen
 import app.completetheverse.ui.hall.HallScreen
+import app.completetheverse.ui.practice.PracticeRoute
 import app.completetheverse.ui.settings.SettingsScreen
 import app.completetheverse.ui.settings.SettingsStore
 import app.completetheverse.ui.theme.CtvColors
@@ -28,6 +31,7 @@ import kotlinx.coroutines.delay
 private sealed interface CtvScreen {
     data object Hall : CtvScreen
     data object Settings : CtvScreen
+    data object Practice : CtvScreen
     data class ComingSoon(val kick: String, val title: String) : CtvScreen
 }
 
@@ -36,6 +40,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
         when (screen) {
             CtvScreen.Hall -> "hall"
             CtvScreen.Settings -> "settings"
+            CtvScreen.Practice -> "practice"
             is CtvScreen.ComingSoon -> "soon\u001f${screen.kick}\u001f${screen.title}"
         }
     },
@@ -43,6 +48,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
         val parts = saved.split('\u001f')
         when (parts[0]) {
             "settings" -> CtvScreen.Settings
+            "practice" -> CtvScreen.Practice
             "soon" -> CtvScreen.ComingSoon(
                 parts.getOrElse(1) { "" },
                 parts.getOrElse(2) { "" },
@@ -55,6 +61,8 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
 @Composable
 fun CtvApp(
     settingsStore: SettingsStore,
+    saveRepository: DataStoreSaveRepository,
+    verses: List<Verse>,
     onQuit: () -> Unit,
 ) {
     var screen by rememberSaveable(stateSaver = CtvScreenSaver) {
@@ -76,10 +84,10 @@ fun CtvApp(
         when (val current = screen) {
             CtvScreen.Hall -> HallScreen(
                 onMode = { mode ->
-                    if (mode.incoming) {
-                        toast = "${mode.name} is incoming."
-                    } else {
-                        screen = CtvScreen.ComingSoon(mode.kick, mode.name)
+                    when {
+                        mode.incoming -> toast = "${mode.name} is incoming."
+                        mode.key == "practice" -> screen = CtvScreen.Practice
+                        else -> screen = CtvScreen.ComingSoon(mode.kick, mode.name)
                     }
                 },
                 onSubnav = { item ->
@@ -97,6 +105,11 @@ fun CtvApp(
                     settingsStore.save(next)
                 },
                 onBack = { screen = CtvScreen.Hall },
+            )
+            CtvScreen.Practice -> PracticeRoute(
+                verses = verses,
+                saveRepository = saveRepository,
+                onExit = { screen = CtvScreen.Hall },
             )
             is CtvScreen.ComingSoon -> ComingSoonScreen(
                 kick = current.kick,
