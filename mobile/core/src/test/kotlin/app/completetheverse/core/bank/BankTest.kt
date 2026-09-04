@@ -176,4 +176,17 @@ class PracticeTest {
         assertEquals(1, card.lapses)
         assertEquals(11, card.last)
     }
+
+    @Test
+    fun combineLocalSnapshotsCloudMergeSrsWinsWhenMemoryIsDiskSnapshot() {
+        val verse = Verse(id = "v1", p = "p", a = "the world", s = ".", d = listOf("the earth"), r = "R", b = "B", t = 1)
+        val localCard = Srs.freshCard().copy(reps = 2, ivl = 6, due = 12, last = 5, ef = 2.5)
+        val remoteCard = Srs.freshCard().copy(reps = 5, ivl = 40, due = 50, last = 8, ef = 2.6)
+        val disk = Srs.putCard(Save.DEFAULT, verse.id, localCard)
+        val extra = Srs.putCard(Save.DEFAULT, verse.id, remoteCard)
+        val merged = Save.combineLocalSnapshots(disk, disk, extra)
+        val card = Srs.cardsFromSave(merged["srs"])[verse.id]
+        assertEquals(5, card!!.reps, "idle boot must keep mergeSrs higher-reps from cloud extra")
+        assertEquals(40, card.ivl)
+    }
 }

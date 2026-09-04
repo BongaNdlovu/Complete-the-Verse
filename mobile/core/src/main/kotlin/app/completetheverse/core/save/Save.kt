@@ -39,15 +39,18 @@ object Save {
 
     /**
      * Union an in-memory snapshot with the latest disk blob (and an optional
-     * extra, e.g. a cloud pull). Progress fields use [MergeSave.merge]; SRS cards
-     * from [memory] last-writer-win so a just-graded lapse (`reps = 0`) is not
-     * discarded for a stale higher-reps disk/cloud card.
+     * extra, e.g. a cloud pull). Overlay SRS last-writer-wins vs **disk** only so
+     * a just-graded lapse beats a stale local card; a cloud [extra] then uses
+     * [MergeSave.merge] / `mergeSrs` with no second overlay.
      */
     fun combineLocalSnapshots(memory: SaveBlob?, disk: SaveBlob, extra: SaveBlob? = null): SaveBlob {
-        val withExtra = if (extra != null) MergeSave.merge(disk, extra) else disk
-        if (memory == null) return withExtra
-        val merged = MergeSave.merge(memory, withExtra)
-        return overlaySuccessorSrs(merged, memory)
+        val local = if (memory == null) {
+            disk
+        } else {
+            overlaySuccessorSrs(MergeSave.merge(memory, disk), memory)
+        }
+        if (extra == null) return local
+        return MergeSave.merge(local, extra)
     }
 
     /** Same-verse cards in the successor blob win, including a local lapse. */

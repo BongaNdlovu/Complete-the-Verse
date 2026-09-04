@@ -57,6 +57,7 @@ class SaveCoordinator(
 
     fun persistAsync(candidate: SaveBlob? = null) {
         if (candidate != null) publish(candidate)
-        ioScope.launch { persistMerged(candidate) }
+        // Candidate is already memory; overlay-vs-disk is enough (no cloud extra).
+        ioScope.launch { persistMerged() }
     }
 }
