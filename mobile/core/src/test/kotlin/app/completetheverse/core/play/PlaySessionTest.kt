@@ -4,8 +4,11 @@ import app.completetheverse.core.assemble.Assemble
 import app.completetheverse.core.bank.TfClaim
 import app.completetheverse.core.bank.Verse
 import app.completetheverse.core.save.Save
+import app.completetheverse.core.save.SaveBlob
+import app.completetheverse.core.study.Study
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
@@ -33,12 +36,13 @@ class PlaySessionTest {
         questions: List<PlayQuestion>,
         clock: Clock,
         lives: Int = 3,
-        persist: MutableList<app.completetheverse.core.save.SaveBlob>? = null,
-        save: app.completetheverse.core.save.SaveBlob = Save.DEFAULT,
+        persist: MutableList<SaveBlob>? = null,
+        save: SaveBlob = Save.DEFAULT,
         mode: String = "play",
         diff: Diff = Diffs.disciple,
         verses: List<Verse> = emptyList(),
         tfClaims: List<TfClaim> = emptyList(),
+        wrapSave: ((SaveBlob, PlayFinishInfo) -> SaveBlob)? = null,
     ): PlaySession = PlaySession.start(
         PlayConfig(
             questions = questions,
@@ -53,8 +57,15 @@ class PlaySessionTest {
             tfClaims = tfClaims,
             rng = { 0.1 },
             nowMs = { clock.now() },
+            wrapSave = wrapSave,
         ),
     )
+
+    private fun jsonInt(el: kotlinx.serialization.json.JsonElement?): Int {
+        val p = el as? JsonPrimitive ?: return 0
+        p.doubleOrNull?.let { return it.toInt() }
+        return p.content.toIntOrNull() ?: 0
+    }
 
     @Test
     fun startApiMatchesTheContract() {
@@ -381,5 +392,100 @@ class PlaySessionTest {
         assertEquals(1, session.lives)
         session.advance()
         assertEquals("complete", session.result!!.reason)
+    }
+
+    @Test
+    fun tutorialDoesNotIncrementCampaignTotals() {
+        val clock = Clock()
+        val writes = mutableListOf<SaveBlob>()
+        val v = verse()
+        val session = start(
+            listOf(PlayQuestion(Mechanic.Mcq, v)),
+            clock,
+            persist = writes,
+            mode = "tutorial",
+            wrapSave = Tutorial::wrapSave,
+        )
+        session.submitChoice(v.a)
+        assertTrue(writes.isEmpty())
+        session.advance()
+        assertEquals("complete", session.result!!.reason)
+        val blob = writes.last()
+        assertEquals(0, jsonInt(blob["runs"]))
+        val life = blob["life"]!!.jsonObject
+        assertEquals(0, jsonInt(life["attempts"]))
+        assertEquals(0, jsonInt(life["correct"]))
+        assertTrue(Save.tutorialDone(blob))
+        assertTrue((blob["verse"] as? JsonObject)?.isEmpty() != false)
+    }
+
+    @Test
+    fun studyOneOffPersistsReviewWithoutARunAndPassesClock() {
+        val clock = Clock(0L)
+        val writes = mutableListOf<SaveBlob>()
+        val v = verse()
+        val session = start(
+            listOf(PlayQuestion(Mechanic.Mcq, v)),
+            clock,
+            persist = writes,
+            mode = "study",
+            wrapSave = { blob, info ->
+                Study.applyReview(
+                    save = blob,
+                    verse = v,
+                    correct = info.correct > 0,
+                    timedOut = info.timedOut,
+                    fraction = info.fraction,
+                    mode = "choice",
+                    today = 20000,
+                )
+            },
+        )
+        clock.t = 6_000L
+        session.submitChoice(v.a)
+        assertEquals(false, session.lastTimedOut)
+        assertTrue((session.lastFraction ?: 1.0) < 0.4)
+        assertTrue(writes.isEmpty())
+        session.advance()
+        val blob = writes.last()
+        assertEquals(0, jsonInt(blob["runs"]))
+        val life = blob["life"]!!.jsonObject
+        assertEquals(1, jsonInt(life["reviewsDone"]))
+        assertEquals(1, jsonInt(life["attempts"]))
+        assertEquals(1, jsonInt(life["correct"]))
+        assertEquals(5, Study.cardFor(blob, v.id)!!.lastQuality)
+        val best = blob["best"]!!.jsonObject
+        assertEquals(0, jsonInt(best["study"]))
+    }
+
+    @Test
+    fun studyTimeoutGradesAsTimedOutNotWrong() {
+        val clock = Clock(0L)
+        val writes = mutableListOf<SaveBlob>()
+        val v = verse()
+        val session = start(
+            listOf(PlayQuestion(Mechanic.Mcq, v)),
+            clock,
+            persist = writes,
+            mode = "study",
+            wrapSave = { blob, info ->
+                Study.applyReview(
+                    save = blob,
+                    verse = v,
+                    correct = info.correct > 0,
+                    timedOut = info.timedOut,
+                    fraction = info.fraction,
+                    mode = "choice",
+                    today = 20000,
+                )
+            },
+        )
+        clock.t = PlayClock.WALL_PICK_MS
+        assertTrue(session.onTimeout())
+        assertEquals(true, session.lastTimedOut)
+        session.advance()
+        val card = Study.cardFor(writes.last(), v.id)!!
+        assertEquals(0, card.lastQuality)
+        assertEquals(true, session.result.let { it != null })
     }
 }

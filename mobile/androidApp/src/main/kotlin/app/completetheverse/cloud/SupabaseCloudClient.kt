@@ -248,9 +248,9 @@ class SupabaseCloudClient(
             }
         } catch (e: CancellationException) {
             throw e
-        } catch (_: Exception) {
+        } catch (e: Exception) {
             Cloud.setBoardLoadFailed(if (!isOnline()) "offline" else "load-failed")
-            emptyList()
+            throw e
         }
     }
 

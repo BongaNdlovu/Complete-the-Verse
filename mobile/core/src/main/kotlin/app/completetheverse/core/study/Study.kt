@@ -1,11 +1,10 @@
 package app.completetheverse.core.study
 
 import app.completetheverse.core.bank.Verse
+import app.completetheverse.core.practice.Practice
 import app.completetheverse.core.save.SaveBlob
-import app.completetheverse.core.srs.GradeInput
 import app.completetheverse.core.srs.Srs
 import app.completetheverse.core.srs.SrsCard
-import kotlinx.serialization.json.JsonObject
 
 object Study {
     fun cards(save: SaveBlob): Map<String, SrsCard> = Srs.cardsFromSave(save["srs"])
@@ -47,23 +46,21 @@ object Study {
         fraction: Double?,
         mode: String,
         today: Int = Srs.dayNumber(),
-    ): SaveBlob {
-        val outcome = GradeInput(
-            timedOut = timedOut,
-            correct = correct,
-            fraction = fraction,
-            mode = mode,
-        )
-        val prev = Srs.cardFromJson((save["srs"] as? JsonObject)?.get(verse.id))
-        val quality = Srs.gradeAnswer(outcome)
-        val card = Srs.schedule(prev, quality, today).copy(
-            lastQuality = quality,
-            lastMode = mode,
-            lastFraction = fraction,
-            lastCueLevel = 0,
-            lastNear = false,
-        )
-        return Srs.putCard(save, verse.id, card)
+    ): SaveBlob = Practice.applyAnswer(
+        save = save,
+        verse = verse,
+        correct = correct,
+        timedOut = timedOut,
+        fraction = fraction,
+        today = today,
+        mode = mode,
+    ).save
+
+    fun matchesFilter(card: SrsCard?, filter: String, today: Int): Boolean = when (filter) {
+        "all" -> true
+        "due" -> filterState(card, today) == "due"
+        "lapsing" -> strength(card) == "lapsing"
+        else -> filterState(card, today) == filter
     }
 
     fun matchesQuery(verse: Verse, query: String): Boolean {

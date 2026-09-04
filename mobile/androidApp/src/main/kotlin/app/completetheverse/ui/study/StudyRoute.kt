@@ -10,7 +10,6 @@ import app.completetheverse.core.play.ClockPolicy
 import app.completetheverse.core.play.Mechanic
 import app.completetheverse.core.play.PlayQuestion
 import app.completetheverse.core.practice.Practice
-import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.core.study.Study
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.play.PlayRoute
@@ -20,7 +19,6 @@ fun StudyRoute(
     verses: List<Verse>,
     versesReady: Boolean,
     verseError: String?,
-    save: SaveBlob,
     saves: SaveCoordinator,
     onExit: () -> Unit,
 ) {
@@ -44,8 +42,8 @@ fun StudyRoute(
                     save = blob,
                     verse = review,
                     correct = info.correct > 0,
-                    timedOut = false,
-                    fraction = 0.5,
+                    timedOut = info.timedOut,
+                    fraction = info.fraction,
                     mode = if (mechanic == Mechanic.Assemble) "assembly" else "choice",
                 )
             },
@@ -56,7 +54,7 @@ fun StudyRoute(
             verses = verses,
             versesReady = versesReady,
             loadError = verseError,
-            save = save,
+            save = saves.snapshot(),
             onReview = { reviewId = it.id },
             onBack = onExit,
         )

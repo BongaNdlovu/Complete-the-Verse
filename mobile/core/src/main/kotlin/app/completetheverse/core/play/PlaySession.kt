@@ -65,6 +65,8 @@ data class PlayFinishInfo(
     val correct: Int,
     val attempts: Int,
     val score: Int,
+    val timedOut: Boolean = false,
+    val fraction: Double? = null,
 )
 
 class PlaySession private constructor(private val config: PlayConfig) {
@@ -143,6 +145,10 @@ class PlaySession private constructor(private val config: PlayConfig) {
     var teamBlueMs: Long = 0L
         private set
     var dailyRecorded: Boolean = false
+        private set
+    var lastTimedOut: Boolean = false
+        private set
+    var lastFraction: Double? = null
         private set
 
     private val questionList: MutableList<PlayQuestion> = config.questions.toMutableList()
@@ -432,6 +438,8 @@ class PlaySession private constructor(private val config: PlayConfig) {
         running = false
         pauseStampMs = nowMs()
         lastCorrect = ok
+        lastTimedOut = timedOut
+        lastFraction = fractionNow()
         val q = current
         val wasRiding = overdriveRide && PlayClock.inOverdrive(streak)
         attempts++
@@ -459,7 +467,7 @@ class PlaySession private constructor(private val config: PlayConfig) {
             val nextLeft = PlayClock.blitzAdjustMs(remainingMs(), ok)
             deadlineMs = nowMs() + nextLeft
         }
-        val skipMastery = mode == "team" || mode == "beat"
+        val skipMastery = mode == "team" || mode == "beat" || mode == "tutorial"
         if (recordVerse && !skipMastery && q?.verse != null && q.mechanic != Mechanic.TrueFalse) {
             val gradeMode = if (q.typed) "assembly" else "choice"
             val applied = Practice.applyAnswer(
@@ -577,9 +585,11 @@ class PlaySession private constructor(private val config: PlayConfig) {
         val accBonus = kotlin.math.round(acc * 1200.0 * diff.score).toInt()
         val raw = score + streakBonus + accBonus
         val total = if (why == "abandon") kotlin.math.round(raw * 0.85).toInt() else raw
-        val skipRun = mode == "team"
+        val skipRun = mode == "team" || !recordsCampaign()
         if (persistRun && !skipRun) {
             save = persistRunRecords(save, total, why)
+        }
+        if (persistRun) {
             val wrap = config.wrapSave
             if (wrap != null) {
                 save = wrap(
@@ -591,6 +601,8 @@ class PlaySession private constructor(private val config: PlayConfig) {
                         correct = correct,
                         attempts = attempts,
                         score = score,
+                        timedOut = lastTimedOut,
+                        fraction = lastFraction,
                     ),
                 )
             }
@@ -615,6 +627,8 @@ class PlaySession private constructor(private val config: PlayConfig) {
         )
         phase = PlayPhase.Results
     }
+
+    private fun recordsCampaign(): Boolean = mode != "tutorial" && mode != "study"
 
     private fun persistRunRecords(blob: SaveBlob, total: Int, why: String): SaveBlob {
         val out = blob.toMutableMap()

@@ -348,7 +348,6 @@ fun CtvApp(
                 verses = verses,
                 versesReady = versesReady,
                 verseError = verseError,
-                save = save,
                 saves = saves,
                 onExit = { screen = CtvScreen.Hall },
             )

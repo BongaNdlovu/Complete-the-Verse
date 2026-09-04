@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import app.completetheverse.core.cloud.Cloud
 import app.completetheverse.core.records.BlitzBoardRow
 import app.completetheverse.core.records.RecordStats
 import app.completetheverse.core.records.Records
@@ -65,7 +66,11 @@ fun RecordsScreen(
         boardStatus = "Loading…"
         board = try {
             val rows = onFetchBlitzBoard(25)
-            boardStatus = if (rows.isEmpty()) "No scores yet." else null
+            boardStatus = when {
+                Cloud.boardLoadFailed() != null -> "Could not reach the board."
+                rows.isEmpty() -> "No scores yet."
+                else -> null
+            }
             rows
         } catch (_: Exception) {
             boardStatus = "Could not reach the board."

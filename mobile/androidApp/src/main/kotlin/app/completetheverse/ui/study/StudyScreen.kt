@@ -72,12 +72,7 @@ fun StudyScreen(
     val rows = verses.filter { verse ->
         if (!Study.matchesQuery(verse, query)) return@filter false
         val card = Study.cardFor(save, verse.id)
-        when (filter) {
-            "all" -> true
-            "due" -> Study.filterState(card, today) == "due"
-            "lapsing" -> Study.strength(card) == "lapsing"
-            else -> Study.filterState(card, today) == filter || Study.strength(card) == filter
-        }
+        Study.matchesFilter(card, filter, today)
     }
     Box(modifier.fillMaxSize()) {
         HallBackdrop()
