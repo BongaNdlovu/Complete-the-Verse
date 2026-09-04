@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="background">#04040A</color>
+    <color name="ink">#04050A</color>
+    <color name="gold">#D9B667</color>
+    <color name="gold_hot">#FFE3A6</color>
+    <color name="parch">#ECE6D6</color>
 </resources>

@@ -3,19 +3,30 @@ package app.completetheverse.ui.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 
-private val Background = Color(0xFF04040A)
-
-private val ColorScheme = darkColorScheme(
-    background = Background,
-    surface = Background,
+private val CtvColorScheme = darkColorScheme(
+    primary = CtvColors.gold,
+    onPrimary = CtvColors.buttonInk,
+    secondary = CtvColors.goldDim,
+    onSecondary = CtvColors.buttonInk,
+    background = CtvColors.inkAlt,
+    onBackground = CtvColors.parch,
+    surface = CtvColors.ink,
+    onSurface = CtvColors.parch,
+    surfaceVariant = CtvColors.ink2,
+    onSurfaceVariant = CtvColors.parchDim,
+    error = CtvColors.blood,
+    onError = CtvColors.parch,
+    outline = CtvColors.edge,
+    tertiary = CtvColors.goldHot,
+    onTertiary = CtvColors.buttonInk,
 )
 
 @Composable
-fun CompleteTheVerseTheme(content: @Composable () -> Unit) {
+fun CtvTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = ColorScheme,
+        colorScheme = CtvColorScheme,
+        typography = CtvTypography,
         content = content,
     )
 }
