@@ -16,11 +16,12 @@ fun PracticeRoute(
     verses: List<Verse>,
     versesReady: Boolean,
     verseError: String?,
+    saveGeneration: Int = 0,
     saves: SaveCoordinator,
     onExit: () -> Unit,
     viewModel: PracticeViewModel = viewModel(),
 ) {
-    LaunchedEffect(versesReady, verses) {
+    LaunchedEffect(versesReady, verses, saveGeneration) {
         if (versesReady) viewModel.hydrate(verses, saves.snapshot())
     }
 

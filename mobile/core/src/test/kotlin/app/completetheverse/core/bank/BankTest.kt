@@ -153,4 +153,27 @@ class PracticeTest {
         assertEquals(1, card!!.reps)
         assertEquals("1", merged["verse"]!!.jsonObject[verse.id]!!.jsonObject["a"]!!.jsonPrimitive.content)
     }
+
+    @Test
+    fun combineLocalSnapshotsKeepsInMemoryLapseOverHigherRepsDisk() {
+        val verse = Verse(id = "v1", p = "p", a = "the world", s = ".", d = listOf("the earth"), r = "R", b = "B", t = 1)
+        val diskCard = Srs.freshCard().copy(reps = 3, ivl = 15, due = 20, last = 10, ef = 2.5, lapses = 0)
+        val disk = Srs.putCard(Save.DEFAULT, verse.id, diskCard)
+        val recorded = Practice.applyAnswer(
+            save = disk,
+            verse = verse,
+            correct = false,
+            timedOut = true,
+            fraction = null,
+            today = 11,
+            mode = "choice",
+        )
+        assertEquals(0, recorded.card.reps)
+        assertEquals(1, recorded.card.lapses)
+        val merged = Save.combineLocalSnapshots(recorded.save, disk)
+        val card = Srs.cardsFromSave(merged["srs"])[verse.id]
+        assertEquals(0, card!!.reps, "in-memory lapse must not lose to disk higher reps")
+        assertEquals(1, card.lapses)
+        assertEquals(11, card.last)
+    }
 }

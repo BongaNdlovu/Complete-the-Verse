@@ -65,6 +65,7 @@ fun CtvApp(
     verses: List<Verse>,
     versesReady: Boolean,
     verseError: String?,
+    saveGeneration: Int,
     onQuit: () -> Unit,
 ) {
     var screen by rememberSaveable(stateSaver = CtvScreenSaver) {
@@ -112,6 +113,7 @@ fun CtvApp(
                 verses = verses,
                 versesReady = versesReady,
                 verseError = verseError,
+                saveGeneration = saveGeneration,
                 saves = saves,
                 onExit = { screen = CtvScreen.Hall },
             )

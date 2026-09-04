@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
                     verses = saveVm.verses,
                     versesReady = saveVm.versesReady,
                     verseError = saveVm.verseError,
+                    saveGeneration = saveVm.saveGeneration,
                     onQuit = {
                         finishAffinity()
                     },

@@ -30,6 +30,16 @@ class SaveCoordinator(
         memory = save
     }
 
+    /** Populate memory from disk without writing. Safe if a run already published. */
+    suspend fun loadFromDisk(): SaveBlob =
+        withContext(Dispatchers.IO) {
+            mutex.withLock {
+                val disk = repo.load()
+                memory = Save.combineLocalSnapshots(memory, disk)
+                memory!!
+            }
+        }
+
     /**
      * Reload disk, merge with the in-memory blob (and optional extra such as a
      * cloud pull), persist, and publish. Survives cancellation.

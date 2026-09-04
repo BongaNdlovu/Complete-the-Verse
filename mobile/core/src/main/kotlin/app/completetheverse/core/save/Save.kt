@@ -38,19 +38,32 @@ object Save {
     fun clone(save: SaveBlob): SaveBlob = parse(stringify(save))
 
     /**
-     * Recover corrupt JSON to DEFAULT_SAVE and stash the broken raw under [BROKEN_KEY].
-     */
-    /**
      * Union an in-memory snapshot with the latest disk blob (and an optional
-     * extra, e.g. a cloud pull) so a later persist cannot clobber cards that
-     * already landed in either side.
+     * extra, e.g. a cloud pull). Progress fields use [MergeSave.merge]; SRS cards
+     * from [memory] last-writer-win so a just-graded lapse (`reps = 0`) is not
+     * discarded for a stale higher-reps disk/cloud card.
      */
     fun combineLocalSnapshots(memory: SaveBlob?, disk: SaveBlob, extra: SaveBlob? = null): SaveBlob {
-        var merged = if (memory == null) disk else MergeSave.merge(memory, disk)
-        if (extra != null) merged = MergeSave.merge(merged, extra)
-        return merged
+        val withExtra = if (extra != null) MergeSave.merge(disk, extra) else disk
+        if (memory == null) return withExtra
+        val merged = MergeSave.merge(memory, withExtra)
+        return overlaySuccessorSrs(merged, memory)
     }
 
+    /** Same-verse cards in the successor blob win, including a local lapse. */
+    fun overlaySuccessorSrs(base: SaveBlob, successor: SaveBlob): SaveBlob {
+        val successorSrs = successor["srs"] as? JsonObject ?: return base
+        if (successorSrs.isEmpty()) return base
+        val srs = ((base["srs"] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
+        srs.putAll(successorSrs)
+        val out = base.toMutableMap()
+        out["srs"] = JsonObject(srs)
+        return JsonObject(out)
+    }
+
+    /**
+     * Recover corrupt JSON to DEFAULT_SAVE and stash the broken raw under [BROKEN_KEY].
+     */
     fun loadFromRaw(raw: String?): LoadResult {
         if (raw.isNullOrEmpty()) return LoadResult(clone(DEFAULT))
         return try {

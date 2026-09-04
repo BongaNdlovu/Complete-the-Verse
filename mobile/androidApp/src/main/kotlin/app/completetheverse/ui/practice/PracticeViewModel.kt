@@ -17,6 +17,7 @@ import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.core.srs.Srs
 import app.completetheverse.core.srs.SrsCard
 import app.completetheverse.save.SaveCoordinator
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -63,6 +64,8 @@ class PracticeViewModel : ViewModel() {
     var questionToken by mutableIntStateOf(0)
         private set
 
+    private var advanceJob: Job? = null
+
     private fun rng(): Double = Random.nextDouble()
 
     fun loadDue(verses: List<Verse>, blob: SaveBlob): Int {
@@ -96,6 +99,7 @@ class PracticeViewModel : ViewModel() {
 
     fun begin(verses: List<Verse>, saves: SaveCoordinator) {
         if (verses.isEmpty()) return
+        cancelAdvance()
         viewModelScope.launch {
             val loaded = saves.persistMerged()
             save = loaded
@@ -149,8 +153,11 @@ class PracticeViewModel : ViewModel() {
         attempts += 1
         if (ok) correct += 1
         saves.persistAsync(recorded.save)
-        viewModelScope.launch {
+        val token = questionToken
+        cancelAdvance()
+        advanceJob = viewModelScope.launch {
             delay(800)
+            if (phase != PracticePhase.Play || questionToken != token || queue.isEmpty()) return@launch
             val next = index + 1
             if (next >= queue.size) {
                 elapsedMs = SystemClock.elapsedRealtime() - runStart
@@ -174,6 +181,7 @@ class PracticeViewModel : ViewModel() {
     }
 
     fun abandon(verses: List<Verse>, saves: SaveCoordinator) {
+        cancelAdvance()
         if (phase != PracticePhase.Brief) saves.persistAsync(save)
         phase = PracticePhase.Brief
         queue = emptyList()
@@ -182,5 +190,10 @@ class PracticeViewModel : ViewModel() {
         lastCorrect = null
         assemble = null
         due = loadDue(verses, saves.snapshot())
+    }
+
+    private fun cancelAdvance() {
+        advanceJob?.cancel()
+        advanceJob = null
     }
 }
