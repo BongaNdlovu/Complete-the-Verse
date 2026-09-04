@@ -320,6 +320,25 @@ assert(/copyWebAssets/.test(read("android-standalone/app/build.gradle")) &&
   /include "audio\/\*\*"/.test(read("android-standalone/app/build.gradle")) &&
   /include "assets\/\*\*"/.test(read("android-standalone/app/build.gradle")),
   "standalone build copies full assets and audio into the APK");
+assert(/function runningInStandaloneApp/.test(read("js/util.js")) &&
+  /appassets\.androidplatform\.net/.test(read("js/util.js")),
+  "standalone host is detected from the WebView asset origin");
+assert(/apkEfficientApplied/.test(game) && /SAVE\.set\.quality = "low"/.test(game),
+  "standalone APK defaults to the efficient quality profile once");
+const standaloneMain = read("android-standalone/app/src/main/java/app/completetheverse/offline/MainActivity.java");
+assert(/onJsConfirm/.test(standaloneMain) && /result\.confirm\(\)/.test(standaloneMain),
+  "standalone WebView shows native confirm dialogs so Quit can proceed");
+assert(/handleEscapeNav/.test(standaloneMain) && /currentView==='menu'/.test(standaloneMain),
+  "standalone back button uses in-game navigation instead of WebView history");
+assert(/addJavascriptInterface/.test(standaloneMain) && /CtvApp/.test(standaloneMain) &&
+  /public void quit\(\)/.test(standaloneMain),
+  "standalone WebView exposes a native quit bridge");
+assert(/id="menu-quit-app"/.test(index) && /hidden/.test(index.split('id="menu-quit-app"')[1].slice(0, 80)),
+  "hall Quit game control is in the menu and hidden on the web");
+assert(/function quitStandaloneApp/.test(read("js/util.js")) &&
+  /function revealStandaloneChrome/.test(read("js/util.js")) &&
+  /menu-quit-app/.test(game),
+  "standalone Quit game control is revealed and wired at boot");
 
 if (failures.length) {
   console.error("FAIL (" + failures.length + ")");

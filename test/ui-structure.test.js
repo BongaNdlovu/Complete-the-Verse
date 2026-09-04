@@ -122,6 +122,7 @@ assert(css.includes("font-size:.78rem"), "mobile Lock CTA readable font size");
 assert(!html.includes('class="topright"'), "duplicate icon nav must be gone");
 assert(!game.includes('className="topright"'), "topright not created in JS");
 assert(html.includes('data-go="settings"'), "settings still reachable via subnav");
+assert(html.includes('id="menu-quit-app"'), "standalone hall offers a Quit game control");
 
 assert(html.includes('class="res-details"'), "results details panels required");
 assert(html.includes("res-primary"), "primary results CTA cluster required");

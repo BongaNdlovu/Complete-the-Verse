@@ -2156,6 +2156,11 @@ function loop(ts){
 
 /* ------------------------- BOOT ------------------------- */
 (function boot(){
+  if (typeof runningInStandaloneApp === "function" && runningInStandaloneApp() && SAVE && SAVE.set && !SAVE.set.apkEfficientApplied) {
+    SAVE.set.apkEfficientApplied = true;
+    if (!SAVE.set.qualityLocked) SAVE.set.quality = "low";
+    persist();
+  }
   buildPlayerCard();
   Backdrop.init();
   applySettings();
@@ -2164,6 +2169,11 @@ function loop(ts){
   armIntro();
 
   bindStatePanel();
+  if (typeof revealStandaloneChrome === "function") revealStandaloneChrome();
+  const menuQuitApp = $("menu-quit-app");
+  if (menuQuitApp && typeof quitStandaloneApp === "function") {
+    menuQuitApp.addEventListener("click", quitStandaloneApp);
+  }
   const playQuit = $("play-quit");
   if(playQuit) playQuit.addEventListener("click", quitPlay);
   const confirmBtn = $("confirm-answer");

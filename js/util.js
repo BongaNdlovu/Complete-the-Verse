@@ -31,3 +31,25 @@ function poolSansRepeatRefs(pool){
   }
   return out.length ? out : pool;
 }
+function runningInStandaloneApp(){
+  try { return location.hostname === "appassets.androidplatform.net"; }
+  catch (e) { return false; }
+}
+function standaloneAppBridge(){
+  try {
+    return (typeof window !== "undefined" && window.CtvApp && typeof window.CtvApp.quit === "function")
+      ? window.CtvApp : null;
+  } catch (e) { return null; }
+}
+function quitStandaloneApp(){
+  const bridge = standaloneAppBridge();
+  if (!bridge && !runningInStandaloneApp()) return;
+  if (typeof confirm === "function" && !confirm("Close Complete the Verse?")) return;
+  if (typeof Snd !== "undefined" && Snd.ui) Snd.ui();
+  if (bridge) bridge.quit();
+}
+function revealStandaloneChrome(){
+  const btn = $("menu-quit-app");
+  if (!btn) return;
+  if (runningInStandaloneApp() || standaloneAppBridge()) btn.hidden = false;
+}
