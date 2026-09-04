@@ -1,5 +1,6 @@
 package app.completetheverse.core.save
 
+import app.completetheverse.core.characters.Scholars
 import app.completetheverse.core.mergesave.MergeSave
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -8,7 +9,9 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
@@ -275,6 +278,61 @@ object Save {
             put("vkb", false)
             put("characterDone", false)
         }
+    }
+
+    fun settingsOf(save: SaveBlob): JsonObject =
+        save["set"] as? JsonObject ?: DEFAULT["set"]!!.jsonObject
+
+    fun boolSet(save: SaveBlob, key: String): Boolean {
+        val p = settingsOf(save)[key] as? JsonPrimitive ?: return false
+        return p.booleanOrNull ?: (p.content == "true")
+    }
+
+    fun stringSet(save: SaveBlob, key: String, default: String = ""): String {
+        val el = settingsOf(save)[key] ?: return default
+        val p = el as? JsonPrimitive ?: return default
+        return p.contentOrNull ?: default
+    }
+
+    fun patchSet(save: SaveBlob, vararg pairs: Pair<String, JsonElement>): SaveBlob {
+        val set = settingsOf(save).toMutableMap()
+        for ((k, v) in pairs) set[k] = v
+        val out = save.toMutableMap()
+        out["set"] = JsonObject(set)
+        return JsonObject(out)
+    }
+
+    fun introPlayed(save: SaveBlob): Boolean = boolSet(save, "introPlayed")
+
+    fun playerName(save: SaveBlob): String = stringSet(save, "playerName").trim()
+
+    fun playerDisplayName(save: SaveBlob): String {
+        val n = playerName(save)
+        return n.ifEmpty { "Pilgrim" }
+    }
+
+    fun scholarId(save: SaveBlob): String =
+        Scholars.resolve(
+            stringSet(save, "scholarId").ifEmpty { stringSet(save, "character") },
+        ).id
+
+    fun profileReady(save: SaveBlob): Boolean =
+        boolSet(save, "profileDone") && playerName(save).length >= 2
+
+    fun markIntroPlayed(save: SaveBlob): SaveBlob =
+        patchSet(save, "introPlayed" to JsonPrimitive(true))
+
+    fun commitProfile(save: SaveBlob, name: String, scholarId: String): SaveBlob {
+        val id = Scholars.resolve(scholarId).id
+        val trimmed = name.trim().take(32)
+        return patchSet(
+            save,
+            "playerName" to JsonPrimitive(trimmed),
+            "scholarId" to JsonPrimitive(id),
+            "character" to JsonPrimitive(id),
+            "profileDone" to JsonPrimitive(true),
+            "characterDone" to JsonPrimitive(true),
+        )
     }
 
     private fun obj(el: JsonElement?): JsonObject =

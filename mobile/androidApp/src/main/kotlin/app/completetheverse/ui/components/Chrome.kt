@@ -158,13 +158,27 @@ private fun diamond() = GenericShape { size, _ ->
 }
 
 @Composable
-fun CloudChip(text: String, dim: Boolean = true, modifier: Modifier = Modifier) {
+fun CloudChip(
+    text: String,
+    dim: Boolean = true,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+) {
+    val click = if (onClick != null) {
+        Modifier
+            .defaultMinSize(minHeight = 44.dp)
+            .clickable(role = Role.Button, onClick = onClick)
+    } else {
+        Modifier
+    }
     Text(
         text = text.uppercase(),
         modifier = modifier
             .alpha(if (dim) 0.55f else 1f)
             .border(1.dp, Color(0x4CE8C478))
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .then(click)
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .wrapContentHeight(Alignment.CenterVertically),
         color = CtvColors.goldDim,
         fontFamily = CtvFonts.ui,
         fontWeight = FontWeight.SemiBold,

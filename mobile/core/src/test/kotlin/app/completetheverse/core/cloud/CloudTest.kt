@@ -247,6 +247,13 @@ class CloudTest {
     }
 
     @Test
+    fun authNoticeNameTooShortAndVerified() {
+        assertEquals("Name needs at least two letters.", Cloud.authNotice("name-too-short"))
+        assertEquals("Signed in successfully.", Cloud.authNotice("verified"))
+        assertEquals("Sign in to post scores.", Cloud.authNotice("signed-out"))
+    }
+
+    @Test
     fun boardLoadFailedIdle() {
         assertNull(Cloud.boardLoadFailed())
     }

@@ -46,6 +46,10 @@ import app.completetheverse.ui.theme.CtvFonts
 fun HallScreen(
     onMode: (HallMode) -> Unit,
     onSubnav: (HallSubnav) -> Unit,
+    cloudLabel: String,
+    cloudDim: Boolean,
+    showSignIn: Boolean,
+    onCloud: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier.fillMaxSize()) {
@@ -81,7 +85,16 @@ fun HallScreen(
                 lineHeight = 26.sp,
                 textAlign = TextAlign.Center,
             )
-            CloudChip("Local only")
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 4.dp),
+            ) {
+                CloudChip(cloudLabel, dim = cloudDim, onClick = onCloud)
+                if (showSignIn) {
+                    GhostButton("Sign in", onClick = onCloud)
+                }
+            }
             Spacer(Modifier.height(22.dp))
             BoxWithConstraints(Modifier.fillMaxWidth()) {
                 val twoCol = maxWidth >= 560.dp

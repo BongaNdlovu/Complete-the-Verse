@@ -42,7 +42,10 @@ import app.completetheverse.ui.theme.CtvFonts
 @Composable
 fun SettingsScreen(
     settings: CtvSettings,
+    scholarShort: String?,
+    scholarHint: String,
     onChange: (CtvSettings) -> Unit,
+    onChangeAvatar: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -84,6 +87,15 @@ fun SettingsScreen(
             Column(
                 modifier = Modifier.widthIn(max = 640.dp).fillMaxWidth(),
             ) {
+                SetRow(
+                    label = "Avatar",
+                    hint = scholarHint,
+                ) {
+                    GhostButton(
+                        text = scholarShort?.let { "Change · $it" } ?: "Choose avatar",
+                        onClick = onChangeAvatar,
+                    )
+                }
                 SetRow(
                     label = "Visual quality",
                     hint = "Choose the effects profile that best matches this device.",
