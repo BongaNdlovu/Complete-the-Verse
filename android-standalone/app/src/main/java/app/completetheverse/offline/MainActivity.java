@@ -1,16 +1,16 @@
 package app.completetheverse.offline;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewClientCompat;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     private WebView web;
 
     @SuppressLint("SetJavaScriptEnabled")
