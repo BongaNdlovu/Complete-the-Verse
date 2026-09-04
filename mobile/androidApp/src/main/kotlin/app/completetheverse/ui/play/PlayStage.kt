@@ -3,6 +3,7 @@ package app.completetheverse.ui.play
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -391,6 +393,14 @@ private fun PlayBody(
                 fontFamily = CtvFonts.body,
                 fontStyle = FontStyle.Italic,
                 fontSize = 16.sp,
+                modifier = Modifier.padding(bottom = 4.dp),
+            )
+            Text(
+                text = "Out of ${claim.b} — KJV",
+                color = CtvColors.goldDim,
+                fontFamily = CtvFonts.body,
+                fontStyle = FontStyle.Italic,
+                fontSize = 15.sp,
                 modifier = Modifier.padding(bottom = 12.dp),
             )
             Text(
@@ -769,7 +779,7 @@ private fun ClozeBoardUi(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            board.bank.distinct().forEach { word ->
+            board.bank.forEach { word ->
                 val spent = !board.canSpend(word)
                 Text(
                     text = word,
@@ -927,7 +937,12 @@ private fun PauseOverlay(
     Box(
         Modifier
             .fillMaxSize()
-            .background(Color(0xE604040A)),
+            .background(Color(0xE604040A))
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = {},
+            ),
         contentAlignment = Alignment.Center,
     ) {
         HallPanel(cut = 14.dp, modifier = Modifier.widthIn(max = 420.dp).fillMaxWidth().padding(horizontal = 20.dp)) {

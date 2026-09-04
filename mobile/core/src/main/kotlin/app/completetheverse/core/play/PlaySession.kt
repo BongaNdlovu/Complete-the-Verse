@@ -89,6 +89,8 @@ class PlaySession private constructor(private val config: PlayConfig) {
         private set
     var overdriveOffered: Boolean = false
         private set
+    var pendingOverdrive: Boolean = false
+        private set
     var boardTick: Int = 0
         private set
     var questionToken: Int = 0
@@ -165,7 +167,7 @@ class PlaySession private constructor(private val config: PlayConfig) {
     fun stay() {
         confirmAbandon = false
         if (phase == PlayPhase.ConfirmAbandon) {
-            phase = if (running && !locked) PlayPhase.Playing else PlayPhase.Paused
+            phase = PlayPhase.Playing
         }
     }
 
@@ -180,14 +182,21 @@ class PlaySession private constructor(private val config: PlayConfig) {
         finish("abandon")
     }
 
+    private fun canAnswer(timedOut: Boolean = false): Boolean {
+        if (locked) return false
+        if (phase != PlayPhase.Playing) return false
+        if (!running && !timedOut) return false
+        return true
+    }
+
     fun selectChoice(choice: String) {
-        if (locked || !running) return
+        if (!canAnswer()) return
         selected = choice
     }
 
     fun submitChoice(choice: String, timedOut: Boolean = false) {
         val q = current ?: return
-        if (locked || (!running && !timedOut)) return
+        if (!canAnswer(timedOut)) return
         selected = choice
         val ok = when (q.mechanic) {
             Mechanic.Mcq -> q.verse != null && PlayMechanics.choiceMatches(choice, q.verse.a)
@@ -202,7 +211,7 @@ class PlaySession private constructor(private val config: PlayConfig) {
 
     fun submitAssemble(timedOut: Boolean = false) {
         val q = current ?: return
-        if (locked || (!running && !timedOut)) return
+        if (!canAnswer(timedOut)) return
         val board = assemble
         val ok = !timedOut && board != null && q.verse != null &&
             Assemble.isFilled(board) && PlayMechanics.assembleMatches(board, q.verse.a)
@@ -211,7 +220,7 @@ class PlaySession private constructor(private val config: PlayConfig) {
 
     fun pickCloze(word: String): Boolean {
         val board = cloze ?: return false
-        if (locked || !running) return false
+        if (!canAnswer()) return false
         if (!board.pick(word)) return false
         boardTick++
         if (board.isComplete) {
@@ -222,7 +231,7 @@ class PlaySession private constructor(private val config: PlayConfig) {
 
     fun unfillCloze(slot: Int): Boolean {
         val board = cloze ?: return false
-        if (locked || !running) return false
+        if (!canAnswer()) return false
         if (!board.unfill(slot)) return false
         boardTick++
         return true
@@ -231,16 +240,17 @@ class PlaySession private constructor(private val config: PlayConfig) {
     fun submitTrueFalse(pickedTrue: Boolean, timedOut: Boolean = false) {
         val q = current ?: return
         if (q.mechanic != Mechanic.TrueFalse) return
-        if (locked || (!running && !timedOut)) return
-        val c = q.claim ?: claim ?: return
+        if (!canAnswer(timedOut)) return
+        val c = q.claim ?: claim
         tfPickedTrue = pickedTrue
-        val ok = PlayMechanics.trueFalseCorrect(c, pickedTrue, timedOut)
+        val ok = c != null && PlayMechanics.trueFalseCorrect(c, pickedTrue, timedOut)
         resolve(ok, timedOut, recordVerse = false)
     }
 
     fun fadeDone() {
         val q = current ?: return
-        if (q.mechanic != Mechanic.Fade || fadePhase != FadePhase.Memorize || locked || !running) return
+        if (q.mechanic != Mechanic.Fade || fadePhase != FadePhase.Memorize) return
+        if (!canAnswer()) return
         beginFadeReconstruct(q)
     }
 
@@ -267,7 +277,8 @@ class PlaySession private constructor(private val config: PlayConfig) {
     }
 
     fun resolveOverdrive(choice: OverdriveChoice) {
-        if (phase != PlayPhase.Overdrive) return
+        if (phase != PlayPhase.Overdrive && !pendingOverdrive) return
+        pendingOverdrive = false
         if (choice == OverdriveChoice.Bank) {
             score += overdriveBankAmount()
             streak = 0
@@ -278,8 +289,15 @@ class PlaySession private constructor(private val config: PlayConfig) {
         advance()
     }
 
+    fun offerOverdrive() {
+        if (!pendingOverdrive || phase == PlayPhase.Results) return
+        pendingOverdrive = false
+        phase = PlayPhase.Overdrive
+    }
+
     fun advance() {
         if (phase == PlayPhase.Results) return
+        if (phase == PlayPhase.Paused || phase == PlayPhase.ConfirmAbandon) return
         if (useLives && lives <= 0) {
             finish("death")
             return
@@ -308,10 +326,9 @@ class PlaySession private constructor(private val config: PlayConfig) {
         locked = false
         lastCorrect = null
         running = true
-        durationMs = clockPolicy.durationMs(
+        durationMs = clockDuration(
             mechanic = Mechanic.Fade,
             typed = false,
-            streak = streak,
             fadePhase = FadePhase.Reconstruct,
             clockBaseMs = q.clockBaseMs,
         )
@@ -357,7 +374,7 @@ class PlaySession private constructor(private val config: PlayConfig) {
         }
         if (ok && shouldOfferOverdrive()) {
             overdriveOffered = true
-            phase = PlayPhase.Overdrive
+            pendingOverdrive = true
             return
         }
         phase = PlayPhase.Playing
@@ -413,14 +430,15 @@ class PlaySession private constructor(private val config: PlayConfig) {
                         rng = rng,
                     )
                     claim = picked?.first
-                    if (picked != null) usedTf.add(picked.second)
+                    if (picked != null) {
+                        PlayMechanics.rememberUsedClaim(usedTf, picked.second, config.tfClaims)
+                    }
                 }
             }
         }
-        durationMs = clockPolicy.durationMs(
+        durationMs = clockDuration(
             mechanic = q.mechanic,
             typed = q.typed,
-            streak = streak,
             fadePhase = fadePhase,
             clockBaseMs = q.clockBaseMs,
         )
@@ -498,6 +516,20 @@ class PlaySession private constructor(private val config: PlayConfig) {
         out["life"] = JsonObject(life)
         return JsonObject(out)
     }
+
+    private fun clockDuration(
+        mechanic: Mechanic,
+        typed: Boolean,
+        fadePhase: FadePhase?,
+        clockBaseMs: Long?,
+    ): Long = clockPolicy.durationMs(
+        mechanic = mechanic,
+        typed = typed,
+        streak = streak,
+        fadePhase = fadePhase,
+        clockBaseMs = clockBaseMs,
+        diffTime = if (clockPolicy.wall) 1.0 else config.diff.time,
+    )
 
     private fun jsonInt(el: kotlinx.serialization.json.JsonElement?): Int {
         val p = el as? JsonPrimitive ?: return 0

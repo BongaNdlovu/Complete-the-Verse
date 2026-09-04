@@ -115,7 +115,7 @@ class PlayViewModel : ViewModel() {
         if (s.phase == PlayPhase.Playing && s.running && !s.locked && remainingMs <= 0L) {
             s.onTimeout(SystemClock.elapsedRealtime())
             publish()
-            if (s.locked) scheduleAdvance(s)
+            if (s.locked) afterLock(s)
         }
     }
 
@@ -174,7 +174,7 @@ class PlayViewModel : ViewModel() {
         if (s.locked) return
         s.submitChoice(choice)
         publish()
-        if (s.phase == PlayPhase.Overdrive) armOverdriveTimeout(s) else scheduleAdvance(s)
+        afterLock(s)
     }
 
     fun submitAssemble() {
@@ -182,7 +182,7 @@ class PlayViewModel : ViewModel() {
         if (s.locked) return
         s.submitAssemble()
         publish()
-        if (s.phase == PlayPhase.Overdrive) armOverdriveTimeout(s) else scheduleAdvance(s)
+        afterLock(s)
     }
 
     fun pickCloze(word: String) {
@@ -190,9 +190,7 @@ class PlayViewModel : ViewModel() {
         if (s.locked) return
         s.pickCloze(word)
         publish()
-        if (s.locked) {
-            if (s.phase == PlayPhase.Overdrive) armOverdriveTimeout(s) else scheduleAdvance(s)
-        }
+        if (s.locked) afterLock(s)
     }
 
     fun unfillCloze(slot: Int) {
@@ -205,7 +203,7 @@ class PlayViewModel : ViewModel() {
         if (s.locked) return
         s.submitTrueFalse(pickedTrue)
         publish()
-        if (s.phase == PlayPhase.Overdrive) armOverdriveTimeout(s) else scheduleAdvance(s)
+        afterLock(s)
     }
 
     fun fadeDone() {
@@ -256,6 +254,10 @@ class PlayViewModel : ViewModel() {
         ready = false
     }
 
+    private fun afterLock(s: PlaySession) {
+        if (s.pendingOverdrive) armOverdriveHold(s) else scheduleAdvance(s)
+    }
+
     private fun scheduleAdvance(s: PlaySession) {
         if (!s.locked || s.phase == PlayPhase.Overdrive || s.phase == PlayPhase.Results) return
         val token = s.questionToken
@@ -264,10 +266,42 @@ class PlayViewModel : ViewModel() {
         val hold = if (s.lastCorrect == true) PlayClock.HOLD_CORRECT_MS else PlayClock.HOLD_WRONG_MS
         advanceJob = viewModelScope.launch {
             delay(hold)
-            if (gen != sessionGeneration || session !== s || s.questionToken != token) return@launch
-            if (s.phase == PlayPhase.Overdrive || s.phase == PlayPhase.Results) return@launch
+            while (true) {
+                if (gen != sessionGeneration || session !== s || s.questionToken != token) return@launch
+                if (s.phase == PlayPhase.Overdrive || s.phase == PlayPhase.Results) return@launch
+                if (s.phase == PlayPhase.Paused || s.phase == PlayPhase.ConfirmAbandon || s.confirmAbandon) {
+                    delay(50)
+                    continue
+                }
+                break
+            }
+            if (s.pendingOverdrive) {
+                s.offerOverdrive()
+                publish()
+                armOverdriveTimeout(s)
+                return@launch
+            }
             s.advance()
             publish()
+        }
+    }
+
+    private fun armOverdriveHold(s: PlaySession) {
+        val token = s.questionToken
+        val gen = sessionGeneration
+        cancelAdvance()
+        advanceJob = viewModelScope.launch {
+            delay(PlayClock.HOLD_OVERDRIVE_MS)
+            if (gen != sessionGeneration || session !== s || s.questionToken != token) return@launch
+            while (s.phase == PlayPhase.Paused || s.phase == PlayPhase.ConfirmAbandon || s.confirmAbandon) {
+                delay(50)
+                if (gen != sessionGeneration || session !== s || s.questionToken != token) return@launch
+                if (s.phase == PlayPhase.Results) return@launch
+            }
+            if (!s.pendingOverdrive) return@launch
+            s.offerOverdrive()
+            publish()
+            armOverdriveTimeout(s)
         }
     }
 

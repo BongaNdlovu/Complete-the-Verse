@@ -102,6 +102,10 @@ class PlaySessionTest {
         assertEquals(PlayPhase.Paused, session.phase)
         clock.t = 20_000L
         assertEquals(26_000L, session.remainingMs())
+        session.submitChoice(verse().a)
+        assertEquals(PlayPhase.Paused, session.phase)
+        assertEquals(0, session.attempts)
+        assertEquals(26_000L, session.remainingMs())
         session.resume()
         assertEquals(PlayPhase.Playing, session.phase)
         assertEquals(26_000L, session.remainingMs())
@@ -141,6 +145,8 @@ class PlaySessionTest {
             }
         }
         assertEquals(12, session.streak)
+        assertTrue(session.pendingOverdrive)
+        session.offerOverdrive()
         assertEquals(PlayPhase.Overdrive, session.phase)
         session.resolveOverdrive(OverdriveChoice.Ride)
         assertTrue(session.overdriveRide)
@@ -165,6 +171,8 @@ class PlaySessionTest {
         val before = session.score
         val bank = session.overdriveBankAmount()
         assertEquals(720, bank)
+        assertTrue(session.pendingOverdrive)
+        session.offerOverdrive()
         session.resolveOverdrive(OverdriveChoice.Bank)
         assertEquals(before + 720, session.score)
         assertEquals(0, session.streak)
@@ -336,5 +344,42 @@ class PlaySessionTest {
         assertEquals("1", merged["life"]!!.jsonObject["attempts"]!!.jsonPrimitive.content)
         assertEquals("1", merged["life"]!!.jsonObject["correct"]!!.jsonPrimitive.content)
         assertTrue(merged["best"]!!.jsonObject["play"]!!.jsonPrimitive.content.toInt() > 0)
+    }
+
+    @Test
+    fun playPolicyUsesDiffTimeFromConfig() {
+        val clock = Clock(0L)
+        val session = PlaySession.start(
+            PlayConfig(
+                questions = listOf(PlayQuestion(Mechanic.Mcq, verse())),
+                clockPolicy = ClockPolicy.Play,
+                lives = 2,
+                diff = Diffs.watchman,
+                rng = { 0.1 },
+                nowMs = { clock.now() },
+            ),
+        )
+        val scaled = kotlin.math.round(PlayClock.WALL_PICK_MS * Diffs.watchman.time).toLong()
+        assertEquals(PlayClock.playClockMs(scaled, streak = 0, typed = false), session.durationMs)
+    }
+
+    @Test
+    fun trueFalseWithoutClaimTimesOutAsAMiss() {
+        val clock = Clock(0L)
+        val session = start(
+            questions = listOf(PlayQuestion(Mechanic.TrueFalse)),
+            clock = clock,
+            lives = 2,
+        )
+        assertEquals(null, session.claim)
+        assertEquals(PlayPhase.Playing, session.phase)
+        clock.t = session.durationMs
+        assertTrue(session.onTimeout())
+        assertEquals(false, session.lastCorrect)
+        assertTrue(session.locked)
+        assertEquals(1, session.attempts)
+        assertEquals(1, session.lives)
+        session.advance()
+        assertEquals("complete", session.result!!.reason)
     }
 }

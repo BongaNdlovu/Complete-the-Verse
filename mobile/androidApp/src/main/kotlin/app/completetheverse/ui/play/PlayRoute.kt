@@ -1,8 +1,11 @@
 package app.completetheverse.ui.play
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.completetheverse.core.assemble.Assemble
 import app.completetheverse.core.bank.TfClaim
@@ -15,6 +18,7 @@ import app.completetheverse.core.play.OverdriveChoice
 import app.completetheverse.core.play.PlayPhase
 import app.completetheverse.core.play.PlayQuestion
 import app.completetheverse.save.SaveCoordinator
+import app.completetheverse.ui.components.HallBackdrop
 import kotlinx.coroutines.delay
 
 @Composable
@@ -30,23 +34,22 @@ fun PlayRoute(
     siteVerses: List<Verse> = emptyList(),
     tfClaims: List<TfClaim> = emptyList(),
     title: String = "The Record",
-    viewModel: PlayViewModel = viewModel(),
+    viewModel: PlayViewModel = viewModel(key = mode),
 ) {
     LaunchedEffect(questions, clockPolicy, lives, mode) {
-        if (questions.isNotEmpty() && !viewModel.ready) {
-            viewModel.begin(
-                questions = questions,
-                clockPolicy = clockPolicy,
-                lives = lives,
-                saves = saves,
-                mode = mode,
-                diff = diff,
-                verses = verses,
-                siteVerses = siteVerses,
-                tfClaims = tfClaims,
-                title = title,
-            )
-        }
+        if (questions.isEmpty()) return@LaunchedEffect
+        viewModel.begin(
+            questions = questions,
+            clockPolicy = clockPolicy,
+            lives = lives,
+            saves = saves,
+            mode = mode,
+            diff = diff,
+            verses = verses,
+            siteVerses = siteVerses,
+            tfClaims = tfClaims,
+            title = title,
+        )
     }
 
     LaunchedEffect(viewModel.questionToken, viewModel.phase, viewModel.ready) {
@@ -66,13 +69,19 @@ fun PlayRoute(
 
     BackHandler {
         when {
+            !viewModel.ready -> onExit()
             viewModel.confirmAbandon -> viewModel.stay()
             viewModel.phase == PlayPhase.Overdrive -> viewModel.resolveOverdrive(OverdriveChoice.Bank)
             viewModel.phase == PlayPhase.Paused -> viewModel.resume()
             viewModel.phase == PlayPhase.Results -> leave()
-            viewModel.phase == PlayPhase.Playing && viewModel.ready && !viewModel.locked -> viewModel.pause()
-            else -> leave()
+            viewModel.phase == PlayPhase.Playing && !viewModel.locked -> viewModel.pause()
+            else -> viewModel.requestAbandon()
         }
+    }
+
+    if (!viewModel.ready && viewModel.phase != PlayPhase.Results) {
+        Box(Modifier.fillMaxSize()) { HallBackdrop() }
+        return
     }
 
     PlayStage(

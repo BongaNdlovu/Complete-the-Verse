@@ -283,6 +283,17 @@ object PlayMechanics {
     fun trueFalseCorrect(claim: TfClaim, pickedTrue: Boolean, timedOut: Boolean): Boolean =
         !timedOut && pickedTrue == claim.v
 
+    fun tfReuseWindow(claims: List<TfClaim>): Int {
+        val falseCount = claims.count { !it.v }
+        return maxOf(1, minOf(40, falseCount - 8))
+    }
+
+    fun rememberUsedClaim(used: MutableList<Int>, index: Int, claims: List<TfClaim>) {
+        used.add(index)
+        val window = tfReuseWindow(claims)
+        while (used.size > window) used.removeAt(0)
+    }
+
     fun pickClaim(
         claims: List<TfClaim>,
         used: List<Int> = emptyList(),
@@ -293,8 +304,6 @@ object PlayMechanics {
     ): Pair<TfClaim, Int>? {
         if (claims.isEmpty()) return null
         val r = rng ?: { Random.nextDouble() }
-        val falseCount = claims.count { !it.v }
-        val window = maxOf(1, minOf(40, falseCount - 8))
         var poolIdx = claims.indices.filter { it !in used }
         if (poolIdx.isEmpty()) poolIdx = claims.indices.toList()
         val pool = poolIdx.map { claims[it] }

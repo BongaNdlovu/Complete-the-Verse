@@ -188,6 +188,27 @@ class PlayMechanicsTest {
     }
 
     @Test
+    fun pickClaimReuseWindowDropsOldestUsed() {
+        val claims = (0 until 20).map { i ->
+            TfClaim(
+                b = "Genesis",
+                s = "Claim $i.",
+                t = 1,
+                v = i % 2 == 0,
+                why = "why (Genesis 1:${i + 1})",
+            )
+        }
+        val window = PlayMechanics.tfReuseWindow(claims)
+        assertEquals(2, window)
+        val used = mutableListOf<Int>()
+        repeat(6) { n ->
+            PlayMechanics.rememberUsedClaim(used, n, claims)
+        }
+        assertEquals(window, used.size)
+        assertEquals(listOf(4, 5), used)
+    }
+
+    @Test
     fun mcqStillShufflesAnswerPlusThreeDistractors() {
         val verse = Verse(
             id = "v",

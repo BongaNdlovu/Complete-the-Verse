@@ -15,9 +15,9 @@ object PlayClock {
     val MOMENTUM_STEPS = listOf(3, 5, 8, 12)
     const val OVERDRIVE_TIMEOUT_MS = 9_000L
     const val HOLD_CORRECT_MS = 1_500L
-    const val HOLD_WRONG_MS = 2_500L
-    const val HOLD_OVERDRIVE_MS = 700L
     const val JUDGE_MS = 2_500L
+    const val HOLD_WRONG_MS = JUDGE_MS
+    const val HOLD_OVERDRIVE_MS = 700L
 
     fun playClockMs(
         ms: Long,
@@ -76,6 +76,8 @@ data class ClockPolicy(
     val pickPadMs: Long = PlayClock.PICK_PAD_MS,
     val pace: Double = PlayClock.PACE,
     val flatAddMs: Long = PlayClock.FLAT_ADD_MS,
+    val skipPad: Boolean = false,
+    val diffTime: Double = 1.0,
 ) {
     fun durationMs(
         mechanic: Mechanic,
@@ -83,6 +85,7 @@ data class ClockPolicy(
         streak: Int,
         fadePhase: FadePhase? = null,
         clockBaseMs: Long? = null,
+        diffTime: Double = this.diffTime,
     ): Long {
         val baseWall = when {
             mechanic == Mechanic.Fade && fadePhase == FadePhase.Reconstruct -> fadeReconstructMs
@@ -90,13 +93,16 @@ data class ClockPolicy(
             typed || mechanic == Mechanic.Assemble -> typedMs
             else -> pickMs
         }
+        val base = clockBaseMs ?: baseWall
         val raw = if (wall) {
-            clockBaseMs ?: baseWall
+            base
         } else {
+            val scaled = (base * diffTime).roundToInt().toLong()
             PlayClock.playClockMs(
-                ms = clockBaseMs ?: baseWall,
+                ms = scaled,
                 streak = streak,
                 typed = typed || mechanic == Mechanic.Assemble,
+                skipPad = skipPad,
                 pickPadMs = pickPadMs,
                 pace = pace,
                 flatAddMs = flatAddMs,

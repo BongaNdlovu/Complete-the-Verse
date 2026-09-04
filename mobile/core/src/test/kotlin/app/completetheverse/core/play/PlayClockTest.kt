@@ -16,6 +16,8 @@ class PlayClockTest {
         assertEquals(1.2, PlayClock.PACE)
         assertEquals(5_000L, PlayClock.FLAT_ADD_MS)
         assertEquals(listOf(3, 5, 8, 12), PlayClock.MOMENTUM_STEPS)
+        assertEquals(PlayClock.JUDGE_MS, PlayClock.HOLD_WRONG_MS)
+        assertEquals(700L, PlayClock.HOLD_OVERDRIVE_MS)
     }
 
     @Test
@@ -77,6 +79,20 @@ class PlayClockTest {
         assertEquals(PlayClock.playClockMs(30_000L, streak = 0, typed = false), play)
         val tf = ClockPolicy.Wall.durationMs(Mechanic.TrueFalse, typed = false, streak = 0)
         assertEquals(19_500L, tf)
+    }
+
+    @Test
+    fun playPolicyAppliesDiffTimeAndSkipPad() {
+        val watchman = ClockPolicy.Play.durationMs(
+            Mechanic.Mcq,
+            typed = false,
+            streak = 0,
+            diffTime = Diffs.watchman.time,
+        )
+        val scaled = kotlin.math.round(30_000.0 * Diffs.watchman.time).toLong()
+        assertEquals(PlayClock.playClockMs(scaled, streak = 0, typed = false), watchman)
+        val blitz = ClockPolicy.Play.copy(skipPad = true).durationMs(Mechanic.Mcq, typed = false, streak = 0)
+        assertEquals(PlayClock.playClockMs(30_000L, streak = 0, typed = false, skipPad = true), blitz)
     }
 
     @Test
