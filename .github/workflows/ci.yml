@@ -31,3 +31,27 @@ jobs:
 
       - name: Run Complete Test Suite
         run: npm test
+
+  # Unsigned compile check for Wave A PRs; signed assembleRelease/bundleRelease is tags/workflow_dispatch in android.yml (forks lack keystore secrets).
+  android-native:
+    name: Native Android compile check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Assemble debug and test core
+        working-directory: mobile
+        run: |
+          chmod +x gradlew
+          ./gradlew :androidApp:assembleDebug :core:test
