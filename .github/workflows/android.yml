@@ -128,7 +128,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Signed native Play artifacts; unsigned PR compile check lives in ci.yml (forks lack keystore secrets).
   native:
     name: Signed androidApp APK and AAB
     runs-on: ubuntu-latest

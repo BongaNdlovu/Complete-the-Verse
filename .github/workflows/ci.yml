@@ -32,7 +32,7 @@ jobs:
       - name: Run Complete Test Suite
         run: npm test
 
-  # Unsigned compile check for Wave A PRs; signed assembleRelease/bundleRelease is tags/workflow_dispatch in android.yml (forks lack keystore secrets).
+  # No keystore secrets: fork PRs cannot run signed release.
   android-native:
     name: Native Android compile check
     runs-on: ubuntu-latest
