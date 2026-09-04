@@ -83,7 +83,10 @@ fun PilgrimageRoute(
                     tfClaims = tfClaims,
                     title = site.name,
                     wrapSave = viewModel.wrapSave(site.id, viewModel.playSiteVerses),
-                    onHall = onExit,
+                    onHall = {
+                        viewModel.leavePlay(saves)
+                        onExit()
+                    },
                     resultsPrimaryLabel = "Return to the road",
                     viewModel = playVm,
                 )
