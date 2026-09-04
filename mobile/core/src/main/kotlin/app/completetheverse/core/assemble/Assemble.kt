@@ -1,5 +1,6 @@
 package app.completetheverse.core.assemble
 
+import java.util.Locale
 import kotlin.math.floor
 import kotlin.random.Random
 
@@ -36,7 +37,7 @@ object Assemble {
         (s ?: "").trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
 
     fun keyOf(w: String?): String =
-        (w ?: "").lowercase().replace(Regex("[^a-z0-9']"), "")
+        (w ?: "").lowercase(Locale.ROOT).replace(Regex("[^a-z0-9']"), "")
 
     fun fakeCount(n: Int): Int = if (n <= 2) 2 else 3
 

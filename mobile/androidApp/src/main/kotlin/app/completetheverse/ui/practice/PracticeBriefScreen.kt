@@ -35,6 +35,9 @@ import app.completetheverse.ui.theme.CtvFonts
 @Composable
 fun PracticeBriefScreen(
     dueCount: Int,
+    versesReady: Boolean = true,
+    loadError: String? = null,
+    canBegin: Boolean = true,
     onBegin: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -95,15 +98,31 @@ fun PracticeBriefScreen(
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = if (dueCount <= 0) "Nothing due — new material." else "$dueCount due today",
-                color = CtvColors.goldDim,
+                text = when {
+                    !versesReady -> "Loading the bank…"
+                    loadError != null -> loadError
+                    dueCount <= 0 -> "Nothing due — new material."
+                    else -> "$dueCount due today"
+                },
+                color = if (loadError != null) CtvColors.bloodHot else CtvColors.goldDim,
                 fontFamily = CtvFonts.body,
                 fontStyle = FontStyle.Italic,
                 fontSize = 15.sp,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(28.dp))
-            GoldButton("Begin", onClick = onBegin)
+            GoldButton("Begin", onClick = { if (canBegin) onBegin() })
+            if (!canBegin) {
+                Text(
+                    text = if (!versesReady) "Wait for the bank." else "The drill cannot start.",
+                    color = CtvColors.parchDim,
+                    fontFamily = CtvFonts.body,
+                    fontStyle = FontStyle.Italic,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 12.dp),
+                )
+            }
             Spacer(Modifier.weight(1.2f))
         }
     }

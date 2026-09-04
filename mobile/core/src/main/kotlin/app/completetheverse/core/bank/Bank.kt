@@ -2,6 +2,7 @@ package app.completetheverse.core.bank
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.util.Locale
 
 @Serializable
 data class Verse(
@@ -56,7 +57,7 @@ object Bank {
 
     fun verseId(v: Verse): String {
         fun slug(s: String): String =
-            s.lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
+            s.lowercase(Locale.ROOT).replace(Regex("[^a-z0-9]+"), "-").trim('-')
         return slug(v.r) + "~" + slug(v.a).split("-").take(4).joinToString("-")
     }
 

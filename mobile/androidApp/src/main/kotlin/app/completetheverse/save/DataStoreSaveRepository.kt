@@ -8,7 +8,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import app.completetheverse.core.save.Save
 import app.completetheverse.core.save.SaveBlob
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 
 private val Context.ctvSaveStore: DataStore<Preferences> by preferencesDataStore(name = Save.SAVE_KEY)
 
@@ -29,8 +31,10 @@ class DataStoreSaveRepository(context: Context) {
     }
 
     suspend fun persist(save: SaveBlob) {
-        dataStore.edit { store ->
-            store[saveKey] = Save.stringify(save)
+        withContext(NonCancellable) {
+            dataStore.edit { store ->
+                store[saveKey] = Save.stringify(save)
+            }
         }
     }
 

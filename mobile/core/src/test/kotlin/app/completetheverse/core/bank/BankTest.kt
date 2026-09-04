@@ -3,9 +3,12 @@ package app.completetheverse.core.bank
 import app.completetheverse.core.practice.Practice
 import app.completetheverse.core.save.Save
 import app.completetheverse.core.srs.Srs
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class BankTest {
@@ -103,6 +106,12 @@ class PracticeTest {
         assertEquals("choice", card.lastMode)
         assertTrue(Practice.choiceMatches(verse.a, verse.a))
         assertFalse(Practice.choiceMatches("heavens and the earth", verse.a))
+        val book = recorded.save["books"]!!.jsonObject["Genesis"]!!.jsonObject
+        assertEquals("1", book["a"]!!.jsonPrimitive.content)
+        assertEquals("1", book["c"]!!.jsonPrimitive.content)
+        val row = recorded.save["verse"]!!.jsonObject[verse.id]!!.jsonObject
+        assertEquals("1", row["a"]!!.jsonPrimitive.content)
+        assertEquals("1", row["c"]!!.jsonPrimitive.content)
     }
 
     @Test
@@ -113,12 +122,35 @@ class PracticeTest {
             verse = verse,
             correct = false,
             timedOut = true,
-            fraction = 1.0,
+            fraction = null,
             today = 10,
             mode = "choice",
         )
         assertEquals(0, recorded.quality)
         assertEquals(0, recorded.card.reps)
         assertEquals(1, recorded.card.lapses)
+        assertNull(recorded.card.lastFraction)
+        val book = recorded.save["books"]!!.jsonObject["B"]!!.jsonObject
+        assertEquals("1", book["a"]!!.jsonPrimitive.content)
+        assertEquals(null, book["c"])
+    }
+
+    @Test
+    fun combineLocalSnapshotsKeepsInMemorySrsOverStaleDisk() {
+        val verse = Verse(id = "v1", p = "p", a = "the world", s = ".", d = listOf("the earth"), r = "R", b = "B", t = 1)
+        val recorded = Practice.applyAnswer(
+            save = Save.DEFAULT,
+            verse = verse,
+            correct = true,
+            timedOut = false,
+            fraction = 0.2,
+            today = 10,
+            mode = "choice",
+        )
+        val staleDisk = Save.DEFAULT
+        val merged = Save.combineLocalSnapshots(recorded.save, staleDisk)
+        val card = Srs.cardsFromSave(merged["srs"])[verse.id]
+        assertEquals(1, card!!.reps)
+        assertEquals("1", merged["verse"]!!.jsonObject[verse.id]!!.jsonObject["a"]!!.jsonPrimitive.content)
     }
 }

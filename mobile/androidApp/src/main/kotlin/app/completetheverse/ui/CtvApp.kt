@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.completetheverse.core.bank.Verse
-import app.completetheverse.save.DataStoreSaveRepository
+import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.components.HallToast
 import app.completetheverse.ui.components.QuitDialog
 import app.completetheverse.ui.hall.ComingSoonScreen
@@ -61,8 +61,10 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
 @Composable
 fun CtvApp(
     settingsStore: SettingsStore,
-    saveRepository: DataStoreSaveRepository,
+    saves: SaveCoordinator,
     verses: List<Verse>,
+    versesReady: Boolean,
+    verseError: String?,
     onQuit: () -> Unit,
 ) {
     var screen by rememberSaveable(stateSaver = CtvScreenSaver) {
@@ -108,7 +110,9 @@ fun CtvApp(
             )
             CtvScreen.Practice -> PracticeRoute(
                 verses = verses,
-                saveRepository = saveRepository,
+                versesReady = versesReady,
+                verseError = verseError,
+                saves = saves,
                 onExit = { screen = CtvScreen.Hall },
             )
             is CtvScreen.ComingSoon -> ComingSoonScreen(

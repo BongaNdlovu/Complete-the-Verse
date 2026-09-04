@@ -1,5 +1,6 @@
 package app.completetheverse.core.assemble
 
+import java.util.Locale
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -13,6 +14,17 @@ class AssembleTest {
         return {
             i = (i * 9301 + 49297) % 233280
             i / 233280.0
+        }
+    }
+
+    @Test
+    fun keyOfIsLocaleInvariant() {
+        val prev = Locale.getDefault()
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr"))
+            assertEquals("in", Assemble.keyOf("In"))
+        } finally {
+            Locale.setDefault(prev)
         }
     }
 

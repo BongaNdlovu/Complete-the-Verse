@@ -10,6 +10,7 @@ import app.completetheverse.core.srs.SrsCard
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.doubleOrNull
+import java.util.Locale
 
 object Practice {
     const val LENGTH = 15
@@ -54,8 +55,8 @@ object Practice {
 
     fun choiceMatches(choice: String, answer: String): Boolean {
         if (choice == answer) return true
-        val choiceNorm = choice.trim().replace(Regex("\\s+"), " ").lowercase()
-        val targetNorm = answer.trim().replace(Regex("\\s+"), " ").lowercase()
+        val choiceNorm = choice.trim().replace(Regex("\\s+"), " ").lowercase(Locale.ROOT)
+        val targetNorm = answer.trim().replace(Regex("\\s+"), " ").lowercase(Locale.ROOT)
         return choiceNorm.isNotEmpty() && choiceNorm == targetNorm
     }
 
@@ -98,7 +99,25 @@ object Practice {
         )
         var next = Srs.putCard(save, verse.id, card)
         next = bumpLife(next, correct)
+        next = recordVerse(next, verse, correct)
         return AnswerRecord(save = next, card = card, quality = quality, correct = correct)
+    }
+
+    private fun recordVerse(save: SaveBlob, verse: Verse, correct: Boolean): SaveBlob {
+        val books = ((save["books"] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
+        val book = ((books[verse.b] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
+        book["a"] = JsonPrimitive(jsonInt(book["a"]) + 1)
+        if (correct) book["c"] = JsonPrimitive(jsonInt(book["c"]) + 1)
+        books[verse.b] = JsonObject(book)
+        val verses = ((save["verse"] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
+        val row = ((verses[verse.id] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
+        row["a"] = JsonPrimitive(jsonInt(row["a"]) + 1)
+        if (correct) row["c"] = JsonPrimitive(jsonInt(row["c"]) + 1)
+        verses[verse.id] = JsonObject(row)
+        val out = save.toMutableMap()
+        out["books"] = JsonObject(books)
+        out["verse"] = JsonObject(verses)
+        return JsonObject(out)
     }
 
     private fun bumpLife(save: SaveBlob, correct: Boolean): SaveBlob {

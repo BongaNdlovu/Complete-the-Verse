@@ -6,15 +6,15 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.toArgb
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.completetheverse.cloud.SupabaseCloudClient
-import app.completetheverse.core.bank.Bank
-import app.completetheverse.save.DataStoreSaveRepository
+import app.completetheverse.save.AppSaveViewModel
 import app.completetheverse.ui.CtvApp
 import app.completetheverse.ui.settings.SettingsStore
 import app.completetheverse.ui.theme.CtvColors
 import app.completetheverse.ui.theme.CtvTheme
-import androidx.compose.runtime.remember
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,30 +25,27 @@ class MainActivity : ComponentActivity() {
         )
         super.onCreate(savedInstanceState)
         val settingsStore = SettingsStore(this)
-        val saveRepository = DataStoreSaveRepository(applicationContext)
-        val cloud = SupabaseCloudClient(applicationContext, saveRepository)
         setContent {
+            val saveVm: AppSaveViewModel = viewModel()
+            val cloud = remember(saveVm) {
+                SupabaseCloudClient(applicationContext, saveVm.saveRepository)
+            }
             CtvTheme {
-                val verses = remember {
-                    try {
-                        assets.open("content/verses.json").bufferedReader().use { Bank.parse(it.readText()).verses }
-                    } catch (_: Exception) {
-                        emptyList()
-                    }
-                }
                 LaunchedEffect(Unit) {
                     cloud.awaitInitialization()
-                    val local = saveRepository.load()
+                    val local = saveVm.saves.persistMerged()
                     if (cloud.isSignedIn()) {
-                        cloud.syncOnBootAndFlush(local)
-                    } else {
-                        saveRepository.persist(local)
+                        val synced = cloud.syncOnBoot(local)
+                        saveVm.saves.persistMerged(synced.save)
+                        if (synced.ok) cloud.flushBlitzBest(saveVm.saves.snapshot())
                     }
                 }
                 CtvApp(
                     settingsStore = settingsStore,
-                    saveRepository = saveRepository,
-                    verses = verses,
+                    saves = saveVm.saves,
+                    verses = saveVm.verses,
+                    versesReady = saveVm.versesReady,
+                    verseError = saveVm.verseError,
                     onQuit = {
                         finishAffinity()
                     },

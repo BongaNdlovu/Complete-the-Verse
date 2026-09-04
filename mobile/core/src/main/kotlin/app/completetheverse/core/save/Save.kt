@@ -40,6 +40,17 @@ object Save {
     /**
      * Recover corrupt JSON to DEFAULT_SAVE and stash the broken raw under [BROKEN_KEY].
      */
+    /**
+     * Union an in-memory snapshot with the latest disk blob (and an optional
+     * extra, e.g. a cloud pull) so a later persist cannot clobber cards that
+     * already landed in either side.
+     */
+    fun combineLocalSnapshots(memory: SaveBlob?, disk: SaveBlob, extra: SaveBlob? = null): SaveBlob {
+        var merged = if (memory == null) disk else MergeSave.merge(memory, disk)
+        if (extra != null) merged = MergeSave.merge(merged, extra)
+        return merged
+    }
+
     fun loadFromRaw(raw: String?): LoadResult {
         if (raw.isNullOrEmpty()) return LoadResult(clone(DEFAULT))
         return try {
