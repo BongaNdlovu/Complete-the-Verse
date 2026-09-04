@@ -53,6 +53,8 @@ class BankTest {
         assertEquals("Genesis", first.b)
         assertTrue(first.d.isNotEmpty())
         assertTrue(bank.verses.all { it.id.isNotEmpty() && it.p.isNotEmpty() && it.a.isNotEmpty() && it.r.isNotEmpty() })
+        assertTrue(bank.tfClaims.size >= 250)
+        assertTrue(bank.tfClaims.any { it.v } && bank.tfClaims.any { !it.v })
     }
 }
 

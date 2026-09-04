@@ -17,17 +17,28 @@ data class Verse(
     val typed: Boolean = false,
 )
 
+@Serializable
+data class TfClaim(
+    val b: String,
+    val s: String,
+    val t: Int = 1,
+    val v: Boolean,
+    val why: String = "",
+)
+
 data class VerseBank(
     val verses: List<Verse>,
     val byId: Map<String, Verse>,
     val byTier: Map<Int, List<Verse>>,
     val booksOrder: List<String>,
+    val tfClaims: List<TfClaim> = emptyList(),
 )
 
 @Serializable
 private data class VerseFile(
     val verses: List<Verse> = emptyList(),
     val booksOrder: List<String> = emptyList(),
+    val tfClaims: List<TfClaim> = emptyList(),
 )
 
 object Bank {
@@ -52,6 +63,7 @@ object Bank {
             byId = byId,
             byTier = byTier,
             booksOrder = file.booksOrder,
+            tfClaims = file.tfClaims,
         )
     }
 

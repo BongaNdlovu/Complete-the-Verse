@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.completetheverse.cloud.SupabaseCloudClient
 import app.completetheverse.core.bank.Bank
+import app.completetheverse.core.bank.TfClaim
 import app.completetheverse.core.bank.Verse
 import app.completetheverse.core.cloud.Cloud
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,8 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
     val cloud = SupabaseCloudClient(app, saveRepository)
 
     var verses by mutableStateOf<List<Verse>>(emptyList())
+        private set
+    var tfClaims by mutableStateOf<List<TfClaim>>(emptyList())
         private set
     var verseError by mutableStateOf<String?>(null)
         private set
@@ -78,17 +81,19 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
         }
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val list = app.assets.open("content/verses.json").bufferedReader().use {
-                    Bank.parse(it.readText()).verses
+                val bank = app.assets.open("content/verses.json").bufferedReader().use {
+                    Bank.parse(it.readText())
                 }
                 withContext(Dispatchers.Main) {
-                    verses = list
-                    verseError = if (list.isEmpty()) "The verse bank is empty." else null
+                    verses = bank.verses
+                    tfClaims = bank.tfClaims
+                    verseError = if (bank.verses.isEmpty()) "The verse bank is empty." else null
                     versesReady = true
                 }
             } catch (_: Exception) {
                 withContext(Dispatchers.Main) {
                     verses = emptyList()
+                    tfClaims = emptyList()
                     verseError = "Could not load the verse bank."
                     versesReady = true
                 }

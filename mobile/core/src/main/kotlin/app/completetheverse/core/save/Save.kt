@@ -42,15 +42,15 @@ object Save {
 
     /**
      * Union an in-memory snapshot with the latest disk blob (and an optional
-     * extra, e.g. a cloud pull). Overlay SRS last-writer-wins vs **disk** only so
-     * a just-graded lapse beats a stale local card; a cloud [extra] then uses
-     * [MergeSave.merge] / `mergeSrs` with no second overlay.
+     * extra, e.g. a cloud pull). Overlay SRS/run stats last-writer-wins vs **disk**
+     * only so a just-graded local write beats stale disk; a cloud [extra] then
+     * uses [MergeSave.merge] / `mergeSrs` with no second overlay.
      */
     fun combineLocalSnapshots(memory: SaveBlob?, disk: SaveBlob, extra: SaveBlob? = null): SaveBlob {
         val local = if (memory == null) {
             disk
         } else {
-            overlaySuccessorSrs(MergeSave.merge(memory, disk), memory)
+            overlaySuccessorLocal(MergeSave.merge(memory, disk), memory)
         }
         if (extra == null) return local
         return MergeSave.merge(local, extra)
@@ -64,6 +64,22 @@ object Save {
         srs.putAll(successorSrs)
         val out = base.toMutableMap()
         out["srs"] = JsonObject(srs)
+        return JsonObject(out)
+    }
+
+    /**
+     * Last-writer overlay for a just-graded local blob. SRS plus run counters
+     * (life/best/runs) come from [successor]; do not reuse mergeSrs higher-reps.
+     */
+    fun overlaySuccessorLocal(base: SaveBlob, successor: SaveBlob): SaveBlob {
+        val out = overlaySuccessorSrs(base, successor).toMutableMap()
+        successor["life"]?.let { out["life"] = it }
+        successor["best"]?.let { out["best"] = it }
+        successor["runs"]?.let { out["runs"] = it }
+        successor["books"]?.let { out["books"] = it }
+        successor["verse"]?.let { out["verse"] = it }
+        successor["xp"]?.let { out["xp"] = it }
+        successor["oil"]?.let { out["oil"] = it }
         return JsonObject(out)
     }
 
