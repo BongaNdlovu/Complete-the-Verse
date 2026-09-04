@@ -17,6 +17,7 @@ import app.completetheverse.core.play.Mechanic
 import app.completetheverse.core.play.OverdriveChoice
 import app.completetheverse.core.play.PlayPhase
 import app.completetheverse.core.play.PlayQuestion
+import app.completetheverse.core.play.PlayResult
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.components.HallBackdrop
 import kotlinx.coroutines.delay
@@ -34,9 +35,12 @@ fun PlayRoute(
     siteVerses: List<Verse> = emptyList(),
     tfClaims: List<TfClaim> = emptyList(),
     title: String = "The Record",
+    teamStart: String = "white",
+    todayKey: String = "",
+    onResult: (PlayResult) -> Unit = {},
     viewModel: PlayViewModel = viewModel(key = mode),
 ) {
-    LaunchedEffect(questions, clockPolicy, lives, mode) {
+    LaunchedEffect(questions, clockPolicy, lives, mode, teamStart, todayKey) {
         if (questions.isEmpty()) return@LaunchedEffect
         viewModel.begin(
             questions = questions,
@@ -49,7 +53,14 @@ fun PlayRoute(
             siteVerses = siteVerses,
             tfClaims = tfClaims,
             title = title,
+            teamStart = teamStart,
+            todayKey = todayKey,
         )
+    }
+
+    LaunchedEffect(viewModel.result) {
+        val result = viewModel.result ?: return@LaunchedEffect
+        onResult(result)
     }
 
     LaunchedEffect(viewModel.questionToken, viewModel.phase, viewModel.ready) {
@@ -72,6 +83,7 @@ fun PlayRoute(
             !viewModel.ready -> onExit()
             viewModel.confirmAbandon -> viewModel.stay()
             viewModel.phase == PlayPhase.Overdrive -> viewModel.resolveOverdrive(OverdriveChoice.Bank)
+            viewModel.phase == PlayPhase.Handoff -> viewModel.requestAbandon()
             viewModel.phase == PlayPhase.Paused -> viewModel.resume()
             viewModel.phase == PlayPhase.Results -> leave()
             viewModel.phase == PlayPhase.Playing && !viewModel.locked -> viewModel.pause()
@@ -86,6 +98,7 @@ fun PlayRoute(
 
     PlayStage(
         title = viewModel.title,
+        mode = mode,
         mechanic = viewModel.mechanic,
         verse = viewModel.verse,
         claim = viewModel.claim,
@@ -114,6 +127,7 @@ fun PlayRoute(
         confirmAbandon = viewModel.confirmAbandon,
         overdriveBank = viewModel.overdriveBankAmount(),
         result = viewModel.result,
+        teamSide = viewModel.teamSide,
         onChoice = { choice ->
             if (viewModel.locked) return@PlayStage
             when (viewModel.mechanic) {
@@ -138,6 +152,7 @@ fun PlayRoute(
         onStay = { viewModel.stay() },
         onConfirmAbandon = { leave() },
         onOverdrive = { viewModel.resolveOverdrive(it) },
+        onHandoffContinue = { viewModel.continueHandoff() },
         onHall = { leave() },
     )
 }

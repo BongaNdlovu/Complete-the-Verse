@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.completetheverse.core.bank.TfClaim
 import app.completetheverse.core.bank.Verse
 import app.completetheverse.core.characters.Scholars
 import app.completetheverse.core.cloud.Cloud
@@ -26,8 +27,10 @@ import app.completetheverse.ui.components.HallToast
 import app.completetheverse.ui.components.QuitDialog
 import app.completetheverse.ui.hall.ComingSoonScreen
 import app.completetheverse.ui.hall.HallScreen
+import app.completetheverse.ui.hall.PLAYABLE_MODE_KEYS
 import app.completetheverse.ui.intro.BootSplash
 import app.completetheverse.ui.intro.IntroScreen
+import app.completetheverse.ui.play.ModeRoute
 import app.completetheverse.ui.practice.PracticeRoute
 import app.completetheverse.ui.profile.CharacterPickScreen
 import app.completetheverse.ui.settings.SettingsScreen
@@ -43,6 +46,7 @@ private sealed interface CtvScreen {
     data object Hall : CtvScreen
     data object Settings : CtvScreen
     data object Practice : CtvScreen
+    data class Mode(val key: String) : CtvScreen
     data class ComingSoon(val kick: String, val title: String) : CtvScreen
 }
 
@@ -56,6 +60,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             CtvScreen.Hall -> "hall"
             CtvScreen.Settings -> "settings"
             CtvScreen.Practice -> "practice"
+            is CtvScreen.Mode -> "mode\u001f${screen.key}"
             is CtvScreen.ComingSoon -> "soon\u001f${screen.kick}\u001f${screen.title}"
         }
     },
@@ -69,6 +74,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             "signin" -> CtvScreen.SignIn
             "settings" -> CtvScreen.Settings
             "practice" -> CtvScreen.Practice
+            "mode" -> CtvScreen.Mode(parts.getOrElse(1) { "trial" })
             "soon" -> CtvScreen.ComingSoon(
                 parts.getOrElse(1) { "" },
                 parts.getOrElse(2) { "" },
@@ -95,12 +101,14 @@ fun CtvApp(
     verses: List<Verse>,
     versesReady: Boolean,
     verseError: String?,
+    tfClaims: List<TfClaim> = emptyList(),
     saveGeneration: Int,
     cloudUi: CloudUi,
     onSendCode: (String) -> Unit,
     onVerify: (email: String, otp: String) -> Unit,
     onSignOut: () -> Unit,
     onQuit: () -> Unit,
+    onBlitzScore: (SaveBlob) -> Unit = {},
 ) {
     var screen by rememberSaveable(stateSaver = CtvScreenSaver) {
         mutableStateOf<CtvScreen>(CtvScreen.Boot)
@@ -209,6 +217,7 @@ fun CtvApp(
                     when {
                         mode.incoming -> toast = "${mode.name} is incoming."
                         mode.key == "practice" -> screen = CtvScreen.Practice
+                        mode.key in PLAYABLE_MODE_KEYS -> screen = CtvScreen.Mode(mode.key)
                         else -> screen = CtvScreen.ComingSoon(mode.kick, mode.name)
                     }
                 },
@@ -245,6 +254,17 @@ fun CtvApp(
                 saveGeneration = saveGeneration,
                 saves = saves,
                 onExit = { screen = CtvScreen.Hall },
+            )
+            is CtvScreen.Mode -> ModeRoute(
+                modeKey = current.key,
+                verses = verses,
+                versesReady = versesReady,
+                verseError = verseError,
+                tfClaims = tfClaims,
+                saveGeneration = saveGeneration,
+                saves = saves,
+                onExit = { screen = CtvScreen.Hall },
+                onBlitzScore = onBlitzScore,
             )
             is CtvScreen.ComingSoon -> ComingSoonScreen(
                 kick = current.kick,

@@ -96,6 +96,22 @@ class PlayClockTest {
     }
 
     @Test
+    fun blitzAdjustAddsTwoOrBurnsFour() {
+        assertEquals(62_000L, PlayClock.blitzAdjustMs(60_000L, true))
+        assertEquals(56_000L, PlayClock.blitzAdjustMs(60_000L, false))
+        assertEquals(0L, PlayClock.blitzAdjustMs(3_000L, false))
+        assertEquals(60_000L, PlayClock.BLITZ_START_MS)
+    }
+
+    @Test
+    fun endlessClockShrinksThenFloors() {
+        assertEquals(11_820L, PlayClock.endlessBaseMs(1))
+        assertEquals(11_640L, PlayClock.endlessBaseMs(2))
+        assertEquals(4_200L, PlayClock.endlessBaseMs(44))
+        assertEquals(4_200L, PlayClock.endlessBaseMs(80))
+    }
+
+    @Test
     fun diffsMatchJs() {
         assertEquals(3, Diffs.disciple.lives)
         assertEquals(2, Diffs.watchman.lives)

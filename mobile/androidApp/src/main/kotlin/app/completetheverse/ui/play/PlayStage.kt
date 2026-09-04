@@ -73,6 +73,7 @@ private val LETTERS = listOf("A", "B", "C", "D")
 @Composable
 fun PlayStage(
     title: String,
+    mode: String = "play",
     mechanic: Mechanic?,
     verse: Verse?,
     claim: TfClaim?,
@@ -101,6 +102,7 @@ fun PlayStage(
     confirmAbandon: Boolean,
     overdriveBank: Int,
     result: PlayResult?,
+    teamSide: String = "white",
     onChoice: (String) -> Unit,
     onAssembleChange: () -> Unit,
     onLockAssemble: () -> Unit,
@@ -113,6 +115,7 @@ fun PlayStage(
     onStay: () -> Unit,
     onConfirmAbandon: () -> Unit,
     onOverdrive: (OverdriveChoice) -> Unit,
+    onHandoffContinue: () -> Unit = {},
     onHall: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -136,8 +139,7 @@ fun PlayStage(
         ) {
             PlayHeader(
                 title = title,
-                index = index,
-                total = total,
+                progress = headerProgress(mode, index, total, correctCount, teamSide),
                 sec = sec,
                 crit = crit,
                 frac = frac,
@@ -199,14 +201,26 @@ fun PlayStage(
                 onBank = { onOverdrive(OverdriveChoice.Bank) },
             )
         }
+        if (phase == PlayPhase.Handoff) {
+            HandoffOverlay(teamSide = teamSide, onReady = onHandoffContinue, onQuit = onAbandonRequest)
+        }
+    }
+}
+
+private fun headerProgress(mode: String, index: Int, total: Int, correct: Int, teamSide: String): String {
+    val local = (index % 5) + 1
+    return when (mode) {
+        "blitz" -> "Kept $correct"
+        "endless" -> "Q ${index + 1}"
+        "team" -> "${if (teamSide == "blue") "Blue" else "White"} · $local / 5"
+        else -> "Q ${index + 1} / $total"
     }
 }
 
 @Composable
 private fun PlayHeader(
     title: String,
-    index: Int,
-    total: Int,
+    progress: String,
     sec: Long,
     crit: Boolean,
     frac: Float,
@@ -234,7 +248,7 @@ private fun PlayHeader(
                     letterSpacing = 0.18.em,
                 )
                 Text(
-                    text = "Q ${index + 1} / $total",
+                    text = progress,
                     color = CtvColors.goldDim,
                     fontFamily = CtvFonts.ui,
                     fontSize = 11.sp,
@@ -1080,6 +1094,21 @@ private fun PlayResultsScreen(
                     StatRow("Accuracy", "$acc%")
                     StatRow("Time", String.format("%.1fs", seconds))
                     StatRow("Score", result.total.toString())
+                    if (result.teamWinner != null) {
+                        StatRow("White", "${result.teamWhiteKept}/5 · ${"%.1f".format(result.teamWhiteMs / 1000.0)}s")
+                        StatRow("Blue", "${result.teamBlueKept}/5 · ${"%.1f".format(result.teamBlueMs / 1000.0)}s")
+                        StatRow(
+                            "Result",
+                            when (result.teamWinner) {
+                                "white" -> "White by keeps, then time"
+                                "blue" -> "Blue by keeps, then time"
+                                else -> "Draw"
+                            },
+                        )
+                    }
+                    if (result.dailyRecorded) {
+                        StatRow("Daily", "Recorded")
+                    }
                     StatRow(
                         "Seals pending",
                         if (result.pendingSeals.isEmpty()) "None yet" else result.pendingSeals.joinToString(),
@@ -1089,6 +1118,42 @@ private fun PlayResultsScreen(
             Spacer(Modifier.height(28.dp))
             GoldButton("Return to the hall", onClick = onHall)
             Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun HandoffOverlay(
+    teamSide: String,
+    onReady: () -> Unit,
+    onQuit: () -> Unit,
+) {
+    val label = if (teamSide == "blue") "Blue" else "White"
+    val prior = if (teamSide == "blue") "White" else "Blue"
+    Dialog(onDismissRequest = {}) {
+        HallPanel(cut = 14.dp, modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Kick("$prior's five are in")
+                Spacer(Modifier.height(8.dp))
+                GoldHeadline("Pass the device")
+                Filigree()
+                Text(
+                    text = "Hand it to $label. They answer five different verses next.",
+                    color = CtvColors.parchDim,
+                    fontFamily = CtvFonts.body,
+                    fontStyle = FontStyle.Italic,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(22.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    GhostButton("Quit", onClick = onQuit)
+                    GoldButton("$label is ready", onClick = onReady, small = true)
+                }
+            }
         }
     }
 }

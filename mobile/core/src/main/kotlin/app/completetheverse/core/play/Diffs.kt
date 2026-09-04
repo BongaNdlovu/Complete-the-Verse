@@ -6,6 +6,7 @@ data class Diff(
     val lives: Int,
     val time: Double,
     val score: Double,
+    val desc: String = "",
 )
 
 object Diffs {
@@ -15,6 +16,7 @@ object Diffs {
         lives = 3,
         time = 1.0,
         score = 0.85,
+        desc = "Three lamps. The clock as it is written.",
     )
     val watchman = Diff(
         key = "watchman",
@@ -22,6 +24,7 @@ object Diffs {
         lives = 2,
         time = 0.85,
         score = 1.0,
+        desc = "Two lamps. The clock as the ordeal writes it.",
     )
 
     fun resolve(key: String?): Diff =

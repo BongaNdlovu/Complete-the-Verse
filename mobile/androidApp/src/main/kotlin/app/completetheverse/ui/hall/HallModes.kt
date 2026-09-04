@@ -86,6 +86,13 @@ val MODES = listOf(
         tagline = "15 verses · due first",
     ),
     HallMode(
+        key = "recall",
+        name = "Recall",
+        kick = "Assemble it from memory",
+        desc = "No options to choose between. The missing words sit in a bank with a few fakes. Place them in order.",
+        tagline = "12 verses · assemble",
+    ),
+    HallMode(
         key = "team",
         name = "Team Mode",
         kick = "White vs Blue",
@@ -99,7 +106,7 @@ val MENU_GROUPS = listOf(
     HallModeGroup("The Valley", modeKeys = listOf("beat")),
     HallModeGroup("The Tablets", modeKeys = listOf("tablets")),
     HallModeGroup("Today", quiet = true, modeKeys = listOf("daily")),
-    HallModeGroup("Practice", quiet = true, modeKeys = listOf("practice", "team")),
+    HallModeGroup("Practice", quiet = true, modeKeys = listOf("practice", "recall", "team")),
     HallModeGroup("Challenges", quiet = true, modeKeys = listOf("blitz", "trial", "endless")),
 )
 
@@ -116,6 +123,8 @@ fun visibleGroupModes(group: HallModeGroup): List<HallMode> =
     group.modeKeys.mapNotNull { key ->
         MODES[key]?.takeUnless { it.hidden }
     }
+
+val PLAYABLE_MODE_KEYS = setOf("trial", "endless", "blitz", "daily", "recall", "team")
 
 fun orphanMenuModes(): List<HallMode> {
     val grouped = MENU_GROUPS.flatMap { it.modeKeys }.toSet()

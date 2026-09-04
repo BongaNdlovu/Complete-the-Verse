@@ -94,6 +94,8 @@ class PlayViewModel : ViewModel() {
         private set
     var ready by mutableStateOf(false)
         private set
+    var teamSide by mutableStateOf("white")
+        private set
 
     private var session: PlaySession? = null
     private var sessionGeneration = 0
@@ -131,6 +133,8 @@ class PlayViewModel : ViewModel() {
         tfClaims: List<TfClaim> = emptyList(),
         title: String = "The Record",
         save: SaveBlob? = null,
+        teamStart: String = "white",
+        todayKey: String = "",
     ) {
         if (questions.isEmpty()) return
         cancelSessionJobs()
@@ -157,6 +161,8 @@ class PlayViewModel : ViewModel() {
                     rng = { Random.nextDouble() },
                     nowMs = { SystemClock.elapsedRealtime() },
                     title = title,
+                    teamStart = teamStart,
+                    todayKey = todayKey,
                 ),
             )
             if (gen != sessionGeneration) return@launch
@@ -246,6 +252,11 @@ class PlayViewModel : ViewModel() {
         publish()
     }
 
+    fun continueHandoff() {
+        session?.continueHandoff()
+        publish()
+    }
+
     fun abandon(saves: SaveCoordinator) {
         sessionGeneration++
         cancelSessionJobs()
@@ -262,7 +273,9 @@ class PlayViewModel : ViewModel() {
     }
 
     private fun scheduleAdvance(s: PlaySession) {
-        if (!s.locked || s.phase == PlayPhase.Overdrive || s.phase == PlayPhase.Results) return
+        if (!s.locked || s.phase == PlayPhase.Overdrive || s.phase == PlayPhase.Results ||
+            s.phase == PlayPhase.Handoff
+        ) return
         val token = s.questionToken
         val gen = sessionGeneration
         cancelAdvance()
@@ -271,7 +284,9 @@ class PlayViewModel : ViewModel() {
             delay(hold)
             while (true) {
                 if (gen != sessionGeneration || session !== s || s.questionToken != token) return@launch
-                if (s.phase == PlayPhase.Overdrive || s.phase == PlayPhase.Results) return@launch
+                if (s.phase == PlayPhase.Overdrive || s.phase == PlayPhase.Results ||
+                    s.phase == PlayPhase.Handoff
+                ) return@launch
                 if (s.phase == PlayPhase.Paused || s.phase == PlayPhase.ConfirmAbandon || s.confirmAbandon) {
                     delay(50)
                     continue
@@ -350,6 +365,7 @@ class PlayViewModel : ViewModel() {
         tfPickedTrue = s.tfPickedTrue
         result = s.result
         title = s.title
+        teamSide = s.teamSide
     }
 
     private fun cancelAdvance() {

@@ -5,8 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewmodel.compose.viewModel
+import app.completetheverse.cloud.SupabaseCloudClient
+import kotlinx.coroutines.launch
 import app.completetheverse.save.AppSaveViewModel
 import app.completetheverse.ui.CloudUi
 import app.completetheverse.ui.CtvApp
@@ -25,6 +29,10 @@ class MainActivity : ComponentActivity() {
         val settingsStore = SettingsStore(this)
         setContent {
             val saveVm: AppSaveViewModel = viewModel()
+            val cloud = remember(saveVm) {
+                SupabaseCloudClient(applicationContext, saveVm.saveRepository)
+            }
+            val scope = rememberCoroutineScope()
             CtvTheme {
                 CtvApp(
                     settingsStore = settingsStore,
@@ -32,6 +40,7 @@ class MainActivity : ComponentActivity() {
                     verses = saveVm.verses,
                     versesReady = saveVm.versesReady,
                     verseError = saveVm.verseError,
+                    tfClaims = saveVm.tfClaims,
                     saveGeneration = saveVm.saveGeneration,
                     cloudUi = CloudUi(
                         ready = saveVm.authReady,
@@ -46,6 +55,11 @@ class MainActivity : ComponentActivity() {
                     onSignOut = saveVm::signOut,
                     onQuit = {
                         finishAffinity()
+                    },
+                    onBlitzScore = { blob ->
+                        scope.launch {
+                            if (cloud.isSignedIn()) cloud.flushBlitzBest(blob)
+                        }
                     },
                 )
             }

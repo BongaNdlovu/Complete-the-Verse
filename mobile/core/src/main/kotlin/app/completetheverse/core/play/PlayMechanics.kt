@@ -22,13 +22,15 @@ enum class FadePhase { Memorize, Reconstruct }
 
 enum class OverdriveChoice { Ride, Bank }
 
-enum class PlayPhase { Playing, Paused, Overdrive, ConfirmAbandon, Results }
+enum class PlayPhase { Playing, Paused, Overdrive, ConfirmAbandon, Handoff, Results }
 
 data class PlayQuestion(
     val mechanic: Mechanic,
     val verse: Verse? = null,
     val claim: TfClaim? = null,
     val clockBaseMs: Long? = null,
+    val oneLife: Boolean = false,
+    val label: String? = null,
 ) {
     val typed: Boolean
         get() = mechanic == Mechanic.Assemble || verse?.typed == true

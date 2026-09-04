@@ -18,6 +18,18 @@ object PlayClock {
     const val JUDGE_MS = 2_500L
     const val HOLD_WRONG_MS = JUDGE_MS
     const val HOLD_OVERDRIVE_MS = 700L
+    const val BLITZ_START_MS = 60_000L
+    const val BLITZ_CORRECT_MS = 2_000L
+    const val BLITZ_MISS_MS = 4_000L
+    const val ENDLESS_BASE_MS = 12_000L
+    const val ENDLESS_FLOOR_MS = 4_200L
+    const val ENDLESS_STEP_MS = 180L
+
+    fun blitzAdjustMs(leftMs: Long, correct: Boolean): Long =
+        if (correct) leftMs + BLITZ_CORRECT_MS else (leftMs - BLITZ_MISS_MS).coerceAtLeast(0L)
+
+    fun endlessBaseMs(qTotal: Int): Long =
+        maxOf(ENDLESS_FLOOR_MS, ENDLESS_BASE_MS - qTotal.toLong() * ENDLESS_STEP_MS)
 
     fun playClockMs(
         ms: Long,
@@ -78,6 +90,7 @@ data class ClockPolicy(
     val flatAddMs: Long = PlayClock.FLAT_ADD_MS,
     val skipPad: Boolean = false,
     val diffTime: Double = 1.0,
+    val sharedRemaining: Boolean = false,
 ) {
     fun durationMs(
         mechanic: Mechanic,
@@ -118,5 +131,11 @@ data class ClockPolicy(
     companion object {
         val Wall = ClockPolicy(wall = true)
         val Play = ClockPolicy(wall = false)
+        val Blitz = ClockPolicy(
+            wall = false,
+            skipPad = true,
+            sharedRemaining = true,
+            pickMs = PlayClock.BLITZ_START_MS,
+        )
     }
 }

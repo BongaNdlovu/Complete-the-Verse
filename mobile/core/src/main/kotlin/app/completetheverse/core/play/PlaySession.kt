@@ -8,7 +8,9 @@ import app.completetheverse.core.save.Save
 import app.completetheverse.core.save.SaveBlob
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.put
 import kotlin.random.Random
 
 fun interface PlayPersister {
@@ -29,6 +31,8 @@ data class PlayConfig(
     val rng: (() -> Double)? = null,
     val nowMs: () -> Long = { System.currentTimeMillis() },
     val title: String = "The Record",
+    val todayKey: String = Modes.todayKey(),
+    val teamStart: String = "white",
 )
 
 data class PlayResult(
@@ -41,6 +45,12 @@ data class PlayResult(
     val reason: String,
     val pendingSeals: List<String> = emptyList(),
     val save: SaveBlob,
+    val dailyRecorded: Boolean = false,
+    val teamWinner: String? = null,
+    val teamWhiteKept: Int = 0,
+    val teamWhiteMs: Long = 0,
+    val teamBlueKept: Int = 0,
+    val teamBlueMs: Long = 0,
 )
 
 class PlaySession private constructor(private val config: PlayConfig) {
@@ -60,7 +70,8 @@ class PlaySession private constructor(private val config: PlayConfig) {
         private set
     var lives: Int = config.lives
         private set
-    val maxLives: Int = config.lives
+    var maxLives: Int = config.lives
+        private set
     var save: SaveBlob = config.save
         private set
     var locked: Boolean = false
@@ -103,13 +114,29 @@ class PlaySession private constructor(private val config: PlayConfig) {
         private set
     var reason: String = ""
         private set
+    var title: String = config.title
+        private set
+    var teamSide: String = if (config.teamStart == "blue") "blue" else "white"
+        private set
+    var teamHanded: Boolean = false
+        private set
+    var teamWhiteKept: Int = 0
+        private set
+    var teamWhiteMs: Long = 0L
+        private set
+    var teamBlueKept: Int = 0
+        private set
+    var teamBlueMs: Long = 0L
+        private set
+    var dailyRecorded: Boolean = false
+        private set
 
     val questions: List<PlayQuestion> get() = config.questions
     val mode: String get() = config.mode
-    val title: String get() = config.title
     val diff: Diff get() = config.diff
     val clockPolicy: ClockPolicy get() = config.clockPolicy
     val useLives: Boolean get() = maxLives > 0
+    private var handoffPending: Boolean = false
 
     private var deadlineMs: Long = 0L
     private var pauseStampMs: Long = 0L
@@ -124,7 +151,8 @@ class PlaySession private constructor(private val config: PlayConfig) {
     fun remainingMs(atMs: Long = nowMs()): Long {
         if (durationMs <= 0L) return 0L
         val frozen = !running || locked || phase == PlayPhase.Paused ||
-            phase == PlayPhase.Overdrive || phase == PlayPhase.ConfirmAbandon
+            phase == PlayPhase.Overdrive || phase == PlayPhase.ConfirmAbandon ||
+            phase == PlayPhase.Handoff
         val reference = if (frozen && pauseStampMs != 0L) pauseStampMs else atMs
         return (deadlineMs - reference).coerceAtLeast(0L)
     }
@@ -158,6 +186,12 @@ class PlaySession private constructor(private val config: PlayConfig) {
 
     fun requestAbandon() {
         if (phase == PlayPhase.Results) return
+        if (phase == PlayPhase.Handoff) {
+            handoffPending = true
+            confirmAbandon = true
+            phase = PlayPhase.ConfirmAbandon
+            return
+        }
         if (phase == PlayPhase.Playing && running) pause()
         confirmAbandon = true
         if (phase == PlayPhase.Paused) return
@@ -166,6 +200,11 @@ class PlaySession private constructor(private val config: PlayConfig) {
 
     fun stay() {
         confirmAbandon = false
+        if (handoffPending) {
+            handoffPending = false
+            phase = PlayPhase.Handoff
+            return
+        }
         if (phase == PlayPhase.ConfirmAbandon) {
             phase = PlayPhase.Playing
         }
@@ -297,11 +336,34 @@ class PlaySession private constructor(private val config: PlayConfig) {
 
     fun advance() {
         if (phase == PlayPhase.Results) return
-        if (phase == PlayPhase.Paused || phase == PlayPhase.ConfirmAbandon) return
+        if (phase == PlayPhase.Paused || phase == PlayPhase.ConfirmAbandon || phase == PlayPhase.Handoff) return
+        if (clockPolicy.sharedRemaining && remainingMs() <= 0L) {
+            finish("death")
+            return
+        }
         if (useLives && lives <= 0) {
             finish("death")
             return
         }
+        if (mode == "team" && !teamHanded && index + 1 >= Modes.TEAM_EACH) {
+            teamHanded = true
+            teamSide = if (teamSide == "blue") "white" else "blue"
+            phase = PlayPhase.Handoff
+            return
+        }
+        val next = index + 1
+        if (next >= questions.size) {
+            finish("complete")
+            return
+        }
+        index = next
+        armQuestion()
+    }
+
+    fun continueHandoff() {
+        if (phase != PlayPhase.Handoff) return
+        confirmAbandon = false
+        handoffPending = false
         val next = index + 1
         if (next >= questions.size) {
             finish("complete")
@@ -367,7 +429,13 @@ class PlaySession private constructor(private val config: PlayConfig) {
             val lost = if (wasRiding) 2 else 1
             if (useLives) lives = (lives - lost).coerceAtLeast(0)
         }
-        if (recordVerse && q?.verse != null && q.mechanic != Mechanic.TrueFalse) {
+        if (mode == "team") tallyTeam(ok)
+        if (clockPolicy.sharedRemaining) {
+            val nextLeft = PlayClock.blitzAdjustMs(remainingMs(), ok)
+            deadlineMs = nowMs() + nextLeft
+        }
+        val skipMastery = mode == "team" || mode == "beat"
+        if (recordVerse && !skipMastery && q?.verse != null && q.mechanic != Mechanic.TrueFalse) {
             save = recordVerse(save, q.verse, ok)
             save = bumpLife(save, ok)
             config.persist?.persist(save)
@@ -393,6 +461,11 @@ class PlaySession private constructor(private val config: PlayConfig) {
         claim = q.claim
         choices = emptyList()
         confirmAbandon = false
+        if (q.oneLife) {
+            maxLives = 1
+            lives = 1
+        }
+        q.label?.let { title = it }
         val verse = q.verse
         when (q.mechanic) {
             Mechanic.Mcq -> {
@@ -436,16 +509,25 @@ class PlaySession private constructor(private val config: PlayConfig) {
                 }
             }
         }
-        durationMs = clockDuration(
-            mechanic = q.mechanic,
-            typed = q.typed,
-            fadePhase = fadePhase,
-            clockBaseMs = q.clockBaseMs,
-        )
         val start = nowMs()
-        deadlineMs = start + durationMs
         pauseStampMs = 0L
         running = true
+        if (clockPolicy.sharedRemaining) {
+            if (index == 0 && questionToken == 0) {
+                durationMs = PlayClock.BLITZ_START_MS
+                deadlineMs = start + durationMs
+            } else {
+                durationMs = remainingMs(start).coerceAtLeast(900L)
+            }
+        } else {
+            durationMs = clockDuration(
+                mechanic = q.mechanic,
+                typed = q.typed,
+                fadePhase = fadePhase,
+                clockBaseMs = q.clockBaseMs,
+            )
+            deadlineMs = start + durationMs
+        }
         phase = PlayPhase.Playing
         questionToken++
         boardTick++
@@ -461,8 +543,9 @@ class PlaySession private constructor(private val config: PlayConfig) {
         val accBonus = kotlin.math.round(acc * 1200.0 * diff.score).toInt()
         val raw = score + streakBonus + accBonus
         val total = if (why == "abandon") kotlin.math.round(raw * 0.85).toInt() else raw
-        if (persistRun) {
-            save = persistRunRecords(save, total)
+        val skipRun = mode == "team"
+        if (persistRun && !skipRun) {
+            save = persistRunRecords(save, total, why)
             config.persist?.persist(save)
         }
         result = PlayResult(
@@ -475,20 +558,57 @@ class PlaySession private constructor(private val config: PlayConfig) {
             reason = why,
             pendingSeals = emptyList(),
             save = save,
+            dailyRecorded = dailyRecorded,
+            teamWinner = if (mode == "team") Modes.teamWinner(teamWhiteKept, teamWhiteMs, teamBlueKept, teamBlueMs) else null,
+            teamWhiteKept = teamWhiteKept,
+            teamWhiteMs = teamWhiteMs,
+            teamBlueKept = teamBlueKept,
+            teamBlueMs = teamBlueMs,
         )
         phase = PlayPhase.Results
     }
 
-    private fun persistRunRecords(blob: SaveBlob, total: Int): SaveBlob {
+    private fun persistRunRecords(blob: SaveBlob, total: Int, why: String): SaveBlob {
         val out = blob.toMutableMap()
         out["runs"] = JsonPrimitive(jsonInt(blob["runs"]) + 1)
         val life = ((blob["life"] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
         life["bestStreak"] = JsonPrimitive(maxOf(jsonInt(life["bestStreak"]), bestStreak))
-        out["life"] = JsonObject(life)
+        if (mode == "endless") {
+            life["endlessBest"] = JsonPrimitive(maxOf(jsonInt(life["endlessBest"]), index + 1))
+        }
+        if (mode == "blitz") {
+            life["blitzBest"] = JsonPrimitive(maxOf(jsonInt(life["blitzBest"]), correct))
+        }
         val best = ((blob["best"] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
-        if (total > jsonInt(best[mode])) best[mode] = JsonPrimitive(total)
+        val recordScore = if (mode == "blitz") correct else total
+        if (recordScore > jsonInt(best[mode])) best[mode] = JsonPrimitive(recordScore)
         out["best"] = JsonObject(best)
+        val today = config.todayKey.ifEmpty { Modes.todayKey() }
+        if (mode == "daily" && why == "complete") {
+            val daily = blob["daily"] as? JsonObject
+            val prior = (daily?.get("date") as? JsonPrimitive)?.content
+            if (prior != today) {
+                out["daily"] = buildJsonObject {
+                    put("date", today)
+                    put("score", total)
+                }
+                life["dailyDone"] = JsonPrimitive(jsonInt(life["dailyDone"]) + 1)
+                dailyRecorded = true
+            }
+        }
+        out["life"] = JsonObject(life)
         return JsonObject(out)
+    }
+
+    private fun tallyTeam(ok: Boolean) {
+        val spent = (durationMs - remainingMs()).coerceAtLeast(0L).coerceAtMost(durationMs + 500L)
+        if (teamSide == "blue") {
+            if (ok) teamBlueKept++
+            teamBlueMs += spent
+        } else {
+            if (ok) teamWhiteKept++
+            teamWhiteMs += spent
+        }
     }
 
     private fun recordVerse(blob: SaveBlob, verse: Verse, ok: Boolean): SaveBlob {

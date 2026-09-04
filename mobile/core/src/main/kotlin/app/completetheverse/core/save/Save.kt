@@ -80,6 +80,7 @@ object Save {
         successor["verse"]?.let { out["verse"] = it }
         successor["xp"]?.let { out["xp"] = it }
         successor["oil"]?.let { out["oil"] = it }
+        successor["daily"]?.let { out["daily"] = it }
         return JsonObject(out)
     }
 
