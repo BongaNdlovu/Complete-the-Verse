@@ -196,6 +196,15 @@ class PilgrimageTest {
     }
 
     @Test
+    fun drawSiteFoldsDueVersesIntoTheLevel() {
+        val due = bank.verses.first { it.b == "Psalms" }
+        val d = P.drawSite("ur", attempt = 0, dueVerses = listOf(due))
+        assertEquals(1, d.dueFolded)
+        assertTrue(d.verses.any { it.id == due.id })
+        assertEquals(Pilgrimage.VERSES_PER_SITE, d.verses.size)
+    }
+
+    @Test
     fun drawsAreSeeded() {
         val a = P.drawSite("babylon", attempt = 0).verses.joinToString(",") { it.id }
         val b = P.drawSite("babylon", attempt = 0).verses.joinToString(",") { it.id }
@@ -260,7 +269,10 @@ class PilgrimageTest {
         assertEquals(Mechanic.Assemble, qs.last().mechanic)
         assertEquals(Mechanic.PassageRef, qs[2].mechanic)
         assertEquals(Mechanic.TrueFalse, qs[6].mechanic)
+        assertEquals(Mechanic.Fade, qs[5].mechanic)
         assertTrue(qs.dropLast(1).none { it.mechanic == Mechanic.Assemble })
+        val clock = P.clockFor(0)
+        assertTrue(qs.all { it.clockBaseMs == clock }, "Fade uses the site clock, not the 60s fade bed")
     }
 
     @Test

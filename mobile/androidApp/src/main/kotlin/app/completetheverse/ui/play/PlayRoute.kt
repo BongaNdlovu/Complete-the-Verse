@@ -42,9 +42,11 @@ fun PlayRoute(
     moreQuestions: ((Int) -> PlayQuestion?)? = null,
     wrapSave: ((SaveBlob, PlayFinishInfo) -> SaveBlob)? = null,
     onResult: (PlayResult) -> Unit = {},
+    onHall: (() -> Unit)? = null,
+    resultsPrimaryLabel: String = "Return to the hall",
     viewModel: PlayViewModel = viewModel(key = mode),
 ) {
-    LaunchedEffect(questions, clockPolicy, lives, mode, teamStart, todayKey, title) {
+    LaunchedEffect(questions, clockPolicy, lives, mode, teamStart, todayKey, title, diff) {
         if (questions.isEmpty()) return@LaunchedEffect
         viewModel.begin(
             questions = questions,
@@ -84,9 +86,14 @@ fun PlayRoute(
         onExit()
     }
 
+    fun leaveToHall() {
+        viewModel.abandon(saves)
+        (onHall ?: onExit)()
+    }
+
     BackHandler {
         when {
-            !viewModel.ready -> onExit()
+            !viewModel.ready -> leave()
             viewModel.confirmAbandon -> viewModel.stay()
             viewModel.phase == PlayPhase.Overdrive -> viewModel.resolveOverdrive(OverdriveChoice.Bank)
             viewModel.phase == PlayPhase.Handoff -> viewModel.requestAbandon()
@@ -160,5 +167,7 @@ fun PlayRoute(
         onOverdrive = { viewModel.resolveOverdrive(it) },
         onHandoffContinue = { viewModel.continueHandoff() },
         onHall = { leave() },
+        resultsPrimaryLabel = resultsPrimaryLabel,
+        onResultsHall = if (onHall != null) ({ leaveToHall() }) else null,
     )
 }

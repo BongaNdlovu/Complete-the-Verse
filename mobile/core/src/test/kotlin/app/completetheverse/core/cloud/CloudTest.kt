@@ -105,6 +105,38 @@ class CloudTest {
     }
 
     @Test
+    fun mergeSaveUnionsArtifactsUnlockedAndSeen() {
+        val local = parse(
+            """
+            {
+              "srs": { "keep": true },
+              "artifacts": {
+                "unlocked": { "ziggurat-ur": 100, "tablet-sinai": 40 },
+                "seen": { "ziggurat-ur": true }
+              }
+            }
+            """.trimIndent(),
+        )
+        val remote = parse(
+            """
+            {
+              "srs": { "keep": true },
+              "artifacts": {
+                "unlocked": { "ziggurat-ur": 50, "ink-patmos": 90 },
+                "seen": { "ink-patmos": true }
+              }
+            }
+            """.trimIndent(),
+        )
+        val m = Cloud.mergeSave(local, remote).obj("artifacts")
+        assertEquals(100, m.obj("unlocked").int("ziggurat-ur"), "unlock timestamp takes max")
+        assertEquals(40, m.obj("unlocked").int("tablet-sinai"))
+        assertEquals(90, m.obj("unlocked").int("ink-patmos"))
+        assertTrue(m.obj("seen").bool("ziggurat-ur"))
+        assertTrue(m.obj("seen").bool("ink-patmos"))
+    }
+
+    @Test
     fun emptyRemoteKeepsLocalXp() {
         val onlyLocal = Cloud.mergeSave(
             parse(

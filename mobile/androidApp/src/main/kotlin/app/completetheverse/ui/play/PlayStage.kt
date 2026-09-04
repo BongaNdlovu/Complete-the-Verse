@@ -117,10 +117,19 @@ fun PlayStage(
     onOverdrive: (OverdriveChoice) -> Unit,
     onHandoffContinue: () -> Unit = {},
     onHall: () -> Unit,
+    resultsPrimaryLabel: String = "Return to the hall",
+    onResultsHall: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     if (phase == PlayPhase.Results && result != null) {
-        PlayResultsScreen(title = title, result = result, onHall = onHall, modifier = modifier)
+        PlayResultsScreen(
+            title = title,
+            result = result,
+            onPrimary = onHall,
+            primaryLabel = resultsPrimaryLabel,
+            onHall = onResultsHall,
+            modifier = modifier,
+        )
         return
     }
     val denom = durationMs.coerceAtLeast(1L)
@@ -1065,7 +1074,9 @@ private fun OverdriveDialog(
 private fun PlayResultsScreen(
     title: String,
     result: PlayResult,
-    onHall: () -> Unit,
+    onPrimary: () -> Unit,
+    primaryLabel: String,
+    onHall: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     val acc = if (result.attempts == 0) 0 else (result.correct * 100) / result.attempts
@@ -1116,7 +1127,11 @@ private fun PlayResultsScreen(
                 }
             }
             Spacer(Modifier.height(28.dp))
-            GoldButton("Return to the hall", onClick = onHall)
+            GoldButton(primaryLabel, onClick = onPrimary)
+            if (onHall != null) {
+                Spacer(Modifier.height(12.dp))
+                GhostButton("Hall", onClick = onHall)
+            }
             Spacer(Modifier.height(24.dp))
         }
     }

@@ -13,10 +13,15 @@ import app.completetheverse.core.pilgrimage.PilgrimProgress
 import app.completetheverse.core.pilgrimage.Pilgrimage
 import app.completetheverse.core.pilgrimage.Site
 import app.completetheverse.core.pilgrimage.SiteBrief
+import app.completetheverse.core.play.Diff
+import app.completetheverse.core.play.Diffs
 import app.completetheverse.core.play.PlayFinishInfo
 import app.completetheverse.core.play.PlayQuestion
 import app.completetheverse.core.save.SaveBlob
+import app.completetheverse.core.srs.Srs
 import app.completetheverse.save.SaveCoordinator
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 enum class PilgrimagePhase { Road, Brief, Play }
 
@@ -39,11 +44,14 @@ class PilgrimageViewModel : ViewModel() {
         private set
     var engine by mutableStateOf<Pilgrimage?>(null)
         private set
+    var diff by mutableStateOf(Diffs.disciple)
+        private set
 
     fun hydrate(sites: List<Site>, arcs: List<Arc>, verses: List<Verse>, save: SaveBlob) {
         engine = Pilgrimage(sites, arcs, verses)
         progress = Pilgrimage.fromSave(save)
         relics = Artifacts.unlockedList(Artifacts.fromSave(save))
+        diff = diffFromSave(save)
         if (phase == PilgrimagePhase.Play && questions.isEmpty()) {
             phase = PilgrimagePhase.Road
         }
@@ -74,10 +82,12 @@ class PilgrimageViewModel : ViewModel() {
         progress = Pilgrimage.fromSave(save)
         val rec = p.recordOf(progress, card.site.id)
         val exclude = p.usedSet(progress)
+        diff = diffFromSave(save)
         val drawn = p.drawSite(
             siteId = card.site.id,
             attempt = rec?.attempts ?: 0,
             exclude = exclude,
+            dueVerses = dueVerses(save, exclude),
         )
         if (drawn.verses.isEmpty()) return
         questions = p.questionsFor(drawn.verses, card.index, hasTf = tfClaims.isNotEmpty())
@@ -114,5 +124,21 @@ class PilgrimageViewModel : ViewModel() {
         playSiteVerses = emptyList()
         brief = null
         phase = PilgrimagePhase.Road
+    }
+
+    private fun dueVerses(save: SaveBlob, exclude: Set<String>): List<Verse> {
+        val p = engine ?: return emptyList()
+        val cards = Srs.cardsFromSave(save["srs"])
+        val today = Srs.dayNumber()
+        return p.verses.filter { v ->
+            if (v.id in exclude) return@filter false
+            val c = cards[v.id] ?: return@filter false
+            (c.reps != 0 || c.lapses != 0) && Srs.isDue(c, today)
+        }
+    }
+
+    private fun diffFromSave(save: SaveBlob): Diff {
+        val key = ((save["set"] as? JsonObject)?.get("diff") as? JsonPrimitive)?.content
+        return Diffs.resolve(key)
     }
 }

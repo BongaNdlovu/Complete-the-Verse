@@ -33,7 +33,7 @@ val MODES = listOf(
         name = "The Pilgrimage",
         kick = "The long road",
         desc = "Forty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last beat is produced from memory with no options. The clock closes as you go east.",
-        tagline = "46 places · 20 tablets on the road",
+        tagline = "46 places · Ur to Patmos",
     ),
     HallMode(
         key = "beat",

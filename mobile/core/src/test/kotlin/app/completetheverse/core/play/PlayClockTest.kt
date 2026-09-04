@@ -72,6 +72,29 @@ class PlayClockTest {
     }
 
     @Test
+    fun playPolicyPacesSiteClockForFade() {
+        val site = 14_000L
+        val expected = PlayClock.playClockMs(site, streak = 0, typed = false)
+        val memorize = ClockPolicy.Play.durationMs(
+            Mechanic.Fade,
+            typed = false,
+            streak = 0,
+            fadePhase = FadePhase.Memorize,
+            clockBaseMs = site,
+        )
+        val reconstruct = ClockPolicy.Play.durationMs(
+            Mechanic.Fade,
+            typed = false,
+            streak = 0,
+            fadePhase = FadePhase.Reconstruct,
+            clockBaseMs = site,
+        )
+        assertEquals(expected, memorize)
+        assertEquals(expected, reconstruct)
+        assertTrue(memorize < 30_000L)
+    }
+
+    @Test
     fun clockPolicyWallVsPlay() {
         val wall = ClockPolicy.Wall.durationMs(Mechanic.Mcq, typed = false, streak = 0)
         val play = ClockPolicy.Play.durationMs(Mechanic.Mcq, typed = false, streak = 0)

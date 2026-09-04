@@ -91,10 +91,7 @@ class Pilgrimage(
         const val CLOCK_CLOSE = 6_500L
         const val SIGNATURE_QUOTA = 4
         const val SITE_BOOK_FLOOR = 0.625
-        const val SPEED_SLOT = 3
-        const val SPEED_MS = 6_000L
         const val PICK_PAD_MS = 1_500L
-        const val MIXED_SLOT = 5
 
         val FULL_PLACE_SITES = setOf("sinai", "jericho", "nineveh", "babylon", "golgotha", "patmos")
 
@@ -458,22 +455,6 @@ class Pilgrimage(
         )
     }
 
-    fun speedSlot(i: Int, total: Int = VERSES_PER_SITE): Boolean {
-        val n = if (total <= 0) VERSES_PER_SITE else total
-        return i == minOf(SPEED_SLOT, maxOf(0, n - 1))
-    }
-
-    fun barrageArc(arcKey: String?): Boolean {
-        val idx = arcs.indexOfFirst { it.key == arcKey }
-        return idx >= 2
-    }
-
-    fun mixedTypedSlot(i: Int, total: Int, arcKey: String?): Boolean {
-        if (!barrageArc(arcKey)) return false
-        val n = if (total <= 0) VERSES_PER_SITE else total
-        return i == minOf(MIXED_SLOT, n - 1)
-    }
-
     fun questionsFor(
         drawn: List<Verse>,
         siteIndex: Int,
@@ -491,7 +472,7 @@ class Pilgrimage(
             PlayQuestion(
                 mechanic = mechanic,
                 verse = v,
-                clockBaseMs = if (mechanic == Mechanic.Fade) null else clock,
+                clockBaseMs = clock,
             )
         }
     }

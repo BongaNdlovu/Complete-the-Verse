@@ -35,6 +35,7 @@ object MergeSave {
         out["verse"] = mergeMapMax(obj(loc["verse"]), obj(rem["verse"]), listOf("c", "a", "streak", "best"))
         out["srs"] = mergeSrs(obj(loc["srs"]), obj(rem["srs"]))
         out["pilgrim"] = mergePilgrim(obj(loc["pilgrim"]), obj(rem["pilgrim"]))
+        out["artifacts"] = mergeArtifacts(obj(loc["artifacts"]), obj(rem["artifacts"]))
         out["tablets"] = mergeTablets(obj(loc["tablets"]), obj(rem["tablets"]))
         out["daily"] = mergeDaily(loc, rem)
         out["set"] = assign(obj(rem["set"]), obj(loc["set"]))
@@ -102,6 +103,31 @@ object MergeSave {
             }
         }
         return JsonObject(out)
+    }
+
+    fun mergeArtifacts(a: JsonObject, b: JsonObject): JsonObject {
+        val au = obj(a["unlocked"])
+        val bu = obj(b["unlocked"])
+        val unlockedKeys = linkedSetOf<String>()
+        unlockedKeys.addAll(au.keys)
+        unlockedKeys.addAll(bu.keys)
+        val unlocked = mutableMapOf<String, JsonElement>()
+        for (k in unlockedKeys) {
+            unlocked[k] = maxNum(au[k], bu[k])
+        }
+        val asSeen = obj(a["seen"])
+        val bsSeen = obj(b["seen"])
+        val seenKeys = linkedSetOf<String>()
+        seenKeys.addAll(asSeen.keys)
+        seenKeys.addAll(bsSeen.keys)
+        val seen = mutableMapOf<String, JsonElement>()
+        for (k in seenKeys) {
+            seen[k] = JsonPrimitive(isJsTruthy(asSeen[k]) || isJsTruthy(bsSeen[k]))
+        }
+        return buildJsonObject {
+            put("unlocked", JsonObject(unlocked))
+            put("seen", JsonObject(seen))
+        }
     }
 
     fun mergePilgrim(a: JsonObject, b: JsonObject): JsonObject {
