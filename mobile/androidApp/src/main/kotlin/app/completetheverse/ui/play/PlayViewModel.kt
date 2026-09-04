@@ -135,6 +135,9 @@ class PlayViewModel : ViewModel() {
         if (questions.isEmpty()) return
         cancelSessionJobs()
         val gen = ++sessionGeneration
+        session = null
+        result = null
+        phase = PlayPhase.Playing
         ready = false
         beginJob = viewModelScope.launch {
             val loaded = save ?: saves.persistMerged()

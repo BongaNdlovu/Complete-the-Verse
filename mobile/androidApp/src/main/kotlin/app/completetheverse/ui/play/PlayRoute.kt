@@ -79,7 +79,7 @@ fun PlayRoute(
         }
     }
 
-    if (!viewModel.ready && viewModel.phase != PlayPhase.Results) {
+    if (!viewModel.ready) {
         Box(Modifier.fillMaxSize()) { HallBackdrop() }
         return
     }
