@@ -21,6 +21,7 @@ import app.completetheverse.core.play.Mechanic
 import app.completetheverse.core.play.OverdriveChoice
 import app.completetheverse.core.play.PlayClock
 import app.completetheverse.core.play.PlayConfig
+import app.completetheverse.core.play.PlayFinishInfo
 import app.completetheverse.core.play.PlayPhase
 import app.completetheverse.core.play.PlayPersister
 import app.completetheverse.core.play.PlayQuestion
@@ -136,6 +137,7 @@ class PlayViewModel : ViewModel() {
         teamStart: String = "white",
         todayKey: String = "",
         moreQuestions: ((Int) -> PlayQuestion?)? = null,
+        wrapSave: ((SaveBlob, PlayFinishInfo) -> SaveBlob)? = null,
     ) {
         if (questions.isEmpty()) return
         cancelSessionJobs()
@@ -165,6 +167,7 @@ class PlayViewModel : ViewModel() {
                     teamStart = teamStart,
                     todayKey = todayKey,
                     moreQuestions = moreQuestions,
+                    wrapSave = wrapSave,
                 ),
             )
             if (gen != sessionGeneration) return@launch

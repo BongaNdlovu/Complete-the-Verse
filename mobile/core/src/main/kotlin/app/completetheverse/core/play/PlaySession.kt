@@ -37,6 +37,7 @@ data class PlayConfig(
     val teamStart: String = "white",
     val moreQuestions: ((Int) -> PlayQuestion?)? = null,
     val today: Int = Srs.dayNumber(),
+    val wrapSave: ((SaveBlob, PlayFinishInfo) -> SaveBlob)? = null,
 )
 
 data class PlayResult(
@@ -55,6 +56,15 @@ data class PlayResult(
     val teamWhiteMs: Long = 0,
     val teamBlueKept: Int = 0,
     val teamBlueMs: Long = 0,
+)
+
+data class PlayFinishInfo(
+    val reason: String,
+    val total: Int,
+    val index: Int,
+    val correct: Int,
+    val attempts: Int,
+    val score: Int,
 )
 
 class PlaySession private constructor(private val config: PlayConfig) {
@@ -568,6 +578,20 @@ class PlaySession private constructor(private val config: PlayConfig) {
         val skipRun = mode == "team"
         if (persistRun && !skipRun) {
             save = persistRunRecords(save, total, why)
+            val wrap = config.wrapSave
+            if (wrap != null) {
+                save = wrap(
+                    save,
+                    PlayFinishInfo(
+                        reason = why,
+                        total = total,
+                        index = index,
+                        correct = correct,
+                        attempts = attempts,
+                        score = score,
+                    ),
+                )
+            }
             config.persist?.persist(save)
         }
         result = PlayResult(

@@ -12,6 +12,9 @@ import app.completetheverse.core.bank.Bank
 import app.completetheverse.core.bank.TfClaim
 import app.completetheverse.core.bank.Verse
 import app.completetheverse.core.cloud.Cloud
+import app.completetheverse.core.pilgrimage.Arc
+import app.completetheverse.core.pilgrimage.Site
+import app.completetheverse.core.pilgrimage.Sites
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,6 +28,10 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
     var verses by mutableStateOf<List<Verse>>(emptyList())
         private set
     var tfClaims by mutableStateOf<List<TfClaim>>(emptyList())
+        private set
+    var sites by mutableStateOf<List<Site>>(emptyList())
+        private set
+    var arcs by mutableStateOf<List<Arc>>(emptyList())
         private set
     var verseError by mutableStateOf<String?>(null)
         private set
@@ -84,16 +91,31 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
                 val bank = app.assets.open("content/verses.json").bufferedReader().use {
                     Bank.parse(it.readText())
                 }
+                val road = try {
+                    app.assets.open("content/sites.json").bufferedReader().use {
+                        Sites.parse(it.readText())
+                    }
+                } catch (_: Exception) {
+                    null
+                }
                 withContext(Dispatchers.Main) {
                     verses = bank.verses
                     tfClaims = bank.tfClaims
-                    verseError = if (bank.verses.isEmpty()) "The verse bank is empty." else null
+                    sites = road?.sites ?: emptyList()
+                    arcs = road?.arcs ?: emptyList()
+                    verseError = when {
+                        bank.verses.isEmpty() -> "The verse bank is empty."
+                        sites.isEmpty() -> "The pilgrimage road is empty."
+                        else -> null
+                    }
                     versesReady = true
                 }
             } catch (_: Exception) {
                 withContext(Dispatchers.Main) {
                     verses = emptyList()
                     tfClaims = emptyList()
+                    sites = emptyList()
+                    arcs = emptyList()
                     verseError = "Could not load the verse bank."
                     versesReady = true
                 }

@@ -15,9 +15,11 @@ import app.completetheverse.core.play.Diff
 import app.completetheverse.core.play.Diffs
 import app.completetheverse.core.play.Mechanic
 import app.completetheverse.core.play.OverdriveChoice
+import app.completetheverse.core.play.PlayFinishInfo
 import app.completetheverse.core.play.PlayPhase
 import app.completetheverse.core.play.PlayQuestion
 import app.completetheverse.core.play.PlayResult
+import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.components.HallBackdrop
 import kotlinx.coroutines.delay
@@ -38,10 +40,11 @@ fun PlayRoute(
     teamStart: String = "white",
     todayKey: String = "",
     moreQuestions: ((Int) -> PlayQuestion?)? = null,
+    wrapSave: ((SaveBlob, PlayFinishInfo) -> SaveBlob)? = null,
     onResult: (PlayResult) -> Unit = {},
     viewModel: PlayViewModel = viewModel(key = mode),
 ) {
-    LaunchedEffect(questions, clockPolicy, lives, mode, teamStart, todayKey) {
+    LaunchedEffect(questions, clockPolicy, lives, mode, teamStart, todayKey, title) {
         if (questions.isEmpty()) return@LaunchedEffect
         viewModel.begin(
             questions = questions,
@@ -57,6 +60,7 @@ fun PlayRoute(
             teamStart = teamStart,
             todayKey = todayKey,
             moreQuestions = moreQuestions,
+            wrapSave = wrapSave,
         )
     }
 

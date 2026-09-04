@@ -20,6 +20,8 @@ import app.completetheverse.core.bank.TfClaim
 import app.completetheverse.core.bank.Verse
 import app.completetheverse.core.characters.Scholars
 import app.completetheverse.core.cloud.Cloud
+import app.completetheverse.core.pilgrimage.Arc
+import app.completetheverse.core.pilgrimage.Site
 import app.completetheverse.core.save.Save
 import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.save.SaveCoordinator
@@ -30,6 +32,7 @@ import app.completetheverse.ui.hall.HallScreen
 import app.completetheverse.ui.hall.PLAYABLE_MODE_KEYS
 import app.completetheverse.ui.intro.BootSplash
 import app.completetheverse.ui.intro.IntroScreen
+import app.completetheverse.ui.pilgrimage.PilgrimageRoute
 import app.completetheverse.ui.play.ModeRoute
 import app.completetheverse.ui.practice.PracticeRoute
 import app.completetheverse.ui.profile.CharacterPickScreen
@@ -47,6 +50,7 @@ private sealed interface CtvScreen {
     data object Settings : CtvScreen
     data object Practice : CtvScreen
     data class Mode(val key: String) : CtvScreen
+    data object Pilgrimage : CtvScreen
     data class ComingSoon(val kick: String, val title: String) : CtvScreen
 }
 
@@ -61,6 +65,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             CtvScreen.Settings -> "settings"
             CtvScreen.Practice -> "practice"
             is CtvScreen.Mode -> "mode\u001f${screen.key}"
+            CtvScreen.Pilgrimage -> "pilgrimage"
             is CtvScreen.ComingSoon -> "soon\u001f${screen.kick}\u001f${screen.title}"
         }
     },
@@ -75,6 +80,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             "settings" -> CtvScreen.Settings
             "practice" -> CtvScreen.Practice
             "mode" -> CtvScreen.Mode(parts.getOrElse(1) { "trial" })
+            "pilgrimage" -> CtvScreen.Pilgrimage
             "soon" -> CtvScreen.ComingSoon(
                 parts.getOrElse(1) { "" },
                 parts.getOrElse(2) { "" },
@@ -99,9 +105,11 @@ fun CtvApp(
     settingsStore: SettingsStore,
     saves: SaveCoordinator,
     verses: List<Verse>,
+    tfClaims: List<TfClaim> = emptyList(),
+    sites: List<Site> = emptyList(),
+    arcs: List<Arc> = emptyList(),
     versesReady: Boolean,
     verseError: String?,
-    tfClaims: List<TfClaim> = emptyList(),
     saveGeneration: Int,
     cloudUi: CloudUi,
     onSendCode: (String) -> Unit,
@@ -217,6 +225,7 @@ fun CtvApp(
                     when {
                         mode.incoming -> toast = "${mode.name} is incoming."
                         mode.key == "practice" -> screen = CtvScreen.Practice
+                        mode.key == "pilgrimage" -> screen = CtvScreen.Pilgrimage
                         mode.key in PLAYABLE_MODE_KEYS -> screen = CtvScreen.Mode(mode.key)
                         else -> screen = CtvScreen.ComingSoon(mode.kick, mode.name)
                     }
@@ -265,6 +274,17 @@ fun CtvApp(
                 saves = saves,
                 onExit = { screen = CtvScreen.Hall },
                 onBlitzScore = onBlitzScore,
+            )
+            CtvScreen.Pilgrimage -> PilgrimageRoute(
+                sites = sites,
+                arcs = arcs,
+                verses = verses,
+                tfClaims = tfClaims,
+                versesReady = versesReady,
+                verseError = verseError,
+                saveGeneration = saveGeneration,
+                saves = saves,
+                onExit = { screen = CtvScreen.Hall },
             )
             is CtvScreen.ComingSoon -> ComingSoonScreen(
                 kick = current.kick,
