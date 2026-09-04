@@ -75,6 +75,10 @@ const SITE_AMBIENT = {
   emmaus:"assets/journey/emmaus.mp4",
   "damascus-road":"assets/journey/damascus-road.mp4",
   antioch:"assets/journey/antioch.mp4",
+  ephesus:"assets/journey/ephesus.mp4",
+  corinth:"assets/journey/corinth.mp4",
+  philippi:"assets/journey/philippi.mp4",
+  rome:"assets/journey/rome.mp4",
   patmos:"assets/journey/patmos.mp4"
 };
 
@@ -1041,7 +1045,8 @@ var COMPANION_SITE = {
   ephesus: ["assets/characters/paul/question.png", "Paul"],
   corinth: ["assets/characters/paul/question.png", "Paul"],
   philippi: ["assets/characters/paul/question.png", "Paul"],
-  rome: ["assets/characters/paul/question.png", "Paul"]
+  rome: ["assets/characters/paul/question.png", "Paul"],
+  patmos: ["assets/characters/john-revelator/question.png", "John the Revelator"]
 };
 function companionQuestionSrc(site){
   if(site && COMPANION_SITE[site.id]) return COMPANION_SITE[site.id][0];

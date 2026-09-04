@@ -133,7 +133,7 @@ ok("character folders carry only wired art",
    chars.every(c => {
      const expected = c === "elijah"
        ? ["question.png", "question-exile.png"]
-       : (c === "gideon" || c === "solomon" || c === "joshua" || c === "jonah" || c === "daniel" || c === "samson" || c === "jesus" || c === "baptist" || c === "paul" || c === "elisha")
+       : (c === "gideon" || c === "solomon" || c === "joshua" || c === "jonah" || c === "daniel" || c === "samson" || c === "jesus" || c === "baptist" || c === "paul" || c === "elisha" || c === "john-revelator")
        ? ["question.png"]
        : (c === "abram" || c === "moses")
        ? ["portrait.png", "question.png", "token.png"]
@@ -146,7 +146,7 @@ ok("character folders carry only wired art",
      const f = fs.readdirSync(path.join(ROOT, "assets", "characters", c)).sort().join();
      const expected = c === "elijah"
        ? ["question.png", "question-exile.png"]
-       : (c === "gideon" || c === "solomon" || c === "joshua" || c === "jonah" || c === "daniel" || c === "samson" || c === "jesus" || c === "baptist" || c === "paul" || c === "elisha")
+       : (c === "gideon" || c === "solomon" || c === "joshua" || c === "jonah" || c === "daniel" || c === "samson" || c === "jesus" || c === "baptist" || c === "paul" || c === "elisha" || c === "john-revelator")
        ? ["question.png"]
        : (c === "abram" || c === "moses")
        ? ["portrait.png", "question.png", "token.png"]

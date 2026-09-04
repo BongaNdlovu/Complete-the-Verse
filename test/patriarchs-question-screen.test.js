@@ -38,6 +38,7 @@ assert(/samson\/question\.png/.test(play), "Gibeah and Mizpah use Samson");
 assert(/jesus\/question\.png/.test(play), "Bethlehem, Nazareth, Capernaum, Golgotha, and Emmaus use Jesus");
 assert(/baptist\/question\.png/.test(play), "The Jordan uses John the Baptist");
 assert(/paul\/question\.png/.test(play), "Damascus Road through Rome use Paul");
+assert(/john-revelator\/question\.png/.test(play), "Patmos uses John the Revelator");
 const moses = path.join(ROOT, "assets", "characters", "moses", "question.png");
 assert(fs.existsSync(moses) && fs.statSync(moses).size > 1000, "Moses question artwork is present");
 const gideon = path.join(ROOT, "assets", "characters", "gideon", "question.png");
@@ -50,6 +51,8 @@ const elijah = path.join(ROOT, "assets", "characters", "elijah", "question.png")
 assert(fs.existsSync(elijah) && fs.statSync(elijah).size > 1000, "Elijah question artwork is present");
 const elisha = path.join(ROOT, "assets", "characters", "elisha", "question.png");
 assert(fs.existsSync(elisha) && fs.statSync(elisha).size > 1000, "Elisha question artwork is present");
+const johnRevelator = path.join(ROOT, "assets", "characters", "john-revelator", "question.png");
+assert(fs.existsSync(johnRevelator) && fs.statSync(johnRevelator).size > 1000, "John the Revelator question artwork is present");
 assert(/abraham-active/.test(play) && /R\.passage/.test(play) && /R\.recon/.test(play),
   "the body state and dense mechanic variants are synced");
 assert(/syncAbrahamPresentation\(mechanic/.test(play), "normal questions sync the character layer");
