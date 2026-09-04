@@ -64,6 +64,8 @@ class PracticeViewModel : ViewModel() {
     var questionToken by mutableIntStateOf(0)
         private set
 
+    private var sessionGeneration = 0
+    private var beginJob: Job? = null
     private var advanceJob: Job? = null
 
     private fun rng(): Double = Random.nextDouble()
@@ -99,14 +101,16 @@ class PracticeViewModel : ViewModel() {
 
     fun begin(verses: List<Verse>, saves: SaveCoordinator) {
         if (verses.isEmpty()) return
-        cancelAdvance()
-        viewModelScope.launch {
+        cancelSessionJobs()
+        val gen = ++sessionGeneration
+        beginJob = viewModelScope.launch {
             val loaded = saves.persistMerged()
+            if (gen != sessionGeneration) return@launch
             save = loaded
             val today = Srs.dayNumber()
             val map = Srs.cardsFromSave(loaded["srs"])
             val drill = Practice.buildDrill(verses, { v -> map[v.id] }, today, rng = { rng() })
-            if (drill.isEmpty()) return@launch
+            if (drill.isEmpty() || gen != sessionGeneration) return@launch
             queue = drill
             index = 0
             correct = 0
@@ -115,6 +119,7 @@ class PracticeViewModel : ViewModel() {
             runStart = SystemClock.elapsedRealtime()
             elapsedMs = 0L
             armQuestion(0, drill)
+            if (gen != sessionGeneration) return@launch
             phase = PracticePhase.Play
         }
     }
@@ -154,10 +159,13 @@ class PracticeViewModel : ViewModel() {
         if (ok) correct += 1
         saves.persistAsync(recorded.save)
         val token = questionToken
+        val gen = sessionGeneration
         cancelAdvance()
         advanceJob = viewModelScope.launch {
             delay(800)
-            if (phase != PracticePhase.Play || questionToken != token || queue.isEmpty()) return@launch
+            if (gen != sessionGeneration || phase != PracticePhase.Play || questionToken != token || queue.isEmpty()) {
+                return@launch
+            }
             val next = index + 1
             if (next >= queue.size) {
                 elapsedMs = SystemClock.elapsedRealtime() - runStart
@@ -181,7 +189,8 @@ class PracticeViewModel : ViewModel() {
     }
 
     fun abandon(verses: List<Verse>, saves: SaveCoordinator) {
-        cancelAdvance()
+        sessionGeneration++
+        cancelSessionJobs()
         if (phase != PracticePhase.Brief) saves.persistAsync(save)
         phase = PracticePhase.Brief
         queue = emptyList()
@@ -195,5 +204,11 @@ class PracticeViewModel : ViewModel() {
     private fun cancelAdvance() {
         advanceJob?.cancel()
         advanceJob = null
+    }
+
+    private fun cancelSessionJobs() {
+        beginJob?.cancel()
+        beginJob = null
+        cancelAdvance()
     }
 }
