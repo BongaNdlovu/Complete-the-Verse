@@ -29,8 +29,12 @@ remotion-video/
 *.aab
 *.apks
 local.properties
+*.iml
 android/**/build/
 android/.gradle/
 android-standalone/**/build/
 android-standalone/.gradle/
+mobile/**/build/
+mobile/.gradle/
+mobile/.kotlin/
 .twa-signing.env
