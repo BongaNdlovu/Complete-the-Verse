@@ -23,4 +23,9 @@ object CtvColors {
     val panelTop = Color(0xE61E1B19)
     val panelBot = Color(0xF5070708)
     val kick = goldDim
+    val tabBg1 = Color(0xFF7A6347)
+    val tabBg2 = Color(0xFF564430)
+    val tabBg3 = Color(0xFF3A2C1D)
+    val tabBorder = Color(0xFF947B59)
+    val tabText = Color(0xFF23170D)
 }

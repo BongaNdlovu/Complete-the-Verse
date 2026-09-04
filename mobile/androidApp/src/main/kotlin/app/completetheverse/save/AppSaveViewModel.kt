@@ -15,6 +15,8 @@ import app.completetheverse.core.cloud.Cloud
 import app.completetheverse.core.pilgrimage.Arc
 import app.completetheverse.core.pilgrimage.Site
 import app.completetheverse.core.pilgrimage.Sites
+import app.completetheverse.core.tablets.Tablets
+import app.completetheverse.core.tablets.TabletsBank
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,6 +38,12 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
     var verseError by mutableStateOf<String?>(null)
         private set
     var versesReady by mutableStateOf(false)
+        private set
+    var tablets by mutableStateOf<TabletsBank?>(null)
+        private set
+    var tabletsError by mutableStateOf<String?>(null)
+        private set
+    var tabletsReady by mutableStateOf(false)
         private set
     var saveGeneration by mutableIntStateOf(0)
         private set
@@ -118,6 +126,24 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
                     arcs = emptyList()
                     verseError = "Could not load the verse bank."
                     versesReady = true
+                }
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val bank = app.assets.open("content/tablets.json").bufferedReader().use {
+                    Tablets.parse(it.readText())
+                }
+                withContext(Dispatchers.Main) {
+                    tablets = bank
+                    tabletsError = if (bank.chapters.isEmpty()) "The tablet hall is empty." else null
+                    tabletsReady = true
+                }
+            } catch (_: Exception) {
+                withContext(Dispatchers.Main) {
+                    tablets = null
+                    tabletsError = "Could not load the tablet hall."
+                    tabletsReady = true
                 }
             }
         }

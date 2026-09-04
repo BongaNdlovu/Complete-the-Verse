@@ -83,6 +83,8 @@ object Save {
         successor["daily"]?.let { out["daily"] = it }
         successor["pilgrim"]?.let { out["pilgrim"] = it }
         successor["artifacts"]?.let { out["artifacts"] = it }
+        successor["tablets"]?.let { out["tablets"] = it }
+        successor["set"]?.let { out["set"] = it }
         return JsonObject(out)
     }
 

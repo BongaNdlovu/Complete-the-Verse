@@ -43,7 +43,9 @@ class MainActivity : ComponentActivity() {
                     arcs = saveVm.arcs,
                     versesReady = saveVm.versesReady,
                     verseError = saveVm.verseError,
-                    tfClaims = saveVm.tfClaims,
+                    tablets = saveVm.tablets,
+                    tabletsReady = saveVm.tabletsReady,
+                    tabletsError = saveVm.tabletsError,
                     saveGeneration = saveVm.saveGeneration,
                     cloudUi = CloudUi(
                         ready = saveVm.authReady,

@@ -24,6 +24,7 @@ import app.completetheverse.core.pilgrimage.Arc
 import app.completetheverse.core.pilgrimage.Site
 import app.completetheverse.core.save.Save
 import app.completetheverse.core.save.SaveBlob
+import app.completetheverse.core.tablets.TabletsBank
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.components.HallToast
 import app.completetheverse.ui.components.QuitDialog
@@ -38,6 +39,7 @@ import app.completetheverse.ui.practice.PracticeRoute
 import app.completetheverse.ui.profile.CharacterPickScreen
 import app.completetheverse.ui.settings.SettingsScreen
 import app.completetheverse.ui.settings.SettingsStore
+import app.completetheverse.ui.tablets.TabletsRoute
 import app.completetheverse.ui.theme.CtvColors
 import kotlinx.coroutines.delay
 
@@ -51,6 +53,7 @@ private sealed interface CtvScreen {
     data object Practice : CtvScreen
     data class Mode(val key: String) : CtvScreen
     data object Pilgrimage : CtvScreen
+    data object Tablets : CtvScreen
     data class ComingSoon(val kick: String, val title: String) : CtvScreen
 }
 
@@ -66,6 +69,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             CtvScreen.Practice -> "practice"
             is CtvScreen.Mode -> "mode\u001f${screen.key}"
             CtvScreen.Pilgrimage -> "pilgrimage"
+            CtvScreen.Tablets -> "tablets"
             is CtvScreen.ComingSoon -> "soon\u001f${screen.kick}\u001f${screen.title}"
         }
     },
@@ -81,6 +85,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             "practice" -> CtvScreen.Practice
             "mode" -> CtvScreen.Mode(parts.getOrElse(1) { "trial" })
             "pilgrimage" -> CtvScreen.Pilgrimage
+            "tablets" -> CtvScreen.Tablets
             "soon" -> CtvScreen.ComingSoon(
                 parts.getOrElse(1) { "" },
                 parts.getOrElse(2) { "" },
@@ -110,6 +115,9 @@ fun CtvApp(
     arcs: List<Arc> = emptyList(),
     versesReady: Boolean,
     verseError: String?,
+    tablets: TabletsBank?,
+    tabletsReady: Boolean,
+    tabletsError: String?,
     saveGeneration: Int,
     cloudUi: CloudUi,
     onSendCode: (String) -> Unit,
@@ -226,6 +234,7 @@ fun CtvApp(
                         mode.incoming -> toast = "${mode.name} is incoming."
                         mode.key == "practice" -> screen = CtvScreen.Practice
                         mode.key == "pilgrimage" -> screen = CtvScreen.Pilgrimage
+                        mode.key == "tablets" -> screen = CtvScreen.Tablets
                         mode.key in PLAYABLE_MODE_KEYS -> screen = CtvScreen.Mode(mode.key)
                         else -> screen = CtvScreen.ComingSoon(mode.kick, mode.name)
                     }
@@ -284,6 +293,16 @@ fun CtvApp(
                 verseError = verseError,
                 saveGeneration = saveGeneration,
                 saves = saves,
+                onExit = { screen = CtvScreen.Hall },
+            )
+            CtvScreen.Tablets -> TabletsRoute(
+                bank = tablets,
+                bankReady = tabletsReady,
+                loadError = tabletsError,
+                saveGeneration = saveGeneration,
+                saves = saves,
+                reducedMotion = settings.reduced || settings.motion != "full",
+                quality = settings.quality,
                 onExit = { screen = CtvScreen.Hall },
             )
             is CtvScreen.ComingSoon -> ComingSoonScreen(
