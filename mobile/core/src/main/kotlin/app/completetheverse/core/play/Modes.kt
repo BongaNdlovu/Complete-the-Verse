@@ -4,6 +4,8 @@ import app.completetheverse.core.bank.Verse
 import app.completetheverse.core.practice.Practice
 import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.core.srs.Srs
+import app.completetheverse.core.srs.jsRound
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.doubleOrNull
@@ -27,6 +29,7 @@ data class ModeRun(
     val mode: String,
     val diff: Diff,
     val teamStart: String = "white",
+    val moreQuestions: ((Int) -> PlayQuestion?)? = null,
 )
 
 object Modes {
@@ -36,6 +39,9 @@ object Modes {
     const val TEAM_LENGTH = TEAM_EACH * 2
     const val ENDLESS_BATCH = 80
     const val BLITZ_BATCH = 80
+    const val RANK_CAP = 160
+    const val ACT_VI_LEVEL = 20
+    const val ACT_VI_SEAL = "sd15"
 
     val DAILY_TIERS = listOf(1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5)
     val DAILY_MECHANICS = mapOf(
@@ -82,10 +88,33 @@ object Modes {
     fun dailyRng(dateKey: String): () -> Double =
         mulberry32(seedFromString("ctv-$dateKey"))
 
-    fun trialBest(save: SaveBlob): Int = jsonInt((save["best"] as? JsonObject)?.get("trial"))
+    fun xpNeeded(level: Int): Int = jsRound(320 * Math.pow(level.toDouble(), 1.32))
+
+    fun levelOf(xp: Int): Int {
+        var level = 1
+        var rem = xp.coerceAtLeast(0)
+        while (level < RANK_CAP && rem >= xpNeeded(level)) {
+            rem -= xpNeeded(level)
+            level++
+        }
+        return level
+    }
+
+    fun xpToReach(level: Int): Int {
+        var sum = 0
+        for (l in 1 until level.coerceAtLeast(1)) sum += xpNeeded(l)
+        return sum
+    }
+
+    fun actVIUnlocked(save: SaveBlob): Boolean {
+        val xp = jsonInt(save["xp"])
+        val seals = save["seals"] as? JsonArray ?: return false
+        val hasSeal = seals.any { (it as? JsonPrimitive)?.content == ACT_VI_SEAL }
+        return levelOf(xp) >= ACT_VI_LEVEL && hasSeal
+    }
 
     fun trialActs(save: SaveBlob): List<TrialAct> =
-        if (trialBest(save) > 0) TRIAL_ACTS else TRIAL_ACTS.take(5)
+        if (actVIUnlocked(save)) TRIAL_ACTS else TRIAL_ACTS.take(5)
 
     fun endlessTier(n: Int): Int = when {
         n < 5 -> 1
@@ -137,14 +166,29 @@ object Modes {
         today: String = todayKey(),
         teamStart: String = "white",
     ): ModeRun {
+        val draw = VerseDraw(verses, rng)
         val questions = when (mode) {
             "trial" -> buildTrial(verses, save, rng)
-            "endless" -> buildEndless(verses, rng)
-            "blitz" -> buildBlitz(verses, rng)
+            "endless" -> endlessBatch(draw, ENDLESS_BATCH)
+            "blitz" -> blitzBatch(draw, BLITZ_BATCH)
             "daily" -> buildDaily(verses, today)
             "recall" -> buildRecall(verses, save, rng)
             "team" -> buildTeam(verses, save, rng)
             else -> emptyList()
+        }
+        val more = when (mode) {
+            "endless" -> { index: Int ->
+                val n = index + 1
+                PlayQuestion(
+                    mechanic = Mechanic.Mcq,
+                    verse = draw.drawTier(endlessTier(n)),
+                    clockBaseMs = PlayClock.endlessBaseMs(n),
+                )
+            }
+            "blitz" -> { _: Int ->
+                PlayQuestion(mechanic = Mechanic.Mcq, verse = draw.drawAny())
+            }
+            else -> null
         }
         return ModeRun(
             questions = questions,
@@ -154,6 +198,7 @@ object Modes {
             mode = mode,
             diff = diff,
             teamStart = if (teamStart == "blue") "blue" else "white",
+            moreQuestions = more,
         )
     }
 
@@ -176,23 +221,25 @@ object Modes {
         return out
     }
 
-    fun buildEndless(verses: List<Verse>, rng: () -> Double, count: Int = ENDLESS_BATCH): List<PlayQuestion> {
-        val draw = VerseDraw(verses, rng)
-        return (1..count).map { n ->
+    fun buildEndless(verses: List<Verse>, rng: () -> Double, count: Int = ENDLESS_BATCH): List<PlayQuestion> =
+        endlessBatch(VerseDraw(verses, rng), count)
+
+    fun buildBlitz(verses: List<Verse>, rng: () -> Double, count: Int = BLITZ_BATCH): List<PlayQuestion> =
+        blitzBatch(VerseDraw(verses, rng), count)
+
+    private fun endlessBatch(draw: VerseDraw, count: Int): List<PlayQuestion> =
+        (1..count).map { n ->
             PlayQuestion(
                 mechanic = Mechanic.Mcq,
                 verse = draw.drawTier(endlessTier(n)),
                 clockBaseMs = PlayClock.endlessBaseMs(n),
             )
         }
-    }
 
-    fun buildBlitz(verses: List<Verse>, rng: () -> Double, count: Int = BLITZ_BATCH): List<PlayQuestion> {
-        val draw = VerseDraw(verses, rng)
-        return (1..count).map {
+    private fun blitzBatch(draw: VerseDraw, count: Int): List<PlayQuestion> =
+        (1..count).map {
             PlayQuestion(mechanic = Mechanic.Mcq, verse = draw.drawAny())
         }
-    }
 
     fun buildDaily(verses: List<Verse>, dateKey: String): List<PlayQuestion> {
         val rng = dailyRng(dateKey)

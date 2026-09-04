@@ -101,6 +101,7 @@ fun ModeRoute(
         title = run.title,
         teamStart = run.teamStart,
         todayKey = Modes.todayKey(),
+        moreQuestions = run.moreQuestions,
         onResult = { result ->
             if (run.mode == "blitz") onBlitzScore(result.save)
         },

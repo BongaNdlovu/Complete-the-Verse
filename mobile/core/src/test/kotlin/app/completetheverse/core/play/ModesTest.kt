@@ -1,7 +1,10 @@
 package app.completetheverse.core.play
 
+import app.completetheverse.core.assemble.Assemble
 import app.completetheverse.core.bank.Verse
 import app.completetheverse.core.save.Save
+import app.completetheverse.core.srs.Srs
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
@@ -71,7 +74,7 @@ class ModesTest {
     }
 
     @Test
-    fun trialActLengthsMatchJsAndHideViUntilBestExists() {
+    fun trialActLengthsMatchJsAndHideViUntilRankAndSeal() {
         val bank = verses(16)
         val five = Modes.buildTrial(bank, Save.DEFAULT, rng = { 0.1 })
         assertEquals(8, five.count { it.clockBaseMs == 14_000L })
@@ -84,15 +87,55 @@ class ModesTest {
         assertTrue(five.drop(34).all { it.oneLife })
         assertEquals(5, five.count { it.oneLife })
 
-        val beaten = JsonObject(Save.DEFAULT.toMutableMap().apply {
+        val bestOnly = JsonObject(Save.DEFAULT.toMutableMap().apply {
             this["best"] = JsonObject(Save.DEFAULT["best"]!!.jsonObject.toMutableMap().apply {
                 this["trial"] = JsonPrimitive(900)
             })
         })
-        val six = Modes.buildTrial(bank, beaten, rng = { 0.2 })
+        assertEquals(5, Modes.trialActs(bestOnly).size)
+
+        val rankOnly = JsonObject(Save.DEFAULT.toMutableMap().apply {
+            this["xp"] = JsonPrimitive(Modes.xpToReach(20))
+        })
+        assertEquals(5, Modes.trialActs(rankOnly).size)
+
+        val sealOnly = JsonObject(Save.DEFAULT.toMutableMap().apply {
+            this["seals"] = JsonArray(listOf(JsonPrimitive(Modes.ACT_VI_SEAL)))
+        })
+        assertEquals(5, Modes.trialActs(sealOnly).size)
+
+        val unlocked = JsonObject(Save.DEFAULT.toMutableMap().apply {
+            this["xp"] = JsonPrimitive(Modes.xpToReach(20))
+            this["seals"] = JsonArray(listOf(JsonPrimitive(Modes.ACT_VI_SEAL)))
+        })
+        val six = Modes.buildTrial(bank, unlocked, rng = { 0.2 })
         assertEquals(8 + 8 + 9 + 9 + 5 + 7, six.size)
         assertEquals(5_500L, six.last().clockBaseMs)
         assertTrue(six.takeLast(7).all { it.oneLife && it.label == "The Remnant" })
+    }
+
+    @Test
+    fun trialAbandonDoesNotUnlockActVi() {
+        val clock = Clock()
+        val v = verses()[0]
+        val session = PlaySession.start(
+            PlayConfig(
+                questions = listOf(
+                    PlayQuestion(Mechanic.Mcq, v),
+                    PlayQuestion(Mechanic.Mcq, verses()[1]),
+                ),
+                clockPolicy = ClockPolicy.Play,
+                lives = 3,
+                mode = "trial",
+                rng = { 0.1 },
+                nowMs = { clock.now() },
+            ),
+        )
+        session.submitChoice(v.a)
+        session.abandon()
+        assertTrue(session.result!!.save["best"]!!.jsonObject["trial"]!!.jsonPrimitive.content.toInt() > 0)
+        assertEquals(5, Modes.trialActs(session.result!!.save).size)
+        assertEquals(39, Modes.buildTrial(verses(16), session.result!!.save, rng = { 0.1 }).size)
     }
 
     @Test
@@ -266,5 +309,78 @@ class ModesTest {
         )
         val expected = PlayClock.playClockMs(PlayClock.endlessBaseMs(1), streak = 0, typed = false)
         assertEquals(expected, session.durationMs)
+    }
+
+    @Test
+    fun endlessAndBlitzRefillInsteadOfCompletingTheBatch() {
+        val clock = Clock()
+        val bank = verses(8)
+        val session = PlaySession.start(
+            PlayConfig(
+                questions = listOf(PlayQuestion(Mechanic.Mcq, bank[0], clockBaseMs = PlayClock.endlessBaseMs(1))),
+                clockPolicy = ClockPolicy.Play,
+                lives = 3,
+                mode = "endless",
+                moreQuestions = { i ->
+                    PlayQuestion(
+                        Mechanic.Mcq,
+                        bank[i % bank.size],
+                        clockBaseMs = PlayClock.endlessBaseMs(i + 1),
+                    )
+                },
+                rng = { 0.1 },
+                nowMs = { clock.now() },
+            ),
+        )
+        session.submitChoice(bank[0].a)
+        session.advance()
+        assertEquals(PlayPhase.Playing, session.phase)
+        assertEquals(2, session.questions.size)
+        assertEquals(PlayClock.endlessBaseMs(2), session.questions[1].clockBaseMs)
+
+        val blitz = PlaySession.start(
+            PlayConfig(
+                questions = listOf(PlayQuestion(Mechanic.Mcq, bank[0])),
+                clockPolicy = ClockPolicy.Blitz,
+                lives = 0,
+                mode = "blitz",
+                moreQuestions = { i -> PlayQuestion(Mechanic.Mcq, bank[(i + 1) % bank.size]) },
+                rng = { 0.1 },
+                nowMs = { clock.now() },
+            ),
+        )
+        blitz.submitChoice(bank[0].a)
+        blitz.advance()
+        assertEquals(PlayPhase.Playing, blitz.phase)
+        assertEquals(2, blitz.questions.size)
+        assertTrue(blitz.remainingMs() > 0L)
+    }
+
+    @Test
+    fun recallKeepReschedulesSrs() {
+        val clock = Clock()
+        val v = verses()[0]
+        val session = PlaySession.start(
+            PlayConfig(
+                questions = listOf(PlayQuestion(Mechanic.Assemble, v.copy(typed = true))),
+                clockPolicy = ClockPolicy.Wall,
+                lives = 3,
+                mode = "recall",
+                today = 100,
+                rng = { 0.1 },
+                nowMs = { clock.now() },
+            ),
+        )
+        val board = session.assemble!!
+        v.a.split(" ").forEachIndexed { i, w ->
+            val tile = board.bank.first { it.word == w && it.dest == i }
+            Assemble.place(board, tile.id, i)
+        }
+        session.submitAssemble()
+        assertEquals(true, session.lastCorrect)
+        val card = Srs.cardFromJson((session.save["srs"] as JsonObject)[v.id])
+        assertEquals(1, card!!.reps)
+        assertEquals(101, card.due)
+        assertEquals("1", session.save["life"]!!.jsonObject["reviewsDone"]!!.jsonPrimitive.content)
     }
 }

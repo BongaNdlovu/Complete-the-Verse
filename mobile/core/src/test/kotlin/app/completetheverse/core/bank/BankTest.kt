@@ -3,8 +3,11 @@ package app.completetheverse.core.bank
 import app.completetheverse.core.practice.Practice
 import app.completetheverse.core.save.Save
 import app.completetheverse.core.srs.Srs
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -190,5 +193,33 @@ class PracticeTest {
         val card = Srs.cardsFromSave(merged["srs"])[verse.id]
         assertEquals(5, card!!.reps, "idle boot must keep mergeSrs higher-reps from cloud extra")
         assertEquals(40, card.ivl)
+    }
+
+    @Test
+    fun commitPersistKeepsNewerDailyOverStaleVerseMerge() {
+        val verse = Verse(id = "v1", p = "p", a = "the world", s = ".", d = listOf("the earth"), r = "R", b = "B", t = 1)
+        val verseSave = Practice.applyAnswer(
+            save = Save.DEFAULT,
+            verse = verse,
+            correct = true,
+            timedOut = false,
+            fraction = 0.2,
+            today = 10,
+            mode = "choice",
+        ).save
+        val complete = JsonObject(verseSave.toMutableMap().apply {
+            this["daily"] = kotlinx.serialization.json.buildJsonObject {
+                put("date", "2026-09-04")
+                put("score", 1200)
+            }
+        })
+        val mergedFromVerse = Save.combineLocalSnapshots(verseSave, Save.DEFAULT)
+        assertEquals("", mergedFromVerse["daily"]!!.jsonObject["date"]!!.jsonPrimitive.content)
+        val committed = Save.commitPersist(mergedFromVerse, verseSave, complete)
+        assertEquals("2026-09-04", committed["daily"]!!.jsonObject["date"]!!.jsonPrimitive.content)
+        assertEquals("1200", committed["daily"]!!.jsonObject["score"]!!.jsonPrimitive.content)
+        val mergedComplete = Save.combineLocalSnapshots(complete, Save.DEFAULT)
+        val kept = Save.commitPersist(mergedComplete, complete, complete)
+        assertEquals("2026-09-04", kept["daily"]!!.jsonObject["date"]!!.jsonPrimitive.content)
     }
 }

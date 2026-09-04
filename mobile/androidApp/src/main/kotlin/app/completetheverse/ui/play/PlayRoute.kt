@@ -37,6 +37,7 @@ fun PlayRoute(
     title: String = "The Record",
     teamStart: String = "white",
     todayKey: String = "",
+    moreQuestions: ((Int) -> PlayQuestion?)? = null,
     onResult: (PlayResult) -> Unit = {},
     viewModel: PlayViewModel = viewModel(key = mode),
 ) {
@@ -55,6 +56,7 @@ fun PlayRoute(
             title = title,
             teamStart = teamStart,
             todayKey = todayKey,
+            moreQuestions = moreQuestions,
         )
     }
 

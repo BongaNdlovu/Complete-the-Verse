@@ -85,6 +85,18 @@ object Save {
     }
 
     /**
+     * After a disk merge written from [successor], keep a newer in-memory
+     * publish (e.g. Daily's first finished stamp) instead of assigning the
+     * stale merge over it.
+     */
+    fun commitPersist(merged: SaveBlob, successor: SaveBlob?, latest: SaveBlob?): SaveBlob {
+        if (latest != null && latest !== successor) {
+            return overlaySuccessorLocal(merged, latest)
+        }
+        return merged
+    }
+
+    /**
      * Recover corrupt JSON to DEFAULT_SAVE and stash the broken raw under [BROKEN_KEY].
      */
     fun loadFromRaw(raw: String?): LoadResult {

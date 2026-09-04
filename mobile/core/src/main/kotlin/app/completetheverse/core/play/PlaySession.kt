@@ -4,8 +4,10 @@ import app.completetheverse.core.assemble.Assemble
 import app.completetheverse.core.assemble.AssembleBoard
 import app.completetheverse.core.bank.TfClaim
 import app.completetheverse.core.bank.Verse
+import app.completetheverse.core.practice.Practice
 import app.completetheverse.core.save.Save
 import app.completetheverse.core.save.SaveBlob
+import app.completetheverse.core.srs.Srs
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -33,6 +35,8 @@ data class PlayConfig(
     val title: String = "The Record",
     val todayKey: String = Modes.todayKey(),
     val teamStart: String = "white",
+    val moreQuestions: ((Int) -> PlayQuestion?)? = null,
+    val today: Int = Srs.dayNumber(),
 )
 
 data class PlayResult(
@@ -131,7 +135,8 @@ class PlaySession private constructor(private val config: PlayConfig) {
     var dailyRecorded: Boolean = false
         private set
 
-    val questions: List<PlayQuestion> get() = config.questions
+    private val questionList: MutableList<PlayQuestion> = config.questions.toMutableList()
+    val questions: List<PlayQuestion> get() = questionList
     val mode: String get() = config.mode
     val diff: Diff get() = config.diff
     val clockPolicy: ClockPolicy get() = config.clockPolicy
@@ -352,7 +357,7 @@ class PlaySession private constructor(private val config: PlayConfig) {
             return
         }
         val next = index + 1
-        if (next >= questions.size) {
+        if (ensureQuestion(next) == null) {
             finish("complete")
             return
         }
@@ -365,12 +370,20 @@ class PlaySession private constructor(private val config: PlayConfig) {
         confirmAbandon = false
         handoffPending = false
         val next = index + 1
-        if (next >= questions.size) {
+        if (ensureQuestion(next) == null) {
             finish("complete")
             return
         }
         index = next
         armQuestion()
+    }
+
+    private fun ensureQuestion(at: Int): PlayQuestion? {
+        while (at >= questionList.size) {
+            val extra = config.moreQuestions?.invoke(questionList.size) ?: return null
+            questionList.add(extra)
+        }
+        return questionList.getOrNull(at)
     }
 
     fun shouldOfferOverdrive(): Boolean {
@@ -436,8 +449,17 @@ class PlaySession private constructor(private val config: PlayConfig) {
         }
         val skipMastery = mode == "team" || mode == "beat"
         if (recordVerse && !skipMastery && q?.verse != null && q.mechanic != Mechanic.TrueFalse) {
-            save = recordVerse(save, q.verse, ok)
-            save = bumpLife(save, ok)
+            val gradeMode = if (q.typed) "assembly" else "choice"
+            val applied = Practice.applyAnswer(
+                save = save,
+                verse = q.verse,
+                correct = ok,
+                timedOut = timedOut,
+                fraction = fractionNow(),
+                today = config.today,
+                mode = gradeMode,
+            )
+            save = applied.save
             config.persist?.persist(save)
         }
         if (ok && shouldOfferOverdrive()) {
@@ -609,32 +631,6 @@ class PlaySession private constructor(private val config: PlayConfig) {
             if (ok) teamWhiteKept++
             teamWhiteMs += spent
         }
-    }
-
-    private fun recordVerse(blob: SaveBlob, verse: Verse, ok: Boolean): SaveBlob {
-        val books = ((blob["books"] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
-        val book = ((books[verse.b] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
-        book["a"] = JsonPrimitive(jsonInt(book["a"]) + 1)
-        if (ok) book["c"] = JsonPrimitive(jsonInt(book["c"]) + 1)
-        books[verse.b] = JsonObject(book)
-        val verses = ((blob["verse"] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
-        val row = ((verses[verse.id] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
-        row["a"] = JsonPrimitive(jsonInt(row["a"]) + 1)
-        if (ok) row["c"] = JsonPrimitive(jsonInt(row["c"]) + 1)
-        verses[verse.id] = JsonObject(row)
-        val out = blob.toMutableMap()
-        out["books"] = JsonObject(books)
-        out["verse"] = JsonObject(verses)
-        return JsonObject(out)
-    }
-
-    private fun bumpLife(blob: SaveBlob, ok: Boolean): SaveBlob {
-        val life = ((blob["life"] as? JsonObject)?.toMutableMap() ?: mutableMapOf())
-        life["attempts"] = JsonPrimitive(jsonInt(life["attempts"]) + 1)
-        if (ok) life["correct"] = JsonPrimitive(jsonInt(life["correct"]) + 1)
-        val out = blob.toMutableMap()
-        out["life"] = JsonObject(life)
-        return JsonObject(out)
     }
 
     private fun clockDuration(

@@ -135,6 +135,7 @@ class PlayViewModel : ViewModel() {
         save: SaveBlob? = null,
         teamStart: String = "white",
         todayKey: String = "",
+        moreQuestions: ((Int) -> PlayQuestion?)? = null,
     ) {
         if (questions.isEmpty()) return
         cancelSessionJobs()
@@ -163,6 +164,7 @@ class PlayViewModel : ViewModel() {
                     title = title,
                     teamStart = teamStart,
                     todayKey = todayKey,
+                    moreQuestions = moreQuestions,
                 ),
             )
             if (gen != sessionGeneration) return@launch
