@@ -84,7 +84,7 @@ fun TabletsLibraryScreen(
                 GhostButton("Hall", onClick = onBack)
             }
             Text(
-                text = "Carve the missing KJV word before the clock runs out. One miss shatters the Hold.",
+                text = "Carve the missing KJV word before the clock runs out. Two lamps guard the tablet: one miss is not Held; a second miss or empty sand shatters.",
                 modifier = Modifier.widthIn(max = 560.dp).padding(bottom = 14.dp),
                 color = CtvColors.parchDim,
                 fontFamily = CtvFonts.body,

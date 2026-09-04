@@ -83,6 +83,7 @@ fun TabletsHoldScreen(
     streak: Int,
     paused: Boolean,
     confirmAbandon: Boolean,
+    showPauseOverlay: Boolean = paused || confirmAbandon,
     reducedMotion: Boolean,
     skipHeavy: Boolean,
     flyTick: Int,
@@ -210,7 +211,7 @@ fun TabletsHoldScreen(
                 }
             }
         }
-        if (paused || confirmAbandon) {
+        if (showPauseOverlay) {
             PauseOverlay(
                 remain = remain,
                 lamps = lamps,

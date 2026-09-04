@@ -92,10 +92,11 @@ class TabletsViewModel : ViewModel() {
         private set
     var shatterTick by mutableIntStateOf(0)
         private set
+    var pausedByHide by mutableStateOf(false)
+        private set
 
     private var session: TabletsSession? = null
     private var sessionGeneration = 0
-    private var beginJob: Job? = null
     private var resolveJob: Job? = null
     private var reduced = false
     private var skipHeavy = false
@@ -105,13 +106,22 @@ class TabletsViewModel : ViewModel() {
         skipHeavy = reducedMotion || quality != "high"
         save = blob
         if (bank != null) groups = Tablets.library(bank, blob)
+        if (!Tablets.tutorialDone(blob) && uiPhase == TabletsUiPhase.Library && session == null) {
+            tutorial = true
+            uiPhase = TabletsUiPhase.Hold
+        }
     }
 
     fun shouldAutoTutorial(blob: SaveBlob): Boolean = !Tablets.tutorialDone(blob)
 
+    fun canOpenChapter(id: String, asTutorial: Boolean = false): Boolean {
+        if (asTutorial || id == "prayer") return true
+        return Tablets.tutorialDone(save)
+    }
+
     fun tickClock() {
         val s = session ?: return
-        if (s.phase != TabletsPhase.Playing || s.untimed) {
+        if (pausedByHide || s.phase != TabletsPhase.Playing || s.untimed) {
             remainingMs = s.remainingMs()
             return
         }
@@ -119,33 +129,52 @@ class TabletsViewModel : ViewModel() {
         publish()
     }
 
+    fun onHidden() {
+        val s = session ?: return
+        if (uiPhase != TabletsUiPhase.Hold || s.ended) return
+        if (s.phase == TabletsPhase.Paused || confirmAbandon) return
+        pausedByHide = true
+        s.pause()
+        publish()
+    }
+
+    fun onVisible() {
+        if (!pausedByHide) return
+        pausedByHide = false
+        if (confirmAbandon) return
+        resume()
+    }
+
     fun begin(bank: TabletsBank, id: String, saves: SaveCoordinator, tutorial: Boolean? = null) {
+        if (!canOpenChapter(id, asTutorial = tutorial == true)) return
+        val chapterId = if (!Tablets.tutorialDone(save)) "prayer" else id
+        val wantTut = tutorial == true || chapterId == "prayer" || Tablets.chapter(bank, chapterId).tutorial
+        chapter = Tablets.chapter(bank, chapterId)
+        this.tutorial = wantTut
+        untimed = reduced || wantTut
+        uiPhase = TabletsUiPhase.Hold
+        result = null
+        pausedByHide = false
         cancelJobs()
-        val gen = ++sessionGeneration
-        beginJob = viewModelScope.launch {
-            val loaded = saves.persistMerged()
-            if (gen != sessionGeneration) return@launch
-            save = loaded
-            val run = TabletsSession.start(
-                TabletsConfig(
-                    bank = bank,
-                    chapterId = id,
-                    save = loaded,
-                    tutorial = tutorial,
-                    untimed = reduced || tutorial == true,
-                    persist = PlayPersister { blob -> saves.persistAsync(blob) },
-                    rng = { Random.nextDouble() },
-                    nowMs = { SystemClock.elapsedRealtime() },
-                    diff = Diffs.watchman,
-                ),
-            )
-            if (gen != sessionGeneration) return@launch
-            session = run
-            result = null
-            uiPhase = TabletsUiPhase.Hold
-            token++
-            publish()
-        }
+        val loaded = saves.snapshot()
+        save = loaded
+        val run = TabletsSession.start(
+            TabletsConfig(
+                bank = bank,
+                chapterId = chapterId,
+                save = loaded,
+                tutorial = wantTut,
+                untimed = reduced || wantTut,
+                persist = PlayPersister { blob -> saves.persistAsync(blob) },
+                rng = { Random.nextDouble() },
+                nowMs = { SystemClock.elapsedRealtime() },
+                diff = Diffs.watchman,
+            ),
+        )
+        session = run
+        token++
+        publish()
+        saves.persistAsync(loaded)
     }
 
     fun pick(word: String) {
@@ -173,6 +202,7 @@ class TabletsViewModel : ViewModel() {
     }
 
     fun resume() {
+        pausedByHide = false
         session?.resume()
         token++
         publish()
@@ -290,8 +320,6 @@ class TabletsViewModel : ViewModel() {
 
     private fun cancelJobs() {
         sessionGeneration++
-        beginJob?.cancel()
-        beginJob = null
         resolveJob?.cancel()
         resolveJob = null
         session = null

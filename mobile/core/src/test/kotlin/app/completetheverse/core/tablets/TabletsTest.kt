@@ -219,6 +219,19 @@ class TabletsTest {
     }
 
     @Test
+    fun pauseStopsTheSandUntilResume() {
+        val session = start("psalm23")
+        session.pause()
+        session.tick(25.1)
+        assertFalse(session.ended)
+        assertEquals(25.0, session.tabletClock, 0.001)
+        session.resume()
+        session.tick(25.1)
+        assertTrue(session.ended)
+        assertTrue(session.tabletTimeout)
+    }
+
+    @Test
     fun timeoutShattersTheHold() {
         val session = start("psalm23")
         assertEquals(25.0, session.tabletClock, 0.001)

@@ -2,11 +2,28 @@ package app.completetheverse.ui.tablets
 
 import android.os.SystemClock
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import app.completetheverse.core.tablets.Tablets
 import app.completetheverse.core.tablets.TabletsBank
 import app.completetheverse.save.SaveCoordinator
+import app.completetheverse.ui.components.HallBackdrop
+import app.completetheverse.ui.theme.CtvColors
+import app.completetheverse.ui.theme.CtvFonts
 import kotlinx.coroutines.delay
 
 @Composable
@@ -21,20 +38,52 @@ fun TabletsRoute(
     onExit: () -> Unit,
     viewModel: TabletsViewModel = viewModel(),
 ) {
+    val tutorialDone = Tablets.tutorialDone(saves.snapshot()) || Tablets.tutorialDone(viewModel.save)
+
     LaunchedEffect(bankReady, bank, saveGeneration, reducedMotion, quality) {
         viewModel.hydrate(bank, saves.snapshot(), reducedMotion, quality)
-        if (bankReady && bank != null && viewModel.uiPhase == TabletsUiPhase.Library &&
-            viewModel.shouldAutoTutorial(saves.snapshot())
+        if (!bankReady || bank == null) return@LaunchedEffect
+        if (viewModel.uiPhase == TabletsUiPhase.Results) return@LaunchedEffect
+        if (viewModel.shouldAutoTutorial(saves.snapshot()) &&
+            (viewModel.uiPhase != TabletsUiPhase.Hold || viewModel.chapter == null)
         ) {
             viewModel.begin(bank, "prayer", saves, tutorial = true)
         }
     }
 
-    LaunchedEffect(viewModel.token, viewModel.uiPhase, viewModel.untimed, viewModel.paused) {
-        if (viewModel.uiPhase != TabletsUiPhase.Hold || viewModel.untimed || viewModel.paused) return@LaunchedEffect
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_PAUSE -> viewModel.onHidden()
+                Lifecycle.Event.ON_START, Lifecycle.Event.ON_RESUME -> viewModel.onVisible()
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(
+        viewModel.token,
+        viewModel.uiPhase,
+        viewModel.untimed,
+        viewModel.paused,
+        viewModel.pausedByHide,
+    ) {
+        if (viewModel.uiPhase != TabletsUiPhase.Hold || viewModel.untimed ||
+            viewModel.paused || viewModel.pausedByHide
+        ) {
+            return@LaunchedEffect
+        }
         val token = viewModel.token
         var last = SystemClock.elapsedRealtime()
-        while (viewModel.uiPhase == TabletsUiPhase.Hold && viewModel.token == token && !viewModel.paused) {
+        while (
+            viewModel.uiPhase == TabletsUiPhase.Hold &&
+            viewModel.token == token &&
+            !viewModel.paused &&
+            !viewModel.pausedByHide
+        ) {
             val now = SystemClock.elapsedRealtime()
             if (now != last) viewModel.tickClock()
             last = now
@@ -59,28 +108,34 @@ fun TabletsRoute(
 
     BackHandler { leaveHold() }
 
-    when (viewModel.uiPhase) {
-        TabletsUiPhase.Library -> TabletsLibraryScreen(
-            groups = viewModel.groups,
-            bankReady = bankReady,
-            loadError = loadError,
-            onOpen = { id, tutorial ->
-                if (bank != null) viewModel.begin(bank, id, saves, tutorial = if (tutorial) true else null)
-            },
-            onBack = onExit,
-        )
-        TabletsUiPhase.Hold -> {
+    fun openChapter(id: String, tutorial: Boolean) {
+        if (bank == null) return
+        if (!viewModel.canOpenChapter(id, asTutorial = tutorial)) return
+        viewModel.begin(bank, id, saves, tutorial = if (tutorial) true else null)
+    }
+
+    when {
+        viewModel.uiPhase == TabletsUiPhase.Results -> {
+            val res = viewModel.result
+            if (res == null) {
+                viewModel.backToLibrary(bank)
+            } else {
+                TabletsResultsScreen(
+                    result = res,
+                    onRetry = { if (bank != null) viewModel.retry(bank, saves) },
+                    onNext = { if (bank != null) viewModel.nextChapter(bank, saves) },
+                    onLibrary = { viewModel.backToLibrary(bank) },
+                    onHall = {
+                        viewModel.backToLibrary(bank)
+                        onExit()
+                    },
+                )
+            }
+        }
+        viewModel.uiPhase == TabletsUiPhase.Hold || !tutorialDone -> {
             val ch = viewModel.chapter
             if (ch == null) {
-                TabletsLibraryScreen(
-                    groups = viewModel.groups,
-                    bankReady = bankReady,
-                    loadError = loadError,
-                    onOpen = { id, tutorial ->
-                        if (bank != null) viewModel.begin(bank, id, saves, tutorial = if (tutorial) true else null)
-                    },
-                    onBack = onExit,
-                )
+                LearnHoldPlaceholder(loadError = loadError)
             } else {
                 TabletsHoldScreen(
                     chapter = ch,
@@ -107,6 +162,7 @@ fun TabletsRoute(
                     streak = viewModel.streak,
                     paused = viewModel.paused,
                     confirmAbandon = viewModel.confirmAbandon,
+                    showPauseOverlay = (viewModel.paused && !viewModel.pausedByHide) || viewModel.confirmAbandon,
                     reducedMotion = reducedMotion,
                     skipHeavy = reducedMotion || quality != "high",
                     flyTick = viewModel.flyTick,
@@ -125,22 +181,27 @@ fun TabletsRoute(
                 )
             }
         }
-        TabletsUiPhase.Results -> {
-            val res = viewModel.result
-            if (res == null) {
-                viewModel.backToLibrary(bank)
-            } else {
-                TabletsResultsScreen(
-                    result = res,
-                    onRetry = { if (bank != null) viewModel.retry(bank, saves) },
-                    onNext = { if (bank != null) viewModel.nextChapter(bank, saves) },
-                    onLibrary = { viewModel.backToLibrary(bank) },
-                    onHall = {
-                        viewModel.backToLibrary(bank)
-                        onExit()
-                    },
-                )
-            }
-        }
+        else -> TabletsLibraryScreen(
+            groups = viewModel.groups,
+            bankReady = bankReady,
+            loadError = loadError,
+            onOpen = { id, tutorial -> openChapter(id, tutorial) },
+            onBack = onExit,
+        )
+    }
+}
+
+@Composable
+private fun LearnHoldPlaceholder(loadError: String?) {
+    Box(Modifier.fillMaxSize()) {
+        HallBackdrop()
+        Text(
+            text = loadError ?: "Learn the Hold",
+            modifier = Modifier.align(Alignment.Center).padding(24.dp),
+            color = if (loadError != null) CtvColors.bloodHot else CtvColors.goldDim,
+            fontFamily = CtvFonts.body,
+            fontStyle = FontStyle.Italic,
+            fontSize = 20.sp,
+        )
     }
 }
