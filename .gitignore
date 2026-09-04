@@ -31,4 +31,6 @@ remotion-video/
 local.properties
 android/**/build/
 android/.gradle/
+android-standalone/**/build/
+android-standalone/.gradle/
 .twa-signing.env

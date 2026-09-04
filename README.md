@@ -13,7 +13,12 @@ There is no bundler and no TypeScript. Classic `<script>` tags and globals are o
 
 ## Android APK
 
-Sideload the signed APK from GitHub Releases. Chrome “Install app” on the website is unchanged; both icons may sit on the same phone. The APK is a Trusted Web Activity for `https://complete-the-verse.vercel.app/` — it is not a rewrite of the game. Bump `package.json` together with `twa-manifest.json` `appVersion` / `appVersionCode`, then tag `v*` so CI attaches the APK. `.well-known/assetlinks.json` must be live on Vercel first.
+GitHub Releases can attach two APKs. Chrome “Install app” on the website is unchanged; all three may sit on the same phone.
+
+- **TWA** (`app.completetheverse.twa`) — opens the live site. `.well-known/assetlinks.json` must be live on Vercel first.
+- **Standalone** (`app.completetheverse.offline`) — copies `index.html`, `js/`, `css/`, `vendor/`, `assets/`, `audio/`, and `sfx/` into the APK. No Vercel after install. Large (full media). Play Store size limits do not apply to GitHub sideload.
+
+Bump `package.json` together with `twa-manifest.json` `appVersion` / `appVersionCode` and `android-standalone/app/build.gradle` `versionName` / `versionCode`, then tag `v*` so CI attaches both APKs.
 
 ## How to test and lint
 
@@ -41,7 +46,8 @@ A stranger should only need this table, then [`docs/DEVELOPER-GUIDE.md`](./docs/
 | `docs/` | Living docs. Snapshots in `docs/reports/`. |
 | `plans/` | Product and smoke plans. |
 | `supabase/` | Migrations + `submit-score` edge function. |
-| `android/` | Bubblewrap TWA Gradle project. Sideload the signed APK from GitHub Releases. |
+| `android/` | Bubblewrap TWA Gradle project. Opens the live Vercel site. |
+| `android-standalone/` | WebView APK. Packs the full web tree at build time. |
 | `twa-manifest.json` | Bubblewrap source of truth (`app.completetheverse.twa`). |
 | `.well-known/assetlinks.json` | Digital Asset Links for a chrome-less TWA. Must be live on Vercel before the APK is distributed. |
 

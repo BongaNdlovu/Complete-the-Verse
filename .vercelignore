@@ -17,4 +17,5 @@ scripts/
 .gitignore
 .DS_Store
 android/
+android-standalone/
 twa-manifest.json

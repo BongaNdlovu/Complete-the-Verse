@@ -1,0 +1,77 @@
+plugins {
+    id 'com.android.application'
+}
+
+def keystorePath = System.getenv("ANDROID_KEYSTORE_PATH") ?: project.findProperty("storeFile")
+def keystorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: project.findProperty("storePassword")
+def signingKeyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: project.findProperty("keyAlias")
+def signingKeyPassword = System.getenv("ANDROID_KEY_PASSWORD") ?: project.findProperty("keyPassword")
+def releaseStoreFile = keystorePath ? file(keystorePath) : null
+def hasReleaseSigning = releaseStoreFile != null && releaseStoreFile.exists() &&
+        keystorePassword && signingKeyAlias && signingKeyPassword
+def webAssetsDir = file("$buildDir/web-assets")
+
+android {
+    compileSdkVersion 36
+    namespace "app.completetheverse.offline"
+    if (hasReleaseSigning) {
+        signingConfigs {
+            release {
+                storeFile releaseStoreFile
+                storePassword keystorePassword
+                keyAlias signingKeyAlias
+                keyPassword signingKeyPassword
+            }
+        }
+    }
+    defaultConfig {
+        applicationId "app.completetheverse.offline"
+        minSdkVersion 21
+        targetSdkVersion 36
+        versionCode 183
+        versionName "1.8.3"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    sourceSets {
+        main {
+            assets.srcDirs += webAssetsDir
+        }
+    }
+}
+
+dependencies {
+    implementation "androidx.appcompat:appcompat:1.7.0"
+    implementation "androidx.webkit:webkit:1.12.1"
+}
+
+def webRoot = rootProject.file("..")
+tasks.register("copyWebAssets", Copy) {
+    from(webRoot) {
+        include "index.html"
+        include "sw.js"
+        include "manifest.webmanifest"
+        include "privacy.html"
+        include "js/**"
+        include "css/**"
+        include "vendor/**"
+        include "assets/**"
+        include "audio/**"
+        include "sfx/**"
+        exclude "audio/_orig_backup/**"
+    }
+    into webAssetsDir
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+tasks.named("preBuild").configure { dependsOn("copyWebAssets") }

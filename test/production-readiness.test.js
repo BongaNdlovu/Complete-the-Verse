@@ -312,6 +312,14 @@ assert(Array.isArray(fingerprints) && fingerprints.some((fp) =>
 assert(/Content-Type/.test(read("vercel.json")) &&
   /\.well-known\/assetlinks\.json/.test(read("vercel.json")),
   "Vercel serves assetlinks.json as application/json");
+assert(fs.existsSync(path.join(ROOT, "android-standalone", "app", "build.gradle")),
+  "standalone Android Gradle project exists");
+assert(/applicationId "app\.completetheverse\.offline"/.test(read("android-standalone/app/build.gradle")),
+  "standalone APK uses a different package id than the TWA");
+assert(/copyWebAssets/.test(read("android-standalone/app/build.gradle")) &&
+  /include "audio\/\*\*"/.test(read("android-standalone/app/build.gradle")) &&
+  /include "assets\/\*\*"/.test(read("android-standalone/app/build.gradle")),
+  "standalone build copies full assets and audio into the APK");
 
 if (failures.length) {
   console.error("FAIL (" + failures.length + ")");
