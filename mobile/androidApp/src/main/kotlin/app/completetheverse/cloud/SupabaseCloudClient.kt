@@ -22,6 +22,7 @@ import app.completetheverse.core.save.SaveJson
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -30,7 +31,9 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
+import java.io.IOException
 import java.time.Instant
+import kotlin.coroutines.cancellation.CancellationException
 
 class SupabaseCloudClient(
     context: Context,
@@ -52,6 +55,10 @@ class SupabaseCloudClient(
 
     fun currentEmail(): String? = supabase.auth.currentUserOrNull()?.email
 
+    suspend fun awaitInitialization() {
+        supabase.auth.awaitInitialization()
+    }
+
     suspend fun signInWithEmail(email: String): AuthResult {
         if (!configured()) return AuthResult(ok = false, reason = "not-configured")
         if (!isOnline()) return AuthResult(ok = false, reason = "offline")
@@ -65,13 +72,16 @@ class SupabaseCloudClient(
                 }
             }
             AuthResult(ok = true, reason = "sent")
+        } catch (e: TimeoutCancellationException) {
+            AuthResult(ok = false, reason = if (!isOnline()) "offline" else "unavailable")
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             val msg = (e.message ?: "").lowercase()
             when {
                 "rate" in msg || "too many" in msg -> AuthResult(ok = false, reason = "rate-limited")
                 "invalid" in msg && "email" in msg -> AuthResult(ok = false, reason = "invalid-email")
-                "timeout" in msg -> AuthResult(ok = false, reason = if (!isOnline()) "offline" else "unavailable")
-                else -> AuthResult(ok = true, reason = "sent")
+                else -> AuthResult(ok = false, reason = if (!isOnline()) "offline" else "unavailable")
             }
         }
     }
@@ -95,11 +105,15 @@ class SupabaseCloudClient(
             }
             if (isSignedIn()) AuthResult(ok = true, reason = "verified")
             else AuthResult(ok = false, reason = "no-session")
+        } catch (e: TimeoutCancellationException) {
+            AuthResult(ok = false, reason = "unavailable")
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             val msg = (e.message ?: "").lowercase()
             when {
                 "expired" in msg -> AuthResult(ok = false, reason = "otp-expired")
-                "timeout" in msg -> AuthResult(ok = false, reason = "unavailable")
+                e is IOException -> AuthResult(ok = false, reason = "unavailable")
                 else -> AuthResult(ok = false, reason = "invalid-token", message = e.message)
             }
         }
@@ -108,6 +122,8 @@ class SupabaseCloudClient(
     suspend fun signOut(): AuthResult {
         try {
             supabase.auth.signOut()
+        } catch (e: CancellationException) {
+            throw e
         } catch (_: Exception) {
         }
         lastRevision = 0
@@ -115,8 +131,9 @@ class SupabaseCloudClient(
         return AuthResult(ok = true)
     }
 
-    suspend fun pullSave(): JsonObject? {
-        val userId = supabase.auth.currentUserOrNull()?.id ?: return null
+    suspend fun pullSave(): PullSaveResult {
+        val userId = supabase.auth.currentUserOrNull()?.id
+            ?: return PullSaveResult(ok = false, reason = "signed-out")
         return try {
             val rows = withTimeout(8_000) {
                 supabase.from("saves").select {
@@ -125,9 +142,13 @@ class SupabaseCloudClient(
                     }
                 }.decodeList<JsonObject>()
             }
-            rows.firstOrNull()
+            PullSaveResult(ok = true, row = rows.firstOrNull())
+        } catch (e: TimeoutCancellationException) {
+            PullSaveResult(ok = false, reason = "pull-failed")
+        } catch (e: CancellationException) {
+            throw e
         } catch (_: Exception) {
-            null
+            PullSaveResult(ok = false, reason = "pull-failed")
         }
     }
 
@@ -136,7 +157,8 @@ class SupabaseCloudClient(
             ?: return AuthResult(ok = false, reason = "signed-out")
         return try {
             val peek = pullSave()
-            val remoteRev = peek?.get("revision")?.jsonPrimitive?.longOrNull ?: 0L
+            if (!peek.ok) return AuthResult(ok = false, reason = peek.reason ?: "rejected")
+            val remoteRev = peek.row?.get("revision")?.jsonPrimitive?.longOrNull ?: 0L
             if (lastRevision > 0 && remoteRev > lastRevision) {
                 return AuthResult(ok = false, reason = "stale-revision")
             }
@@ -152,6 +174,10 @@ class SupabaseCloudClient(
             }
             lastRevision = nextRev
             AuthResult(ok = true)
+        } catch (e: TimeoutCancellationException) {
+            AuthResult(ok = false, reason = "rejected")
+        } catch (e: CancellationException) {
+            throw e
         } catch (_: Exception) {
             AuthResult(ok = false, reason = "rejected")
         }
@@ -159,7 +185,9 @@ class SupabaseCloudClient(
 
     suspend fun syncOnBoot(localSave: SaveBlob): SyncResult {
         if (!isSignedIn()) return SyncResult(ok = false, reason = "signed-out", save = localSave)
-        val remote = pullSave()
+        val pull = pullSave()
+        if (!pull.ok) return SyncResult(ok = false, reason = pull.reason ?: "pull-failed", save = localSave)
+        val remote = pull.row
         val payload = remote?.get("payload") as? JsonObject
         if (payload == null || payload.isEmpty()) {
             pushSave(localSave)
@@ -223,6 +251,11 @@ class SupabaseCloudClient(
                     AuthResult(ok = true)
                 }
             }
+        } catch (e: TimeoutCancellationException) {
+            Cloud.setLastSubmitVia(null)
+            AuthResult(ok = false, reason = "trusted-submit-unavailable")
+        } catch (e: CancellationException) {
+            throw e
         } catch (_: Exception) {
             Cloud.setLastSubmitVia(null)
             AuthResult(ok = false, reason = "trusted-submit-unavailable")
@@ -237,3 +270,9 @@ class SupabaseCloudClient(
         return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 }
+
+data class PullSaveResult(
+    val ok: Boolean,
+    val row: JsonObject? = null,
+    val reason: String? = null,
+)

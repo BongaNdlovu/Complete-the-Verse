@@ -292,6 +292,7 @@ object MergeSave {
 internal fun jsNumber(el: JsonElement?): Double {
     if (el == null || el is JsonNull) return 0.0
     val p = el as? JsonPrimitive ?: return 0.0
+    p.booleanOrNullCompat()?.let { return if (it) 1.0 else 0.0 }
     p.doubleOrNull?.let { return if (it.isNaN()) 0.0 else it }
     val content = p.content
     return content.toDoubleOrNull() ?: 0.0

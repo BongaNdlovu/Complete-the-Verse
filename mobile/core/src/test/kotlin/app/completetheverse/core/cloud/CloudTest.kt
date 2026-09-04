@@ -32,8 +32,8 @@ class CloudTest {
     }
 
     @Test
-    fun notConfiguredWithoutKeys() {
-        assertTrue(!Cloud.configured() || true)
+    fun configuredWithEmbeddedKeys() {
+        assertTrue(Cloud.configured())
     }
 
     @Test
@@ -118,6 +118,25 @@ class CloudTest {
             JsonObject(emptyMap()),
         )
         assertEquals(3, onlyLocal.int("xp"), "empty remote keeps local xp")
+    }
+
+    @Test
+    fun mergeSaveKeepsBeatGoliathHeldTruthy() {
+        val blob = parse(
+            """
+            {
+              "life": { "beatGoliathHeld": true },
+              "srs": { "keep": true },
+              "best": {},
+              "pilgrim": { "sites": {}, "usedIds": [] }
+            }
+            """.trimIndent(),
+        )
+        val m = Cloud.mergeSave(blob, blob)
+        val held = m.obj("life")["beatGoliathHeld"]
+        val truthy = held?.jsonPrimitive?.booleanOrNull == true ||
+            (held.doubleVal() != 0.0)
+        assertTrue(truthy, "beatGoliathHeld stays truthy after mergeSave with itself")
     }
 
     @Test

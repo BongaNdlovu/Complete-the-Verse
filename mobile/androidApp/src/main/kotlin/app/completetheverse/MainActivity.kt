@@ -37,10 +37,11 @@ class MainActivity : ComponentActivity() {
                     var otp by remember { mutableStateOf("") }
                     var status by remember { mutableStateOf("") }
                     var busy by remember { mutableStateOf(false) }
-                    var signedIn by remember { mutableStateOf(cloud.isSignedIn()) }
-                    var signedInEmail by remember { mutableStateOf(cloud.currentEmail()) }
+                    var signedIn by remember { mutableStateOf(false) }
+                    var signedInEmail by remember { mutableStateOf<String?>(null) }
 
                     LaunchedEffect(Unit) {
+                        cloud.awaitInitialization()
                         email = saveRepository.pendingEmail()
                         val local = saveRepository.load()
                         if (cloud.isSignedIn()) {
