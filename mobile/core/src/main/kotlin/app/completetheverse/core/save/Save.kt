@@ -355,6 +355,14 @@ object Save {
     fun markIntroPlayed(save: SaveBlob): SaveBlob =
         patchSet(save, "introPlayed" to JsonPrimitive(true))
 
+    fun tutorialDone(save: SaveBlob): Boolean = boolSet(save, "tutorialDone")
+
+    fun markTutorialDone(save: SaveBlob): SaveBlob = patchSet(
+        save,
+        "tutorialDone" to JsonPrimitive(true),
+        "tutorialSeen" to JsonPrimitive(true),
+    )
+
     fun commitProfile(save: SaveBlob, name: String, scholarId: String): SaveBlob {
         val id = Scholars.resolve(scholarId).id
         val trimmed = name.trim().take(32)

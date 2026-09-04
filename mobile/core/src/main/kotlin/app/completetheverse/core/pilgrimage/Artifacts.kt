@@ -81,6 +81,8 @@ object Artifacts {
     fun count(): Int = all.size
     fun forSite(siteId: String): Artifact? = bySite[siteId]
     fun byId(id: String): Artifact? = byId[id]
+    fun assetPath(artifact: Artifact): String = "artifacts/${artifact.id}.png"
+    fun assetPath(id: String): String = "artifacts/$id.png"
 
     fun blank(): ArtifactStore = ArtifactStore()
 

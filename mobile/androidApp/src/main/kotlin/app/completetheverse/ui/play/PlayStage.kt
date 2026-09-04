@@ -119,6 +119,8 @@ fun PlayStage(
     onHall: () -> Unit,
     resultsPrimaryLabel: String = "Return to the hall",
     onResultsHall: (() -> Unit)? = null,
+    guideKick: String? = null,
+    guideCopy: String? = null,
     modifier: Modifier = Modifier,
 ) {
     if (phase == PlayPhase.Results && result != null) {
@@ -159,6 +161,9 @@ fun PlayStage(
                 multiplier = multiplier,
                 onPause = onPause,
             )
+            if (guideCopy != null) {
+                LessonGuide(kick = guideKick, copy = guideCopy)
+            }
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -223,6 +228,38 @@ private fun headerProgress(mode: String, index: Int, total: Int, correct: Int, t
         "endless" -> "Q ${index + 1}"
         "team" -> "${if (teamSide == "blue") "Blue" else "White"} · $local / 5"
         else -> "Q ${index + 1} / $total"
+    }
+}
+
+@Composable
+private fun LessonGuide(kick: String?, copy: String) {
+    HallPanel(
+        modifier = Modifier
+            .widthIn(max = 720.dp)
+            .fillMaxWidth()
+            .padding(top = 12.dp),
+        cut = 10.dp,
+    ) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            if (kick != null) {
+                Text(
+                    text = kick.uppercase(),
+                    color = CtvColors.goldDim,
+                    fontFamily = CtvFonts.ui,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 11.sp,
+                    letterSpacing = 0.16.em,
+                )
+            }
+            Text(
+                text = copy,
+                color = CtvColors.parch,
+                fontFamily = CtvFonts.body,
+                fontStyle = FontStyle.Italic,
+                fontSize = 15.sp,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
     }
 }
 

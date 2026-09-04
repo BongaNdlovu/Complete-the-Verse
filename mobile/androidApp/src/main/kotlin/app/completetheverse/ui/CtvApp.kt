@@ -22,6 +22,8 @@ import app.completetheverse.core.characters.Scholars
 import app.completetheverse.core.cloud.Cloud
 import app.completetheverse.core.pilgrimage.Arc
 import app.completetheverse.core.pilgrimage.Site
+import app.completetheverse.core.pilgrimage.Artifacts
+import app.completetheverse.core.records.BlitzBoardRow
 import app.completetheverse.core.save.Save
 import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.core.tablets.TabletsBank
@@ -33,12 +35,17 @@ import app.completetheverse.ui.hall.HallScreen
 import app.completetheverse.ui.hall.PLAYABLE_MODE_KEYS
 import app.completetheverse.ui.intro.BootSplash
 import app.completetheverse.ui.intro.IntroScreen
+import app.completetheverse.ui.lessons.LessonsRoute
 import app.completetheverse.ui.pilgrimage.PilgrimageRoute
 import app.completetheverse.ui.play.ModeRoute
 import app.completetheverse.ui.practice.PracticeRoute
 import app.completetheverse.ui.profile.CharacterPickScreen
+import app.completetheverse.ui.records.RecordsScreen
+import app.completetheverse.ui.relics.RelicsScreen
+import app.completetheverse.ui.seals.SealsScreen
 import app.completetheverse.ui.settings.SettingsScreen
 import app.completetheverse.ui.settings.SettingsStore
+import app.completetheverse.ui.study.StudyRoute
 import app.completetheverse.ui.tablets.TabletsRoute
 import app.completetheverse.ui.theme.CtvColors
 import kotlinx.coroutines.delay
@@ -54,6 +61,11 @@ private sealed interface CtvScreen {
     data class Mode(val key: String) : CtvScreen
     data object Pilgrimage : CtvScreen
     data object Tablets : CtvScreen
+    data object Study : CtvScreen
+    data object Relics : CtvScreen
+    data object Seals : CtvScreen
+    data object Records : CtvScreen
+    data class Lessons(val fromSettings: Boolean) : CtvScreen
     data class ComingSoon(val kick: String, val title: String) : CtvScreen
 }
 
@@ -70,6 +82,11 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             is CtvScreen.Mode -> "mode\u001f${screen.key}"
             CtvScreen.Pilgrimage -> "pilgrimage"
             CtvScreen.Tablets -> "tablets"
+            CtvScreen.Study -> "study"
+            CtvScreen.Relics -> "relics"
+            CtvScreen.Seals -> "seals"
+            CtvScreen.Records -> "records"
+            is CtvScreen.Lessons -> if (screen.fromSettings) "lessons-set" else "lessons"
             is CtvScreen.ComingSoon -> "soon\u001f${screen.kick}\u001f${screen.title}"
         }
     },
@@ -86,6 +103,12 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             "mode" -> CtvScreen.Mode(parts.getOrElse(1) { "trial" })
             "pilgrimage" -> CtvScreen.Pilgrimage
             "tablets" -> CtvScreen.Tablets
+            "study" -> CtvScreen.Study
+            "relics" -> CtvScreen.Relics
+            "seals" -> CtvScreen.Seals
+            "records" -> CtvScreen.Records
+            "lessons" -> CtvScreen.Lessons(false)
+            "lessons-set" -> CtvScreen.Lessons(true)
             "soon" -> CtvScreen.ComingSoon(
                 parts.getOrElse(1) { "" },
                 parts.getOrElse(2) { "" },
@@ -125,6 +148,7 @@ fun CtvApp(
     onSignOut: () -> Unit,
     onQuit: () -> Unit,
     onBlitzScore: (SaveBlob) -> Unit = {},
+    onFetchBlitzBoard: suspend (Int) -> List<BlitzBoardRow> = { emptyList() },
 ) {
     var screen by rememberSaveable(stateSaver = CtvScreenSaver) {
         mutableStateOf<CtvScreen>(CtvScreen.Boot)
@@ -170,6 +194,10 @@ fun CtvApp(
                 val pick = screen as CtvScreen.CharacterPick
                 if (pick.fromSettings) screen = CtvScreen.Settings else showQuit = true
             }
+            screen is CtvScreen.Lessons -> {
+                val lessons = screen as CtvScreen.Lessons
+                screen = if (lessons.fromSettings) CtvScreen.Settings else CtvScreen.Hall
+            }
             else -> afterHallBack()
         }
     }
@@ -199,8 +227,13 @@ fun CtvApp(
                 fromSettings = current.fromSettings,
                 onConfirm = { name, scholarId ->
                     if (saveGeneration == 0) return@CharacterPickScreen
-                    saves.persistAsync(Save.commitProfile(saves.snapshot(), name, scholarId))
-                    screen = if (current.fromSettings) CtvScreen.Settings else CtvScreen.Hall
+                    val next = Save.commitProfile(saves.snapshot(), name, scholarId)
+                    saves.persistAsync(next)
+                    screen = when {
+                        current.fromSettings -> CtvScreen.Settings
+                        !Save.tutorialDone(next) -> CtvScreen.Lessons(false)
+                        else -> CtvScreen.Hall
+                    }
                 },
                 onBack = if (current.fromSettings) {
                     { screen = CtvScreen.Settings }
@@ -243,6 +276,11 @@ fun CtvApp(
                     when (item.id) {
                         "settings" -> screen = CtvScreen.Settings
                         "quit" -> showQuit = true
+                        "study" -> screen = CtvScreen.Study
+                        "relics" -> screen = CtvScreen.Relics
+                        "seals" -> screen = CtvScreen.Seals
+                        "records" -> screen = CtvScreen.Records
+                        "lessons" -> screen = CtvScreen.Lessons(false)
                         else -> screen = CtvScreen.ComingSoon(item.kick, item.title)
                     }
                 },
@@ -263,6 +301,7 @@ fun CtvApp(
                     if (saveGeneration == 0) return@SettingsScreen
                     screen = CtvScreen.CharacterPick(true)
                 },
+                onLessons = { screen = CtvScreen.Lessons(true) },
                 onBack = { screen = CtvScreen.Hall },
             )
             CtvScreen.Practice -> PracticeRoute(
@@ -304,6 +343,36 @@ fun CtvApp(
                 reducedMotion = settings.reduced || settings.motion != "full",
                 quality = settings.quality,
                 onExit = { screen = CtvScreen.Hall },
+            )
+            CtvScreen.Study -> StudyRoute(
+                verses = verses,
+                versesReady = versesReady,
+                verseError = verseError,
+                save = save,
+                saves = saves,
+                onExit = { screen = CtvScreen.Hall },
+            )
+            CtvScreen.Relics -> RelicsScreen(
+                store = Artifacts.fromSave(save),
+                sites = sites,
+                onBack = { screen = CtvScreen.Hall },
+            )
+            CtvScreen.Seals -> SealsScreen(
+                save = save,
+                onBack = { screen = CtvScreen.Hall },
+            )
+            CtvScreen.Records -> RecordsScreen(
+                save = save,
+                signedIn = cloudUi.ready && cloudUi.signedIn,
+                onFetchBlitzBoard = onFetchBlitzBoard,
+                onBack = { screen = CtvScreen.Hall },
+            )
+            is CtvScreen.Lessons -> LessonsRoute(
+                verses = verses,
+                saves = saves,
+                onExit = {
+                    screen = if (current.fromSettings) CtvScreen.Settings else CtvScreen.Hall
+                },
             )
             is CtvScreen.ComingSoon -> ComingSoonScreen(
                 kick = current.kick,

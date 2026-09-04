@@ -44,6 +44,8 @@ fun PlayRoute(
     onResult: (PlayResult) -> Unit = {},
     onHall: (() -> Unit)? = null,
     resultsPrimaryLabel: String = "Return to the hall",
+    guides: List<String> = emptyList(),
+    guideKickPrefix: String? = null,
     viewModel: PlayViewModel = viewModel(key = mode),
 ) {
     LaunchedEffect(questions, clockPolicy, lives, mode, teamStart, todayKey, title, diff) {
@@ -169,5 +171,7 @@ fun PlayRoute(
         onHall = { leave() },
         resultsPrimaryLabel = resultsPrimaryLabel,
         onResultsHall = if (onHall != null) ({ leaveToHall() }) else null,
+        guideKick = guideKickPrefix?.let { "$it · Lesson ${viewModel.index + 1} of ${viewModel.total}" },
+        guideCopy = guides.getOrNull(viewModel.index),
     )
 }

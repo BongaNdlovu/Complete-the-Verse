@@ -46,6 +46,7 @@ fun SettingsScreen(
     scholarHint: String,
     onChange: (CtvSettings) -> Unit,
     onChangeAvatar: () -> Unit,
+    onLessons: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -95,6 +96,12 @@ fun SettingsScreen(
                         text = scholarShort?.let { "Change · $it" } ?: "Choose avatar",
                         onClick = onChangeAvatar,
                     )
+                }
+                SetRow(
+                    label = "Lessons",
+                    hint = "The six first-light questions: recognition, passage, cloze, duel, fade, assemble.",
+                ) {
+                    GhostButton("Lessons", onClick = onLessons)
                 }
                 SetRow(
                     label = "Visual quality",

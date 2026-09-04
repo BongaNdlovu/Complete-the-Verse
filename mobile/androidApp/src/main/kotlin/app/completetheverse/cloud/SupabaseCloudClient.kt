@@ -7,6 +7,7 @@ import app.completetheverse.core.cloud.AuthResult
 import app.completetheverse.core.cloud.Cloud
 import app.completetheverse.core.cloud.CloudConfig
 import app.completetheverse.core.cloud.SyncResult
+import app.completetheverse.core.records.BlitzBoardRow
 import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.save.DataStoreSaveRepository
 import io.github.jan.supabase.auth.Auth
@@ -18,15 +19,21 @@ import io.github.jan.supabase.functions.Functions
 import io.github.jan.supabase.functions.functions
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.postgrest.query.Order
 import app.completetheverse.core.save.SaveJson
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
@@ -213,6 +220,62 @@ class SupabaseCloudClient(
             return AuthResult(ok = false, reason = "empty")
         }
         return submitBlitz(Cloud.blitzSubmitPayload(save))
+    }
+
+    suspend fun fetchBlitzBoard(limit: Int = 25): List<BlitzBoardRow> {
+        if (!isSignedIn()) return emptyList()
+        Cloud.setBoardLoadFailed(null)
+        return try {
+            val rows = withTimeout(8_000) {
+                supabase.from("blitz_scores").select(
+                    Columns.raw("id, user_id, score, survived_ms, diff, profiles(display_name)"),
+                ) {
+                    order("score", Order.DESCENDING)
+                    order("survived_ms", Order.DESCENDING)
+                    limit(limit.toLong())
+                }.decodeList<JsonObject>()
+            }
+            val mine = supabase.auth.currentUserOrNull()?.id
+            rows.mapIndexed { i, row ->
+                BlitzBoardRow(
+                    rank = i + 1,
+                    id = row["id"]?.jsonPrimitive?.contentOrNull ?: "",
+                    name = displayNameOf(row["profiles"]),
+                    score = jsonInt(row["score"]),
+                    survivedMs = row["survived_ms"]?.let { jsonLong(it) },
+                    mine = mine != null && row["user_id"]?.jsonPrimitive?.contentOrNull == mine,
+                )
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            Cloud.setBoardLoadFailed(if (!isOnline()) "offline" else "load-failed")
+            emptyList()
+        }
+    }
+
+    private fun displayNameOf(el: JsonElement?): String {
+        val raw = when (el) {
+            is JsonObject -> el["display_name"]?.jsonPrimitive?.contentOrNull
+            is JsonArray -> (el.firstOrNull() as? JsonObject)?.get("display_name")
+                ?.jsonPrimitive?.contentOrNull
+            is JsonPrimitive -> el.contentOrNull
+            else -> null
+        }?.trim().orEmpty()
+        return raw.take(32).ifBlank { "Pilgrim" }
+    }
+
+    private fun jsonInt(el: JsonElement?): Int {
+        val p = el as? JsonPrimitive ?: return 0
+        p.doubleOrNull?.let { return it.toInt() }
+        return p.content.toIntOrNull() ?: 0
+    }
+
+    private fun jsonLong(el: JsonElement?): Long? {
+        val p = el as? JsonPrimitive ?: return null
+        p.longOrNull?.let { return it }
+        p.doubleOrNull?.let { return it.toLong() }
+        return p.content.toLongOrNull()
     }
 
     suspend fun submitBlitz(payload: JsonObject): AuthResult {

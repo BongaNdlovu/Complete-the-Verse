@@ -398,7 +398,9 @@ class PlaySession private constructor(private val config: PlayConfig) {
 
     fun shouldOfferOverdrive(): Boolean {
         if (overdriveOffered) return false
-        if (config.mode == "beat" || config.mode == "team" || config.mode == "blitz") return false
+        if (config.mode == "beat" || config.mode == "team" || config.mode == "blitz" ||
+            config.mode == "tutorial" || config.mode == "study"
+        ) return false
         return streak == PlayClock.MOMENTUM_STEPS.last()
     }
 

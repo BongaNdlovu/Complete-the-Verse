@@ -115,6 +115,7 @@ val HALL_SUBNAV = listOf(
     HallSubnav("relics", "Relics", kick = "The Reliquary", title = "Historical Artifacts"),
     HallSubnav("seals", "Seals", kick = "Achievements", title = "Seals"),
     HallSubnav("records", "Records", kick = "Records", title = "The Chronicle"),
+    HallSubnav("lessons", "Lessons", kick = "First light", title = "Six Lessons"),
     HallSubnav("settings", "Settings"),
     HallSubnav("quit", "Quit game"),
 )

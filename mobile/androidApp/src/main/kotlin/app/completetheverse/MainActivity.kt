@@ -66,6 +66,7 @@ class MainActivity : ComponentActivity() {
                             if (cloud.isSignedIn()) cloud.flushBlitzBest(blob)
                         }
                     },
+                    onFetchBlitzBoard = saveVm::fetchBlitzBoard,
                 )
             }
         }

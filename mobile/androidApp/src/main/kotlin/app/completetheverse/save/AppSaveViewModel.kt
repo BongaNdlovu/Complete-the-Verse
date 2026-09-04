@@ -15,6 +15,7 @@ import app.completetheverse.core.cloud.Cloud
 import app.completetheverse.core.pilgrimage.Arc
 import app.completetheverse.core.pilgrimage.Site
 import app.completetheverse.core.pilgrimage.Sites
+import app.completetheverse.core.records.BlitzBoardRow
 import app.completetheverse.core.tablets.Tablets
 import app.completetheverse.core.tablets.TabletsBank
 import kotlinx.coroutines.Dispatchers
@@ -211,4 +212,7 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
     fun clearAuthStatus() {
         authStatus = ""
     }
+
+    suspend fun fetchBlitzBoard(limit: Int = 25): List<BlitzBoardRow> =
+        if (cloud.isSignedIn()) cloud.fetchBlitzBoard(limit) else emptyList()
 }
