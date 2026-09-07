@@ -4,8 +4,12 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.completetheverse.core.assemble.Assemble
 import app.completetheverse.core.bank.TfClaim
@@ -41,6 +45,7 @@ fun PlayRoute(
     todayKey: String = "",
     moreQuestions: ((Int) -> PlayQuestion?)? = null,
     wrapSave: ((SaveBlob, PlayFinishInfo) -> SaveBlob)? = null,
+    siteId: String? = null,
     onResult: (PlayResult) -> Unit = {},
     onHall: (() -> Unit)? = null,
     resultsPrimaryLabel: String = "Return to the hall",
@@ -48,7 +53,7 @@ fun PlayRoute(
     guideKickPrefix: String? = null,
     viewModel: PlayViewModel = viewModel(key = mode),
 ) {
-    LaunchedEffect(questions, clockPolicy, lives, mode, teamStart, todayKey, title, diff) {
+    LaunchedEffect(questions, clockPolicy, lives, mode, teamStart, todayKey, title, diff, siteId) {
         if (questions.isEmpty()) return@LaunchedEffect
         viewModel.begin(
             questions = questions,
@@ -65,6 +70,7 @@ fun PlayRoute(
             todayKey = todayKey,
             moreQuestions = moreQuestions,
             wrapSave = wrapSave,
+            siteId = siteId,
         )
     }
 
@@ -73,10 +79,30 @@ fun PlayRoute(
         onResult(result)
     }
 
-    LaunchedEffect(viewModel.questionToken, viewModel.phase, viewModel.ready) {
-        if (!viewModel.ready || viewModel.phase != PlayPhase.Playing) return@LaunchedEffect
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_PAUSE -> viewModel.onHidden()
+                Lifecycle.Event.ON_START, Lifecycle.Event.ON_RESUME -> viewModel.onVisible()
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(viewModel.questionToken, viewModel.phase, viewModel.ready, viewModel.pausedByHide) {
+        if (!viewModel.ready || viewModel.phase != PlayPhase.Playing || viewModel.pausedByHide) {
+            return@LaunchedEffect
+        }
         val token = viewModel.questionToken
-        while (viewModel.ready && viewModel.phase == PlayPhase.Playing && viewModel.questionToken == token) {
+        while (
+            viewModel.ready &&
+            viewModel.phase == PlayPhase.Playing &&
+            viewModel.questionToken == token &&
+            !viewModel.pausedByHide
+        ) {
             viewModel.tickClock()
             if (viewModel.locked || viewModel.phase != PlayPhase.Playing) break
             delay(50)
@@ -107,7 +133,7 @@ fun PlayRoute(
     }
 
     if (!viewModel.ready) {
-        Box(Modifier.fillMaxSize()) { HallBackdrop() }
+        Box(Modifier.fillMaxSize()) { HallBackdrop(videoEnabled = false) }
         return
     }
 
@@ -119,7 +145,7 @@ fun PlayRoute(
         claim = viewModel.claim,
         index = viewModel.index,
         total = viewModel.total,
-        remainingMs = viewModel.remainingNow(),
+        remainingMs = viewModel.remainingMs,
         durationMs = viewModel.durationMs,
         lives = viewModel.lives,
         maxLives = viewModel.maxLives,
@@ -173,5 +199,7 @@ fun PlayRoute(
         onResultsHall = if (onHall != null) ({ leaveToHall() }) else null,
         guideKick = guideKickPrefix?.let { "$it · Lesson ${viewModel.index + 1} of ${viewModel.total}" },
         guideCopy = guides.getOrNull(viewModel.index),
+        fxBeat = viewModel.fxBeat,
+        pausedByHide = viewModel.pausedByHide,
     )
 }

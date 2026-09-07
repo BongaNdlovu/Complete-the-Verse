@@ -63,7 +63,8 @@ const SUITE = [
   ["simulation", "test/playthrough-simulation.test.js"],
   ["diag", "test/diag.test.js"],
   ["david beat", "test/david-beat.test.js"],
-  ["word tablets", "test/tablets.test.js"]
+  ["word tablets", "test/tablets.test.js"],
+  ["content pipe", "test/content-pipe.test.js"]
 ];
 
 let failed = 0;

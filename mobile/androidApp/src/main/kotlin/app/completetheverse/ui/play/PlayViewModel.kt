@@ -29,6 +29,8 @@ import app.completetheverse.core.play.PlayResult
 import app.completetheverse.core.play.PlaySession
 import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.save.SaveCoordinator
+import app.completetheverse.ui.fx.FxBeat
+import app.completetheverse.ui.fx.fxBeatOf
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -97,6 +99,10 @@ class PlayViewModel : ViewModel() {
         private set
     var teamSide by mutableStateOf("white")
         private set
+    var fxBeat by mutableStateOf(FxBeat.Idle)
+        private set
+    var pausedByHide by mutableStateOf(false)
+        private set
 
     private var session: PlaySession? = null
     private var sessionGeneration = 0
@@ -122,6 +128,26 @@ class PlayViewModel : ViewModel() {
         }
     }
 
+    fun onHidden() {
+        val s = session ?: return
+        if (!ready || pausedByHide || s.phase != PlayPhase.Playing || !s.running || s.locked) return
+        pausedByHide = true
+        s.pause()
+        publish()
+    }
+
+    fun onVisible() {
+        if (!pausedByHide) return
+        pausedByHide = false
+        val s = session ?: return
+        if (s.confirmAbandon) {
+            publish()
+            return
+        }
+        s.resume()
+        publish()
+    }
+
     fun begin(
         questions: List<PlayQuestion>,
         clockPolicy: ClockPolicy,
@@ -138,12 +164,14 @@ class PlayViewModel : ViewModel() {
         todayKey: String = "",
         moreQuestions: ((Int) -> PlayQuestion?)? = null,
         wrapSave: ((SaveBlob, PlayFinishInfo) -> SaveBlob)? = null,
+        siteId: String? = null,
     ) {
         if (questions.isEmpty()) return
         cancelSessionJobs()
         val gen = ++sessionGeneration
         session = null
         result = null
+        pausedByHide = false
         phase = PlayPhase.Playing
         ready = false
         beginJob = viewModelScope.launch {
@@ -168,6 +196,7 @@ class PlayViewModel : ViewModel() {
                     todayKey = todayKey,
                     moreQuestions = moreQuestions,
                     wrapSave = wrapSave,
+                    siteId = siteId,
                 ),
             )
             if (gen != sessionGeneration) return@launch
@@ -265,6 +294,7 @@ class PlayViewModel : ViewModel() {
     fun abandon(saves: SaveCoordinator) {
         sessionGeneration++
         cancelSessionJobs()
+        pausedByHide = false
         val s = session
         if (s != null && s.phase != PlayPhase.Results) s.abandon()
         if (s != null) saves.persistAsync(s.save)
@@ -371,6 +401,7 @@ class PlayViewModel : ViewModel() {
         result = s.result
         title = s.title
         teamSide = s.teamSide
+        fxBeat = fxBeatOf(s.phase, s.locked, s.lastCorrect, s.streak)
     }
 
     private fun cancelAdvance() {

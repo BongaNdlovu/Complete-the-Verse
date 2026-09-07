@@ -278,6 +278,10 @@ assert(allNotesValid, "every verse note key resolves to a valid verse in the ban
 
 assert(/<script src="js\/verses-notes\.js"><\/script>/.test(index),
   "verses-notes.js is loaded in index.html");
+assert(/<script src="js\/content-json\.js"><\/script>/.test(index),
+  "PWA loads shared content JSON on http");
+assert(fs.existsSync(path.join(ROOT, "shared", "content", "verses.json")),
+  "shared/content/verses.json exists");
 assert(/res-verse-note/.test(results) && /VERSE_NOTES\[q\.id\]/.test(results),
   "verse context notes are surfaced on results resolution lines");
 assert(/vcard-note/.test(panels) && /VERSE_NOTES\[v\.id\]/.test(panels),
@@ -305,13 +309,37 @@ assert(Array.isArray(assetlinks) && assetlinks.length > 0,
 const twaLink = Array.isArray(assetlinks) && assetlinks.find((entry) =>
   entry && entry.target && entry.target.package_name === "app.completetheverse.twa");
 assert(twaLink, "assetlinks.json names package app.completetheverse.twa");
+const nativeLink = Array.isArray(assetlinks) && assetlinks.find((entry) =>
+  entry && entry.target && entry.target.package_name === "app.completetheverse");
+assert(nativeLink, "assetlinks.json names package app.completetheverse");
 const fingerprints = twaLink && twaLink.target && twaLink.target.sha256_cert_fingerprints;
+const nativePrints = nativeLink && nativeLink.target && nativeLink.target.sha256_cert_fingerprints;
+assert(Array.isArray(nativePrints) && nativePrints.some((fp) =>
+  typeof fp === "string" && /^[0-9A-F]{2}(:[0-9A-F]{2}){31}$/i.test(fp)),
+  "native assetlinks.json has a SHA-256 fingerprint");
 assert(Array.isArray(fingerprints) && fingerprints.some((fp) =>
   typeof fp === "string" && /^[0-9A-F]{2}(:[0-9A-F]{2}){31}$/i.test(fp)),
   "assetlinks.json has a SHA-256 fingerprint");
 assert(/Content-Type/.test(read("vercel.json")) &&
   /\.well-known\/assetlinks\.json/.test(read("vercel.json")),
   "Vercel serves assetlinks.json as application/json");
+const androidWorkflow = read(".github/workflows/android.yml");
+assert(/:androidApp:bundleRelease/.test(androidWorkflow),
+  "CI builds the native Play AAB");
+assert(/app-completetheverse-release\.aab/.test(androidWorkflow),
+  "CI names the Play AAB for GitHub Releases");
+const androidAppGradle = read("mobile/androidApp/build.gradle.kts");
+assert(/applicationId = "app\.completetheverse"/.test(androidAppGradle),
+  "native Play app uses package app.completetheverse");
+assert(/versionName = "1\.0\.0"/.test(androidAppGradle) && /versionCode = 1/.test(androidAppGradle),
+  "native Play app is version 1.0.0 / versionCode 1");
+const nativeCloud = read("mobile/androidApp/src/main/kotlin/app/completetheverse/cloud/SupabaseCloudClient.kt");
+assert(/Columns\.raw\("id, score, survived_ms, diff, profiles\(display_name\)"\)/.test(nativeCloud) &&
+  !/Columns\.raw\("id, user_id/.test(nativeCloud),
+  "native public Blitz board does not select user_id");
+const listingShort = (read("mobile/README.md").match(/Short \(80\): (.+)/) || [])[1] || "";
+assert(listingShort.length > 0 && listingShort.length <= 80,
+  "Play short description is 80 characters or fewer (got " + listingShort.length + ")");
 assert(fs.existsSync(path.join(ROOT, "android-standalone", "app", "build.gradle")),
   "standalone Android Gradle project exists");
 assert(/applicationId "app\.completetheverse\.offline"/.test(read("android-standalone/app/build.gradle")),

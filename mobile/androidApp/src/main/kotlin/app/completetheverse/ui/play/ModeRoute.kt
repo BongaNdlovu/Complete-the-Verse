@@ -13,6 +13,7 @@ import app.completetheverse.core.play.Diff
 import app.completetheverse.core.play.Diffs
 import app.completetheverse.core.play.ModeRun
 import app.completetheverse.core.play.Modes
+import app.completetheverse.core.play.PlayResult
 import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.hall.MODES
@@ -57,6 +58,7 @@ fun ModeRoute(
     saves: SaveCoordinator,
     onExit: () -> Unit,
     onBlitzScore: (SaveBlob) -> Unit = {},
+    onGhostFinish: (mode: String, siteId: String?, result: PlayResult) -> Unit = { _, _, _ -> },
     viewModel: ModeRunViewModel = viewModel(key = "mode-$modeKey"),
 ) {
     val hall = MODES[modeKey] ?: return
@@ -104,6 +106,7 @@ fun ModeRoute(
         moreQuestions = run.moreQuestions,
         onResult = { result ->
             if (run.mode == "blitz") onBlitzScore(result.save)
+            onGhostFinish(run.mode, null, result)
         },
     )
 }

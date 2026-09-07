@@ -76,6 +76,11 @@ object PlayClock {
 
     fun inOverdrive(streak: Int): Boolean =
         streak >= MOMENTUM_STEPS.last()
+
+    fun formatHud(remainingMs: Long): String {
+        val total = ((remainingMs + 999) / 1000).coerceAtLeast(0)
+        return "%02d:%02d".format(total / 60, total % 60)
+    }
 }
 
 data class ClockPolicy(

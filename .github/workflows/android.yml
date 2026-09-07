@@ -176,8 +176,21 @@ jobs:
           name: androidApp-release-apk
           path: mobile/androidApp/build/outputs/apk/release/*.apk
 
+      - name: Name androidApp AAB
+        run: |
+          mkdir -p dist
+          cp mobile/androidApp/build/outputs/bundle/release/*.aab dist/app-completetheverse-release.aab
+
       - name: Upload androidApp AAB
         uses: actions/upload-artifact@v4
         with:
           name: androidApp-release-aab
-          path: mobile/androidApp/build/outputs/bundle/release/*.aab
+          path: dist/app-completetheverse-release.aab
+
+      - name: Attach androidApp AAB to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/app-completetheverse-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

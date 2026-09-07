@@ -1,11 +1,13 @@
 package app.completetheverse.ui
 
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.completetheverse.core.bank.TfClaim
 import app.completetheverse.core.bank.Verse
@@ -30,8 +33,12 @@ import app.completetheverse.core.tablets.TabletsBank
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.components.HallToast
 import app.completetheverse.ui.components.QuitDialog
+import app.completetheverse.core.play.PlayResult
+import app.completetheverse.ui.beat.BeatRoute
 import app.completetheverse.ui.hall.ComingSoonScreen
 import app.completetheverse.ui.hall.HallScreen
+import app.completetheverse.ui.hall.MENU_ORDER
+import app.completetheverse.ui.hall.MODES
 import app.completetheverse.ui.hall.PLAYABLE_MODE_KEYS
 import app.completetheverse.ui.intro.BootSplash
 import app.completetheverse.ui.intro.IntroScreen
@@ -43,12 +50,19 @@ import app.completetheverse.ui.profile.CharacterPickScreen
 import app.completetheverse.ui.records.RecordsScreen
 import app.completetheverse.ui.relics.RelicsScreen
 import app.completetheverse.ui.seals.SealsScreen
+import app.completetheverse.ui.settings.CtvSettings
 import app.completetheverse.ui.settings.SettingsScreen
 import app.completetheverse.ui.settings.SettingsStore
 import app.completetheverse.ui.study.StudyRoute
 import app.completetheverse.ui.tablets.TabletsRoute
 import app.completetheverse.ui.theme.CtvColors
+import app.completetheverse.ui.theme.LocalVisualProfile
+import app.completetheverse.ui.theme.VisualProfile
 import kotlinx.coroutines.delay
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.doubleOrNull
 
 private sealed interface CtvScreen {
     data object Boot : CtvScreen
@@ -66,6 +80,7 @@ private sealed interface CtvScreen {
     data object Seals : CtvScreen
     data object Records : CtvScreen
     data class Lessons(val fromSettings: Boolean) : CtvScreen
+    data object Beat : CtvScreen
     data class ComingSoon(val kick: String, val title: String) : CtvScreen
 }
 
@@ -87,6 +102,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             CtvScreen.Seals -> "seals"
             CtvScreen.Records -> "records"
             is CtvScreen.Lessons -> if (screen.fromSettings) "lessons-set" else "lessons"
+            CtvScreen.Beat -> "beat"
             is CtvScreen.ComingSoon -> "soon\u001f${screen.kick}\u001f${screen.title}"
         }
     },
@@ -109,6 +125,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             "records" -> CtvScreen.Records
             "lessons" -> CtvScreen.Lessons(false)
             "lessons-set" -> CtvScreen.Lessons(true)
+            "beat" -> CtvScreen.Beat
             "soon" -> CtvScreen.ComingSoon(
                 parts.getOrElse(1) { "" },
                 parts.getOrElse(2) { "" },
@@ -149,6 +166,8 @@ fun CtvApp(
     onQuit: () -> Unit,
     onBlitzScore: (SaveBlob) -> Unit = {},
     onFetchBlitzBoard: suspend (Int) -> List<BlitzBoardRow> = { emptyList() },
+    raceCode: String? = null,
+    onGhostFinish: (mode: String, siteId: String?, result: PlayResult) -> Unit = { _, _, _ -> },
 ) {
     var screen by rememberSaveable(stateSaver = CtvScreenSaver) {
         mutableStateOf<CtvScreen>(CtvScreen.Boot)
@@ -159,6 +178,11 @@ fun CtvApp(
     var email by rememberSaveable { mutableStateOf("") }
     var otp by rememberSaveable { mutableStateOf("") }
 
+    LaunchedEffect(raceCode) {
+        val code = raceCode ?: return@LaunchedEffect
+        toast = "Race code $code — live friend race is not in this build."
+    }
+
     LaunchedEffect(cloudUi.pendingEmail) {
         if (email.isEmpty() && cloudUi.pendingEmail.isNotEmpty()) {
             email = cloudUi.pendingEmail
@@ -168,6 +192,46 @@ fun CtvApp(
     LaunchedEffect(saveGeneration) {
         if (saveGeneration == 0) return@LaunchedEffect
         screen = reconcileOnboarding(screen, saves.snapshot())
+        val hydrated = settingsFromSave(saves.snapshot(), settings)
+        settings = hydrated
+        settingsStore.save(hydrated)
+    }
+
+    fun persistSettings(next: CtvSettings) {
+        settings = next
+        settingsStore.save(next)
+        if (saveGeneration == 0) return
+        val defaults = Save.settingsOf(Save.DEFAULT)
+        val pairs = buildList<Pair<String, JsonElement>> {
+            add("quality" to JsonPrimitive(next.quality))
+            add("motion" to JsonPrimitive(next.motion))
+            add("reduced" to JsonPrimitive(next.reduced))
+            add("qualityLocked" to JsonPrimitive(next.qualityLocked))
+            add("haptics" to JsonPrimitive(next.haptics))
+            add("music" to JsonPrimitive(next.music.toDouble()))
+            add("sfx" to JsonPrimitive(next.sfx.toDouble()))
+            if (defaults.containsKey("musicMute")) add("musicMute" to JsonPrimitive(next.musicMute))
+            if (defaults.containsKey("sfxMute")) add("sfxMute" to JsonPrimitive(next.sfxMute))
+        }
+        saves.persistAsync(Save.patchSet(saves.snapshot(), *pairs.toTypedArray()))
+    }
+
+    val context = LocalContext.current
+    val systemReduced = remember(context) {
+        try {
+            Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f ||
+                Settings.Global.getFloat(context.contentResolver, Settings.Global.TRANSITION_ANIMATION_SCALE, 1f) == 0f
+        } catch (_: Exception) {
+            false
+        }
+    }
+    val visualProfile = remember(settings.quality, settings.motion, settings.reduced, systemReduced) {
+        VisualProfile(
+            quality = settings.quality,
+            motion = settings.motion,
+            reduced = settings.reduced,
+            systemReduced = systemReduced,
+        )
     }
 
     fun finishIntro() {
@@ -213,6 +277,7 @@ fun CtvApp(
         configured = cloudUi.configured,
     )
 
+    CompositionLocalProvider(LocalVisualProfile provides visualProfile) {
     Box(
         Modifier
             .fillMaxSize()
@@ -264,7 +329,18 @@ fun CtvApp(
             CtvScreen.Hall -> HallScreen(
                 onMode = { mode ->
                     when {
-                        mode.incoming -> toast = "${mode.name} is incoming."
+                        mode.key == "beat" -> screen = CtvScreen.Beat
+                        mode.key == "practice" -> screen = CtvScreen.Practice
+                        mode.key == "pilgrimage" -> screen = CtvScreen.Pilgrimage
+                        mode.key == "tablets" -> screen = CtvScreen.Tablets
+                        mode.key in PLAYABLE_MODE_KEYS -> screen = CtvScreen.Mode(mode.key)
+                        else -> screen = CtvScreen.ComingSoon(mode.kick, mode.name)
+                    }
+                },
+                onDigitKey = { idx ->
+                    val mode = MENU_ORDER.getOrNull(idx)?.let { MODES[it] } ?: return@HallScreen
+                    when {
+                        mode.key == "beat" -> screen = CtvScreen.Beat
                         mode.key == "practice" -> screen = CtvScreen.Practice
                         mode.key == "pilgrimage" -> screen = CtvScreen.Pilgrimage
                         mode.key == "tablets" -> screen = CtvScreen.Tablets
@@ -294,8 +370,9 @@ fun CtvApp(
                 scholarShort = scholar.short,
                 scholarHint = "${scholar.name} — your scholar. Portrait on the menu; they walk the map.",
                 onChange = { next ->
-                    settings = next
-                    settingsStore.save(next)
+                    persistSettings(
+                        if (next.quality != settings.quality) next.copy(qualityLocked = true) else next,
+                    )
                 },
                 onChangeAvatar = {
                     if (saveGeneration == 0) return@SettingsScreen
@@ -322,6 +399,7 @@ fun CtvApp(
                 saves = saves,
                 onExit = { screen = CtvScreen.Hall },
                 onBlitzScore = onBlitzScore,
+                onGhostFinish = onGhostFinish,
             )
             CtvScreen.Pilgrimage -> PilgrimageRoute(
                 sites = sites,
@@ -333,6 +411,7 @@ fun CtvApp(
                 saveGeneration = saveGeneration,
                 saves = saves,
                 onExit = { screen = CtvScreen.Hall },
+                onGhostFinish = onGhostFinish,
             )
             CtvScreen.Tablets -> TabletsRoute(
                 bank = tablets,
@@ -340,7 +419,7 @@ fun CtvApp(
                 loadError = tabletsError,
                 saveGeneration = saveGeneration,
                 saves = saves,
-                reducedMotion = settings.reduced || settings.motion != "full",
+                reducedMotion = visualProfile.isReduced,
                 quality = settings.quality,
                 onExit = { screen = CtvScreen.Hall },
             )
@@ -373,6 +452,10 @@ fun CtvApp(
                     screen = if (current.fromSettings) CtvScreen.Settings else CtvScreen.Hall
                 },
             )
+            CtvScreen.Beat -> BeatRoute(
+                incoming = MODES["beat"]?.incoming == true,
+                onBack = { screen = CtvScreen.Hall },
+            )
             is CtvScreen.ComingSoon -> ComingSoonScreen(
                 kick = current.kick,
                 title = current.title,
@@ -399,6 +482,32 @@ fun CtvApp(
             }
         }
     }
+    }
+}
+
+private fun settingsFromSave(save: SaveBlob, fallback: CtvSettings = CtvSettings()): CtvSettings {
+    val set = Save.settingsOf(save)
+    fun has(key: String) = set.containsKey(key)
+    val reducedFlag = if (has("reduced")) Save.boolSet(save, "reduced") else fallback.reduced
+    val motion = if (has("motion")) {
+        Save.stringSet(save, "motion").ifBlank { if (reducedFlag) "reduced" else "full" }
+    } else if (has("reduced") && reducedFlag) {
+        "reduced"
+    } else {
+        fallback.motion
+    }
+    val reduced = reducedFlag || motion == "reduced"
+    return CtvSettings(
+        quality = if (has("quality")) Save.stringSet(save, "quality", fallback.quality).ifBlank { fallback.quality } else fallback.quality,
+        reduced = reduced,
+        motion = motion,
+        qualityLocked = if (has("qualityLocked")) Save.boolSet(save, "qualityLocked") else fallback.qualityLocked,
+        haptics = if (has("haptics")) (set["haptics"] as? JsonPrimitive)?.booleanOrNull ?: fallback.haptics else fallback.haptics,
+        music = if (has("music")) (set["music"] as? JsonPrimitive)?.doubleOrNull?.toFloat() ?: fallback.music else fallback.music,
+        sfx = if (has("sfx")) (set["sfx"] as? JsonPrimitive)?.doubleOrNull?.toFloat() ?: fallback.sfx else fallback.sfx,
+        musicMute = if (has("musicMute")) Save.boolSet(save, "musicMute") else fallback.musicMute,
+        sfxMute = if (has("sfxMute")) Save.boolSet(save, "sfxMute") else fallback.sfxMute,
+    )
 }
 
 private fun reconcileOnboarding(current: CtvScreen, save: SaveBlob): CtvScreen {

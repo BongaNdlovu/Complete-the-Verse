@@ -22,8 +22,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.focusable
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -38,6 +43,9 @@ import app.completetheverse.ui.components.GhostButton
 import app.completetheverse.ui.components.HallBackdrop
 import app.completetheverse.ui.components.HallPanel
 import app.completetheverse.ui.components.Kick
+import app.completetheverse.ui.fx.CtvFxStack
+import app.completetheverse.ui.play.playChoiceKeys
+import app.completetheverse.ui.play.hallDigitFromKey
 import app.completetheverse.ui.theme.CtvColors
 import app.completetheverse.ui.theme.CtvFonts
 
@@ -50,10 +58,33 @@ fun HallScreen(
     cloudDim: Boolean,
     showSignIn: Boolean,
     onCloud: () -> Unit,
+    onDigitKey: ((Int) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier.fillMaxSize()) {
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(onDigitKey) {
+        if (onDigitKey != null) focusRequester.requestFocus()
+    }
+    Box(
+        modifier
+            .fillMaxSize()
+            .then(
+                if (onDigitKey != null) {
+                    Modifier
+                        .focusRequester(focusRequester)
+                        .focusable()
+                        .playChoiceKeys { key ->
+                            val idx = hallDigitFromKey(key) ?: return@playChoiceKeys false
+                            onDigitKey(idx)
+                            true
+                        }
+                } else {
+                    Modifier
+                },
+            ),
+    ) {
         HallBackdrop()
+        CtvFxStack()
         Column(
             modifier = Modifier
                 .fillMaxSize()

@@ -73,7 +73,7 @@ fun ComingSoonScreen(
             Spacer(Modifier.weight(1f))
             Filigree()
             Text(
-                text = "coming in Wave B",
+                text = "This chamber is not open yet.",
                 color = CtvColors.parchDim,
                 fontFamily = CtvFonts.body,
                 fontStyle = FontStyle.Italic,

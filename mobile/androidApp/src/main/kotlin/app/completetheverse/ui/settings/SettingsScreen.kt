@@ -114,21 +114,25 @@ fun SettingsScreen(
                             "low" to "Efficient",
                         ),
                         selected = settings.quality,
-                        onSelect = { onChange(settings.copy(quality = it)) },
+                        onSelect = { onChange(settings.copy(quality = it, qualityLocked = true)) },
                     )
                 }
                 SetRow(
-                    label = "Reduced motion",
+                    label = "Motion intensity",
                     hint = "Motion level for effects, grain and ambient loops.",
                 ) {
                     SegControl(
-                        options = listOf(false to "Off", true to "On"),
-                        selected = settings.reduced,
-                        onSelect = { reduced ->
+                        options = listOf(
+                            "full" to "Full",
+                            "calm" to "Calm",
+                            "reduced" to "Reduced",
+                        ),
+                        selected = settings.motion,
+                        onSelect = { motion ->
                             onChange(
                                 settings.copy(
-                                    reduced = reduced,
-                                    motion = if (reduced) "reduced" else "full",
+                                    motion = motion,
+                                    reduced = motion == "reduced",
                                 ),
                             )
                         },

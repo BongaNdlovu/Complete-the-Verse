@@ -38,6 +38,7 @@ data class PlayConfig(
     val moreQuestions: ((Int) -> PlayQuestion?)? = null,
     val today: Int = Srs.dayNumber(),
     val wrapSave: ((SaveBlob, PlayFinishInfo) -> SaveBlob)? = null,
+    val siteId: String? = null,
 )
 
 data class PlayResult(
@@ -149,6 +150,8 @@ class PlaySession private constructor(private val config: PlayConfig) {
     var lastTimedOut: Boolean = false
         private set
     var lastFraction: Double? = null
+        private set
+    var ghostSamples: List<GhostSample> = listOf(GhostSample(0L, 0.0))
         private set
 
     private val questionList: MutableList<PlayQuestion> = config.questions.toMutableList()
@@ -467,7 +470,7 @@ class PlaySession private constructor(private val config: PlayConfig) {
             val nextLeft = PlayClock.blitzAdjustMs(remainingMs(), ok)
             deadlineMs = nowMs() + nextLeft
         }
-        val skipMastery = mode == "team" || mode == "beat" || mode == "tutorial"
+        val skipMastery = mode == "team" || mode == "beat" || mode == "tutorial" || mode == "study"
         if (recordVerse && !skipMastery && q?.verse != null && q.mechanic != Mechanic.TrueFalse) {
             val gradeMode = if (q.typed) "assembly" else "choice"
             val applied = Practice.applyAnswer(
@@ -482,12 +485,31 @@ class PlaySession private constructor(private val config: PlayConfig) {
             save = applied.save
             config.persist?.persist(save)
         }
+        noteGhostProgress()
         if (ok && shouldOfferOverdrive()) {
             overdriveOffered = true
             pendingOverdrive = true
             return
         }
         phase = PlayPhase.Playing
+    }
+
+    private fun noteGhostProgress() {
+        val siteCount = config.siteVerses.size.coerceAtLeast(questions.size).coerceAtLeast(1)
+        val trialTotal = if (mode == "trial") {
+            Modes.TRIAL_ACTS.sumOf { if (it.q == Int.MAX_VALUE) 8 else it.q }.coerceAtLeast(1)
+        } else {
+            questions.size
+        }
+        val p = Ghosts.progress(
+            mode = mode,
+            index = index + 1,
+            correct = correct,
+            questionCount = questions.size,
+            siteVerseCount = siteCount,
+            trialTotal = trialTotal,
+        )
+        ghostSamples = Ghosts.sample(ghostSamples, elapsedMs(), p)
     }
 
     private fun armQuestion() {
@@ -606,6 +628,15 @@ class PlaySession private constructor(private val config: PlayConfig) {
                     ),
                 )
             }
+            save = Ghosts.endRun(
+                save = save,
+                mode = mode,
+                siteId = config.siteId,
+                total = total,
+                correct = correct,
+                survivedMs = elapsedMs,
+                samples = ghostSamples,
+            )
             config.persist?.persist(save)
         }
         result = PlayResult(

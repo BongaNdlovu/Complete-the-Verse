@@ -180,20 +180,6 @@ function upsertRaceGhost(isPilgrim, siteCleared, total, survivedMs){
 function endRunCloudSubmit(dailyRecorded, isPilgrim, siteCleared, total, acc, survivedMs, reason){
   if(R.mode==="team") return;
   if(!(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn())) return;
-  if(dailyRecorded){
-    trackBoardSubmit(Cloud.submitDailyScore({
-      play_date: todayKey(),
-      score: total,
-      accuracy: Math.round(acc*100),
-      duration_ms: survivedMs,
-      diff: R.diff.key,
-      correct: R.correct||0,
-      attempts: R.attempts||0,
-      best: R.best||0,
-      baseScore: R.score||0,
-      reason: reason
-    }));
-  }
   if(R.mode==="blitz"){
     trackBoardSubmit(Cloud.submitBlitzScore({
       score: R.correct||0,
@@ -890,15 +876,6 @@ function countUpScore(total){
    the network delivers it; the reveal waits for its slot in the
    sequence so it never steals the count-up's beat. */
 let dailyPlacement = null;
-let lastDailyRank = 0;
-/* The previously recorded rank lives in the save; it is what makes the
-   movement arrow honest ("vs your last daily"). A record stamped TODAY
-   is this very run's result, not a baseline. */
-function loadLastDailyRank(){
-  const rec = (typeof SAVE !== "undefined") && SAVE.lastDaily;
-  if(rec && rec.rank && rec.date && rec.date !== todayKey()) return rec.rank;
-  return 0;
-}
 function ensurePlacementHost(){
   const board = $("res-board");
   if(!board || !board.parentNode) return null;
@@ -1048,7 +1025,6 @@ function fillResultsBoard(mode){
   el.innerHTML = "";
   el.style.display = "none";
   renderPlacement();
-  lastDailyRank = loadLastDailyRank();
   if(mode==="tablets"){
     fillTabletsLocalBoard(el);
     return;
@@ -1056,47 +1032,7 @@ function fillResultsBoard(mode){
   if(typeof Cloud==="undefined" || !Cloud.configured()) return;
   const trustTag = (typeof Cloud!=="undefined" && typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct")
     ? ' <span class="trust-pill">(Honor system)</span>' : '';
-  if(mode==="daily"){
-    el.style.display = "";
-    el.innerHTML = '<div class="mtitle">Daily board · '+esc(todayKey())+trustTag+'</div><div class="board-loading">Loading…</div>';
-    Promise.all([
-      Cloud.fetchDailyBoard(todayKey(), 15),
-      Cloud.isSignedIn() ? Cloud.fetchMyDailyRank(todayKey()) : Promise.resolve(null),
-      (typeof Cloud.fetchDailyEntryCount === "function") ? Cloud.fetchDailyEntryCount(todayKey()) : Promise.resolve(0)
-    ]).then(([rows, mine, entryCount])=>{
-      if(mine && rows) rows.forEach(function(r){ if(r.id === mine.id) r.mine = true; });
-      if(!rows.length){
-        const fail = Cloud.boardLoadFailed && Cloud.boardLoadFailed();
-        el.innerHTML = '<div class="mtitle">Daily board · '+esc(todayKey())+trustTag+'</div>'+
-          '<div class="empty">'+(fail
-            ? "Could not load the board. Check your connection."
-            : "No scores yet today. Be the first — finish a Daily Trial while signed in.")+'</div>';
-        return;
-      }
-      /* Placement data for the results beat, and this run's rank becomes
-         tomorrow's movement baseline. */
-      const mineRow = rows.find(r=>r.mine);
-      const myRank = (mineRow && mineRow.rank) || (mine && mine.rank) || null;
-      if(myRank && entryCount){
-        dailyPlacement = '<div class="place-line"><b>#'+myRank+'</b><span> of '+fmt(entryCount)+
-          ' today</span><i>The daily reading</i></div>';
-        SAVE.lastDaily = { date: todayKey(), rank: myRank };
-        if(typeof persist === "function") persist();
-      }
-      renderPlacement();
-      let html = '<div class="mtitle">Daily board · '+esc(todayKey())+trustTag+'</div>'+
-        rows.map(r=>{
-          if(r.mine && typeof r.rank === "number") r.move = lastDailyRank - r.rank;
-          return boardRowHtml(r, fmt(r.score)+(r.accuracy!=null?' · '+Math.round(r.accuracy)+'%':''));
-        }).join("");
-      if(mine && !rows.some(r=>r.mine)){
-        html += '<div class="board-you-sep">Your rank</div>'+boardRowHtml(mine, fmt(mine.score));
-      }
-      el.innerHTML = html;
-    }).catch(()=>{
-      el.innerHTML = '<div class="mtitle">Daily board</div><div class="empty">Could not load the board. Check your connection.</div>';
-    });
-  } else if(mode==="blitz"){
+  if(mode==="blitz"){
     el.style.display = "";
     el.innerHTML = '<div class="mtitle">Blitz board'+trustTag+'</div><div class="board-loading">Loading…</div>';
     Promise.all([

@@ -9,6 +9,7 @@ import app.completetheverse.core.bank.Verse
 import app.completetheverse.core.pilgrimage.Arc
 import app.completetheverse.core.pilgrimage.Site
 import app.completetheverse.core.play.ClockPolicy
+import app.completetheverse.core.play.PlayResult
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.play.PlayRoute
 import app.completetheverse.ui.play.PlayViewModel
@@ -24,6 +25,7 @@ fun PilgrimageRoute(
     saveGeneration: Int,
     saves: SaveCoordinator,
     onExit: () -> Unit,
+    onGhostFinish: (mode: String, siteId: String?, result: PlayResult) -> Unit = { _, _, _ -> },
     viewModel: PilgrimageViewModel = composeViewModel(),
 ) {
     LaunchedEffect(versesReady, sites, verses, saveGeneration) {
@@ -83,6 +85,8 @@ fun PilgrimageRoute(
                     tfClaims = tfClaims,
                     title = site.name,
                     wrapSave = viewModel.wrapSave(site.id, viewModel.playSiteVerses),
+                    siteId = site.id,
+                    onResult = { result -> onGhostFinish("pilgrimage", site.id, result) },
                     onHall = {
                         viewModel.leavePlay(saves)
                         onExit()

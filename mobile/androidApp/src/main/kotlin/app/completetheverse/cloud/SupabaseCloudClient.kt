@@ -7,6 +7,7 @@ import app.completetheverse.core.cloud.AuthResult
 import app.completetheverse.core.cloud.Cloud
 import app.completetheverse.core.cloud.CloudConfig
 import app.completetheverse.core.cloud.SyncResult
+import app.completetheverse.core.play.CloudGhost
 import app.completetheverse.core.records.BlitzBoardRow
 import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.save.DataStoreSaveRepository
@@ -14,6 +15,7 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.OTP
+import io.github.jan.supabase.auth.user.UserSession
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.functions.Functions
 import io.github.jan.supabase.functions.functions
@@ -223,27 +225,27 @@ class SupabaseCloudClient(
     }
 
     suspend fun fetchBlitzBoard(limit: Int = 25): List<BlitzBoardRow> {
-        if (!isSignedIn()) return emptyList()
         Cloud.setBoardLoadFailed(null)
         return try {
             val rows = withTimeout(8_000) {
                 supabase.from("blitz_scores").select(
-                    Columns.raw("id, user_id, score, survived_ms, diff, profiles(display_name)"),
+                    Columns.raw("id, score, survived_ms, diff, profiles(display_name)"),
                 ) {
                     order("score", Order.DESCENDING)
                     order("survived_ms", Order.DESCENDING)
                     limit(limit.toLong())
                 }.decodeList<JsonObject>()
             }
-            val mine = supabase.auth.currentUserOrNull()?.id
+            val myRowId = ownBlitzRowId()
             rows.mapIndexed { i, row ->
+                val id = row["id"]?.jsonPrimitive?.contentOrNull ?: ""
                 BlitzBoardRow(
                     rank = i + 1,
-                    id = row["id"]?.jsonPrimitive?.contentOrNull ?: "",
+                    id = id,
                     name = displayNameOf(row["profiles"]),
                     score = jsonInt(row["score"]),
                     survivedMs = row["survived_ms"]?.let { jsonLong(it) },
-                    mine = mine != null && row["user_id"]?.jsonPrimitive?.contentOrNull == mine,
+                    mine = myRowId != null && id == myRowId,
                 )
             }
         } catch (e: CancellationException) {
@@ -251,6 +253,18 @@ class SupabaseCloudClient(
         } catch (e: Exception) {
             Cloud.setBoardLoadFailed(if (!isOnline()) "offline" else "load-failed")
             throw e
+        }
+    }
+
+    private suspend fun ownBlitzRowId(): String? {
+        val mine = supabase.auth.currentUserOrNull()?.id ?: return null
+        return try {
+            supabase.from("blitz_scores").select(Columns.raw("id")) {
+                filter { eq("user_id", mine) }
+                limit(1)
+            }.decodeList<JsonObject>().firstOrNull()?.get("id")?.jsonPrimitive?.contentOrNull
+        } catch (_: Exception) {
+            null
         }
     }
 
@@ -276,6 +290,139 @@ class SupabaseCloudClient(
         p.longOrNull?.let { return it }
         p.doubleOrNull?.let { return it.toLong() }
         return p.content.toLongOrNull()
+    }
+
+    suspend fun upsertGhost(
+        mode: String,
+        runKey: String,
+        bestScore: Int,
+        timeline: JsonObject,
+        meta: JsonObject = JsonObject(emptyMap()),
+    ): AuthResult {
+        val userId = supabase.auth.currentUserOrNull()?.id
+            ?: return AuthResult(ok = false, reason = "signed-out")
+        return try {
+            val row = buildJsonObject {
+                put("user_id", userId)
+                put("mode", mode)
+                put("run_key", runKey)
+                put("best_score", bestScore)
+                put("timeline", timeline)
+                put("meta", meta)
+                put("updated_at", Instant.now().toString())
+            }
+            withTimeout(8_000) {
+                supabase.from("run_ghosts").upsert(row) {
+                    onConflict = "user_id,mode,run_key"
+                }
+            }
+            AuthResult(ok = true)
+        } catch (e: TimeoutCancellationException) {
+            AuthResult(ok = false, reason = "rejected")
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            AuthResult(ok = false, reason = "rejected")
+        }
+    }
+
+    suspend fun fetchGhosts(mode: String, runKey: String, limit: Int = 5): List<CloudGhost> {
+        return try {
+            val rows = withTimeout(8_000) {
+                supabase.from("run_ghosts").select(
+                    Columns.raw("best_score, timeline, meta, profiles(display_name)"),
+                ) {
+                    filter {
+                        eq("mode", mode)
+                        eq("run_key", runKey)
+                    }
+                    order("best_score", Order.DESCENDING)
+                    limit(limit.toLong())
+                }.decodeList<JsonObject>()
+            }
+            rows.map { row ->
+                CloudGhost(
+                    name = displayNameOf(row["profiles"]),
+                    bestScore = jsonInt(row["best_score"]),
+                )
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun completeAuthFromUrl(url: String): AuthResult {
+        if (!configured()) return AuthResult(ok = false, reason = "not-configured")
+        if (!isOnline()) return AuthResult(ok = false, reason = "offline")
+        // Cold-start App Links race importSession against session restore from storage.
+        awaitInitialization()
+        val params = urlParams(url)
+        val token = params["token"] ?: params["token_hash"] ?: params["otp"]
+        val email = params["email"] ?: saveRepository.pendingEmail()
+        val otpType = if (params["type"].equals("magiclink", ignoreCase = true)) {
+            OtpType.Email.MAGIC_LINK
+        } else {
+            OtpType.Email.EMAIL
+        }
+        return try {
+            withTimeout(10_000) {
+                val access = params["access_token"]
+                val refresh = params["refresh_token"]
+                if (!access.isNullOrBlank() && !refresh.isNullOrBlank()) {
+                    supabase.auth.importSession(
+                        UserSession(
+                            accessToken = access,
+                            refreshToken = refresh,
+                            expiresIn = params["expires_in"]?.toLongOrNull() ?: 3600L,
+                            tokenType = params["token_type"] ?: "bearer",
+                            user = null,
+                        ),
+                    )
+                    // importSession keeps user=null; currentUserOrNull() would look signed-out.
+                    supabase.auth.retrieveUserForCurrentSession(updateSession = true)
+                } else if (!token.isNullOrBlank() && !email.isNullOrBlank()) {
+                    supabase.auth.verifyEmailOtp(
+                        type = otpType,
+                        email = email.trim(),
+                        token = token.trim(),
+                    )
+                } else {
+                    throw IllegalStateException("no-session")
+                }
+            }
+            if (isSignedIn()) AuthResult(ok = true, reason = "verified")
+            else AuthResult(ok = false, reason = "no-session")
+        } catch (e: TimeoutCancellationException) {
+            AuthResult(ok = false, reason = "unavailable")
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            val msg = (e.message ?: "").lowercase()
+            when {
+                "expired" in msg -> AuthResult(ok = false, reason = "otp-expired")
+                token != null -> AuthResult(ok = false, reason = "invalid-token")
+                else -> AuthResult(ok = false, reason = "no-session")
+            }
+        }
+    }
+
+    private fun urlParams(raw: String): Map<String, String> {
+        val out = linkedMapOf<String, String>()
+        val q = raw.substringAfter('?', "").substringBefore('#')
+        val f = raw.substringAfter('#', "")
+        for (chunk in listOf(q, f)) {
+            if (chunk.isEmpty()) continue
+            for (pair in chunk.split('&')) {
+                val eq = pair.indexOf('=')
+                if (eq <= 0) continue
+                val k = pair.substring(0, eq)
+                val v = pair.substring(eq + 1)
+                out[k] = java.net.URLDecoder.decode(v, "UTF-8")
+            }
+        }
+        return out
     }
 
     suspend fun submitBlitz(payload: JsonObject): AuthResult {

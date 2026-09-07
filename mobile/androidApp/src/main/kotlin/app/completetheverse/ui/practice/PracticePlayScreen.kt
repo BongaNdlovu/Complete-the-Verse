@@ -42,6 +42,7 @@ import app.completetheverse.core.assemble.AssembleBoard
 import app.completetheverse.core.assemble.TapTarget
 import app.completetheverse.core.bank.Bank
 import app.completetheverse.core.bank.Verse
+import app.completetheverse.core.play.PlayClock
 import app.completetheverse.core.practice.Practice
 import app.completetheverse.ui.components.GhostButton
 import app.completetheverse.ui.components.GoldButton
@@ -74,7 +75,7 @@ fun PracticePlayScreen(
     val crit = sec <= 5 && !locked
     val frac = (remainingMs.toFloat() / Practice.WALL_PICK_MS).coerceIn(0f, 1f)
     Box(modifier.fillMaxSize()) {
-        HallBackdrop()
+        HallBackdrop(videoEnabled = false)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -171,7 +172,7 @@ private fun PlayHeader(
         }
         Column(horizontalAlignment = Alignment.End, modifier = Modifier.widthIn(min = 88.dp)) {
             Text(
-                text = "00:" + sec.toString().padStart(2, '0'),
+                text = PlayClock.formatHud(sec * 1000L),
                 color = if (crit) CtvColors.bloodHot else CtvColors.goldHot,
                 fontFamily = CtvFonts.display,
                 fontWeight = FontWeight.Bold,

@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 rootProject.name = "CompleteTheVerse"
 include(":core")
 include(":androidApp")
+include(":pack-cinema")

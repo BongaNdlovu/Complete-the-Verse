@@ -51,7 +51,7 @@ fun TabletsLibraryScreen(
     modifier: Modifier = Modifier,
 ) {
     Box(modifier.fillMaxSize()) {
-        HallBackdrop()
+        HallBackdrop(videoEnabled = false)
         Column(
             modifier = Modifier
                 .fillMaxSize()

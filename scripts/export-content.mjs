@@ -16,6 +16,11 @@ const { loadBank, ROOT, FILES: BANK_FILES } = require("./load-bank.js");
 
 const OUT_DIR = path.join(ROOT, "shared", "content");
 const OUT_FILES = ["manifest.json", "sites.json", "tablets.json", "verses.json"];
+const MIRROR_DIRS = [
+  path.join(ROOT, "mobile", "androidApp", "src", "main", "assets", "content"),
+  path.join(ROOT, "mobile", "core", "src", "test", "resources", "content")
+];
+const MIRROR_FILES = ["sites.json", "tablets.json", "verses.json"];
 const SOURCE_FILES = uniqueSorted(BANK_FILES.concat([
   "js/verses-tf.js",
   "js/verses-notes.js",
@@ -156,6 +161,12 @@ function writeOutputs(files) {
   OUT_FILES.forEach(function (name) {
     fs.writeFileSync(path.join(OUT_DIR, name), files[name], "utf8");
   });
+  MIRROR_DIRS.forEach(function (dir) {
+    fs.mkdirSync(dir, { recursive: true });
+    MIRROR_FILES.forEach(function (name) {
+      fs.writeFileSync(path.join(dir, name), files[name], "utf8");
+    });
+  });
 }
 
 function checkOutputs(files) {
@@ -172,6 +183,15 @@ function checkOutputs(files) {
       console.error("stale: " + name + " does not match the JS banks");
       stale = true;
     }
+  });
+  MIRROR_DIRS.forEach(function (dir) {
+    MIRROR_FILES.forEach(function (name) {
+      const dest = path.join(dir, name);
+      if (!fs.existsSync(dest) || toLf(fs.readFileSync(dest, "utf8")) !== files[name]) {
+        console.error("stale: " + path.relative(ROOT, dest) + " does not match shared/content");
+        stale = true;
+      }
+    });
   });
   return stale;
 }

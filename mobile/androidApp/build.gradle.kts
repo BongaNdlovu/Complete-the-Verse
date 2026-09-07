@@ -24,7 +24,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 1
-        versionName = "0.1.0-waveA"
+        versionName = "1.0.0"
     }
 
     if (hasReleaseSigning) {
@@ -67,6 +67,8 @@ android {
     buildFeatures {
         compose = true
     }
+
+    assetPacks += listOf(":pack-cinema")
 }
 
 kotlin {
@@ -89,6 +91,7 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("androidx.media3:media3-exoplayer:1.5.1")
 
     implementation(platform("io.github.jan-tennert.supabase:bom:3.1.4"))
     implementation("io.github.jan-tennert.supabase:auth-kt")
@@ -98,4 +101,5 @@ dependencies {
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     debugImplementation("androidx.compose.ui:ui-tooling")
+    testImplementation("junit:junit:4.13.2")
 }

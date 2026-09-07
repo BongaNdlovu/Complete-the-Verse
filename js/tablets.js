@@ -296,4 +296,23 @@ const Tablets = (function(){
     ensureBackdrop: ensureBackdrop
   };
 })();
+Tablets.applyShared = function(data){
+  if(!data || !data.chapters) return false;
+  Tablets.chapters.length = 0;
+  data.chapters.forEach(function(ch){ Tablets.chapters.push(ch); });
+  function fill(list, ids){
+    if(!list) return;
+    list.length = 0;
+    (ids || []).forEach(function(id){
+      var ch = Tablets.chapter(id);
+      if(ch) list.push(ch);
+    });
+  }
+  fill(Tablets.canon, data.canonIds);
+  fill(Tablets.hall, data.hallIds);
+  fill(Tablets.more, data.moreIds);
+  if(typeof data.blankS === "number") Tablets.BLANK_S = data.blankS;
+  if(typeof data.holdsToOpen === "number") Tablets.HOLDS_TO_OPEN = data.holdsToOpen;
+  return true;
+};
 if(typeof module !== "undefined") module.exports = { Tablets: Tablets };

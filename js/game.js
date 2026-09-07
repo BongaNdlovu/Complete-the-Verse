@@ -2155,7 +2155,7 @@ function loop(ts){
 }
 
 /* ------------------------- BOOT ------------------------- */
-(function boot(){
+function startCtvBoot(){
   if (typeof runningInStandaloneApp === "function" && runningInStandaloneApp() && SAVE && SAVE.set && !SAVE.set.apkEfficientApplied) {
     SAVE.set.apkEfficientApplied = true;
     if (!SAVE.set.qualityLocked) SAVE.set.quality = "low";
@@ -2248,4 +2248,11 @@ function loop(ts){
     if(typeof introDone !== "undefined") introDone = true;
     playBootSequence({fast: !!(SAVE.set.tutorialDone || (SAVE.life && SAVE.life.sitesCleared))});
   }
-})();
+}
+if(typeof ContentJson !== "undefined" && ContentJson.load){
+  var contentBoot = ContentJson.load();
+  if(contentBoot && typeof contentBoot.then === "function") contentBoot.then(startCtvBoot);
+  else startCtvBoot();
+} else {
+  startCtvBoot();
+}

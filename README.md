@@ -11,19 +11,21 @@ There is no bundler and no TypeScript. Classic `<script>` tags and globals are o
 - Open [`index.html`](./index.html) in a modern browser (`file://` needs no server).
 - Or run `npm start` / `node scripts/dev-server.js` and open `http://localhost:8781`.
 
-## Android APK
+## Android
 
-GitHub Releases can attach two APKs. Chrome “Install app” on the website is unchanged; all three may sit on the same phone.
+The Play Store app is native Compose (`mobile/`, package `app.completetheverse`). Tag `v*` so CI attaches the AAB (`app-completetheverse-release.aab`) plus the older sideload APKs.
 
-- **TWA** (`app.completetheverse.twa`) — opens the live site. `.well-known/assetlinks.json` must be live on Vercel first.
-- **Standalone** (`app.completetheverse.offline`) — copies `index.html`, `js/`, `css/`, `vendor/`, `assets/`, `audio/`, and `sfx/` into the APK. No Vercel after install. Large (full media). Play Store size limits do not apply to GitHub sideload.
+- **Play / native** (`app.completetheverse`) — Compose. Same release keystore as the TWA. Upload the AAB to Play closed testing, then production. See [`mobile/README.md`](./mobile/README.md).
+- **TWA** (`app.completetheverse.twa`) — deprecated for the store. Sideload / GitHub Releases only until the native listing is live, then unpublish the TWA listing in Play Console.
+- **Standalone** (`app.completetheverse.offline`) — fat WebView sideload. Not the store app.
+- Chrome “Install app” on the website is unchanged (PWA).
 
-Bump `package.json` together with `twa-manifest.json` `appVersion` / `appVersionCode` and `android-standalone/app/build.gradle` `versionName` / `versionCode`, then tag `v*` so CI attaches both APKs.
+`.well-known/assetlinks.json` must list both `app.completetheverse` and `app.completetheverse.twa` and be live on Vercel.
 
 ## How to test and lint
 
 ```bash
-  npm test          # node test.js — 56 suites
+  npm test          # node test.js — 58 suites
 npm run lint      # Oxlint cyclomatic complexity, max 20
 ```
 
@@ -46,10 +48,11 @@ A stranger should only need this table, then [`docs/DEVELOPER-GUIDE.md`](./docs/
 | `docs/` | Living docs. Snapshots in `docs/reports/`. |
 | `plans/` | Product and smoke plans. |
 | `supabase/` | Migrations + `submit-score` edge function. |
-| `android/` | Bubblewrap TWA Gradle project. Opens the live Vercel site. |
+| `mobile/` | Native Compose Play app (`app.completetheverse`). |
+| `android/` | Bubblewrap TWA. Store listing deprecated once native is live. |
 | `android-standalone/` | WebView APK. Packs the full web tree at build time. |
 | `twa-manifest.json` | Bubblewrap source of truth (`app.completetheverse.twa`). |
-| `.well-known/assetlinks.json` | Digital Asset Links for a chrome-less TWA. Must be live on Vercel before the APK is distributed. |
+| `.well-known/assetlinks.json` | Digital Asset Links for TWA and the native package. Must be live on Vercel. |
 
 ```
 Bank (js/verses*.js, js/bank.js)

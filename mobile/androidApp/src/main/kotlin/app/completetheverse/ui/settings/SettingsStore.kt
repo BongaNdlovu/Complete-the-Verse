@@ -6,6 +6,7 @@ data class CtvSettings(
     val quality: String = "high",
     val reduced: Boolean = false,
     val motion: String = "full",
+    val qualityLocked: Boolean = false,
     val haptics: Boolean = true,
     val music: Float = 0.45f,
     val sfx: Float = 0.7f,
@@ -24,6 +25,7 @@ class SettingsStore(context: Context) {
             quality = prefs.getString(KEY_QUALITY, "high") ?: "high",
             reduced = reduced,
             motion = motion,
+            qualityLocked = prefs.getBoolean(KEY_QUALITY_LOCKED, false),
             haptics = prefs.getBoolean(KEY_HAPTICS, true),
             music = prefs.getFloat(KEY_MUSIC, 0.45f),
             sfx = prefs.getFloat(KEY_SFX, 0.7f),
@@ -32,11 +34,14 @@ class SettingsStore(context: Context) {
         )
     }
 
+    fun hasStored(): Boolean = prefs.contains(KEY_QUALITY)
+
     fun save(settings: CtvSettings) {
         prefs.edit()
             .putString(KEY_QUALITY, settings.quality)
             .putBoolean(KEY_REDUCED, settings.reduced)
             .putString(KEY_MOTION, settings.motion)
+            .putBoolean(KEY_QUALITY_LOCKED, settings.qualityLocked)
             .putBoolean(KEY_HAPTICS, settings.haptics)
             .putFloat(KEY_MUSIC, settings.music)
             .putFloat(KEY_SFX, settings.sfx)
@@ -50,6 +55,7 @@ class SettingsStore(context: Context) {
         const val KEY_QUALITY = "quality"
         const val KEY_REDUCED = "reduced"
         const val KEY_MOTION = "motion"
+        const val KEY_QUALITY_LOCKED = "qualityLocked"
         const val KEY_HAPTICS = "haptics"
         const val KEY_MUSIC = "music"
         const val KEY_SFX = "sfx"

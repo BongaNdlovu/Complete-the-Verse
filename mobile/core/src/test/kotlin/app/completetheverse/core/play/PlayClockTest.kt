@@ -119,6 +119,15 @@ class PlayClockTest {
     }
 
     @Test
+    fun hudFormatsMinutesAndSeconds() {
+        assertEquals("00:30", PlayClock.formatHud(30_000L))
+        assertEquals("00:01", PlayClock.formatHud(1L))
+        assertEquals("01:00", PlayClock.formatHud(60_000L))
+        assertEquals("01:17", PlayClock.formatHud(77_000L))
+        assertEquals("00:00", PlayClock.formatHud(0L))
+    }
+
+    @Test
     fun blitzAdjustAddsTwoOrBurnsFour() {
         assertEquals(62_000L, PlayClock.blitzAdjustMs(60_000L, true))
         assertEquals(56_000L, PlayClock.blitzAdjustMs(60_000L, false))

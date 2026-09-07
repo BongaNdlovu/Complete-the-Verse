@@ -45,10 +45,15 @@ import app.completetheverse.R
 import app.completetheverse.ui.theme.CtvColors
 import app.completetheverse.ui.theme.CtvFonts
 import app.completetheverse.ui.theme.HallCutShape
+import app.completetheverse.ui.theme.LocalVisualProfile
 import app.completetheverse.ui.theme.SkewButtonShape
 
 @Composable
-fun HallBackdrop(modifier: Modifier = Modifier) {
+fun HallBackdrop(
+    modifier: Modifier = Modifier,
+    videoEnabled: Boolean = true,
+) {
+    val playVideo = videoEnabled && LocalVisualProfile.current.showVideo
     Box(modifier.fillMaxSize()) {
         Image(
             painter = painterResource(R.drawable.hall_still),
@@ -57,6 +62,14 @@ fun HallBackdrop(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxSize(),
             alpha = 0.42f,
         )
+        if (playVideo) {
+            HallVideoLayer(
+                visible = true,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0.42f),
+            )
+        }
         Box(
             Modifier
                 .fillMaxSize()

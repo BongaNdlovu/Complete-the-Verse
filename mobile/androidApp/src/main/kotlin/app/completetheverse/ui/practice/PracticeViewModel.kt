@@ -63,6 +63,8 @@ class PracticeViewModel : ViewModel() {
         private set
     var questionToken by mutableIntStateOf(0)
         private set
+    var hiddenAt by mutableLongStateOf(0L)
+        private set
 
     private var sessionGeneration = 0
     private var beginJob: Job? = null
@@ -82,6 +84,19 @@ class PracticeViewModel : ViewModel() {
     }
 
     fun tickClock() {
+        if (hiddenAt != 0L) return
+        now = SystemClock.elapsedRealtime()
+    }
+
+    fun onHidden() {
+        if (phase != PracticePhase.Play || locked || hiddenAt != 0L) return
+        hiddenAt = SystemClock.elapsedRealtime()
+    }
+
+    fun onVisible() {
+        if (hiddenAt == 0L) return
+        questionStart += SystemClock.elapsedRealtime() - hiddenAt
+        hiddenAt = 0L
         now = SystemClock.elapsedRealtime()
     }
 
@@ -96,6 +111,7 @@ class PracticeViewModel : ViewModel() {
         assembleTick = 0
         questionStart = SystemClock.elapsedRealtime()
         now = questionStart
+        hiddenAt = 0L
         questionToken++
     }
 
@@ -179,8 +195,8 @@ class PracticeViewModel : ViewModel() {
     }
 
     fun remainingMs(): Long {
-        val used = if (locked) now - questionStart else SystemClock.elapsedRealtime() - questionStart
-        return (Practice.WALL_PICK_MS - used).coerceAtLeast(0L)
+        val at = if (hiddenAt != 0L) hiddenAt else now
+        return (Practice.WALL_PICK_MS - (at - questionStart)).coerceAtLeast(0L)
     }
 
     fun fractionNow(): Double {

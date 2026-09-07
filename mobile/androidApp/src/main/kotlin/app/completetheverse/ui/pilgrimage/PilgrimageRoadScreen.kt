@@ -1,6 +1,5 @@
 package app.completetheverse.ui.pilgrimage
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -24,9 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -100,16 +96,22 @@ fun PilgrimageRoadScreen(
                     letterSpacing = 0.18.em,
                     modifier = Modifier.padding(top = 8.dp, bottom = 14.dp),
                 )
-                AtlasPlot(
-                    sites = sites,
-                    progress = progress,
-                    engine = engine,
-                    currentId = current?.id,
+                HallPanel(
                     modifier = Modifier
                         .widthIn(max = 640.dp)
                         .fillMaxWidth()
-                        .height(220.dp),
-                )
+                        .height(280.dp),
+                    cut = 12.dp,
+                ) {
+                    AtlasMap(
+                        sites = sites,
+                        progress = progress,
+                        engine = engine,
+                        currentId = current?.id,
+                        onOpenSite = onOpenSite,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
                 Spacer(Modifier.height(18.dp))
                 arcs.forEach { arc ->
                     ArcBlock(
@@ -158,60 +160,6 @@ private fun RoadHeader(onBack: () -> Unit) {
 }
 
 @Composable
-private fun AtlasPlot(
-    sites: List<Site>,
-    progress: PilgrimProgress,
-    engine: Pilgrimage?,
-    currentId: String?,
-    modifier: Modifier = Modifier,
-) {
-    HallPanel(modifier = modifier, cut = 12.dp) {
-        if (sites.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("The atlas is empty.", color = CtvColors.parchDim, fontFamily = CtvFonts.body)
-            }
-            return@HallPanel
-        }
-        val minLat = sites.minOf { it.lat }
-        val maxLat = sites.maxOf { it.lat }
-        val minLng = sites.minOf { it.lng }
-        val maxLng = sites.maxOf { it.lng }
-        val latSpan = (maxLat - minLat).let { if (it < 0.01) 1.0 else it }
-        val lngSpan = (maxLng - minLng).let { if (it < 0.01) 1.0 else it }
-        Canvas(Modifier.fillMaxSize().padding(16.dp)) {
-            val pad = 10f
-            fun xOf(lng: Double): Float =
-                pad + ((lng - minLng) / lngSpan).toFloat() * (size.width - pad * 2)
-            fun yOf(lat: Double): Float =
-                pad + (1f - ((lat - minLat) / latSpan).toFloat()) * (size.height - pad * 2)
-            val path = Path()
-            sites.forEachIndexed { i, s ->
-                val p = Offset(xOf(s.lng), yOf(s.lat))
-                if (i == 0) path.moveTo(p.x, p.y) else path.lineTo(p.x, p.y)
-            }
-            drawPath(
-                path = path,
-                color = CtvColors.gold.copy(alpha = 0.35f),
-                style = Stroke(width = 2.5f, cap = StrokeCap.Round),
-            )
-            sites.forEach { s ->
-                val unlocked = engine?.isUnlocked(progress, s.id) == true
-                val cleared = engine?.isCleared(progress, s.id) == true
-                val current = s.id == currentId
-                val color = when {
-                    current -> CtvColors.goldHot
-                    cleared -> CtvColors.green
-                    unlocked -> CtvColors.gold
-                    else -> CtvColors.goldDeep
-                }
-                val r = if (current) 6.5f else if (cleared) 4.5f else 3.5f
-                drawCircle(color, radius = r, center = Offset(xOf(s.lng), yOf(s.lat)))
-            }
-        }
-    }
-}
-
-@Composable
 private fun ArcBlock(
     arc: Arc,
     sites: List<Site>,
@@ -251,15 +199,19 @@ private fun ArcBlock(
                 letterSpacing = 0.12.em,
             )
         }
+        val currentId = engine?.currentSite(progress)?.id
         sites.forEachIndexed { i, site ->
             val idx = engine?.indexOf(site.id) ?: i
             val unlocked = engine?.isUnlocked(progress, site.id) == true
             val cleared = engine?.isCleared(progress, site.id) == true
+            val perfect = engine?.recordOf(progress, site.id)?.perfect == true
             SiteRow(
                 ordinal = idx + 1,
                 site = site,
                 unlocked = unlocked,
                 cleared = cleared,
+                current = site.id == currentId,
+                perfect = perfect,
                 onClick = { if (unlocked) onOpenSite(site.id) },
             )
         }
@@ -272,17 +224,25 @@ private fun SiteRow(
     site: Site,
     unlocked: Boolean,
     cleared: Boolean,
+    current: Boolean,
+    perfect: Boolean,
     onClick: () -> Unit,
 ) {
     val label = when {
+        perfect -> "Perfect"
         cleared -> "Cleared"
+        current && unlocked -> "Here"
         unlocked -> "Next"
         else -> "Locked"
     }
     HallPanel(
         modifier = Modifier
             .fillMaxWidth()
-            .alpha(if (unlocked) 1f else 0.48f),
+            .alpha(if (unlocked) 1f else 0.48f)
+            .then(
+                if (current && unlocked) Modifier.border(1.dp, CtvColors.goldHot)
+                else Modifier
+            ),
         cut = 12.dp,
         onClick = if (unlocked) onClick else null,
     ) {
@@ -323,7 +283,13 @@ private fun SiteRow(
             }
             Text(
                 text = label.uppercase(),
-                color = if (cleared) CtvColors.green else if (unlocked) CtvColors.gold else CtvColors.goldDim,
+                color = when {
+                    perfect -> CtvColors.azure
+                    cleared -> CtvColors.green
+                    current && unlocked -> CtvColors.goldHot
+                    unlocked -> CtvColors.gold
+                    else -> CtvColors.goldDim
+                },
                 fontFamily = CtvFonts.ui,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 10.sp,

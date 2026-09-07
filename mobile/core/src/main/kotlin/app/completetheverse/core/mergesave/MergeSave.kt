@@ -1,5 +1,6 @@
 package app.completetheverse.core.mergesave
 
+import app.completetheverse.core.play.Ghosts
 import app.completetheverse.core.save.Save
 import app.completetheverse.core.save.SaveBlob
 import kotlinx.serialization.json.JsonArray
@@ -39,6 +40,7 @@ object MergeSave {
         out["tablets"] = mergeTablets(obj(loc["tablets"]), obj(rem["tablets"]))
         out["daily"] = mergeDaily(loc, rem)
         out["set"] = assign(obj(rem["set"]), obj(loc["set"]))
+        out["ghosts"] = Ghosts.merge(obj(loc["ghosts"]), obj(rem["ghosts"]))
         val localBoard = loc["board"]
         out["board"] = if (localBoard is JsonArray && localBoard.isNotEmpty()) {
             localBoard

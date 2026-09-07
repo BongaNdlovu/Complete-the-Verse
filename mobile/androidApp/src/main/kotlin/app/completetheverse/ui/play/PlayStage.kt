@@ -25,9 +25,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.focusable
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -54,6 +61,7 @@ import app.completetheverse.core.play.DuelBoard
 import app.completetheverse.core.play.FadePhase
 import app.completetheverse.core.play.Mechanic
 import app.completetheverse.core.play.OverdriveChoice
+import app.completetheverse.core.play.PlayKeys
 import app.completetheverse.core.play.PlayMechanics
 import app.completetheverse.core.play.PlayPhase
 import app.completetheverse.core.play.PlayResult
@@ -64,6 +72,9 @@ import app.completetheverse.ui.components.GoldHeadline
 import app.completetheverse.ui.components.HallBackdrop
 import app.completetheverse.ui.components.HallPanel
 import app.completetheverse.ui.components.Kick
+import app.completetheverse.ui.fx.CtvFxStack
+import app.completetheverse.ui.fx.FxBeat
+import app.completetheverse.ui.fx.fxBeatOf
 import app.completetheverse.ui.theme.CtvColors
 import app.completetheverse.ui.theme.CtvFonts
 import app.completetheverse.ui.theme.SkewButtonShape
@@ -121,6 +132,8 @@ fun PlayStage(
     onResultsHall: (() -> Unit)? = null,
     guideKick: String? = null,
     guideCopy: String? = null,
+    fxBeat: FxBeat? = null,
+    pausedByHide: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     if (phase == PlayPhase.Results && result != null) {
@@ -138,8 +151,47 @@ fun PlayStage(
     val sec = ((remainingMs + 999) / 1000).coerceAtLeast(0)
     val crit = sec <= 5 && !locked && phase == PlayPhase.Playing
     val frac = (remainingMs.toFloat() / denom).coerceIn(0f, 1f)
-    Box(modifier.fillMaxSize()) {
-        HallBackdrop()
+    val beat = fxBeat ?: fxBeatOf(phase, locked, lastCorrect, streak)
+    val focusRequester = remember { FocusRequester() }
+    var lastPickKey by remember { mutableStateOf<String?>(null) }
+    var lastPickAt by remember { mutableStateOf(0L) }
+    LaunchedEffect(phase, index, boardTick) { focusRequester.requestFocus() }
+    Box(
+        modifier
+            .fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusable()
+            .playChoiceKeys { key ->
+                handlePlayStageKey(
+                    key = key,
+                    phase = phase,
+                    confirmAbandon = confirmAbandon,
+                    mechanic = mechanic,
+                    fadePhase = fadePhase,
+                    locked = locked,
+                    choices = choices,
+                    selected = selected,
+                    cloze = cloze,
+                    duel = duel,
+                    lastPickKey = lastPickKey,
+                    lastPickAt = lastPickAt,
+                    nowMs = android.os.SystemClock.elapsedRealtime(),
+                    onChoice = onChoice,
+                    onTrueFalse = onTrueFalse,
+                    onLockAssemble = onLockAssemble,
+                    onFadeDone = onFadeDone,
+                    onPause = onPause,
+                    onResume = onResume,
+                    onStay = onStay,
+                    onMarkPick = { pick, at ->
+                        lastPickKey = pick
+                        lastPickAt = at
+                    },
+                )
+            },
+    ) {
+        HallBackdrop(videoEnabled = false)
+        CtvFxStack(beat = beat, streak = streak, multiplier = multiplier)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -195,7 +247,7 @@ fun PlayStage(
                 )
             }
         }
-        if (phase == PlayPhase.Paused || confirmAbandon) {
+        if ((phase == PlayPhase.Paused && !pausedByHide) || confirmAbandon) {
             PauseOverlay(
                 score = score,
                 streak = streak,
@@ -229,6 +281,88 @@ private fun headerProgress(mode: String, index: Int, total: Int, correct: Int, t
         "team" -> "${if (teamSide == "blue") "Blue" else "White"} · $local / 5"
         else -> "Q ${index + 1} / $total"
     }
+}
+
+private fun handlePlayStageKey(
+    key: String,
+    phase: PlayPhase,
+    confirmAbandon: Boolean,
+    mechanic: Mechanic?,
+    fadePhase: FadePhase?,
+    locked: Boolean,
+    choices: List<String>,
+    selected: String?,
+    cloze: ClozeBoard?,
+    duel: DuelBoard?,
+    lastPickKey: String?,
+    lastPickAt: Long,
+    nowMs: Long,
+    onChoice: (String) -> Unit,
+    onTrueFalse: (Boolean) -> Unit,
+    onLockAssemble: () -> Unit,
+    onFadeDone: () -> Unit,
+    onPause: () -> Unit,
+    onResume: () -> Unit,
+    onStay: () -> Unit,
+    onMarkPick: (String, Long) -> Unit,
+): Boolean {
+    if (PlayKeys.isEscape(key)) {
+        when {
+            confirmAbandon -> onStay()
+            phase == PlayPhase.Paused -> onResume()
+            phase == PlayPhase.Playing -> onPause()
+            else -> return false
+        }
+        return true
+    }
+    if (phase != PlayPhase.Playing) return false
+    if (mechanic == Mechanic.Fade && fadePhase == FadePhase.Memorize) {
+        if (PlayKeys.isFadeDone(key) || PlayKeys.isConfirm(key)) {
+            onFadeDone()
+            return true
+        }
+        return PlayKeys.choiceIndex(key) != null
+    }
+    if (PlayKeys.isConfirm(key)) {
+        if (mechanic == Mechanic.Assemble) {
+            onLockAssemble()
+            return true
+        }
+        val pick = selected
+        if (!pick.isNullOrEmpty()) {
+            onChoice(pick)
+            return true
+        }
+        return false
+    }
+    if (locked) return false
+    val idx = PlayKeys.choiceIndex(key) ?: return false
+    val pickKey = idx.toString()
+    onMarkPick(pickKey, nowMs)
+    when (mechanic) {
+        Mechanic.Cloze -> {
+            val word = cloze?.bank?.getOrNull(idx) ?: return true
+            onChoice(word)
+        }
+        Mechanic.TrueFalse -> {
+            if (idx == 0) onTrueFalse(true)
+            else if (idx == 1) onTrueFalse(false)
+        }
+        Mechanic.Duel -> {
+            val value = when (idx) {
+                0 -> duel?.leftVal
+                1 -> duel?.rightVal
+                else -> null
+            } ?: return true
+            onChoice(value)
+        }
+        Mechanic.Assemble -> Unit
+        else -> {
+            val choice = choices.getOrNull(idx) ?: return true
+            onChoice(choice)
+        }
+    }
+    return true
 }
 
 @Composable
@@ -1119,7 +1253,8 @@ private fun PlayResultsScreen(
     val acc = if (result.attempts == 0) 0 else (result.correct * 100) / result.attempts
     val seconds = result.elapsedMs / 1000.0
     Box(modifier.fillMaxSize()) {
-        HallBackdrop()
+        HallBackdrop(videoEnabled = false)
+        CtvFxStack()
         Column(
             modifier = Modifier
                 .fillMaxSize()

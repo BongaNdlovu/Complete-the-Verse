@@ -13,6 +13,7 @@ Every suite resolves the repo with `require("../scripts/repo-root")`. Engine con
 | Cloud / save | `cloud`, `diag`, `friend-race` |
 | Views / chrome | `atlas`, `sites`, `ui-structure`, `mobile-layout`, `patriarchs-question-screen`, `motion` |
 | Engine contract | `engine-modules`, `integration`, `game-structure`, `e2e-game-elements` |
+| Content pipe | `content-pipe` |
 | Production locks | `production-readiness`, `metadata`, `sky3d`, `fixes` |
 
 Adding a suite: create `test/foo.test.js`, append a row to the `SUITE` array in root `test.js`. See [`docs/DEVELOPER-GUIDE.md`](../docs/DEVELOPER-GUIDE.md) §10.

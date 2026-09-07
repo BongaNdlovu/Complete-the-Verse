@@ -47,7 +47,7 @@ fun TabletsResultsScreen(
 ) {
     val rec = Tablets.recordOf(result.save, result.chapter.id)
     Box(modifier.fillMaxSize()) {
-        HallBackdrop()
+        HallBackdrop(videoEnabled = false)
         Column(
             modifier = Modifier
                 .fillMaxSize()

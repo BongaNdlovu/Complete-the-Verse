@@ -367,7 +367,7 @@ function renderRecords(){
       '<div class="lbrow'+(i===0?" top":"")+'"><div class="pos">'+(i+1)+'</div>'+
       '<div class="mode">'+esc(MODES[r.mode]?MODES[r.mode].name:r.mode)+' · '+esc((typeof resolveDiff==="function"?resolveDiff(r.diff):DIFFS.watchman).name)+' · '+r.acc+'%</div>'+
       '<div class="sc">'+fmt(r.score)+'</div><div class="dt">'+esc(r.date)+'</div></div>').join("")+'</div>';
-  } else if(rtab==="daily" || rtab==="blitz"){
+  } else if(rtab==="blitz"){
     const cloudOn = typeof Cloud!=="undefined" && Cloud.configured();
     if(!cloudOn){
       el.innerHTML='<div class="empty">Cloud boards need a configured Supabase project (see BACKEND.md). Local play still works.</div>';
@@ -375,11 +375,9 @@ function renderRecords(){
     }
     const trustTag = (typeof Cloud!=="undefined" && typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct")
       ? ' <span class="trust-pill">(Honor system)</span>' : '';
-    const title = (rtab==="daily" ? "Daily global · "+todayKey() : "Blitz global") + trustTag;
+    const title = "Blitz global" + trustTag;
     el.innerHTML='<div class="mtitle">'+title+'</div><div class="board-loading">Loading…</div>';
-    const p = rtab==="daily"
-      ? Promise.all([Cloud.fetchDailyBoard(todayKey(), 25), Cloud.isSignedIn()?Cloud.fetchMyDailyRank(todayKey()):null])
-      : Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn()?Cloud.fetchMyBlitzRank():null]);
+    const p = Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn()?Cloud.fetchMyBlitzRank():null]);
     p.then(([rows, mine])=>{
       if(mine && rows) rows.forEach(function(r){ if(r.id === mine.id) r.mine = true; });
       if(!rows || !rows.length){
@@ -391,9 +389,7 @@ function renderRecords(){
       }
       let html = '<div class="mtitle">'+title+'</div><div class="lb global-lb">';
       rows.forEach(r=>{
-        const extra = rtab==="daily"
-          ? fmt(r.score)+(r.accuracy!=null?' · '+Math.round(Number(r.accuracy))+'%':'')+(r.diff?' · '+esc(r.diff):'')
-          : fmt(r.score)+' verses'+(r.survived_ms!=null?' · '+Math.round(r.survived_ms/1000)+'s':'');
+        const extra = fmt(r.score)+' verses'+(r.survived_ms!=null?' · '+Math.round(r.survived_ms/1000)+'s':'');
         html += '<div class="lbrow'+(r.mine?" mine":"")+(r.rank===1?" top":"")+'" data-score-id="'+esc(r.id||"")+'" data-score-board="'+rtab+'">'+
           '<div class="pos">'+r.rank+'</div>'+
           '<div class="mode">'+esc(r.name)+(r.mine?' · you':'')+'</div>'+
@@ -405,7 +401,7 @@ function renderRecords(){
       if(mine && !rows.some(r=>r.mine)){
         html += '<div class="board-you-sep">Your best on this board</div><div class="lb global-lb">'+
           '<div class="lbrow mine"><div class="pos">'+mine.rank+'</div><div class="mode">'+esc(mine.name)+' · you</div>'+
-          '<div class="sc">'+fmt(mine.score)+(rtab==="blitz"?' verses':'')+'</div></div></div>';
+          '<div class="sc">'+fmt(mine.score)+' verses</div></div></div>';
       }
       if(!Cloud.isSignedIn()){
         html += '<div class="hint" style="margin-top:1.4vh">Sign in under Settings to post scores and see your rank.</div>';

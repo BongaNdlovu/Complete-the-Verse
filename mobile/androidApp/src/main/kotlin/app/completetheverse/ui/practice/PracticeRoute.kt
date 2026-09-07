@@ -1,9 +1,12 @@
 package app.completetheverse.ui.practice
 
-import android.os.SystemClock
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.completetheverse.core.assemble.Assemble
 import app.completetheverse.core.bank.Verse
@@ -25,14 +28,30 @@ fun PracticeRoute(
         if (versesReady) viewModel.hydrate(verses, saves.snapshot())
     }
 
-    LaunchedEffect(viewModel.questionToken, viewModel.phase) {
-        if (viewModel.phase != PracticePhase.Play) return@LaunchedEffect
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_PAUSE -> viewModel.onHidden()
+                Lifecycle.Event.ON_START, Lifecycle.Event.ON_RESUME -> viewModel.onVisible()
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(viewModel.questionToken, viewModel.phase, viewModel.hiddenAt) {
+        if (viewModel.phase != PracticePhase.Play || viewModel.hiddenAt != 0L) return@LaunchedEffect
         val token = viewModel.questionToken
-        val start = viewModel.questionStart
-        while (viewModel.phase == PracticePhase.Play && viewModel.questionToken == token) {
+        while (
+            viewModel.phase == PracticePhase.Play &&
+            viewModel.questionToken == token &&
+            viewModel.hiddenAt == 0L
+        ) {
             viewModel.tickClock()
             if (viewModel.locked) break
-            if (SystemClock.elapsedRealtime() - start >= Practice.WALL_PICK_MS) {
+            if (viewModel.remainingMs() <= 0L) {
                 val mode = if (viewModel.assemble != null) "assembly" else "choice"
                 viewModel.submit(
                     ok = false,

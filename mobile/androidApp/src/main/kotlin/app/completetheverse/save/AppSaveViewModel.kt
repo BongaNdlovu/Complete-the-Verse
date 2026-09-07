@@ -11,7 +11,12 @@ import app.completetheverse.cloud.SupabaseCloudClient
 import app.completetheverse.core.bank.Bank
 import app.completetheverse.core.bank.TfClaim
 import app.completetheverse.core.bank.Verse
+import app.completetheverse.core.cloud.AppLinks
 import app.completetheverse.core.cloud.Cloud
+import app.completetheverse.core.cloud.FriendRace
+import app.completetheverse.core.play.CloudGhost
+import app.completetheverse.core.play.Ghosts
+import app.completetheverse.core.play.PlayResult
 import app.completetheverse.core.pilgrimage.Arc
 import app.completetheverse.core.pilgrimage.Site
 import app.completetheverse.core.pilgrimage.Sites
@@ -21,6 +26,8 @@ import app.completetheverse.core.tablets.TabletsBank
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import kotlin.coroutines.cancellation.CancellationException
 
 class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
@@ -60,6 +67,10 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
     var authStatus by mutableStateOf("")
         private set
     var pendingEmail by mutableStateOf("")
+        private set
+    var raceCode by mutableStateOf<String?>(null)
+        private set
+    var raceGhosts by mutableStateOf<List<CloudGhost>>(emptyList())
         private set
 
     init {
@@ -215,4 +226,77 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
 
     suspend fun fetchBlitzBoard(limit: Int = 25): List<BlitzBoardRow> =
         if (cloud.isSignedIn()) cloud.fetchBlitzBoard(limit) else emptyList()
+
+    fun handleLaunchUri(raw: String?) {
+        if (raw.isNullOrBlank()) return
+        FriendRace.parseRaceCodeFromUrl(raw)?.let { raceCode = it }
+        if (AppLinks.looksLikeAuth(raw)) handleAuthUrl(raw)
+    }
+
+    fun completeAuthFromUrl(url: String) = handleAuthUrl(url)
+
+    fun flushGhost(mode: String, siteId: String?, result: PlayResult) = upsertRunGhost(mode, siteId, result)
+
+    fun handleAuthUrl(url: String) {
+        if (authBusy) return
+        viewModelScope.launch {
+            authBusy = true
+            authStatus = ""
+            try {
+                val res = cloud.completeAuthFromUrl(url)
+                if (res.ok) {
+                    val synced = cloud.syncOnBootAndFlush(saves.snapshot())
+                    saves.persistMerged(synced)
+                    signedIn = cloud.isSignedIn()
+                    signedInEmail = cloud.currentEmail()
+                    saveGeneration++
+                }
+                authStatus = Cloud.authNotice(if (res.ok) "verified" else res.reason)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                authStatus = Cloud.authNotice("unavailable")
+            } finally {
+                authBusy = false
+            }
+        }
+    }
+
+    fun upsertRunGhost(mode: String, siteId: String?, result: PlayResult) {
+        viewModelScope.launch {
+            if (!cloud.isSignedIn()) return@launch
+            val cloudMode = Ghosts.cloudMode(mode) ?: return@launch
+            if (cloudMode != "trial" && cloudMode != "pilgrimage" && cloudMode != "blitz") return@launch
+            val record = Ghosts.recordOf(result.save, mode, siteId) ?: return@launch
+            val endP = record.samples.lastOrNull()?.p ?: 0.0
+            val meta = buildJsonObject {
+                if (!siteId.isNullOrEmpty()) put("siteId", siteId)
+                put("campaign", mode == "trial")
+            }
+            try {
+                cloud.upsertGhost(
+                    mode = cloudMode,
+                    runKey = Ghosts.cloudRunKey(mode, siteId),
+                    bestScore = record.score,
+                    timeline = Ghosts.timelineJson(record.samples, record.totalMs, endP),
+                    meta = meta,
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    fun pollRace() {
+        val code = raceCode ?: return
+        viewModelScope.launch {
+            try {
+                raceGhosts = cloud.fetchGhosts("live", code, 10)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
+        }
+    }
 }

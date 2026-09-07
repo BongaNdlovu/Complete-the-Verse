@@ -27,8 +27,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.focusable
+import app.completetheverse.core.play.PlayKeys
+import app.completetheverse.ui.play.playChoiceKeys
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -102,6 +108,8 @@ fun TabletsHoldScreen(
     val sec = ((remainingMs + 999) / 1000).coerceAtLeast(0)
     val crit = !untimed && sec <= 5 && !resolving && !paused
     val frac = if (untimed) 1f else (remainingMs.toFloat() / denom).coerceIn(0f, 1f)
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(gapIdx, tabletIdx) { focusRequester.requestFocus() }
     val fly by animateFloatAsState(
         targetValue = if (!skipHeavy && lastCorrect == true) 1f else 0f,
         animationSpec = tween(if (reducedMotion) 1 else 420),
@@ -112,8 +120,28 @@ fun TabletsHoldScreen(
         animationSpec = tween(if (reducedMotion) 1 else 280),
         label = "shatter",
     )
-    Box(modifier.fillMaxSize()) {
-        HallBackdrop()
+    Box(
+        modifier
+            .fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusable()
+            .playChoiceKeys { key ->
+                if (PlayKeys.isEscape(key)) {
+                    when {
+                        confirmAbandon -> onStay()
+                        paused -> onResume()
+                        else -> onPause()
+                    }
+                    return@playChoiceKeys true
+                }
+                if (resolving || paused) return@playChoiceKeys false
+                val idx = PlayKeys.choiceIndex(key) ?: return@playChoiceKeys false
+                val choice = choices.getOrNull(idx) ?: return@playChoiceKeys true
+                onPick(choice)
+                true
+            },
+    ) {
+        HallBackdrop(videoEnabled = false)
         Column(
             modifier = Modifier
                 .fillMaxSize()

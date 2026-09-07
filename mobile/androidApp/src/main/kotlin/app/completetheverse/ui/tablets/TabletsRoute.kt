@@ -195,7 +195,7 @@ fun TabletsRoute(
 @Composable
 private fun LearnHoldPlaceholder(loadError: String?) {
     Box(Modifier.fillMaxSize()) {
-        HallBackdrop()
+        HallBackdrop(videoEnabled = false)
         Text(
             text = loadError ?: "Learn the Hold",
             modifier = Modifier.align(Alignment.Center).padding(24.dp),

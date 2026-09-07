@@ -38,9 +38,11 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import app.completetheverse.R
 import app.completetheverse.ui.components.GhostButton
+import app.completetheverse.ui.components.IntroVideoLayer
 import app.completetheverse.ui.components.Kick
 import app.completetheverse.ui.theme.CtvColors
 import app.completetheverse.ui.theme.CtvFonts
+import app.completetheverse.ui.theme.LocalVisualProfile
 import kotlinx.coroutines.delay
 
 private val BOOT_MSGS = listOf(
@@ -53,7 +55,7 @@ private val BOOT_MSGS = listOf(
 
 @Composable
 fun BootSplash(modifier: Modifier = Modifier) {
-    IntroFrame(modifier) {
+    IntroFrame(modifier, playIntroVideo = false) {
         Kick("The Scripture Trial · Preparing the record")
         Text(
             text = "Opening the sacred record…",
@@ -81,10 +83,56 @@ fun IntroScreen(
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var videoFailed by rememberSaveable { mutableStateOf(false) }
+    var completed by remember { mutableStateOf(false) }
+    val playVideo = LocalVisualProfile.current.showVideo && !videoFailed
+
+    fun finish() {
+        if (completed) return
+        completed = true
+        onFinished()
+    }
+
+    if (playVideo) {
+        BackHandler { finish() }
+        IntroFrame(
+            modifier = modifier,
+            playIntroVideo = true,
+            onVideoEnded = { finish() },
+            onVideoFailed = { videoFailed = true },
+        ) {
+            Kick("The Scripture Trial")
+            Text(
+                text = "The word of God is quick, and powerful, and sharper than any twoedged sword.",
+                modifier = Modifier
+                    .widthIn(max = 480.dp)
+                    .padding(top = 16.dp),
+                color = CtvColors.parch,
+                fontFamily = CtvFonts.body,
+                fontStyle = FontStyle.Italic,
+                fontSize = 18.sp,
+                lineHeight = 26.sp,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = "Hebrews 4:12 · King James",
+                modifier = Modifier.padding(top = 8.dp),
+                color = CtvColors.goldDim,
+                fontFamily = CtvFonts.ui,
+                fontSize = 12.sp,
+                letterSpacing = 0.12.em,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.weight(1f))
+            GhostButton("Skip", onClick = { finish() })
+            Spacer(Modifier.height(8.dp))
+        }
+        return
+    }
+
     var booting by rememberSaveable { mutableStateOf(false) }
     var fast by rememberSaveable { mutableStateOf(false) }
     var bootIndex by rememberSaveable { mutableIntStateOf(0) }
-    var completed by remember { mutableStateOf(false) }
 
     fun beginBoot(fromSkip: Boolean) {
         if (fromSkip) fast = true
@@ -101,10 +149,7 @@ fun IntroScreen(
             bootIndex = i
             delay(if (i == BOOT_MSGS.lastIndex) last else step)
         }
-        if (!completed) {
-            completed = true
-            onFinished()
-        }
+        finish()
     }
 
     IntroFrame(
@@ -115,6 +160,7 @@ fun IntroScreen(
                 Modifier
             },
         ),
+        playIntroVideo = false,
     ) {
         Kick(
             if (booting) "The Scripture Trial · Preparing the record"
@@ -179,6 +225,9 @@ fun IntroScreen(
 @Composable
 private fun IntroFrame(
     modifier: Modifier = Modifier,
+    playIntroVideo: Boolean = false,
+    onVideoEnded: (() -> Unit)? = null,
+    onVideoFailed: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Box(modifier.fillMaxSize()) {
@@ -188,6 +237,14 @@ private fun IntroFrame(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
         )
+        if (playIntroVideo) {
+            IntroVideoLayer(
+                visible = true,
+                modifier = Modifier.fillMaxSize(),
+                onEnded = onVideoEnded,
+                onFailed = onVideoFailed,
+            )
+        }
         Box(
             Modifier
                 .fillMaxSize()

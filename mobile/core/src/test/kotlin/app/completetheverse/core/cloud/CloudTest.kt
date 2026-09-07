@@ -137,6 +137,42 @@ class CloudTest {
     }
 
     @Test
+    fun mergeSaveKeepsBestGhostsFromBothSides() {
+        val local = parse(
+            """
+            {
+              "srs": { "keep": true }, "best": {}, "pilgrim": { "sites": {}, "usedIds": [] },
+              "ghosts": {
+                "trial": { "score": 40, "samples": [{ "t": 0, "p": 0 }], "total_ms": 1000, "name": "Local" },
+                "pilgrimage": null,
+                "pilgrimageBySite": {},
+                "blitz": null
+              }
+            }
+            """.trimIndent(),
+        )
+        val remote = parse(
+            """
+            {
+              "srs": { "keep": true }, "best": {}, "pilgrim": { "sites": {}, "usedIds": [] },
+              "ghosts": {
+                "trial": { "score": 10, "samples": [{ "t": 0, "p": 0 }], "total_ms": 800, "name": "Remote" },
+                "blitz": { "score": 9, "samples": [{ "t": 0, "p": 0 }], "total_ms": 60000, "name": "Remote" },
+                "pilgrimageBySite": {
+                  "ur": { "score": 70, "samples": [{ "t": 0, "p": 0 }], "total_ms": 2000, "name": "Remote" }
+                }
+              }
+            }
+            """.trimIndent(),
+        )
+        val ghosts = Cloud.mergeSave(local, remote).obj("ghosts")
+        assertEquals(40, ghosts.obj("trial").int("score"), "trial ghost keeps the higher score")
+        assertEquals("Local", ghosts.obj("trial")["name"]?.jsonPrimitive?.contentOrNull)
+        assertEquals(9, ghosts.obj("blitz").int("score"), "remote blitz ghost is kept")
+        assertEquals(70, ghosts.obj("pilgrimageBySite").obj("ur").int("score"))
+    }
+
+    @Test
     fun emptyRemoteKeepsLocalXp() {
         val onlyLocal = Cloud.mergeSave(
             parse(
