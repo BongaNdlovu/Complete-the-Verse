@@ -227,7 +227,7 @@ const Director = (function(){
     lastMomentum=level;
   }
   function beat(kind){
-    if(SAVE.set.reduced) return;
+    if(SAVE.set.reduced || (SAVE.set.motion && SAVE.set.motion!=="full")) return;
     const systemReduced=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
     if(systemReduced) return;
     const cls="fx-"+kind;

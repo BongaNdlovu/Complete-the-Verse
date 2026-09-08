@@ -569,6 +569,9 @@ var Atlas = (function () {
       el.innerHTML = markerHtml(site, st, site.kind === "tablets" ? "✦" : (Pilgrimage.indexOf(site.id) + 1));
     });
     wireMarkerDom();
+    /* Rebuilding an icon replaces its className, dropping label-left —
+       re-fit so right-edge labels stay flipped without a pan. */
+    fitMarkerLabels();
   }
 
   function updateDensity() {
@@ -581,7 +584,10 @@ var Atlas = (function () {
     /* Labels hang to the right of the dot, so a pin near the right edge
        clips its name. Flip those to the left when the view moves. */
     if (!hasMap() || typeof map.getSize !== "function" || typeof map.latLngToContainerPoint !== "function") return;
-    var w = map.getSize().x, threshold = w * 0.68;
+    var w = map.getSize().x;
+    /* A zero-size map (pre-layout) would flip every label left. */
+    if (!w) return;
+    var threshold = w * 0.68;
     Object.keys(markers).forEach(function (id) {
       var m = markers[id];
       if (!m || !m._icon) return;
@@ -1205,6 +1211,7 @@ var Atlas = (function () {
 
     /* Open the story vignette milestone artwork after the traveler completes the walk */
     setTimeout(function () {
+      if (typeof currentView === "string" && currentView !== "atlas") return;
       openJourneyVignette(siteId);
     }, reduced() ? 300 : 1800);
 

@@ -810,7 +810,12 @@ function startRun(mode, diffKey, options){
   document.body.classList.toggle("team-white", mode==="team" && R.teamSide==="white");
   document.body.classList.toggle("team-blue", mode==="team" && R.teamSide==="blue");
   document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4","blitz-edge","blitz-edge-2","blitz-edge-3");
-  if(mode==="daily") R.daily = buildDailyList();
+  if(mode==="daily"){
+    R.daily = buildDailyList();
+    /* The draw is keyed to the day the run started; a run crossing
+       midnight must still record and submit against that day. */
+    R.dailyKey = todayKey();
+  }
   renderLives();
   syncWitness();
   $("score").textContent = "0"; setMult();
@@ -1285,8 +1290,8 @@ function renderQuickRewards(){
 function quickRewardPayout(g){
   if(!g) return "";
   return "+"+(g.xp||0)+" XP"+
-    (g.oil ? " Â· +"+g.oil+" oil" : "")+
-    (g.illuminate ? " Â· +"+g.illuminate+" Illuminate" : "");
+    (g.oil ? " · +"+g.oil+" oil" : "")+
+    (g.illuminate ? " · +"+g.illuminate+" Illuminate" : "");
 }
 
 function updateQuickRewards(){
@@ -1937,6 +1942,10 @@ function handleOverlayKeydown(e, k){
 }
 
 function handleEscapeNav(){
+  /* The intro must leave through finishIntro: a bare go("menu") leaves
+     the voice and video running, and the video's ended handler then
+     yanks the app into the boot sequence from wherever the player is. */
+  if(currentView==="intro"){ finishIntro(true); return; }
   if(currentView==="play") togglePause();
   else if(currentView==="tablets"){
     if(typeof toggleTabletsPause==="function") toggleTabletsPause();
@@ -2007,8 +2016,7 @@ function handleNavKeydown(e, k){
   if(handlePausedKeys(e, k)) return true;
   if(currentView==="intro"){
     e.preventDefault();
-    if(k==="escape") finishIntro(true);
-    else beginIntroPlayback();
+    beginIntroPlayback();
     return true;
   }
   if(currentView==="menu" && (k==="enter"||k===" ")){
@@ -2081,7 +2089,10 @@ function handlePlayChoiceKeys(e, k){
      pre-reconstruction fade screens have none — without this guard a
      number key would click a stale button from the previous question. */
   if(R.typed) return;
-  if(R.currentMechanic === "cloze") return;
+  /* Beat items reuse the mechanic names but always carry live buttons. */
+  const beatItem = R.mode === "beat";
+  if(!beatItem && R.currentMechanic === "cloze") return;
+  if(!beatItem && (R.currentMechanic === "duel" || R.currentMechanic === "truefalse")) return;
   if(R.currentMechanic === "fade" && R.fadePhase !== "reconstruct") return;
   const idx = (k>="1"&&k<="9") ? parseInt(k,10)-1 : "abcdefghi".indexOf(k);
   if(idx < 0) return;

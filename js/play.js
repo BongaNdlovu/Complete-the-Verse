@@ -1353,10 +1353,22 @@ function renderClozeQuestion(q, dur, scene){
     const host = $("cloze-slots");
     if(host) void host.offsetWidth;
     const answerStr = filled.join(" ");
-    const fire = function(){ answer(answerStr, null); };
+    const fire = function(){
+      if(R.cloze !== clozeState || R.ended || R.locked) return;
+      if(filled.join(" ") !== answerStr) return;
+      /* The hidden-tab auto-pause can land inside the lock frame; retry
+         each frame until the run is live again rather than stranding a
+         full board that can no longer be submitted. */
+      if(!R.running || R.paused){
+        if(typeof requestAnimationFrame === "function"){ requestAnimationFrame(fire); }
+        return;
+      }
+      answer(answerStr, null);
+    };
     if(typeof requestAnimationFrame === "function") requestAnimationFrame(fire);
     else fire();
   }
+  clozeState.lock = lockCloze;
 
   clozeState.render = function(){ renderSlots(); renderBank(); };
   /* Keyboard parity: number keys tap the matching live chip, Backspace
@@ -1402,6 +1414,9 @@ function illuminateCloze(){
   state.hintIndex = 0;
   if(typeof state.render === "function") state.render();
   if(typeof toast === "function") toast("Illuminate — the missing words are shown");
+  /* The reveal fills every slot, so no chip can ever fire the lock —
+     submit the completed board here or the question dead-ends. */
+  if(typeof state.lock === "function") state.lock();
   return true;
 }
 
@@ -1677,6 +1692,7 @@ function applyCorrect(opts){
 }
 function maybeOfferOverdrive(){
   if(R.mode==="beat" || R.mode==="team") return false;
+  if(R.overdriveOffered) return false;
   if(R.streak === MOMENTUM_STEPS[MOMENTUM_STEPS.length-1] && !R.setpiece && R.mode !== "blitz"){
     afterRun(700, offerOverdriveChoice);
     return true;
@@ -2338,7 +2354,13 @@ function paintGhostMarker(){
 }
 
 function timeUp(){
-  if(R.mode==="blitz"){ presentRunEnd("timeout-death"); return; }
+  if(R.mode==="blitz"){
+    /* Without stopping the clock the rAF loop re-presents the death
+       panel and re-focuses its button on every frame. */
+    stopTimer();
+    presentRunEnd("timeout-death");
+    return;
+  }
   if(R.passage) return resolvePassage();
   if(R.recon) return resolveRecon();
   /* A timed-out Judgement is a failed claim, not a missed verse — the

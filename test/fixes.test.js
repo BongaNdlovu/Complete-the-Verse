@@ -58,9 +58,12 @@ ok("the site brief offers a difficulty picker",
    /function renderSiteDiffs/.test(game) && /data-diff/.test(game));
 ok("the site brief host is still in the markup", /id="sb-diffs"/.test(index));
 
-/* §2.2 — the daily is spent by finishing, not by dying. */
+/* §2.2 — the daily is spent by finishing, not by dying, and it is
+   recorded against the day the run started (R.dailyKey), so a run
+   crossing midnight cannot leak into the next day's ledger. */
 ok("only a completed run records the daily",
-   /R\.mode==="daily" && reason==="complete" && SAVE\.daily\.date !== todayKey\(\)/.test(game));
+   /R\.mode==="daily" && reason==="complete" && SAVE\.daily\.date !== dailyKey/.test(game) &&
+   /R\.dailyKey = todayKey\(\)/.test(game));
 
 /* §2.3 — serve-time usedIds. */
 ok("startRun no longer pre-commits the draw",

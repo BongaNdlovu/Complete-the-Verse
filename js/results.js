@@ -289,8 +289,9 @@ function persistRunRecords(reason, ctx, total){
   const prevBest = SAVE.best[R.mode]||0;
   if(isRecord) SAVE.best[R.mode] = recordScore;
   let dailyRecorded = false;
-  if(R.mode==="daily" && reason==="complete" && SAVE.daily.date !== todayKey()){
-    SAVE.daily = {date:todayKey(), score:total};
+  const dailyKey = R.dailyKey || todayKey();
+  if(R.mode==="daily" && reason==="complete" && SAVE.daily.date !== dailyKey){
+    SAVE.daily = {date:dailyKey, score:total};
     SAVE.life.dailyDone++; dailyRecorded = true;
   }
   SAVE.board.push({score:total, mode:R.mode, diff:R.diff.key, acc:Math.round(ctx.acc*100), date:todayKey(), q:R.qTotal});

@@ -39,14 +39,18 @@ function showArtifactReveal(artifact, done){
   el.dataset.kind = "artifact";
   el.classList.remove("play"); void el.offsetWidth; el.classList.add("on","play");
   Snd.level();
+  let autoT = null;
   const close = ()=>{
+    if(close._done) return;
+    close._done = true;
+    if(autoT) clearTimeout(autoT);
     el.classList.remove("on","play");
     SAVE.artifacts = Artifacts.markSeen(SAVE.artifacts, artifact.id);
     persist();
     if(done) done();
   };
   $("reveal-continue").onclick = ()=>{ Snd.ui(); close(); };
-  setTimeout(()=>{ if(el.classList.contains("on")) close(); }, 14000);
+  autoT = setTimeout(()=>{ if(el.classList.contains("on")) close(); }, 14000);
 }
 
 /* ------------------------- RELICS HALL ------------------------- */
@@ -326,12 +330,17 @@ function drawStudy(){
       const v = VERSES.find(x => String(x.id) === id);
       if(!v) return;
       if(typeof window !== "undefined" && ('speechSynthesis' in window)){
+        /* cancel() can fire the previous utterance's onend in some
+           engines — mark it so a second Listen tap cannot launch a run
+           the player never asked for. */
+        if(el._studyUtter) el._studyUtter._ctvCancelled = true;
         window.speechSynthesis.cancel();
         const fullText = (v.p ? v.p + " " : "") + (v.a || "") + (v.s ? " " + v.s : "");
         const utter = new SpeechSynthesisUtterance(fullText);
         utter.rate = 0.9;
-        utter.onend = () => { startRun("recall", SAVE.set.diff, { queue: [v], forcedVerse: v }); };
-        utter.onerror = () => { startRun("recall", SAVE.set.diff, { queue: [v], forcedVerse: v }); };
+        el._studyUtter = utter;
+        utter.onend = () => { if(utter._ctvCancelled) return; startRun("recall", SAVE.set.diff, { queue: [v], forcedVerse: v }); };
+        utter.onerror = () => { if(utter._ctvCancelled) return; startRun("recall", SAVE.set.diff, { queue: [v], forcedVerse: v }); };
         window.speechSynthesis.speak(utter);
         if(typeof toast === "function") toast("Listening to " + v.r + "…");
       }
@@ -377,8 +386,12 @@ function renderRecords(){
       ? ' <span class="trust-pill">(Honor system)</span>' : '';
     const title = "Blitz global" + trustTag;
     el.innerHTML='<div class="mtitle">'+title+'</div><div class="board-loading">Loading…</div>';
+    /* Switching tabs mid-fetch must not let the slow board overwrite the
+       tab the player is now reading. */
+    const seq = (el._fetchSeq = (el._fetchSeq || 0) + 1);
     const p = Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn()?Cloud.fetchMyBlitzRank():null]);
     p.then(([rows, mine])=>{
+      if(el._fetchSeq !== seq) return;
       if(mine && rows) rows.forEach(function(r){ if(r.id === mine.id) r.mine = true; });
       if(!rows || !rows.length){
         const fail = Cloud.boardLoadFailed && Cloud.boardLoadFailed();
@@ -409,6 +422,7 @@ function renderRecords(){
       el.innerHTML = html;
       bindLeaderboardReports(el, rtab);
     }).catch(()=>{
+      if(el._fetchSeq !== seq) return;
       el.innerHTML='<div class="mtitle">'+esc(title)+'</div><div class="empty">Could not reach the board.</div>';
     });
   } else if(rtab==="life"){
@@ -645,7 +659,7 @@ function bindSettingsHandlers(){
     syncBtn.addEventListener("click", async ()=>{
       syncBtn.disabled = true;
       const res = await Cloud.syncOnBoot(SAVE);
-      if(res.ok && res.save){ SAVE = res.save; persist(); Atlas.setProgress(SAVE.pilgrim); updatePlayerCard(); }
+      if(res.ok && res.save){ SAVE = res.save; if(typeof window !== "undefined") window.SAVE = SAVE; persist(); Atlas.setProgress(SAVE.pilgrim); updatePlayerCard(); }
       syncBtn.disabled = false;
       if(!res.ok && typeof showState==="function"){
         showState("cloud-fail", {
@@ -681,7 +695,9 @@ function bindSettingsHandlers(){
   });
   $("set-reset").addEventListener("click", (e)=>{
     if(!armableConfirm(e.currentTarget, "Erase every seal, record and statistic? This cannot be undone.")) return;
-    SAVE = JSON.parse(JSON.stringify(DEFAULT_SAVE)); persist();
+    SAVE = JSON.parse(JSON.stringify(DEFAULT_SAVE));
+    if(typeof window !== "undefined") window.SAVE = SAVE;
+    persist();
     Atlas.setProgress(SAVE.pilgrim);
     applySettings(); updatePlayerCard(); renderSettings(); toast("All progress erased");
   });
