@@ -2191,20 +2191,17 @@ function loop(ts){
 }
 
 /* ------------------------- BOOT ------------------------- */
-function startCtvBoot(){
-  if (typeof runningInStandaloneApp === "function" && runningInStandaloneApp() && SAVE && SAVE.set && !SAVE.set.apkEfficientApplied) {
-    SAVE.set.apkEfficientApplied = true;
-    if (!SAVE.set.qualityLocked) SAVE.set.quality = "low";
-    persist();
-  }
-  buildPlayerCard();
-  Backdrop.init();
-  applySettings();
-  bindAudioDock();
-  bindTutorial();
-  armIntro();
-
-  bindStatePanel();
+/* First launch inside the standalone Android app drops the quality to
+   low once, so a 186 MB offline bundle still boots smoothly on cheap
+   hardware. The player's later quality choice wins (qualityLocked). */
+function applyStandaloneBootDefaults(){
+  if (typeof runningInStandaloneApp !== "function" || !runningInStandaloneApp()) return;
+  if (!SAVE || !SAVE.set || SAVE.set.apkEfficientApplied) return;
+  SAVE.set.apkEfficientApplied = true;
+  if (!SAVE.set.qualityLocked) SAVE.set.quality = "low";
+  persist();
+}
+function bindBootButtons(){
   if (typeof revealStandaloneChrome === "function") revealStandaloneChrome();
   const menuQuitApp = $("menu-quit-app");
   if (menuQuitApp && typeof quitStandaloneApp === "function") {
@@ -2223,50 +2220,60 @@ function startCtvBoot(){
   const odRide = $("od-ride"), odBank = $("od-bank");
   if(odRide) odRide.addEventListener("click", ()=>{ Snd.ui(); resolveOverdrive("ride"); });
   if(odBank) odBank.addEventListener("click", ()=>{ Snd.ui(); resolveOverdrive("bank"); });
-
-  /* Cloud is optional. Lazy-load SDK; never block boot. */
-  if(typeof Cloud!=="undefined" && Cloud.configured()){
-    Cloud.on("onSync", function(){
-      updateCloudChip();
-      if(currentView==="settings") renderSettings();
-    });
-    Cloud.on("onError", function(){
-      updateCloudChip();
-      if(currentView==="settings") renderSettings();
-    });
-    Cloud.on("onAuth", function(ev){
-      if(ev && ev.event==="SIGNED_IN"){
-        Cloud.syncOnBoot(SAVE).then(function(res){
-          if(res && res.ok && res.save){
-            SAVE = res.save; persist();
-            Atlas.setProgress(SAVE.pilgrim);
-            updatePlayerCard();
-            updateCloudChip();
-            if(res.merged) toast("Progress merged from the cloud");
-          }
-        });
-      }
-      if(ev && ev.event==="SIGNED_OUT" && currentView==="play"){
-        toast("Session ended. Your run stays on this device.");
-      }
-      updateCloudChip();
-      if(currentView==="settings") renderSettings();
-    });
-    const bootCloud = Cloud.initLazy ? Cloud.initLazy() : Cloud.init();
-    bootCloud.then(function(res){
-      if(res && res.ok && Cloud.isSignedIn()){
-        return Cloud.syncOnBoot(SAVE).then(function(sync){
-          if(sync && sync.ok && sync.save){
-            SAVE = sync.save; persist();
-            Atlas.setProgress(SAVE.pilgrim);
-            updatePlayerCard();
-          }
+}
+/* Cloud is optional. Lazy-load SDK; never block boot. */
+function bindCloudBoot(){
+  if(typeof Cloud === "undefined" || !Cloud.configured()) return;
+  const onCloudEvent = function(){
+    updateCloudChip();
+    if(currentView==="settings") renderSettings();
+  };
+  Cloud.on("onSync", onCloudEvent);
+  Cloud.on("onError", onCloudEvent);
+  Cloud.on("onAuth", function(ev){
+    if(ev && ev.event==="SIGNED_IN"){
+      Cloud.syncOnBoot(SAVE).then(function(res){
+        if(res && res.ok && res.save){
+          SAVE = res.save; persist();
+          Atlas.setProgress(SAVE.pilgrim);
+          updatePlayerCard();
           updateCloudChip();
-        });
-      }
-      updateCloudChip();
-    }).catch(function(){});
-  }
+          if(res.merged) toast("Progress merged from the cloud");
+        }
+      });
+    }
+    if(ev && ev.event==="SIGNED_OUT" && currentView==="play"){
+      toast("Session ended. Your run stays on this device.");
+    }
+    onCloudEvent();
+  });
+  const bootCloud = Cloud.initLazy ? Cloud.initLazy() : Cloud.init();
+  bootCloud.then(function(res){
+    if(res && res.ok && Cloud.isSignedIn()){
+      return Cloud.syncOnBoot(SAVE).then(function(sync){
+        if(sync && sync.ok && sync.save){
+          SAVE = sync.save; persist();
+          Atlas.setProgress(SAVE.pilgrim);
+          updatePlayerCard();
+        }
+        updateCloudChip();
+      });
+    }
+    updateCloudChip();
+  }).catch(function(){});
+}
+function startCtvBoot(){
+  applyStandaloneBootDefaults();
+  buildPlayerCard();
+  Backdrop.init();
+  applySettings();
+  bindAudioDock();
+  bindTutorial();
+  armIntro();
+
+  bindStatePanel();
+  bindBootButtons();
+  bindCloudBoot();
   updateOfflineBanner();
 
   document.addEventListener("visibilitychange", function(){
