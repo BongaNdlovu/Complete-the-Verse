@@ -509,6 +509,22 @@ class Pilgrimage(
             }
             val unlocked = Artifacts.unlockForSite(Artifacts.fromSave(out), siteId, at)
             out = Artifacts.writeSave(out, unlocked.store)
+            val rows = ((out["journal"] as? JsonArray)?.toMutableList() ?: mutableListOf())
+            rows.add(
+                0,
+                JsonObject(
+                    mapOf(
+                        "name" to JsonPrimitive(site(siteId)?.name ?: siteId),
+                        "siteId" to JsonPrimitive(siteId),
+                        "at" to JsonPrimitive(at.toString()),
+                        "cleared" to JsonPrimitive(true),
+                        "acc" to JsonPrimitive(accuracy),
+                    ),
+                ),
+            )
+            val bag = out.toMutableMap()
+            bag["journal"] = JsonArray(rows.take(40))
+            out = JsonObject(bag)
         }
         return out
     }

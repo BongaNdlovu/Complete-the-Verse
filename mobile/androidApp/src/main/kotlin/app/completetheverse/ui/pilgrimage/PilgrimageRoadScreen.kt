@@ -9,11 +9,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import android.graphics.BitmapFactory
+import app.completetheverse.ui.audio.CtvMedia
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
+import java.net.URL
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -51,6 +63,7 @@ fun PilgrimageRoadScreen(
     loadError: String?,
     onOpenSite: (String) -> Unit,
     onBack: () -> Unit,
+    liveWeather: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val sites = engine?.journey().orEmpty()
@@ -96,20 +109,22 @@ fun PilgrimageRoadScreen(
                     letterSpacing = 0.18.em,
                     modifier = Modifier.padding(top = 8.dp, bottom = 14.dp),
                 )
-                HallPanel(
+                AtlasLeafletView(
+                    sites = sites,
+                    progress = progress,
+                    engine = engine,
+                    currentId = current?.id,
+                    onOpenSite = onOpenSite,
                     modifier = Modifier
-                        .widthIn(max = 640.dp)
+                        .widthIn(max = 720.dp)
                         .fillMaxWidth()
-                        .height(280.dp),
-                    cut = 12.dp,
-                ) {
-                    AtlasMap(
-                        sites = sites,
-                        progress = progress,
-                        engine = engine,
-                        currentId = current?.id,
-                        onOpenSite = onOpenSite,
-                        modifier = Modifier.fillMaxSize(),
+                        .height(420.dp),
+                )
+                if (current != null) {
+                    Spacer(Modifier.height(14.dp))
+                    SiteDossier(
+                        site = current,
+                        liveWeather = liveWeather,
                     )
                 }
                 Spacer(Modifier.height(18.dp))
@@ -326,4 +341,109 @@ private fun RelicList(relics: List<Artifact>) {
             )
         }
     }
+}
+
+@Composable
+private fun SiteDossier(site: Site, liveWeather: Boolean) {
+    HallPanel(
+        modifier = Modifier.widthIn(max = 640.dp).fillMaxWidth(),
+        cut = 12.dp,
+    ) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+            JourneyStill(site.id)
+            Text(
+                text = site.name.uppercase(),
+                color = CtvColors.goldHot,
+                fontFamily = CtvFonts.display,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                letterSpacing = 0.12.em,
+                modifier = Modifier.padding(top = 10.dp),
+            )
+            Text(
+                text = site.era,
+                color = CtvColors.goldDim,
+                fontFamily = CtvFonts.ui,
+                fontSize = 12.sp,
+                letterSpacing = 0.12.em,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+            if (site.quote.isNotEmpty()) {
+                Text(
+                    text = "“${site.quote}”",
+                    color = CtvColors.parch,
+                    fontFamily = CtvFonts.body,
+                    fontStyle = FontStyle.Italic,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(top = 10.dp),
+                )
+            }
+            WeatherLine(lat = site.lat, lng = site.lng, enabled = liveWeather)
+        }
+    }
+}
+
+@Composable
+private fun JourneyStill(siteId: String) {
+    val bmp by produceState<androidx.compose.ui.graphics.ImageBitmap?>(initialValue = null, siteId) {
+        value = withContext(Dispatchers.IO) {
+            try {
+                val conn = URL(CtvMedia.journeyStill(siteId)).openConnection() as HttpURLConnection
+                conn.connectTimeout = 6000
+                conn.readTimeout = 6000
+                conn.inputStream.use { BitmapFactory.decodeStream(it)?.asImageBitmap() }
+            } catch (_: Exception) {
+                null
+            }
+        }
+    }
+    val image = bmp
+    if (image != null) {
+        Image(
+            bitmap = image,
+            contentDescription = siteId,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxWidth().height(140.dp),
+        )
+    }
+}
+
+@Composable
+private fun WeatherLine(lat: Double, lng: Double, enabled: Boolean) {
+    val label by produceState(initialValue = if (enabled) "…" else "Typical", lat, lng, enabled) {
+        if (!enabled) {
+            value = "Typical"
+            return@produceState
+        }
+        value = withContext(Dispatchers.IO) {
+            try {
+                val url =
+                    "https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lng&current=temperature_2m,weather_code,wind_speed_10m&wind_speed_unit=kmh&timezone=UTC"
+                val conn = URL(url).openConnection() as HttpURLConnection
+                conn.connectTimeout = 6000
+                conn.readTimeout = 6000
+                val raw = conn.inputStream.bufferedReader().use { it.readText() }
+                val temp = Regex("\"temperature_2m\"\\s*:\\s*(-?[0-9.]+)").find(raw)?.groupValues?.get(1)
+                val code = Regex("\"weather_code\"\\s*:\\s*([0-9]+)").find(raw)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+                val sky = when {
+                    code <= 0 -> "Clear sky"
+                    code <= 3 -> "Partly cloudy"
+                    code <= 48 -> "Fog"
+                    code <= 67 -> "Rain"
+                    code <= 77 -> "Snow"
+                    else -> "Storm"
+                }
+                if (temp != null) "${temp.toFloat().toInt()}°C · $sky" else "Typical"
+            } catch (_: Exception) {
+                "Typical"
+            }
+        }
+    }
+    Text(
+        text = label,
+        color = CtvColors.goldDim,
+        fontFamily = CtvFonts.ui,
+        fontSize = 12.sp,
+        modifier = Modifier.padding(top = 10.dp),
+    )
 }

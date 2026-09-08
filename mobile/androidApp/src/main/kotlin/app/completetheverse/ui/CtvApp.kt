@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,16 +25,23 @@ import app.completetheverse.core.bank.Verse
 import app.completetheverse.core.characters.Scholars
 import app.completetheverse.core.cloud.Cloud
 import app.completetheverse.core.pilgrimage.Arc
+import app.completetheverse.core.pilgrimage.Pilgrimage
 import app.completetheverse.core.pilgrimage.Site
 import app.completetheverse.core.pilgrimage.Artifacts
+import app.completetheverse.core.play.Modes
 import app.completetheverse.core.records.BlitzBoardRow
+import app.completetheverse.core.records.Records
 import app.completetheverse.core.save.Save
 import app.completetheverse.core.save.SaveBlob
+import app.completetheverse.core.seals.Seals
+import app.completetheverse.core.study.Study
 import app.completetheverse.core.tablets.TabletsBank
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.components.HallToast
 import app.completetheverse.ui.components.QuitDialog
 import app.completetheverse.core.play.PlayResult
+import app.completetheverse.ui.audio.CtvSound
+import app.completetheverse.ui.audio.LocalCtvSound
 import app.completetheverse.ui.beat.BeatRoute
 import app.completetheverse.ui.hall.ComingSoonScreen
 import app.completetheverse.ui.hall.HallScreen
@@ -60,6 +68,7 @@ import app.completetheverse.ui.theme.LocalVisualProfile
 import app.completetheverse.ui.theme.VisualProfile
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.doubleOrNull
@@ -217,6 +226,9 @@ fun CtvApp(
     }
 
     val context = LocalContext.current
+    val sound = remember { CtvSound(context) }
+    DisposableEffect(sound) { onDispose { sound.release() } }
+    LaunchedEffect(settings) { sound.apply(settings) }
     val systemReduced = remember(context) {
         try {
             Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f ||
@@ -277,7 +289,10 @@ fun CtvApp(
         configured = cloudUi.configured,
     )
 
-    CompositionLocalProvider(LocalVisualProfile provides visualProfile) {
+    CompositionLocalProvider(
+        LocalVisualProfile provides visualProfile,
+        LocalCtvSound provides sound,
+    ) {
     Box(
         Modifier
             .fillMaxSize()
@@ -326,7 +341,37 @@ fun CtvApp(
                 },
                 onBack = { afterHallBack() },
             )
-            CtvScreen.Hall -> HallScreen(
+            CtvScreen.Hall -> {
+                val pilgrim = if (sites.isEmpty()) null else Pilgrimage(sites, arcs, verses)
+                val road = pilgrim?.overview(Pilgrimage.fromSave(save))
+                val due = Study.dueCount(verses, save)
+                val stats = Records.stats(save)
+                val sealsGot = Seals.earnedCount(save)
+                val sealsTot = Seals.count()
+                val roadLine = when {
+                    road == null -> "The road is loading"
+                    road.complete -> "Road complete · Ur to Patmos"
+                    else -> "${road.cleared} of ${road.total} sites · next: ${road.current?.name ?: "Ur"}"
+                }
+                val footerLine = if (stats.runs > 0) {
+                    "${stats.runs} runs · ${stats.correct} verses kept · $sealsGot/$sealsTot seals" +
+                        if (due > 0) " · $due due for review" else " · nothing due"
+                } else {
+                    "all 66 books · King James Version"
+                }
+                val pills = buildMap<String, String> {
+                    if (Modes.dailyAlreadyRecorded(save)) put("daily", "Done") else put("daily", "Today")
+                    if (due > 0) put("practice", "$due due")
+                    if (road != null) {
+                        put("pilgrimage", if (road.complete) "Road walked" else "${road.cleared} / ${road.total}")
+                    }
+                    val best = save["best"] as? JsonObject
+                    listOf("blitz", "trial", "endless", "recall").forEach { k ->
+                        val n = (best?.get(k) as? JsonPrimitive)?.content?.toIntOrNull() ?: 0
+                        if (n > 0) put(k, "Best $n")
+                    }
+                }
+                HallScreen(
                 onMode = { mode ->
                     when {
                         mode.key == "beat" -> screen = CtvScreen.Beat
@@ -364,7 +409,13 @@ fun CtvApp(
                 cloudDim = !(cloudUi.ready && cloudUi.signedIn),
                 showSignIn = cloudUi.ready && cloudUi.configured && !cloudUi.signedIn,
                 onCloud = { screen = CtvScreen.SignIn },
+                roadLine = roadLine,
+                dueCount = due,
+                onReviewDue = { screen = CtvScreen.Practice },
+                footerLine = footerLine,
+                pills = pills,
             )
+            }
             CtvScreen.Settings -> SettingsScreen(
                 settings = settings,
                 scholarShort = scholar.short,

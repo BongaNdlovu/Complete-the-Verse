@@ -1,6 +1,7 @@
 package app.completetheverse.core.records
 
 import app.completetheverse.core.save.SaveBlob
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.doubleOrNull
@@ -23,6 +24,21 @@ data class RecordStats(
     val tabletHolds: Int,
     val dailyDone: Int,
     val localBlitzBest: Int,
+)
+
+data class LocalRun(
+    val score: Int,
+    val mode: String,
+    val diff: String,
+    val acc: Int,
+    val date: String,
+)
+
+data class BookRow(
+    val book: String,
+    val correct: Int,
+    val attempts: Int,
+    val pct: Int,
 )
 
 data class BlitzBoardRow(
@@ -60,6 +76,30 @@ object Records {
             dailyDone = jsonInt(life["dailyDone"]),
             localBlitzBest = jsonInt(life["blitzBest"]).coerceAtLeast(jsonInt(best["blitz"])),
         )
+    }
+
+    fun localBoard(save: SaveBlob): List<LocalRun> {
+        val arr = save["board"] as? JsonArray ?: return emptyList()
+        return arr.mapNotNull { el ->
+            val o = el as? JsonObject ?: return@mapNotNull null
+            LocalRun(
+                score = jsonInt(o["score"]),
+                mode = (o["mode"] as? JsonPrimitive)?.content.orEmpty(),
+                diff = (o["diff"] as? JsonPrimitive)?.content.orEmpty(),
+                acc = jsonInt(o["acc"]),
+                date = (o["date"] as? JsonPrimitive)?.content.orEmpty(),
+            )
+        }
+    }
+
+    fun byBook(save: SaveBlob): List<BookRow> {
+        val books = obj(save["books"])
+        return books.map { (b, el) ->
+            val o = el as? JsonObject ?: JsonObject(emptyMap())
+            val c = jsonInt(o["c"])
+            val a = jsonInt(o["a"])
+            BookRow(b, c, a, if (a == 0) 0 else kotlin.math.round(c * 100.0 / a).toInt())
+        }.filter { it.attempts > 0 }.sortedBy { it.pct }
     }
 
     private fun obj(el: kotlinx.serialization.json.JsonElement?): JsonObject =

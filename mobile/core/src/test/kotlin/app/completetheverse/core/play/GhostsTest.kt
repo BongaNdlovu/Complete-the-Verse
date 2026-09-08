@@ -17,6 +17,14 @@ class GhostsTest {
     private val samples = listOf(GhostSample(0, 0.0), GhostSample(4_000, 0.5), GhostSample(8_000, 1.0))
 
     @Test
+    fun atElapsedInterpolates() {
+        assertEquals(0.0, Ghosts.atElapsed(samples, 0))
+        assertEquals(0.25, Ghosts.atElapsed(samples, 2_000), 1e-6)
+        assertEquals(1.0, Ghosts.atElapsed(samples, 9_000), 1e-6)
+        assertEquals(0.0, Ghosts.atElapsed(emptyList(), 100))
+    }
+
+    @Test
     fun keepBestReplacesWhenScoreIsHigherOrEqual() {
         val old = GhostRecord(10, samples, 1_000, "old")
         val fresh = GhostRecord(12, samples, 800, "new")

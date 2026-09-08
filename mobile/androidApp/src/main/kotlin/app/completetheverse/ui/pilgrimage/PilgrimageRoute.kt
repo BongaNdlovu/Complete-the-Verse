@@ -10,6 +10,7 @@ import app.completetheverse.core.pilgrimage.Arc
 import app.completetheverse.core.pilgrimage.Site
 import app.completetheverse.core.play.ClockPolicy
 import app.completetheverse.core.play.PlayResult
+import app.completetheverse.core.save.Save
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.play.PlayRoute
 import app.completetheverse.ui.play.PlayViewModel
@@ -51,6 +52,11 @@ fun PilgrimageRoute(
             loadError = verseError,
             onOpenSite = { viewModel.openBrief(it) },
             onBack = onExit,
+            liveWeather = if (Save.settingsOf(saves.snapshot()).containsKey("liveWeather")) {
+                Save.boolSet(saves.snapshot(), "liveWeather")
+            } else {
+                true
+            },
         )
         PilgrimagePhase.Brief -> {
             val card = viewModel.brief

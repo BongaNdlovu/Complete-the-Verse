@@ -1,0 +1,36 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<link rel="stylesheet" href="leaflet.css">
+<style>
+  html,body,#map{height:100%;margin:0;background:#04040a}
+</style>
+<div id="map"></div>
+<script src="leaflet.js"></script>
+<script>
+  var SAT = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+  var OSM = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+  var map = L.map("map", {center:[34.5,36], zoom:5, minZoom:3, maxZoom:12, zoomControl:false, attributionControl:false, worldCopyJump:true, zoomSnap:0.25});
+  var sat = L.tileLayer(SAT, {maxZoom:18, crossOrigin:true}).addTo(map);
+  var errs = 0, osmOn = false;
+  sat.on("tileerror", function(){
+    if (osmOn || ++errs < 3) return;
+    osmOn = true;
+    L.tileLayer(OSM, {maxZoom:18}).addTo(map).bringToBack();
+  });
+  var markers = {};
+  function paint(payload){
+    var d = JSON.parse(payload);
+    Object.keys(markers).forEach(function(k){ map.removeLayer(markers[k]); });
+    markers = {};
+    (d.sites||[]).forEach(function(s){
+      var c = s.current ? "#f3d48a" : s.perfect ? "#7ec8e3" : s.cleared ? "#7dba7d" : s.unlocked ? "#c9a227" : "#5a4a28";
+      var m = L.circleMarker([s.lat, s.lng], {radius:s.current?8:5, color:c, fillColor:c, fillOpacity:1, weight:1});
+      m.on("click", function(){ if (s.unlocked && window.CtvAtlas) CtvAtlas.onSite(s.id); });
+      m.addTo(map);
+      markers[s.id] = m;
+    });
+    if (d.focus) map.setView([d.focus.lat, d.focus.lng], d.focus.zoom || 7);
+  }
+  window.paintAtlas = paint;
+</script>

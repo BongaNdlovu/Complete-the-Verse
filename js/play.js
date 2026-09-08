@@ -1342,13 +1342,20 @@ function renderClozeQuestion(q, dur, scene){
           Snd.ui();
           renderSlots();
           renderBank();
-          if(filled.length === words.length){
-            const answerStr = filled.join(" ");
-            answer(answerStr, null);
-          }
+          lockCloze();
         }
       });
     });
+  }
+
+  function lockCloze(){
+    if(filled.length !== words.length) return;
+    const host = $("cloze-slots");
+    if(host) void host.offsetWidth;
+    const answerStr = filled.join(" ");
+    const fire = function(){ answer(answerStr, null); };
+    if(typeof requestAnimationFrame === "function") requestAnimationFrame(fire);
+    else fire();
   }
 
   clozeState.render = function(){ renderSlots(); renderBank(); };
@@ -1367,7 +1374,7 @@ function renderClozeQuestion(q, dur, scene){
     Snd.ui();
     renderSlots();
     renderBank();
-    if(filled.length === words.length) answer(filled.join(" "), null);
+    lockCloze();
     return true;
   };
   clozeState.unfillLast = function(){

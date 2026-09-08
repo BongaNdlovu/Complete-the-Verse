@@ -662,15 +662,25 @@ function bindSettingsHandlers(){
   /* Deliberately separate from the full erase: a player who wants to
      walk the road again from Ur should not have to give up their seals,
      their level and their whole scheduling history to do it. */
-  $("set-road").addEventListener("click", ()=>{
+  const armableConfirm = (btn, msg)=>{
+    if(typeof jsDialogsWork !== "function" || jsDialogsWork()){
+      return typeof confirm === "function" && confirm(msg);
+    }
+    if(btn.dataset.armed === "1"){ delete btn.dataset.armed; return true; }
+    btn.dataset.armed = "1";
+    toast("Tap again to confirm");
+    setTimeout(function(){ delete btn.dataset.armed; }, 5000);
+    return false;
+  };
+  $("set-road").addEventListener("click", (e)=>{
     const done = Pilgrimage.clearedCount(SAVE.pilgrim);
     if(!done){ toast("The journey has not started yet"); return; }
-    if(!confirm("Seal all "+done+" cleared sites again and start the road from Ur? Seals, level and verse history are kept.")) return;
+    if(!armableConfirm(e.currentTarget, "Seal all "+done+" cleared sites again and start the road from Ur? Seals, level and verse history are kept.")) return;
     SAVE.pilgrim = Pilgrimage.blankProgress(); persist();
     Atlas.setProgress(SAVE.pilgrim); Snd.ui(); renderSettings(); toast("The road is sealed back to Ur");
   });
-  $("set-reset").addEventListener("click", ()=>{
-    if(!confirm("Erase every seal, record and statistic? This cannot be undone.")) return;
+  $("set-reset").addEventListener("click", (e)=>{
+    if(!armableConfirm(e.currentTarget, "Erase every seal, record and statistic? This cannot be undone.")) return;
     SAVE = JSON.parse(JSON.stringify(DEFAULT_SAVE)); persist();
     Atlas.setProgress(SAVE.pilgrim);
     applySettings(); updatePlayerCard(); renderSettings(); toast("All progress erased");

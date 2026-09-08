@@ -49,6 +49,7 @@ const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
     const t = name => vm.runInContext("typeof " + name, sb);
     ok("util exports the DOM helper", t("$") === "function");
     ok("util exports the ref-dedupe pool helper", t("poolSansRepeatRefs") === "function");
+    ok("util exports jsDialogsWork", t("jsDialogsWork") === "function");
     ok("audio defines Snd", t("Snd") === "object");
     ok("director defines Director", t("Director") === "object");
     ok("set-pieces define SetPieces", t("SetPieces") === "object");

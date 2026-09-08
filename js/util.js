@@ -35,6 +35,14 @@ function runningInStandaloneApp(){
   try { return location.hostname === "appassets.androidplatform.net"; }
   catch (e) { return false; }
 }
+function jsDialogsWork(){
+  /* Android WebView returns false from window.confirm with no dialog
+     unless onJsConfirm is wired. The standalone APK uses in-UI confirm. */
+  if (runningInStandaloneApp()) return false;
+  try {
+    return !(typeof navigator !== "undefined" && navigator.userAgent && /\bwv\b/.test(navigator.userAgent));
+  } catch (e) { return true; }
+}
 function standaloneAppBridge(){
   try {
     return (typeof window !== "undefined" && window.CtvApp && typeof window.CtvApp.quit === "function")

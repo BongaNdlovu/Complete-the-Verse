@@ -10,6 +10,11 @@ const game = fs.readFileSync(path.join(ROOT, "js", "game.js"), "utf8");
 const cinematic = fs.readFileSync(path.join(ROOT, "js", "cinematic.js"), "utf8");
 const gameCss = fs.readFileSync(path.join(ROOT, "css", "game.css"), "utf8");
 const atlasCss = fs.readFileSync(path.join(ROOT, "css", "atlas.css"), "utf8");
+const playCss = fs.readFileSync(path.join(ROOT, "css", "play.css"), "utf8");
+const panels = fs.readFileSync(path.join(ROOT, "js", "panels.js"), "utf8");
+const util = fs.readFileSync(path.join(ROOT, "js", "util.js"), "utf8");
+const atlas = fs.readFileSync(path.join(ROOT, "js", "atlas.js"), "utf8");
+const tablets = fs.readFileSync(path.join(ROOT, "js", "tablets-run.js"), "utf8");
 
 let pass = 0, fail = 0;
 function ok(name, condition, extra){
@@ -39,7 +44,6 @@ ok("cinematic events have a shared dispatcher", cinematic.includes("function eve
 ok("cinematic events are used by answer resolution", play.includes('Cinematic.event("streak"') && play.includes('Cinematic.event("miss"'));
 
 const seq = fs.readFileSync(path.join(ROOT, "js", "sequences.js"), "utf8");
-const tablets = fs.readFileSync(path.join(ROOT, "js", "tablets-run.js"), "utf8");
 const audio = fs.readFileSync(path.join(ROOT, "js", "audio.js"), "utf8");
 const shim = fs.readFileSync(path.join(ROOT, "scripts", "test-shim.js"), "utf8");
 
@@ -66,6 +70,27 @@ ok("tabletsResolve schedules finish before paint", (()=>{
 })());
 ok("playFile continues on media error", audio.includes('addEventListener("error"') && audio.includes("function finish()"));
 ok("empty class tokens throw in the test DOM", shim.includes('if(x==="") throw'));
+
+ok("jsDialogsWork lives in util", util.includes("function jsDialogsWork("));
+ok("play quit does not unpause when WebView confirm is false", (()=>{
+  const fn = sliceFn(game, "function quitPlay(", "function shareDailyResult");
+  const wv = fn.indexOf("!jsDialogsWork()");
+  const confirmAt = fn.indexOf("confirm(");
+  return wv >= 0 && fn.includes("setPaused(true)") && confirmAt > wv;
+})());
+ok("tablets pause-quit confirms abandon", tablets.includes("quitTablets(true)"));
+ok("cloze paints filled slots before locking", (()=>{
+  const fn = sliceFn(play, "function renderClozeQuestion(", "function illuminateCloze");
+  return fn.includes("function lockCloze(") && fn.includes("requestAnimationFrame") &&
+    fn.indexOf("renderSlots();") < fn.indexOf("lockCloze()");
+})());
+ok("settings destructive actions use armed confirm", panels.includes("armableConfirm") &&
+  panels.includes('toast("Tap again to confirm")'));
+ok("atlas flips labels that clip at the right edge", atlas.includes("function fitMarkerLabels(") &&
+  atlas.includes('map.on("moveend", fitMarkerLabels)') &&
+  atlasCss.includes(".site-marker.label-left .node-label"));
+ok("play quit sits above the header ribbon", /\.play-quit\{[^}]*z-index:20/.test(playCss) &&
+  /\.hdr-rule\{[^}]*pointer-events:none/.test(playCss));
 
 if(fail){
   console.log("FAIL — interaction contract · " + pass + " passed · " + fail + " failed");

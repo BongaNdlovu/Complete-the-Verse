@@ -259,6 +259,7 @@ body:not(:has(#v-atlas.on)) .site-marker.current .beacon { animation-play-state:
 }
 .node-label b { font-family: var(--ui); font-weight: 600; }
 .node-label .node-ord { color: var(--gold-dim); margin-right: .5em; }
+.site-marker.label-left .node-label { left: auto; right: 15px; }
 /* At low zoom the labels stack into mush, so only the marked ones stay. */
 #atlas-map.compact .site-marker:not(.current):not(.active):not(.hovered) .node-label { opacity: 0; pointer-events: none; }
 

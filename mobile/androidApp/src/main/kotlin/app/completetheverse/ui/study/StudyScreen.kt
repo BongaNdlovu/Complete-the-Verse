@@ -89,6 +89,62 @@ fun StudyScreen(
                 title = "The Whole Counsel",
                 onBack = onBack,
             )
+            val heat = Study.heatmap(verses, save, today)
+            val journal = Study.journal(save)
+            if (heat.isNotEmpty()) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier
+                        .widthIn(max = 720.dp)
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
+                ) {
+                    heat.take(66).forEach { cell ->
+                        Text(
+                            text = cell.key.replace(Regex("^[123]\\s*"), "").take(3).uppercase(),
+                            modifier = Modifier
+                                .background(
+                                    when (cell.state) {
+                                        "mastered" -> CtvColors.green.copy(alpha = 0.35f)
+                                        "due" -> CtvColors.bloodHot.copy(alpha = 0.35f)
+                                        "learning" -> CtvColors.azure.copy(alpha = 0.35f)
+                                        else -> CtvColors.ink3
+                                    },
+                                )
+                                .padding(horizontal = 6.dp, vertical = 4.dp),
+                            color = CtvColors.goldHot,
+                            fontFamily = CtvFonts.ui,
+                            fontSize = 10.sp,
+                        )
+                    }
+                }
+            }
+            if (journal.isNotEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .widthIn(max = 720.dp)
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
+                ) {
+                    Text(
+                        text = "JOURNEY JOURNAL",
+                        color = CtvColors.goldDim,
+                        fontFamily = CtvFonts.ui,
+                        fontSize = 11.sp,
+                        letterSpacing = 0.16.em,
+                    )
+                    journal.forEach { row ->
+                        Text(
+                            text = "${row.name} · ${row.acc}%",
+                            color = CtvColors.parch,
+                            fontFamily = CtvFonts.body,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                }
+            }
             Text(
                 text = if (due > 0) "$due due for review" else "Nothing due today",
                 color = CtvColors.goldDim,

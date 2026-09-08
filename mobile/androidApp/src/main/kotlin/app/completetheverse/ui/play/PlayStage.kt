@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -61,10 +63,14 @@ import app.completetheverse.core.play.DuelBoard
 import app.completetheverse.core.play.FadePhase
 import app.completetheverse.core.play.Mechanic
 import app.completetheverse.core.play.OverdriveChoice
+import app.completetheverse.core.play.PlayClock
 import app.completetheverse.core.play.PlayKeys
 import app.completetheverse.core.play.PlayMechanics
 import app.completetheverse.core.play.PlayPhase
 import app.completetheverse.core.play.PlayResult
+import app.completetheverse.core.play.PowerBank
+import app.completetheverse.ui.audio.CtvMedia
+import app.completetheverse.ui.audio.LocalCtvSound
 import app.completetheverse.ui.components.Filigree
 import app.completetheverse.ui.components.GhostButton
 import app.completetheverse.ui.components.GoldButton
@@ -72,6 +78,8 @@ import app.completetheverse.ui.components.GoldHeadline
 import app.completetheverse.ui.components.HallBackdrop
 import app.completetheverse.ui.components.HallPanel
 import app.completetheverse.ui.components.Kick
+import app.completetheverse.ui.components.StreamVideoLayer
+import app.completetheverse.ui.relics.RelicImage
 import app.completetheverse.ui.fx.CtvFxStack
 import app.completetheverse.ui.fx.FxBeat
 import app.completetheverse.ui.fx.fxBeatOf
@@ -134,6 +142,13 @@ fun PlayStage(
     guideCopy: String? = null,
     fxBeat: FxBeat? = null,
     pausedByHide: Boolean = false,
+    powers: PowerBank = PowerBank(),
+    illuminated: String? = null,
+    ghostP: Float? = null,
+    siteId: String? = null,
+    showVideo: Boolean = false,
+    onSelah: () -> Unit = {},
+    onIlluminate: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     if (phase == PlayPhase.Results && result != null) {
@@ -152,6 +167,17 @@ fun PlayStage(
     val crit = sec <= 5 && !locked && phase == PlayPhase.Playing
     val frac = (remainingMs.toFloat() / denom).coerceIn(0f, 1f)
     val beat = fxBeat ?: fxBeatOf(phase, locked, lastCorrect, streak)
+    val sound = LocalCtvSound.current
+    LaunchedEffect(lastCorrect, index) {
+        when (lastCorrect) {
+            true -> sound.play("correct")
+            false -> {
+                sound.play("wrong")
+                sound.haptic(crit)
+            }
+            null -> Unit
+        }
+    }
     val focusRequester = remember { FocusRequester() }
     var lastPickKey by remember { mutableStateOf<String?>(null) }
     var lastPickAt by remember { mutableStateOf(0L) }
@@ -191,6 +217,13 @@ fun PlayStage(
             },
     ) {
         HallBackdrop(videoEnabled = false)
+        if (!siteId.isNullOrEmpty() && showVideo) {
+            StreamVideoLayer(
+                url = CtvMedia.journeyFilm(siteId),
+                visible = true,
+                modifier = Modifier.fillMaxSize().alpha(0.42f),
+            )
+        }
         CtvFxStack(beat = beat, streak = streak, multiplier = multiplier)
         Column(
             modifier = Modifier
@@ -203,9 +236,11 @@ fun PlayStage(
             PlayHeader(
                 title = title,
                 progress = headerProgress(mode, index, total, correctCount, teamSide),
+                remainingMs = remainingMs,
                 sec = sec,
                 crit = crit,
                 frac = frac,
+                ghostP = ghostP,
                 lives = lives,
                 maxLives = maxLives,
                 score = score,
@@ -213,6 +248,14 @@ fun PlayStage(
                 multiplier = multiplier,
                 onPause = onPause,
             )
+            if (mode != "team") {
+                PowersBar(
+                    bank = powers,
+                    enabled = !locked && phase == PlayPhase.Playing,
+                    onSelah = onSelah,
+                    onIllum = onIlluminate,
+                )
+            }
             if (guideCopy != null) {
                 LessonGuide(kick = guideKick, copy = guideCopy)
             }
@@ -244,6 +287,7 @@ fun PlayStage(
                     onClozeUnfill = onClozeUnfill,
                     onTrueFalse = onTrueFalse,
                     onFadeDone = onFadeDone,
+                    illuminated = illuminated,
                 )
             }
         }
@@ -401,9 +445,11 @@ private fun LessonGuide(kick: String?, copy: String) {
 private fun PlayHeader(
     title: String,
     progress: String,
+    remainingMs: Long,
     sec: Long,
     crit: Boolean,
     frac: Float,
+    ghostP: Float? = null,
     lives: Int,
     maxLives: Int,
     score: Int,
@@ -437,7 +483,7 @@ private fun PlayHeader(
             }
             Column(horizontalAlignment = Alignment.End, modifier = Modifier.widthIn(min = 88.dp)) {
                 Text(
-                    text = "00:" + sec.toString().padStart(2, '0'),
+                    text = PlayClock.formatHud(remainingMs),
                     color = if (crit) CtvColors.bloodHot else CtvColors.goldHot,
                     fontFamily = CtvFonts.display,
                     fontWeight = FontWeight.Bold,
@@ -459,6 +505,17 @@ private fun PlayHeader(
                                 ),
                             ),
                     )
+                    val mark = ghostP
+                    if (mark != null) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth(mark.coerceIn(0f, 1f))
+                                .fillMaxHeight(),
+                            contentAlignment = Alignment.CenterEnd,
+                        ) {
+                            Box(Modifier.width(2.dp).fillMaxHeight().background(CtvColors.goldHot))
+                        }
+                    }
                 }
             }
         }
@@ -501,6 +558,39 @@ private fun PlayHeader(
 }
 
 @Composable
+private fun PowersBar(
+    bank: PowerBank,
+    enabled: Boolean,
+    onSelah: () -> Unit,
+    onIllum: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().widthIn(max = 720.dp).padding(top = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        GhostButton(
+            text = "Selah +5s ×${bank.selah}",
+            onClick = onSelah,
+            modifier = Modifier.weight(1f).alpha(if (enabled && bank.selah > 0) 1f else 0.4f),
+            small = true,
+        )
+        GhostButton(
+            text = "Illuminate ×${bank.illum}",
+            onClick = onIllum,
+            modifier = Modifier.weight(1f).alpha(if (enabled && bank.illum > 0) 1f else 0.4f),
+            small = true,
+        )
+        Text(
+            text = "Wind ×${bank.wind}",
+            color = CtvColors.goldDim,
+            fontFamily = CtvFonts.ui,
+            fontSize = 11.sp,
+        )
+    }
+}
+
+@Composable
 private fun PlayBody(
     mechanic: Mechanic?,
     verse: Verse?,
@@ -521,6 +611,7 @@ private fun PlayBody(
     onClozeUnfill: (Int) -> Unit,
     onTrueFalse: (Boolean) -> Unit,
     onFadeDone: () -> Unit,
+    illuminated: String? = null,
 ) {
     val how = when (mechanic) {
         Mechanic.PassageRef -> "Name the Passage"
@@ -566,6 +657,7 @@ private fun PlayBody(
                 answer = verse.r,
                 lastCorrect = lastCorrect,
                 onChoice = onChoice,
+                illuminated = illuminated,
             )
         }
         Mechanic.Duel -> if (duel != null) {
@@ -654,6 +746,7 @@ private fun PlayBody(
                     answer = PlayMechanics.fullVerseText(verse),
                     lastCorrect = lastCorrect,
                     onChoice = onChoice,
+                    illuminated = illuminated,
                 )
             }
         }
@@ -706,6 +799,7 @@ private fun PlayBody(
                 answer = verse.a,
                 lastCorrect = lastCorrect,
                 onChoice = onChoice,
+                illuminated = illuminated,
             )
         }
     }
@@ -751,6 +845,7 @@ private fun ChoiceGrid(
     answer: String,
     lastCorrect: Boolean?,
     onChoice: (String) -> Unit,
+    illuminated: String? = null,
 ) {
     Column(
         modifier = Modifier.widthIn(max = 640.dp).fillMaxWidth(),
@@ -764,7 +859,11 @@ private fun ChoiceGrid(
                 row.forEach { choice ->
                     val i = choices.indexOf(choice).coerceAtLeast(0)
                     val state = when {
-                        lastCorrect == null -> if (choice == selected) "sel" else "idle"
+                        lastCorrect == null -> when {
+                            choice == selected -> "sel"
+                            choice == illuminated -> "sel"
+                            else -> "idle"
+                        }
                         choice == answer -> "right"
                         choice == selected -> "bad"
                         else -> "mute"
@@ -1277,6 +1376,11 @@ private fun PlayResultsScreen(
                     StatRow("Accuracy", "$acc%")
                     StatRow("Time", String.format("%.1fs", seconds))
                     StatRow("Score", result.total.toString())
+                    StatRow("XP", if (result.xpGain == 0) "—" else "+${result.xpGain} XP")
+                    StatRow(
+                        "Seals",
+                        if (result.pendingSealNames.isEmpty()) "None yet" else result.pendingSealNames.joinToString(),
+                    )
                     if (result.teamWinner != null) {
                         StatRow("White", "${result.teamWhiteKept}/5 · ${"%.1f".format(result.teamWhiteMs / 1000.0)}s")
                         StatRow("Blue", "${result.teamBlueKept}/5 · ${"%.1f".format(result.teamBlueMs / 1000.0)}s")
@@ -1292,10 +1396,17 @@ private fun PlayResultsScreen(
                     if (result.dailyRecorded) {
                         StatRow("Daily", "Recorded")
                     }
-                    StatRow(
-                        "Seals pending",
-                        if (result.pendingSeals.isEmpty()) "None yet" else result.pendingSeals.joinToString(),
-                    )
+                    if (result.missedRefs.isNotEmpty()) {
+                        StatRow("Missed", result.missedRefs.joinToString())
+                    }
+                    val relic = result.artifactId
+                    if (relic != null) {
+                        RelicImage(
+                            artifactId = relic,
+                            contentDescription = relic,
+                            modifier = Modifier.fillMaxWidth().height(160.dp).padding(top = 12.dp),
+                        )
+                    }
                 }
             }
             Spacer(Modifier.height(28.dp))

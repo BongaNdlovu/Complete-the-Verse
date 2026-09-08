@@ -4,10 +4,13 @@ import app.completetheverse.core.assemble.Assemble
 import app.completetheverse.core.assemble.AssembleBoard
 import app.completetheverse.core.bank.TfClaim
 import app.completetheverse.core.bank.Verse
+import app.completetheverse.core.pilgrimage.Artifacts
 import app.completetheverse.core.practice.Practice
 import app.completetheverse.core.save.Save
 import app.completetheverse.core.save.SaveBlob
+import app.completetheverse.core.seals.Seals
 import app.completetheverse.core.srs.Srs
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -50,6 +53,10 @@ data class PlayResult(
     val bestStreak: Int,
     val reason: String,
     val pendingSeals: List<String> = emptyList(),
+    val pendingSealNames: List<String> = emptyList(),
+    val xpGain: Int = 0,
+    val artifactId: String? = null,
+    val missedRefs: List<String> = emptyList(),
     val save: SaveBlob,
     val dailyRecorded: Boolean = false,
     val teamWinner: String? = null,
@@ -153,6 +160,13 @@ class PlaySession private constructor(private val config: PlayConfig) {
         private set
     var ghostSamples: List<GhostSample> = listOf(GhostSample(0L, 0.0))
         private set
+    var powers: PowerBank = PowerBank()
+        private set
+    var illuminated: String? = null
+        private set
+    var usedPower: Boolean = false
+        private set
+    val missed: MutableList<String> = mutableListOf()
 
     private val questionList: MutableList<PlayQuestion> = config.questions.toMutableList()
     val questions: List<PlayQuestion> get() = questionList
@@ -321,6 +335,35 @@ class PlaySession private constructor(private val config: PlayConfig) {
         boardTick++
     }
 
+    fun useSelah(): Boolean {
+        if (locked || phase != PlayPhase.Playing) return false
+        if (current?.mechanic == Mechanic.Fade && fadePhase == FadePhase.Memorize) return false
+        if (powers.selah < 1) return false
+        powers = powers.copy(selah = powers.selah - 1)
+        usedPower = true
+        deadlineMs += Powers.SELAH_MS
+        durationMs += Powers.SELAH_MS
+        return true
+    }
+
+    fun useIlluminate(): Boolean {
+        if (locked || phase != PlayPhase.Playing) return false
+        if (current?.mechanic == Mechanic.Fade && fadePhase == FadePhase.Memorize) return false
+        if (powers.illum < 1) return false
+        val mark = when (current?.mechanic) {
+            Mechanic.Mcq -> current?.verse?.a
+            Mechanic.PassageRef -> current?.verse?.r
+            Mechanic.Fade -> current?.verse?.let { PlayMechanics.fullVerseText(it) }
+            Mechanic.TrueFalse -> if (claim?.v == true) "true" else "false"
+            Mechanic.Duel -> duel?.correctVal
+            else -> null
+        } ?: return false
+        powers = powers.copy(illum = powers.illum - 1)
+        usedPower = true
+        illuminated = mark
+        return true
+    }
+
     fun onTimeout(atMs: Long = nowMs()): Boolean {
         if (locked || !running) return false
         if (phase != PlayPhase.Playing) return false
@@ -463,7 +506,16 @@ class PlaySession private constructor(private val config: PlayConfig) {
             overdriveRide = false
             streak = 0
             val lost = if (wasRiding) 2 else 1
-            if (useLives) lives = (lives - lost).coerceAtLeast(0)
+            if (useLives) {
+                lives = (lives - lost).coerceAtLeast(0)
+                val finalAct = current?.oneLife == true
+                if (lives <= 0 && !finalAct && powers.wind > 0) {
+                    powers = powers.copy(wind = powers.wind - 1)
+                    usedPower = true
+                    lives = 1
+                }
+            }
+            current?.verse?.r?.let { missed.add(it) }
         }
         if (mode == "team") tallyTeam(ok)
         if (clockPolicy.sharedRemaining) {
@@ -517,6 +569,7 @@ class PlaySession private constructor(private val config: PlayConfig) {
         locked = false
         lastCorrect = null
         selected = null
+        illuminated = null
         tfPickedTrue = null
         assemble = null
         cloze = null
@@ -637,26 +690,88 @@ class PlaySession private constructor(private val config: PlayConfig) {
                 survivedMs = elapsedMs,
                 samples = ghostSamples,
             )
+            val xpGain = if (mode == "team") {
+                0
+            } else {
+                kotlin.math.round(total / 12.0 + correct * 14.0 + if (why == "complete") 300 else 0).toInt()
+            }
+            if (xpGain > 0) {
+                val map = save.toMutableMap()
+                map["xp"] = JsonPrimitive(jsonInt(save["xp"]) + xpGain)
+                save = JsonObject(map)
+            }
+            val sealed = grantRunSeals(save, why, total)
+            save = sealed.first
             config.persist?.persist(save)
+            val art = Artifacts.unseenUnlocks(Artifacts.fromSave(save)).firstOrNull()
+            result = PlayResult(
+                correct = correct,
+                attempts = attempts,
+                score = score,
+                total = total,
+                elapsedMs = elapsedMs,
+                bestStreak = bestStreak,
+                reason = why,
+                pendingSeals = sealed.second,
+                pendingSealNames = sealed.second.map { id -> Seals.ALL.firstOrNull { it.id == id }?.name ?: id },
+                xpGain = xpGain,
+                artifactId = art?.id,
+                missedRefs = missed.toList(),
+                save = save,
+                dailyRecorded = dailyRecorded,
+                teamWinner = if (mode == "team") Modes.teamWinner(teamWhiteKept, teamWhiteMs, teamBlueKept, teamBlueMs) else null,
+                teamWhiteKept = teamWhiteKept,
+                teamWhiteMs = teamWhiteMs,
+                teamBlueKept = teamBlueKept,
+                teamBlueMs = teamBlueMs,
+            )
+        } else {
+            result = PlayResult(
+                correct = correct,
+                attempts = attempts,
+                score = score,
+                total = total,
+                elapsedMs = elapsedMs,
+                bestStreak = bestStreak,
+                reason = why,
+                save = save,
+                dailyRecorded = dailyRecorded,
+                teamWinner = if (mode == "team") Modes.teamWinner(teamWhiteKept, teamWhiteMs, teamBlueKept, teamBlueMs) else null,
+                teamWhiteKept = teamWhiteKept,
+                teamWhiteMs = teamWhiteMs,
+                teamBlueKept = teamBlueKept,
+                teamBlueMs = teamBlueMs,
+                missedRefs = missed.toList(),
+            )
         }
-        result = PlayResult(
-            correct = correct,
-            attempts = attempts,
-            score = score,
-            total = total,
-            elapsedMs = elapsedMs,
-            bestStreak = bestStreak,
-            reason = why,
-            pendingSeals = emptyList(),
-            save = save,
-            dailyRecorded = dailyRecorded,
-            teamWinner = if (mode == "team") Modes.teamWinner(teamWhiteKept, teamWhiteMs, teamBlueKept, teamBlueMs) else null,
-            teamWhiteKept = teamWhiteKept,
-            teamWhiteMs = teamWhiteMs,
-            teamBlueKept = teamBlueKept,
-            teamBlueMs = teamBlueMs,
-        )
         phase = PlayPhase.Results
+    }
+
+    private fun grantRunSeals(blob: SaveBlob, why: String, total: Int): Pair<SaveBlob, List<String>> {
+        if (mode == "team" || mode == "study" || mode == "tutorial") return blob to emptyList()
+        val finished = why == "complete"
+        val trialWon = mode == "trial" && finished
+        val have = Seals.earnedIds(blob).toMutableSet()
+        val added = mutableListOf<String>()
+        fun grant(id: String) {
+            if (id in have) return
+            have.add(id)
+            added.add(id)
+        }
+        if (finished) grant("first")
+        if (total >= 25_000) grant("score25")
+        if (total >= 50_000) grant("score50")
+        if (trialWon) grant("sd15")
+        if (trialWon && questions.any { it.label == "The Remnant" }) grant("remnant")
+        if (trialWon && questions.any { it.label == "The Remnant" } && diff.key == "watchman") grant("act6-watch")
+        if (mode == "endless" && index + 1 >= 40) grant("end40")
+        if (trialWon && !usedPower) grant("nocrutch")
+        if (trialWon && missed.isEmpty()) grant("flawless")
+        if (trialWon && diff.key == "watchman") grant("ironman")
+        if (added.isEmpty()) return blob to emptyList()
+        val out = blob.toMutableMap()
+        out["seals"] = JsonArray(have.map { JsonPrimitive(it) })
+        return JsonObject(out) to added
     }
 
     private fun recordsCampaign(): Boolean = mode != "tutorial" && mode != "study"
@@ -690,6 +805,20 @@ class PlaySession private constructor(private val config: PlayConfig) {
             }
         }
         out["life"] = JsonObject(life)
+        val accPct = if (attempts == 0) 0 else kotlin.math.round(correct * 100.0 / attempts).toInt()
+        val board = ((blob["board"] as? JsonArray)?.toMutableList() ?: mutableListOf())
+        board.add(
+            buildJsonObject {
+                put("score", total)
+                put("mode", mode)
+                put("diff", diff.key)
+                put("acc", accPct)
+                put("date", today)
+                put("q", index + 1)
+            },
+        )
+        val ranked = board.sortedByDescending { jsonInt((it as? JsonObject)?.get("score")) }.take(10)
+        out["board"] = JsonArray(ranked)
         return JsonObject(out)
     }
 
@@ -742,6 +871,7 @@ class PlaySession private constructor(private val config: PlayConfig) {
         fun start(config: PlayConfig): PlaySession {
             require(config.questions.isNotEmpty()) { "PlaySession needs at least one question" }
             val session = PlaySession(config)
+            session.powers = Powers.start(config.mode, config.save)
             session.runStartMs = config.nowMs()
             session.armQuestion()
             return session

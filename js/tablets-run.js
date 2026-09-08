@@ -807,8 +807,7 @@ function bindTabletsChrome(){
   tabletsBindOnce("tablets-pause-btn", function(){ toggleTabletsPause(); });
   tabletsBindOnce("tablets-resume", function(){ setTabletsPaused(false); });
   tabletsBindOnce("tablets-pause-quit", function(){
-    setTabletsPaused(false);
-    if(typeof quitTablets === "function") quitTablets();
+    if(typeof quitTablets === "function") quitTablets(true);
   });
   tabletsBindOnce("tablets-illum", tabletsIlluminate);
   tabletsBindOnce("tablets-winnow", tabletsWinnow);

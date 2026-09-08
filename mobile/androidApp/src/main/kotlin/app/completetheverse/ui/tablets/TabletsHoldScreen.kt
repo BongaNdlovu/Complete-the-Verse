@@ -606,7 +606,7 @@ private fun PauseOverlay(
                 } else {
                     Kick("Paused")
                     Spacer(Modifier.height(8.dp))
-                    GoldHeadline("Selah")
+                    GoldHeadline("The chisel rests")
                     Spacer(Modifier.height(16.dp))
                     Text(
                         text = "$remain  ·  Lamps ×$lamps  ·  Favor $favor",

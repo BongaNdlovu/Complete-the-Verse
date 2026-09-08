@@ -36,7 +36,7 @@
   background:linear-gradient(177deg,#fffaf0 0%,#ffe7b4 22%,var(--gold) 52%,#8d6f2e 96%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 3px 22px rgba(217,182,103,.42))}
-.hdr-rule{position:absolute;left:0;right:0;bottom:-1px;height:2px;z-index:5;
+.hdr-rule{position:absolute;left:0;right:0;bottom:-1px;height:2px;z-index:5;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(143,20,24,.15) 18%,var(--crimson) 42%,var(--crimson-hot) 50%,var(--crimson) 58%,rgba(143,20,24,.15) 82%,transparent)}
 .hdr-rule:after{content:"";position:absolute;left:50%;top:50%;width:13px;height:13px;
   transform:translate(-50%,-50%) rotate(45deg);
@@ -321,8 +321,9 @@ body.onboarding .rail.r > :not(.hud-time){display:none}
 .typed-pwr:disabled{opacity:.3;filter:saturate(.35);cursor:not-allowed}
 
 .play-quit{
-  position:absolute;top:clamp(12px,1.6vh,22px);right:clamp(14px,2.2vw,34px);z-index:10;
-  min-height:44px;padding:0 1.1em;display:flex;align-items:center;justify-content:center;
+  position:absolute;top:clamp(12px,1.6vh,22px);right:clamp(14px,2.2vw,34px);z-index:20;
+  min-width:72px;min-height:44px;padding:0 1.1em;display:flex;align-items:center;justify-content:center;
+  pointer-events:auto;
   font-family:var(--ui);letter-spacing:.22em;text-transform:uppercase;font-size:.62rem;
   color:var(--gold-dim);background:rgba(8,9,12,.85);box-shadow:0 0 0 1px rgba(213,173,98,.28) inset;
   border-radius:3px;cursor:pointer;transition:all .2s ease}
@@ -1065,8 +1066,8 @@ body.motion-calm .verdict-stamp{animation:none}
 }
 .cloze-slot.filled {
   color: var(--gold-hot);
-  background: rgba(217,182,103,0.14);
-  box-shadow: 0 0 0 1px var(--gold) inset;
+  background: rgba(217,182,103,0.28);
+  box-shadow: 0 0 0 2px var(--gold-hot) inset, 0 0 12px rgba(217,182,103,0.35);
 }
 .cloze-bank {
   display: flex;
@@ -1664,8 +1665,9 @@ body.mode-beat .ans .ans-copy{overflow-wrap:anywhere}
   body.biblical-thriller #v-play .hdr{
     height:auto;min-height:44px;padding:4px 10px;padding-right:168px;flex-wrap:nowrap}
   body.biblical-thriller #v-play .play-quit{
-    top:calc(env(safe-area-inset-top) + 4px);
-    right:calc(96px + env(safe-area-inset-right, 0px))}
+    top:calc(env(safe-area-inset-top) + 6px);
+    right:calc(12px + env(safe-area-inset-right, 0px));
+    z-index:20}
   body.biblical-thriller #v-play .hdr-side.l{display:none}
   body.biblical-thriller #v-play .hdr-side{min-width:0;max-width:none;flex:1 1 0}
   body.biblical-thriller #v-play .hdr-side.r{

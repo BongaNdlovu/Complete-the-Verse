@@ -133,4 +133,21 @@ class StudyTest {
         assertTrue(Study.matchesQuery(verse, ""))
         assertEquals(false, Study.matchesQuery(verse, "Job"))
     }
+
+    @Test
+    fun heatmapMarksUnseenThenDue() {
+        val cells = Study.heatmap(listOf(verse), Save.DEFAULT, today = 20000)
+        assertEquals("unseen", cells.single().state)
+        val dueSave = Study.applyReview(
+            save = Save.DEFAULT,
+            verse = verse,
+            correct = true,
+            timedOut = false,
+            fraction = 0.2,
+            mode = "choice",
+            today = 20000,
+        )
+        val due = Study.heatmap(listOf(verse), dueSave, today = 20001)
+        assertEquals("due", due.single().state)
+    }
 }

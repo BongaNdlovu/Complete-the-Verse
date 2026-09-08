@@ -27,6 +27,7 @@ import app.completetheverse.core.play.PlayPersister
 import app.completetheverse.core.play.PlayQuestion
 import app.completetheverse.core.play.PlayResult
 import app.completetheverse.core.play.PlaySession
+import app.completetheverse.core.play.PowerBank
 import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.fx.FxBeat
@@ -103,6 +104,10 @@ class PlayViewModel : ViewModel() {
         private set
     var pausedByHide by mutableStateOf(false)
         private set
+    var powers by mutableStateOf(PowerBank())
+        private set
+    var illuminated by mutableStateOf<String?>(null)
+        private set
 
     private var session: PlaySession? = null
     private var sessionGeneration = 0
@@ -111,6 +116,18 @@ class PlayViewModel : ViewModel() {
     private var overdriveJob: Job? = null
 
     fun remainingNow(): Long = session?.remainingMs(SystemClock.elapsedRealtime()) ?: remainingMs
+
+    fun elapsedNow(): Long = session?.elapsedMs() ?: 0L
+
+    fun useSelah() {
+        session?.useSelah()
+        publish()
+    }
+
+    fun useIlluminate() {
+        session?.useIlluminate()
+        publish()
+    }
 
     fun fractionNow(): Double = session?.fractionNow(SystemClock.elapsedRealtime()) ?: 0.0
 
@@ -402,6 +419,8 @@ class PlayViewModel : ViewModel() {
         title = s.title
         teamSide = s.teamSide
         fxBeat = fxBeatOf(s.phase, s.locked, s.lastCorrect, s.streak)
+        powers = s.powers
+        illuminated = s.illuminated
     }
 
     private fun cancelAdvance() {

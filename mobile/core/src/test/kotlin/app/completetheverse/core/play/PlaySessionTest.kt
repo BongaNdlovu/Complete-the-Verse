@@ -99,7 +99,7 @@ class PlaySessionTest {
         session.advance()
         assertEquals(PlayPhase.Results, session.phase)
         assertEquals("complete", session.result!!.reason)
-        assertTrue(session.result!!.pendingSeals.isEmpty())
+        assertEquals(listOf("first"), session.result!!.pendingSeals)
     }
 
     @Test
@@ -131,6 +131,7 @@ class PlaySessionTest {
             questions = listOf(PlayQuestion(Mechanic.Mcq, verse())),
             clock = clock,
             lives = 1,
+            mode = "blitz",
         )
         clock.t = 30_000L
         assertTrue(session.onTimeout())
@@ -487,5 +488,48 @@ class PlaySessionTest {
         val card = Study.cardFor(writes.last(), v.id)!!
         assertEquals(0, card.lastQuality)
         assertEquals(true, session.result.let { it != null })
+    }
+
+    @Test
+    fun selahAddsFiveSeconds() {
+        val clock = Clock(0L)
+        val session = start(listOf(PlayQuestion(Mechanic.Mcq, verse())), clock)
+        assertEquals(30_000L, session.remainingMs())
+        assertTrue(session.useSelah())
+        assertEquals(35_000L, session.remainingMs())
+        assertEquals(0, session.powers.selah)
+        assertFalse(session.useSelah())
+    }
+
+    @Test
+    fun illuminateMarksTheAnswer() {
+        val clock = Clock()
+        val v = verse()
+        val with = Save.DEFAULT.toMutableMap()
+        with["illumReserve"] = JsonPrimitive(1)
+        val session = start(
+            questions = listOf(PlayQuestion(Mechanic.Mcq, v)),
+            clock = clock,
+            save = JsonObject(with),
+            mode = "trial",
+        )
+        assertTrue(session.useIlluminate())
+        assertEquals(v.a, session.illuminated)
+    }
+
+    @Test
+    fun secondWindRestoresALife() {
+        val clock = Clock()
+        val v = verse()
+        val session = start(
+            questions = listOf(PlayQuestion(Mechanic.Mcq, v), PlayQuestion(Mechanic.Mcq, v)),
+            clock = clock,
+            lives = 1,
+            mode = "trial",
+        )
+        assertEquals(1, session.powers.wind)
+        session.submitChoice("wrong")
+        assertEquals(1, session.lives)
+        assertEquals(0, session.powers.wind)
     }
 }

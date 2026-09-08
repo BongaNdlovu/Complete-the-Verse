@@ -58,4 +58,36 @@ class RecordsTest {
         assertEquals(2, stats.dailyDone)
         assertEquals(22, stats.localBlitzBest)
     }
+
+    @Test
+    fun localBoardAndByBook() {
+        val save = Save.DEFAULT.toMutableMap()
+        save["board"] = kotlinx.serialization.json.JsonArray(
+            listOf(
+                JsonObject(
+                    mapOf(
+                        "score" to JsonPrimitive(900),
+                        "mode" to JsonPrimitive("trial"),
+                        "diff" to JsonPrimitive("disciple"),
+                        "acc" to JsonPrimitive(80),
+                        "date" to JsonPrimitive("2026-09-07"),
+                    ),
+                ),
+            ),
+        )
+        save["books"] = JsonObject(
+            mapOf(
+                "Genesis" to JsonObject(mapOf("c" to JsonPrimitive(2), "a" to JsonPrimitive(4))),
+                "Psalms" to JsonObject(mapOf("c" to JsonPrimitive(8), "a" to JsonPrimitive(8))),
+            ),
+        )
+        val blob = JsonObject(save)
+        val local = Records.localBoard(blob)
+        assertEquals(1, local.size)
+        assertEquals(900, local[0].score)
+        val books = Records.byBook(blob)
+        assertEquals("Genesis", books.first().book)
+        assertEquals(50, books.first().pct)
+        assertEquals(100, books.last().pct)
+    }
 }

@@ -126,6 +126,7 @@ var Atlas = (function () {
 
     L.control.scale({ position: "bottomleft", imperial: true, maxWidth: 130 }).addTo(map);
     map.on("zoomend", updateDensity);
+    map.on("moveend", fitMarkerLabels);
     map.on("click", function () { /* keeps focus off markers when panning */ });
 
     built = true;
@@ -573,6 +574,22 @@ var Atlas = (function () {
   function updateDensity() {
     var el = $("atlas-map");
     if (el && hasMap()) el.classList.toggle("compact", map.getZoom() < 6);
+    fitMarkerLabels();
+  }
+
+  function fitMarkerLabels() {
+    /* Labels hang to the right of the dot, so a pin near the right edge
+       clips its name. Flip those to the left when the view moves. */
+    if (!hasMap() || typeof map.getSize !== "function" || typeof map.latLngToContainerPoint !== "function") return;
+    var w = map.getSize().x, threshold = w * 0.68;
+    Object.keys(markers).forEach(function (id) {
+      var m = markers[id];
+      if (!m || !m._icon) return;
+      try {
+        var p = map.latLngToContainerPoint(m.getLatLng());
+        m._icon.classList.toggle("label-left", p.x > threshold);
+      } catch (e) {}
+    });
   }
 
   /* ------------------------------ overlays ------------------------------ */

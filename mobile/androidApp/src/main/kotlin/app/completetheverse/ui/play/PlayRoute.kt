@@ -22,8 +22,10 @@ import app.completetheverse.core.play.OverdriveChoice
 import app.completetheverse.core.play.PlayFinishInfo
 import app.completetheverse.core.play.PlayPhase
 import app.completetheverse.core.play.PlayQuestion
+import app.completetheverse.core.play.Ghosts
 import app.completetheverse.core.play.PlayResult
 import app.completetheverse.core.save.SaveBlob
+import app.completetheverse.ui.theme.LocalVisualProfile
 import app.completetheverse.save.SaveCoordinator
 import app.completetheverse.ui.components.HallBackdrop
 import kotlinx.coroutines.delay
@@ -201,5 +203,14 @@ fun PlayRoute(
         guideCopy = guides.getOrNull(viewModel.index),
         fxBeat = viewModel.fxBeat,
         pausedByHide = viewModel.pausedByHide,
+        powers = viewModel.powers,
+        illuminated = viewModel.illuminated,
+        ghostP = Ghosts.recordOf(saves.snapshot(), mode, siteId)?.let {
+            Ghosts.atElapsed(it.samples, viewModel.elapsedNow()).toFloat()
+        },
+        siteId = siteId,
+        showVideo = LocalVisualProfile.current.showVideo,
+        onSelah = { viewModel.useSelah() },
+        onIlluminate = { viewModel.useIlluminate() },
     )
 }

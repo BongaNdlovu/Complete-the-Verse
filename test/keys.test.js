@@ -98,6 +98,31 @@ function ok(name, cond, extra) {
   ok("unpaused keys fall through", read(sb, "handleNavKeydown({preventDefault:function(){}}, 'r')") === false);
 }
 
+/* ---------- cloze last-chip fill stays visible before lock ---------- */
+{
+  const sb = boot();
+  exec(sb, "startRun('practice','watchman')");
+  exec(sb, `R.q = {id:"keys-cloze-fill",b:"Genesis",r:"Genesis 1:1",t:1,p:"In the beginning",a:"God created",s:".",d:["the Word formed"]};
+    Object.assign(R,{locked:false,running:true,paused:false,attempts:0,correct:0,missed:[],rescheduled:[],lives:2,powers:{selah:1,illum:1,wind:0}});
+    renderClozeQuestion(R.q, 30000);`);
+  sb.__ev = ev(sb);
+  exec(sb, "handlePlayMechanicKeys(__ev, '1')");
+  exec(sb, "handlePlayMechanicKeys(__ev, '1')");
+  ok("last cloze chip fills before answer locks", read(sb, "R.cloze.filled.length === 2 && R.locked === false"));
+}
+
+/* ---------- webview quit pauses, second tap abandons ---------- */
+{
+  const sb = boot();
+  exec(sb, "startRun('practice','watchman')");
+  exec(sb, `navigator.userAgent = "Mozilla/5.0 (Linux; Android 16; Pixel 8; wv) AppleWebKit/537.36";
+    currentView="play"; Object.assign(R,{ended:false,running:true,paused:false,attempts:1});`);
+  exec(sb, "quitPlay()");
+  ok("webview quit pauses instead of abandoning", read(sb, "R.paused === true && currentView === 'play' && !R.ended"));
+  exec(sb, "quitPlay()");
+  ok("webview quit while paused abandons", read(sb, "R.ended === true || currentView !== 'play'"));
+}
+
 /* ---------- brief diffs + atlas jump never throw ---------- */
 {
   const sb = boot();

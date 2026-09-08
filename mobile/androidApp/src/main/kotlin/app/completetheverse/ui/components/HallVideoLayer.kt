@@ -21,6 +21,51 @@ import androidx.media3.exoplayer.ExoPlayer
 import app.completetheverse.R
 
 @Composable
+fun StreamVideoLayer(
+    url: String?,
+    visible: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    if (url.isNullOrEmpty() || !visible) return
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val player = remember(context, url) {
+        ExoPlayer.Builder(context).build().apply {
+            setMediaItem(MediaItem.fromUri(url))
+            repeatMode = Player.REPEAT_MODE_ALL
+            volume = 0f
+            playWhenReady = false
+            prepare()
+        }
+    }
+    DisposableEffect(player) {
+        onDispose { player.release() }
+    }
+    DisposableEffect(lifecycleOwner, player, visible) {
+        val observer = LifecycleEventObserver { _, _ ->
+            val started = lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+            if (visible && started) player.play() else player.pause()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            player.pause()
+        }
+    }
+    AndroidView(
+        factory = { ctx ->
+            TextureView(ctx).also { view ->
+                player.setVideoTextureView(view)
+            }
+        },
+        modifier = modifier,
+        onRelease = { view ->
+            player.clearVideoTextureView(view)
+        },
+    )
+}
+
+@Composable
 fun HallVideoLayer(
     visible: Boolean,
     modifier: Modifier = Modifier,

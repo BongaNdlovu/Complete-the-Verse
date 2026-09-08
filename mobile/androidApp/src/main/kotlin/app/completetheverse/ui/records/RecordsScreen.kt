@@ -40,7 +40,7 @@ import app.completetheverse.ui.components.SegControl
 import app.completetheverse.ui.theme.CtvColors
 import app.completetheverse.ui.theme.CtvFonts
 
-private enum class RecordsTab { Life, Bests, Blitz }
+private enum class RecordsTab { Local, Life, Books, Blitz }
 
 @Composable
 fun RecordsScreen(
@@ -50,8 +50,8 @@ fun RecordsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var tab by rememberSaveable { mutableStateOf(RecordsTab.Life.name) }
-    val current = runCatching { RecordsTab.valueOf(tab) }.getOrDefault(RecordsTab.Life)
+    var tab by rememberSaveable { mutableStateOf(RecordsTab.Local.name) }
+    val current = runCatching { RecordsTab.valueOf(tab) }.getOrDefault(RecordsTab.Local)
     var board by remember { mutableStateOf<List<BlitzBoardRow>>(emptyList()) }
     var boardStatus by remember { mutableStateOf<String?>(null) }
     val stats = Records.stats(save)
@@ -95,8 +95,9 @@ fun RecordsScreen(
             )
             SegControl(
                 options = listOf(
+                    RecordsTab.Local.name to "Local",
                     RecordsTab.Life.name to "Lifetime",
-                    RecordsTab.Bests.name to "Bests",
+                    RecordsTab.Books.name to "By Book",
                     RecordsTab.Blitz.name to "Blitz",
                 ),
                 selected = current.name,
@@ -115,8 +116,12 @@ fun RecordsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 when (current) {
-                    RecordsTab.Life -> LifeGrid(stats)
-                    RecordsTab.Bests -> BestsGrid(stats)
+                    RecordsTab.Local -> LocalBoard(Records.localBoard(save))
+                    RecordsTab.Life -> {
+                        LifeGrid(stats)
+                        BestsGrid(stats)
+                    }
+                    RecordsTab.Books -> BookBars(Records.byBook(save))
                     RecordsTab.Blitz -> BlitzBoard(
                         signedIn = signedIn,
                         rows = board,
@@ -124,6 +129,79 @@ fun RecordsScreen(
                         localBest = stats.localBlitzBest,
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LocalBoard(rows: List<app.completetheverse.core.records.LocalRun>) {
+    if (rows.isEmpty()) {
+        Text(
+            text = "No runs recorded on this device. The local chronicle is blank.",
+            color = CtvColors.parchDim,
+            fontFamily = CtvFonts.body,
+            fontStyle = FontStyle.Italic,
+            fontSize = 16.sp,
+        )
+        return
+    }
+    rows.forEach { row ->
+        HallPanel(modifier = Modifier.fillMaxWidth(), cut = 10.dp) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 44.dp)
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = "${row.mode} · ${row.diff} · ${row.acc}%",
+                    color = CtvColors.parch,
+                    fontFamily = CtvFonts.body,
+                    fontSize = 15.sp,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = row.score.toString(),
+                    color = CtvColors.goldHot,
+                    fontFamily = CtvFonts.display,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BookBars(rows: List<app.completetheverse.core.records.BookRow>) {
+    if (rows.isEmpty()) {
+        Text(
+            text = "No book has been tested yet.",
+            color = CtvColors.parchDim,
+            fontFamily = CtvFonts.body,
+            fontStyle = FontStyle.Italic,
+            fontSize = 16.sp,
+        )
+        return
+    }
+    rows.forEach { row ->
+        HallPanel(modifier = Modifier.fillMaxWidth(), cut = 10.dp) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(text = row.book, color = CtvColors.parch, fontFamily = CtvFonts.body, fontSize = 15.sp)
+                Text(
+                    text = "${row.pct}%",
+                    color = CtvColors.goldHot,
+                    fontFamily = CtvFonts.display,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                )
             }
         }
     }

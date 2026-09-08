@@ -80,6 +80,21 @@ object Ghosts {
         progress: Double,
     ): List<GhostSample> = samples + GhostSample(elapsedMs, progress)
 
+    fun atElapsed(samples: List<GhostSample>, elapsedMs: Long): Double {
+        if (samples.isEmpty()) return 0.0
+        if (elapsedMs <= samples.first().t) return samples.first().p
+        for (i in 1 until samples.size) {
+            if (elapsedMs <= samples[i].t) {
+                val a = samples[i - 1]
+                val b = samples[i]
+                val span = (b.t - a.t).coerceAtLeast(1L)
+                val k = (elapsedMs - a.t).toDouble() / span
+                return a.p + (b.p - a.p) * k
+            }
+        }
+        return samples.last().p
+    }
+
     fun endRun(
         save: SaveBlob,
         mode: String,

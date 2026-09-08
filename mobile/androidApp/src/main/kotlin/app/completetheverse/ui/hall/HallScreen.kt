@@ -46,6 +46,7 @@ import app.completetheverse.ui.components.Kick
 import app.completetheverse.ui.fx.CtvFxStack
 import app.completetheverse.ui.play.playChoiceKeys
 import app.completetheverse.ui.play.hallDigitFromKey
+import app.completetheverse.ui.audio.LocalCtvSound
 import app.completetheverse.ui.theme.CtvColors
 import app.completetheverse.ui.theme.CtvFonts
 
@@ -58,13 +59,20 @@ fun HallScreen(
     cloudDim: Boolean,
     showSignIn: Boolean,
     onCloud: () -> Unit,
+    roadLine: String,
+    dueCount: Int,
+    onReviewDue: () -> Unit,
+    footerLine: String,
+    pills: Map<String, String>,
     onDigitKey: ((Int) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
+    val sound = LocalCtvSound.current
     LaunchedEffect(onDigitKey) {
         if (onDigitKey != null) focusRequester.requestFocus()
     }
+    LaunchedEffect(Unit) { sound.ambience("menu") }
     Box(
         modifier
             .fillMaxSize()
@@ -126,6 +134,23 @@ fun HallScreen(
                     GhostButton("Sign in", onClick = onCloud)
                 }
             }
+            Text(
+                text = roadLine,
+                color = CtvColors.gold,
+                fontFamily = CtvFonts.ui,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp,
+                letterSpacing = 0.14.em,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 14.dp),
+            )
+            if (dueCount > 0) {
+                GhostButton(
+                    text = "Review $dueCount due",
+                    onClick = onReviewDue,
+                    modifier = Modifier.padding(top = 10.dp),
+                )
+            }
             Spacer(Modifier.height(22.dp))
             BoxWithConstraints(Modifier.fillMaxWidth()) {
                 val twoCol = maxWidth >= 560.dp
@@ -136,12 +161,12 @@ fun HallScreen(
                     MENU_GROUPS.forEach { group ->
                         val modes = visibleGroupModes(group)
                         if (modes.isNotEmpty()) {
-                            ModeGroupBlock(group, modes, twoCol, onMode)
+                            ModeGroupBlock(group, modes, twoCol, pills, onMode)
                         }
                     }
                     val orphans = orphanMenuModes()
                     if (orphans.isNotEmpty()) {
-                        ModeCards(orphans, twoCol = twoCol, quiet = false, onMode = onMode)
+                        ModeCards(orphans, twoCol = twoCol, quiet = false, pills = pills, onMode = onMode)
                     }
                 }
             }
@@ -156,7 +181,7 @@ fun HallScreen(
                 }
             }
             Text(
-                text = "all 66 books · King James Version",
+                text = footerLine,
                 modifier = Modifier.padding(top = 18.dp, bottom = 12.dp),
                 color = CtvColors.parchDim,
                 fontFamily = CtvFonts.ui,
@@ -173,6 +198,7 @@ private fun ModeGroupBlock(
     group: HallModeGroup,
     modes: List<HallMode>,
     twoCol: Boolean,
+    pills: Map<String, String>,
     onMode: (HallMode) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -196,7 +222,7 @@ private fun ModeGroupBlock(
                     .background(CtvColors.gold.copy(alpha = 0.35f)),
             )
         }
-        ModeCards(modes, twoCol = twoCol, quiet = group.quiet, onMode = onMode)
+        ModeCards(modes, twoCol = twoCol, quiet = group.quiet, pills = pills, onMode = onMode)
     }
 }
 
@@ -205,6 +231,7 @@ private fun ModeCards(
     modes: List<HallMode>,
     twoCol: Boolean,
     quiet: Boolean,
+    pills: Map<String, String>,
     onMode: (HallMode) -> Unit,
 ) {
     if (twoCol) {
@@ -214,14 +241,14 @@ private fun ModeCards(
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 row.forEach { mode ->
-                    ModeCard(mode, quiet, onMode, Modifier.weight(1f))
+                    ModeCard(mode, quiet, pills[mode.key], onMode, Modifier.weight(1f))
                 }
                 if (row.size == 1) Spacer(Modifier.weight(1f))
             }
         }
     } else {
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            modes.forEach { ModeCard(it, quiet, onMode, Modifier.fillMaxWidth()) }
+            modes.forEach { ModeCard(it, quiet, pills[it.key], onMode, Modifier.fillMaxWidth()) }
         }
     }
 }
@@ -230,6 +257,7 @@ private fun ModeCards(
 private fun ModeCard(
     mode: HallMode,
     quiet: Boolean,
+    pill: String?,
     onMode: (HallMode) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -275,9 +303,9 @@ private fun ModeCard(
                     modifier = Modifier.padding(top = if (quiet) 10.dp else 14.dp),
                 )
             }
-            if (mode.incoming) {
+            if (mode.incoming || !pill.isNullOrEmpty()) {
                 Text(
-                    text = "INCOMING",
+                    text = (if (mode.incoming) "INCOMING" else pill.orEmpty()).uppercase(),
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(top = 14.dp, end = 14.dp)

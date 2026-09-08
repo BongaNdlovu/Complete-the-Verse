@@ -1835,7 +1835,7 @@ function updateCandle(){
   el.classList.toggle("hot", heat >= 0.62);
   el.classList.toggle("blaze", heat >= 0.88);
 }
-function quitTablets(){
+function quitTablets(confirmed){
   if(R.ended || currentView!=="tablets") return;
   if(R.tabletTutorial){
     if(typeof stopTabletsLoop === "function") stopTabletsLoop();
@@ -1844,17 +1844,42 @@ function quitTablets(){
     go("menu");
     return;
   }
-  if(R.attempts && typeof confirm === "function" && !confirm("Leave this run? It will be recorded as abandoned.")) return;
+  if(!R.attempts || confirmed){
+    Snd.ui();
+    abandonRun();
+    return;
+  }
+  if(typeof jsDialogsWork === "function" && !jsDialogsWork()){
+    if(R.paused){ Snd.ui(); abandonRun(); return; }
+    if(typeof setTabletsPaused === "function") setTabletsPaused(true);
+    Snd.ui();
+    return;
+  }
+  if(typeof confirm === "function" && !confirm("Leave this run? It will be recorded as abandoned.")) return;
   Snd.ui();
   abandonRun();
 }
 function quitPlay(){
   if(R.ended || currentView!=="play") return;
+  if(!R.attempts){
+    Snd.ui();
+    abandonRun();
+    return;
+  }
+  if(typeof jsDialogsWork === "function" && !jsDialogsWork()){
+    if(R.paused){ Snd.ui(); abandonRun(); return; }
+    if(R.running){
+      pauseStamp = performance.now();
+      setPaused(true);
+    }
+    Snd.ui();
+    return;
+  }
   if(!R.paused && R.running){
     pauseStamp = performance.now();
     setPaused(true);
   }
-  if(R.attempts && !confirm("Leave this run? It will be recorded as abandoned.")){
+  if(typeof confirm === "function" && !confirm("Leave this run? It will be recorded as abandoned.")){
     if(R.paused) togglePause();
     return;
   }
