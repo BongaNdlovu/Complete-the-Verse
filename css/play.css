@@ -730,6 +730,10 @@ body.hall-ready.biblical-thriller #v-results.tablets-shattered:before{
 }
 .biblical-thriller .btn.ghost{color:#e4c88f;background:rgba(7,6,6,.64);box-shadow:0 0 0 1px rgba(213,173,98,.28) inset}
 .biblical-thriller .btn.ghost:hover{background:rgba(91,62,28,.24);box-shadow:0 0 0 1px rgba(235,202,135,.62) inset,0 0 28px -12px rgba(213,173,98,.55)}
+.biblical-thriller .team-pick-btn.white{background:linear-gradient(180deg,#f4efe4,#d8d0c0);color:#1a1814;
+  box-shadow:0 0 0 1px rgba(26,24,20,.5) inset,0 0 26px -8px rgba(244,239,228,.55)}
+.biblical-thriller .team-pick-btn.blue{background:linear-gradient(180deg,#8eb8e8,#2a5f9e);color:#f4f8ff;
+  box-shadow:0 0 0 1px rgba(244,248,255,.5) inset,0 0 26px -8px rgba(80,140,200,.7)}
 .biblical-thriller .bootmark{border:0;box-shadow:none}
 .biblical-thriller .bootbar{background:rgba(213,173,98,.1)}.biblical-thriller .bootbar i{background:linear-gradient(90deg,#6e1318,#d0a85e,#ffe8b4);box-shadow:0 0 18px rgba(213,173,98,.75)}
 
