@@ -2341,10 +2341,4 @@ function startCtvBoot(){
     playBootSequence({fast: !!(SAVE.set.tutorialDone || (SAVE.life && SAVE.life.sitesCleared))});
   }
 }
-if(typeof ContentJson !== "undefined" && ContentJson.load){
-  var contentBoot = ContentJson.load();
-  if(contentBoot && typeof contentBoot.then === "function") contentBoot.then(startCtvBoot);
-  else startCtvBoot();
-} else {
-  startCtvBoot();
-}
+startCtvBoot();

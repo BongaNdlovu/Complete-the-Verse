@@ -13,20 +13,9 @@ function ok(name, cond, extra) {
   }
 }
 
-const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-const sw = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
-const game = fs.readFileSync(path.join(ROOT, "js", "game.js"), "utf8");
 const verses = JSON.parse(fs.readFileSync(path.join(ROOT, "shared", "content", "verses.json"), "utf8"));
 const sites = JSON.parse(fs.readFileSync(path.join(ROOT, "shared", "content", "sites.json"), "utf8"));
 const tablets = JSON.parse(fs.readFileSync(path.join(ROOT, "shared", "content", "tablets.json"), "utf8"));
-
-ok("index loads content-json before game.js",
-  index.indexOf('src="js/content-json.js"') < index.indexOf('src="js/game.js"') &&
-  index.indexOf('src="js/content-json.js"') > 0);
-ok("game waits for ContentJson.load",
-  /ContentJson\.load/.test(game) && /startCtvBoot/.test(game));
-ok("sw precaches shared verses json", /shared\/content\/verses\.json/.test(sw));
-ok("sw precaches content-json.js", /js\/content-json\.js/.test(sw));
 
 const bank = loadBank();
 ok("shared verses count matches JS bank", verses.verses.length === bank.VERSES.length);

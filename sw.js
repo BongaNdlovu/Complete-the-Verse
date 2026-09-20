@@ -13,7 +13,7 @@
       stale cache eviction.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.8.63";
+const CACHE_VERSION = "ctv-v1.8.64";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MEDIA_CACHE = "ctv-media-" + CACHE_VERSION;
@@ -83,11 +83,6 @@ const PRECACHE_ASSETS = [
   "js/tablets-canon.js",
   "js/tablets-hall.js",
   "js/tablets-run.js",
-  "js/content-json.js",
-  "shared/content/manifest.json",
-  "shared/content/verses.json",
-  "shared/content/sites.json",
-  "shared/content/tablets.json",
   "js/game.js",
   "js/register-sw.js",
   "privacy.html",

@@ -282,8 +282,6 @@ assert(allNotesValid, "every verse note key resolves to a valid verse in the ban
 
 assert(/<script src="js\/verses-notes\.js"><\/script>/.test(index),
   "verses-notes.js is loaded in index.html");
-assert(/<script src="js\/content-json\.js"><\/script>/.test(index),
-  "PWA loads shared content JSON on http");
 assert(fs.existsSync(path.join(ROOT, "shared", "content", "verses.json")),
   "shared/content/verses.json exists");
 assert(/res-verse-note/.test(results) && /VERSE_NOTES\[q\.id\]/.test(results),
