@@ -160,7 +160,7 @@ function updatePlayerCard(){
   const av = $("pc-avatar");
   const nm = $("pc-name");
   if(av){
-    if(ch && ch.portrait){ av.src = ch.portrait; av.style.display = "block"; }
+    if(ch && ch.portrait && currentView === "menu"){ av.src = ch.portrait; av.style.display = "block"; }
     else av.style.display = "none";
   }
   if(nm){
@@ -491,8 +491,10 @@ function settingsAccountHtml(){
       '<div class="setrow"><div><label>Sync now</label><small>Pull and merge this device with the cloud, then push.</small></div>'+
       '<button class="btn ghost sm" id="cloud-sync" type="button">Sync</button></div>';
   }
-  return '<div class="setrow account"><div><label>Cloud account</label><small>Sign in to sync the Pilgrimage across devices and appear on leaderboards. <a href="privacy.html">Privacy</a></small></div></div>'+
-    '<div class="setrow"><div><label>Email sign-in</label><small>We email a one-tap magic link & 6-digit code.</small></div>'+
+  return '<div class="setrow account"><div><label>Cloud account</label><small>An account is required to enter the hall. Google or a 6-digit email code. Local progress on this device merges after sign-in. <a href="privacy.html">Privacy</a></small></div></div>'+
+    '<div class="setrow"><div><label>Google</label><small>Same account as the door.</small></div>'+
+    '<button class="btn sm" id="cloud-google" type="button">Continue with Google</button></div>'+
+    '<div class="setrow"><div><label>Email sign-in</label><small>We email a 6-digit code.</small></div>'+
     '<div class="cloud-name"><input id="cloud-email" type="email" placeholder="you@example.com" value="'+esc((typeof localStorage!=="undefined"?localStorage.getItem("cloud_pending_email"):"")||"")+'" autocomplete="email"><button class="btn sm" id="cloud-signin" type="button">Send code</button></div></div>'+
     '<div class="setrow"><div><label>Enter 6-digit code</label><small>Email link expired or pre-scanned? Type the 6-digit code here.</small></div>'+
     '<div class="cloud-name"><input id="cloud-otp" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="123456" autocomplete="one-time-code"><button class="btn ghost sm" id="cloud-verify-otp" type="button">Confirm code</button></div></div>';
@@ -610,6 +612,16 @@ function bindSettingsHandlers(){
     });
   });
 
+  const googleBtn = $("cloud-google");
+  if(googleBtn){
+    googleBtn.addEventListener("click", async ()=>{
+      googleBtn.disabled = true;
+      if(Cloud.whenReady) await Cloud.whenReady();
+      const res = await Cloud.signInWithGoogle();
+      googleBtn.disabled = false;
+      toast(Cloud.authNotice ? Cloud.authNotice(res.ok ? (res.reason || "google-redirect") : res.reason) : "Continue in the Google window.");
+    });
+  }
   const signInBtn = $("cloud-signin");
   if(signInBtn){
     signInBtn.addEventListener("click", async ()=>{
@@ -643,7 +655,9 @@ function bindSettingsHandlers(){
   const signOutBtn = $("cloud-signout");
   if(signOutBtn){
     signOutBtn.addEventListener("click", async ()=>{
-      await Cloud.signOut(); Snd.ui(); renderSettings(); toast("Signed out — progress stays on this device");
+      await Cloud.signOut(); Snd.ui(); renderSettings();
+      toast("Signed out — sign in to enter the hall. Progress stays on this device");
+      if(typeof holdForSignIn==="function" && holdForSignIn()) go("signin");
     });
   }
   const cloudNameSave = $("cloud-name-save");

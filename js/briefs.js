@@ -167,14 +167,121 @@ function openCharacterPicker(force){
 }
 
 
+/* ------------------------- AUTH GATE ------------------------- */
+function holdForSignIn(){
+  if(typeof Cloud==="undefined") return false;
+  if(typeof Cloud.sessionRequired==="function"){
+    return !!Cloud.sessionRequired() && !(Cloud.isSignedIn && Cloud.isSignedIn());
+  }
+  return !!(Cloud.configured && Cloud.configured() && Cloud.isSignedIn && !Cloud.isSignedIn());
+}
+function openWithoutSession(view){
+  return view==="intro" || view==="boot" || view==="signin";
+}
+function setSignInStatus(msg){
+  const el = $("signin-status");
+  if(el) el.textContent = msg || "";
+}
+function paintSignIn(){
+  const google = $("signin-google");
+  const send = $("signin-send");
+  const verify = $("signin-verify");
+  const offline = typeof navigator!=="undefined" && navigator.onLine===false;
+  if(google) google.disabled = offline;
+  if(send) send.disabled = offline;
+  if(verify) verify.disabled = offline;
+  if(offline){
+    setSignInStatus("You need a network to sign in the first time. A saved session on this device still opens the hall.");
+  } else if(!$("signin-status") || !$("signin-status").textContent){
+    setSignInStatus("");
+  }
+}
+function bindSignInView(){
+  const google = $("signin-google");
+  const form = $("signin-email-form");
+  const verify = $("signin-verify");
+  if(google && !google._bound){
+    google._bound = true;
+    google.addEventListener("click", function(){
+      if(typeof Snd!=="undefined" && Snd.ui) Snd.ui();
+      if(typeof Cloud==="undefined" || !Cloud.signInWithGoogle){
+        setSignInStatus("Cloud is not available on this build.");
+        return;
+      }
+      google.disabled = true;
+      setSignInStatus("Opening Google…");
+      const run = function(){ return Cloud.signInWithGoogle(); };
+      const done = function(res){
+        google.disabled = false;
+        const reason = res && res.ok ? (res.reason || "google-redirect") : (res && res.reason);
+        setSignInStatus(Cloud.authNotice ? Cloud.authNotice(reason) : "Continue in the Google window.");
+      };
+      (Cloud.whenReady ? Cloud.whenReady() : Promise.resolve()).then(run).then(done).catch(function(){
+        done({ ok:false, reason:"unavailable" });
+      });
+    });
+  }
+  if(form && !form._bound){
+    form._bound = true;
+    form.addEventListener("submit", function(e){
+      if(e && e.preventDefault) e.preventDefault();
+      const email = ($("signin-email") && $("signin-email").value || "").trim();
+      const send = $("signin-send");
+      if(!email){ setSignInStatus("Enter an email address"); return; }
+      if(typeof Cloud==="undefined" || !Cloud.signInWithEmail){
+        setSignInStatus("Cloud is not available on this build.");
+        return;
+      }
+      if(send) send.disabled = true;
+      const done = function(res){
+        if(send) send.disabled = false;
+        const reason = res && res.ok ? "sent" : (res && res.reason);
+        setSignInStatus(Cloud.authNotice ? Cloud.authNotice(reason) : "Check your email for the 6-digit code.");
+      };
+      const run = function(){ return Cloud.signInWithEmail(email); };
+      (Cloud.whenReady ? Cloud.whenReady() : Promise.resolve()).then(run).then(done).catch(function(){
+        done({ ok:false, reason:"unavailable" });
+      });
+    });
+  }
+  if(verify && !verify._bound){
+    verify._bound = true;
+    verify.addEventListener("click", function(){
+      if(typeof Snd!=="undefined" && Snd.ui) Snd.ui();
+      const email = ($("signin-email") && $("signin-email").value || "").trim();
+      const token = ($("signin-otp") && $("signin-otp").value || "").trim();
+      if(!email){ setSignInStatus("Enter your email address above"); return; }
+      if(!token){ setSignInStatus("Enter the 6-digit code from your email"); return; }
+      if(typeof Cloud==="undefined" || !Cloud.verifyOtp){
+        setSignInStatus("Cloud is not available on this build.");
+        return;
+      }
+      verify.disabled = true;
+      Cloud.verifyOtp(email, token).then(function(res){
+        verify.disabled = false;
+        if(res && res.ok){
+          setSignInStatus("Signed in. Opening the hall…");
+          if(currentView==="signin" && typeof enterCoffeePath==="function") enterCoffeePath();
+        } else {
+          setSignInStatus(Cloud.authNotice ? Cloud.authNotice(res && res.reason) : "Invalid code. Try again.");
+        }
+      }).catch(function(){
+        verify.disabled = false;
+        setSignInStatus("Could not confirm the code. Try again.");
+      });
+    });
+  }
+}
+
 /* ------------------------- MENU ------------------------- */
 function paintMenuSignin(){
   const btn = $("menu-signin");
   const form = $("menu-signin-form");
-  const guest = typeof Cloud!=="undefined" && Cloud.configured() && !Cloud.isSignedIn();
+  const gated = holdForSignIn();
+  const guest = !gated && typeof Cloud!=="undefined" && Cloud.configured && Cloud.configured() && Cloud.isSignedIn && !Cloud.isSignedIn();
   const formOpen = !!(form && !form.hidden);
-  if(btn) btn.hidden = !guest || formOpen;
-  if(form && !guest) form.hidden = true;
+  if(btn) btn.hidden = gated || !guest || formOpen;
+  if(form && (gated || !guest)) form.hidden = true;
 }
 function sendMenuSignIn(){
   const email = ($("menu-email") && $("menu-email").value || "").trim();
@@ -418,12 +525,18 @@ function paintBriefModeChrome(mode){
   if(!hide) renderDiffs();
   paintTabletsBrief(mode==="tablets");
 }
+function waitForTabletsPack(then){
+  if(typeof Defer === "undefined" || !Defer.forTablets || Defer.readyFor("tablets")) return false;
+  Defer.forTablets().then(then);
+  return true;
+}
 function openBrief(mode){
   const m = MODES[mode];
   if(!m || m.incoming){
     if(m && m.incoming && typeof toast==="function") toast(m.name+" is incoming.");
     return;
   }
+  if(mode==="tablets" && waitForTabletsPack(function(){ openBrief(mode); })) return;
   if(mode==="tablets" && SAVE.set && !SAVE.set.tabletsTutorialDone){
     startRun("tablets", SAVE.set.diff, { tabletChapter: "prayer", tabletTutorial: true });
     return;
@@ -447,6 +560,7 @@ function renderDiffs(){
 }
 $("brief-start").addEventListener("click", ()=>{ Snd.unlock(); startRun(briefMode, SAVE.set.diff); });
 bindMenuSignin();
+bindSignInView();
 const teamPick = $("brief-team-pick");
 if(teamPick) teamPick.addEventListener("click", function(e){
   const btn = e.target.closest("[data-team]");
@@ -906,15 +1020,16 @@ function presentSaveCorrupt(then){
     }
   });
 }
-function enterCoffeePath(){
-  if(typeof window !== "undefined" && window._saveCorruptPending){
-    window._saveCorruptPending = false;
-    presentSaveCorrupt(enterCoffeePath);
-    return;
-  }
-  if(typeof markFunnel === "function") markFunnel("boot");
+function scheduleDeferredPrefetch(){
+  if(typeof Defer === "undefined" || !Defer.prefetch) return;
+  const kick = function(){ Defer.prefetch(); };
+  if(typeof requestIdleCallback === "function") requestIdleCallback(kick, { timeout: 4000 });
+  else setTimeout(kick, 1800);
+}
+function enterHallAfterAuth(){
   const cleared = !!(SAVE.life && SAVE.life.sitesCleared);
   const walked = !!(SAVE.pilgrim && SAVE.pilgrim.lastPlayed);
+  scheduleDeferredPrefetch();
   if(!SAVE.set.tutorialSeen){
     showTutorialIfNeeded();
     return;
@@ -925,6 +1040,28 @@ function enterCoffeePath(){
   }
   go("menu");
   if(typeof profileReady === "function" && !profileReady()) openProfileSetup(true);
+}
+function enterCoffeePath(){
+  if(typeof window !== "undefined" && window._saveCorruptPending){
+    window._saveCorruptPending = false;
+    presentSaveCorrupt(enterCoffeePath);
+    return;
+  }
+  if(typeof markFunnel === "function") markFunnel("boot");
+  if(holdForSignIn()){
+    go("signin");
+    paintSignIn();
+    return;
+  }
+  enterHallAfterAuth();
+}
+function openAfterBoot(){
+  const goOn = function(){
+    if(currentView==="boot") enterCoffeePath();
+  };
+  if(typeof Cloud!=="undefined" && Cloud.whenReady){
+    Cloud.whenReady().then(goOn).catch(goOn);
+  } else goOn();
 }
 function playBootSequence(opts){
   if(typeof VERSES==="undefined" || !VERSES.length){
@@ -952,7 +1089,7 @@ function playBootSequence(opts){
       clearInterval(tick);
       if(msg) msg.textContent="The record is open.";
       setTimeout(()=>{
-        if(currentView==="boot") enterCoffeePath();
+        if(currentView==="boot") openAfterBoot();
       }, fast?220:480);
     }
   }, step);

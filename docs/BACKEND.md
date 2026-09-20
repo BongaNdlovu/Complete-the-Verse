@@ -6,7 +6,7 @@
 
 **Mode C:** cross-device save + Daily/Blitz leaderboards + async ghosts.
 
-The game stays playable fully offline. Cloud is optional sync + social.
+http(s) builds require a session before Hall. Offline play continues after a session is stored on the device. `file://` stays guest so the disk-open path still works.
 
 Canonical client project ref: `fgwfniblkuozxlbgytfk` — the same value as `js/cloud-config.js`. Do not apply migrations or deploy functions to a different project.
 
@@ -17,7 +17,15 @@ In Supabase → Authentication → URL configuration:
 | Field | Value |
 |--------|--------|
 | Site URL | `https://complete-the-verse.vercel.app` |
-| Redirect URLs | `https://complete-the-verse.vercel.app/**` and `http://localhost:8781/**` |
+| Redirect URLs | `https://complete-the-verse.vercel.app/**`, `http://localhost:8781/**`, and `completetheverse://**` |
+
+### Play Console (account required)
+
+Honest declaration: **sign-in is required to sync one save and post Blitz.** Guests cannot start a new run. A local `ctv_save_v3` already on the device still merges after they sign in. Offline play works only after a session has been stored on that device.
+
+Suggested listing line (replaces “guests keep local bests”):
+
+> Sign in with Google or email to keep one pilgrimage and appear on Blitz. Progress already on this device merges into your account.
 
 ### Score constraints (migration 003)
 
@@ -32,7 +40,7 @@ Run `supabase/migrations/003_score_constraints.sql` in the SQL Editor if not alr
 | `supabase/migrations/001_complete_the_verse.sql` | Tables, RLS, signup → profile trigger |
 | `js/cloud-config.js` | Project URL + anon key (you fill these in) |
 | `js/cloud.js` | Auth, `mergeSave`, push/pull, scores, ghosts |
-| Settings → **Cloud account** | Magic-link sign-in, display name, Sync now |
+| Sign-in door + Settings | Google OAuth, email OTP, display name, Sync now. `Cloud.signInWithIdToken` is the hook for a native Google ID token. |
 
 ---
 
@@ -53,11 +61,13 @@ Run `supabase/migrations/003_score_constraints.sql` in the SQL Editor if not alr
 ### 3. Enable Auth
 
 1. **Authentication → Providers**.  
-2. Enable **Email** (magic link).  
-3. (Optional) Enable Google later.  
+2. Enable **Email** (OTP / magic link).  
+3. Enable **Google**. Create a Google Cloud OAuth client. Add the Android package `app.completetheverse.twa` and this keystore SHA-256: `85:EB:F6:93:7D:23:74:30:7F:C1:E8:24:64:61:7C:CE:69:DA:A0:90:B8:62:16:3A:F7:62:71:66:A5:11:DE:AF`.  
 4. **Authentication → URL configuration**  
-   - Site URL: your game origin (e.g. `http://localhost:8781` while testing).  
-   - Redirect URLs: same origin (and production URL when you deploy).
+   - Site URL: `https://complete-the-verse.vercel.app`  
+   - Redirect URLs: `https://complete-the-verse.vercel.app/**`, `http://localhost:8781/**`, `completetheverse://**`.
+
+The Play app is a Trusted Web Activity, so Google sign-in is the same `signInWithOAuth({ provider: "google" })` path as the PWA. A future native shell can call `window.CtvNativeAuth.signInWithGoogleIdToken(idToken)` after Credential Manager.
 
 ### 4. Wire keys into the game
 
@@ -138,5 +148,3 @@ After deploying, watch the Network tab: submissions should go to `/functions/v1/
 
 - Friend-only ghosts  
 - Weekly Blitz board  
-- Google OAuth  
-- Production Site URL + redirect allowlist  

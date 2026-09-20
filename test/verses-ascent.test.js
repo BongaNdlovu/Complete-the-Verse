@@ -19,14 +19,13 @@ const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const bankSrc = fs.readFileSync(path.join(ROOT, "js", "bank.js"), "utf8");
 
 assert(fs.existsSync(ascentPath), "js/verses-ascent.js exists");
-assert(/src="js\/verses-ascent\.js"/.test(index), "index.html loads verses-ascent.js");
-assert(index.indexOf('src="js/verses-ascent.js"') < index.indexOf('src="js/bank.js"'),
-  "verses-ascent.js is listed before bank.js");
-assert(index.indexOf('src="js/verses-more.js"') < index.indexOf('src="js/verses-ascent.js"'),
-  "verses-ascent.js loads after verses-more.js");
+const deferSrc = fs.readFileSync(path.join(ROOT, "js", "defer.js"), "utf8");
+assert(/js\/verses-ascent\.js/.test(deferSrc), "defer.js loads verses-ascent.js after first paint");
+assert(!/src="js\/verses-ascent\.js"/.test(index), "verses-ascent.js is not on the intro script path");
 assert(FILES.includes("js/verses-ascent.js"), "load-bank.js includes verses-ascent.js");
-assert(/VERSES_ASCENT/.test(bankSrc) && /VERSES\.push\(\.\.\.VERSES_ASCENT\)/.test(bankSrc),
-  "bank.js merges VERSES_ASCENT into VERSES");
+assert(/VERSES_ASCENT/.test(bankSrc) && /absorbVersePack/.test(bankSrc) &&
+  /VERSES\.push\(\.\.\.VERSES_ASCENT\)/.test(bankSrc),
+  "bank.js merges VERSES_ASCENT at parse and can absorb it late");
 
 const bank = loadBank();
 assert(Array.isArray(bank.VERSES_ASCENT), "loadBank exposes VERSES_ASCENT");

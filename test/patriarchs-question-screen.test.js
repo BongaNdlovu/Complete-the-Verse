@@ -17,7 +17,7 @@ const css = fs.readFileSync(path.join(ROOT, "css", "play.css"), "utf8");
 const abraham = path.join(ROOT, "assets", "characters", "abram", "question.png");
 
 assert(index.includes('id="question-abraham"'), "question screen has an Abraham layer");
-assert(index.includes('src="assets/characters/abram/question.png"'), "Abraham uses the transparent question artwork");
+assert(index.includes('data-src="assets/characters/abram/question.png"'), "Abraham uses the transparent question artwork");
 assert(fs.existsSync(abraham) && fs.statSync(abraham).size > 1000, "transparent Abraham artwork is present");
 assert(index.includes('id="hud-journey"') && index.includes('id="hud-left-lab"') && index.includes('id="hud-right-lab"'),
   "journey-first HUD hooks are present");

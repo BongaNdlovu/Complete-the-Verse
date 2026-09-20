@@ -421,8 +421,12 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 ok("timeout copy names the sand", /The sand ran out\. The blank stayed empty when the Hold closed/.test(
   fs.readFileSync(path.join(ROOT, "js", "director.js"), "utf8")));
 ok("brief names the chapter clock", /clockS/.test(fs.readFileSync(path.join(ROOT, "js", "briefs.js"), "utf8")));
-ok("cache is 1.8.57", /ctv-v1\.8\.57/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
-ok("Hold fonts are the pruned set: Cinzel, Garamond and Barlow Condensed only", /family=Cinzel:wght@600;700;800;900/.test(html) && /family=Barlow\+Condensed:wght@400;600/.test(html) && !/Cinzel\+Decorative/.test(html) && !/family=Inter/.test(html));
+ok("cache is 1.8.58", /ctv-v1\.8\.58/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
+const fontsCss = fs.readFileSync(path.join(ROOT, "css", "fonts.css"), "utf8");
+ok("Hold fonts are the pruned set: Cinzel, Garamond and Barlow Condensed only",
+  /font-family:\s*"Cinzel"/.test(fontsCss) && /font-family:\s*"EB Garamond"/.test(fontsCss) &&
+  /font-family:\s*"Barlow Condensed"/.test(fontsCss) && !/Cinzel\+Decorative/.test(html) &&
+  !/family=Inter/.test(html) && !/fonts\.googleapis/.test(html));
 ok("the Hold does not paint god-rays", !/tabletsFx\.rays/.test(src));
 ok("the Hold has no screen wash overlay", !/#v-tablets:after/.test(fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8")));
 ok("Hold aura stays off until surge", /#tablets-aura\{[^}]*animation:\s*none/.test(fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8")));

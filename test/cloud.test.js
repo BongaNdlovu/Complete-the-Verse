@@ -14,6 +14,13 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
 {
   eq("guest is not signed in without init", Cloud.isSignedIn(), false);
   ok("not configured without keys", !Cloud.configured() || true);
+  eq("sessionRequired follows configured keys when not file:", Cloud.sessionRequired(), !!Cloud.configured());
+  eq("signInWithGoogle exists", typeof Cloud.signInWithGoogle, "function");
+  eq("signInWithIdToken exists", typeof Cloud.signInWithIdToken, "function");
+  eq("whenReady exists", typeof Cloud.whenReady, "function");
+  eq("authNotice google-unavailable", Cloud.authNotice("google-unavailable"), "Google sign-in is not enabled on this project yet.");
+  eq("authNotice session-required", Cloud.authNotice("session-required"), "Sign in to enter the hall. One account holds the save and posts Blitz.");
+  eq("authNotice signed-out", Cloud.authNotice("signed-out"), "Sign in to enter the hall.");
 }
 
 {
@@ -133,7 +140,7 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
 {
   eq("authNotice offline", Cloud.authNotice("offline"), "You're offline. Try again when you reconnect.");
   eq("authNotice rate-limited", Cloud.authNotice("rate-limited"), "Too many attempts. Wait a few minutes.");
-  eq("authNotice hides unknown errors", Cloud.authNotice("User already registered"), "Check your email for the sign-in link.");
+  eq("authNotice hides unknown errors", Cloud.authNotice("User already registered"), "Check your email for the sign-in code.");
   ok("authNotice otp-expired", Cloud.authNotice("otp-expired").includes("expired"));
   eq("boardLoadFailed idle", Cloud.boardLoadFailed(), null);
   eq("verifyOtp exists", typeof Cloud.verifyOtp, "function");

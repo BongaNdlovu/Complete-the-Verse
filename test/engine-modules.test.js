@@ -47,6 +47,7 @@ const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   /* ---------- 3. module surface ---------- */
   if (!err) {
     const t = name => vm.runInContext("typeof " + name, sb);
+    ok("defer exports the late-pack loader", t("Defer") === "object");
     ok("util exports the DOM helper", t("$") === "function");
     ok("util exports the ref-dedupe pool helper", t("poolSansRepeatRefs") === "function");
     ok("util exports jsDialogsWork", t("jsDialogsWork") === "function");
@@ -74,6 +75,8 @@ const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
     ok("briefs defines the site brief", t("openSiteBrief") === "function");
     ok("briefs defines the intro flow", t("beginIntroPlayback") === "function");
     ok("briefs defines the tutorial", t("showTutorialIfNeeded") === "function");
+    ok("briefs defines the session gate", t("holdForSignIn") === "function");
+    ok("briefs defines the sign-in door", t("bindSignInView") === "function");
     ok("play defines question advance", t("nextQuestion") === "function");
     ok("play defines timer logic", t("startTimer") === "function");
     ok("play defines answer resolver", t("resolveAnswer") === "function");

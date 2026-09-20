@@ -1080,7 +1080,7 @@ function syncAbrahamPresentation(mechanic){
     : mechanic || (R && R.typed ? "typed" : "choice");
   const img = el.querySelector("img");
   const src = companionQuestionSrc(site);
-  if(img && img.getAttribute("src") !== src) img.src = src;
+  if(img && active && src && img.getAttribute("src") !== src) img.src = src;
   const sign = $("question-abraham-sign");
   const name = companionQuestionName(site);
   if(sign && sign.textContent !== name) sign.textContent = name;

@@ -178,6 +178,21 @@ body.reduced .intro-hint{animation:none}
 body.reduced .boot-inner{animation:none}
 body.reduced .bootmark{animation:none}
 
+/* ================= SIGN IN ================= */
+#v-signin{align-items:center;justify-content:center;text-align:center}
+.signin-pad{justify-content:center;align-items:center;max-width:36rem;margin:0 auto}
+#v-signin .game-logo{width:min(16rem,52vw);margin:1vh auto 0}
+.signin-copy{max-width:42ch;margin:.4vh auto 2.2vh;color:var(--parch-dim);line-height:1.55;font-size:1.02rem}
+.signin-google{min-width:min(22rem,86vw)}
+.signin-or{font-family:var(--ui);letter-spacing:.28em;text-transform:uppercase;font-size:.58rem;
+  color:var(--gold-dim);margin:2vh 0 1.2vh}
+.signin-email-form,.signin-otp-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:min(420px,92vw);margin-bottom:10px}
+.signin-email-form input,.signin-otp-row input{min-width:min(220px,70vw);flex:1;background:rgba(0,0,0,.25);
+  border:1px solid rgba(232,196,120,.28);color:var(--parch);padding:.55rem .7rem;font-family:var(--body);font-size:.95rem}
+.signin-legal{margin-top:2vh;font-size:.88rem;color:var(--parch-dim)}
+.signin-legal a{color:var(--gold)}
+body.hall-ready.biblical-thriller #v-signin:before{opacity:0;animation:none}
+
 /* ================= MENU ================= */
 #v-menu .scrollpad{justify-content:flex-start;padding-top:calc(var(--safe-t) + 28px);padding-bottom:10vh}
 .menu-brand{display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:760px;margin-bottom:1.5vh}

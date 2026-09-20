@@ -21,6 +21,7 @@ var Cloud = (function () {
   var lastError = "";
   var pushTimer = null;
   var syncing = false;
+  var readyPromise = null;
   var hooks = { onAuth: null, onSync: null, onError: null };
 
   function cfg() {
@@ -92,6 +93,36 @@ var Cloud = (function () {
     var ok = await loadSdk();
     if (!ok) return { ok: false, reason: "no-sdk" };
     return init();
+  }
+
+  function whenReady() {
+    if (readyPromise) return readyPromise;
+    if (!configured()) {
+      readyPromise = Promise.resolve({ ok: false, reason: "not-configured" });
+      return readyPromise;
+    }
+    readyPromise = initLazy().catch(function () {
+      readyPromise = null;
+      return { ok: false, reason: "unavailable" };
+    });
+    return readyPromise;
+  }
+
+  /* http(s) builds with keys require a session before Hall. file:// stays
+     guest so the disk-open developer path still works. */
+  function sessionRequired() {
+    if (!configured()) return false;
+    try {
+      if (typeof location !== "undefined" && location.protocol === "file:") return false;
+    } catch (e) {}
+    return true;
+  }
+
+  function authRedirectTo() {
+    if (typeof location === "undefined") return undefined;
+    var origin = location.origin || "";
+    if (origin.indexOf("http") !== 0) return undefined;
+    return (origin + (location.pathname || "/")).split("#")[0];
   }
 
   /* ----------------------- pure merge ----------------------- */
@@ -310,14 +341,18 @@ var Cloud = (function () {
     if (reason === "rate-limited") return "Too many attempts. Wait a few minutes.";
     if (reason === "not-configured") return "Cloud is not available on this build.";
     if (reason === "unavailable") return "Could not send the link. Try again.";
-    if (reason === "signed-out") return "Sign in to post scores.";
+    if (reason === "signed-out") return "Sign in to enter the hall.";
+    if (reason === "session-required") return "Sign in to enter the hall. One account holds the save and posts Blitz.";
     if (reason === "name-too-short") return "Name needs at least two letters.";
     if (reason === "trusted-submit-unavailable") return "Trusted leaderboard submission is unavailable.";
     if (reason === "otp-expired" || reason === "link-expired") return "Email code or link expired / pre-scanned. Enter the 6-digit code from your email or request a new one.";
     if (reason === "invalid-token") return "Invalid 6-digit code. Check your email.";
     if (reason === "missing-token") return "Enter the 6-digit code from your email.";
     if (reason === "verified") return "Signed in successfully.";
-    return "Check your email for the sign-in link.";
+    if (reason === "google-unavailable") return "Google sign-in is not enabled on this project yet.";
+    if (reason === "google-redirect") return "Continue in the Google window.";
+    if (reason === "sent") return "Check your email for the 6-digit code.";
+    return "Check your email for the sign-in code.";
   }
   function withTimeout(p, ms) {
     return new Promise(function (resolve, reject) {
@@ -374,12 +409,9 @@ var Cloud = (function () {
       if (typeof localStorage !== "undefined") {
         try { localStorage.setItem("cloud_pending_email", email); } catch(e){}
       }
-      var redir = (typeof location !== "undefined" && location.origin)
-        ? (location.origin + location.pathname).split("#")[0]
-        : undefined;
       var res = await withTimeout(sb.auth.signInWithOtp({
         email: email,
-        options: { emailRedirectTo: redir }
+        options: { emailRedirectTo: authRedirectTo() }
       }), 8000);
       if (res.error) {
         var msg = String(res.error.message || "").toLowerCase();
@@ -411,6 +443,59 @@ var Cloud = (function () {
         var msg = String(res.error.message || "").toLowerCase();
         if (/expired/.test(msg)) return { ok: false, reason: "otp-expired" };
         return { ok: false, reason: "invalid-token", message: res.error.message };
+      }
+      if (res.data && res.data.user) {
+        user = res.data.user;
+        await refreshProfile();
+        emit("onAuth", { event: "SIGNED_IN", user: user, profile: profile });
+        return { ok: true, reason: "verified", user: user, profile: profile };
+      }
+      return { ok: false, reason: "no-session" };
+    } catch (e) {
+      return { ok: false, reason: "unavailable" };
+    }
+  }
+
+  async function signInWithGoogle() {
+    var sb = ensureClient();
+    if (!sb) return { ok: false, reason: "not-configured" };
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return { ok: false, reason: "offline" };
+    try {
+      var res = await withTimeout(sb.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: authRedirectTo(),
+          queryParams: { prompt: "select_account" }
+        }
+      }), 8000);
+      if (res.error) {
+        var msg = String(res.error.message || "").toLowerCase();
+        if (/rate|too many/.test(msg)) return { ok: false, reason: "rate-limited" };
+        if (/provider|not enabled|disabled|unsupported/.test(msg)) return { ok: false, reason: "google-unavailable" };
+        return { ok: false, reason: "unavailable" };
+      }
+      return { ok: true, reason: "google-redirect" };
+    } catch (e) {
+      return { ok: false, reason: (typeof navigator !== "undefined" && navigator.onLine === false) ? "offline" : "unavailable" };
+    }
+  }
+
+  /* Native shells (Credential Manager) pass a Google ID token here.
+     The TWA uses signInWithGoogle() instead — there is no JS bridge. */
+  async function signInWithIdToken(token, nonce) {
+    var sb = ensureClient();
+    if (!sb) return { ok: false, reason: "not-configured" };
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return { ok: false, reason: "offline" };
+    token = String(token || "").trim();
+    if (!token) return { ok: false, reason: "missing-token" };
+    try {
+      var payload = { provider: "google", token: token };
+      if (nonce) payload.nonce = String(nonce);
+      var res = await withTimeout(sb.auth.signInWithIdToken(payload), 10000);
+      if (res.error) {
+        var msg = String(res.error.message || "").toLowerCase();
+        if (/expired/.test(msg)) return { ok: false, reason: "otp-expired" };
+        return { ok: false, reason: "invalid-token" };
       }
       if (res.data && res.data.user) {
         user = res.data.user;
@@ -878,6 +963,8 @@ var Cloud = (function () {
     configured: configured,
     init: init,
     initLazy: initLazy,
+    whenReady: whenReady,
+    sessionRequired: sessionRequired,
     loadSdk: loadSdk,
     mergeSave: mergeSave,
     isSignedIn: isSignedIn,
@@ -887,6 +974,8 @@ var Cloud = (function () {
     user: sessionUser,
     profile: function () { return profile; },
     signInWithEmail: signInWithEmail,
+    signInWithGoogle: signInWithGoogle,
+    signInWithIdToken: signInWithIdToken,
     verifyOtp: verifyOtp,
     signOut: signOut,
     setDisplayName: setDisplayName,
@@ -917,5 +1006,13 @@ var Cloud = (function () {
     on: on
   };
 })();
+
+if (typeof window !== "undefined") {
+  window.CtvNativeAuth = {
+    signInWithGoogleIdToken: function (token, nonce) {
+      return Cloud.signInWithIdToken(token, nonce);
+    }
+  };
+}
 
 if (typeof module !== "undefined" && module.exports) module.exports = Cloud;

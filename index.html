@@ -14,16 +14,11 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://complete-the-verse.vercel.app/">
 <meta property="og:image" content="https://complete-the-verse.vercel.app/assets/logo.webp">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@400;600&display=swap" rel="stylesheet">
-<!-- Leaflet is vendored, not on a CDN: the game opens straight off the
-     disk and must not need a network to reach its own map library. -->
-<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="preload" href="fonts/cinzel-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/eb-garamond-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/game.css">
-<link rel="stylesheet" href="css/play.css">
-<link rel="stylesheet" href="css/tablets.css">
-<link rel="stylesheet" href="css/atlas.css">
+<!-- play.css, tablets.css, atlas.css, and Leaflet wait for js/defer.js. -->
 </head>
 <body class="biblical-thriller">
 <div id="offline-banner" class="offline-banner" role="status" aria-live="polite"></div>
@@ -51,7 +46,7 @@
       <video id="intro-video" class="intro-video" src="assets/intro.mp4" muted playsinline preload="none" poster="assets/intro.jpg" disablepictureinpicture aria-hidden="true"></video>
     <div class="intro-veil" id="intro-veil"></div>
     <div class="intro-start" id="intro-start">
-      <img class="game-logo" src="assets/logo.webp" alt="Complete the Verse" width="1024" height="1024">
+      <img class="game-logo" src="assets/logo.webp" alt="Complete the Verse" width="512" height="512">
       <div class="kick">The Scripture Trial</div>
       <div class="intro-hint">Tap to begin</div>
     </div>
@@ -61,7 +56,7 @@
   <!-- ============ BOOT ============ -->
   <section class="view on" id="v-boot">
     <div class="boot-inner">
-      <img class="game-logo" src="assets/logo.webp" alt="Complete the Verse" width="1024" height="1024">
+      <img class="game-logo" src="assets/logo.webp" alt="Complete the Verse" width="512" height="512">
       <div class="kick" id="boot-kick">The Scripture Trial · Preparing the record</div>
       <p class="boot-verse">The word of God is quick, and powerful, and sharper than any twoedged sword.</p>
       <p class="boot-ref">Hebrews 4:12 · King James</p>
@@ -73,12 +68,35 @@
     </div>
   </section>
 
+  <!-- ============ SIGN IN ============ -->
+  <section class="view" id="v-signin" aria-label="Sign in">
+    <div class="scrollpad signin-pad">
+      <div class="kick">The record</div>
+      <img class="game-logo" src="assets/logo.webp" alt="Complete the Verse" width="512" height="512">
+      <div class="h-lg" style="margin-top:1.2vh">Enter the hall</div>
+      <div class="fil"><i></i></div>
+      <p class="signin-copy">An account holds one save across devices and posts Blitz. Progress already on this device merges when you sign in.</p>
+      <button type="button" class="btn signin-google" id="signin-google">Continue with Google</button>
+      <p class="signin-or">or email a 6-digit code</p>
+      <form class="signin-email-form" id="signin-email-form">
+        <input id="signin-email" type="email" name="email" placeholder="you@example.com" autocomplete="email" inputmode="email" aria-label="Email">
+        <button type="submit" class="btn sm" id="signin-send">Send code</button>
+      </form>
+      <div class="signin-otp-row" id="signin-otp-row">
+        <input id="signin-otp" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="123456" autocomplete="one-time-code" aria-label="Six-digit code">
+        <button type="button" class="btn ghost sm" id="signin-verify">Confirm code</button>
+      </div>
+      <p class="hint" id="signin-status" role="status" aria-live="polite"></p>
+      <p class="signin-legal"><a href="privacy.html">Privacy</a> · A network is required the first time.</p>
+    </div>
+  </section>
+
   <!-- ============ MENU ============ -->
   <section class="view" id="v-menu">
     <div class="scrollpad">
       <div class="menu-brand">
         <div class="kick">King James Version &nbsp;·&nbsp; 66 Books &nbsp;·&nbsp; One final answer</div>
-        <img class="game-logo" src="assets/logo.webp" alt="Complete the Verse" width="1024" height="1024">
+        <img class="game-logo" src="assets/logo.webp" alt="Complete the Verse" width="512" height="512">
         <p class="menu-subtitle">
           The words appear. One phrase is taken away. Complete it before the final second falls.</p>
         <div class="menu-sign" id="menu-sign">
@@ -230,7 +248,7 @@
 
     <!-- ============ CINEMATIC PARALLAX STORY BACKDROP ============ -->
     <div class="cine-backdrop-parallax" id="cine-parallax-bg" aria-hidden="true">
-      <video id="cine-parallax-video" class="cine-parallax-video" loop muted playsinline preload="auto" disablepictureinpicture aria-hidden="true" style="display:none;"></video>
+      <video id="cine-parallax-video" class="cine-parallax-video" loop muted playsinline preload="none" disablepictureinpicture aria-hidden="true" style="display:none;"></video>
       <div class="cine-parallax-img" id="cine-parallax-img"></div>
       <div class="cine-parallax-veil"></div>
       <div class="cine-parallax-grain"></div>
@@ -240,7 +258,7 @@
          Ur video can remain atmospheric without baking UI art into it. -->
     <figure class="question-abraham" id="question-abraham" aria-hidden="true">
       <div class="question-abraham-aura"></div>
-      <img src="assets/characters/abram/question.png" alt="" decoding="async" fetchpriority="low">
+      <img data-src="assets/characters/abram/question.png" alt="" decoding="async" fetchpriority="low">
       <figcaption id="question-abraham-sign">Abram</figcaption>
     </figure>
 
@@ -787,17 +805,13 @@
   </div>
 </div>
 
-<script src="vendor/leaflet/leaflet.js"></script>
 <script src="js/verses.js"></script>
 <script src="js/verses-extra.js"></script>
 <script src="js/verses-more.js"></script>
-<script src="js/verses-ascent.js"></script>
-<script src="js/verses-tf.js"></script>
 <script src="js/beat.js"></script>
 <script src="js/tablets.js"></script>
 <script src="js/tablets-canon.js"></script>
 <script src="js/tablets-hall.js"></script>
-<script src="js/tablets-more.js"></script>
 <script src="js/verses-notes.js"></script>
 <script src="js/passages.js"></script>
 <script src="js/legacy-ids.js"></script>
@@ -826,6 +840,7 @@
 <!-- Engine modules split from game.js along its natural seams. They
      define one global each and may only reference game.js bindings at
      runtime, never at parse time — the load order below is required. -->
+<script src="js/defer.js"></script>
 <script src="js/util.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/director.js"></script>

@@ -7,9 +7,15 @@
    2. Project Settings → API → copy Project URL and anon public key.
    3. Paste them below (anon key is safe in the browser; RLS protects data).
    4. Run supabase/migrations/001_complete_the_verse.sql in the SQL Editor.
-   5. Auth → Providers → enable Email (magic link) and/or Google.
+   5. Auth → Providers → enable Email (OTP) and Google.
+   6. Auth → URL configuration: https://complete-the-verse.vercel.app/**
+      and completetheverse://**
+   7. Google Cloud OAuth client: add the Android package
+      app.completetheverse.twa and SHA-256
+      85ebf6937d2374307fc1e82464617cce69daa090b862163af7627166a511deaf
 
-   Leave both empty to keep the game fully offline (guest / local only).
+   Empty keys keep file:// guest play. http(s) builds with keys require
+   a session before Hall.
    ================================================================== */
 
 var CLOUD_CONFIG = {

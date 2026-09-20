@@ -19,6 +19,7 @@ const path = require("path");
    director (uses Snd) → setpieces → viz → typed → rewards → sequences → panels →
    results → briefs → game. */
 const ENGINE_FILES = [
+  "js/defer.js",
   "js/util.js",
   "js/audio.js",
   "js/director.js",

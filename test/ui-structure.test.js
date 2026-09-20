@@ -31,6 +31,7 @@ assert(html.includes("Preparing the record"), "scripture boot copy must be prese
 assert(html.includes("boot-verse"), "boot screen carries a verse line");
 assert(/function playBootSequence\(/.test(game), "playBootSequence helper present");
 
+assert(html.includes('id="v-signin"'), "sign-in door view present");
 assert(html.includes('id="v-intro"'), "intro view present");
 assert(html.includes('id="v-tablets"'), "tablets view present");
 assert(html.includes('id="tablets-pause"'), "tablets pause overlay present");
@@ -201,9 +202,11 @@ const orphans = [...wanted].filter(id => !html.includes('id="' + id + '"'));
 assert(orphans.length === 0, "atlas.js reaches for ids the markup does not define: " + orphans.join(", "));
 
 /* ---------- atlas styling ---------- */
-assert(html.includes('href="css/atlas.css"'), "atlas stylesheet is loaded");
-assert(html.includes('href="vendor/leaflet/leaflet.css"'), "vendored Leaflet CSS is loaded");
-assert(html.indexOf('href="vendor/leaflet/leaflet.css"') < html.indexOf('href="css/atlas.css"'),
+const deferSrc = fs.readFileSync(path.join(ROOT, "js", "defer.js"), "utf8");
+assert(fs.existsSync(path.join(ROOT, "css", "atlas.css")), "atlas stylesheet ships");
+assert(deferSrc.includes("vendor/leaflet/leaflet.css") && deferSrc.includes("css/atlas.css"),
+  "Leaflet CSS and atlas.css load when the map opens");
+assert(deferSrc.indexOf("vendor/leaflet/leaflet.css") < deferSrc.indexOf("css/atlas.css"),
   "atlas.css loads after Leaflet so it can override it");
 
 assert(atlas.includes(".site-marker"), "site markers styled");

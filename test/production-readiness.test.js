@@ -148,7 +148,7 @@ assert(/allowVideo[\s\S]{0,180}heavyMediaAllowed\(\)/.test(play),
   "site ambient video uses the heavy-media gate");
 assert(/function urPrologueAllowed[\s\S]{0,220}heavyMediaAllowed\(\)/.test(play),
   "Ur prologue uses the heavy-media gate");
-assert(/MAX_AUDIO_ENTRIES\s*=\s*25/.test(sw) && /trimCache/.test(sw),
+assert(/MAX_AUDIO_ENTRIES\s*=\s*25/.test(sw) && /MAX_AUDIO_BYTES/.test(sw) && /trimCache/.test(sw),
   "audio runtime caching is bounded with an LRU cap of 25 entries");
 assert(/js\/tablets\.js/.test(sw) && /js\/tablets-canon\.js/.test(sw) && /js\/tablets-hall\.js/.test(sw) && /js\/tablets-run\.js/.test(sw),
   "Word Tablets scripts are precached for offline play");

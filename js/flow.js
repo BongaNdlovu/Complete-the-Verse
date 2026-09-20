@@ -13,7 +13,7 @@ var Flow = (function(){
      read as dead air. Tutorial advances and the live-browser driver
      key off this constant; keep them in sync when it moves. */
   var JUDGE_MS = 2500;
-  var VIEWS = ["boot","intro","menu","brief","sitebrief","atlas","act","play","tablets",
+  var VIEWS = ["boot","intro","signin","menu","brief","sitebrief","atlas","act","play","tablets",
                "results","study","relics","seals","records","settings"];
 
   var STATES = {

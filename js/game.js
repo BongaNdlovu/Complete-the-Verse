@@ -420,9 +420,18 @@ function enterViewCaption(view){
   const cap=$("voice-caption");
   if(cap) cap.classList.remove("on");
 }
+function enterAtlasView(){
+  Backdrop.palette("menu");
+  Snd.ambience("menu");
+  function run(){ if(currentView==="atlas") openAtlas(); }
+  if(typeof Defer !== "undefined" && Defer.forAtlas && !Defer.readyFor("atlas")){
+    Defer.forAtlas().then(run);
+  } else run();
+}
 function enterViewAmbience(view){
-  if(view==="atlas"){ Backdrop.palette("menu"); Snd.ambience("menu"); openAtlas(); }
+  if(view==="atlas"){ enterAtlasView(); }
   if(view==="boot"){ Backdrop.palette("menu"); syncHallVideo(SAVE.set.quality); }
+  if(view==="signin"){ Backdrop.palette("menu"); Snd.ambience("menu"); syncHallVideo(SAVE.set.quality); }
   if(view==="menu"){ Backdrop.palette("menu"); Snd.ambience("menu"); renderMenu(); syncHallVideo(SAVE.set.quality); }
   if(view==="brief"||view==="study"||view==="seals"||view==="records"||view==="settings"||view==="relics"){
     syncHallVideo(SAVE.set.quality);
@@ -450,7 +459,14 @@ function enterViewPanels(view){
   if(view==="records") renderRecords();
   if(view==="settings") renderSettings();
 }
+function resolveGoView(view){
+  if(typeof holdForSignIn==="function" && holdForSignIn() && typeof openWithoutSession==="function" && !openWithoutSession(view)){
+    return "signin";
+  }
+  return view;
+}
 function go(view){
+  view = resolveGoView(view);
   const leaving = currentView;
   const plan = (typeof Flow!=="undefined" && Flow.leaveView) ? Flow.leaveView(leaving, view) : null;
   applyLeave(plan);
@@ -461,6 +477,7 @@ function go(view){
   if(view!=="atlas" && typeof Atlas!=="undefined" && Atlas.closeVignette) Atlas.closeVignette();
   enterViewChrome(view);
   enterViewPanels(view);
+  if(view==="signin" && typeof paintSignIn==="function") paintSignIn();
   updatePlayerCard();
   document.body.classList.toggle("view-play", view==="play");
   document.body.classList.toggle("view-tablets", view==="tablets");
@@ -784,7 +801,19 @@ function routeRoadTabletStop(mode, diffKey, options){
   startRun("tablets", diffKey, Object.assign({}, options || {}, { tabletChapter: stop.id, fromRoad: true }));
   return true;
 }
+function refuseUnsignedRun(){
+  if(typeof holdForSignIn!=="function" || !holdForSignIn()) return false;
+  go("signin");
+  return true;
+}
+function waitForRunPacks(mode, diffKey, options){
+  if(typeof Defer === "undefined" || !Defer.forRun || Defer.readyFor(mode)) return false;
+  Defer.forRun(mode).then(function(){ startRun(mode, diffKey, options); });
+  return true;
+}
 function startRun(mode, diffKey, options){
+  if(refuseUnsignedRun()) return;
+  if(waitForRunPacks(mode, diffKey, options)) return;
   if(routeRoadTabletStop(mode, diffKey, options)) return;
   const D = resolveDiff(diffKey);
   const runToken = (R.runToken||0) + 1;
@@ -2232,6 +2261,7 @@ function bindCloudBoot(){
   Cloud.on("onError", onCloudEvent);
   Cloud.on("onAuth", function(ev){
     if(ev && ev.event==="SIGNED_IN"){
+      const fromDoor = currentView==="signin";
       Cloud.syncOnBoot(SAVE).then(function(res){
         if(res && res.ok && res.save){
           SAVE = res.save; persist();
@@ -2241,11 +2271,19 @@ function bindCloudBoot(){
           if(res.merged) toast("Progress merged from the cloud");
         }
       });
+      if(fromDoor && typeof enterCoffeePath==="function") enterCoffeePath();
     }
-    if(ev && ev.event==="SIGNED_OUT" && currentView==="play"){
-      toast("Session ended. Your run stays on this device.");
+    if(ev && ev.event==="SIGNED_OUT"){
+      if(typeof holdForSignIn==="function" && holdForSignIn()){
+        if(typeof invalidateRun==="function") invalidateRun();
+        go("signin");
+        toast("Signed out — sign in to enter the hall. Progress stays on this device.");
+      } else if(currentView==="play"){
+        toast("Session ended. Your run stays on this device.");
+      }
     }
     onCloudEvent();
+    if(currentView==="signin" && typeof paintSignIn==="function") paintSignIn();
   });
   const bootCloud = Cloud.initLazy ? Cloud.initLazy() : Cloud.init();
   bootCloud.then(function(res){

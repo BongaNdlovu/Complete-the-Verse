@@ -42,6 +42,24 @@ VERSES.forEach(v => {
   BY_TIER[v.t].push(v);
 });
 
+function absorbVersePack(pack){
+  if(!pack || !pack.length) return 0;
+  let n = 0;
+  pack.forEach(v => {
+    if(v.b === "Psalm") v.b = "Psalms";
+    v.id = verseId(v);
+    if(BY_ID[v.id]) return;
+    BY_ID[v.id] = v;
+    VERSES.push(v);
+    if(BY_TIER[v.t]) BY_TIER[v.t].push(v);
+    n++;
+  });
+  return n;
+}
+function absorbDeferredBanks(){
+  return (typeof VERSES_ASCENT !== "undefined") ? absorbVersePack(VERSES_ASCENT) : 0;
+}
+
 PASSAGES.forEach((p, i) => {
   p.id = "P~" + String(p.r).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   p.blanks = p.parts.filter(x => typeof x !== "string");
@@ -56,5 +74,6 @@ if(typeof module !== "undefined" && module.exports){
   module.exports = { VERSES, VERSES_EXTRA,
     VERSES_MORE: (typeof VERSES_MORE !== "undefined") ? VERSES_MORE : [],
     VERSES_ASCENT: (typeof VERSES_ASCENT !== "undefined") ? VERSES_ASCENT : [],
-    PASSAGES, BY_TIER, BY_ID, BOOKS_ORDER, verseId, LEGACY_IDS };
+    PASSAGES, BY_TIER, BY_ID, BOOKS_ORDER, verseId, LEGACY_IDS,
+    absorbVersePack, absorbDeferredBanks };
 }

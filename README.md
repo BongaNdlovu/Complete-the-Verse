@@ -38,7 +38,7 @@ A stranger should only need this table, then [`docs/DEVELOPER-GUIDE.md`](./docs/
 | `index.html` | The single page. Every screen is a `<section class="view">`. |
 | `sw.js` | Service worker for offline play. |
 | `js/` | Runtime modules. Names match jobs. Map: [`js/README.md`](./js/README.md). |
-| `css/` | Hall (`game.css`), play (`play.css`), atlas (`atlas.css`), tablets (`tablets.css`). |
+| `css/` | Hall (`game.css`), self-hosted faces (`fonts.css`), play (`play.css`), atlas (`atlas.css`), tablets (`tablets.css`). |
 | `assets/` `audio/` `sfx/` | Art, music beds, voice, effects. |
 | `vendor/` | Leaflet + supabase-js. Never a CDN. |
 | `content/` | Verse QA data (quarantine). Tooling only. |
@@ -59,7 +59,7 @@ Bank (js/verses*.js, js/bank.js)
   ↳ Learning (js/srs.js, js/recall.js, js/assemble.js)
     ↳ The road (js/pilgrimage.js, js/sites.js, js/geo.js)
       ↳ Map (js/atlas.js)
-        ↳ Optional cloud (js/cloud.js)
+        ↳ Cloud account (js/cloud.js) — required on http(s) before Hall
           ↳ Play loop (js/play.js) · save/modes/router (js/game.js)
             ↳ index.html
 ```

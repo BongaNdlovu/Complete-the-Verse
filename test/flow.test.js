@@ -13,6 +13,7 @@ function eq(name, got, want){ ok(name, got === want, {got, want}); }
   ok("play is a known view", Flow.VIEWS.indexOf("play") >= 0);
   ok("tablets is a known view", Flow.VIEWS.indexOf("tablets") >= 0);
   ok("results is a known view", Flow.VIEWS.indexOf("results") >= 0);
+  ok("signin is a known view", Flow.VIEWS.indexOf("signin") >= 0);
 }
 
 {

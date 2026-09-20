@@ -115,10 +115,10 @@ assert(/'<b>' \+ \(claim\.v \? "TRUE" : "FALSE"\) \+ '<\/b> — ' \+ esc\(claim\
 
 assert(/<div class="tf-stage" id="tf-stage" style="display:none"><\/div>/.test(index),
   "the Judgement has its own stage container");
-assert(/<script src="js\/verses-tf\.js"><\/script>/.test(index) &&
-  index.indexOf("js/verses-tf.js") > index.indexOf("js/verses-ascent.js") &&
-  index.indexOf("js/verses-tf.js") < index.indexOf("js/passages.js"),
-  "the claim bank loads with the other content files");
+const deferSrc = read("js/defer.js");
+assert(/js\/verses-tf\.js/.test(deferSrc) && /js\/verses-ascent\.js/.test(deferSrc),
+  "the claim bank loads with the other deferred content files");
+assert(!/src="js\/verses-tf\.js"/.test(index), "verses-tf.js is not on the intro script path");
 assert(/\.tf-stage\s*\{/.test(playCss) && /\.tf-claim\s*\{/.test(playCss) &&
   /\.tf-btn\s*\{/.test(playCss) && /\.tf-why\s*\{/.test(playCss),
   "Judgement presentation styles are shipped");

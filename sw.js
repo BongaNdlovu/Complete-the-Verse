@@ -6,20 +6,26 @@
       updates deploy immediately without stale-cache locks.
    2. Cache-first for immutable static assets (CSS, JS, fonts, images).
    3. Explicit audio exclusion from precaching. Audio is cached at
-      runtime on first play with an LRU cap of 25 entries to prevent
-      storage bloat on mobile devices.
+      runtime on first play with an LRU cap of 25 files and 12 MB.
+      Media is 30 files / 16 MB, and a single clip over 4 MB (the
+      18 MB prologue) is never stored.
    4. Lifecycle: skipWaiting on install, clientsClaim on activate, and
       stale cache eviction.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.8.57";
+const CACHE_VERSION = "ctv-v1.8.58";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MEDIA_CACHE = "ctv-media-" + CACHE_VERSION;
 const MAX_AUDIO_ENTRIES = 25;
 const MAX_MEDIA_ENTRIES = 30;
+const MAX_AUDIO_BYTES = 12 * 1024 * 1024;
+const MAX_MEDIA_BYTES = 16 * 1024 * 1024;
+const MAX_MEDIA_FILE_BYTES = 4 * 1024 * 1024;
 
-/* Core shell files to precache for offline support. Audio files are excluded. */
+/* Core shell files to precache for offline support. Audio files are excluded.
+   Late packs (play/atlas/tablets CSS, Leaflet, ascent, TF, tablets-more)
+   load through js/defer.js after first paint. */
 const PRECACHE_ASSETS = [
   "./",
   "index.html",
@@ -28,17 +34,15 @@ const PRECACHE_ASSETS = [
   "assets/logo.webp",
   "assets/intro.jpg",
   "assets/intro-cross.png",
-  "vendor/leaflet/leaflet.css",
-  "vendor/leaflet/leaflet.js",
+  "css/fonts.css",
   "css/game.css",
-  "css/play.css",
-  "css/atlas.css",
-  "css/tablets.css",
+  "fonts/cinzel-700.woff2",
+  "fonts/eb-garamond-400.woff2",
+  "fonts/eb-garamond-400-italic.woff2",
+  "fonts/barlow-condensed-600.woff2",
   "js/verses.js",
   "js/verses-extra.js",
   "js/verses-more.js",
-  "js/verses-ascent.js",
-  "js/verses-tf.js",
   "js/beat.js",
   "js/verses-notes.js",
   "js/passages.js",
@@ -60,6 +64,7 @@ const PRECACHE_ASSETS = [
   "js/polish.js",
   "js/cloud-config.js",
   "js/cloud.js",
+  "js/defer.js",
   "js/util.js",
   "js/audio.js",
   "js/director.js",
@@ -77,7 +82,6 @@ const PRECACHE_ASSETS = [
   "js/tablets.js",
   "js/tablets-canon.js",
   "js/tablets-hall.js",
-  "js/tablets-more.js",
   "js/tablets-run.js",
   "js/content-json.js",
   "shared/content/manifest.json",
@@ -107,13 +111,29 @@ function isMedia(url) {
          url.pathname.endsWith(".webm");
 }
 
-/* Trim cache entries according to LRU cap */
-async function trimCache(cacheName, maxEntries) {
+async function responseBytes(res) {
+  const len = res && res.headers && res.headers.get("content-length");
+  if (len && Number(len) > 0) return Number(len);
+  try { return (await res.clone().blob()).size; } catch (e) { return 0; }
+}
+
+/* Trim the oldest entries until both the file cap and the byte cap hold. */
+async function trimCache(cacheName, maxEntries, maxBytes) {
   const cache = await caches.open(cacheName);
   const keys = await cache.keys();
-  if (keys.length > maxEntries) {
-    await cache.delete(keys[0]);
-    await trimCache(cacheName, maxEntries);
+  if (!keys.length) return;
+  const items = [];
+  let total = 0;
+  for (let i = 0; i < keys.length; i++) {
+    const res = await cache.match(keys[i]);
+    const size = res ? await responseBytes(res) : 0;
+    items.push({ req: keys[i], size: size });
+    total += size;
+  }
+  while (items.length && (items.length > maxEntries || (maxBytes && total > maxBytes))) {
+    const first = items.shift();
+    await cache.delete(first.req);
+    total -= first.size;
   }
 }
 
@@ -166,7 +186,7 @@ self.addEventListener("fetch", (event) => {
           const response = await fetch(request);
           if (response && response.status === 200) {
             cache.put(request, response.clone());
-            trimCache(AUDIO_CACHE, MAX_AUDIO_ENTRIES);
+            trimCache(AUDIO_CACHE, MAX_AUDIO_ENTRIES, MAX_AUDIO_BYTES);
           }
           return response;
         } catch (e) {
@@ -208,8 +228,10 @@ self.addEventListener("fetch", (event) => {
         try {
           const networkResponse = await fetch(request);
           if (networkResponse && networkResponse.status === 200 && url.origin === self.location.origin) {
+            const size = await responseBytes(networkResponse);
+            if (size && size > MAX_MEDIA_FILE_BYTES) return networkResponse;
             cache.put(request, networkResponse.clone());
-            trimCache(MEDIA_CACHE, MAX_MEDIA_ENTRIES);
+            trimCache(MEDIA_CACHE, MAX_MEDIA_ENTRIES, MAX_MEDIA_BYTES);
           }
           return networkResponse;
         } catch (err) {

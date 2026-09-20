@@ -27,7 +27,10 @@ const game = readEngine(ROOT);
 const css   = fs.readFileSync(path.join(ROOT, "css", "game.css"), "utf8");
 
 /* ---------- files and load order ---------- */
-["index.html", "css/game.css", "css/play.css", "css/atlas.css", "css/tablets.css", "js/verses.js", "js/verses-extra.js",
+["index.html", "css/game.css", "css/fonts.css", "fonts/cinzel-700.woff2", "fonts/eb-garamond-400.woff2",
+ "fonts/eb-garamond-400-italic.woff2", "fonts/barlow-condensed-600.woff2",
+ "css/play.css", "css/atlas.css", "css/tablets.css", "js/defer.js",
+ "js/verses.js", "js/verses-extra.js",
  "js/verses-more.js", "js/verses-ascent.js", "js/assemble.js", "js/meta.js", "js/flow.js",
  "js/passages.js", "js/bank.js", "js/srs.js", "js/recall.js",
  "js/legacy-ids.js",
@@ -47,7 +50,6 @@ assert(!/unpkg\.com|cdnjs|jsdelivr|cdn\.tailwindcss/.test(index),
   "index.html pulls no script or stylesheet from a CDN");
 
 const order = ["js/verses.js", "js/verses-extra.js", "js/verses-more.js",
-               "js/verses-ascent.js",
                "js/passages.js", "js/legacy-ids.js",
                "js/bank.js", "js/srs.js", "js/recall.js",
                // pilgrimage.js captures the merged VERSES array, so it has
@@ -58,12 +60,13 @@ assert(index.indexOf('src="js/tablets.js"') < index.indexOf('src="js/tablets-can
   "tablets-canon.js loads after tablets.js");
 assert(index.indexOf('src="js/tablets-canon.js"') < index.indexOf('src="js/tablets-hall.js"'),
   "tablets-hall.js loads after tablets-canon.js");
-assert(index.indexOf('src="js/tablets-hall.js"') < index.indexOf('src="js/tablets-more.js"'),
-  "tablets-more.js loads after tablets-hall.js");
-assert(index.indexOf('src="js/tablets-more.js"') < index.indexOf('src="js/pilgrimage.js"'),
-  "tablets-more.js loads before pilgrimage.js");
-assert(index.indexOf("vendor/leaflet/leaflet.js") < index.indexOf('src="js/atlas.js"'),
-  "Leaflet loads before the atlas that uses it");
+const deferSrc = fs.readFileSync(path.join(ROOT, "js", "defer.js"), "utf8");
+assert(deferSrc.includes("js/tablets-more.js") && deferSrc.includes("vendor/leaflet/leaflet.js") &&
+  deferSrc.includes("js/verses-ascent.js") && deferSrc.includes("js/verses-tf.js"),
+  "defer.js lists the late play/atlas/bank packs");
+assert(!/src="js\/tablets-more\.js"/.test(index) && !/src="vendor\/leaflet\/leaflet\.js"/.test(index) &&
+  !/src="js\/verses-ascent\.js"/.test(index),
+  "late packs are not on the intro script path");
 let prev = -1;
 order.forEach(f => {
   const at = index.indexOf('src="' + f + '"');
@@ -74,8 +77,8 @@ order.forEach(f => {
 /* verses-more must land before bank.js merges VERSES_MORE into VERSES. */
 assert(index.indexOf('src="js/verses-more.js"') < index.indexOf('src="js/bank.js"'),
   "verses-more.js loads before bank.js merges it");
-assert(index.indexOf('src="js/verses-ascent.js"') < index.indexOf('src="js/bank.js"'),
-  "verses-ascent.js loads before bank.js merges it");
+assert(/function absorbVersePack/.test(fs.readFileSync(path.join(ROOT, "js", "bank.js"), "utf8")),
+  "bank.js can absorb a late ascent pack");
 assert(index.indexOf('src="js/assemble.js"') < index.indexOf('src="js/typed.js"'),
   "assemble.js loads before the assemble renderer");
 assert(index.indexOf('src="js/meta.js"') < index.indexOf('src="js/game.js"'),

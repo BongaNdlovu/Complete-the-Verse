@@ -44,11 +44,13 @@ public class LauncherActivity
 
     @Override
     protected Uri getLaunchingUrl() {
-        // Get the original launch Url.
         Uri uri = super.getLaunchingUrl();
-
-        
-
+        if (uri != null && "completetheverse".equals(uri.getScheme())) {
+            Uri.Builder https = Uri.parse("https://complete-the-verse.vercel.app/").buildUpon();
+            if (uri.getEncodedQuery() != null) https.encodedQuery(uri.getEncodedQuery());
+            if (uri.getEncodedFragment() != null) https.encodedFragment(uri.getEncodedFragment());
+            return https.build();
+        }
         return uri;
     }
 }

@@ -545,14 +545,17 @@ read(sb, "invalidateRun();");
 
 {
   const s = boot();
-  read(s, "Cloud = { configured: ()=>true, isSignedIn: ()=>false, initLazy: ()=>Promise.resolve({ok:true}), signInWithEmail: ()=>Promise.resolve({ok:true, reason:'sent'}), authNotice: ()=>'Check your email for the sign-in link.' };");
+  read(s, "Cloud = { configured: ()=>true, sessionRequired: ()=>true, isSignedIn: ()=>false, initLazy: ()=>Promise.resolve({ok:true}), whenReady: ()=>Promise.resolve({ok:true}), signInWithEmail: ()=>Promise.resolve({ok:true, reason:'sent'}), signInWithGoogle: ()=>Promise.resolve({ok:true, reason:'google-redirect'}), authNotice: ()=>'Check your email for the sign-in code.' };");
+  read(s, "SAVE.set.tutorialSeen = true; persist(); enterCoffeePath();");
+  eq("unsigned http build holds at the door", read(s, "currentView"), "signin");
+  read(s, "go('menu')");
+  eq("go(menu) cannot skip the door", read(s, "currentView"), "signin");
+  read(s, "startRun('practice','disciple')");
+  eq("startRun cannot skip the door", read(s, "currentView"), "signin");
+  read(s, "Cloud.isSignedIn = ()=>true; Cloud.profile = ()=>({display_name:'Pilgrim'}); Cloud.lastSubmitVia = ()=>'edge'; enterCoffeePath();");
+  eq("a session opens the hall", read(s, "currentView"), "menu");
   read(s, "updateCloudChip();");
-  ok("guest sees Sign in on the menu", read(s, "!document.getElementById('menu-signin').hidden"));
-  read(s, "document.getElementById('menu-signin').click()");
-  ok("Sign in opens the email form", read(s, "!document.getElementById('menu-signin-form').hidden"));
-  ok("Sign in tucks away once the form is open", read(s, "!!document.getElementById('menu-signin').hidden"));
-  read(s, "Cloud.isSignedIn = ()=>true; Cloud.profile = ()=>({display_name:'Pilgrim'}); Cloud.lastSubmitVia = ()=>'edge'; updateCloudChip();");
-  ok("signed-in hides Sign in", read(s, "!!document.getElementById('menu-signin').hidden"));
+  ok("signed-in hides the leftover menu Sign in", read(s, "!!document.getElementById('menu-signin').hidden"));
 }
 
 /* ---------- tutorial CTA is Walk to Ur and routes to atlas ---------- */

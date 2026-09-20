@@ -39,6 +39,6 @@ These cannot be done from the repo:
 
 Short (80): Complete the missing phrase before the clock falls. KJV memory, Ur to Patmos.
 
-Full: Complete the Verse is a King James memory ordeal. Hold the line before the clock falls, walk forty-six sites from Ur to Patmos, carve Word Tablets, and sit the Daily Trial. Sign in to keep one save across devices and to post Scripture Blitz. Guests keep local bests. There is no Daily public board.
+Full: Complete the Verse is a King James memory ordeal. Hold the line before the clock falls, walk forty-six sites from Ur to Patmos, carve Word Tablets, and sit the Daily Trial. Sign in with Google or email to keep one pilgrimage and appear on Blitz. Progress already on this device merges into your account. There is no Daily public board.
 
 Category: Trivia / Educational. Ads: none. In-app purchases: none.
