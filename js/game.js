@@ -811,10 +811,11 @@ function waitForRunPacks(mode, diffKey, options){
   Defer.forRun(mode).then(function(){ startRun(mode, diffKey, options); });
   return true;
 }
+function startRunBlocked(mode, diffKey, options){
+  return refuseUnsignedRun() || waitForRunPacks(mode, diffKey, options) || routeRoadTabletStop(mode, diffKey, options);
+}
 function startRun(mode, diffKey, options){
-  if(refuseUnsignedRun()) return;
-  if(waitForRunPacks(mode, diffKey, options)) return;
-  if(routeRoadTabletStop(mode, diffKey, options)) return;
+  if(startRunBlocked(mode, diffKey, options)) return;
   const D = resolveDiff(diffKey);
   const runToken = (R.runToken||0) + 1;
   pendingSeals = [];

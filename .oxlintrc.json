@@ -2,6 +2,7 @@
   "ignorePatterns": [
     "vendor/**",
     "node_modules/**",
+    "mobile/**/leaflet.js",
     "js/verses.js",
     "js/verses-extra.js",
     "js/verses-more.js",
