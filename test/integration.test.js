@@ -555,7 +555,7 @@ read(sb, "invalidateRun();");
   read(s, "Cloud.isSignedIn = ()=>true; Cloud.profile = ()=>({display_name:'Pilgrim'}); Cloud.lastSubmitVia = ()=>'edge'; enterCoffeePath();");
   eq("a session opens the hall", read(s, "currentView"), "menu");
   read(s, "updateCloudChip();");
-  ok("signed-in hides the leftover menu Sign in", read(s, "!!document.getElementById('menu-signin').hidden"));
+  ok("signed-in hides the leftover menu Sign in", read(s, "!!document.getElementById('menu-signin').hidden && !!document.getElementById('menu-google-signin').hidden"));
 }
 
 /* ---------- tutorial CTA is Walk to Ur and routes to atlas ---------- */

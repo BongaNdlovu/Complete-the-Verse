@@ -89,6 +89,39 @@ function renderProfileSetup(){
     };
   }
   syncProfileConfirm();
+  bindProfileGoogle($("char-google"), nameInput);
+}
+function bindProfileGoogle(btn, nameInput){
+  if(!btn) return;
+  const already = typeof Cloud !== "undefined" && Cloud.isSignedIn && Cloud.isSignedIn();
+  btn.hidden = already;
+  if(btn._bound) return;
+  btn._bound = true;
+  btn.addEventListener("click", function(){
+    if(typeof Snd!=="undefined" && Snd.ui) Snd.ui();
+    const name = (nameInput && nameInput.value || "").trim();
+    if(name.length >= 2){
+      SAVE.set.playerName = name.slice(0, 32);
+      SAVE.set.scholarId = SAVE.set.scholarId || (typeof Characters !== "undefined" && Characters.defaultScholarId());
+      SAVE.set.character = SAVE.set.scholarId;
+      persist();
+    }
+    if(typeof Cloud==="undefined" || !Cloud.signInWithGoogle){
+      if(typeof toast==="function") toast("Cloud is not available");
+      return;
+    }
+    btn.disabled = true;
+    const run = function(){ return Cloud.signInWithGoogle(); };
+    const done = function(res){
+      btn.disabled = false;
+      if(typeof toast==="function"){
+        const reason = res && res.ok ? (res.reason || "google-redirect") : (res && res.reason);
+        toast(Cloud.authNotice ? Cloud.authNotice(reason) : "Continue in the Google window.");
+      }
+    };
+    const p = Cloud.whenReady ? Cloud.whenReady() : Promise.resolve();
+    p.then(run).then(done).catch(function(){ done({ ok:false, reason:"unavailable" }); });
+  });
 }
 function syncProfileConfirm(){
   const confirm = $("char-confirm");
@@ -130,10 +163,12 @@ function renderSkinPicker(){
   const host = $("char-grid");
   const nameRow = $("char-name-row");
   const confirm = $("char-confirm");
+  const charGoogle = $("char-google");
   if(title) title.textContent = "Choose who walks the map";
   if(sub) sub.textContent = "Your scholar is the walker on the road.";
   if(nameRow) nameRow.classList.add("gone");
   if(confirm) confirm.classList.add("gone");
+  if(charGoogle) charGoogle.hidden = true;
   if(!host || typeof Characters === "undefined") return;
   const cur = SAVE.set.scholarId || SAVE.set.character || Characters.defaultId();
   host.innerHTML = Characters.scholars().map(ch => {
@@ -275,13 +310,15 @@ function bindSignInView(){
 
 /* ------------------------- MENU ------------------------- */
 function paintMenuSignin(){
+  const googleBtn = $("menu-google-signin");
   const btn = $("menu-signin");
   const form = $("menu-signin-form");
-  const gated = holdForSignIn();
-  const guest = !gated && typeof Cloud!=="undefined" && Cloud.configured && Cloud.configured() && Cloud.isSignedIn && !Cloud.isSignedIn();
+  const available = typeof Cloud !== "undefined" && Cloud.configured && Cloud.configured();
+  const signedIn = !!(available && Cloud.isSignedIn && Cloud.isSignedIn());
   const formOpen = !!(form && !form.hidden);
-  if(btn) btn.hidden = gated || !guest || formOpen;
-  if(form && (gated || !guest)) form.hidden = true;
+  if(googleBtn) googleBtn.hidden = !available || signedIn;
+  if(btn) btn.hidden = !available || signedIn || formOpen;
+  if(form && (!available || signedIn)) form.hidden = true;
 }
 function sendMenuSignIn(){
   const email = ($("menu-email") && $("menu-email").value || "").trim();
@@ -301,7 +338,30 @@ function sendMenuSignIn(){
   if(Cloud.initLazy) Cloud.initLazy().then(run).catch(function(){ done({ ok:false, reason:"unavailable" }); });
   else run().catch(function(){ done({ ok:false, reason:"unavailable" }); });
 }
+function bindMenuGoogle(googleBtn){
+  if(!googleBtn || googleBtn._bound) return;
+  googleBtn._bound = true;
+  googleBtn.addEventListener("click", function(){
+    if(typeof Snd!=="undefined" && Snd.ui) Snd.ui();
+    if(typeof Cloud==="undefined" || !Cloud.signInWithGoogle){
+      if(typeof toast==="function") toast("Cloud is not available");
+      return;
+    }
+    googleBtn.disabled = true;
+    const run = function(){ return Cloud.signInWithGoogle(); };
+    const done = function(res){
+      googleBtn.disabled = false;
+      if(typeof toast==="function"){
+        const reason = res && res.ok ? (res.reason || "google-redirect") : (res && res.reason);
+        toast(Cloud.authNotice ? Cloud.authNotice(reason) : "Continue in the Google window.");
+      }
+    };
+    const p = Cloud.whenReady ? Cloud.whenReady() : Promise.resolve();
+    p.then(run).then(done).catch(function(){ done({ ok:false, reason:"unavailable" }); });
+  });
+}
 function bindMenuSignin(){
+  bindMenuGoogle($("menu-google-signin"));
   const btn = $("menu-signin");
   const form = $("menu-signin-form");
   if(btn && !btn._bound){

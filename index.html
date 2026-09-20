@@ -101,7 +101,8 @@
           The words appear. One phrase is taken away. Complete it before the final second falls.</p>
         <div class="menu-sign" id="menu-sign">
           <div class="cloud-chip dim" id="cloud-chip" aria-live="polite">Local only</div>
-          <button type="button" class="btn sm menu-signin pulse" id="menu-signin" hidden>Sign in</button>
+          <button type="button" class="btn sm menu-google-btn pulse" id="menu-google-signin" hidden>Continue with Google</button>
+          <button type="button" class="btn ghost sm menu-signin" id="menu-signin" hidden>Sign in with email</button>
           <form class="menu-signin-form" id="menu-signin-form" hidden>
             <input id="menu-email" type="email" name="email" placeholder="you@example.com" autocomplete="email" inputmode="email" aria-label="Email">
             <button type="submit" class="btn sm" id="menu-send-link">Send link</button>
@@ -740,8 +741,9 @@
       <input id="char-name" type="text" maxlength="32" placeholder="e.g. Miriam" autocomplete="nickname">
     </div>
     <div class="char-grid" id="char-grid"></div>
-    <div class="footer" style="margin-top:2vh;justify-content:center">
+    <div class="footer" style="margin-top:2vh;justify-content:center;flex-direction:column;align-items:center;gap:10px">
       <button class="btn" id="char-confirm" type="button" disabled>Enter the hall</button>
+      <button class="btn ghost sm" id="char-google" type="button">Continue with Google to sync save</button>
     </div>
   </div>
 </div>

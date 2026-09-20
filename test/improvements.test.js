@@ -44,6 +44,8 @@ assert(/trial:\{ key:"trial"/.test(game), "trial mode defined");
 assert(!/trial:\{ key:"trial"[^}]*hidden:true/.test(game), "trial is on the menu");
 assert(/id="cloud-chip"/.test(index), "cloud status chip");
 assert(/id="menu-signin"/.test(index), "menu offers sign in");
+assert(/id="menu-google-signin"/.test(index), "menu offers Google sign in");
+assert(/id="char-google"/.test(index), "character pick offers Google sign in");
 assert(/id="v-signin"/.test(index), "required sign-in door is in the page");
 assert(/@keyframes menuSignPulse/.test(css), "sign-in button pulsates");
 assert(/id="offline-banner"/.test(index), "offline banner");
