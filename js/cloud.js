@@ -48,6 +48,20 @@ var Cloud = (function () {
     emit("onSync", { direction: syncing ? "start" : "idle" });
   }
 
+  function detectFlowType() {
+    try {
+      if (typeof location !== "undefined") {
+        if (location.hash && location.hash.indexOf("access_token=") !== -1) {
+          return "implicit";
+        }
+        if (location.search && location.search.indexOf("code=") !== -1) {
+          return "pkce";
+        }
+      }
+    } catch (e) {}
+    return "pkce";
+  }
+
   function ensureClient() {
     if (client) return client;
     if (!configured()) return null;
@@ -59,7 +73,8 @@ var Cloud = (function () {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true
+        detectSessionInUrl: true,
+        flowType: detectFlowType()
       }
     });
     return client;
@@ -130,7 +145,9 @@ var Cloud = (function () {
     if (typeof location === "undefined") return undefined;
     var origin = location.origin || "";
     if (origin.indexOf("http") !== 0) return undefined;
-    return (origin + (location.pathname || "/")).split("#")[0];
+    var path = location.pathname || "/";
+    if (path.slice(-11) === "/index.html") path = path.slice(0, -10);
+    return (origin + path).split("#")[0];
   }
 
   /* ----------------------- pure merge ----------------------- */
@@ -409,11 +426,16 @@ var Cloud = (function () {
       Promise.resolve(p).then(function (v) { clearTimeout(t); resolve(v); }, function (e) { clearTimeout(t); reject(e); });
     });
   }
-
   async function init() {
-    if (!configured()) return { ok: false, reason: "not-configured" };
+    if (!configured()) {
+      isReady = true;
+      return { ok: false, reason: "not-configured" };
+    }
     var sb = ensureClient();
-    if (!sb) return { ok: false, reason: "no-sdk" };
+    if (!sb) {
+      isReady = true;
+      return { ok: false, reason: "no-sdk" };
+    }
 
     var urlErr = checkUrlAuthError();
     if (urlErr) {
@@ -429,7 +451,14 @@ var Cloud = (function () {
       emit("onAuth", { event: event, user: user, profile: profile });
     });
 
-    return { ok: true, user: user, urlError: urlErr };
+    if (user) {
+      emit("onAuth", { event: "SIGNED_IN", user: user, profile: profile });
+    }
+
+    isReady = true;
+    var ret = { ok: true, user: user, urlError: urlErr };
+    if (!readyPromise) readyPromise = Promise.resolve(ret);
+    return ret;
   }
 
   async function refreshProfile() {

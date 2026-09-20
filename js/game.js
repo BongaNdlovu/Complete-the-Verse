@@ -2259,9 +2259,18 @@ function bindCloudBoot(){
     if(currentView==="settings") renderSettings();
   };
   Cloud.on("onSync", onCloudEvent);
-  Cloud.on("onError", onCloudEvent);
+  Cloud.on("onError", function(err){
+    onCloudEvent();
+    if(err && err.message){
+      if(typeof setSignInStatus==="function" && currentView==="signin"){
+        setSignInStatus(err.message);
+      }
+      toast(err.message);
+    }
+  });
   Cloud.on("onAuth", function(ev){
-    if(ev && ev.user && (ev.event==="SIGNED_IN" || ev.event==="INITIAL_SESSION")){
+    const hasUser = !!(ev && (ev.user || (ev.session && ev.session.user) || (Cloud.isSignedIn && Cloud.isSignedIn())));
+    if(ev && (ev.event==="SIGNED_IN" || (ev.event==="INITIAL_SESSION" && hasUser))){
       const fromDoor = currentView==="signin";
       Cloud.syncOnBoot(SAVE).then(function(res){
         if(res && res.ok && res.save){

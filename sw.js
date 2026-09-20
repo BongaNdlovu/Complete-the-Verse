@@ -203,8 +203,10 @@ self.addEventListener("fetch", (event) => {
       fetch(request)
         .then(async (networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
-            const cache = await caches.open(CACHE_NAME);
-            cache.put(request, networkResponse.clone());
+            if (!url.searchParams.has("code") && !url.searchParams.has("error")) {
+              const cache = await caches.open(CACHE_NAME);
+              cache.put(request, networkResponse.clone());
+            }
           }
           return networkResponse;
         })
