@@ -474,30 +474,54 @@ function seg(key,opts,cur){
   return '<div class="seg" data-seg="'+key+'">'+opts.map(o=>
     '<button data-val="'+o[0]+'" class="'+(String(cur)===String(o[0])?"on":"")+'">'+esc(o[1])+'</button>').join("")+'</div>';
 }
+function userIsGoogle(u){
+  if(!u) return false;
+  if(u.app_metadata && u.app_metadata.provider === "google") return true;
+  if(u.identities && Array.isArray(u.identities)){
+    for(let i=0; i<u.identities.length; i++){
+      if(u.identities[i] && u.identities[i].provider === "google") return true;
+    }
+  }
+  return false;
+}
+function settingsAccountSignedInHtml(who){
+  const u = Cloud.user ? Cloud.user() : null;
+  const isGoogle = userIsGoogle(u);
+  const googleEmail = (u && u.email) || "";
+  const googleLabel = isGoogle ? "Switch Google account" : "Continue with Google";
+  const googleSub = isGoogle
+    ? ("Signed in with Google" + (googleEmail ? " (" + esc(googleEmail) + ")" : "") + ". Switch account anytime.")
+    : "Connect your Google account to sync saves across devices.";
+
+  return '<div class="setrow account"><div><label>Cloud account</label><small>Synced as <b>'+esc(who)+'</b>'+(isGoogle ? ' <span class="cloud-pill">Google</span>' : '')+'. Progress pushes after each save. <a href="privacy.html">Privacy</a></small></div>'+
+    '<button class="btn ghost sm" id="cloud-signout" type="button">Sign out</button></div>'+
+    '<div class="setrow"><div><label>Google sign-in</label><small>'+googleSub+'</small></div>'+
+    '<button class="btn '+(isGoogle ? 'ghost ' : '')+'sm" id="cloud-google" type="button">'+googleLabel+'</button></div>'+
+    setRow("Display name","Shown on Daily and Blitz boards.",
+      '<div class="cloud-name"><input id="cloud-name" type="text" maxlength="32" value="'+esc((Cloud.profile()&&Cloud.profile().display_name)||"")+'"><button class="btn ghost sm" id="cloud-name-save" type="button">Save</button></div>')+
+    '<div class="setrow"><div><label>Sync now</label><small>Pull and merge this device with the cloud, then push.</small></div>'+
+    '<button class="btn ghost sm" id="cloud-sync" type="button">Sync</button></div>';
+}
+function settingsAccountGuestHtml(){
+  const pending = (typeof localStorage!=="undefined"?localStorage.getItem("cloud_pending_email"):"")||"";
+  return '<div class="setrow account"><div><label>Cloud account</label><small>An account is required to enter the hall. Google or a 6-digit email code. Local progress on this device merges after sign-in. <a href="privacy.html">Privacy</a></small></div></div>'+
+    '<div class="setrow"><div><label>Google sign-in</label><small>Sign in with your Google account to sync saves and post Blitz.</small></div>'+
+    '<button class="btn sm" id="cloud-google" type="button">Continue with Google</button></div>'+
+    '<div class="setrow"><div><label>Email sign-in</label><small>We email a 6-digit code.</small></div>'+
+    '<div class="cloud-name"><input id="cloud-email" type="email" placeholder="you@example.com" value="'+esc(pending)+'" autocomplete="email"><button class="btn sm" id="cloud-signin" type="button">Send code</button></div></div>'+
+    '<div class="setrow"><div><label>Enter 6-digit code</label><small>Email link expired or pre-scanned? Type the 6-digit code here.</small></div>'+
+    '<div class="cloud-name"><input id="cloud-otp" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="123456" autocomplete="one-time-code"><button class="btn ghost sm" id="cloud-verify-otp" type="button">Confirm code</button></div></div>';
+}
 function settingsAccountHtml(){
   const cloudOn = typeof Cloud!=="undefined" && Cloud.configured();
-  const signedIn = cloudOn && Cloud.isSignedIn();
-  const who = signedIn
-    ? ((Cloud.profile() && Cloud.profile().display_name) || (Cloud.user() && Cloud.user().email) || "Signed in")
-    : "";
   if(!cloudOn){
     return '<div class="setrow account"><div><label>Cloud account</label><small>Offline only — add Project URL and anon key in js/cloud-config.js (see BACKEND.md). <a href="privacy.html">Privacy</a></small></div><span class="cloud-pill dim">Local</span></div>';
   }
-  if(signedIn){
-    return '<div class="setrow account"><div><label>Cloud account</label><small>Synced as <b>'+esc(who)+'</b>. Progress pushes after each save. <a href="privacy.html">Privacy</a></small></div>'+
-      '<button class="btn ghost sm" id="cloud-signout" type="button">Sign out</button></div>'+
-      setRow("Display name","Shown on Daily and Blitz boards.",
-        '<div class="cloud-name"><input id="cloud-name" type="text" maxlength="32" value="'+esc((Cloud.profile()&&Cloud.profile().display_name)||"")+'"><button class="btn ghost sm" id="cloud-name-save" type="button">Save</button></div>')+
-      '<div class="setrow"><div><label>Sync now</label><small>Pull and merge this device with the cloud, then push.</small></div>'+
-      '<button class="btn ghost sm" id="cloud-sync" type="button">Sync</button></div>';
+  if(Cloud.isSignedIn()){
+    const who = (Cloud.profile() && Cloud.profile().display_name) || (Cloud.user() && Cloud.user().email) || "Signed in";
+    return settingsAccountSignedInHtml(who);
   }
-  return '<div class="setrow account"><div><label>Cloud account</label><small>An account is required to enter the hall. Google or a 6-digit email code. Local progress on this device merges after sign-in. <a href="privacy.html">Privacy</a></small></div></div>'+
-    '<div class="setrow"><div><label>Google</label><small>Same account as the door.</small></div>'+
-    '<button class="btn sm" id="cloud-google" type="button">Continue with Google</button></div>'+
-    '<div class="setrow"><div><label>Email sign-in</label><small>We email a 6-digit code.</small></div>'+
-    '<div class="cloud-name"><input id="cloud-email" type="email" placeholder="you@example.com" value="'+esc((typeof localStorage!=="undefined"?localStorage.getItem("cloud_pending_email"):"")||"")+'" autocomplete="email"><button class="btn sm" id="cloud-signin" type="button">Send code</button></div></div>'+
-    '<div class="setrow"><div><label>Enter 6-digit code</label><small>Email link expired or pre-scanned? Type the 6-digit code here.</small></div>'+
-    '<div class="cloud-name"><input id="cloud-otp" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="123456" autocomplete="one-time-code"><button class="btn ghost sm" id="cloud-verify-otp" type="button">Confirm code</button></div></div>';
+  return settingsAccountGuestHtml();
 }
 function renderSettings(){
   const s=SAVE.set;
