@@ -122,6 +122,10 @@ assert(/board-loading/.test(panels) && /Could not reach the board/.test(panels),
   "leaderboard loading and error states are represented");
 assert(/onSync/ .test(cloud) && /Syncing/.test(read("js/briefs.js")) && /Sync error/.test(read("js/briefs.js")),
   "cloud syncing and error status are surfaced");
+assert(/exchangeCodeForSession/.test(cloud) && /skipBrowserRedirect:\s*true/.test(cloud),
+  "Google OAuth assigns the provider URL and recovers the PKCE code");
+assert(/INITIAL_SESSION/.test(game),
+  "the hall opens after an OAuth return session, not only SIGNED_IN");
 
 /* PWA service worker and offline capability contracts. */
 assert(/navigator\.serviceWorker\.register\(['"]\.\/sw\.js['"]\)/.test(read("js/register-sw.js")),

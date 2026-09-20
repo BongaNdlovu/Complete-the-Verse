@@ -2261,7 +2261,7 @@ function bindCloudBoot(){
   Cloud.on("onSync", onCloudEvent);
   Cloud.on("onError", onCloudEvent);
   Cloud.on("onAuth", function(ev){
-    if(ev && ev.event==="SIGNED_IN"){
+    if(ev && ev.user && (ev.event==="SIGNED_IN" || ev.event==="INITIAL_SESSION")){
       const fromDoor = currentView==="signin";
       Cloud.syncOnBoot(SAVE).then(function(res){
         if(res && res.ok && res.save){

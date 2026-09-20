@@ -310,6 +310,37 @@ var Cloud = (function () {
   function boardLoadFailed() {
     return lastBoardError;
   }
+  function hasAuthCallback() {
+    if (typeof location === "undefined") return false;
+    var blob = String(location.search || "") + String(location.hash || "");
+    return blob.indexOf("code=") >= 0 || blob.indexOf("access_token=") >= 0;
+  }
+  async function takeSession(sb) {
+    var sess = await sb.auth.getSession();
+    if (sess.data && sess.data.session) {
+      user = sess.data.session.user;
+      await refreshProfile();
+      return true;
+    }
+    return false;
+  }
+  async function recoverCallbackSession(sb) {
+    if (await takeSession(sb)) return;
+    if (!hasAuthCallback()) return;
+    var code = "";
+    try { code = new URLSearchParams(location.search).get("code") || ""; } catch (e) {}
+    if (code && sb.auth.exchangeCodeForSession) {
+      try {
+        var ex = await withTimeout(sb.auth.exchangeCodeForSession(code), 8000);
+        if (ex && ex.data && ex.data.session) {
+          user = ex.data.session.user;
+          await refreshProfile();
+          return;
+        }
+      } catch (e) {}
+    }
+    await takeSession(sb);
+  }
   function checkUrlAuthError() {
     if (typeof location === "undefined") return null;
     var hash = location.hash || "";
@@ -375,11 +406,7 @@ var Cloud = (function () {
       });
     }
 
-    var sess = await sb.auth.getSession();
-    if (sess.data && sess.data.session) {
-      user = sess.data.session.user;
-      await refreshProfile();
-    }
+    await recoverCallbackSession(sb);
 
     sb.auth.onAuthStateChange(function (event, session) {
       user = session && session.user ? session.user : null;
@@ -465,6 +492,7 @@ var Cloud = (function () {
         provider: "google",
         options: {
           redirectTo: authRedirectTo(),
+          skipBrowserRedirect: true,
           queryParams: { prompt: "select_account" }
         }
       }), 8000);
@@ -473,6 +501,9 @@ var Cloud = (function () {
         if (/rate|too many/.test(msg)) return { ok: false, reason: "rate-limited" };
         if (/provider|not enabled|disabled|unsupported/.test(msg)) return { ok: false, reason: "google-unavailable" };
         return { ok: false, reason: "unavailable" };
+      }
+      if (res.data && res.data.url && typeof location !== "undefined") {
+        location.assign(res.data.url);
       }
       return { ok: true, reason: "google-redirect" };
     } catch (e) {
