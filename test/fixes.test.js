@@ -183,7 +183,8 @@ ok("Patmos uses patmos.mp4", /patmos:"assets\/journey\/patmos\.mp4"/.test(game))
   ok(id + " journey still is present", fs.existsSync(f) && fs.statSync(f).size > 10000);
 });
 const vercelIgnore = fs.readFileSync(path.join(ROOT, ".vercelignore"), "utf8");
-ok("content tooling stays out of the deploy", /^content\/$/m.test(vercelIgnore));
+ok("content tooling stays out of the deploy", /^\/content\/$/m.test(vercelIgnore));
+ok("shared content is not ignored", !/shared\/content/.test(vercelIgnore));
 
 /* §4.4 — insight cards cover every book in the bank. */
 {
