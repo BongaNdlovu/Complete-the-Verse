@@ -44,6 +44,7 @@ const SUITE = [
   ["sfx", "test/sfx.test.js"],
   ["mission voice", "test/voice.test.js"],
   ["cloud merge", "test/cloud.test.js"],
+  ["google auth", "test/google-auth.test.js"],
   ["polish helpers", "test/polish.test.js"],
   ["improvements", "test/improvements.test.js"],
   ["sky3d", "test/sky3d.test.js"],

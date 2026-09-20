@@ -22,6 +22,7 @@ var Cloud = (function () {
   var pushTimer = null;
   var syncing = false;
   var readyPromise = null;
+  var isReady = false;
   var hooks = { onAuth: null, onSync: null, onError: null };
 
   function cfg() {
@@ -88,21 +89,28 @@ var Cloud = (function () {
     });
   }
 
-  async function initLazy() {
-    if (!configured()) return { ok: false, reason: "not-configured" };
-    var ok = await loadSdk();
-    if (!ok) return { ok: false, reason: "no-sdk" };
-    return init();
+  function initLazy() {
+    return whenReady();
   }
 
   function whenReady() {
     if (readyPromise) return readyPromise;
     if (!configured()) {
+      isReady = true;
       readyPromise = Promise.resolve({ ok: false, reason: "not-configured" });
       return readyPromise;
     }
-    readyPromise = initLazy().catch(function () {
-      readyPromise = null;
+    readyPromise = (async function () {
+      var ok = await loadSdk();
+      if (!ok) {
+        isReady = true;
+        return { ok: false, reason: "no-sdk" };
+      }
+      var res = await init();
+      isReady = true;
+      return res;
+    })().catch(function () {
+      isReady = true;
       return { ok: false, reason: "unavailable" };
     });
     return readyPromise;
@@ -385,6 +393,16 @@ var Cloud = (function () {
     if (reason === "sent") return "Check your email for the 6-digit code.";
     return "Check your email for the sign-in code.";
   }
+  function formatUrlAuthError(urlErr) {
+    if (!urlErr) return "";
+    if (urlErr.code === "otp_expired") {
+      return "Email link expired or was pre-scanned by your email provider. Enter the 6-digit code from your email to sign in.";
+    }
+    if (urlErr.error === "access_denied") {
+      return "Google sign-in was cancelled or denied. Try again.";
+    }
+    return urlErr.description || "Sign-in error";
+  }
   function withTimeout(p, ms) {
     return new Promise(function (resolve, reject) {
       var t = setTimeout(function () { reject(new Error("timeout")); }, ms || 8000);
@@ -399,11 +417,7 @@ var Cloud = (function () {
 
     var urlErr = checkUrlAuthError();
     if (urlErr) {
-      emit("onError", {
-        message: (urlErr.code === "otp_expired" || urlErr.error === "access_denied")
-          ? "Email link expired or was pre-scanned by your email provider. Enter the 6-digit code from your email to sign in."
-          : (urlErr.description || "Sign-in link error")
-      });
+      emit("onError", { message: formatUrlAuthError(urlErr) });
     }
 
     await recoverCallbackSession(sb);
@@ -995,6 +1009,7 @@ var Cloud = (function () {
     init: init,
     initLazy: initLazy,
     whenReady: whenReady,
+    isReady: function () { return isReady; },
     sessionRequired: sessionRequired,
     loadSdk: loadSdk,
     mergeSave: mergeSave,

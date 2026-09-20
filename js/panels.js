@@ -642,8 +642,8 @@ function bindSettingsHandlers(){
       googleBtn.disabled = true;
       if(Cloud.whenReady) await Cloud.whenReady();
       const res = await Cloud.signInWithGoogle();
-      googleBtn.disabled = false;
-      toast(Cloud.authNotice ? Cloud.authNotice(res.ok ? (res.reason || "google-redirect") : res.reason) : "Continue in the Google window.");
+      if(!res || !res.ok) googleBtn.disabled = false;
+      toast(Cloud.authNotice ? Cloud.authNotice(res && res.ok ? (res.reason || "google-redirect") : (res && res.reason)) : "Continue in the Google window.");
     });
   }
   const signInBtn = $("cloud-signin");

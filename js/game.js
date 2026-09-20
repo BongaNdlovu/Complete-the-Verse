@@ -2289,6 +2289,7 @@ function bindCloudBoot(){
   const bootCloud = Cloud.initLazy ? Cloud.initLazy() : Cloud.init();
   bootCloud.then(function(res){
     if(res && res.ok && Cloud.isSignedIn()){
+      if(currentView==="signin" && typeof enterCoffeePath==="function") enterCoffeePath();
       return Cloud.syncOnBoot(SAVE).then(function(sync){
         if(sync && sync.ok && sync.save){
           SAVE = sync.save; persist();

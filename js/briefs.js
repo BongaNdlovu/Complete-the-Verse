@@ -113,7 +113,7 @@ function bindProfileGoogle(btn, nameInput){
     btn.disabled = true;
     const run = function(){ return Cloud.signInWithGoogle(); };
     const done = function(res){
-      btn.disabled = false;
+      if(!res || !res.ok) btn.disabled = false;
       if(typeof toast==="function"){
         const reason = res && res.ok ? (res.reason || "google-redirect") : (res && res.reason);
         toast(Cloud.authNotice ? Cloud.authNotice(reason) : "Continue in the Google window.");
@@ -247,7 +247,7 @@ function bindSignInView(){
       setSignInStatus("Opening Google…");
       const run = function(){ return Cloud.signInWithGoogle(); };
       const done = function(res){
-        google.disabled = false;
+        if(!res || !res.ok) google.disabled = false;
         const reason = res && res.ok ? (res.reason || "google-redirect") : (res && res.reason);
         setSignInStatus(Cloud.authNotice ? Cloud.authNotice(reason) : "Continue in the Google window.");
       };
@@ -350,7 +350,7 @@ function bindMenuGoogle(googleBtn){
     googleBtn.disabled = true;
     const run = function(){ return Cloud.signInWithGoogle(); };
     const done = function(res){
-      googleBtn.disabled = false;
+      if(!res || !res.ok) googleBtn.disabled = false;
       if(typeof toast==="function"){
         const reason = res && res.ok ? (res.reason || "google-redirect") : (res && res.reason);
         toast(Cloud.authNotice ? Cloud.authNotice(reason) : "Continue in the Google window.");
@@ -1108,6 +1108,14 @@ function enterCoffeePath(){
     return;
   }
   if(typeof markFunnel === "function") markFunnel("boot");
+  if(typeof Cloud !== "undefined" && Cloud.configured && Cloud.configured() && Cloud.isReady && !Cloud.isReady() && Cloud.whenReady){
+    Cloud.whenReady().then(function(){
+      if(currentView === "boot" || currentView === "signin" || currentView === "intro"){
+        enterCoffeePath();
+      }
+    });
+    return;
+  }
   if(holdForSignIn()){
     go("signin");
     paintSignIn();
