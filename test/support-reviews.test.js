@@ -40,6 +40,18 @@ function buildMailto(name, rating, text) {
 }
 
 {
+  ok("2 mountPlayerReviewsPanel includes score and leave review",
+    ctx.mountPlayerReviewsPanel && (function () {
+      var fake = { innerHTML: "" };
+      ctx.mountPlayerReviewsPanel(fake, 2);
+      return fake.innerHTML.indexOf("menu-reviews-head") >= 0 &&
+        fake.innerHTML.indexOf("4.6") >= 0 &&
+        fake.innerHTML.indexOf("leave-review") >= 0 &&
+        (fake.innerHTML.match(/class="review"/g) || []).length === 2;
+    })());
+}
+
+{
   const html = renderReviews(list);
   ok("2 render lists all five names",
     list.every(function (r) { return html.indexOf(String(r.name).replace(/[<>&"]/g, "")) >= 0; }));
@@ -82,7 +94,9 @@ function buildMailto(name, rating, text) {
   ok("4 support mailto link matches inbox", support.indexOf("mailto:" + SUPPORT) >= 0);
   ok("4 game links to support page",
     index.indexOf("support.html") >= 0 && panels.indexOf("support.html") >= 0);
-  ok("4 menu shows player reviews", /id="menu-player-reviews"/.test(index) && /renderPlayerReviewsHTML/.test(briefs));
+  ok("4 menu shows player reviews at top", /menu-reviews-spot[\s\S]*id="menu-player-reviews"/.test(index) && /mountPlayerReviewsPanel/.test(briefs));
+  ok("4 reviews only on main hall", !/id="atlas-player-reviews"/.test(index) && !/id="signin-player-reviews"/.test(index));
+  ok("4 walked saves open main hall", /go\("menu"\)/.test(briefs) && !/if\(cleared \|\| walked\)[\s\S]*go\("atlas"\)/.test(briefs));
   ok("4 menu has leave review button", /href="support\.html#leave-review"/.test(index) && />Leave a review</.test(index));
   ok("4 settings footer has support button", />Support</.test(panels) && /href="support\.html">Support</.test(panels));
   ok("4 settings account row does not duplicate support link", !/Privacy<\/a> · <a href="support\.html">Support/.test(panels));

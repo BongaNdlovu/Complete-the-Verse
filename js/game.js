@@ -2271,7 +2271,7 @@ function bindCloudBoot(){
   Cloud.on("onAuth", function(ev){
     const hasUser = !!(ev && (ev.user || (ev.session && ev.session.user) || (Cloud.isSignedIn && Cloud.isSignedIn())));
     if(ev && (ev.event==="SIGNED_IN" || (ev.event==="INITIAL_SESSION" && hasUser))){
-      const fromDoor = currentView==="signin";
+      const atDoor = currentView==="signin" || currentView==="boot";
       Cloud.syncOnBoot(SAVE).then(function(res){
         if(res && res.ok && res.save){
           SAVE = res.save; persist();
@@ -2281,7 +2281,7 @@ function bindCloudBoot(){
           if(res.merged) toast("Progress merged from the cloud");
         }
       });
-      if(fromDoor && typeof enterCoffeePath==="function") enterCoffeePath();
+      if(atDoor && typeof enterCoffeePath==="function") enterCoffeePath();
     }
     if(ev && ev.event==="SIGNED_OUT"){
       if(typeof holdForSignIn==="function" && holdForSignIn()){
@@ -2298,7 +2298,7 @@ function bindCloudBoot(){
   const bootCloud = Cloud.initLazy ? Cloud.initLazy() : Cloud.init();
   bootCloud.then(function(res){
     if(res && res.ok && Cloud.isSignedIn()){
-      if(currentView==="signin" && typeof enterCoffeePath==="function") enterCoffeePath();
+      if((currentView==="signin" || currentView==="boot") && typeof enterCoffeePath==="function") enterCoffeePath();
       return Cloud.syncOnBoot(SAVE).then(function(sync){
         if(sync && sync.ok && sync.save){
           SAVE = sync.save; persist();

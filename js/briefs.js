@@ -512,15 +512,7 @@ function renderMenu(){
     ? fmt(SAVE.runs)+" runs · "+fmt(SAVE.life.correct)+" verses kept · "+done+"/"+tot+" seals"
       + (due ? " · "+fmt(due)+" due for review" : " · nothing due")
     : VERSES.length+" verses · all 66 books · King James Version";
-  const reviewHost = $("menu-player-reviews");
-  if(reviewHost && typeof renderPlayerReviewsHTML === "function"){
-    const avg = typeof playerReviewAverage === "function" ? playerReviewAverage() : 0;
-    const count = (typeof PLAYER_REVIEWS !== "undefined" && PLAYER_REVIEWS.length) || 0;
-    reviewHost.innerHTML =
-      '<div class="menu-reviews-head"><span class="menu-reviews-kicker">What players say</span>' +
-      (avg && count ? '<span class="menu-reviews-score">'+avg+' / 5 · '+count+' reviews</span>' : '') +
-      '</div><div class="menu-reviews-cards">'+renderPlayerReviewsHTML(PLAYER_REVIEWS, 3)+'</div>';
-  }
+  if(typeof mountPlayerReviewsPanel === "function") mountPlayerReviewsPanel("menu-player-reviews", 2);
 }
 
 /* ------------------------- BRIEF ------------------------- */
@@ -1135,7 +1127,7 @@ function enterHallAfterAuth(fromSignIn){
     return;
   }
   if(cleared || walked){
-    go("atlas");
+    go("menu");
     return;
   }
   go("menu");

@@ -200,7 +200,7 @@ body.signin-exit.hall-ready #hall-bg{opacity:.55}
 body.reduced #v-signin.leaving .signin-pad{transition:none;transform:none;filter:none}
 
 /* ================= MENU ================= */
-#v-menu .scrollpad{justify-content:flex-start;padding-top:calc(var(--safe-t) + 28px);padding-bottom:10vh}
+#v-menu .scrollpad{justify-content:flex-start;padding-top:calc(var(--safe-t) + 14px);padding-bottom:10vh}
 .menu-brand{display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:760px;margin-bottom:1.5vh}
 .game-logo{display:block;width:min(22rem,68vw);height:auto;margin:1.2vh auto 0;
   filter:drop-shadow(0 10px 22px rgba(0,0,0,.75))}
@@ -254,8 +254,11 @@ body.reduced #v-signin.leaving .signin-pad{transition:none;transform:none;filter
 .mode .pill.done{background:rgba(95,209,138,.14);color:var(--green)}
 .mode.incoming,.mode.incoming:hover{opacity:.58;cursor:default;transform:none;box-shadow:0 0 0 1px var(--edge) inset}
 .mode.incoming:hover:before{opacity:0}
-.menu-player-reviews{width:min(1080px,92vw);margin:2.4vh auto 0;text-align:left}
-.menu-reviews-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.5rem 1rem;margin-bottom:.8rem}
+.menu-reviews-spot{width:min(1080px,92vw);margin:0 auto 1.4vh;text-align:left}
+.menu-player-reviews{width:100%;margin:0;text-align:left}
+.menu-reviews-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.65rem 1rem;margin-bottom:.8rem}
+.menu-reviews-meta{display:flex;flex-wrap:wrap;align-items:baseline;gap:.5rem 1rem}
+.menu-reviews-actions--inline{width:auto;margin:0;justify-content:flex-end;flex:1 1 auto}
 .menu-reviews-kicker{font-family:var(--disp);font-size:.78rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
 .menu-reviews-score{font-family:var(--ui);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim)}
 .menu-reviews-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
@@ -266,6 +269,10 @@ body.reduced #v-signin.leaving .signin-pad{transition:none;transform:none;filter
 .menu-reviews-cards .review-stars{color:var(--gold);font-size:.82rem}
 .menu-reviews-cards .review-date{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--parch-dim)}
 .menu-reviews-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:1.4vh auto 0;width:min(1080px,92vw)}
+.menu-reviews-spot .menu-reviews-cards .review-text{-webkit-line-clamp:3}
+@media(max-width:719px){
+  .menu-reviews-actions--inline{justify-content:flex-start;width:100%}
+}
 .subnav{display:flex;gap:12px;margin-top:4vh;flex-wrap:wrap;justify-content:center}
 
 @media (max-width:900px){

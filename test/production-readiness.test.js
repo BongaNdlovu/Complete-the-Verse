@@ -126,6 +126,10 @@ assert(/exchangeCodeForSession/.test(cloud) && /skipBrowserRedirect:\s*true/.tes
   "Google OAuth assigns the provider URL and recovers the PKCE code");
 assert(/INITIAL_SESSION/.test(game),
   "the hall opens after an OAuth return session, not only SIGNED_IN");
+assert(/waitForInitialAuth/.test(cloud) && /applyAuthEvent/.test(cloud),
+  "auth waits for session restore instead of clearing it on boot");
+assert(!/prompt:\s*"select_account"/.test(cloud),
+  "Google sign-in does not force account picker every visit");
 
 /* PWA service worker and offline capability contracts. */
 assert(/navigator\.serviceWorker\.register\(['"]\.\/sw\.js['"]\)/.test(read("js/register-sw.js")),

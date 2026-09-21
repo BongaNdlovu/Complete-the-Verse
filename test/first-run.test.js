@@ -73,7 +73,7 @@ ok("play stages close the profile overlay", /view==="play" \|\| view==="tablets"
 {
   const sb = boot();
   exec(sb, "SAVE.set.tutorialDone = true; SAVE.set.tutorialSeen = true; SAVE.pilgrim.lastPlayed = 'ur'; persist(); enterCoffeePath()");
-  eq("a walked save opens the atlas", read(sb, "currentView"), "atlas");
+  eq("a walked save opens the main hall", read(sb, "currentView"), "menu");
 }
 
 {

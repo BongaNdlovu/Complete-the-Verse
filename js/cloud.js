@@ -74,7 +74,8 @@ var Cloud = (function () {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
-        flowType: detectFlowType()
+        flowType: detectFlowType(),
+        storage: typeof localStorage !== "undefined" ? localStorage : undefined
       }
     });
     return client;
@@ -360,11 +361,63 @@ var Cloud = (function () {
         if (ex && ex.data && ex.data.session) {
           user = ex.data.session.user;
           await refreshProfile();
+          cleanAuthCallbackUrl();
           return;
         }
       } catch (e) {}
     }
     await takeSession(sb);
+  }
+  function cleanAuthCallbackUrl() {
+    if (typeof location === "undefined" || typeof history === "undefined" || !history.replaceState) return;
+    if (!hasAuthCallback()) return;
+    var path = location.pathname || "/";
+    if (path.slice(-11) === "/index.html") path = path.slice(0, -10);
+    if (!path.endsWith("/")) path += "/";
+    history.replaceState(null, "", (location.origin || "") + path);
+  }
+  function applyAuthEvent(event, session) {
+    if (event === "SIGNED_OUT") {
+      user = null;
+      profile = null;
+      lastRevision = 0;
+      return;
+    }
+    if (event === "INITIAL_SESSION") {
+      if (session && session.user) user = session.user;
+      return;
+    }
+    if (session && session.user) user = session.user;
+    else if (event !== "TOKEN_REFRESHED") {
+      user = null;
+      profile = null;
+    }
+  }
+  function waitForInitialAuth(sb) {
+    return new Promise(function (resolve) {
+      var finished = false;
+      function finish() {
+        if (finished) return;
+        finished = true;
+        resolve();
+      }
+      sb.auth.onAuthStateChange(function (event, session) {
+        applyAuthEvent(event, session);
+        if (user) refreshProfile();
+        else if (event === "SIGNED_OUT" || (event === "INITIAL_SESSION" && !user)) profile = null;
+        emit("onAuth", { event: event, user: user, profile: profile });
+        if (event === "INITIAL_SESSION") finish();
+      });
+      recoverCallbackSession(sb).then(function () {
+        if (user) {
+          refreshProfile().then(function () {
+            emit("onAuth", { event: "SIGNED_IN", user: user, profile: profile });
+            finish();
+          }, finish);
+        }
+      });
+      setTimeout(finish, 3500);
+    });
   }
   function checkUrlAuthError() {
     if (typeof location === "undefined") return null;
@@ -442,18 +495,8 @@ var Cloud = (function () {
       emit("onError", { message: formatUrlAuthError(urlErr) });
     }
 
-    await recoverCallbackSession(sb);
-
-    sb.auth.onAuthStateChange(function (event, session) {
-      user = session && session.user ? session.user : null;
-      if (user) refreshProfile();
-      else { profile = null; lastRevision = 0; }
-      emit("onAuth", { event: event, user: user, profile: profile });
-    });
-
-    if (user) {
-      emit("onAuth", { event: "SIGNED_IN", user: user, profile: profile });
-    }
+    await waitForInitialAuth(sb);
+    if (user) cleanAuthCallbackUrl();
 
     isReady = true;
     var ret = { ok: true, user: user, urlError: urlErr };
@@ -535,8 +578,7 @@ var Cloud = (function () {
         provider: "google",
         options: {
           redirectTo: authRedirectTo(),
-          skipBrowserRedirect: true,
-          queryParams: { prompt: "select_account" }
+          skipBrowserRedirect: true
         }
       }), 8000);
       if (res.error) {
