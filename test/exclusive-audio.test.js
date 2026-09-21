@@ -81,6 +81,30 @@ function armMedia(sb) {
   eq("road bed starts on the first verse", read(sb, "Snd.currentBed()"), "heroes");
 }
 
+{
+  const sb = boot();
+  /* Force a working Web Audio context plus a counting Audio constructor so the
+     real playSfx path runs and every element allocation is observable. */
+  exec(sb, `(function(){
+    window.AudioContext = function(){
+      this.currentTime = 0; this.destination = {};
+      this.createGain = function(){ return { gain: { value: 0, setTargetAtTime: function(){} }, connect: function(){} }; };
+      this.createAnalyser = function(){ return { fftSize: 128, smoothingTimeConstant: 0, frequencyBinCount: 64, connect: function(){} }; };
+    };
+    var made = 0;
+    Audio = function(){
+      made++;
+      this.paused = true; this.ended = false; this.currentTime = 0; this.volume = 0;
+      this.play = function(){ this.paused = false; return Promise.resolve(); };
+      this.pause = function(){ this.paused = true; };
+    };
+    SAVE.set.sfx = 0.8; SAVE.set.sfxMute = false;
+    for (var i = 0; i < 50; i++) Snd.correct();
+    globalThis.__sfxMade = made;
+  })()`);
+  eq("50 sfx in a burst allocate only the pool cap", read(sb, "__sfxMade"), 4);
+}
+
 if (fail) {
   console.log("FAIL — exclusive audio · " + pass + " passed · " + fail + " failed");
   process.exit(1);

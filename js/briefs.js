@@ -1133,6 +1133,12 @@ function enterHallAfterAuth(fromSignIn){
   go("menu");
   if(typeof profileReady === "function" && !profileReady()) openProfileSetup(true);
 }
+/* site-notice.js is an optional script: the hall must still open when it is
+   absent, the same way an unconfigured Cloud hands straight through. */
+function withSiteNotice(next){
+  if(typeof ensureSiteNoticeAck === "function") ensureSiteNoticeAck(next);
+  else next();
+}
 function enterCoffeePath(){
   if(typeof window !== "undefined" && window._saveCorruptPending){
     window._saveCorruptPending = false;
@@ -1154,10 +1160,10 @@ function enterCoffeePath(){
     return;
   }
   if(currentView === "signin"){
-    leaveSignInThen(function(){ enterHallAfterAuth(true); });
+    leaveSignInThen(function(){ withSiteNotice(function(){ enterHallAfterAuth(true); }); });
     return;
   }
-  enterHallAfterAuth(false);
+  withSiteNotice(function(){ enterHallAfterAuth(false); });
 }
 function openAfterBoot(){
   const goOn = function(){

@@ -30,6 +30,9 @@ const sw = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
   ok("1 site plate clears the previous timeout before scheduling",
     /if\(plateTimer\)\{ clearTimeout\(plateTimer\); plateTimer = 0; \}/.test(briefs) &&
     /plateTimer = setTimeout/.test(briefs));
+  ok("1 site quote clears the previous interval before scheduling",
+    /if\(el\._timer\)\{ clearInterval\(el\._timer\); el\._timer = null; \}/.test(game) &&
+    /el\._timer = setInterval/.test(game));
 }
 
 {
@@ -71,6 +74,8 @@ const sw = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
     /MAX_AUDIO_BYTES/.test(sw) &&
     /MAX_MEDIA_BYTES/.test(sw) &&
     /MAX_AUDIO_ENTRIES/.test(sw));
+  ok("4 service worker sizes responses without buffering whole bodies",
+    /function responseBytes/.test(sw) && !/\.blob\(\)/.test(sw) && /getReader\(\)/.test(sw));
 }
 
 {
@@ -109,8 +114,36 @@ const sw = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
   ok("5 mergeSave 2000 times stays under 40MB extra heap", grew < 40 * 1024 * 1024, { grew: grew });
 }
 
-if (fail) {
-  console.log("FAIL — memory leak · " + pass + " passed · " + fail + " failed");
-  process.exit(1);
+{
+  /* responseBytes must still size a body it has no Content-Length for, and do
+     it by streaming instead of buffering the whole body into a blob. */
+  const vm = require("vm");
+  const sb = {
+    console: console, URL: URL, Response: Response, Request: Request, Promise: Promise,
+    Number: Number, Object: Object, JSON: JSON, Array: Array, Error: Error,
+    self: { addEventListener() {}, location: { origin: "https://example.test" }, skipWaiting() {}, clients: { claim() {} } },
+    caches: { open: async () => ({ keys: async () => [], match: async () => null, put: async () => {}, addAll: async () => {} }) },
+    fetch: async () => new Response("")
+  };
+  sb.globalThis = sb;
+  vm.createContext(sb);
+  vm.runInContext(sw + "\n;globalThis.__responseBytes = responseBytes;", sb, { filename: "sw.js" });
+  const bytes = new Uint8Array(3 * 1024 * 1024);
+  const res = new Response(bytes);
+  res.headers.delete("content-length");
+  vm.runInContext("__responseBytes", sb)(res).then(function (sized) {
+    ok("4 unknown-length body is measured by streaming, not a blob", sized === bytes.length, { got: sized, want: bytes.length });
+    report();
+  }, function (e) {
+    ok("4 unknown-length body is measured by streaming, not a blob", false, String(e));
+    report();
+  });
 }
-console.log("PASS — memory leak · " + pass + " assertions");
+
+function report() {
+  if (fail) {
+    console.log("FAIL — memory leak · " + pass + " passed · " + fail + " failed");
+    process.exit(1);
+  }
+  console.log("PASS — memory leak · " + pass + " assertions");
+}

@@ -374,8 +374,8 @@ function renderRecords(){
     if(!SAVE.board.length){ el.innerHTML='<div class="empty">No runs recorded on this device. The local chronicle is blank.</div>'; return; }
     el.innerHTML='<div class="mtitle" style="color:var(--gold-dim);margin-bottom:1vh">Best runs on this device</div><div class="lb">'+SAVE.board.map((r,i)=>
       '<div class="lbrow'+(i===0?" top":"")+'"><div class="pos">'+(i+1)+'</div>'+
-      '<div class="mode">'+esc(MODES[r.mode]?MODES[r.mode].name:r.mode)+' · '+esc((typeof resolveDiff==="function"?resolveDiff(r.diff):DIFFS.watchman).name)+' · '+r.acc+'%</div>'+
-      '<div class="sc">'+fmt(r.score)+'</div><div class="dt">'+esc(r.date)+'</div></div>').join("")+'</div>';
+      '<div class="mode">'+esc(MODES[r.mode]?MODES[r.mode].name:r.mode)+' · '+esc((typeof resolveDiff==="function"?resolveDiff(r.diff):DIFFS.watchman).name)+' · '+esc(r.acc)+'%</div>'+
+      '<div class="sc">'+esc(fmt(r.score))+'</div><div class="dt">'+esc(r.date)+'</div></div>').join("")+'</div>';
   } else if(rtab==="blitz"){
     const cloudOn = typeof Cloud!=="undefined" && Cloud.configured();
     if(!cloudOn){
@@ -522,9 +522,21 @@ function settingsAccountHtml(){
   }
   return settingsAccountGuestHtml();
 }
+function settingsOwnerNoticeHtml(){
+  if(typeof Cloud==="undefined" || !Cloud.isSiteAdmin || !Cloud.isSiteAdmin()) return "";
+  return setRow("Site notice",
+    "Owner only. Every player must read the active notice before entering the hall.",
+    '<input id="admin-notice-title" type="text" maxlength="120" placeholder="Title, e.g. Maintenance tonight">' +
+    '<textarea id="admin-notice-body" maxlength="2000" rows="4" placeholder="Your update for all players"></textarea>' +
+    '<div class="admin-notice-actions">' +
+    '<button class="btn sm" id="admin-notice-publish" type="button">Publish notice</button>' +
+    '<button class="btn ghost sm" id="admin-notice-clear" type="button">Clear active notice</button>' +
+    '</div><p class="hint" id="admin-notice-status" role="status"></p>');
+}
 function renderSettings(){
   const s=SAVE.set;
   const accountBlock = settingsAccountHtml();
+  const ownerBlock = settingsOwnerNoticeHtml();
 
   const ch = activeCharacter();
   const nameNow = playerDisplayName();
@@ -537,6 +549,7 @@ function renderSettings(){
       '<button class="btn ghost sm" id="set-character" type="button">'+(ch ? "Change · "+esc(ch.short) : "Choose avatar")+'</button>');
 
   $("settings-body").innerHTML =
+    ownerBlock +
     accountBlock +
     profileBlock +
     setRow("Ordeal","Disciple is the learning path. Watchman is the full clock.",
@@ -708,6 +721,44 @@ function bindSettingsHandlers(){
         toast(res.ok ? (res.merged ? "Cloud merge complete" : "Cloud save updated") : (res.reason === "stale-revision" ? "Another device saved first. Sync again." : "Sync failed"));
       }
       renderSettings();
+    });
+  }
+
+  const noticePublish = $("admin-notice-publish");
+  const noticeClear = $("admin-notice-clear");
+  const noticeStatus = $("admin-notice-status");
+  function setNoticeStatus(msg){ if(noticeStatus) noticeStatus.textContent = msg || ""; }
+  if(noticePublish){
+    noticePublish.addEventListener("click", function(){
+      Snd.ui();
+      const titleEl = $("admin-notice-title");
+      const bodyEl = $("admin-notice-body");
+      const title = titleEl && titleEl.value || "";
+      const body = bodyEl && bodyEl.value || "";
+      noticePublish.disabled = true;
+      Cloud.publishSiteNotice(title, body).then(function(res){
+        noticePublish.disabled = false;
+        if(res && res.ok){
+          setNoticeStatus("Notice published. Every player will see it before the hall.");
+          if(bodyEl) bodyEl.value = "";
+          toast("Site notice published");
+        } else {
+          setNoticeStatus(res && res.reason === "body-short" ? "Notice needs at least eight characters." : "Could not publish notice.");
+        }
+      });
+    });
+  }
+  if(noticeClear){
+    noticeClear.addEventListener("click", function(){
+      Snd.ui();
+      noticeClear.disabled = true;
+      Cloud.clearSiteNotices().then(function(res){
+        noticeClear.disabled = false;
+        if(res && res.ok){
+          setNoticeStatus("Active notice cleared.");
+          toast("Site notice cleared");
+        } else setNoticeStatus("Could not clear notice.");
+      });
     });
   }
 

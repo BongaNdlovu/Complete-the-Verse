@@ -989,6 +989,7 @@ function showSiteQuote(site, done){
   line.textContent = "";
   el.classList.add("on");
   el._done = false;
+  if(el._timer){ clearInterval(el._timer); el._timer = null; }
   let i = 0;
   const step = Math.max(16, Math.min(40, 1600 / Math.max(1, text.length)));
   el._timer = setInterval(function(){
@@ -1697,21 +1698,25 @@ function showState(kind, extra){
     return;
   }
   R._state = { kind, extra };
-  const kick = $("state-kick"), title = $("state-title"), body = $("state-body");
-  const pri = $("state-primary"), sec = $("state-secondary");
-  if(kick) kick.textContent = spec.kick;
-  if(title) title.textContent = spec.title;
-  if(body) body.textContent = spec.body;
-  if(pri){ pri.textContent = spec.primary || "Continue"; pri.style.display = spec.primary ? "" : "none"; }
-  if(sec){
-    sec.textContent = spec.secondary || "";
-    sec.style.display = spec.secondary ? "" : "none";
-  }
+  paintStateFields(spec, extra);
   el.dataset.kind = kind;
   el.classList.add("on");
   el.removeAttribute("hidden");
   el.setAttribute("aria-hidden","false");
+  const pri = $("state-primary");
   if(pri && pri.focus) pri.focus();
+}
+function paintStateFields(spec, extra){
+  const kick = $("state-kick"), title = $("state-title"), body = $("state-body");
+  const pri = $("state-primary"), sec = $("state-secondary");
+  if(kick) kick.textContent = extra.kick || spec.kick;
+  if(title) title.textContent = extra.title || spec.title;
+  if(body) body.textContent = extra.body || spec.body;
+  if(pri){ pri.textContent = extra.primary || spec.primary || "Continue"; pri.style.display = (extra.primary || spec.primary) ? "" : "none"; }
+  if(sec){
+    sec.textContent = spec.secondary || "";
+    sec.style.display = spec.secondary ? "" : "none";
+  }
 }
 function presentRunEnd(kind){
   if(R.ended) return;
@@ -2251,6 +2256,30 @@ function bindBootButtons(){
   if(odRide) odRide.addEventListener("click", ()=>{ Snd.ui(); resolveOverdrive("ride"); });
   if(odBank) odBank.addEventListener("click", ()=>{ Snd.ui(); resolveOverdrive("bank"); });
 }
+function onAuthSignedIn(ev, hasUser){
+  if(!ev || (ev.event!=="SIGNED_IN" && !(ev.event==="INITIAL_SESSION" && hasUser))) return;
+  const atDoor = currentView==="signin" || currentView==="boot";
+  Cloud.syncOnBoot(SAVE).then(function(res){
+    if(res && res.ok && res.save){
+      SAVE = res.save; persist();
+      Atlas.setProgress(SAVE.pilgrim);
+      updatePlayerCard();
+      updateCloudChip();
+      if(res.merged) toast("Progress merged from the cloud");
+    }
+  });
+  if(atDoor && typeof enterCoffeePath==="function") enterCoffeePath();
+}
+function onAuthSignedOut(ev){
+  if(!ev || ev.event!=="SIGNED_OUT") return;
+  if(typeof holdForSignIn==="function" && holdForSignIn()){
+    if(typeof invalidateRun==="function") invalidateRun();
+    go("signin");
+    toast("Signed out — sign in to enter the hall. Progress stays on this device.");
+  } else if(currentView==="play"){
+    toast("Session ended. Your run stays on this device.");
+  }
+}
 /* Cloud is optional. Lazy-load SDK; never block boot. */
 function bindCloudBoot(){
   if(typeof Cloud === "undefined" || !Cloud.configured()) return;
@@ -2270,28 +2299,8 @@ function bindCloudBoot(){
   });
   Cloud.on("onAuth", function(ev){
     const hasUser = !!(ev && (ev.user || (ev.session && ev.session.user) || (Cloud.isSignedIn && Cloud.isSignedIn())));
-    if(ev && (ev.event==="SIGNED_IN" || (ev.event==="INITIAL_SESSION" && hasUser))){
-      const atDoor = currentView==="signin" || currentView==="boot";
-      Cloud.syncOnBoot(SAVE).then(function(res){
-        if(res && res.ok && res.save){
-          SAVE = res.save; persist();
-          Atlas.setProgress(SAVE.pilgrim);
-          updatePlayerCard();
-          updateCloudChip();
-          if(res.merged) toast("Progress merged from the cloud");
-        }
-      });
-      if(atDoor && typeof enterCoffeePath==="function") enterCoffeePath();
-    }
-    if(ev && ev.event==="SIGNED_OUT"){
-      if(typeof holdForSignIn==="function" && holdForSignIn()){
-        if(typeof invalidateRun==="function") invalidateRun();
-        go("signin");
-        toast("Signed out — sign in to enter the hall. Progress stays on this device.");
-      } else if(currentView==="play"){
-        toast("Session ended. Your run stays on this device.");
-      }
-    }
+    onAuthSignedIn(ev, hasUser);
+    onAuthSignedOut(ev);
     onCloudEvent();
     if(currentView==="signin" && typeof paintSignIn==="function") paintSignIn();
   });

@@ -318,7 +318,7 @@ var Cloud = (function () {
     out.daily = mergeDaily(local, remote);
     out.set = Object.assign({}, remote.set || {}, local.set || {});
     out.board = (local.board && local.board.length) ? local.board
-      : (remote.board || []);
+      : (remote.board || []).slice(0, 10);
     return migrateBlitzUnits(out);
   }
 
@@ -330,6 +330,68 @@ var Cloud = (function () {
 
   function isSignedIn() {
     return !!(user && user.id);
+  }
+
+  function userEmail() {
+    return user && user.email ? String(user.email).toLowerCase() : "";
+  }
+
+  /* Admin identity lives in public.site_admins; the client only caches the
+     answer to "is this me?" for UI gating — RLS is the real gate. */
+  var adminFlag = false;
+  function isSiteAdmin() {
+    return isSignedIn() && adminFlag;
+  }
+
+  async function fetchActiveSiteNotice() {
+    if (!configured()) return null;
+    var sb = ensureClient();
+    if (!sb) return null;
+    try {
+      var res = await withTimeout(
+        sb.from("site_notices").select("id,title,body,created_at").eq("active", true)
+          .order("created_at", { ascending: false }).limit(1).maybeSingle(),
+        8000
+      );
+      if (res.error || !res.data) return null;
+      return res.data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function publishSiteNotice(title, body) {
+    if (!isSiteAdmin()) return { ok: false, reason: "not-admin" };
+    var sb = ensureClient();
+    if (!sb) return { ok: false, reason: "no-client" };
+    title = String(title || "Notice").trim().slice(0, 120);
+    body = String(body || "").trim().slice(0, 2000);
+    if (body.length < 8) return { ok: false, reason: "body-short" };
+    try {
+      await withTimeout(sb.from("site_notices").update({ active: false }).eq("active", true), 8000);
+      var ins = await withTimeout(
+        sb.from("site_notices").insert({ title: title, body: body, active: true })
+          .select("id,title,body,created_at").single(),
+        8000
+      );
+      if (ins.error) return { ok: false, reason: ins.error.message || "insert-failed" };
+      return { ok: true, notice: ins.data };
+    } catch (e) {
+      return { ok: false, reason: "failed" };
+    }
+  }
+
+  async function clearSiteNotices() {
+    if (!isSiteAdmin()) return { ok: false, reason: "not-admin" };
+    var sb = ensureClient();
+    if (!sb) return { ok: false, reason: "no-client" };
+    try {
+      var res = await withTimeout(sb.from("site_notices").update({ active: false }).eq("active", true), 8000);
+      if (res.error) return { ok: false, reason: res.error.message || "clear-failed" };
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, reason: "failed" };
+    }
   }
 
   var lastBoardError = null;
@@ -377,6 +439,7 @@ var Cloud = (function () {
     history.replaceState(null, "", (location.origin || "") + path);
   }
   function applyAuthEvent(event, session) {
+    adminFlag = false;
     if (event === "SIGNED_OUT") {
       user = null;
       profile = null;
@@ -509,6 +572,12 @@ var Cloud = (function () {
     if (!sb || !user) return null;
     var res = await sb.from("profiles").select("id, display_name, updated_at").eq("id", user.id).maybeSingle();
     if (res.data) profile = res.data;
+    try {
+      var adm = await sb.from("site_admins").select("user_id").eq("user_id", user.id).maybeSingle();
+      adminFlag = !!(adm.data && !adm.error);
+    } catch (e) {
+      adminFlag = false;
+    }
     return profile;
   }
 
@@ -631,6 +700,7 @@ var Cloud = (function () {
     await sb.auth.signOut();
     user = null;
     profile = null;
+    adminFlag = false;
     lastRevision = 0;
     return { ok: true };
   }
@@ -1085,6 +1155,11 @@ var Cloud = (function () {
     loadSdk: loadSdk,
     mergeSave: mergeSave,
     isSignedIn: isSignedIn,
+    userEmail: userEmail,
+    isSiteAdmin: isSiteAdmin,
+    fetchActiveSiteNotice: fetchActiveSiteNotice,
+    publishSiteNotice: publishSiteNotice,
+    clearSiteNotices: clearSiteNotices,
     boardLoadFailed: boardLoadFailed,
     authNotice: authNotice,
     checkUrlAuthError: checkUrlAuthError,

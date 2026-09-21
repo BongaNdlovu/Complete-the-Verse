@@ -79,6 +79,13 @@ var Flow = (function(){
       body: "The lamps are still burning on screen, but this device refused to write the record (private browsing, quota, or blocked storage).",
       primary: "Continue playing",
       secondary: "Copy diagnostics"
+    },
+    "site-notice": {
+      kick: "Notice",
+      title: "Update",
+      body: "Read this before you continue.",
+      primary: "Continue",
+      secondary: ""
     }
   };
 

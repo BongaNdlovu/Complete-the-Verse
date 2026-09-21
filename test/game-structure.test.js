@@ -123,9 +123,11 @@ const pErrored = bank.PASSAGES.flatMap(QA.passageToVerses)
 assert(pErrored.length === 0, "every passage blank passes the QA gate");
 
 // The gate is the contract, so run the real binary too: a test that only
-// calls the library would not catch the CLI drifting away from it.
+// calls the library would not catch the CLI drifting away from it. Exit code
+// is the whole assertion, so the child's stdio is discarded — piped stdio is
+// unavailable in confined runners.
 let gateOk = true;
-try { execFileSync(process.execPath, [path.join(ROOT, "scripts", "qa-verses.js")], {stdio: "pipe"}); }
+try { execFileSync(process.execPath, [path.join(ROOT, "scripts", "qa-verses.js")], {stdio: "ignore"}); }
 catch (e) { gateOk = false; }
 assert(gateOk, "scripts/qa-verses.js exits zero");
 

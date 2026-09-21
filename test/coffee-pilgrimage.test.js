@@ -41,7 +41,7 @@ const engineSrc = readEngine(ROOT);
 
 {
   ok("Boot sends a first-run player into First Light",
-    /function enterCoffeePath/.test(engineSrc) && /showTutorialIfNeeded\(\)/.test(engineSrc) &&
+    /function enterCoffeePath/.test(engineSrc) && /showTutorialIfNeeded\(/.test(engineSrc) &&
     /if\(!SAVE\.set\.tutorialSeen\)/.test(engineSrc));
   ok("First-run boot does not skip the tutorial into pilgrimage",
     !/if\(!SAVE\.set\.tutorialDone && !cleared\)\{\s*SAVE\.set\.tutorialDone = true/.test(engineSrc));

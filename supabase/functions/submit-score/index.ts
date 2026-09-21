@@ -10,10 +10,16 @@ const DIFF_SCORE = { disciple: 0.85, watchman: 1 };
 const DAILY_MAX_ATTEMPTS = 20;
 const DAILY_MAX_BASE = 348000;
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-retry-count",
+  "Access-Control-Allow-Methods": "POST, OPTIONS"
+};
+
 function json(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json", ...CORS_HEADERS }
   });
 }
 
@@ -138,8 +144,11 @@ async function upsertBlitzScore(supabase, user, body) {
 }
 
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
+  }
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "method" }), { status: 405 });
+    return json({ error: "method" }, 405);
   }
   const auth = req.headers.get("Authorization") || "";
   const userClient = createClient(
@@ -155,7 +164,12 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  const body = await req.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return json({ error: "bad-json" }, 400);
+  }
   const kind = body.kind === "blitz" ? "blitz" : "daily";
   const recent = await supabase
     .from("score_submission_log")

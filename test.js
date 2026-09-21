@@ -69,6 +69,7 @@ const SUITE = [
   ["security stress", "test/security-stress.test.js"],
   ["memory leak", "test/memory-leak.test.js"],
   ["support reviews", "test/support-reviews.test.js"],
+  ["site notice", "test/site-notice.test.js"],
   ["seo", "test/seo.test.js"]
 ];
 

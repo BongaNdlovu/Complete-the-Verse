@@ -85,6 +85,9 @@ function walk(dir, out) {
     esc(payload).indexOf("<script>") === -1 &&
     Polish.sanitizeDisplayName(payload).indexOf("<") === -1 &&
     Polish.sanitizeDisplayName("Jo<>hn") === "John");
+  const panels = fs.readFileSync(path.join(ROOT, "js", "panels.js"), "utf8");
+  ok("4 xss: local board rows escape accuracy and score text",
+    /esc\(r\.acc\)/.test(panels) && /esc\(fmt\(r\.score\)\)/.test(panels));
 }
 
 {
@@ -127,6 +130,17 @@ function walk(dir, out) {
   );
   ok("7 oversized remote board is ignored when local has a board", merged.board.length === 1 && merged.board[0].score === 7);
   ok("7 oversized merge finishes in under 2s", Date.now() - t0 < 2000);
+  const freshDevice = Cloud.mergeSave(
+    { v: 3, xp: 1, pilgrim: { sites: {}, usedIds: [] }, best: {}, srs: {}, board: [] },
+    {
+      v: 3, xp: 2,
+      pilgrim: { sites: { ur: { cleared: true, best: 1, bestAccuracy: 1, attempts: 1, clearedAt: 1, perfect: false } }, usedIds: [] },
+      best: { pilgrimage: 1 },
+      srs: {},
+      board: huge
+    }
+  );
+  ok("7 remote board is capped at 10 when the device has no board", freshDevice.board.length === 10);
 }
 
 {
@@ -149,6 +163,8 @@ function walk(dir, out) {
     /frame-ancestors 'none'/.test(vercel) &&
     /X-Frame-Options/.test(vercel) &&
     /DENY/.test(vercel));
+  ok("9 HSTS pins the origin",
+    /Strict-Transport-Security/.test(vercel) && /max-age=\d+/.test(vercel));
 }
 
 {
@@ -170,6 +186,37 @@ function walk(dir, out) {
   const sw = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
   const precache = sw.slice(sw.indexOf("const PRECACHE_ASSETS"), sw.indexOf("function isAudio"));
   ok("10 service worker does not precache audio", precache.indexOf("audio/") === -1);
+}
+
+{
+  const edge = fs.readFileSync(path.join(ROOT, "supabase", "functions", "submit-score", "index.ts"), "utf8");
+  ok("11 preflight OPTIONS is answered with CORS headers",
+    /req\.method === "OPTIONS"/.test(edge) && /status: 204/.test(edge) &&
+    /Access-Control-Allow-Origin/.test(edge) && /Access-Control-Allow-Headers/.test(edge));
+  ok("11 every JSON response carries the CORS origin",
+    /"Content-Type": "application\/json", \.\.\.CORS_HEADERS/.test(edge));
+  ok("11 malformed JSON is a 400, not a 500",
+    /try \{\s*body = await req\.json\(\);\s*\} catch \{/.test(edge) && /"bad-json" \}, 400/.test(edge));
+}
+
+{
+  const mig6 = fs.readFileSync(path.join(ROOT, "supabase", "migrations", "006_site_notices.sql"), "utf8");
+  const mig7 = fs.readFileSync(path.join(ROOT, "supabase", "migrations", "007_run_ghosts_guard.sql"), "utf8");
+  const cfg = fs.readFileSync(path.join(ROOT, "js", "cloud-config.js"), "utf8");
+  const cloudSrc = fs.readFileSync(path.join(ROOT, "js", "cloud.js"), "utf8");
+  ok("12 site_notices grants are explicit, matching repo convention",
+    /revoke insert, update, delete on table public\.site_notices from anon, authenticated/.test(mig6) &&
+    /grant select on table public\.site_notices to anon, authenticated, service_role/.test(mig6) &&
+    /grant insert, update on table public\.site_notices to authenticated, service_role/.test(mig6));
+  ok("12 owner policies read site_admins, not an email",
+    /create table if not exists public\.site_admins/.test(mig6) &&
+    /using \(public\.is_site_admin\(\)\)/.test(mig6) &&
+    mig6.indexOf("@gmail.com") === -1);
+  ok("12 client ships no owner email", !/ownerEmail|@gmail\.com/.test(cfg) && !/@gmail\.com/.test(cloudSrc));
+  ok("12 run_ghosts writes are bounded by a trigger",
+    /create trigger run_ghosts_guard/.test(mig7) && /samples > 2000/.test(mig7) &&
+    /pg_column_size\(new\.timeline\) > 131072/.test(mig7) &&
+    /pg_column_size\(new\.meta\) > 8192/.test(mig7));
 }
 
 if (fail) {

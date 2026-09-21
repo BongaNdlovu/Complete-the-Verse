@@ -130,6 +130,12 @@ assert(/waitForInitialAuth/.test(cloud) && /applyAuthEvent/.test(cloud),
   "auth waits for session restore instead of clearing it on boot");
 assert(!/prompt:\s*"select_account"/.test(cloud),
   "Google sign-in does not force account picker every visit");
+assert(/fetchActiveSiteNotice/.test(cloud) && /ensureSiteNoticeAck/.test(read("js/briefs.js")),
+  "site-wide owner notices gate the hall before gameplay");
+assert(/site_admins/.test(read("supabase/migrations/006_site_notices.sql")) &&
+  /is_site_admin/.test(read("supabase/migrations/006_site_notices.sql")) &&
+  !/ownerEmail/.test(read("js/cloud-config.js")),
+  "site admin identity is server-side; no owner email ships to clients");
 
 /* PWA service worker and offline capability contracts. */
 assert(/navigator\.serviceWorker\.register\(['"]\.\/sw\.js['"]\)/.test(read("js/register-sw.js")),

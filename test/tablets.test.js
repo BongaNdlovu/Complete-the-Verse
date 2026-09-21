@@ -421,7 +421,13 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 ok("timeout copy names the sand", /The sand ran out\. The blank stayed empty when the Hold closed/.test(
   fs.readFileSync(path.join(ROOT, "js", "director.js"), "utf8")));
 ok("brief names the chapter clock", /clockS/.test(fs.readFileSync(path.join(ROOT, "js", "briefs.js"), "utf8")));
-ok("cache is 1.8.60", /ctv-v1\.8\.(5[89]|6\d)/.test(fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")));
+/* Floor, not a range: the cache version keeps climbing, so pin the minimum
+   ("past 1.8.60") instead of a window that rots on the next bump. */
+const cacheVersion = (fs.readFileSync(path.join(ROOT, "sw.js"), "utf8")
+  .match(/CACHE_VERSION = "ctv-v(\d+)\.(\d+)\.(\d+)"/) || []).slice(1).map(Number);
+const cacheNum = cacheVersion.length === 3
+  ? cacheVersion[0] * 1000000 + cacheVersion[1] * 1000 + cacheVersion[2] : 0;
+ok("cache version is at or past 1.8.60", cacheNum >= 1008060, { got: cacheVersion.join(".") });
 const fontsCss = fs.readFileSync(path.join(ROOT, "css", "fonts.css"), "utf8");
 ok("Hold fonts are the pruned set: Cinzel, Garamond and Barlow Condensed only",
   /font-family:\s*"Cinzel"/.test(fontsCss) && /font-family:\s*"EB Garamond"/.test(fontsCss) &&

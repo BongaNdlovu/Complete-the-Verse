@@ -13,7 +13,7 @@
       stale cache eviction.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.8.74";
+const CACHE_VERSION = "ctv-v1.8.75";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MEDIA_CACHE = "ctv-media-" + CACHE_VERSION;
@@ -90,6 +90,7 @@ const PRECACHE_ASSETS = [
   "robots.txt",
   "sitemap.xml",
   "js/player-reviews.js",
+  "js/site-notice.js",
   "js/support-page.js",
   "assets/icon-192.png",
   "assets/icon-512.png",
@@ -114,7 +115,20 @@ function isMedia(url) {
 async function responseBytes(res) {
   const len = res && res.headers && res.headers.get("content-length");
   if (len && Number(len) > 0) return Number(len);
-  try { return (await res.clone().blob()).size; } catch (e) { return 0; }
+  if (!res || !res.body) return 0;
+  /* Count in chunks: buffering the whole body just to size it spikes memory
+     on exactly the large media this trim exists to bound. */
+  const reader = res.body.getReader();
+  let total = 0;
+  try {
+    for (;;) {
+      const chunk = await reader.read();
+      if (chunk.done) return total;
+      if (chunk.value) total += chunk.value.byteLength;
+    }
+  } catch (e) {
+    return total;
+  }
 }
 
 /* Trim the oldest entries until both the file cap and the byte cap hold. */
@@ -230,7 +244,7 @@ self.addEventListener("fetch", (event) => {
         try {
           const networkResponse = await fetch(request);
           if (networkResponse && networkResponse.status === 200 && url.origin === self.location.origin) {
-            const size = await responseBytes(networkResponse);
+            const size = await responseBytes(networkResponse.clone());
             if (size && size > MAX_MEDIA_FILE_BYTES) return networkResponse;
             cache.put(request, networkResponse.clone());
             trimCache(MEDIA_CACHE, MAX_MEDIA_ENTRIES, MAX_MEDIA_BYTES);

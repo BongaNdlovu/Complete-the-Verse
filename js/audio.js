@@ -10,7 +10,7 @@
 /* ------------------------- AUDIO ------------------------- */
 const Snd = (function(){
   let ctx=null, mMus=null, mSfx=null, pad=[], started=false, avail=true, anal=null, freq=null;
-  let bed=null, trackAudio={}, trackNodes={}, duckTimer=null, sfxHold={};
+  let bed=null, trackAudio={}, trackNodes={}, duckTimer=null, sfxHold={}, sfxPool={};
   const TRACKS = {
     menu:"audio/menu.mp3",
     act1:"audio/act1.mp3",
@@ -145,6 +145,19 @@ const Snd = (function(){
       mMus.gain.setTargetAtTime(musicOut(), ctx.currentTime, .22);
     }, ms||480);
   }
+  /* Bounded per-effect pool: reuse a finished element, steal the oldest once
+     the cap is hit, so a burst cannot allocate without limit. */
+  const SFX_POOL_MAX = 4;
+  function sfxElement(name, src){
+    const pool=sfxPool[name]||(sfxPool[name]=[]);
+    for(let i=0;i<pool.length;i++){
+      if(pool[i].paused||pool[i].ended) return pool[i];
+    }
+    if(pool.length>=SFX_POOL_MAX) return pool[0];
+    const el=new Audio(src);
+    pool.push(el);
+    return el;
+  }
   function playSfx(name){
     init();
     const src=SFX[name];
@@ -154,7 +167,8 @@ const Snd = (function(){
       if(SFX_EXCL[name] && sfxHold[name]){
         try{ sfxHold[name].pause(); sfxHold[name].currentTime=0; }catch(e){}
       }
-      const a=new Audio(src);
+      const a=sfxElement(name, src);
+      try{ a.currentTime=0; }catch(e){}
       a.volume=Math.max(0,Math.min(1,sfxOut()*(SFX_GAIN[name]==null?0.7:SFX_GAIN[name])));
       if(SFX_EXCL[name]) sfxHold[name]=a;
       if(SFX_DUCK[name]) duckMusic(0.42, 380);
