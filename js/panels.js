@@ -492,7 +492,7 @@ function settingsAccountSignedInHtml(who){
     ? "Signed in with Google. Switch account anytime."
     : "Connect your Google account to sync saves across devices.";
 
-    return '<div class="setrow account"><div><label>Cloud account</label><small>Synced as <b>'+esc(who)+'</b>'+(isGoogle ? ' <span class="cloud-pill">Google</span>' : '')+'. Progress pushes after each save. <a href="privacy.html">Privacy</a> · <a href="support.html">Support</a></small></div>'+
+    return '<div class="setrow account"><div><label>Cloud account</label><small>Synced as <b>'+esc(who)+'</b>'+(isGoogle ? ' <span class="cloud-pill">Google</span>' : '')+'. Progress pushes after each save. <a href="privacy.html">Privacy</a></small></div>'+
     '<button class="btn ghost sm" id="cloud-signout" type="button">Sign out</button></div>'+
     '<div class="setrow"><div><label>Google sign-in</label><small>'+googleSub+'</small></div>'+
     '<button class="btn '+(isGoogle ? 'ghost ' : '')+'sm" id="cloud-google" type="button">'+googleLabel+'</button></div>'+
@@ -503,7 +503,7 @@ function settingsAccountSignedInHtml(who){
 }
 function settingsAccountGuestHtml(){
   const pending = (typeof localStorage!=="undefined"?localStorage.getItem("cloud_pending_email"):"")||"";
-  return '<div class="setrow account"><div><label>Cloud account</label><small>An account is required to enter the hall. Google or a 6-digit email code. Local progress on this device merges after sign-in. <a href="privacy.html">Privacy</a> · <a href="support.html">Support</a></small></div></div>'+
+  return '<div class="setrow account"><div><label>Cloud account</label><small>An account is required to enter the hall. Google or a 6-digit email code. Local progress on this device merges after sign-in. <a href="privacy.html">Privacy</a></small></div></div>'+
     '<div class="setrow"><div><label>Google sign-in</label><small>Sign in with your Google account to sync saves and post Blitz.</small></div>'+
     '<button class="btn sm" id="cloud-google" type="button">Continue with Google</button></div>'+
     '<div class="setrow"><div><label>Email sign-in</label><small>We email a 6-digit code.</small></div>'+
@@ -514,7 +514,7 @@ function settingsAccountGuestHtml(){
 function settingsAccountHtml(){
   const cloudOn = typeof Cloud!=="undefined" && Cloud.configured();
   if(!cloudOn){
-    return '<div class="setrow account"><div><label>Cloud account</label><small>Offline only — add Project URL and anon key in js/cloud-config.js (see BACKEND.md). <a href="privacy.html">Privacy</a> · <a href="support.html">Support</a></small></div><span class="cloud-pill dim">Local</span></div>';
+    return '<div class="setrow account"><div><label>Cloud account</label><small>Offline only — add Project URL and anon key in js/cloud-config.js (see BACKEND.md). <a href="privacy.html">Privacy</a></small></div><span class="cloud-pill dim">Local</span></div>';
   }
   if(Cloud.isSignedIn()){
     const who = (Cloud.profile() && Cloud.profile().display_name) || "Signed in";
@@ -563,7 +563,7 @@ function renderSettings(){
       seg("haptics",[[true,"On"],[false,"Off"]],s.haptics!==false)) +
     setRow("Single-tap answers","Answer the moment you tap a phrase. Off restores select-then-lock.",
       seg("singleTap",[[true,"On"],[false,"Off"]],s.singleTap!==false)) +
-    '<div class="footer"><a class="btn ghost sm" href="support.html">Reviews &amp; support</a>' +
+    '<div class="footer"><a class="btn ghost sm" href="support.html">Support</a>' +
     '<button class="btn ghost sm" id="set-diag">Copy diagnostics</button>' +
     '<button class="btn ghost sm" id="set-road">Restart the Pilgrimage</button>' +
     '<button class="btn ghost sm" id="set-reset">Erase all progress</button></div>';

@@ -39,3 +39,4 @@ mobile/**/build/
 mobile/.gradle/
 mobile/.kotlin/
 .twa-signing.env
+.vercel

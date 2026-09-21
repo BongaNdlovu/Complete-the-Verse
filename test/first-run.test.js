@@ -39,7 +39,10 @@ const css = fs.readFileSync(path.join(ROOT, "css", "play.css"), "utf8");
 ok("boot plays the intro until it has been seen", /!SAVE\.set\.introPlayed/.test(game) && /go\("intro"\)/.test(game));
 ok("introPlayed is a save flag", /introPlayed:false/.test(game));
 ok("finishing the intro persists that it played", /SAVE\.set\.introPlayed = true/.test(briefs));
-ok("first-run coffee path starts First Light", /if\(!SAVE\.set\.tutorialSeen\)\{\s*showTutorialIfNeeded\(\);/.test(briefs));
+ok("first-run coffee path starts First Light", /if\(!SAVE\.set\.tutorialSeen\)\{\s*showTutorialIfNeeded\(fromSignIn\);/.test(briefs));
+ok("sign-in door fades before the hall", /function leaveSignInThen\(/.test(briefs) && /#v-signin\.leaving/.test(fs.readFileSync(path.join(ROOT, "css", "game.css"), "utf8")));
+ok("tutorial can stagger after sign-in", /startTutorialRun\(fromSignIn \? \{ stagger: true \}/.test(briefs));
+ok("tutorial play stage uses play-enter", /play-enter/.test(play));
 ok("first-run coffee path does not stamp the tutorial done", !/if\(!SAVE\.set\.tutorialDone && !cleared\)\{\s*SAVE\.set\.tutorialDone = true/.test(briefs));
 ok("tutorial speaks the lesson line", /Director\.speak\(TUTORIAL_VOICE\[index\], true\)/.test(play));
 ok("onboarding does not hide voice captions", !/body\.onboarding \.voice-caption\{display:none\}/.test(css));
@@ -77,6 +80,13 @@ ok("play stages close the profile overlay", /view==="play" \|\| view==="tablets"
   const sb = boot();
   exec(sb, "SAVE.set.tutorialDone = true; SAVE.set.tutorialSeen = true; persist(); enterCoffeePath()");
   eq("a taught save with no road opens the menu", read(sb, "currentView"), "menu");
+}
+
+{
+  const sb = boot();
+  exec(sb, "go('signin'); enterCoffeePath();");
+  eq("sign-in exit waits before First Light", read(sb, "currentView"), "signin");
+  ok("sign-in pad is fading", read(sb, "$('v-signin').classList.contains('leaving')"));
 }
 
 if (fail) {

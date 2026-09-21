@@ -30,3 +30,45 @@ var PLAYER_REVIEWS = [
     text: "Offline on a flight with no Wi‑Fi and it still ran. Synced when I landed. A few special question types took a run to learn, but the tutorial at the start actually teaches instead of dumping you in cold."
   }
 ];
+
+function escReviewField(s) {
+  return String(s || "").replace(/[<>&"]/g, "");
+}
+
+function reviewStars(n) {
+  var stars = Math.max(1, Math.min(5, Number(n) || 5));
+  var out = "";
+  for (var i = 0; i < stars; i++) out += "★";
+  for (var j = stars; j < 5; j++) out += "☆";
+  return { stars: stars, html: out };
+}
+
+function renderPlayerReviewsHTML(list, limit) {
+  var items = (list || PLAYER_REVIEWS).slice(0, limit || (list || PLAYER_REVIEWS).length);
+  if (!items.length) {
+    return '<p class="empty">No published reviews yet. Yours can be the first.</p>';
+  }
+  return items.map(function (r) {
+    var name = escReviewField(r.name || "Player");
+    var text = escReviewField(r.text || "");
+    var pack = reviewStars(r.rating);
+    var date = escReviewField(r.date || "");
+    return '<article class="review"><div class="review-head"><span class="review-name">' + name + '</span>' +
+      '<span class="review-stars" aria-label="' + pack.stars + ' out of 5">' + pack.html + '</span>' +
+      (date ? '<span class="review-date">' + date + '</span>' : '') +
+      '</div><p class="review-text">' + text + '</p></article>';
+  }).join("");
+}
+
+function mountPlayerReviews(hostId, limit) {
+  var host = typeof hostId === "string" ? document.getElementById(hostId) : hostId;
+  if (!host) return;
+  host.innerHTML = renderPlayerReviewsHTML(PLAYER_REVIEWS, limit);
+}
+
+function playerReviewAverage() {
+  if (!PLAYER_REVIEWS.length) return 0;
+  var sum = 0;
+  for (var i = 0; i < PLAYER_REVIEWS.length; i++) sum += Number(PLAYER_REVIEWS[i].rating) || 0;
+  return Math.round((sum / PLAYER_REVIEWS.length) * 10) / 10;
+}

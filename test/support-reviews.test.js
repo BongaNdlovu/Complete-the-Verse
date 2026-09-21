@@ -14,21 +14,13 @@ function ok(name, cond, extra) {
 
 const SUPPORT = "fanelesibonge50@gmail.com";
 
-function renderReviews(list) {
-  if (!list.length) return '<p class="empty">No published reviews yet. Yours can be the first.</p>';
-  return list.map(function (r) {
-    var name = String(r.name || "Player").replace(/[<>&"]/g, "");
-    var text = String(r.text || "").replace(/[<>&"]/g, "");
-    var stars = Math.max(1, Math.min(5, Number(r.rating) || 5));
-    var date = String(r.date || "").replace(/[<>&"]/g, "");
-    var starStr = "";
-    for (var i = 0; i < stars; i++) starStr += "★";
-    for (var j = stars; j < 5; j++) starStr += "☆";
-    return '<article class="review"><div class="review-head"><span class="review-name">' + name + '</span>' +
-      '<span class="review-stars" aria-label="' + stars + ' out of 5">' + starStr + '</span>' +
-      (date ? '<span class="review-date">' + date + '</span>' : '') +
-      '</div><p class="review-text">' + text + '</p></article>';
-  }).join("");
+const ctx = {};
+const reviewsJs = fs.readFileSync(path.join(ROOT, "js", "player-reviews.js"), "utf8");
+vm.runInNewContext(reviewsJs, ctx);
+const list = ctx.PLAYER_REVIEWS;
+
+function renderReviews(listArg) {
+  return ctx.renderPlayerReviewsHTML(listArg);
 }
 
 function buildMailto(name, rating, text) {
@@ -37,10 +29,6 @@ function buildMailto(name, rating, text) {
   return "mailto:" + SUPPORT + "?subject=" + encodeURIComponent("Complete the Verse review") +
     "&body=" + encodeURIComponent(body);
 }
-
-const ctx = {};
-vm.runInNewContext(fs.readFileSync(path.join(ROOT, "js", "player-reviews.js"), "utf8"), ctx);
-const list = ctx.PLAYER_REVIEWS;
 
 {
   ok("1 player-reviews.js exports an array", Array.isArray(list));
@@ -80,13 +68,24 @@ const list = ctx.PLAYER_REVIEWS;
 {
   const support = fs.readFileSync(path.join(ROOT, "support.html"), "utf8");
   const panels = fs.readFileSync(path.join(ROOT, "js", "panels.js"), "utf8");
+  const briefs = fs.readFileSync(path.join(ROOT, "js", "briefs.js"), "utf8");
   const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-  ok("4 support page loads player-reviews.js", /src="js\/player-reviews\.js"/.test(support));
+  ok("4 support page loads external scripts only", /src="js\/player-reviews\.js"/.test(support) && /src="js\/support-page\.js"/.test(support));
+  ok("4 support page has no executable inline script",
+    (support.match(/<script[^>]*>/g) || []).every(function (tag) {
+      return /src=/.test(tag) || /application\/ld\+json/.test(tag);
+    }));
+  ok("4 support page ships static review fallback", (support.match(/class="review"/g) || []).length >= 5);
+  ok("4 support page has back button", /class="back-btn"/.test(support) && /href="\.\/"/.test(support));
   ok("4 support page has review form and published host",
     /id="review-form"/.test(support) && /id="published-reviews"/.test(support));
   ok("4 support mailto link matches inbox", support.indexOf("mailto:" + SUPPORT) >= 0);
   ok("4 game links to support page",
     index.indexOf("support.html") >= 0 && panels.indexOf("support.html") >= 0);
+  ok("4 menu shows player reviews", /id="menu-player-reviews"/.test(index) && /renderPlayerReviewsHTML/.test(briefs));
+  ok("4 menu has leave review button", /href="support\.html#leave-review"/.test(index) && />Leave a review</.test(index));
+  ok("4 settings footer has support button", />Support</.test(panels) && /href="support\.html">Support</.test(panels));
+  ok("4 settings account row does not duplicate support link", !/Privacy<\/a> · <a href="support\.html">Support/.test(panels));
 }
 
 if (fail) {

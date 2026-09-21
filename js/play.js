@@ -180,7 +180,7 @@ function updateTutorialGuide(index, result){
   if(copy) copy.textContent=result || TUTORIAL_GUIDE[index] || TUTORIAL_GUIDE[0];
 }
 
-function startTutorialRun(){
+function startTutorialRun(opts){
   const token=(R.runToken||0)+1;
   invalidateRun();
   Object.assign(R,{
@@ -194,13 +194,23 @@ function startTutorialRun(){
     tiersSeen:new Set(), booksRun:new Set(), rescheduled:[], decisionMs:0, timedDecisions:0,
     fastestMs:Infinity, lastTickSec:-1, lastHeart:0, pressureStage:-1
   });
-  document.body.classList.add("onboarding");
+  document.body.classList.add("onboarding","play-enter");
   document.body.classList.remove("mode-typed","speed-round");
   Backdrop.palette("menu");
-  /* Indigo gives the first-run lesson its own calm, focused identity. */
   Snd.ambience("indigo");
   go("play");
-  tutorialNextQuestion();
+  const stagger = !!(opts && opts.stagger);
+  const wait = stagger ? (document.body.classList.contains("reduced") ? 120 : 520) : 0;
+  const begin = function(){
+    tutorialNextQuestion();
+    if(typeof afterRun === "function"){
+      afterRun(820, function(){ document.body.classList.remove("play-enter"); });
+    } else {
+      document.body.classList.remove("play-enter");
+    }
+  };
+  if(wait && typeof afterRun === "function") afterRun(wait, begin);
+  else begin();
 }
 
 function tutorialNextQuestion(){
@@ -273,7 +283,7 @@ function completeTutorialRun(){
   stopTimer();
   const guide=$("tutorial-guide");
   if(guide) guide.hidden=true;
-  document.body.classList.remove("onboarding","mode-typed","speed-round");
+  document.body.classList.remove("onboarding","play-enter","mode-typed","speed-round");
   SAVE.set.tutorialDone=true;
   SAVE.set.tutorialSeen=true;
   persist();

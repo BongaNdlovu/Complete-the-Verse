@@ -512,6 +512,15 @@ function renderMenu(){
     ? fmt(SAVE.runs)+" runs · "+fmt(SAVE.life.correct)+" verses kept · "+done+"/"+tot+" seals"
       + (due ? " · "+fmt(due)+" due for review" : " · nothing due")
     : VERSES.length+" verses · all 66 books · King James Version";
+  const reviewHost = $("menu-player-reviews");
+  if(reviewHost && typeof renderPlayerReviewsHTML === "function"){
+    const avg = typeof playerReviewAverage === "function" ? playerReviewAverage() : 0;
+    const count = (typeof PLAYER_REVIEWS !== "undefined" && PLAYER_REVIEWS.length) || 0;
+    reviewHost.innerHTML =
+      '<div class="menu-reviews-head"><span class="menu-reviews-kicker">What players say</span>' +
+      (avg && count ? '<span class="menu-reviews-score">'+avg+' / 5 · '+count+' reviews</span>' : '') +
+      '</div><div class="menu-reviews-cards">'+renderPlayerReviewsHTML(PLAYER_REVIEWS, 3)+'</div>';
+  }
 }
 
 /* ------------------------- BRIEF ------------------------- */
@@ -963,13 +972,13 @@ function recordSiteResult(cleared, total, acc){
 
 /* ------------------------- FIRST-RUN TUTORIAL ------------------------- */
 let pendingPostTutorialAction = null;
-function showTutorialIfNeeded(){
+function showTutorialIfNeeded(fromSignIn){
   if(SAVE.set.tutorialSeen){
     if(!profileReady()) openProfileSetup(true);
     return;
   }
   if(typeof startTutorialRun === "function"){
-    startTutorialRun();
+    startTutorialRun(fromSignIn ? { stagger: true } : null);
     return;
   }
   const el=$("tutorial"); if(!el) return;
@@ -1086,12 +1095,43 @@ function scheduleDeferredPrefetch(){
   if(typeof requestIdleCallback === "function") requestIdleCallback(kick, { timeout: 4000 });
   else setTimeout(kick, 1800);
 }
-function enterHallAfterAuth(){
+let signinLeavePending = null;
+let signinLeaveTimer = 0;
+function leaveSignInThen(next){
+  if(typeof currentView !== "undefined" && currentView !== "signin"){
+    if(next) next();
+    return;
+  }
+  if(signinLeavePending){
+    signinLeavePending = next || signinLeavePending;
+    return;
+  }
+  signinLeavePending = next;
+  const stage = $("v-signin");
+  setSignInStatus("Signed in. Opening the hall…");
+  if(stage) stage.classList.add("leaving");
+  document.body.classList.add("signin-exit");
+  if(typeof Snd !== "undefined"){
+    Snd.unlock();
+    if(Snd.ui) Snd.ui();
+  }
+  if(!SAVE.set.tutorialSeen && typeof Snd !== "undefined" && Snd.ambience) Snd.ambience("indigo");
+  const ms = document.body.classList.contains("reduced") ? 160 : 720;
+  signinLeaveTimer = setTimeout(function(){
+    signinLeaveTimer = 0;
+    const fn = signinLeavePending;
+    signinLeavePending = null;
+    if(stage) stage.classList.remove("leaving");
+    document.body.classList.remove("signin-exit");
+    if(fn) fn();
+  }, ms);
+}
+function enterHallAfterAuth(fromSignIn){
   const cleared = !!(SAVE.life && SAVE.life.sitesCleared);
   const walked = !!(SAVE.pilgrim && SAVE.pilgrim.lastPlayed);
   scheduleDeferredPrefetch();
   if(!SAVE.set.tutorialSeen){
-    showTutorialIfNeeded();
+    showTutorialIfNeeded(fromSignIn);
     return;
   }
   if(cleared || walked){
@@ -1121,7 +1161,11 @@ function enterCoffeePath(){
     paintSignIn();
     return;
   }
-  enterHallAfterAuth();
+  if(currentView === "signin"){
+    leaveSignInThen(function(){ enterHallAfterAuth(true); });
+    return;
+  }
+  enterHallAfterAuth(false);
 }
 function openAfterBoot(){
   const goOn = function(){

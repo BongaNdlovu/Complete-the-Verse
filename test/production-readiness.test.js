@@ -159,6 +159,7 @@ assert(/js\/tablets\.js/.test(sw) && /js\/tablets-canon\.js/.test(sw) && /js\/ta
 assert(/privacy\.html/.test(sw) && fs.existsSync(path.join(ROOT, "privacy.html")) &&
   /support\.html/.test(sw) && fs.existsSync(path.join(ROOT, "support.html")) &&
   /js\/player-reviews\.js/.test(sw) && fs.existsSync(path.join(ROOT, "js", "player-reviews.js")) &&
+  /js\/support-page\.js/.test(sw) && fs.existsSync(path.join(ROOT, "js", "support-page.js")) &&
   /robots\.txt/.test(sw) && fs.existsSync(path.join(ROOT, "robots.txt")) &&
   /sitemap\.xml/.test(sw) && fs.existsSync(path.join(ROOT, "sitemap.xml")),
   "privacy, support, and discovery files ship and are precached");

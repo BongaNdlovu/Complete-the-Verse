@@ -13,7 +13,7 @@
       stale cache eviction.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.8.68";
+const CACHE_VERSION = "ctv-v1.8.71";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MEDIA_CACHE = "ctv-media-" + CACHE_VERSION;
@@ -90,6 +90,7 @@ const PRECACHE_ASSETS = [
   "robots.txt",
   "sitemap.xml",
   "js/player-reviews.js",
+  "js/support-page.js",
   "assets/icon-192.png",
   "assets/icon-512.png",
   "assets/icon-maskable-512.png"

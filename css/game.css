@@ -192,6 +192,12 @@ body.reduced .bootmark{animation:none}
 .signin-legal{margin-top:2vh;font-size:.88rem;color:var(--parch-dim)}
 .signin-legal a{color:var(--gold)}
 body.hall-ready.biblical-thriller #v-signin:before{opacity:0;animation:none}
+#v-signin.leaving .signin-pad{
+  opacity:0;transform:translateY(-12px) scale(.985);filter:blur(3px);
+  transition:opacity .65s ease,transform .65s cubic-bezier(.4,0,.2,1),filter .65s ease}
+body.signin-exit #hall-bg{opacity:.35;transition:opacity .75s ease}
+body.signin-exit.hall-ready #hall-bg{opacity:.55}
+body.reduced #v-signin.leaving .signin-pad{transition:none;transform:none;filter:none}
 
 /* ================= MENU ================= */
 #v-menu .scrollpad{justify-content:flex-start;padding-top:calc(var(--safe-t) + 28px);padding-bottom:10vh}
@@ -248,6 +254,18 @@ body.hall-ready.biblical-thriller #v-signin:before{opacity:0;animation:none}
 .mode .pill.done{background:rgba(95,209,138,.14);color:var(--green)}
 .mode.incoming,.mode.incoming:hover{opacity:.58;cursor:default;transform:none;box-shadow:0 0 0 1px var(--edge) inset}
 .mode.incoming:hover:before{opacity:0}
+.menu-player-reviews{width:min(1080px,92vw);margin:2.4vh auto 0;text-align:left}
+.menu-reviews-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.5rem 1rem;margin-bottom:.8rem}
+.menu-reviews-kicker{font-family:var(--disp);font-size:.78rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
+.menu-reviews-score{font-family:var(--ui);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim)}
+.menu-reviews-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.menu-reviews-cards .review{margin:0;padding:.95rem 1rem;background:var(--panel);box-shadow:0 0 0 1px var(--edge) inset;border:none;border-radius:0;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+.menu-reviews-cards .review-text{font-size:.9rem;line-height:1.5;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.menu-reviews-cards .review-name{font-family:var(--disp);letter-spacing:.12em;text-transform:uppercase;font-size:.72rem;color:var(--gold-hot)}
+.menu-reviews-cards .review-stars{color:var(--gold);font-size:.82rem}
+.menu-reviews-cards .review-date{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--parch-dim)}
+.menu-reviews-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:1.4vh auto 0;width:min(1080px,92vw)}
 .subnav{display:flex;gap:12px;margin-top:4vh;flex-wrap:wrap;justify-content:center}
 
 @media (max-width:900px){

@@ -553,6 +553,7 @@ read(sb, "invalidateRun();");
   read(s, "startRun('practice','disciple')");
   eq("startRun cannot skip the door", read(s, "currentView"), "signin");
   read(s, "Cloud.isSignedIn = ()=>true; Cloud.profile = ()=>({display_name:'Pilgrim'}); Cloud.lastSubmitVia = ()=>'edge'; enterCoffeePath();");
+  read(s, "if(signinLeaveTimer){ clearTimeout(signinLeaveTimer); signinLeaveTimer=0; } if(signinLeavePending){ var _fn=signinLeavePending; signinLeavePending=null; document.body.classList.remove('signin-exit'); var _st=$('v-signin'); if(_st) _st.classList.remove('leaving'); _fn(); }");
   eq("a session opens the hall", read(s, "currentView"), "menu");
   read(s, "updateCloudChip();");
   ok("signed-in hides the leftover menu Sign in", read(s, "!!document.getElementById('menu-signin').hidden && !!document.getElementById('menu-google-signin').hidden"));

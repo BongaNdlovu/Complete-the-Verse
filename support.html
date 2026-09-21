@@ -20,7 +20,16 @@
   :root { color-scheme: dark; }
   body { margin: 0; background: #04040a; color: #d8d0c0; font: 18px/1.55 Georgia, "Times New Roman", serif; }
   main { max-width: 38rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
-  h1 { font-family: Palatino, Georgia, serif; font-weight: 600; letter-spacing: .06em; color: #d9b667; font-size: 1.45rem; }
+  .page-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; margin-bottom: 1.6rem; }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: .35rem; text-decoration: none;
+    padding: .5rem .95rem; border: 1px solid #6b5a2e; background: #2a2210; color: #f0e2bc;
+    border-radius: 6px; font-size: .95rem;
+  }
+  .back-btn:hover { background: #3a3018; }
+  .page-links { font-size: .92rem; color: #8a8274; }
+  .page-links a { color: #e8c97a; }
+  h1 { font-family: Palatino, Georgia, serif; font-weight: 600; letter-spacing: .06em; color: #d9b667; font-size: 1.45rem; margin-top: 0; }
   h2 { font-size: 1.05rem; color: #d9b667; margin-top: 1.8em; }
   a { color: #e8c97a; }
   p, li { color: #c4bba8; }
@@ -48,7 +57,10 @@
 </head>
 <body>
 <main>
-  <p><a href="./">Back to the game</a> · <a href="privacy.html">Privacy</a></p>
+  <div class="page-bar">
+    <a class="back-btn" href="./">← Back to the game</a>
+    <span class="page-links"><a href="privacy.html">Privacy</a></span>
+  </div>
   <h1>Reviews &amp; support</h1>
   <p>Questions, bugs, account help, and player reviews all reach the same place. Published reviews below are real messages from players, posted only after we read them.</p>
 
@@ -56,9 +68,15 @@
   <p>Email <a href="mailto:fanelesibonge50@gmail.com">fanelesibonge50@gmail.com</a>. Sign in with the same address you use in the game if the question is about your save or account.</p>
 
   <h2>What players say</h2>
-  <div id="published-reviews"></div>
+  <div id="published-reviews">
+    <article class="review"><div class="review-head"><span class="review-name">Marcus T.</span><span class="review-stars" aria-label="5 out of 5">★★★★★</span><span class="review-date">Sep 2026</span></div><p class="review-text">I downloaded this for a bus commute and ended up clearing Ur before I got home. The map makes the verses stick — you remember Abram at Haran because you were just there. KJV wording stays faithful without feeling like a quiz app.</p></article>
+    <article class="review"><div class="review-head"><span class="review-name">Priya</span><span class="review-stars" aria-label="5 out of 5">★★★★★</span><span class="review-date">Aug 2026</span></div><p class="review-text">Fade-to-memory scared me the first time. Sixty seconds staring at a whole verse, then the words dissolve and you rebuild it. That is the first app where I felt my brain doing real work, not tapping the obvious wrong answer.</p></article>
+    <article class="review"><div class="review-head"><span class="review-name">Daniel K.</span><span class="review-stars" aria-label="4 out of 5">★★★★☆</span><span class="review-date">Sep 2026</span></div><p class="review-text">Blitz is brutal in the best way. I sign in once, my save follows me, and the board keeps me honest. Wish the menu showed Daily sooner — I only found it through Settings — but the core loop is solid.</p></article>
+    <article class="review"><div class="review-head"><span class="review-name">Grace M.</span><span class="review-stars" aria-label="5 out of 5">★★★★★</span><span class="review-date">Jul 2026</span></div><p class="review-text">Our small group uses the Word Tablets on Sunday evenings. Carving Psalm 23 line by line on a phone sounds odd until you do it. The pace is calm, the sand timer is fair, and nobody needs an account to try the first hold.</p></article>
+    <article class="review"><div class="review-head"><span class="review-name">Jonah</span><span class="review-stars" aria-label="4 out of 5">★★★★☆</span><span class="review-date">Aug 2026</span></div><p class="review-text">Offline on a flight with no Wi‑Fi and it still ran. Synced when I landed. A few special question types took a run to learn, but the tutorial at the start actually teaches instead of dumping you in cold.</p></article>
+  </div>
 
-  <h2>Leave a review</h2>
+  <h2 id="leave-review">Leave a review</h2>
   <p>Your review opens in your email app addressed to support. We publish it here only after we verify it is genuine.</p>
   <form id="review-form">
     <label for="review-name">Name on the review</label>
@@ -80,43 +98,6 @@
   </form>
 </main>
 <script src="js/player-reviews.js"></script>
-<script>
-(function () {
-  var SUPPORT = "fanelesibonge50@gmail.com";
-  var host = document.getElementById("published-reviews");
-  var list = typeof PLAYER_REVIEWS !== "undefined" && Array.isArray(PLAYER_REVIEWS) ? PLAYER_REVIEWS : [];
-  if (!list.length) {
-    host.innerHTML = '<p class="empty">No published reviews yet. Yours can be the first.</p>';
-  } else {
-    host.innerHTML = list.map(function (r) {
-      var name = String(r.name || "Player").replace(/[<>&"]/g, "");
-      var text = String(r.text || "").replace(/[<>&"]/g, "");
-      var stars = Math.max(1, Math.min(5, Number(r.rating) || 5));
-      var date = String(r.date || "").replace(/[<>&"]/g, "");
-      var starStr = "";
-      for (var i = 0; i < stars; i++) starStr += "★";
-      for (var j = stars; j < 5; j++) starStr += "☆";
-      return '<article class="review"><div class="review-head"><span class="review-name">' + name + '</span>' +
-        '<span class="review-stars" aria-label="' + stars + ' out of 5">' + starStr + '</span>' +
-        (date ? '<span class="review-date">' + date + '</span>' : '') +
-        '</div><p class="review-text">' + text + '</p></article>';
-    }).join("");
-  }
-  document.getElementById("review-form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var name = (document.getElementById("review-name").value || "").trim() || "Player";
-    var rating = document.getElementById("review-rating").value;
-    var text = (document.getElementById("review-text").value || "").trim();
-    if (text.length < 8) {
-      window.alert("Please write at least a few words for your review.");
-      return;
-    }
-    var body = "Name: " + name + "\nRating: " + rating + " / 5\n\n" + text + "\n\n---\nSent from Complete the Verse support page";
-    var url = "mailto:" + SUPPORT + "?subject=" + encodeURIComponent("Complete the Verse review") +
-      "&body=" + encodeURIComponent(body);
-    window.location.href = url;
-  });
-})();
-</script>
+<script src="js/support-page.js"></script>
 </body>
 </html>
