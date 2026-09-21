@@ -418,7 +418,7 @@ var Cloud = (function () {
     if (urlErr.error === "access_denied") {
       return "Google sign-in was cancelled or denied. Try again.";
     }
-    return urlErr.description || "Sign-in error";
+    return "Sign-in error";
   }
   function withTimeout(p, ms) {
     return new Promise(function (resolve, reject) {

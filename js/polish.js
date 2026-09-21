@@ -200,7 +200,7 @@ var Polish = (function () {
       .replace(/<[^>]*>/g, "")
       .replace(/[<>&"'`]/g, "")
       .trim();
-    if (name.length < 2) return "";
+    if (name.length < 2 || /@/.test(name)) return "";
     return name.slice(0, 32);
   }
 

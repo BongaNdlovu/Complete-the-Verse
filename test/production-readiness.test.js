@@ -156,8 +156,12 @@ assert(/MAX_AUDIO_ENTRIES\s*=\s*25/.test(sw) && /MAX_AUDIO_BYTES/.test(sw) && /t
   "audio runtime caching is bounded with an LRU cap of 25 entries");
 assert(/js\/tablets\.js/.test(sw) && /js\/tablets-canon\.js/.test(sw) && /js\/tablets-hall\.js/.test(sw) && /js\/tablets-run\.js/.test(sw),
   "Word Tablets scripts are precached for offline play");
-assert(/privacy\.html/.test(sw) && fs.existsSync(path.join(ROOT, "privacy.html")),
-  "privacy page ships and is precached");
+assert(/privacy\.html/.test(sw) && fs.existsSync(path.join(ROOT, "privacy.html")) &&
+  /support\.html/.test(sw) && fs.existsSync(path.join(ROOT, "support.html")) &&
+  /js\/player-reviews\.js/.test(sw) && fs.existsSync(path.join(ROOT, "js", "player-reviews.js")) &&
+  /robots\.txt/.test(sw) && fs.existsSync(path.join(ROOT, "robots.txt")) &&
+  /sitemap\.xml/.test(sw) && fs.existsSync(path.join(ROOT, "sitemap.xml")),
+  "privacy, support, and discovery files ship and are precached");
 assert(!/script-src 'self' 'unsafe-inline'/.test(read("vercel.json")),
   "script-src does not allow unsafe-inline");
 const icon192 = path.join(ROOT, "assets", "icon-192.png");

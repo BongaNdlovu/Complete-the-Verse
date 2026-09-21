@@ -69,6 +69,7 @@ tasks.register("copyWebAssets", Copy) {
         include "sw.js"
         include "manifest.webmanifest"
         include "privacy.html"
+        include "support.html"
         include "js/**"
         include "css/**"
         include "vendor/**"

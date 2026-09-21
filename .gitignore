@@ -5,6 +5,7 @@ audio/_orig_backup/
 .claude/
 
 # Local environment and generated Supabase CLI state
+.vercel/
 .env
 .env.*
 !.env.example

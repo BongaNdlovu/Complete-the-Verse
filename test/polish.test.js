@@ -98,6 +98,7 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
 {
   eq("sanitize strips tags", Polish.sanitizeDisplayName("<b>Hi</b>"), "Hi");
   eq("sanitize short rejected", Polish.sanitizeDisplayName("a"), "");
+  eq("sanitize rejects email", Polish.sanitizeDisplayName("a@b.com"), "");
   const ins = Polish.insightForVerse({ b: "John", r: "John 1:1", a: "the Word", id: "j1" });
   ok("john insight has logos", ins.roots.some(r => r.w === "logos"));
   const cross = Polish.crossRefsInBank(
