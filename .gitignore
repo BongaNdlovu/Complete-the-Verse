@@ -18,6 +18,7 @@ skills-lock.json
 # Local proof and generated report artifacts
 .tmp-live/
 .tmp-proof/
+.tmp-lh/
 test-artifacts/
 
 # Promo video workspace (sources, renders, deps stay local)
