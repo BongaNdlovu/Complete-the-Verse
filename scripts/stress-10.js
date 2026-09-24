@@ -346,7 +346,7 @@ async function liveChrome() {
   eq("s10 atlas walker is Dawit", info.walkerId, "dawit");
   ok("s10 walker idle is Dawit's sheet", String(info.walkerIdle).indexOf("characters/dawit/idle.png") >= 0, info.walkerIdle);
   eq("s10 Ur companion is still Abram", info.companion, "Abram");
-  ok("s10 Abram art is the question plate", String(info.companionSrc).indexOf("abram/question.png") >= 0, info.companionSrc);
+  ok("s10 Abram art is the question plate", String(info.companionSrc).indexOf("abram/question.webp") >= 0, info.companionSrc);
   eq("s10 live site is Ur", info.site, "ur");
   const modes = ["daily","practice","blitz","endless","team","beat","tablets"];
   for (const mode of modes) {

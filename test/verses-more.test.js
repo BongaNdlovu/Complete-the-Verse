@@ -25,11 +25,9 @@ const moreSrc = fs.readFileSync(morePath, "utf8");
 
 /* ---------- wiring: browser, Node loader, merge ---------- */
 assert(fs.existsSync(morePath), "js/verses-more.js exists");
-assert(/src="js\/verses-more\.js"/.test(index), "index.html loads verses-more.js");
-assert(index.indexOf('src="js/verses-more.js"') < index.indexOf('src="js/bank.js"'),
-  "verses-more.js is listed before bank.js so VERSES_MORE exists at merge time");
-assert(index.indexOf('src="js/verses-extra.js"') < index.indexOf('src="js/verses-more.js"'),
-  "verses-more.js loads after verses-extra.js (stable base first)");
+const deferSrc = fs.readFileSync(path.join(ROOT, "js", "defer.js"), "utf8");
+assert(/js\/verses-more\.js/.test(deferSrc), "defer.js loads verses-more.js after first paint");
+assert(!/src="js\/verses-more\.js"/.test(index), "verses-more.js is off the cold script path");
 
 assert(FILES.includes("js/verses-more.js"), "load-bank.js includes verses-more.js");
 assert(/VERSES_MORE/.test(bankSrc) && /VERSES\.push\(\.\.\.VERSES_MORE\)/.test(bankSrc),

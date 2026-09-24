@@ -33,8 +33,12 @@ function goodBody(n, over){
     }, over || {})
   }));
 }
-function res(body, okFlag){
-  return Promise.resolve({ ok: okFlag !== false, json: () => Promise.resolve(body) });
+function res(body, okFlag, status){
+  return Promise.resolve({
+    ok: okFlag !== false,
+    status: status || (okFlag !== false ? 200 : 500),
+    json: () => Promise.resolve(body)
+  });
 }
 function fresh(over){
   Live.reset();
@@ -221,6 +225,15 @@ function fresh(over){
     await Live.load(SITES);
     await Live.load(SITES);
     eq("a failed fetch does not poison the cache window", calls, 2);
+  }
+
+  {
+    let calls = 0;
+    fresh({ fetch: () => { calls++; return res({}, false, 429); } });
+    await Live.load(SITES);
+    await Live.load(SITES);
+    eq("a 429 holds the TTL so the atlas does not hammer", calls, 1);
+    ok("a 429 still leaves authored climate", Live.readingFor(UR).live === false);
   }
 
   /* --- concurrent callers share one request --- */

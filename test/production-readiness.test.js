@@ -192,8 +192,15 @@ assert(/SUPABASE_SERVICE_ROLE_KEY/.test(edge),
   "submit-score writes with the service role after verifying the caller");
 
 /* Media is lazy by default and voice/audio does not eagerly download every bed. */
-assert(/preload="none"/.test(index) && /poster="assets\/intro\.jpg"/.test(index),
+assert(/preload="none"/.test(index) && /poster="assets\/intro\.webp"/.test(index),
   "cinematic video uses deferred loading with a poster");
+const introWebp = path.join(ROOT, "assets", "intro.webp");
+assert(fs.existsSync(introWebp) && fs.statSync(introWebp).size < 120000,
+  "intro poster is a compact WebP");
+assert(!/tablets-companion-img" src=/.test(index),
+  "boot does not preload Abram question art");
+assert(/Defer\.loadPack\("more"\)/.test(play),
+  "First Light defers verses-more after the first question");
 assert(/a\.preload="metadata"/.test(audio) && /a\.preload = "none"/.test(audio),
   "voice metadata and music beds use bounded loading");
 assert(/loading="lazy"/.test(index) && /decoding="async"/.test(index) &&
@@ -207,42 +214,14 @@ assert(journey.every((id) => {
 }), "all active journey scenes are compact WebP assets");
 assert(journey.every((id) => !fs.existsSync(path.join(ROOT, "assets", "journey", id + ".png"))),
   "unused milestone PNG duplicates are removed");
-const mosesQ = path.join(ROOT, "assets", "characters", "moses", "question.png");
-assert(fs.existsSync(mosesQ) && fs.statSync(mosesQ).size < 1500000,
-  "Moses question art stays under the 1.5MB payload cap");
-const gideonQ = path.join(ROOT, "assets", "characters", "gideon", "question.png");
-assert(fs.existsSync(gideonQ) && fs.statSync(gideonQ).size < 1500000,
-  "Gideon question art stays under the 1.5MB payload cap");
-const solomonQ = path.join(ROOT, "assets", "characters", "solomon", "question.png");
-assert(fs.existsSync(solomonQ) && fs.statSync(solomonQ).size < 1500000,
-  "Solomon question art stays under the 1.5MB payload cap");
-const joshuaQ = path.join(ROOT, "assets", "characters", "joshua", "question.png");
-assert(fs.existsSync(joshuaQ) && fs.statSync(joshuaQ).size < 1500000,
-  "Joshua question art stays under the 1.5MB payload cap");
-const elijahQ = path.join(ROOT, "assets", "characters", "elijah", "question.png");
-assert(fs.existsSync(elijahQ) && fs.statSync(elijahQ).size < 1500000,
-  "Elijah question art stays under the 1.5MB payload cap");
+["abram","moses","gideon","solomon","joshua","elijah","elisha","jonah","daniel","samson","jesus","baptist","paul","john-revelator"].forEach(function (id) {
+  const file = path.join(ROOT, "assets", "characters", id, "question.webp");
+  assert(fs.existsSync(file) && fs.statSync(file).size < 250000,
+    id + " question art is compact WebP");
+});
 const elijahExileQ = path.join(ROOT, "assets", "characters", "elijah", "question-exile.png");
 assert(fs.existsSync(elijahExileQ) && fs.statSync(elijahExileQ).size < 1500000,
   "Elijah exile question art stays under the 1.5MB payload cap");
-const jonahQ = path.join(ROOT, "assets", "characters", "jonah", "question.png");
-assert(fs.existsSync(jonahQ) && fs.statSync(jonahQ).size < 1500000,
-  "Jonah question art stays under the 1.5MB payload cap");
-const danielQ = path.join(ROOT, "assets", "characters", "daniel", "question.png");
-assert(fs.existsSync(danielQ) && fs.statSync(danielQ).size < 1500000,
-  "Daniel question art stays under the 1.5MB payload cap");
-const samsonQ = path.join(ROOT, "assets", "characters", "samson", "question.png");
-assert(fs.existsSync(samsonQ) && fs.statSync(samsonQ).size < 1500000,
-  "Samson question art stays under the 1.5MB payload cap");
-const jesusQ = path.join(ROOT, "assets", "characters", "jesus", "question.png");
-assert(fs.existsSync(jesusQ) && fs.statSync(jesusQ).size < 1500000,
-  "Jesus question art stays under the 1.5MB payload cap");
-const baptistQ = path.join(ROOT, "assets", "characters", "baptist", "question.png");
-assert(fs.existsSync(baptistQ) && fs.statSync(baptistQ).size < 1500000,
-  "John the Baptist question art stays under the 1.5MB payload cap");
-const paulQ = path.join(ROOT, "assets", "characters", "paul", "question.png");
-assert(fs.existsSync(paulQ) && fs.statSync(paulQ).size < 1500000,
-  "Paul question art stays under the 1.5MB payload cap");
 
 /* Leaderboards require the trusted function, rate limiting and moderation. */
 assert(/trusted-submit-unavailable/.test(cloud) && !/via: "direct"/.test(cloud),
@@ -340,6 +319,23 @@ assert(Array.isArray(fingerprints) && fingerprints.some((fp) =>
 assert(/Content-Type/.test(read("vercel.json")) &&
   /\.well-known\/assetlinks\.json/.test(read("vercel.json")),
   "Vercel serves assetlinks.json as application/json");
+const vercelJson = read("vercel.json");
+assert(/max-age=0, must-revalidate/.test(vercelJson) && /\/sw\.js/.test(vercelJson),
+  "HTML and the service worker stay revalidate-always");
+assert(/\/css\/:path\*/.test(vercelJson) && /max-age=86400/.test(vercelJson) &&
+  /\/js\/:path\*/.test(vercelJson) && /\/assets\/:path\*/.test(vercelJson),
+  "CSS, JS, and assets get a one-day public cache");
+assert(fs.existsSync(path.join(ROOT, "favicon.ico")), "root favicon.ico is present");
+assert(/Typical climate — live weather paused/.test(read("js/atlas.js")),
+  "atlas notes when live weather is paused");
+assert(/min-height:44px/.test(read("css/game.css")) && index.includes('id="ur-prologue-skip"') &&
+  /class="intro-skip"/.test(index),
+  "cinema Skip is at least 44px");
+assert(index.includes('id="signin-email"') && index.includes('id="signin-otp"') &&
+  index.includes('id="menu-email"') &&
+  /\.signin-email-form input[\s\S]*?font-size:16px/.test(read("css/game.css")) &&
+  /\.menu-signin-form input[\s\S]*?font-size:16px/.test(read("css/game.css")),
+  "door email and OTP inputs are 16px");
 const androidWorkflow = read(".github/workflows/android.yml");
 assert(/:androidApp:bundleRelease/.test(androidWorkflow),
   "CI builds the native Play AAB");

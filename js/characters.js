@@ -135,7 +135,7 @@ var BIBLE_FIGURES = [
     unlock: { arc: "patriarchs" },
     portrait: "assets/characters/abram/portrait.png",
     token: "assets/characters/abram/token.png",
-    question: "assets/characters/abram/question.png"
+    question: "assets/characters/abram/question.webp"
   },
   {
     id: "moses",
@@ -147,7 +147,7 @@ var BIBLE_FIGURES = [
     unlock: { arc: "exodus" },
     portrait: "assets/characters/moses/portrait.png",
     token: "assets/characters/moses/token.png",
-    question: "assets/characters/moses/question.png"
+    question: "assets/characters/moses/question.webp"
   },
   {
     id: "david",

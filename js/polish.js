@@ -385,7 +385,9 @@ var Polish = (function () {
      similar-length word from the bank. Options then share a silhouette. */
   var LOOKALIKE_SKIP = {
     thee:1, thou:1, ye:1, thy:1, thine:1, you:1, your:1, yours:1,
-    the:1, and:1, of:1, to:1, in:1, a:1, an:1, for:1, with:1
+    the:1, and:1, of:1, to:1, in:1, a:1, an:1, for:1, with:1,
+    not:1, is:1, am:1, be:1, was:1, are:1, my:1, i:1, me:1,
+    he:1, she:1, his:1, her:1
   };
   function lookalikePhrases(answer, pool, need){
     need = need || 6;
@@ -393,20 +395,24 @@ var Polish = (function () {
     var out = [], seen = {};
     seen[String(answer || "")] = 1;
     if(words.length < 2) return out;
-    var alts = [];
+    var slots = [];
+    var i;
+    for(i = 0; i < words.length; i++) slots[i] = [];
     (pool || []).forEach(function(p){
-      String(p || "").split(/\s+/).forEach(function(w){
+      var parts = String(p || "").trim().split(/\s+/).filter(Boolean);
+      if(parts.length !== words.length) return;
+      parts.forEach(function(w, idx){
         if(w.length < 3 || LOOKALIKE_SKIP[w.toLowerCase()]) return;
-        alts.push(w);
+        slots[idx].push(w);
       });
     });
-    words.forEach(function(w, i){
+    words.forEach(function(w, idx){
       if(w.length < 3 || LOOKALIKE_SKIP[w.toLowerCase()]) return;
-      alts.forEach(function(alt){
+      slots[idx].forEach(function(alt){
         if(alt.toLowerCase() === w.toLowerCase()) return;
         if(Math.abs(alt.length - w.length) > 2) return;
         var next = words.slice();
-        next[i] = alt;
+        next[idx] = alt;
         var phrase = next.join(" ");
         if(seen[phrase]) return;
         seen[phrase] = 1;

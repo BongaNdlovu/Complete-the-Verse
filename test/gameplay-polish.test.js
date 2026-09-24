@@ -42,6 +42,14 @@ assert(Polish.choiceShapeScore("living soul", "living soul") < 0, "identical rej
   assert(likes.length > 0, "lookalikes are produced");
   assert(likes.every(s => s.split(/\s+/).length === 3), "lookalikes keep the word count");
   assert(likes.indexOf("still small voice") < 0, "lookalikes are not the answer");
+  assert(likes.some(s => s === "still small wind" || s === "mighty small voice" || s === "still rushing voice"),
+    "same-slot swap from another 3-word answer is allowed");
+  const { loadBank } = require("../scripts/load-bank");
+  const pool = loadBank().VERSES.map(v => v && v.a);
+  const psalm = Polish.lookalikePhrases("shall not want", pool, 40);
+  const cain = Polish.lookalikePhrases("Am I my brother's keeper", pool, 40);
+  assert(psalm.indexOf("shall earth want") < 0, "shall not want does not become shall earth want");
+  assert(cain.indexOf("Am I my brother's alive") < 0, "Cain line does not become brother's alive");
 }
 assert(/similarEnough/.test(game), "buildChoices prefers same-shaped phrases");
 assert(/function spillOil/.test(game), "a miss spills oil");
@@ -57,6 +65,10 @@ assert(/unlocking/.test(atlas) && /unlocking/.test(css), "unlock CSS class");
 assert(/unlockBurst|unlockLabel/.test(css), "unlock keyframes");
 assert(/autoUnlock|See the road open|pendingUnlockId/.test(game), "auto map after first clear");
 assert(/function playResultsSequence/.test(game), "results events play in one sequence");
+assert(/if\(o\.siteCleared && typeof Snd !== "undefined" && Snd\.level\) Snd\.level\(\)/.test(game),
+  "a completed site plays the level sting");
+assert(/function pilgrimRelicLine/.test(game) && /n \+ " of " \+ all/.test(game),
+  "a completed site names the relic and the N of 46 count");
 assert(/function presentSeal/.test(game), "seals present one at a time");
 assert(/afterResults\(t, function\(\)\{ Director\.ending/.test(game),
   "the ending card is the first results beat");

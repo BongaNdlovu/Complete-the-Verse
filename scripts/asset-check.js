@@ -63,6 +63,7 @@ const SIZE_CAPS = [
   { dir: "assets/journey", ext: [".mp4"], max: 3 * 1024 * 1024, why: "journey loop (<=3MB budget)" },
   { dir: "assets/journey", ext: [".webp"], max: 220 * 1024, why: "journey still" },
   { dir: "assets/characters", ext: [".png"], max: 1024 * 1024, why: "character art (1.5MB budget)" },
+  { dir: "assets/characters", ext: [".webp"], max: 250 * 1024, why: "question WebP" },
   { dir: "assets/artifacts", ext: [".png"], max: 512 * 1024, why: "relic" },
   { dir: "audio", ext: [".mp3"], max: 4 * 1024 * 1024, why: "audio bed (<=4MB ceiling)" },
 ];

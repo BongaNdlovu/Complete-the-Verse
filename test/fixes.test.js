@@ -135,11 +135,11 @@ const SCHOLAR_FOLDERS = ["amina","elias","soojin","yusef","lucia","priya","thoma
 ok("character folders carry only wired art",
    chars.every(c => {
      const expected = c === "elijah"
-       ? ["question.png", "question-exile.png"]
+       ? ["question.webp", "question-exile.png"]
        : (c === "gideon" || c === "solomon" || c === "joshua" || c === "jonah" || c === "daniel" || c === "samson" || c === "jesus" || c === "baptist" || c === "paul" || c === "elisha" || c === "john-revelator")
-       ? ["question.png"]
+       ? ["question.webp"]
        : (c === "abram" || c === "moses")
-       ? ["portrait.png", "question.png", "token.png"]
+       ? ["portrait.png", "question.webp", "token.png"]
        : SCHOLAR_FOLDERS.indexOf(c) >= 0
          ? ["portrait.png", "token.png", "idle.png", "walk.png"]
          : ["portrait.png", "token.png"];
@@ -148,20 +148,20 @@ ok("character folders carry only wired art",
    chars.filter(c => {
      const f = fs.readdirSync(path.join(ROOT, "assets", "characters", c)).sort().join();
      const expected = c === "elijah"
-       ? ["question.png", "question-exile.png"]
+       ? ["question.webp", "question-exile.png"]
        : (c === "gideon" || c === "solomon" || c === "joshua" || c === "jonah" || c === "daniel" || c === "samson" || c === "jesus" || c === "baptist" || c === "paul" || c === "elisha" || c === "john-revelator")
-       ? ["question.png"]
+       ? ["question.webp"]
        : (c === "abram" || c === "moses")
-       ? ["portrait.png", "question.png", "token.png"]
+       ? ["portrait.png", "question.webp", "token.png"]
        : SCHOLAR_FOLDERS.indexOf(c) >= 0
          ? ["portrait.png", "token.png", "idle.png", "walk.png"]
          : ["portrait.png", "token.png"];
      return f !== expected.sort().join();
    }));
 ok("Abraham question art is mapped in character data",
-   /question:\s*["']assets\/characters\/abram\/question\.png["']/.test(fs.readFileSync(path.join(ROOT, "js", "characters.js"), "utf8")));
+   /question:\s*["']assets\/characters\/abram\/question\.webp["']/.test(fs.readFileSync(path.join(ROOT, "js", "characters.js"), "utf8")));
 ok("Moses question art is mapped in character data",
-   /question:\s*["']assets\/characters\/moses\/question\.png["']/.test(fs.readFileSync(path.join(ROOT, "js", "characters.js"), "utf8")));
+   /question:\s*["']assets\/characters\/moses\/question\.webp["']/.test(fs.readFileSync(path.join(ROOT, "js", "characters.js"), "utf8")));
 ok("Midian uses midian.mp4", /midian:"assets\/journey\/midian\.mp4"/.test(game));
 ok("Yam Suph uses yam-suph.mp4", /"yam-suph":"assets\/journey\/yam-suph\.mp4"/.test(game));
 ok("Sinai uses sinai.mp4", /sinai:"assets\/journey\/sinai\.mp4"/.test(game));
@@ -210,6 +210,7 @@ ok("pause is a dialog", /id="pause" role="dialog" aria-modal="true"/.test(index)
 ok("pause takes focus when opened", /\$\("pause-resume"\)\.focus/.test(game) || /resume\.focus\(\)/.test(game));
 ok("favicon is linked", /rel="icon" href="assets\/favicon\.png"/.test(index));
 ok("favicon exists", fs.existsSync(path.join(ROOT, "assets", "favicon.png")));
+ok("favicon.ico exists", fs.existsSync(path.join(ROOT, "favicon.ico")));
 ok("game logo exists", fs.existsSync(path.join(ROOT, "assets", "logo.webp")));
 ok("manifest is linked and present",
    /rel="manifest" href="manifest\.webmanifest"/.test(index) &&

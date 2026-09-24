@@ -293,13 +293,13 @@ function modeClockLabel(mode){
 const MODES = {
   /* The Pilgrimage is the core campaign and primary road mode. */
   pilgrimage:{ key:"pilgrimage", name:"The Pilgrimage", kick:"The long road", atlas:true,
-    desc:"Forty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last beat is produced from memory with no options. The clock closes as you go east.",
+    desc:"Forty-six places, in the order Scripture walks them — from the city Abraham left to the island where the last book was written. Each site is eight verses drawn without repeating earlier stops; the last beat is produced from memory with no options. Word Tablets is the other prove-it. The clock closes as you go east.",
     tagline:"46 places · 20 tablets on the road", info:[["46","Places"],["20","Tablets"],[modeClockLabel("pilgrimage"),"Clock"]] },
   beat:{ key:"beat", name:"The Valley", kick:"A Beat of Faith", atlas:false, incoming:true,
     desc:"David and Goliath in the valley of Elah. Twelve questions from 1 Samuel 17. Forty seconds each. Held only if none are wrong.",
     tagline:"Goliath · twelve questions · replay any time", info:[["12","Questions"],["40s","Clock"],["Held","None wrong"]] },
   tablets:{ key:"tablets", name:"Word Tablets", kick:"Fill the Word", atlas:false,
-    desc:"Carve the missing KJV word before the clock runs out. One miss shatters the Hold. Learn the prayer, then Hold Psalm 23 to open Psalm 91, then John 1.",
+    desc:"The other prove-it beside the road. Carve the missing KJV word before the clock runs out. One miss shatters the Hold. Learn the prayer, then Hold Psalm 23 to open Psalm 91, then John 1.",
     tagline:"Pace I–III · the hall", info:[["I–III","Pace"],["Hold","One miss"],["Prayer","Then the hall"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, assembled word for word.",

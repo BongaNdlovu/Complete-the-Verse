@@ -1344,14 +1344,14 @@ var Atlas = (function () {
     } else if (s) { showDossier(s); drawEmpire(s); applyLight(s); }
   }
 
-  /* Pull live weather and repaint whatever it touches. Never rejects —
-     see live.js — so there is deliberately no error branch here. */
   function loadWeather() {
     return Live.load(Pilgrimage.journey()).then(function (readings) {
       var n = Object.keys(readings || {}).length;
       if (n) {
         var s = Pilgrimage.site(activeId);
         if (s) { showDossier(s); applyLight(s); }
+      } else {
+        note("Typical climate — live weather paused");
       }
       return readings;
     });

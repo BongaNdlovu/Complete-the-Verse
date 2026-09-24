@@ -11,8 +11,7 @@ const path = require("path");
 const os = require("os");
 
 const CHROME_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-const ARTIFACT_DIR = "C:\\Users\\fanel\\.gemini\\antigravity\\brain\\bae03995-cb7b-4b39-b465-3126af92ec6e";
-const SHOT_DIR = path.join(ARTIFACT_DIR, "screenshots");
+const SHOT_DIR = path.join(__dirname, "..", ".tmp-proof", "gameplay");
 if (!fs.existsSync(SHOT_DIR)) {
   fs.mkdirSync(SHOT_DIR, { recursive: true });
 }

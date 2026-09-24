@@ -57,7 +57,10 @@ function absorbVersePack(pack){
   return n;
 }
 function absorbDeferredBanks(){
-  return (typeof VERSES_ASCENT !== "undefined") ? absorbVersePack(VERSES_ASCENT) : 0;
+  var n = 0;
+  if(typeof VERSES_MORE !== "undefined") n += absorbVersePack(VERSES_MORE);
+  if(typeof VERSES_ASCENT !== "undefined") n += absorbVersePack(VERSES_ASCENT);
+  return n;
 }
 
 PASSAGES.forEach((p, i) => {

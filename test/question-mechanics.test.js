@@ -148,6 +148,12 @@ if(fadeCallback) for(let i=0;i<60;i++) fadeCallback();
 assert("fade interval is cleared when the run is invalidated", clearedFade);
 assert("stale fade callback cannot restore answer controls", read("$(\"opts\").style.opacity === '0' && $(\"opts\").style.pointerEvents === 'none'"));
 
+{
+  const Polish = require("../js/polish");
+  const salad = Polish.lookalikePhrases("shall not want", ["the earth is the LORD's", "a living soul"], 20);
+  assert("lookalikes do not swap not for earth", salad.indexOf("shall earth want") < 0);
+}
+
 if(fails.length){
   console.error("FAIL (" + fails.length + ")");
   fails.forEach(f => console.error(" - " + f));

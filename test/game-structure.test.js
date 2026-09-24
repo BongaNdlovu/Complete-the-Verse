@@ -49,7 +49,7 @@ const css   = fs.readFileSync(path.join(ROOT, "css", "game.css"), "utf8");
 assert(!/unpkg\.com|cdnjs|jsdelivr|cdn\.tailwindcss/.test(index),
   "index.html pulls no script or stylesheet from a CDN");
 
-const order = ["js/verses.js", "js/verses-extra.js", "js/verses-more.js",
+const order = ["js/verses.js", "js/verses-extra.js",
                "js/passages.js", "js/legacy-ids.js",
                "js/bank.js", "js/srs.js", "js/recall.js",
                // pilgrimage.js captures the merged VERSES array, so it has
@@ -62,10 +62,11 @@ assert(index.indexOf('src="js/tablets-canon.js"') < index.indexOf('src="js/table
   "tablets-hall.js loads after tablets-canon.js");
 const deferSrc = fs.readFileSync(path.join(ROOT, "js", "defer.js"), "utf8");
 assert(deferSrc.includes("js/tablets-more.js") && deferSrc.includes("vendor/leaflet/leaflet.js") &&
-  deferSrc.includes("js/verses-ascent.js") && deferSrc.includes("js/verses-tf.js"),
+  deferSrc.includes("js/verses-ascent.js") && deferSrc.includes("js/verses-tf.js") &&
+  deferSrc.includes("js/verses-more.js"),
   "defer.js lists the late play/atlas/bank packs");
 assert(!/src="js\/tablets-more\.js"/.test(index) && !/src="vendor\/leaflet\/leaflet\.js"/.test(index) &&
-  !/src="js\/verses-ascent\.js"/.test(index),
+  !/src="js\/verses-ascent\.js"/.test(index) && !/src="js\/verses-more\.js"/.test(index),
   "late packs are not on the intro script path");
 let prev = -1;
 order.forEach(f => {
@@ -74,9 +75,9 @@ order.forEach(f => {
   assert(at > prev, f + " loads after its dependencies");
   prev = at;
 });
-/* verses-more must land before bank.js merges VERSES_MORE into VERSES. */
-assert(index.indexOf('src="js/verses-more.js"') < index.indexOf('src="js/bank.js"'),
-  "verses-more.js loads before bank.js merges it");
+assert(/function absorbDeferredBanks/.test(fs.readFileSync(path.join(ROOT, "js", "bank.js"), "utf8")) &&
+  /VERSES_MORE/.test(fs.readFileSync(path.join(ROOT, "js", "bank.js"), "utf8")),
+  "bank.js absorbs a late verses-more pack");
 assert(/function absorbVersePack/.test(fs.readFileSync(path.join(ROOT, "js", "bank.js"), "utf8")),
   "bank.js can absorb a late ascent pack");
 assert(index.indexOf('src="js/assemble.js"') < index.indexOf('src="js/typed.js"'),

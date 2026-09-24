@@ -227,6 +227,7 @@ function tutorialNextQuestion(){
   updateChips(); updateActTrack();
   const dur = (q.mechanic === "fade") ? WALL_FADE_MS : (q.typed ? WALL_TYPED_MS : WALL_PICK_MS);
   renderQuestion(q, dur);
+  if(index===0 && typeof Defer!=="undefined" && Defer.loadPack) Defer.loadPack("more");
   if(typeof Director!=="undefined" && Director.speak) Director.speak(TUTORIAL_VOICE[index], true);
 }
 
@@ -1029,41 +1030,41 @@ function syncCinematicBackdrop(){
 }
 
 var COMPANION_SITE = {
-  jerusalem: ["assets/characters/solomon/question.png", "King Solomon"],
-  shiloh: ["assets/characters/solomon/question.png", "King Solomon"],
-  tyre: ["assets/characters/solomon/question.png", "King Solomon"],
-  samaria: ["assets/characters/solomon/question.png", "King Solomon"],
-  jericho: ["assets/characters/joshua/question.png", "Joshua"],
-  gilgal: ["assets/characters/joshua/question.png", "Joshua"],
-  carmel: ["assets/characters/elijah/question.png", "Elijah"],
-  megiddo: ["assets/characters/elijah/question.png", "Elijah"],
-  lachish: ["assets/characters/elisha/question.png", "Elisha"],
-  damascus: ["assets/characters/elisha/question.png", "Elisha"],
-  nineveh: ["assets/characters/jonah/question.png", "Jonah"],
-  babylon: ["assets/characters/daniel/question.png", "Daniel"],
-  susa: ["assets/characters/daniel/question.png", "Daniel"],
-  gibeah: ["assets/characters/samson/question.png", "Samson"],
-  mizpah: ["assets/characters/samson/question.png", "Samson"],
-  bethlehem: ["assets/characters/jesus/question.png", "Jesus"],
-  nazareth: ["assets/characters/jesus/question.png", "Jesus"],
-  capernaum: ["assets/characters/jesus/question.png", "Jesus"],
-  golgotha: ["assets/characters/jesus/question.png", "Jesus"],
-  emmaus: ["assets/characters/jesus/question.png", "Jesus"],
-  jordan: ["assets/characters/baptist/question.png", "John the Baptist"],
-  "damascus-road": ["assets/characters/paul/question.png", "Paul"],
-  antioch: ["assets/characters/paul/question.png", "Paul"],
-  ephesus: ["assets/characters/paul/question.png", "Paul"],
-  corinth: ["assets/characters/paul/question.png", "Paul"],
-  philippi: ["assets/characters/paul/question.png", "Paul"],
-  rome: ["assets/characters/paul/question.png", "Paul"],
-  patmos: ["assets/characters/john-revelator/question.png", "John the Revelator"]
+  jerusalem: ["assets/characters/solomon/question.webp", "King Solomon"],
+  shiloh: ["assets/characters/solomon/question.webp", "King Solomon"],
+  tyre: ["assets/characters/solomon/question.webp", "King Solomon"],
+  samaria: ["assets/characters/solomon/question.webp", "King Solomon"],
+  jericho: ["assets/characters/joshua/question.webp", "Joshua"],
+  gilgal: ["assets/characters/joshua/question.webp", "Joshua"],
+  carmel: ["assets/characters/elijah/question.webp", "Elijah"],
+  megiddo: ["assets/characters/elijah/question.webp", "Elijah"],
+  lachish: ["assets/characters/elisha/question.webp", "Elisha"],
+  damascus: ["assets/characters/elisha/question.webp", "Elisha"],
+  nineveh: ["assets/characters/jonah/question.webp", "Jonah"],
+  babylon: ["assets/characters/daniel/question.webp", "Daniel"],
+  susa: ["assets/characters/daniel/question.webp", "Daniel"],
+  gibeah: ["assets/characters/samson/question.webp", "Samson"],
+  mizpah: ["assets/characters/samson/question.webp", "Samson"],
+  bethlehem: ["assets/characters/jesus/question.webp", "Jesus"],
+  nazareth: ["assets/characters/jesus/question.webp", "Jesus"],
+  capernaum: ["assets/characters/jesus/question.webp", "Jesus"],
+  golgotha: ["assets/characters/jesus/question.webp", "Jesus"],
+  emmaus: ["assets/characters/jesus/question.webp", "Jesus"],
+  jordan: ["assets/characters/baptist/question.webp", "John the Baptist"],
+  "damascus-road": ["assets/characters/paul/question.webp", "Paul"],
+  antioch: ["assets/characters/paul/question.webp", "Paul"],
+  ephesus: ["assets/characters/paul/question.webp", "Paul"],
+  corinth: ["assets/characters/paul/question.webp", "Paul"],
+  philippi: ["assets/characters/paul/question.webp", "Paul"],
+  rome: ["assets/characters/paul/question.webp", "Paul"],
+  patmos: ["assets/characters/john-revelator/question.webp", "John the Revelator"]
 };
 function companionQuestionSrc(site){
   if(site && COMPANION_SITE[site.id]) return COMPANION_SITE[site.id][0];
   const arc = site && site.arc;
-  if(arc === "exodus") return "assets/characters/moses/question.png";
-  if(arc === "judges") return "assets/characters/gideon/question.png";
-  return "assets/characters/abram/question.png";
+  if(arc === "exodus") return "assets/characters/moses/question.webp";
+  if(arc === "judges") return "assets/characters/gideon/question.webp";
+  return "assets/characters/abram/question.webp";
 }
 function companionQuestionName(site){
   if(site && COMPANION_SITE[site.id]) return COMPANION_SITE[site.id][1];

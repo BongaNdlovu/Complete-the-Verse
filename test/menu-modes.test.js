@@ -63,8 +63,8 @@ ok("pilgrimage still mixes typed questions",
   /typedN\s*=\s*Math\.min\(2/.test(src) || /last two of every stop are typed/.test(src) ||
   /R\.typed\s*=\s*n\s*>\s*0\s*&&\s*R\.siteIdx\s*>\s*\(n\s*-\s*typedN\)/.test(src) ||
   /isLastBeat/.test(src));
-ok("Recall and Team Mode sit with the Drill",
-  /Practice[\s\S]*modes: \["practice", "recall", "team"\]/.test(src));
+ok("Recall and Team Mode sit with the Drill under More",
+  /More[\s\S]*modes:\s*\["daily", "practice", "recall", "team", "blitz", "trial", "endless"\]/.test(src));
 
 ok("The Valley is incoming, not hidden",
   /beat:\{[^}]*incoming:\s*true/.test(src) && !/\bbeat:\{[^}]*hidden:\s*true/.test(src));
@@ -78,8 +78,8 @@ ok("MENU_GROUPS defines The Road",
   /The Road/.test(src));
 ok("MENU_GROUPS covers pilgrimage",
   /modes:\s*\[[^\]]*"pilgrimage"/.test(src));
-ok("MENU_GROUPS covers Challenges with trial and endless",
-  /Challenges[\s\S]*modes:\s*\["blitz", "trial", "endless"\]/.test(src));
+ok("MENU_GROUPS covers More with the quiz modes closed",
+  /More[\s\S]*closed:\s*true[\s\S]*modes:\s*\["daily", "practice", "recall", "team", "blitz", "trial", "endless"\]/.test(src));
 
 if (fail) {
   console.log("FAIL — menu modes · " + pass + " passed · " + fail + " failed");

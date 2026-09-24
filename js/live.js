@@ -223,7 +223,11 @@ var Live = (function () {
     return Promise.race([call, timeout])
       .then(function (res) {
         clear();
-        if (!res || res.ok === false) throw new Error("bad response");
+        if (!res || res.ok === false) {
+          var err = new Error("bad response");
+          err.status = res && res.status;
+          throw err;
+        }
         return res.json();
       })
       .catch(function (e) { clear(); throw e; });
@@ -258,9 +262,10 @@ var Live = (function () {
         inFlight = null;
         return cache;
       })
-      .catch(function () {
+      .catch(function (err) {
+        if (err && (err.status === 429 || err.status === 503)) fetchedAt = at;
         inFlight = null;
-        return cache;      // whatever we had before, possibly {}
+        return cache;
       });
 
     return inFlight;

@@ -414,12 +414,10 @@ function updateOfflineBanner(){
   b.textContent = navigator.onLine ? "" : "You are offline — progress stays on this device until you reconnect.";
 }
 const MENU_GROUPS = [
-  { name: "The Road",   modes: ["pilgrimage"] },
-  { name: "The Valley", modes: ["beat"] },
+  { name: "The Road",    modes: ["pilgrimage"] },
   { name: "The Tablets", modes: ["tablets"] },
-  { name: "Today",      quiet: true, modes: ["daily"] },
-  { name: "Practice",   quiet: true, modes: ["practice", "recall", "team"] },
-  { name: "Challenges", quiet: true, modes: ["blitz", "trial", "endless"] }
+  { name: "The Valley",  modes: ["beat"] },
+  { name: "More", quiet: true, closed: true, modes: ["daily", "practice", "recall", "team", "blitz", "trial", "endless"] }
 ];
 const MENU_ORDER = ["pilgrimage", "beat", "tablets", "daily", "blitz", "trial", "endless", "practice", "team"];
 
@@ -482,11 +480,15 @@ function renderMenu(){
     const visibleModes = g.modes.filter(k => MODES[k] && !MODES[k].hidden);
     if(!visibleModes.length) return "";
     visibleModes.forEach(k => rendered.add(k));
-    return '<div class="mode-group'+(g.quiet ? " quiet" : "")+'">' +
-      '<div class="mode-group-head">' + esc(g.name) + '</div>' +
-      '<div class="mode-group-cards">' +
+    const cards = '<div class="mode-group-cards">' +
       visibleModes.map(k => renderModeCard(k, due, dailyDone, road)).join("") +
-      '</div></div>';
+      '</div>';
+    const cls = "mode-group" + (g.quiet ? " quiet" : "");
+    if(g.closed){
+      return '<details class="'+cls+'"><summary class="mode-group-head">' + esc(g.name) + '</summary>' + cards + '</details>';
+    }
+    return '<div class="'+cls+'">' +
+      '<div class="mode-group-head">' + esc(g.name) + '</div>' + cards + '</div>';
   }).join("");
 
   const orphans = Object.keys(MODES).filter(k => !rendered.has(k) && !MODES[k].hidden);
@@ -836,7 +838,7 @@ function openSiteBrief(siteId, mode){
     ? " · closes with " + fin.title + " — " + fin.count + " more verses" : "";
   $("sb-hint").textContent = (sbMode === "pilgrim-recall"
     ? "Type the missing phrase · Keyboard if you want the board · Enter to lock · Esc pauses"
-    : "A–D or 1–4 or tap to answer · last 2 assembled · S Selah · I Illuminate · Esc pauses") + finale;
+    : "A–D or 1–4 or tap to answer · last beat is typed · Tablets is the other prove-it · S Selah · I Illuminate · Esc pauses") + finale;
   $("sb-hint").classList.add("kb-hint");
 
   renderSiteDiffs();

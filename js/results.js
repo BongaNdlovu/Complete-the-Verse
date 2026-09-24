@@ -712,12 +712,19 @@ function renderRelayResultCopy(o){
     ? "Every site from " + (Pilgrimage.site(R.relay.sites[0])||{name:""}).name + " onward is cleared"
     : done + " of " + all + " sites banked before the road ended · they stay cleared";
 }
+function pilgrimRelicLine(siteId){
+  if(typeof Artifacts === "undefined") return "";
+  const art = Artifacts.forSite(siteId);
+  const n = Artifacts.unlockedCount(SAVE.artifacts);
+  const all = Artifacts.count();
+  return (art && art.name ? art.name : "Relic") + " · " + n + " of " + all;
+}
 function renderPilgrimResultCopy(o){
   if(!(o.road)) return;
   const site = Pilgrimage.site(R.siteId);
   const nxt = Pilgrimage.currentSite(SAVE.pilgrim);
   $("res-kick").textContent = o.siteCleared
-    ? (site ? site.name + " is behind you" : "The site is cleared")
+    ? ((site ? site.name + " is behind you" : "The site is cleared") + " · " + pilgrimRelicLine(R.siteId))
     : (site ? site.name + " holds" : "The site holds");
   $("res-best").textContent = o.siteCleared
     ? (o.road.after.complete
@@ -920,6 +927,7 @@ function playResultsSequence(o, seals, autoUnlock){
   const quiet = !!(SAVE.set.reduced || document.body.classList.contains("reduced"));
   const beat = quiet ? 180 : 900;
   let t = 0;
+  if(o.siteCleared && typeof Snd !== "undefined" && Snd.level) Snd.level();
 
   afterResults(t, function(){ Director.ending(o); });
   t += quiet ? 240 : 2200;
