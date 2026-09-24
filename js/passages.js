@@ -140,7 +140,7 @@ const PASSAGES = [
   "; a time to plant, and a time to pluck up that which is planted."]},
 
 {b:"Matthew",r:"Matthew 28:19-20",t:4,parts:[
-  "Go ye therefore, and ",{a:"teach all nations",d:["preach to all nations","make disciples of all nations","teach every nation"]},
+  "Go ye therefore, and ",{a:"teach all nations",d:["preach to all nations","preach the gospel","teach every nation"]},
   ", baptizing them in the name of the Father, and of the Son, and of the ",{a:"Holy Ghost",d:["Holy Spirit","Spirit of God","Comforter"]},
   ": Teaching them to observe all things whatsoever I have commanded you: and, lo, I am with you alway, even unto the ",{a:"end of the world",d:["end of the age","ends of the earth","end of all things"]},"."]}
 ];

@@ -4111,7 +4111,7 @@
         "d": [
           "servant",
           "prophet",
-          "man of God"
+          "Elisha"
         ]
       },
       {
@@ -7761,9 +7761,9 @@
         "a": "Jesus",
         "suffix": "whom thou persecutest.",
         "d": [
-          "the Christ",
-          "the Lord",
-          "the Son of God"
+          "Christ",
+          "Messiah",
+          "God"
         ]
       },
       {

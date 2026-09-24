@@ -1845,7 +1845,7 @@
           "a": "teach all nations",
           "d": [
             "preach to all nations",
-            "make disciples of all nations",
+            "preach the gospel",
             "teach every nation"
           ]
         },
@@ -1873,7 +1873,7 @@
           "a": "teach all nations",
           "d": [
             "preach to all nations",
-            "make disciples of all nations",
+            "preach the gospel",
             "teach every nation"
           ]
         },
@@ -3966,9 +3966,9 @@
       "a": "I am the LORD",
       "b": "Leviticus",
       "d": [
-        "I am the LORD thy God",
+        "thus saith the LORD",
         "saith the LORD",
-        "I am the LORD your God"
+        "saith the Lord GOD"
       ],
       "id": "leviticus-19-18~i-am-the-lord",
       "p": "but thou shalt love thy neighbour as thyself:",
@@ -4106,9 +4106,9 @@
       "a": "thy God my God",
       "b": "Ruth",
       "d": [
-        "thy God shall be my God",
         "my God thy God",
-        "thy LORD my LORD"
+        "thy LORD my LORD",
+        "thy God our God"
       ],
       "id": "ruth-1-16~thy-god-my-god",
       "p": "Whither thou goest, I will go; and where thou lodgest, I will lodge: thy people shall be my people, and",
@@ -4191,8 +4191,8 @@
       "b": "2 Kings",
       "d": [
         "greater than they that be with them",
-        "more than those against us",
-        "mightier than they that be with them"
+        "mightier than they that be with them",
+        "stronger than they that be with them"
       ],
       "id": "2-kings-6-16~more-than-they-that",
       "p": "Fear not: for they that be with us are",
@@ -4304,7 +4304,7 @@
       "d": [
         "such a time as now?",
         "a time such as this?",
-        "this very hour?"
+        "such a day as this?"
       ],
       "id": "esther-4-14~such-a-time-as",
       "p": "and who knoweth whether thou art come to the kingdom for",
@@ -4330,9 +4330,9 @@
       "a": "name of the LORD",
       "b": "Job",
       "d": [
-        "LORD",
         "name of our God",
-        "name of the Lord GOD"
+        "name of the Lord GOD",
+        "glory of the LORD"
       ],
       "id": "job-1-21~name-of-the-lord",
       "p": "the LORD gave, and the LORD hath taken away; blessed be the",
@@ -4568,9 +4568,9 @@
       "a": "trust in thee",
       "b": "Psalms",
       "d": [
-        "put my trust in thee",
         "hope in thee",
-        "call upon thee"
+        "call upon thee",
+        "wait upon thee"
       ],
       "id": "psalm-56-3~trust-in-thee",
       "p": "What time I am afraid, I will",
@@ -4611,8 +4611,8 @@
       "b": "Psalms",
       "d": [
         "O LORD",
-        "O God my strength",
-        "O Lord GOD"
+        "O Lord GOD",
+        "O my God"
       ],
       "id": "psalm-42-1~o-god",
       "p": "As the hart panteth after the water brooks, so panteth my soul after thee,",
@@ -4905,8 +4905,8 @@
       "b": "Isaiah",
       "d": [
         "saith the Lord GOD",
-        "saith the LORD of hosts",
-        "declareth the LORD"
+        "saith your God",
+        "saith our God"
       ],
       "id": "isaiah-55-8~saith-the-lord",
       "p": "For my thoughts are not your thoughts, neither are your ways my ways,",
@@ -4960,9 +4960,9 @@
       "a": "expected end",
       "b": "Jeremiah",
       "d": [
-        "hope and a future",
-        "end and a hope",
-        "appointed end"
+        "appointed end",
+        "enduring hope",
+        "everlasting hope"
       ],
       "id": "jeremiah-29-11~expected-end",
       "p": "For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an",
@@ -5073,8 +5073,8 @@
       "b": "Daniel",
       "d": [
         "heavens",
-        "sky",
-        "sun"
+        "morning",
+        "sanctuary"
       ],
       "id": "daniel-12-3~firmament",
       "p": "And they that be wise shall shine as the brightness of the",
@@ -5114,9 +5114,9 @@
       "a": "prophesy",
       "b": "Joel",
       "d": [
-        "see visions",
         "dream dreams",
-        "declare my name"
+        "see visions",
+        "rejoice"
       ],
       "id": "joel-2-28~prophesy",
       "p": "I will pour out my spirit upon all flesh; and your sons and your daughters shall",
@@ -5297,8 +5297,8 @@
       "b": "Habakkuk",
       "d": [
         "harts' feet",
-        "the feet of deer",
-        "the feet of hinds"
+        "eagles' wings",
+        "the roe's feet"
       ],
       "id": "habakkuk-3-19~hinds-feet",
       "p": "The LORD God is my strength, and he will make my feet like",
@@ -5464,7 +5464,7 @@
       "a": "glorify your Father which is in heaven",
       "b": "Matthew",
       "d": [
-        "glorify your Father in heaven",
+        "bless your Father which is in heaven",
         "praise your Father which is in heaven",
         "glorify our Father which is in heaven"
       ],
@@ -5478,9 +5478,9 @@
       "a": "teach all nations",
       "b": "Matthew",
       "d": [
-        "make disciples of all nations",
         "preach to all nations",
-        "teach all the nations"
+        "call all nations",
+        "preach the gospel"
       ],
       "id": "matthew-28-19~teach-all-nations",
       "p": "Go ye therefore, and",
@@ -5576,9 +5576,9 @@
       "a": "likewise",
       "b": "Luke",
       "d": [
-        "in like manner",
         "the same",
-        "even so"
+        "even so",
+        "gladly"
       ],
       "id": "luke-6-31~likewise",
       "p": "And as ye would that men should do to you, do ye also to them",
@@ -5590,9 +5590,9 @@
       "a": "that which was lost",
       "b": "Luke",
       "d": [
-        "those who were lost",
-        "the lost",
-        "them that were lost"
+        "that which was broken",
+        "them that were lost",
+        "that which was driven away"
       ],
       "id": "luke-19-10~that-which-was-lost",
       "p": "For the Son of man is come to seek and to save",
@@ -5664,8 +5664,8 @@
       "b": "John",
       "d": [
         "no thing",
-        "not any thing",
-        "nought"
+        "nought",
+        "no work"
       ],
       "id": "john-15-5~nothing",
       "p": "I am the vine, ye are the branches … for without me ye can do",
@@ -5887,9 +5887,9 @@
       "a": "darkly",
       "b": "1 Corinthians",
       "d": [
-        "dimly",
-        "as in a riddle",
-        "obscurely"
+        "in part",
+        "faintly",
+        "dimly"
       ],
       "id": "1-corinthians-13-12~darkly",
       "p": "For now we see through a glass,",
@@ -5930,8 +5930,8 @@
       "b": "2 Corinthians",
       "d": [
         "seeing",
-        "what we see",
-        "the eye"
+        "the eye",
+        "the flesh"
       ],
       "id": "2-corinthians-5-7~sight",
       "p": "For we walk by faith, not by",
@@ -6083,9 +6083,9 @@
       "a": "heartily",
       "b": "Colossians",
       "d": [
-        "with all your heart",
         "willingly",
-        "gladly"
+        "gladly",
+        "faithfully"
       ],
       "id": "colossians-3-23~heartily",
       "p": "And whatsoever ye do, do it",
@@ -6167,9 +6167,9 @@
       "a": "root of all evil",
       "b": "1 Timothy",
       "d": [
-        "root of all kinds of evil",
-        "source of all evil",
-        "root of every evil"
+        "beginning of all evil",
+        "root of every evil",
+        "fountain of all evil"
       ],
       "id": "1-timothy-6-10~root-of-all-evil",
       "p": "For the love of money is the",
@@ -6181,9 +6181,9 @@
       "a": "conversation",
       "b": "1 Timothy",
       "d": [
-        "conduct",
-        "behaviour",
-        "manner of life"
+        "patience",
+        "doctrine",
+        "knowledge"
       ],
       "id": "1-timothy-4-12~conversation",
       "p": "Let no man despise thy youth; but be thou an example of the believers, in word, in",
@@ -6238,8 +6238,8 @@
       "b": "Titus",
       "d": [
         "rebirth",
-        "the new birth",
-        "water"
+        "water",
+        "baptism"
       ],
       "id": "titus-3-5~regeneration",
       "p": "but according to his mercy he saved us, by the washing of",
@@ -6252,8 +6252,8 @@
       "b": "Titus",
       "d": [
         "appeared to all nations",
-        "been made known to all men",
-        "shined upon all men"
+        "shined upon all men",
+        "come unto all men"
       ],
       "id": "titus-2-11~appeared-to-all-men",
       "p": "For the grace of God that bringeth salvation hath",
@@ -6307,9 +6307,9 @@
       "a": "twoedged sword",
       "b": "Hebrews",
       "d": [
-        "sword of the Spirit",
         "sharpened sword",
-        "sword that is whet"
+        "glittering sword",
+        "furbished sword"
       ],
       "id": "hebrews-4-12~twoedged-sword",
       "p": "For the word of God is quick, and powerful, and sharper than any",
@@ -6391,9 +6391,9 @@
       "a": "peculiar people",
       "b": "1 Peter",
       "d": [
-        "people for his possession",
         "special people",
-        "purchased people"
+        "purchased people",
+        "people of God"
       ],
       "id": "1-peter-2-9~peculiar-people",
       "p": "But ye are a chosen generation, a royal priesthood, an holy nation, a",
@@ -6463,7 +6463,7 @@
       "d": [
         "this world",
         "the earth",
-        "you"
+        "the flesh"
       ],
       "id": "1-john-4-4~the-world",
       "p": "greater is he that is in you, than he that is in",
@@ -6575,7 +6575,7 @@
       "d": [
         "Most High",
         "Lord God",
-        "King of kings"
+        "Holy One"
       ],
       "id": "revelation-1-8~almighty",
       "p": "I am Alpha and Omega, the beginning and the ending, saith the Lord, which is, and which was, and which is to come, the",
@@ -6602,8 +6602,8 @@
       "b": "Revelation",
       "d": [
         "last and the first",
-        "Almighty",
-        "alpha and the omega"
+        "author and the finisher",
+        "root and the offspring"
       ],
       "id": "revelation-22-13~first-and-the-last",
       "p": "I am Alpha and Omega, the beginning and the end, the",
@@ -6685,9 +6685,9 @@
       "a": "we are well able to overcome it",
       "b": "Numbers",
       "d": [
-        "we shall surely overcome it",
         "we are well able to prevail",
-        "we are strong to overcome it"
+        "we are strong to overcome it",
+        "we are able to overcome the land"
       ],
       "id": "numbers-13-30~we-are-well-able",
       "p": "Let us go up at once, and possess it; for",
@@ -6714,8 +6714,8 @@
       "b": "Deuteronomy",
       "d": [
         "the everlasting hands",
-        "the arms of the Almighty",
-        "the eternal arms"
+        "the eternal arms",
+        "his everlasting wings"
       ],
       "id": "deuteronomy-33-27~the-everlasting-arms",
       "p": "The eternal God is thy refuge, and underneath are",
@@ -6769,9 +6769,9 @@
       "a": "knew not the LORD",
       "b": "Judges",
       "d": [
-        "knew not the LORD their God",
         "feared not the LORD",
-        "regarded not the LORD"
+        "regarded not the LORD",
+        "sought not the LORD"
       ],
       "id": "judges-2-10~knew-not-the-lord",
       "p": "And there arose another generation after them, which",
@@ -7008,8 +7008,8 @@
       "b": "2 Chronicles",
       "d": [
         "your labour shall be rewarded",
-        "your work shall not be in vain",
-        "your work shall be remembered"
+        "your work shall be remembered",
+        "your reward shall be great"
       ],
       "id": "2-chronicles-15-7~your-work-shall-be",
       "p": "Be ye strong therefore, and let not your hands be weak: for",
@@ -7050,8 +7050,8 @@
       "b": "Ezra",
       "d": [
         "be of good comfort, and do it",
-        "be strong, and do it",
-        "be of good courage, and fear not"
+        "be of good courage, and fear not",
+        "be strong and of a good courage"
       ],
       "id": "ezra-10-4~be-of-good-courage",
       "p": "Arise; for this matter belongeth unto thee: we also will be with thee:",
@@ -7191,7 +7191,7 @@
       "d": [
         "with an eternal love",
         "with an everlasting mercy",
-        "with a love that faileth not"
+        "with an everlasting kindness"
       ],
       "id": "jeremiah-31-3~with-an-everlasting-love",
       "p": "The LORD hath appeared of old unto me, saying, Yea, I have loved thee",
@@ -7316,7 +7316,7 @@
       "b": "Joel",
       "d": [
         "slow to wrath",
-        "longsuffering",
+        "plenteous in mercy",
         "patient to anger"
       ],
       "id": "joel-2-13~slow-to-anger",
@@ -7497,9 +7497,9 @@
       "a": "like hinds' feet",
       "b": "Habakkuk",
       "d": [
+        "like harts' feet",
         "like eagles' wings",
-        "as the feet of harts",
-        "like the feet of the roe"
+        "like the roe's feet"
       ],
       "id": "habakkuk-3-19~like-hinds-feet",
       "p": "The LORD God is my strength, and he will make my feet",
@@ -7582,8 +7582,8 @@
       "b": "Zechariah",
       "d": [
         "but by my hand",
-        "but by the spirit of the LORD",
-        "but by my power"
+        "but by my word",
+        "by the Spirit of God"
       ],
       "id": "zechariah-4-6~but-by-my-spirit",
       "p": "This is the word of the LORD unto Zerubbabel, saying, Not by might, nor by power,",
@@ -7652,8 +7652,8 @@
       "b": "Luke",
       "d": [
         "good will among men",
-        "peace and good will to men",
-        "good will toward all"
+        "good will toward all",
+        "mercy toward all men"
       ],
       "id": "luke-2-14~good-will-toward-men",
       "p": "Glory to God in the highest, and on earth peace,",
@@ -7737,7 +7737,7 @@
       "d": [
         "on things eternal",
         "on heavenly things",
-        "on things which are unseen"
+        "on things of God"
       ],
       "id": "colossians-3-2~on-things-above",
       "p": "Set your affection",
@@ -7791,7 +7791,7 @@
       "a": "keep you from evil",
       "b": "2 Thessalonians",
       "d": [
-        "keep you from the wicked one",
+        "deliver you from evil",
         "guard you from evil",
         "keep you from falling"
       ],
@@ -8211,9 +8211,9 @@
       "a": "honour the face of the old man",
       "b": "Leviticus",
       "d": [
-        "reverence them that are aged",
-        "give place unto the elder",
-        "bow before the grey headed"
+        "reverence the person of the aged",
+        "bow down before the ancient men",
+        "give place unto the elder brother"
       ],
       "id": "leviticus-19-32~honour-the-face-of",
       "p": "Thou shalt rise up before the hoary head, and",
@@ -8253,9 +8253,9 @@
       "a": "be sure your sin will find you out",
       "b": "Numbers",
       "d": [
-        "your iniquity shall be remembered",
+        "your iniquity shall surely find you out",
         "the LORD shall require it of you",
-        "your transgression shall not be hid"
+        "the punishment of your transgression shall overtake you"
       ],
       "id": "numbers-32-23~be-sure-your-sin",
       "p": "But if ye will not do so, behold, ye have sinned against the LORD: and",
@@ -8325,7 +8325,7 @@
       "d": [
         "and of Israel",
         "and of his host",
-        "and of the mighty men"
+        "and of his army"
       ],
       "id": "judges-7-20~and-of-gideon",
       "p": "and they cried, The sword of the LORD,",
@@ -8379,9 +8379,9 @@
       "a": "neither is there any rock like our God",
       "b": "1 Samuel",
       "d": [
-        "nor any refuge save the LORD",
+        "neither is there any saviour besides the LORD",
         "neither is there strength but in him",
-        "nor any fortress like unto him"
+        "neither is there any helper unto our God"
       ],
       "id": "1-samuel-2-2~neither-is-there-any",
       "p": "There is none holy as the LORD: for there is none beside thee:",
@@ -8393,7 +8393,7 @@
       "a": "serve him in truth with all your heart",
       "b": "1 Samuel",
       "d": [
-        "walk before him in uprightness",
+        "walk before him in truth with all your soul",
         "cleave unto him with a perfect mind",
         "obey his voice with all your soul"
       ],
@@ -8421,8 +8421,8 @@
       "a": "The LORD also hath put away thy sin",
       "b": "2 Samuel",
       "d": [
-        "The LORD hath heard thy prayer",
-        "The LORD hath covered thy transgression",
+        "The LORD also hath pardoned all thine iniquity",
+        "The LORD hath blotted out all thy transgressions",
         "The LORD hath turned from his anger"
       ],
       "id": "2-samuel-12-13~the-lord-also-hath",
@@ -8451,7 +8451,7 @@
       "d": [
         "nor did the jar of oil empty",
         "neither was the vessel found dry",
-        "nor did her store diminish"
+        "nor did the vessel of oil lack"
       ],
       "id": "1-kings-17-16~neither-did-the-cruse",
       "p": "And the barrel of meal wasted not,",
@@ -8533,8 +8533,8 @@
       "a": "the LORD our God to help us",
       "b": "2 Chronicles",
       "d": [
-        "the mighty God of Israel",
-        "the arm of the Almighty",
+        "the mighty God of Jacob on our side",
+        "the holy arm of the Almighty God",
         "the LORD of hosts our shield"
       ],
       "id": "2-chronicles-32-8~the-lord-our-god",
@@ -8603,9 +8603,9 @@
       "a": "from mourning into a good day",
       "b": "Esther",
       "d": [
-        "from weeping into laughter",
-        "from darkness into light",
-        "from grief unto gladness"
+        "from weeping into a feast of laughter",
+        "from dark days into great light",
+        "from bitter grief unto exceeding gladness"
       ],
       "id": "esther-9-22~from-mourning-into-a",
       "p": "the month which was turned unto them from sorrow to joy, and",
@@ -8631,8 +8631,8 @@
       "a": "no thought can be withholden from thee",
       "b": "Job",
       "d": [
-        "none can stay thy hand",
-        "thy counsel shall surely stand",
+        "no purpose of thine can be restrained",
+        "thy counsel cannot be turned away",
         "nothing is hid from thine eyes"
       ],
       "id": "job-42-2~no-thought-can-be",
@@ -8645,7 +8645,7 @@
       "a": "he hath set the world in their heart",
       "b": "Ecclesiastes",
       "d": [
-        "he hath given them a season",
+        "he hath appointed every matter under the sun",
         "he hath put wisdom in their inward parts",
         "he hath hid his counsel from them"
       ],
@@ -8661,7 +8661,7 @@
       "d": [
         "do it with all thy heart",
         "do it without delay",
-        "perform it faithfully"
+        "perform it with all readiness"
       ],
       "id": "ecclesiastes-9-10~do-it-with-thy",
       "p": "Whatsoever thy hand findeth to do,",
@@ -8687,7 +8687,7 @@
       "a": "there is no spot in thee",
       "b": "Song of Solomon",
       "d": [
-        "thou art without blemish",
+        "thou art without any blemish",
         "no fault is found in thee",
         "there is no stain upon thee"
       ],
@@ -8701,9 +8701,9 @@
       "a": "before thou camest forth out of the womb",
       "b": "Jeremiah",
       "d": [
-        "or ever thou wast conceived",
-        "while thou wast yet unborn",
-        "before thy days began"
+        "or ever the breath of life was in thee",
+        "while thou wast yet in thy mother's bosom",
+        "before ever the foundations of thy house were laid"
       ],
       "id": "jeremiah-1-5~before-thou-camest-forth",
       "p": "Before I formed thee in the belly I knew thee; and",
@@ -8717,7 +8717,7 @@
       "d": [
         "your soul shall be at peace",
         "ye shall be established for ever",
-        "ye shall walk in safety"
+        "ye shall walk safely in the land"
       ],
       "id": "jeremiah-6-16~ye-shall-find-rest",
       "p": "ask for the old paths, where is the good way, and walk therein, and",
@@ -8744,7 +8744,7 @@
       "b": "Lamentations",
       "d": [
         "patiently abide the day of the LORD",
-        "silently look for his deliverance",
+        "stand still and see the salvation of God",
         "meekly trust in the mercy of God"
       ],
       "id": "lamentations-3-26~quietly-wait-for-the",
@@ -8771,9 +8771,9 @@
       "a": "bring again that which was driven away",
       "b": "Ezekiel",
       "d": [
-        "gather them that were scattered",
+        "gather again them that were scattered abroad",
         "restore the wanderer to the fold",
-        "fetch home the strayed sheep"
+        "lead gently those that are with young"
       ],
       "id": "ezekiel-34-16~bring-again-that-which",
       "p": "I will seek that which was lost, and",
@@ -8800,7 +8800,7 @@
       "b": "Daniel",
       "d": [
         "over all the kingdoms of men",
-        "throughout the whole world",
+        "throughout all the ends of the world",
         "in all the dwellings of men"
       ],
       "id": "daniel-4-35~among-the-inhabitants-of",
@@ -8869,8 +8869,8 @@
       "a": "of hearing the words of the LORD",
       "b": "Amos",
       "d": [
-        "a hunger for his commandments",
-        "a longing after his statutes",
+        "a hunger for the knowledge of his law",
+        "a longing after the statutes of God",
         "of seeking the counsel of God"
       ],
       "id": "amos-8-11~of-hearing-the-words",
@@ -8911,9 +8911,9 @@
       "a": "the day that he became a stranger",
       "b": "Obadiah",
       "d": [
-        "the hour of his calamity",
-        "the time of his affliction",
-        "the day of his overthrow"
+        "the day of his great calamity and distress",
+        "the time when affliction fell upon him",
+        "the day that strangers carried him away"
       ],
       "id": "obadiah-1-12~the-day-that-he",
       "p": "But thou shouldest not have looked on the day of thy brother in",
@@ -8982,8 +8982,8 @@
       "b": "Nahum",
       "d": [
         "the messenger of the LORD of hosts",
-        "the herald of the coming king",
-        "the voice of one crying peace"
+        "the herald that proclaimeth the coming king",
+        "the voice of him that publisheth salvation"
       ],
       "id": "nahum-1-15~the-feet-of-him",
       "p": "Behold upon the mountains",
@@ -9009,9 +9009,9 @@
       "a": "the knowledge of the glory of the LORD",
       "b": "Habakkuk",
       "d": [
-        "the fear of the Almighty",
-        "the praise of his holy name",
-        "the light of his countenance"
+        "the fear of the majesty of the LORD",
+        "the everlasting praise of his holy name",
+        "the light of the glory of our God"
       ],
       "id": "habakkuk-2-14~the-knowledge-of-the",
       "p": "For the earth shall be filled with",
@@ -9039,7 +9039,7 @@
       "d": [
         "walk in the ways of the LORD",
         "seek the face of the Almighty",
-        "praise him with one voice"
+        "worship before the throne of his glory"
       ],
       "id": "zephaniah-3-9~call-upon-the-name",
       "p": "For then will I turn to the people a pure language, that they may all",
@@ -9121,7 +9121,7 @@
       "a": "hath not one God created us",
       "b": "Malachi",
       "d": [
-        "are we not the work of his hand",
+        "are we not all his workmanship",
         "did not one Lord make us",
         "hath he not fashioned us all"
       ],
@@ -9150,7 +9150,7 @@
       "b": "Mark",
       "d": [
         "forfeit his own life",
-        "suffer the loss of his spirit",
+        "lose the life to come",
         "destroy his own heart"
       ],
       "id": "mark-8-36~lose-his-own-soul",
@@ -9205,9 +9205,9 @@
       "a": "Repent, and be baptized every one of you",
       "b": "Acts",
       "d": [
-        "Believe, and turn from your wickedness",
-        "Repent ye, and be converted",
-        "Confess, and be washed every one"
+        "Believe, and turn ye from all your wickedness",
+        "Repent ye, and turn every one from iniquity",
+        "Confess your sins, and be washed every one"
       ],
       "id": "acts-2-38~repent-and-be-baptized",
       "p": "Then Peter said unto them,",
@@ -9262,8 +9262,8 @@
       "b": "2 Corinthians",
       "d": [
         "that which is unseen abideth for ever",
-        "the invisible things endure",
-        "things eternal are not beheld"
+        "the invisible things of God shall endure for ever",
+        "the spiritual things that are unseen abide ever"
       ],
       "id": "2-corinthians-4-18~the-things-which-are",
       "p": "for the things which are seen are temporal; but",
@@ -9303,9 +9303,9 @@
       "a": "wherewith Christ hath made us free",
       "b": "Galatians",
       "d": [
-        "which the Son hath purchased",
-        "whereunto ye are called",
-        "by which ye are redeemed"
+        "which we have in Christ Jesus",
+        "which hath made us free from sin",
+        "wherewith God hath delivered his people"
       ],
       "id": "galatians-5-1~wherewith-christ-hath-made",
       "p": "Stand fast therefore in the liberty",
@@ -9317,9 +9317,9 @@
       "a": "as God for Christ's sake hath forgiven you",
       "b": "Ephesians",
       "d": [
-        "as the Lord hath pardoned your sins",
-        "seeing ye also are forgiven",
-        "as he hath shewed mercy unto you"
+        "as Christ our Lord hath forgiven you",
+        "as your heavenly Father hath forgiven you",
+        "as the Lord hath pardoned your sins"
       ],
       "id": "ephesians-4-32~as-god-for-christ",
       "p": "And be ye kind one to another, tenderhearted, forgiving one another, even",
@@ -9388,7 +9388,7 @@
       "b": "Colossians",
       "d": [
         "so abide ye in his love",
-        "let your steps be ordered of him",
+        "so stand fast in him",
         "so continue ye in the faith"
       ],
       "id": "colossians-2-6~so-walk-ye-in",
@@ -9429,9 +9429,9 @@
       "a": "hold the traditions which ye have been taught",
       "b": "2 Thessalonians",
       "d": [
-        "keep the doctrine ye received",
-        "observe the things delivered unto you",
-        "maintain the faith once given"
+        "keep the holy commandments delivered unto you",
+        "observe the sound doctrine which ye received",
+        "maintain the faith which was once delivered"
       ],
       "id": "2-thessalonians-2-15~hold-the-traditions-which",
       "p": "Therefore, brethren, stand fast, and",
@@ -9443,8 +9443,8 @@
       "a": "give you peace always by all means",
       "b": "2 Thessalonians",
       "d": [
-        "grant you rest continually",
-        "keep your hearts in quietness",
+        "grant you quietness and rest for evermore",
+        "keep your hearts and minds in peace",
         "bestow his favour upon you ever"
       ],
       "id": "2-thessalonians-3-16~give-you-peace-always",
@@ -9527,9 +9527,9 @@
       "a": "profitable to thee and to me",
       "b": "Philemon",
       "d": [
-        "useful in the work of the Lord",
-        "serviceable unto us both",
-        "of good report among the brethren"
+        "profitable to me for the ministry",
+        "a brother beloved unto the Lord",
+        "a faithful and beloved brother"
       ],
       "id": "philemon-1-11~profitable-to-thee-and",
       "p": "Which in time past was to thee unprofitable, but now",
@@ -9542,8 +9542,8 @@
       "b": "Philemon",
       "d": [
         "a fellowlabourer",
-        "a son in the faith",
-        "a partner in the gospel"
+        "a faithful companion",
+        "a beloved companion"
       ],
       "id": "philemon-1-16~a-brother-beloved",
       "p": "Not now as a servant, but above a servant,",
@@ -9555,7 +9555,7 @@
       "a": "the author and finisher of our faith",
       "b": "Hebrews",
       "d": [
-        "the captain of our salvation",
+        "the captain and prince of our salvation",
         "the beginner and perfecter of grace",
         "the shepherd and bishop of souls"
       ],
@@ -9598,7 +9598,7 @@
       "b": "James",
       "d": [
         "The humble cry of a contrite heart",
-        "The steadfast supplication of the faithful",
+        "The steadfast supplication of a faithful saint",
         "The earnest petition of a holy soul"
       ],
       "id": "james-5-16~the-effectual-fervent-prayer",
@@ -9611,8 +9611,8 @@
       "a": "hath begotten us again unto a lively hope",
       "b": "1 Peter",
       "d": [
-        "hath called us out of darkness",
-        "hath made us heirs of promise",
+        "hath called us out of darkness into light",
+        "hath made us heirs of an everlasting kingdom",
         "hath raised us to newness of life"
       ],
       "id": "1-peter-1-3~hath-begotten-us-again",
@@ -9655,7 +9655,7 @@
       "d": [
         "the wisdom that cometh from above",
         "the favour of the living God",
-        "the fear of the Almighty"
+        "the fear and reverence of the Almighty"
       ],
       "id": "2-peter-3-18~the-knowledge-of-our",
       "p": "But grow in grace, and in",
@@ -9737,7 +9737,7 @@
       "a": "we shall speak face to face",
       "b": "3 John",
       "d": [
-        "we shall rejoice together",
+        "we shall rejoice together in person",
         "thou shalt hear my words",
         "we shall commune as friends"
       ],
@@ -9793,8 +9793,8 @@
       "a": "a land that I will shew thee",
       "b": "Genesis",
       "d": [
-        "a country I have prepared",
-        "the land of the Canaanites",
+        "a goodly land that I have prepared",
+        "the promised land of the Canaanites",
         "a place that I will give thee"
       ],
       "id": "genesis-12-1~a-land-that-i",
@@ -9809,7 +9809,7 @@
       "d": [
         "thy firstborn son, whom thou namest",
         "the child of the promise, thy heir",
-        "thy beloved son, even Ishmael"
+        "thy son, even Ishmael the firstborn"
       ],
       "id": "genesis-22-2~thine-only-son-isaac",
       "p": "And he said, Take now thy son,",
@@ -9933,9 +9933,9 @@
       "a": "put off thy shoes from off thy feet",
       "b": "Exodus",
       "d": [
-        "bow down upon the earth",
-        "cover thy face from the fire",
-        "stand afar off from the bush"
+        "bow down thy head toward the earth",
+        "cover thy face from the presence of God",
+        "stand afar off and approach no further"
       ],
       "id": "exodus-3-5~put-off-thy-shoes",
       "p": "And he said, Draw not nigh hither:",
@@ -10004,7 +10004,7 @@
       "b": "Exodus",
       "d": [
         "mighty in battle",
-        "holy in all his works",
+        "great in power",
         "terrible in majesty"
       ],
       "id": "exodus-15-11~glorious-in-holiness",
@@ -10018,8 +10018,8 @@
       "b": "Exodus",
       "d": [
         "in mine own arms",
-        "upon the clouds of heaven",
-        "as on the wings of the wind"
+        "with an outstretched arm",
+        "by a mighty hand"
       ],
       "id": "exodus-19-4~on-eagles-wings",
       "p": "Ye have seen what I did unto the Egyptians, and how I bare you",
@@ -10046,7 +10046,7 @@
       "b": "Judges",
       "d": [
         "as a great host",
-        "like the sand of the sea",
+        "with great slaughter",
         "with a mighty army"
       ],
       "id": "judges-6-16~as-one-man",
@@ -10073,9 +10073,9 @@
       "a": "the three hundred men that lapped",
       "b": "Judges",
       "d": [
-        "the thousand that knelt",
+        "the thousand men that bowed down",
         "the mighty men of valour",
-        "the remnant that remained"
+        "all the thousands of Israel that remained"
       ],
       "id": "judges-7-7~the-three-hundred-men",
       "p": "And the LORD said unto Gideon, By",
@@ -10087,9 +10087,9 @@
       "a": "like any other man",
       "b": "Judges",
       "d": [
-        "as a child of the Philistines",
-        "like a man that is bound",
-        "as one that hath no vow"
+        "as another common man",
+        "like a feeble youth",
+        "as a man without strength"
       ],
       "id": "judges-16-17~like-any-other-man",
       "p": "If I be shaven, then my strength will go from me, and I shall become weak, and be",
@@ -10157,7 +10157,7 @@
       "a": "Speak; for thy servant heareth",
       "b": "1 Samuel",
       "d": [
-        "Here am I; for thou calledst me",
+        "Here am I, Lord",
         "Speak, Lord, I am listening",
         "Thy servant waiteth upon thee"
       ],
@@ -10214,8 +10214,8 @@
       "b": "1 Samuel",
       "d": [
         "in the strength of the living God",
-        "with the sword of the LORD",
-        "by the power of the Almighty"
+        "with the sword of the Almighty God of Israel",
+        "by the power and majesty of the living God"
       ],
       "id": "1-samuel-17-45~in-the-name-of",
       "p": "Then said David to the Philistine, Thou comest to me with a sword, and with a spear, and with a shield: but I come to thee",
@@ -10298,7 +10298,7 @@
       "b": "2 Kings",
       "d": [
         "the strong holds of Israel",
-        "every city of Samaria",
+        "all the fortified cities of Samaria",
         "the defenced towns of Zion"
       ],
       "id": "2-kings-18-13~all-the-fenced-cities",
@@ -10325,8 +10325,8 @@
       "a": "an hundred fourscore and five thousand",
       "b": "2 Kings",
       "d": [
-        "threescore and ten thousand",
-        "an hundred thousand horsemen",
+        "an hundred and twenty thousand men",
+        "two hundred and fifty thousand soldiers",
         "forty and two thousand men"
       ],
       "id": "2-kings-19-35~an-hundred-fourscore-and",
@@ -10367,9 +10367,9 @@
       "a": "mount Moriah",
       "b": "2 Chronicles",
       "d": [
-        "the city of David",
-        "the hill of Zion",
-        "the valley of Jehoshaphat"
+        "mount Zion",
+        "mount Olivet",
+        "the holy mountain"
       ],
       "id": "2-chronicles-3-1~mount-moriah",
       "p": "Then Solomon began to build the house of the LORD at Jerusalem in",
@@ -10395,8 +10395,8 @@
       "a": "offered up Isaac",
       "b": "Hebrews",
       "d": [
-        "laid the wood in order",
-        "bound his son upon the altar",
+        "offered his sacrifice",
+        "bound young Isaac",
         "stretched forth his hand"
       ],
       "id": "hebrews-11-17~offered-up-isaac",
@@ -10423,9 +10423,9 @@
       "a": "as by dry land",
       "b": "Hebrews",
       "d": [
-        "on the wings of the wind",
-        "in the midst of the waters",
-        "by a path through the deep"
+        "upon the dry ground",
+        "as on a paved way",
+        "without fear of the waters"
       ],
       "id": "hebrews-11-29~as-by-dry-land",
       "p": "By faith they passed through the Red sea",
@@ -10437,9 +10437,9 @@
       "a": "prayed earnestly that it might not rain",
       "b": "James",
       "d": [
-        "called fire down from heaven",
+        "called down holy fire from heaven above",
         "shut the heavens for a season",
-        "stood before Ahab in Samaria"
+        "cried aloud unto the LORD against Ahab"
       ],
       "id": "james-5-17~prayed-earnestly-that-it",
       "p": "Elias was a man subject to like passions as we are, and he",
@@ -10550,8 +10550,8 @@
       "b": "Ruth",
       "d": [
         "war in the coasts",
-        "pestilence upon Judah",
-        "drought upon Bethlehem"
+        "great pestilence upon the people",
+        "a grievous drought in the country"
       ],
       "id": "ruth-1-1~a-famine-in-the",
       "p": "Now it came to pass in the days when the judges ruled, that there was",
@@ -10689,9 +10689,9 @@
       "a": "he is risen; he is not here",
       "b": "Mark",
       "d": [
-        "he sleepeth in the garden",
-        "he is taken away by night",
-        "he goeth before you to Rome"
+        "he is not here, but is risen",
+        "he is not here: for he is risen",
+        "why seek ye the living among the dead"
       ],
       "id": "mark-16-6~he-is-risen-he",
       "p": "Ye seek Jesus of Nazareth, which was crucified:",
@@ -10704,7 +10704,7 @@
       "b": "Luke",
       "d": [
         "the stranger within thy gates",
-        "thine enemies that despitefully use thee",
+        "thine enemy as thyself",
         "the poor of the land"
       ],
       "id": "luke-10-27~thy-neighbour-as-thyself",
@@ -10717,7 +10717,7 @@
       "a": "God my Saviour",
       "b": "Luke",
       "d": [
-        "the Holy One of Israel",
+        "the Holy One",
         "the God of Abraham",
         "the LORD of hosts"
       ],
@@ -10745,9 +10745,9 @@
       "a": "be it unto me according to thy word",
       "b": "Luke",
       "d": [
-        "let this cup pass from me",
+        "let it be done according to thy will",
         "I am not worthy that thou shouldest come",
-        "how shall this be, seeing I know not a man"
+        "how shall these things be fulfilled in me"
       ],
       "id": "luke-1-38~be-it-unto-me",
       "p": "And Mary said, Behold the handmaid of the Lord;",
@@ -10760,7 +10760,7 @@
       "b": "Luke",
       "d": [
         "called me to sit on David's throne",
-        "sent me to keep the law of Moses",
+        "sent me to judge all nations",
         "chosen me to gather only Israel"
       ],
       "id": "luke-4-18~anointed-me-to-preach",
@@ -10773,9 +10773,9 @@
       "a": "sinners to repentance",
       "b": "Luke",
       "d": [
-        "the Jews to the kingdom",
-        "the priests to the temple",
-        "the rich to give alms"
+        "the rich to repentance",
+        "the rulers to honor",
+        "the proud to glory"
       ],
       "id": "luke-5-32~sinners-to-repentance",
       "p": "I came not to call the righteous, but",
@@ -10815,8 +10815,8 @@
       "a": "one sinner that repenteth",
       "b": "Luke",
       "d": [
-        "the ninety and nine that went not astray",
-        "the righteous that keep the law",
+        "every Pharisee that fasteth",
+        "the righteous of Israel",
         "a nation that offereth sacrifice"
       ],
       "id": "luke-15-7~one-sinner-that-repenteth",
@@ -10831,7 +10831,7 @@
       "d": [
         "always to fast",
         "always to give alms",
-        "always to keep watch in the temple"
+        "always to watch"
       ],
       "id": "luke-18-1~always-to-pray",
       "p": "And he spake a parable unto them to this end, that men ought",
@@ -10845,7 +10845,7 @@
       "d": [
         "grew in years and in riches",
         "rose in honour among the priests",
-        "excelled in the law of the fathers"
+        "grew in glory and power"
       ],
       "id": "luke-2-52~increased-in-wisdom-and",
       "p": "And Jesus",
@@ -10858,7 +10858,7 @@
       "b": "Luke",
       "d": [
         "serve God and Caesar",
-        "serve the law and the prophets",
+        "serve righteousness and sin",
         "serve God and the temple"
       ],
       "id": "luke-16-13~serve-god-and-mammon",
@@ -10899,8 +10899,8 @@
       "a": "Father, forgive them",
       "b": "Luke",
       "d": [
-        "My God, why hast thou forsaken me",
-        "Lord, remember me when thou comest",
+        "Father, into thy hands",
+        "I thirst",
         "It is finished"
       ],
       "id": "luke-23-34~father-forgive-them",
@@ -10956,7 +10956,7 @@
       "b": "Acts",
       "d": [
         "shall send the Spirit only",
-        "shall remain at the right hand for ever",
+        "shall remain in the heavens always",
         "shall come first to Jerusalem alone"
       ],
       "id": "acts-1-11~shall-so-come-in",
@@ -10969,9 +10969,9 @@
       "a": "more blessed to give than to receive",
       "b": "Acts",
       "d": [
-        "better to keep than to scatter",
-        "more holy to fast than to feast",
-        "wiser to save than to spend"
+        "better to give than to receive",
+        "more blessed to give than to retain",
+        "better to give than to withhold"
       ],
       "id": "acts-20-35~more-blessed-to-give",
       "p": "and to remember the words of the Lord Jesus, how he said, It is",
@@ -10985,7 +10985,7 @@
       "d": [
         "keep the whole law of Moses",
         "be born of the stock of Abraham",
-        "wash in the river Jordan"
+        "wash seven times in the river Jordan"
       ],
       "id": "acts-2-21~call-on-the-name",
       "p": "And it shall come to pass, that whosoever shall",
@@ -11025,9 +11025,9 @@
       "a": "prayed, and sang praises unto God",
       "b": "Acts",
       "d": [
-        "slept, waiting for the morning",
-        "wrote a letter unto the church",
-        "called for the magistrates"
+        "cried aloud unto the LORD",
+        "wept, and called upon the LORD",
+        "lifted up their voice in praise"
       ],
       "id": "acts-16-25~prayed-and-sang-praises",
       "p": "And at midnight Paul and Silas",
@@ -11039,9 +11039,9 @@
       "a": "searched the scriptures daily",
       "b": "Acts",
       "d": [
-        "asked a sign from heaven",
-        "sent unto Jerusalem for a word",
-        "trusted in the traditions of the elders"
+        "examined the law of Moses",
+        "inquired of the elders daily",
+        "read the holy prophets daily"
       ],
       "id": "acts-17-11~searched-the-scriptures-daily",
       "p": "These were more noble than those in Thessalonica, in that they received the word with all readiness of mind, and",
@@ -11082,8 +11082,8 @@
       "b": "Acts",
       "d": [
         "Father, forgive them this sin",
-        "My God, why hast thou forsaken me",
-        "Let me die the death of the righteous"
+        "Into thy hands, O God",
+        "Receive me into thy kingdom"
       ],
       "id": "acts-7-59~lord-jesus-receive-my",
       "p": "And they stoned Stephen, calling upon God, and saying,",
@@ -11095,7 +11095,7 @@
       "a": "turn from his way and live",
       "b": "Ezekiel",
       "d": [
-        "perish in his iniquity",
+        "perish utterly in his own iniquity",
         "keep the feasts of the LORD",
         "offer a bullock for his sin"
       ],
@@ -11109,9 +11109,9 @@
       "a": "a watchman unto the house of Israel",
       "b": "Ezekiel",
       "d": [
-        "a priest to the sanctuary",
-        "a prince over the captives",
-        "a scribe of the law"
+        "a holy priest unto the sanctuary of God",
+        "a prince and ruler over the captives",
+        "a ready scribe in the law of Moses"
       ],
       "id": "ezekiel-3-17~a-watchman-unto-the",
       "p": "Son of man, I have made thee",
@@ -11125,7 +11125,7 @@
       "d": [
         "Keep the new moons and the sabbaths",
         "Offer the blood of bulls in Zion",
-        "Return unto Egypt for help"
+        "Return ye unto Egypt for all your help"
       ],
       "id": "ezekiel-14-6~repent-and-turn-yourselves",
       "p": "Thus saith the Lord GOD;",
@@ -11207,9 +11207,9 @@
       "a": "belong mercies and forgivenesses",
       "b": "Daniel",
       "d": [
-        "belong the kingdoms of the earth",
+        "belong wisdom and might",
         "belong the stars of heaven",
-        "belong the treasures of the temple"
+        "belong power and everlasting glory"
       ],
       "id": "daniel-9-9~belong-mercies-and-forgivenesses",
       "p": "To the Lord our God",
@@ -11222,7 +11222,7 @@
       "b": "Daniel",
       "d": [
         "asked for the king's honour",
-        "sought a place among the magicians",
+        "sought honour among the magicians",
         "kept the custom of Babylon"
       ],
       "id": "daniel-1-8~purposed-in-his-heart",
@@ -11235,8 +11235,8 @@
       "a": "thou art greatly beloved",
       "b": "Daniel",
       "d": [
-        "thou art a man of war",
-        "thou shalt sit on a throne",
+        "thou art righteous in heart",
+        "thy prayers are heard",
         "thy people shall be few"
       ],
       "id": "daniel-9-23~thou-art-greatly-beloved",
@@ -11263,9 +11263,9 @@
       "a": "an everlasting kingdom",
       "b": "Daniel",
       "d": [
-        "a kingdom of this world",
-        "a kingdom for a thousand years",
-        "a kingdom given to the Chaldeans"
+        "a worldly kingdom",
+        "a temporal dominion",
+        "an earthly empire"
       ],
       "id": "daniel-7-27~an-everlasting-kingdom",
       "p": "whose kingdom is",
@@ -11279,7 +11279,7 @@
       "d": [
         "judge of Judah only",
         "a light unto Jerusalem",
-        "prince among the nations for a season"
+        "prince among all the nations"
       ],
       "id": "zechariah-14-9~king-over-all-the",
       "p": "And the LORD shall be",
@@ -11321,7 +11321,7 @@
       "d": [
         "a stone rejected of the builders",
         "a lamb taken from the flock",
-        "a vessel chosen for honour"
+        "a vessel sanctified and meet for honour"
       ],
       "id": "zechariah-3-2~a-brand-plucked-out",
       "p": "is not this",
@@ -11347,7 +11347,7 @@
       "a": "look upon me whom they have pierced",
       "b": "Zechariah",
       "d": [
-        "seek a sign from heaven",
+        "seek a sign from heaven above",
         "ask for a king like the nations",
         "turn again unto the law of Moses"
       ],
@@ -11362,7 +11362,7 @@
       "b": "Zechariah",
       "d": [
         "They have chosen another god",
-        "Judah is cut off this day",
+        "Judah is cut off",
         "The remnant is too few"
       ],
       "id": "zechariah-13-9~it-is-my-people",
@@ -11377,7 +11377,7 @@
       "d": [
         "teachers of the law",
         "lords over the faith",
-        "judges of another man's servant"
+        "servants of men"
       ],
       "id": "1-corinthians-11-1~followers-of-me",
       "p": "Be ye",
@@ -11419,7 +11419,7 @@
       "d": [
         "do all to please the brethren",
         "do all according to the law",
-        "do all that ye may be seen of men"
+        "do all to be seen of men"
       ],
       "id": "1-corinthians-10-31~do-all-to-the",
       "p": "Whether therefore ye eat, or drink, or whatsoever ye do,",
@@ -11432,7 +11432,7 @@
       "b": "1 Corinthians",
       "d": [
         "gathered into one nation",
-        "circumcised after the manner of Moses",
+        "called into one earthly city",
         "joined to one synagogue"
       ],
       "id": "1-corinthians-12-13~baptized-into-one-body",
@@ -11445,9 +11445,9 @@
       "a": "never faileth",
       "b": "1 Corinthians",
       "d": [
-        "always seeketh her own",
-        "endureth only for a season",
-        "is greater than faith alone"
+        "seeketh her own",
+        "fadeth away",
+        "is easily puffed"
       ],
       "id": "1-corinthians-13-8~never-faileth",
       "p": "Charity",
@@ -11459,9 +11459,9 @@
       "a": "the author of confusion",
       "b": "1 Corinthians",
       "d": [
-        "the author of the law only",
-        "a God of the Jews alone",
-        "the author of tongues without interpretation"
+        "a God of disorder",
+        "the maker of strife",
+        "a lover of dissension"
       ],
       "id": "1-corinthians-14-33~the-author-of-confusion",
       "p": "For God is not",
@@ -11487,7 +11487,7 @@
       "a": "redemption through his blood",
       "b": "Ephesians",
       "d": [
-        "peace by the works of the law",
+        "peace by the law",
         "wisdom from the Greeks",
         "pardon by our own righteousness"
       ],
@@ -11502,8 +11502,8 @@
       "b": "Ephesians",
       "d": [
         "born of the will of the flesh",
-        "made righteous by the law",
-        "chosen according to our works"
+        "made righteous by the works of the law",
+        "chosen of God according to our works"
       ],
       "id": "ephesians-2-10~created-in-christ-jesus",
       "p": "For we are his workmanship,",
@@ -11515,9 +11515,9 @@
       "a": "exceeding abundantly above all",
       "b": "Ephesians",
       "d": [
-        "according to our labour only",
-        "as much as the law requireth",
-        "whatever the Gentiles seek after"
+        "greatly and abundantly above all",
+        "far above all the things",
+        "abundantly above all the things"
       ],
       "id": "ephesians-3-20~exceeding-abundantly-above-all",
       "p": "Now unto him that is able to do",
@@ -11571,7 +11571,7 @@
       "a": "walk as children of light",
       "b": "Ephesians",
       "d": [
-        "walk as children of the day of Moses",
+        "walk after the old manner",
         "sit still until the kingdom come",
         "hide the light under a bushel"
       ],
@@ -11586,7 +11586,7 @@
       "b": "Ephesians",
       "d": [
         "be strong in your own flesh",
-        "stand fast in the tradition of the elders",
+        "stand fast in your own strength",
         "trust in the armour of men"
       ],
       "id": "ephesians-6-10~be-strong-in-the",
@@ -11599,9 +11599,9 @@
       "a": "love your wives",
       "b": "Ephesians",
       "d": [
-        "rule your houses with a rod",
-        "put away your wives for every cause",
-        "leave father and mother only"
+        "rule your wives",
+        "forsake your wives",
+        "command your wives"
       ],
       "id": "ephesians-5-25~love-your-wives",
       "p": "Husbands,",
@@ -11613,9 +11613,9 @@
       "a": "all spiritual blessings",
       "b": "Ephesians",
       "d": [
-        "the riches of this world",
-        "the honour of the Gentiles",
-        "the promises made to Abraham only"
+        "all earthly riches",
+        "worldly honor",
+        "carnal ordinances"
       ],
       "id": "ephesians-1-3~all-spiritual-blessings",
       "p": "Blessed be the God and Father of our Lord Jesus Christ, who hath blessed us with",
@@ -11643,7 +11643,7 @@
       "d": [
         "tithes, offerings, and firstfruits",
         "vows, fasts, and washings",
-        "psalms, hymns, and spiritual songs"
+        "burnt offerings and sacrifices"
       ],
       "id": "1-timothy-2-1~supplications-prayers-intercessions",
       "p": "I exhort therefore, that, first of all,",
@@ -11657,7 +11657,7 @@
       "d": [
         "knowledge puffeth up the weak",
         "riches profit a man in this life",
-        "the law is profitable unto the Jew only"
+        "the law profiteth the circumcision only"
       ],
       "id": "1-timothy-4-8~godliness-is-profitable-unto",
       "p": "For bodily exercise profiteth little: but",
@@ -11671,7 +11671,7 @@
       "d": [
         "a snare",
         "little worth",
-        "only for this life"
+        "of little profit"
       ],
       "id": "1-timothy-6-6~great-gain",
       "p": "But godliness with contentment is",
@@ -11683,9 +11683,9 @@
       "a": "flee these things",
       "b": "1 Timothy",
       "d": [
-        "lay hold on uncertain riches",
-        "strive about words to no profit",
-        "keep the fables of the elders"
+        "covet these things",
+        "seek after riches",
+        "strive about words"
       ],
       "id": "1-timothy-6-11~flee-these-things",
       "p": "But thou, O man of God,",
@@ -11711,9 +11711,9 @@
       "a": "trust in uncertain riches",
       "b": "1 Timothy",
       "d": [
-        "trust in the law of Moses",
-        "boast in the honour of men",
-        "lay up treasure upon earth only"
+        "trust in earthly treasure",
+        "boast in their wealth",
+        "seek honour of men"
       ],
       "id": "1-timothy-6-17~trust-in-uncertain-riches",
       "p": "Charge them that are rich in this world, that they be not highminded, nor",
@@ -11727,7 +11727,7 @@
       "d": [
         "Keep the feasts of the fathers",
         "Wash often according to the law",
-        "Offer the blood of bulls"
+        "Offer daily the blood of bulls"
       ],
       "id": "1-peter-1-16~be-ye-holy-for",
       "p": "Because it is written,",
@@ -11754,7 +11754,7 @@
       "b": "1 Peter",
       "d": [
         "fear unspeakable and full of dread",
-        "honour among the Gentiles",
+        "gladness of heart and great rejoicing",
         "the joy of the harvest"
       ],
       "id": "1-peter-1-8~joy-unspeakable-and-full",
@@ -11769,7 +11769,7 @@
       "d": [
         "an earthly tabernacle",
         "a house of cedar",
-        "a synagogue of the Jews"
+        "a temple of stone"
       ],
       "id": "1-peter-2-5~a-spiritual-house",
       "p": "Ye also, as lively stones, are built up",
@@ -11781,9 +11781,9 @@
       "a": "good stewards of the manifold grace of God",
       "b": "1 Peter",
       "d": [
-        "lords over God's heritage",
-        "teachers of the law of Moses",
-        "keepers of the tradition of the elders"
+        "lords and masters over the heritage of God",
+        "ministers and keepers of the holy law",
+        "hearers of the word and not doers only"
       ],
       "id": "1-peter-4-10~good-stewards-of-the",
       "p": "As every man hath received the gift, even so minister the same one to another, as",
@@ -11797,7 +11797,7 @@
       "d": [
         "silver and gold and precious stones",
         "rest in the land of Canaan",
-        "honour among the rulers of this world"
+        "earthly riches and worldly honour"
       ],
       "id": "1-peter-1-7~praise-and-honour-and",
       "p": "That the trial of your faith, being much more precious than of gold that perisheth, though it be tried with fire, might be found unto",
@@ -11811,7 +11811,7 @@
       "d": [
         "standeth for a season",
         "returneth void unto him",
-        "is written in tables of stone only"
+        "fadeth like grass"
       ],
       "id": "1-peter-1-25~endureth-for-ever",
       "p": "But the word of the Lord",
@@ -11823,7 +11823,7 @@
       "a": "abstain from fleshly lusts",
       "b": "1 Peter",
       "d": [
-        "keep the customs of the Gentiles",
+        "live after the former lusts",
         "seek a continuing city here",
         "return unto the beggarly elements"
       ],
@@ -11851,9 +11851,9 @@
       "a": "the blood of Jesus Christ his Son",
       "b": "1 John",
       "d": [
-        "the washings of the law",
+        "the diverse washings of the law",
         "the blood of bulls and goats",
-        "our own righteousness before God"
+        "the works of our own righteousness"
       ],
       "id": "1-john-1-7~the-blood-of-jesus",
       "p": "But if we walk in the light, as he is in the light, we have fellowship one with another, and",
@@ -11866,8 +11866,8 @@
       "b": "1 John",
       "d": [
         "love is of the world",
-        "love is the fulfilling of the law only",
-        "love is a gift of the Greeks"
+        "love fulfilleth the law only",
+        "wisdom is of the world"
       ],
       "id": "1-john-4-7~love-is-of-god",
       "p": "Beloved, let us love one another: for",
@@ -11893,7 +11893,7 @@
       "a": "an advocate with the Father",
       "b": "1 John",
       "d": [
-        "a priest after the order of Aaron",
+        "a high priest of Aaron",
         "a mediator of the old covenant",
         "an offering of turtledoves"
       ],
@@ -11935,9 +11935,9 @@
       "a": "love in word, neither in tongue",
       "b": "1 John",
       "d": [
-        "walk after the flesh",
+        "walk after the lust of the flesh",
         "judge one another any more",
-        "keep company with sinners"
+        "keep company with the ungodly"
       ],
       "id": "1-john-3-18~love-in-word-neither",
       "p": "My little children, let us not",
@@ -11949,9 +11949,9 @@
       "a": "keep his commandments",
       "b": "1 John",
       "d": [
-        "keep the traditions of men",
-        "seek a sign from heaven",
-        "fulfil the law by works alone"
+        "keep the whole law",
+        "seek signs from heaven",
+        "observe the outward law"
       ],
       "id": "1-john-5-3~keep-his-commandments",
       "p": "For this is the love of God, that we",
@@ -11991,9 +11991,9 @@
       "a": "all the host of them",
       "b": "Genesis",
       "d": [
-        "every living creature",
+        "every living creature therein",
         "all the works of God",
-        "the foundation thereof"
+        "the deep foundations thereof"
       ],
       "id": "genesis-2-1~all-the-host-of",
       "p": "Thus the heavens and the earth were finished, and",
@@ -12005,7 +12005,7 @@
       "a": "he rested on the seventh day",
       "b": "Genesis",
       "d": [
-        "he sanctified the sabbath",
+        "he sanctified the seventh sabbath",
         "he looked upon his creation",
         "he blessed the living soul"
       ],
@@ -12020,7 +12020,7 @@
       "b": "Genesis",
       "d": [
         "What hast thou done",
-        "Hast thou eaten of the tree",
+        "Hast thou eaten",
         "Why hidest thou thyself"
       ],
       "id": "genesis-3-9~where-art-thou",
@@ -12033,9 +12033,9 @@
       "a": "Am I my brother's keeper",
       "b": "Genesis",
       "d": [
-        "I have not seen him",
-        "He went into the field",
-        "Ask of the LORD who seeth all"
+        "Am I my brother's master",
+        "Wherefore askest thou me of him",
+        "Know I where my brother is"
       ],
       "id": "genesis-4-9~am-i-my-brother",
       "p": "And the LORD said unto Cain, Where is Abel thy brother? And he said, I know not:",
@@ -12063,7 +12063,7 @@
       "d": [
         "heard my humble prayer",
         "guided my footsteps",
-        "shown mercy to my lord"
+        "blessed my journey"
       ],
       "id": "genesis-24-56~prospered-my-way",
       "p": "And he said unto them, Hinder me not, seeing the LORD hath",
@@ -12089,9 +12089,9 @@
       "a": "Shiloh come",
       "b": "Genesis",
       "d": [
-        "the Messiah appear",
-        "the temple be built",
-        "David be anointed"
+        "the King come",
+        "David reign",
+        "the Prince come"
       ],
       "id": "genesis-49-10~shiloh-come",
       "p": "The sceptre shall not depart from Judah, nor a lawgiver from between his feet, until",
@@ -12118,7 +12118,7 @@
       "b": "Exodus",
       "d": [
         "a holy nation forever",
-        "my chosen inheritance",
+        "my chosen inheritance forever",
         "a royal priesthood in Zion"
       ],
       "id": "exodus-19-5~a-peculiar-treasure-unto",
@@ -12159,9 +12159,9 @@
       "a": "I am holy",
       "b": "Leviticus",
       "d": [
-        "I am the LORD of hosts",
-        "I am a jealous God",
-        "my name is Holy in Israel"
+        "I am jealous",
+        "I am righteous",
+        "the LORD is holy"
       ],
       "id": "leviticus-11-44~i-am-holy",
       "p": "For I am the LORD your God: ye shall therefore sanctify yourselves, and ye shall be holy; for",
@@ -12201,9 +12201,9 @@
       "a": "bind them for a sign upon your hand",
       "b": "Deuteronomy",
       "d": [
-        "teach them diligently to your children",
+        "teach them diligently unto your children's children",
         "write them upon the posts of your house",
-        "meditate therein both day and night"
+        "meditate in them continually both day and night"
       ],
       "id": "deuteronomy-11-18~bind-them-for-a",
       "p": "Therefore shall ye lay up these my words in your heart and in your soul, and",
@@ -12229,9 +12229,9 @@
       "a": "The sword of the LORD, and of Gideon",
       "b": "Judges",
       "d": [
-        "The battle is the Lord's alone",
+        "The battle belongeth unto the LORD of hosts",
         "Arise, O Israel, and pursue the host",
-        "Victory belongeth unto our God"
+        "Salvation and victory belongeth unto our God"
       ],
       "id": "judges-7-18~the-sword-of-the",
       "p": "When I blow with a trumpet, I and all that are with me, then blow ye the trumpets also on every side of all the camp, and say,",
@@ -12243,8 +12243,8 @@
       "a": "The man is near of kin unto us",
       "b": "Ruth",
       "d": [
-        "The Lord hath provided a redeemer",
-        "Thy labor hath found great favor",
+        "The Lord hath surely provided a near redeemer",
+        "Thy labor hath found great favor this day",
         "The blessing of Boaz be upon thee"
       ],
       "id": "ruth-2-20~the-man-is-near",
@@ -12258,7 +12258,7 @@
       "b": "1 Samuel",
       "d": [
         "I will not touch the Lord's anointed",
-        "judgment belongeth unto the Almighty",
+        "judgment belongeth only unto the Almighty",
         "thy life is precious in my eyes"
       ],
       "id": "1-samuel-24-12~mine-hand-shall-not",
@@ -12286,8 +12286,8 @@
       "b": "2 Kings",
       "d": [
         "the mantle of the prophet",
-        "the power of Elijah",
-        "the blessing of God"
+        "the mighty power of Elijah",
+        "the fullness of thy blessing"
       ],
       "id": "2-kings-2-9~a-double-portion-of",
       "p": "And Elisha said, I pray thee, let",
@@ -12299,8 +12299,8 @@
       "a": "It is well",
       "b": "2 Kings",
       "d": [
-        "The Lord hath afflicted my soul",
-        "My heart is bitter within me",
+        "All is well",
+        "The child dieth",
         "The child sleepeth"
       ],
       "id": "2-kings-4-26~it-is-well",
@@ -12399,7 +12399,7 @@
       "d": [
         "guide my wandering steps",
         "enlighten my dark eyes",
-        "make straight the way before me"
+        "make plain thy paths"
       ],
       "id": "psalm-25-4~teach-me-thy-paths",
       "p": "Shew me thy ways, O LORD;",
@@ -12411,9 +12411,9 @@
       "a": "worship the LORD in the beauty of holiness",
       "b": "Psalms",
       "d": [
-        "bow down before his holy footstool",
-        "praise him in the great congregation",
-        "sing praises unto his holy name"
+        "bow down yourselves before his holy footstool",
+        "praise him together in the great congregation",
+        "sing praises aloud unto his holy name"
       ],
       "id": "psalm-29-2~worship-the-lord-in",
       "p": "Give unto the LORD the glory due unto his name;",
@@ -12469,7 +12469,7 @@
       "d": [
         "his truth reacheth unto the clouds",
         "his righteousness standeth fast forever",
-        "his holy arm hath gotten the victory"
+        "his compassion never faileth"
       ],
       "id": "psalm-107-1~his-mercy-endureth-for",
       "p": "O give thanks unto the LORD, for he is good: for",
@@ -12482,7 +12482,7 @@
       "b": "Psalms",
       "d": [
         "thy mercy is over all thy works",
-        "thy righteousness endureth forever",
+        "thy righteousness endureth for ever",
         "thy throne is established in truth"
       ],
       "id": "psalm-119-89~thy-word-is-settled",
@@ -12509,9 +12509,9 @@
       "a": "his tender mercies are over all his works",
       "b": "Psalms",
       "d": [
-        "his glory reacheth unto the heavens",
-        "his righteousness standeth fast forever",
-        "his truth endureth to all generations"
+        "his glory is exalted above all the heavens",
+        "his righteousness shall stand fast for evermore",
+        "his faithfulness reacheth unto all generations of men"
       ],
       "id": "psalm-145-9~his-tender-mercies-are",
       "p": "The LORD is good to all: and",
@@ -12523,8 +12523,8 @@
       "a": "praise the LORD",
       "b": "Psalms",
       "d": [
-        "sing unto the most High",
-        "give glory to the King",
+        "sing his praise",
+        "glorify God",
         "bow before his throne"
       ],
       "id": "psalm-150-6~praise-the-lord",
@@ -12538,7 +12538,7 @@
       "b": "Proverbs",
       "d": [
         "righteousness and truth",
-        "peace and length of days",
+        "instruction and truth",
         "counsel and mighty strength"
       ],
       "id": "proverbs-2-6~knowledge-and-understanding",
@@ -12551,7 +12551,7 @@
       "a": "he addeth no sorrow with it",
       "b": "Proverbs",
       "d": [
-        "it shall endure forever",
+        "it shall endure for evermore",
         "it bringeth peace to the soul",
         "the righteous shall rejoice therein"
       ],
@@ -12567,7 +12567,7 @@
       "d": [
         "the blessing of God is upon him",
         "his inheritance shall endure forever",
-        "his name shall be praised in the gates"
+        "his name shall endure forever"
       ],
       "id": "proverbs-11-30~he-that-winneth-souls",
       "p": "The fruit of the righteous is a tree of life; and",
@@ -12622,7 +12622,7 @@
       "b": "Isaiah",
       "d": [
         "filled with the glory of God",
-        "reconciled in righteousness and peace",
+        "filled with righteousness and everlasting peace",
         "gathered unto the kingdom of David"
       ],
       "id": "isaiah-11-9~full-of-the-knowledge",
@@ -12650,8 +12650,8 @@
       "b": "Isaiah",
       "d": [
         "redeem his people from the grave",
-        "bring everlasting peace to Zion",
-        "crown his chosen with glory"
+        "bring everlasting peace unto all people",
+        "crown his chosen people with glory"
       ],
       "id": "isaiah-25-8~wipe-away-tears-from",
       "p": "He will swallow up death in victory; and the Lord GOD will",
@@ -12677,9 +12677,9 @@
       "a": "I am God, and there is none else",
       "b": "Isaiah",
       "d": [
-        "my arm is not shortened",
-        "salvation is of the LORD",
-        "my word shall not return void"
+        "mine arm is not shortened that it cannot save",
+        "salvation and glory belong unto the LORD alone",
+        "beside me there is no saviour in the earth"
       ],
       "id": "isaiah-45-22~i-am-god-and",
       "p": "Look unto me, and be ye saved, all the ends of the earth: for",
@@ -12691,8 +12691,8 @@
       "a": "exercise lovingkindness, judgment, and righteousness",
       "b": "Jeremiah",
       "d": [
-        "dwell in the high and holy place",
-        "ruleth the nations with a rod of iron",
+        "dwell in the holy place",
+        "ruleth over all the earth",
         "pardoneth transgression for my name's sake"
       ],
       "id": "jeremiah-9-24~exercise-lovingkindness-judgment-and",
@@ -12733,9 +12733,9 @@
       "a": "shall not be destroyed",
       "b": "Daniel",
       "d": [
-        "shall break in pieces all kingdoms",
+        "cannot be moved",
         "endureth throughout all generations",
-        "is established upon the holy mountain"
+        "standeth fast for ever"
       ],
       "id": "daniel-6-26~shall-not-be-destroyed",
       "p": "For he is the living God, and stedfast for ever, and his kingdom that which",
@@ -12748,8 +12748,8 @@
       "b": "Amos",
       "d": [
         "rulest the starry heavens",
-        "sendeth rain upon the just and unjust",
-        "weighed the earth in a balance"
+        "sendeth rain upon the earth",
+        "ruleth over the deep"
       ],
       "id": "amos-4-13~maketh-the-morning-darkness",
       "p": "For, lo, he that formeth the mountains, and createth the wind, and declareth unto man what is his thought, that",
@@ -12803,7 +12803,7 @@
       "a": "with God all things are possible",
       "b": "Matthew",
       "d": [
-        "to him that believeth nothing is too hard",
+        "nothing is too hard for the Lord",
         "the power of faith shall prevail",
         "grace shall overcome every hindrance"
       ],
@@ -12818,7 +12818,7 @@
       "b": "Mark",
       "d": [
         "prepare ye the way of the Lord",
-        "follow me, and I will make you fishers",
+        "follow me into the kingdom",
         "turn from your sins unto God"
       ],
       "id": "mark-1-15~repent-ye-and-believe",
@@ -12831,9 +12831,9 @@
       "a": "Have faith in God",
       "b": "Mark",
       "d": [
-        "Believe on the Son of man",
+        "Believe on the Lord",
         "Ask, and ye shall receive",
-        "Doubt not in your heart"
+        "Doubt not in thine heart"
       ],
       "id": "mark-11-22~have-faith-in-god",
       "p": "And Jesus answering saith unto them,",
@@ -12859,9 +12859,9 @@
       "a": "they follow me",
       "b": "John",
       "d": [
-        "they abide in my love",
+        "they know my voice",
         "they shall never hunger",
-        "no man can pluck them out"
+        "they obey my word"
       ],
       "id": "john-10-27~they-follow-me",
       "p": "My sheep hear my voice, and I know them, and",
@@ -12875,7 +12875,7 @@
       "d": [
         "I will send the Comforter unto you",
         "Ye shall see my glory in heaven",
-        "The kingdom is prepared for you"
+        "The kingdom of heaven is prepared for you"
       ],
       "id": "john-14-2~i-go-to-prepare",
       "p": "In my Father's house are many mansions: if it were not so, I would have told you.",
@@ -12887,9 +12887,9 @@
       "a": "Saul, Saul, why persecutest thou me",
       "b": "Acts",
       "d": [
-        "Arise, and go into the city",
-        "It is hard for thee to kick against pricks",
-        "I am Jesus whom thou persecutest"
+        "Saul, why fightest thou against God",
+        "Saul, why dost thou persecute me",
+        "why kickest thou against the pricks"
       ],
       "id": "acts-9-4~saul-saul-why-persecutest",
       "p": "And he fell to the earth, and heard a voice saying unto him,",
@@ -12903,7 +12903,7 @@
       "d": [
         "all nations are called to repentance",
         "salvation is come unto the Gentiles",
-        "the Holy Ghost is given to all believers"
+        "the Gentiles also are accepted of God"
       ],
       "id": "acts-10-34~god-is-no-respecter",
       "p": "Then Peter opened his mouth, and said, Of a truth I perceive that",
@@ -12916,7 +12916,7 @@
       "b": "Romans",
       "d": [
         "they walk in eternal light",
-        "they are freed from the law of sin",
+        "they are freed from all condemnation",
         "they shall inherit the promises"
       ],
       "id": "romans-8-14~they-are-the-sons",
@@ -12929,7 +12929,7 @@
       "a": "the glory which shall be revealed in us",
       "b": "Romans",
       "d": [
-        "the eternal inheritance in the heavens",
+        "the eternal weight of glory prepared for us",
         "the crown of righteousness laid up for us",
         "the riches of his grace in Christ"
       ],
@@ -12972,7 +12972,7 @@
       "b": "1 Corinthians",
       "d": [
         "all receive the kingdom",
-        "death be swallowed up in victory",
+        "all be raised up",
         "the righteous stand redeemed"
       ],
       "id": "1-corinthians-15-22~all-be-made-alive",
@@ -12985,7 +12985,7 @@
       "a": "the victory through our Lord Jesus Christ",
       "b": "1 Corinthians",
       "d": [
-        "an eternal inheritance in heaven",
+        "an eternal inheritance in the heavens",
         "the assurance of his holy promise",
         "redemption from the power of death"
       ],
@@ -13000,7 +13000,7 @@
       "b": "1 Corinthians",
       "d": [
         "walk in the light of truth",
-        "pray without ceasing",
+        "stand fast in the Lord",
         "hold fast the sound doctrine"
       ],
       "id": "1-corinthians-16-13~stand-fast-in-the",
@@ -13071,7 +13071,7 @@
       "d": [
         "sound and without offense",
         "ministering grace to hearers",
-        "speaking the truth in love"
+        "speaking the truth"
       ],
       "id": "colossians-4-6~seasoned-with-salt",
       "p": "Let your speech be alway with grace,",
@@ -13083,9 +13083,9 @@
       "a": "Despise not prophesyings",
       "b": "1 Thessalonians",
       "d": [
-        "Grieve not the Holy Ghost",
-        "Walk worthy of the Lord",
-        "Follow after peace with all"
+        "Grieve not the Spirit",
+        "Despise not instruction",
+        "Reject not knowledge"
       ],
       "id": "1-thessalonians-5-19~despise-not-prophesyings",
       "p": "Quench not the Spirit.",
@@ -13099,7 +13099,7 @@
       "d": [
         "an eternal inheritance among the saints",
         "the promise of his glorious appearing",
-        "the peace that passeth understanding"
+        "the peace of God which passeth all understanding"
       ],
       "id": "2-thessalonians-2-16~everlasting-consolation-and-good",
       "p": "Now our Lord Jesus Christ himself, and God, even our Father, which hath loved us, and hath given us",
@@ -13139,9 +13139,9 @@
       "a": "thou hast created all things",
       "b": "Revelation",
       "d": [
-        "thou hast redeemed us by thy blood",
-        "thy throne is established in heaven",
-        "great and marvellous are thy works"
+        "thou hast made all things",
+        "thou hast framed all things",
+        "thou hast ordained all things"
       ],
       "id": "revelation-4-11~thou-hast-created-all",
       "p": "Thou art worthy, O Lord, to receive glory and honour and power: for",
@@ -13153,7 +13153,7 @@
       "a": "northward, and southward, and eastward, and westward",
       "b": "Genesis",
       "d": [
-        "unto the great river Euphrates",
+        "unto the borders of the river Euphrates",
         "round about all the plain of Jordan",
         "unto the borders of the great sea"
       ],
@@ -13167,9 +13167,9 @@
       "a": "I am with thee, and will bless thee",
       "b": "Genesis",
       "d": [
-        "thy enemies shall be subdued before thee",
-        "the land of Canaan is thine inheritance",
-        "I will establish thy throne forever"
+        "I will keep thee, and will bless thee",
+        "I will be with thee, and will keep thee",
+        "I have chosen thee, and will bless thee"
       ],
       "id": "genesis-26-24~i-am-with-thee",
       "p": "And the LORD appeared unto him the same night, and said, I am the God of Abraham thy father: fear not, for",
@@ -13209,7 +13209,7 @@
       "a": "all manner of workmanship",
       "b": "Exodus",
       "d": [
-        "all the mysteries of the sanctuary",
+        "all knowledge of mysteries",
         "holy zeal for the tabernacle",
         "the interpretation of dreams"
       ],
@@ -13225,7 +13225,7 @@
       "d": [
         "he shall give you rest",
         "he will guide your steps",
-        "his pillar of cloud shall lead you"
+        "he shall drive out your enemies"
       ],
       "id": "deuteronomy-1-30~he-shall-fight-for",
       "p": "The LORD your God which goeth before you,",
@@ -13251,8 +13251,8 @@
       "a": "regardeth not persons, nor taketh reward",
       "b": "Deuteronomy",
       "d": [
-        "dwellest in the light unapproachable",
-        "created the heavens and all their host",
+        "keepeth covenant and mercy for ever",
+        "judgeth the people with equity",
         "leadeth his people like a flock"
       ],
       "id": "deuteronomy-10-17~regardeth-not-persons-nor",
@@ -13279,7 +13279,7 @@
       "a": "to save by many or by few",
       "b": "1 Samuel",
       "d": [
-        "to deliver his chosen inheritance",
+        "to deliver his people by a mighty hand",
         "to fight from the high heavens",
         "to confound the army of the Philistines"
       ],
@@ -13307,7 +13307,7 @@
       "a": "worship the LORD in the beauty of holiness",
       "b": "1 Chronicles",
       "d": [
-        "bow down before the holy ark",
+        "bow down yourselves before his holy ark",
         "praise his name with psaltery and harp",
         "sing a new song in his courts"
       ],
@@ -13335,9 +13335,9 @@
       "a": "the earth, and all things that are therein",
       "b": "Nehemiah",
       "d": [
-        "the stars and the deep places",
-        "man and beast upon the mountains",
-        "every living creature under heaven"
+        "the starry heavens and all the deep places",
+        "both man and beast upon all the mountains",
+        "every living creature that moveth under heaven"
       ],
       "id": "nehemiah-9-6~the-earth-and-all",
       "p": "Thou, even thou, art LORD alone; thou hast made heaven, the heaven of heavens, with all their host,",
@@ -13349,8 +13349,8 @@
       "a": "despise not thou the chastening of the Almighty",
       "b": "Job",
       "d": [
-        "murmur not against his righteous judgments",
-        "humble thyself in sackcloth and ashes",
+        "murmur not at all against his righteous judgments",
+        "humble thyself before the mighty hand of God",
         "turn not away from his holy commandment"
       ],
       "id": "job-5-17~despise-not-thou-the",
@@ -13363,9 +13363,9 @@
       "a": "rejoice with trembling",
       "b": "Psalms",
       "d": [
-        "bow down before his holy footstool",
-        "praise his name in the congregation",
-        "bring your offerings with thanksgiving"
+        "bow with reverence",
+        "worship his holy name",
+        "praise him with fear"
       ],
       "id": "psalm-2-11~rejoice-with-trembling",
       "p": "Serve the LORD with fear, and",
@@ -13405,9 +13405,9 @@
       "a": "transgression is forgiven",
       "b": "Psalms",
       "d": [
-        "heart is clean before God",
-        "feet walk in righteous paths",
-        "soul is redeemed from death"
+        "iniquity is pardoned",
+        "heart is clean",
+        "soul is delivered"
       ],
       "id": "psalm-32-1~transgression-is-forgiven",
       "p": "Blessed is he whose",
@@ -13433,8 +13433,8 @@
       "a": "shout unto God with the voice of triumph",
       "b": "Psalms",
       "d": [
-        "sing praises unto his holy name",
-        "bow before the King of glory",
+        "sing praises aloud unto his holy name",
+        "bow yourselves down before the King of glory",
         "make a joyful noise in his sanctuary"
       ],
       "id": "psalm-47-1~shout-unto-god-with",
@@ -13448,8 +13448,8 @@
       "b": "Psalms",
       "d": [
         "all ye nations",
-        "all ye servants of the Lord",
-        "all ye ends of the earth"
+        "all ye people",
+        "all ye islands"
       ],
       "id": "psalm-66-1~all-ye-lands",
       "p": "Make a joyful noise unto God,",
@@ -13546,7 +13546,7 @@
       "b": "Psalms",
       "d": [
         "the glory of God shall shine",
-        "all the nations shall worship",
+        "all the nations shall bow down and worship",
         "his mercies are new every morning"
       ],
       "id": "psalm-113-3~the-lord-s-name",
@@ -13629,9 +13629,9 @@
       "a": "those that seek me early shall find me",
       "b": "Proverbs",
       "d": [
-        "wisdom shall dwell in their heart",
-        "they shall inherit eternal life",
-        "my counsel shall establish their way"
+        "wisdom shall abide and dwell in their heart",
+        "they that seek my counsel shall find peace",
+        "the understanding of the prudent shall guide their way"
       ],
       "id": "proverbs-8-17~those-that-seek-me",
       "p": "I love them that love me; and",
@@ -13671,8 +13671,8 @@
       "a": "a friend that sticketh closer than a brother",
       "b": "Proverbs",
       "d": [
-        "a companion that leadeth in truth",
-        "a righteous counselor that giveth wisdom",
+        "a companion that leadeth him in the truth",
+        "a wise counselor that giveth good understanding",
         "a faithful brother in time of trial"
       ],
       "id": "proverbs-18-24~a-friend-that-sticketh",
@@ -13685,9 +13685,9 @@
       "a": "riseth up again",
       "b": "Proverbs",
       "d": [
-        "the Lord upholdeth his hand",
-        "his faith shall not fail",
-        "he shall inherit the land"
+        "falleth not utterly",
+        "is raised up",
+        "abideth still"
       ],
       "id": "proverbs-24-16~riseth-up-again",
       "p": "For a just man falleth seven times, and",
@@ -13755,9 +13755,9 @@
       "a": "the everlasting covenant between God",
       "b": "Genesis",
       "d": [
-        "the token I set in the cloud",
-        "the oath I sware unto Noah",
-        "the promise I made with the earth"
+        "the oath which I sware",
+        "my covenant with all flesh",
+        "the token of the covenant"
       ],
       "id": "genesis-9-16~the-everlasting-covenant-between",
       "p": "And the bow shall be in the cloud; and I will look upon it, that I may remember",
@@ -13826,8 +13826,8 @@
       "b": "Genesis",
       "d": [
         "a prince over all the land of Goshen",
-        "a steward of all Pharaoh's house",
-        "a judge throughout all the earth"
+        "a ruler over all the land of Canaan",
+        "a governor over all the people of Pharaoh"
       ],
       "id": "genesis-45-8~a-ruler-throughout-all",
       "p": "So now it was not you that sent me hither, but God: and he hath made me a father to Pharaoh, and lord of all his house, and",
@@ -13937,9 +13937,9 @@
       "a": "my word shall come to pass unto thee",
       "b": "Numbers",
       "d": [
-        "my promise shall fail thee",
-        "this thing shall be done",
-        "the flesh shall be given"
+        "the word that I have spoken shall stand",
+        "the promise which I have made shall fail",
+        "the hand of the LORD be shortened unto thee"
       ],
       "id": "numbers-11-23~my-word-shall-come",
       "p": "And the LORD said unto Moses, Is the LORD'S hand waxed short? thou shalt see now whether",
@@ -13965,9 +13965,9 @@
       "a": "with all thy heart",
       "b": "Deuteronomy",
       "d": [
-        "with a perfect way",
-        "in the days of thy trouble",
-        "while he may be found"
+        "with all thy might",
+        "with a perfect heart",
+        "with a willing mind"
       ],
       "id": "deuteronomy-4-29~with-all-thy-heart",
       "p": "But if from thence thou shalt seek the LORD thy God, thou shalt find him, if thou seek him",
@@ -13993,9 +13993,9 @@
       "a": "all the words of this law",
       "b": "Deuteronomy",
       "d": [
-        "the mind of the LORD",
-        "the statutes only",
-        "the whole counsel of men"
+        "all the statutes of the LORD",
+        "all the commandments of this covenant",
+        "the whole law of our God"
       ],
       "id": "deuteronomy-29-29~all-the-words-of",
       "p": "The secret things belong unto the LORD our God: but those things which are revealed belong unto us and to our children for ever, that we may do",
@@ -14008,8 +14008,8 @@
       "b": "Deuteronomy",
       "d": [
         "in the book, and in the ark",
-        "upon the tables of stone",
-        "in the ears of the people"
+        "in thine ears, and in thy heart",
+        "in thy heart, and in thy soul"
       ],
       "id": "deuteronomy-30-14~in-thy-mouth-and",
       "p": "But the word is very nigh unto thee,",
@@ -14035,9 +14035,9 @@
       "a": "put away the gods which your fathers served",
       "b": "Joshua",
       "d": [
-        "break down the altars of Baal",
-        "forget the gods of the land",
-        "leave the idols of Canaan"
+        "put away the strange gods from among you",
+        "break down the strange gods of the land",
+        "forget the false gods which your fathers worshipped"
       ],
       "id": "joshua-24-14~put-away-the-gods",
       "p": "Now therefore fear the LORD, and serve him in sincerity and in truth: and",
@@ -14077,9 +14077,9 @@
       "a": "in ceasing to pray for you",
       "b": "1 Samuel",
       "d": [
-        "in refusing to judge you",
-        "in turning from your cry",
-        "in forgetting the anointed"
+        "in refusing to pray for you",
+        "in turning away from your cry",
+        "in hiding my face from you"
       ],
       "id": "1-samuel-12-23~in-ceasing-to-pray",
       "p": "Moreover as for me, God forbid that I should sin against the LORD",
@@ -14119,9 +14119,9 @@
       "a": "a great and strong wind rent the mountains",
       "b": "1 Kings",
       "d": [
-        "a fire fell from heaven",
-        "an earthquake shook the cave",
-        "a still small voice went forth"
+        "a great and terrible fire rent the rocks",
+        "a mighty earthquake shook the foundations of the mount",
+        "a terrible tempest broke upon the high mountains"
       ],
       "id": "1-kings-19-11~a-great-and-strong",
       "p": "And he said, Go forth, and stand upon the mount before the LORD. And, behold, the LORD passed by, and",
@@ -14246,8 +14246,8 @@
       "b": "Job",
       "d": [
         "of short time, and full of sorrow",
-        "as grass, and withereth away",
-        "born to labour, and to die"
+        "of few years, and full of grief",
+        "born to trouble, as the sparks fly"
       ],
       "id": "job-14-1~of-few-days-and",
       "p": "Man that is born of a woman is",
@@ -14273,9 +14273,9 @@
       "a": "I laid the foundations of the earth",
       "b": "Job",
       "d": [
-        "I stretched out the heavens",
-        "I shut up the sea",
-        "I formed the first man"
+        "I stretched out the line upon it",
+        "I shut up the sea with doors",
+        "I stretched out the heavens as a tent"
       ],
       "id": "job-38-4~i-laid-the-foundations",
       "p": "Where wast thou when",
@@ -14330,8 +14330,8 @@
       "b": "Psalms",
       "d": [
         "all that is therein",
-        "the cattle upon a thousand hills",
-        "the heavens and the seas"
+        "the heavens and the seas",
+        "all the inhabitants thereof"
       ],
       "id": "psalm-24-1~they-that-dwell-therein",
       "p": "The earth is the LORD'S, and the fulness thereof; the world, and",
@@ -14399,7 +14399,7 @@
       "a": "he inclined unto me, and heard my cry",
       "b": "Psalms",
       "d": [
-        "he delivered me from the pit",
+        "he heard my voice and delivered my soul",
         "he set my feet upon a rock",
         "he put a new song in my mouth"
       ],
@@ -14485,7 +14485,7 @@
       "d": [
         "forget not his benefits",
         "praise him in the congregation",
-        "sing unto him a new song"
+        "give thanks unto him"
       ],
       "id": "psalm-103-1~bless-his-holy-name",
       "p": "Bless the LORD, O my soul: and all that is within me,",
@@ -14623,8 +14623,8 @@
       "a": "the end thereof are the ways of death",
       "b": "Proverbs",
       "d": [
-        "the end thereof is destruction",
-        "the latter end is vanity",
+        "the latter end thereof is bitter as wormwood",
+        "the path thereof leadeth down to death",
         "the path thereof leadeth to the grave"
       ],
       "id": "proverbs-14-12~the-end-thereof-are",
@@ -14877,7 +14877,7 @@
       "d": [
         "return ye unto him with the heart",
         "wait ye upon him in the night",
-        "trust ye in him with all your soul"
+        "cry ye unto him while he is near"
       ],
       "id": "isaiah-55-6~call-ye-upon-him",
       "p": "Seek ye the LORD while he may be found,",
@@ -14903,9 +14903,9 @@
       "a": "liberty to the captives",
       "b": "Isaiah",
       "d": [
+        "the acceptable year",
         "the year of his favour",
-        "the day of vengeance",
-        "recovery of sight to the blind"
+        "the day of vengeance"
       ],
       "id": "isaiah-61-1~liberty-to-the-captives",
       "p": "The Spirit of the Lord GOD is upon me; because the LORD hath anointed me to preach good tidings unto the meek; he hath sent me to bind up the brokenhearted, to proclaim",
@@ -14960,8 +14960,8 @@
       "b": "Jeremiah",
       "d": [
         "divideth asunder the soul",
-        "overfloweth the banks",
-        "shineth in the darkness"
+        "shineth in the darkness",
+        "melteth the hard heart"
       ],
       "id": "jeremiah-23-29~breaketh-the-rock-in",
       "p": "Is not my word like as a fire? saith the LORD; and like a hammer that",
@@ -15017,7 +15017,7 @@
       "d": [
         "ye shall be my people, and I your God",
         "ye shall dwell in the land in peace",
-        "ye shall remember your evil ways"
+        "ye shall keep my commandments and walk therein"
       ],
       "id": "ezekiel-36-27~ye-shall-keep-my",
       "p": "And I will put my spirit within you, and cause you to walk in my statutes, and",
@@ -15044,7 +15044,7 @@
       "b": "Daniel",
       "d": [
         "he found no fault in me",
-        "I served him continually",
+        "I have walked uprightly before his face",
         "I was faithful in the matter"
       ],
       "id": "daniel-6-22~before-him-innocency-was",
@@ -15073,7 +15073,7 @@
       "d": [
         "I taught them to go",
         "I healed their backsliding",
-        "I called my son out of Egypt"
+        "I gave them bread from heaven"
       ],
       "id": "hosea-11-4~i-laid-meat-unto",
       "p": "I drew them with cords of a man, with bands of love: and I was to them as they that take off the yoke on their jaws, and",
@@ -15113,9 +15113,9 @@
       "a": "let all the earth keep silence before him",
       "b": "Habakkuk",
       "d": [
-        "let all flesh fear before him",
-        "let the nations be still",
-        "let Zion rejoice in him"
+        "let all the earth fear before the LORD",
+        "let all the nations of the earth tremble",
+        "let the inhabitants of the world stand in awe"
       ],
       "id": "habakkuk-2-20~let-all-the-earth",
       "p": "But the LORD is in his holy temple:",
@@ -15129,7 +15129,7 @@
       "d": [
         "for healing and for peace",
         "for Judah and for Israel",
-        "for the remnant and for the stranger"
+        "for mercy and for forgiveness"
       ],
       "id": "zechariah-13-1~for-sin-and-for",
       "p": "In that day there shall be a fountain opened to the house of David and to the inhabitants of Jerusalem",
@@ -15141,9 +15141,9 @@
       "a": "he shall come, saith the LORD of hosts",
       "b": "Malachi",
       "d": [
-        "he shall sit as a refiner",
-        "he shall purify the sons of Levi",
-        "he shall suddenly appear"
+        "he shall come quickly, saith the Lord GOD",
+        "the day of his coming is at hand",
+        "he shall purify the sons of Levi"
       ],
       "id": "malachi-3-1~he-shall-come-saith",
       "p": "Behold, I will send my messenger, and he shall prepare the way before me: and the Lord, whom ye seek, shall suddenly come to his temple, even the messenger of the covenant, whom ye delight in: behold,",
@@ -15170,8 +15170,8 @@
       "b": "Matthew",
       "d": [
         "they shall inherit the earth",
-        "they shall be comforted",
-        "they shall see God"
+        "theirs is the kingdom of God",
+        "they shall obtain mercy from the Lord"
       ],
       "id": "matthew-5-3~theirs-is-the-kingdom",
       "p": "Blessed are the poor in spirit: for",
@@ -15184,8 +15184,8 @@
       "b": "Matthew",
       "d": [
         "they shall obtain mercy",
-        "they shall be called the children of God",
-        "theirs is the kingdom of heaven"
+        "they shall see his face",
+        "they shall be comforted"
       ],
       "id": "matthew-5-8~they-shall-see-god",
       "p": "Blessed are the pure in heart: for",
@@ -15197,9 +15197,9 @@
       "a": "they shall be called the children of God",
       "b": "Matthew",
       "d": [
-        "they shall inherit the earth",
-        "they shall see God",
-        "theirs is the kingdom of heaven"
+        "they shall be called the sons of the Highest",
+        "they shall receive the blessing of the LORD",
+        "they shall inherit the kingdom prepared for them"
       ],
       "id": "matthew-5-9~they-shall-be-called",
       "p": "Blessed are the peacemakers: for",
@@ -15211,7 +15211,7 @@
       "a": "despitefully use you, and persecute you",
       "b": "Matthew",
       "d": [
-        "despitefully speak against you",
+        "speak evil against you, and curse you",
         "would take your coat also",
         "smite you on the right cheek"
       ],
@@ -15253,9 +15253,9 @@
       "a": "Sufficient unto the day is the evil thereof",
       "b": "Matthew",
       "d": [
-        "The morrow shall care for itself",
-        "Each day hath its own trouble",
-        "Let the day suffice for itself"
+        "Sufficient unto the morrow is the care thereof",
+        "Each day hath enough of the evil thereof",
+        "Let the morrow take care for itself alone"
       ],
       "id": "matthew-6-34~sufficient-unto-the-day",
       "p": "Take therefore no thought for the morrow: for the morrow shall take thought for the things of itself.",
@@ -15309,9 +15309,9 @@
       "a": "ye shall find rest unto your souls",
       "b": "Matthew",
       "d": [
-        "ye shall be free indeed",
-        "ye shall inherit the earth",
-        "ye shall have peace with God"
+        "ye shall find peace unto your hearts",
+        "ye shall have peace with God",
+        "ye shall have eternal life through me"
       ],
       "id": "matthew-11-29~ye-shall-find-rest",
       "p": "Take my yoke upon you, and learn of me; for I am meek and lowly in heart: and",
@@ -15325,7 +15325,7 @@
       "d": [
         "keep my words",
         "lose his life",
-        "come after me daily"
+        "abide with me"
       ],
       "id": "matthew-16-24~follow-me",
       "p": "Then said Jesus unto his disciples, If any man will come after me, let him deny himself, and take up his cross, and",
@@ -15379,9 +15379,9 @@
       "a": "enter thou into the joy of thy lord",
       "b": "Matthew",
       "d": [
-        "enter thou into my rest",
-        "sit thou at my right hand",
-        "inherit the kingdom prepared for thee"
+        "enter thou into the rest of thy lord",
+        "inherit thou the kingdom prepared for thee",
+        "sit thou with me in my kingdom"
       ],
       "id": "matthew-25-21~enter-thou-into-the",
       "p": "His lord said unto him, Well done, thou good and faithful servant: thou hast been faithful over a few things, I will make thee ruler over many things:",
@@ -15407,9 +15407,9 @@
       "a": "all things are possible to him that believeth",
       "b": "Mark",
       "d": [
-        "nothing shall be impossible unto you",
-        "all things are possible with God",
-        "thy faith hath made thee whole"
+        "nothing shall be impossible unto him that believeth",
+        "all things are possible unto them that believe",
+        "thy faith shall surely make thee whole"
       ],
       "id": "mark-9-23~all-things-are-possible",
       "p": "Jesus said unto him, If thou canst believe,",
@@ -15422,8 +15422,8 @@
       "b": "Mark",
       "d": [
         "of such is the kingdom of heaven",
-        "to such belongeth the promise",
-        "these are the least in the kingdom"
+        "these are the least in the kingdom",
+        "unto such belongeth the kingdom of God"
       ],
       "id": "mark-10-14~of-such-is-the",
       "p": "But when Jesus saw it, he was much displeased, and said unto them, Suffer the little children to come unto me, and forbid them not: for",
@@ -15435,9 +15435,9 @@
       "a": "do good to them which hate you",
       "b": "Luke",
       "d": [
-        "bless them that curse you",
         "pray for them which despitefully use you",
-        "give to every man that asketh of thee"
+        "bless and curse not them that hate you",
+        "give to every man that asketh of you"
       ],
       "id": "luke-6-27~do-good-to-them",
       "p": "But I say unto you which hear, Love your enemies,",
@@ -15463,9 +15463,9 @@
       "a": "the abundance of the things which he possesseth",
       "b": "Luke",
       "d": [
-        "the length of his days",
-        "the honour that men give him",
-        "the treasure that he layeth up"
+        "the great abundance of silver and of gold",
+        "the treasure which he layeth up on earth",
+        "the honour and glory which men give him"
       ],
       "id": "luke-12-15~the-abundance-of-the",
       "p": "And he said unto them, Take heed, and beware of covetousness: for a man's life consisteth not in",
@@ -15491,9 +15491,9 @@
       "a": "possible with God",
       "b": "Luke",
       "d": [
-        "possible to them that believe",
         "easy with the Father",
-        "nothing with God"
+        "nothing with God",
+        "possible unto God"
       ],
       "id": "luke-18-27~possible-with-god",
       "p": "And he said, The things which are impossible with men are",
@@ -15521,7 +15521,7 @@
       "d": [
         "taketh away the sins of his people",
         "beareth the iniquity of us all",
-        "was slain from the foundation"
+        "was slain from the foundation of the world"
       ],
       "id": "john-1-29~taketh-away-the-sin",
       "p": "The next day John seeth Jesus coming unto him, and saith, Behold the Lamb of God, which",
@@ -15549,7 +15549,7 @@
       "d": [
         "I must give place",
         "I must be silent",
-        "I must go before him"
+        "I must depart"
       ],
       "id": "john-3-30~i-must-decrease",
       "p": "He must increase, but",
@@ -15575,7 +15575,7 @@
       "a": "is passed from death unto life",
       "b": "John",
       "d": [
-        "is born of water and of the Spirit",
+        "is born again of the Spirit",
         "is sealed unto the day of redemption",
         "is hid with Christ in God"
       ],
@@ -15590,7 +15590,7 @@
       "b": "John",
       "d": [
         "shall never perish",
-        "shall never walk in darkness",
+        "shall never die",
         "shall never see death"
       ],
       "id": "john-6-35~shall-never-thirst",
@@ -15604,8 +15604,8 @@
       "b": "John",
       "d": [
         "the light of men",
-        "the light of the knowledge of God",
-        "the true light"
+        "the true light",
+        "light in himself"
       ],
       "id": "john-8-12~the-light-of-life",
       "p": "Then spake Jesus again unto them, saying, I am the light of the world: he that followeth me shall not walk in darkness, but shall have",
@@ -15687,9 +15687,9 @@
       "a": "lay down his life for his friends",
       "b": "John",
       "d": [
-        "give his goods to the poor",
-        "love his neighbour as himself",
-        "forgive his brother seventy times"
+        "give his goods to feed the poor",
+        "give his body to be burned",
+        "give his own soul for his brethren"
       ],
       "id": "john-15-13~lay-down-his-life",
       "p": "Greater love hath no man than this, that a man",
@@ -15731,7 +15731,7 @@
       "d": [
         "yet have followed",
         "yet have loved me",
-        "yet have kept my word"
+        "yet have trusted"
       ],
       "id": "john-20-29~yet-have-believed",
       "p": "Jesus saith unto him, Thomas, because thou hast seen me, thou hast believed: blessed are they that have not seen, and",
@@ -15743,9 +15743,9 @@
       "a": "spake the word of God with boldness",
       "b": "Acts",
       "d": [
-        "went forth preaching the kingdom",
-        "continued in the apostles' doctrine",
-        "sold their possessions and goods"
+        "preached the kingdom of God with power",
+        "continued stedfastly in the apostles' doctrine",
+        "bore witness of the resurrection with power"
       ],
       "id": "acts-4-31~spake-the-word-of",
       "p": "And when they had prayed, the place was shaken where they were assembled together; and they were all filled with the Holy Ghost, and they",
@@ -15758,8 +15758,8 @@
       "b": "Acts",
       "d": [
         "preach unto us",
-        "teach us the way",
-        "save us"
+        "save us",
+        "teach us"
       ],
       "id": "acts-16-9~help-us",
       "p": "And a vision appeared to Paul in the night; There stood a man of Macedonia, and prayed him, saying, Come over into Macedonia, and",
@@ -15785,9 +15785,9 @@
       "a": "peace with God through our Lord Jesus Christ",
       "b": "Romans",
       "d": [
-        "access by faith into this grace",
-        "the love of God shed abroad",
-        "joy in the Holy Ghost"
+        "access by faith into this grace wherein we stand",
+        "the love of God shed abroad in our hearts",
+        "reconciliation through the blood of his dear Son"
       ],
       "id": "romans-5-1~peace-with-god-through",
       "p": "Therefore being justified by faith, we have",
@@ -15814,8 +15814,8 @@
       "b": "Romans",
       "d": [
         "who shall separate us",
-        "who shall lay any thing to our charge",
-        "who shall condemn us"
+        "who shall condemn us",
+        "who can stand against us"
       ],
       "id": "romans-8-31~who-can-be-against",
       "p": "What shall we then say to these things? If God be for us,",
@@ -15870,8 +15870,8 @@
       "b": "Romans",
       "d": [
         "the comfort of the scriptures",
-        "the grace of our Lord",
-        "the love of God"
+        "the grace of our Lord Jesus",
+        "the working of his mighty power"
       ],
       "id": "romans-15-13~the-power-of-the",
       "p": "Now the God of hope fill you with all joy and peace in believing, that ye may abound in hope, through",
@@ -15911,9 +15911,9 @@
       "a": "not in vain in the Lord",
       "b": "1 Corinthians",
       "d": [
-        "not forgotten before God",
-        "not without a reward",
-        "not counted as loss"
+        "not in vain before our God",
+        "not without a reward in heaven",
+        "accepted of the Lord in truth"
       ],
       "id": "1-corinthians-15-58~not-in-vain-in",
       "p": "Therefore, my beloved brethren, be ye stedfast, unmoveable, always abounding in the work of the Lord, forasmuch as ye know that your labour is",
@@ -15925,9 +15925,9 @@
       "a": "the inward man is renewed day by day",
       "b": "2 Corinthians",
       "d": [
-        "the inner man is strengthened",
-        "the hidden man is kept",
-        "the new man is put on"
+        "the inward man is strengthened day by day",
+        "the hidden man of the heart is renewed",
+        "the spirit is preserved unto the coming day"
       ],
       "id": "2-corinthians-4-16~the-inward-man-is",
       "p": "For which cause we faint not; but though our outward man perish, yet",
@@ -16052,8 +16052,8 @@
       "b": "Philippians",
       "d": [
         "the appearing of our Lord",
-        "the last trumpet",
-        "the redemption of the body"
+        "the redemption of the body",
+        "the coming of the Lord"
       ],
       "id": "philippians-1-6~the-day-of-jesus",
       "p": "Being confident of this very thing, that he which hath begun a good work in you will perform it until",
@@ -16079,9 +16079,9 @@
       "a": "in Christ Jesus",
       "b": "Philippians",
       "d": [
-        "in the Son of God",
         "in our Lord",
-        "in him that served"
+        "in Jesus Christ",
+        "in the Lord Jesus"
       ],
       "id": "philippians-2-5~in-christ-jesus",
       "p": "Let this mind be in you, which was also",
@@ -16093,9 +16093,9 @@
       "a": "the high calling of God in Christ Jesus",
       "b": "Philippians",
       "d": [
-        "the upward call of God",
-        "the heavenly calling in Christ",
-        "the prize of our high calling"
+        "the heavenly calling of God in Christ Jesus",
+        "the crown of righteousness laid up for me",
+        "an eternal inheritance with the saints in light"
       ],
       "id": "philippians-3-14~the-high-calling-of",
       "p": "I press toward the mark for the prize of",
@@ -16108,8 +16108,8 @@
       "b": "Colossians",
       "d": [
         "the kingdom of his Christ",
-        "the kingdom of light",
-        "the kingdom of heaven"
+        "the marvelous light of his kingdom",
+        "the kingdom of his beloved Son"
       ],
       "id": "colossians-1-13~the-kingdom-of-his",
       "p": "Who hath delivered us from the power of darkness, and hath translated us into",
@@ -16149,9 +16149,9 @@
       "a": "against that day",
       "b": "2 Timothy",
       "d": [
-        "until the end",
-        "unto the coming of Christ",
-        "until I finish my course"
+        "until that day",
+        "unto the end",
+        "unto his appearing"
       ],
       "id": "2-timothy-1-12~against-that-day",
       "p": "For the which cause I also suffer these things: nevertheless I am not ashamed: for I know whom I have believed, and am persuaded that he is able to keep that which I have committed unto him",
@@ -16177,9 +16177,9 @@
       "a": "the mouth of the lion",
       "b": "2 Timothy",
       "d": [
-        "every evil work",
-        "the hand of Nero",
-        "the mouth of the accuser"
+        "the hand of the enemy",
+        "the mouth of the accuser",
+        "the snare of the fowler"
       ],
       "id": "2-timothy-4-17~the-mouth-of-the",
       "p": "Notwithstanding the Lord stood with me, and strengthened me; that by me the preaching might be fully known, and that all the Gentiles might hear: and I was delivered out of",
@@ -16234,8 +16234,8 @@
       "b": "Hebrews",
       "d": [
         "I will never fail thee, nor forget thee",
-        "I am with you alway",
-        "I will be with thee, and will keep thee"
+        "I will be with thee, and will keep thee",
+        "I will never turn from thee nor forsake thee"
       ],
       "id": "hebrews-13-5~i-will-never-leave",
       "p": "Let your conversation be without covetousness; and be content with such things as ye have: for he hath said,",
@@ -16318,8 +16318,8 @@
       "b": "1 John",
       "d": [
         "in him is no shadow of turning",
-        "in him is no unrighteousness",
-        "in him is no variableness"
+        "in him is no variableness at all",
+        "in him is no darkness or deceit"
       ],
       "id": "1-john-1-5~in-him-is-no",
       "p": "This then is the message which we have heard of him, and declare unto you, that God is light, and",
@@ -16332,8 +16332,8 @@
       "b": "1 John",
       "d": [
         "is not born of God",
-        "hath not known God",
-        "abideth in death"
+        "hath not known the love of God",
+        "abideth still in the fear of death"
       ],
       "id": "1-john-4-18~is-not-made-perfect",
       "p": "There is no fear in love; but perfect love casteth out fear: because fear hath torment. He that feareth",
@@ -16359,9 +16359,9 @@
       "a": "the keys of hell and of death",
       "b": "Revelation",
       "d": [
-        "the keys of the kingdom",
-        "the keys of David",
-        "the keys of the bottomless pit"
+        "the keys of death and of hell",
+        "the keys of the bottomless pit and death",
+        "the power over death and the grave"
       ],
       "id": "revelation-1-18~the-keys-of-hell",
       "p": "I am he that liveth, and was dead; and, behold, I am alive for evermore, Amen; and have",
@@ -16415,9 +16415,9 @@
       "a": "KING OF KINGS, AND LORD OF LORDS",
       "b": "Revelation",
       "d": [
-        "FAITHFUL AND TRUE",
-        "THE WORD OF GOD",
-        "ALPHA AND OMEGA"
+        "PRINCE OF THE KINGS OF THE EARTH",
+        "LORD GOD ALMIGHTY, WHICH WAS AND IS",
+        "FAITHFUL AND TRUE, THE WORD OF GOD"
       ],
       "id": "revelation-19-16~king-of-kings-and",
       "p": "And he hath on his vesture and on his thigh a name written,",
@@ -16430,8 +16430,8 @@
       "b": "Revelation",
       "d": [
         "these sayings are faithful and true",
-        "this is the true sayings of God",
-        "the testimony of Jesus is the spirit of prophecy"
+        "this is the true saying of God",
+        "all these sayings shall come to pass"
       ],
       "id": "revelation-21-5~these-words-are-true",
       "p": "And he that sat upon the throne said, Behold, I make all things new. And he said unto me, Write: for",
