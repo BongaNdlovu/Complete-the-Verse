@@ -14,7 +14,8 @@
     "js/sites.js",
     "js/nkjv/**",
     "scripts/verify-nkjv-qa.js",
-    "scripts/test-align.js"
+    "scripts/test-align.js",
+    "scripts/live-browser-test.js"
   ],
   "categories": {
     "correctness": "off",
