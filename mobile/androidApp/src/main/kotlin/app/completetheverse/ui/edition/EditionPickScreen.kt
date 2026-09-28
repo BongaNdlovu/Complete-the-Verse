@@ -46,7 +46,7 @@ fun EditionPickScreen(
             Spacer(Modifier.height(12.dp))
             Text(
                 text = "One hall, two editions. Verse memory and Daily records stay with the edition you pick. The road, relics, and seals are shared.",
-                color = CtvColors.inkSoft,
+                color = CtvColors.parchDim,
                 fontFamily = CtvFonts.body,
                 fontSize = 16.sp,
                 lineHeight = 1.5.em,
@@ -72,7 +72,7 @@ fun EditionPickScreen(
             Spacer(Modifier.height(28.dp))
             Text(
                 text = "Scripture taken from the New King James Version®. Copyright © 1982 by Thomas Nelson. Used by permission. All rights reserved.",
-                color = CtvColors.inkSoft,
+                color = CtvColors.parchDim,
                 fontFamily = CtvFonts.body,
                 fontSize = 12.sp,
                 lineHeight = 1.4.em,

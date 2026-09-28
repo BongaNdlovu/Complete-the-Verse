@@ -154,6 +154,7 @@ fun TabletsHoldScreen(
             HoldHeader(
                 chapter = chapter,
                 tutorial = tutorial,
+                translationTag = translationTag,
                 remain = remain,
                 remainingMs = remainingMs,
                 crit = crit,
@@ -260,6 +261,7 @@ fun TabletsHoldScreen(
 private fun HoldHeader(
     chapter: TabletChapter,
     tutorial: Boolean,
+    translationTag: String,
     remain: String,
     remainingMs: Long,
     crit: Boolean,
