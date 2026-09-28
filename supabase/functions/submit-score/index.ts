@@ -82,12 +82,14 @@ async function upsertDailyScore(supabase, user, body) {
   if (!validDate(body.play_date)) return json({ error: "invalid-date" }, 400);
   const diff = String(body.diff || "watchman").slice(0, 32);
   if (!DIFFS.has(diff)) return json({ error: "invalid-difficulty" }, 400);
+  const translation = (String(body.translation || "kjv").toLowerCase() === "nkjv") ? "nkjv" : "kjv";
   const row = {
     play_date: String(body.play_date),
     score: Math.max(0, Math.min(MAX_DAILY, Number(body.score) || 0)),
     accuracy: Math.max(0, Math.min(100, Number(body.accuracy) || 0)),
     duration_ms: body.duration_ms == null ? null : Math.max(0, Math.min(MAX_DURATION_MS, Number(body.duration_ms) || 0)),
     diff,
+    translation,
     correct: Math.max(0, Number(body.correct) || 0),
     attempts: Math.max(0, Number(body.attempts) || 0),
     best: Math.max(0, Number(body.best) || 0),
@@ -99,11 +101,12 @@ async function upsertDailyScore(supabase, user, body) {
   const { error } = await supabase.from("daily_scores").upsert({
     user_id: user.id,
     play_date: row.play_date,
+    translation: row.translation,
     score,
     accuracy: row.accuracy,
     duration_ms: row.duration_ms,
     diff
-  }, { onConflict: "user_id,play_date" });
+  }, { onConflict: "user_id,play_date,translation" });
   if (error) return json({ error: "rejected" }, 400);
   const log = await supabase.from("score_submission_log").insert({ user_id: user.id, kind: "daily" });
   if (log.error) return json({ error: "submission-log-failed" }, 503);

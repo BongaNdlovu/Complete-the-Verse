@@ -4,7 +4,7 @@
     "tablets.json",
     "verses.json"
   ],
-  "sourceHash": "81c3d62c19bd86f5293817844cdcf76307cdf9583675c635819ddb21028ae06c",
+  "sourceHash": "5be37c08d1bb8004ec4e0ae384027976750aa0dd1b6c73e57183b597acc8d117",
   "sources": [
     "js/bank.js",
     "js/passages.js",

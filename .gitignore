@@ -41,3 +41,6 @@ mobile/.gradle/
 mobile/.kotlin/
 .twa-signing.env
 .vercel
+
+# NKJV licensed source dump (never commit licensed text dump)
+content/nkjv/source/

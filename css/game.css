@@ -209,6 +209,10 @@ body.reduced #v-signin.leaving .signin-pad{transition:none;transform:none;filter
   filter:drop-shadow(0 10px 22px rgba(0,0,0,.75))}
 #v-intro .game-logo{width:min(20rem,62vw);margin-bottom:2vh}
 #v-boot .game-logo{width:min(18rem,56vw);margin-bottom:1.6vh}
+/* The edition picker must fit both buttons above the fold on a short
+   laptop screen (1366x850), so its chrome is tighter than the menu's. */
+#v-edition .scrollpad{padding-top:calc(var(--safe-t) + 12px);padding-bottom:4vh}
+#v-edition .game-logo{width:min(13rem,40vw);margin-top:.6vh}
 .menu-subtitle{max-width:48ch;text-align:center;color:var(--parch-dim);font-style:italic;font-size:clamp(.95rem,1.8vw,1.15rem);line-height:1.6;margin:0 auto}
 .playercard{position:fixed;top:calc(var(--safe-t) + 12px);left:max(16px, 3.4vw);z-index:12;
   display:flex;align-items:center;gap:14px;padding:.65em 1.25em .65em .8em;

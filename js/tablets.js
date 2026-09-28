@@ -133,9 +133,14 @@ const Tablets = (function(){
   function held(run){
     return !!(run && !run.tabletMiss && run.tabletIdx >= (run.tabletTotal || 0) && (run.tabletTotal || 0) > 0);
   }
+  function editionKey(id){
+    const ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
+    return (ed === "nkjv") ? ("nkjv~" + id) : id;
+  }
   function recordOf(save, id){
     const pack = (save && save.tablets) || {};
-    return pack[id] || { best:0, held:false };
+    const key = editionKey(id);
+    return pack[key] || { best:0, held:false };
   }
   function clampLevel(n){
     n = n|0;
@@ -283,6 +288,7 @@ const Tablets = (function(){
     unlocked: unlocked,
     unlockLabel: unlockLabel,
     recordOf: recordOf,
+    editionKey: editionKey,
     paceOf: paceOf,
     heldCountAtPace: heldCountAtPace,
     paceGateOpen: paceGateOpen,

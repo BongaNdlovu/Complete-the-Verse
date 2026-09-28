@@ -6,7 +6,7 @@ const SAVE_KEY = "ctv_save_v3";
 const LEGACY_SAVE_KEY = "ctv_save_v2";
 const DEFAULT_SAVE = {
   v:3, xp:0, oil:0, illumReserve:0, runs:0,
-  best:{trial:0, endless:0, daily:0, practice:0, recall:0, pilgrimage:0, "pilgrim-recall":0, blitz:0, tablets:0},
+  best:{trial:0, endless:0, daily:0, dailyByEdition:{kjv:0, nkjv:0}, practice:0, recall:0, pilgrimage:0, "pilgrim-recall":0, blitz:0, tablets:0},
   seals:[],
     life:{correct:0, attempts:0, bestStreak:0, sdBest:0, endlessBest:0, dailyDone:0, perfectActs:0,
         typedExact:0, typedAttempts:0, reviewsDone:0, sitesCleared:0, arcsCleared:0, blitzBest:0,
@@ -16,6 +16,7 @@ const DEFAULT_SAVE = {
   books:{}, verse:{}, srs:{}, board:[], journal:[],
   ghosts:{pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null},
   daily:{date:"", score:0},
+  dailyByEdition:{kjv:{date:"", score:0}, nkjv:{date:"", score:0}},
   /* Habit streak tracking across calendar days */
   habit:{count:0, lastDate:"", lastDay:0, best:0, history:{}},
   /* The road from Ur to Patmos. Shape is owned by pilgrimage.js —
@@ -27,6 +28,7 @@ const DEFAULT_SAVE = {
   set:{music:0.45, sfx:0.7, musicMute:false, sfxMute:false, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"disciple",
        tutorialDone:false, tutorialSeen:false, tabletsTutorialDone:false, introPlayed:false, liveWeather:true, coldOpenDone:false, urPrologueDone:false, quiet:false, contrast:false, haptics:true,
        singleTap:true,
+       translation:"kjv", translationChosen:false,
        character:"amina", scholarId:"amina", playerName:"", profileDone:false, tabletStone:"sandstone", tabletTrial:false,
        vkb:false,
        /* legacy keys kept so old saves merge cleanly */
@@ -40,34 +42,51 @@ function mergeTabletsSave(s){
     ? Tablets.chapters.map(function(c){ return c.id; })
     : ["psalm23","psalm91","john1"];
   const out = {};
+  Object.keys(t).forEach(function(k){
+    out[k] = Object.assign({best:0,held:false}, t[k] || {});
+  });
   ids.forEach(function(id){
-    /* Old saves carried per-level `levels`; a chapter lives at one pace now,
-       so the leftover replay records are dropped on merge. */
-    out[id] = Object.assign({best:0,held:false}, t[id] || {});
+    if(!out[id]) out[id] = Object.assign({best:0,held:false}, t[id] || {});
   });
   return out;
 }
+function mergeBestSave(s){
+  const mergedBest = Object.assign({}, DEFAULT_SAVE.best, s.best||{});
+  mergedBest.dailyByEdition = Object.assign({kjv: (s && s.best && s.best.daily) || 0, nkjv: 0}, (s && s.best && s.best.dailyByEdition) || {});
+  return mergedBest;
+}
 function mergeLoadedSave(s){
+  if(s && s.set && typeof s.set.translation === "undefined"){
+    s.set.translation = "kjv";
+    s.set.translationChosen = true;
+  }
   return Object.assign(JSON.parse(JSON.stringify(DEFAULT_SAVE)), s, {
     v:3,
-    best:Object.assign({}, DEFAULT_SAVE.best, s.best||{}),
+    best:mergeBestSave(s),
     life:Object.assign({}, DEFAULT_SAVE.life, s.life||{}),
     set:Object.assign({}, DEFAULT_SAVE.set, s.set||{}),
     daily:Object.assign({}, DEFAULT_SAVE.daily, s.daily||{}),
+    dailyByEdition:Object.assign({kjv:(s && s.daily)||{date:"",score:0}, nkjv:{date:"",score:0}}, (s && s.dailyByEdition)||{}),
     srs:Object.assign({}, s.srs||{}),
     habit:Object.assign({count:0, lastDate:"", lastDay:0, best:0, history:{}}, s.habit||{}),
-    pilgrim:Object.assign({sites:{}, lastPlayed:"", started:0, usedIds:[]}, s.pilgrim||{}, {
-      sites:Object.assign({}, (s.pilgrim && s.pilgrim.sites) || {}),
-      usedIds: Array.isArray(s.pilgrim && s.pilgrim.usedIds) ? s.pilgrim.usedIds.slice() : []
-    }),
+    pilgrim: mergePilgrimSave(s),
     artifacts: (typeof Artifacts !== "undefined")
       ? Artifacts.normalize(s.artifacts)
       : Object.assign({unlocked:{}, seen:{}}, s.artifacts||{}),
     journal: Array.isArray(s.journal) ? s.journal.slice(0, 40) : [],
-    ghosts: Object.assign({pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null}, s.ghosts||{}, {
-      pilgrimageBySite: Object.assign({}, (s.ghosts && s.ghosts.pilgrimageBySite) || {})
-    }),
+    ghosts: mergeGhostsSave(s),
     tablets: mergeTabletsSave(s)
+  });
+}
+function mergePilgrimSave(s){
+  return Object.assign({sites:{}, lastPlayed:"", started:0, usedIds:[]}, s.pilgrim||{}, {
+    sites:Object.assign({}, (s.pilgrim && s.pilgrim.sites) || {}),
+    usedIds: Array.isArray(s.pilgrim && s.pilgrim.usedIds) ? s.pilgrim.usedIds.slice() : []
+  });
+}
+function mergeGhostsSave(s){
+  return Object.assign({pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null}, s.ghosts||{}, {
+    pilgrimageBySite: Object.assign({}, (s.ghosts && s.ghosts.pilgrimageBySite) || {})
   });
 }
 function recoverCorruptSave(e){
@@ -299,7 +318,7 @@ const MODES = {
     desc:"David and Goliath in the valley of Elah. Twelve questions from 1 Samuel 17. Forty seconds each. Held only if none are wrong.",
     tagline:"Goliath · twelve questions · replay any time", info:[["12","Questions"],["40s","Clock"],["Held","None wrong"]] },
   tablets:{ key:"tablets", name:"Word Tablets", kick:"Fill the Word", atlas:false,
-    desc:"The other prove-it beside the road. Carve the missing KJV word before the clock runs out. One miss shatters the Hold. Learn the prayer, then Hold Psalm 23 to open Psalm 91, then John 1.",
+    desc:"The other prove-it beside the road. Carve the missing Scripture word before the clock runs out. One miss shatters the Hold. Learn the prayer, then Hold Psalm 23 to open Psalm 91, then John 1.",
     tagline:"Pace I–III · the hall", info:[["I–III","Pace"],["Hold","One miss"],["Prayer","Then the hall"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, assembled word for word.",
@@ -573,11 +592,9 @@ function drawReviewVerse(){
   return chosen;
 }
 function buildDailyList(){
-  const rnd = mulberry32(seedFromString("ctv-"+todayKey()));
+  const ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : ((SAVE.set && SAVE.set.translation) || "kjv");
+  const rnd = mulberry32(seedFromString("ctv-"+ed+"-"+todayKey()));
   const pattern = [1,1,2,2,2,3,3,3,3,3,4,4,4,4,5,5,5,5,5,5];
-  /* Late-day mechanic beats give the fixed draw its difficulty curve —
-     and the weighted board something real to reward. Positions are fixed
-     so every player faces the identical sequence of mechanics. */
   const MECHANIC_SLOTS = {4:"duel", 9:"cloze", 13:"passage-ref", 16:"typed", 19:"fade"};
   const used = new Set(), out = [];
   pattern.forEach((t,i)=>{
@@ -1256,7 +1273,7 @@ function illuminateLabel(){
   if(R.currentMechanic === "fade") return R.fadePhase === "memorize" ? "after memory" : "show the verse";
   if(R.currentMechanic === "passage-ref") return "show the answer";
   if(R.currentMechanic === "cloze") return "show the words";
-  if(R.currentMechanic === "duel") return "reveal KJV cue";
+  if(R.currentMechanic === "duel") return "reveal " + (typeof translationTag === "function" ? translationTag() : "KJV") + " cue";
   if(R.currentMechanic === "truefalse") return "reveal judgement";
   if(R.typed) return "hint";
   return "show the answer";
@@ -1928,8 +1945,9 @@ function quitPlay(){
 }
 
 function shareDailyResult(total){
+  const tag = (typeof translationTag === "function") ? translationTag() : "KJV";
   const text = "Complete the Verse — Daily Trial "+todayKey()+"\nScore: "+fmt(total)+
-    "\nKept "+R.correct+"/"+R.attempts+" · "+MODES.daily.name+" · KJV";
+    "\nKept "+R.correct+"/"+R.attempts+" · "+MODES.daily.name+" · "+tag;
   if(navigator.share){
     navigator.share({title:"Complete the Verse", text:text}).catch(()=>{});
     return;

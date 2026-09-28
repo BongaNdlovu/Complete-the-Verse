@@ -786,7 +786,7 @@ body.hall-ready.biblical-thriller #v-results.tablets-shattered:before{
   text-shadow:0 2px 8px rgba(0,0,0,.95);
   border:0;
 }
-.biblical-thriller .verse-stage:before{content:"KING JAMES VERSION";top:2px;font-family:var(--ui);font-size:.52rem;letter-spacing:.32em;color:rgba(223,194,136,.55)}
+.biblical-thriller .verse-stage:before{content:attr(data-kick);top:2px;font-family:var(--ui);font-size:.52rem;letter-spacing:.32em;color:rgba(223,194,136,.55)}
 .biblical-thriller .verse-stage:after{background:linear-gradient(90deg,transparent,var(--blood-hot),var(--gold),var(--blood-hot),transparent);animation:trialSweep 3.2s ease-in-out infinite}
 @keyframes trialSweep{0%,100%{transform:scaleX(.2);opacity:.18}50%{transform:scaleX(1);opacity:.8}}
 .biblical-thriller .verse-main{

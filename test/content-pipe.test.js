@@ -40,6 +40,18 @@ ok("applySites replaces arcs", ARCS.length === sites.arcs.length);
 
 ok("tablets json has chapters", Array.isArray(tablets.chapters) && tablets.chapters.length > 0);
 
+// Check export --check command runs cleanly
+const cp = require("child_process");
+const checkRes = cp.spawnSync(process.execPath, [path.join(ROOT, "scripts", "export-content.mjs"), "--check"], { encoding: "utf8" });
+ok("export-content --check passes", checkRes.status === 0);
+
+// NKJV content pipe verification
+const nkjvVersesFile = path.join(ROOT, "shared", "content", "nkjv", "verses.json");
+if (fs.existsSync(nkjvVersesFile)) {
+  const nkjvData = JSON.parse(fs.readFileSync(nkjvVersesFile, "utf8"));
+  ok("shared nkjv verses json is valid array", Array.isArray(nkjvData.verses));
+}
+
 if (fail) {
   console.log("FAIL — content pipe · " + pass + " passed · " + fail + " failed");
   process.exit(1);

@@ -237,14 +237,15 @@ function recordRoadTabletHold(id, pct){
 }
 function persistTabletsChapter(id, pct, nowHeld){
   if(!SAVE.tablets) SAVE.tablets = {};
-  if(!SAVE.tablets[id]) SAVE.tablets[id] = {best:0,held:false};
-  const rec = Object.assign({best:0,held:false}, SAVE.tablets[id] || {});
+  const key = (typeof Tablets !== "undefined" && Tablets.editionKey) ? Tablets.editionKey(id) : id;
+  if(!SAVE.tablets[key]) SAVE.tablets[key] = {best:0,held:false};
+  const rec = Object.assign({best:0,held:false}, SAVE.tablets[key] || {});
   rec.best = Math.max(rec.best || 0, pct);
   /* One pace per chapter: a clean Hold is the chapter's Hold, counted once. */
   const firstHold = nowHeld && !rec.held;
   if(firstHold) SAVE.life.tabletHolds = (SAVE.life.tabletHolds || 0) + 1;
   if(nowHeld) rec.held = true;
-  SAVE.tablets[id] = rec;
+  SAVE.tablets[key] = rec;
   if(nowHeld) recordRoadTabletHold(id, pct);
 }
 function persistTabletsOil(){
@@ -263,6 +264,38 @@ function persistTabletsRecord(){
   persistTabletsChapter(id, pct, typeof Tablets !== "undefined" && Tablets.held(R));
   persistTabletsOil();
   return { road: null, isRecord: isRecord, prevBest: prevBest, dailyRecorded: false };
+}
+function recordBestScore(recordScore){
+  const ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
+  let prevBest = 0;
+  let isRecord = false;
+  if(R.mode==="daily"){
+    if(!SAVE.best.dailyByEdition) SAVE.best.dailyByEdition = { kjv: SAVE.best.daily || 0, nkjv: 0 };
+    prevBest = SAVE.best.dailyByEdition[ed] || 0;
+    isRecord = recordScore > prevBest;
+    if(isRecord){
+      SAVE.best.dailyByEdition[ed] = recordScore;
+      SAVE.best.daily = recordScore;
+    }
+  } else {
+    prevBest = SAVE.best[R.mode]||0;
+    isRecord = recordScore > prevBest;
+    if(isRecord) SAVE.best[R.mode] = recordScore;
+  }
+  return { prevBest, isRecord, ed };
+}
+function recordDailyCompletion(ed, reason, total){
+  let dailyRecorded = false;
+  const dailyKey = R.dailyKey || todayKey();
+  if(!SAVE.dailyByEdition) SAVE.dailyByEdition = { kjv: { date: "", score: 0 }, nkjv: { date: "", score: 0 } };
+  if(!SAVE.dailyByEdition[ed]) SAVE.dailyByEdition[ed] = { date: "", score: 0 };
+  SAVE.daily = SAVE.dailyByEdition[ed];
+  if(R.mode==="daily" && reason==="complete" && SAVE.daily.date !== dailyKey){
+    SAVE.dailyByEdition[ed] = {date:dailyKey, score:total};
+    SAVE.daily = SAVE.dailyByEdition[ed];
+    SAVE.life.dailyDone++; dailyRecorded = true;
+  }
+  return dailyRecorded;
 }
 function persistRunRecords(reason, ctx, total){
   if(R.mode==="team") return { road: null, isRecord: false, prevBest: 0, dailyRecorded: false };
@@ -285,19 +318,12 @@ function persistRunRecords(reason, ctx, total){
   endRunRoadSeals(road, ctx.siteCleared);
   endRunHabit(ctx.finished, ctx.siteCleared);
   const recordScore = R.mode==="blitz" ? (R.correct||0) : total;
-  const isRecord = recordScore > (SAVE.best[R.mode]||0);
-  const prevBest = SAVE.best[R.mode]||0;
-  if(isRecord) SAVE.best[R.mode] = recordScore;
-  let dailyRecorded = false;
-  const dailyKey = R.dailyKey || todayKey();
-  if(R.mode==="daily" && reason==="complete" && SAVE.daily.date !== dailyKey){
-    SAVE.daily = {date:dailyKey, score:total};
-    SAVE.life.dailyDone++; dailyRecorded = true;
-  }
+  const best = recordBestScore(recordScore);
+  const dailyRecorded = recordDailyCompletion(best.ed, reason, total);
   SAVE.board.push({score:total, mode:R.mode, diff:R.diff.key, acc:Math.round(ctx.acc*100), date:todayKey(), q:R.qTotal});
   SAVE.board.sort((a,b)=>b.score-a.score);
   SAVE.board = SAVE.board.slice(0,10);
-  return { road: road, isRecord: isRecord, prevBest: prevBest, dailyRecorded: dailyRecorded };
+  return { road: road, isRecord: best.isRecord, prevBest: best.prevBest, dailyRecorded: dailyRecorded };
 }
 function applyQuickRewardBank(quickRewardResult, total, finished){
   if(R.mode==="team"){
@@ -456,9 +482,10 @@ function teamResultsBreakdownHtml(row){
 }
 function tabletsHeld(){ return typeof Tablets!=="undefined" && Tablets.held(R); }
 function tabletsResultsBreakdownHtml(o, row){
+  const chKey = (typeof Tablets !== "undefined" && Tablets.editionKey) ? Tablets.editionKey(R.tabletChapter) : R.tabletChapter;
   return row("Words carved", R.correct+" / "+R.qTotal) +
     row("Hold", tabletsHeld() ? "Held" : "Shattered") +
-    row("Chapter best", ((SAVE.tablets && SAVE.tablets[R.tabletChapter] && SAVE.tablets[R.tabletChapter].best) || 0)+"%") +
+    row("Chapter best", ((SAVE.tablets && SAVE.tablets[chKey] && SAVE.tablets[chKey].best) || 0)+"%") +
     '<div class="brow tot"><span>Final</span><b>'+fmt(o.total)+'</b></div>';
 }
 function resultsBreakdownHtml(o){
@@ -493,12 +520,13 @@ function renderResultsSchedule(){
 function renderResultsStats(o){
   function stat(a,b){ return '<div class="stat"><b>'+esc(String(a))+'</b><span>'+esc(b)+'</span></div>'; }
   if(R.mode==="tablets"){
+    const chKey = (typeof Tablets !== "undefined" && Tablets.editionKey) ? Tablets.editionKey(R.tabletChapter) : R.tabletChapter;
     $("res-stats").innerHTML =
       stat(R.correct, "Words carved") +
       stat(R.qTotal, "Tablets in chapter") +
       stat(R.best, "Longest carve") +
       stat(Math.round(o.acc*100)+"%", "Accuracy") +
-      stat((SAVE.tablets && SAVE.tablets[R.tabletChapter] && SAVE.tablets[R.tabletChapter].best || 0)+"%", "Chapter best");
+      stat((SAVE.tablets && SAVE.tablets[chKey] && SAVE.tablets[chKey].best || 0)+"%", "Chapter best");
     return;
   }
   $("res-stats").innerHTML =
@@ -561,7 +589,8 @@ function renderResultsBestLine(o){
   }
   let best = "";
   if(R.mode==="tablets"){
-    const rec = SAVE.tablets && SAVE.tablets[R.tabletChapter] || {best:0,held:false};
+    const chKey = (typeof Tablets !== "undefined" && Tablets.editionKey) ? Tablets.editionKey(R.tabletChapter) : R.tabletChapter;
+    const rec = (SAVE.tablets && SAVE.tablets[chKey]) || {best:0,held:false};
     best = (rec.held ? "Hold recorded" : "The Hold broke") + " · " + (R.tabletChapter || "psalm23") + " best — " + (rec.best||0) + "%";
     $("res-best").textContent = best;
     return;

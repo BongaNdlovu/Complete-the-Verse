@@ -18,6 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import app.completetheverse.core.save.Save
 import app.completetheverse.core.tablets.Tablets
 import app.completetheverse.core.tablets.TabletsBank
 import app.completetheverse.save.SaveCoordinator
@@ -168,6 +169,7 @@ fun TabletsRoute(
                     skipHeavy = reducedMotion || quality != "high",
                     flyTick = viewModel.flyTick,
                     shatterTick = viewModel.shatterTick,
+                    translationTag = Save.translationTag(saves.snapshot()),
                     onPick = { viewModel.pick(it) },
                     onIlluminate = { viewModel.illuminate() },
                     onWinnow = { viewModel.winnow() },

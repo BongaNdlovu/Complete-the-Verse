@@ -42,7 +42,7 @@ function startPassage(){
   if(typeof cueQuestionMusic === "function") cueQuestionMusic();
 
   Director.pressure(0);
-  $("ref").textContent = p.r + " — KJV";
+  $("ref").textContent = p.r + " — " + (typeof translationTag === "function" ? translationTag() : "KJV");
   let bi = 0;
   $("verse").innerHTML = p.parts.map(x =>
     typeof x === "string" ? highlightVerse(x)
@@ -155,7 +155,7 @@ function startReconstruct(){
   if(typeof cueQuestionMusic === "function") cueQuestionMusic();
 
   Director.pressure(0);
-  $("ref").textContent = p.r + " — KJV";
+  $("ref").textContent = p.r + " — " + (typeof translationTag === "function" ? translationTag() : "KJV");
   $("verse").innerHTML = '<span class="recon-prompt">Restore the passage</span>';
   fitVerseSize(0);
   $("opts").innerHTML = ""; $("opts").className = "answers"; $("opts").style.display = "none";

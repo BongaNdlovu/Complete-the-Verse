@@ -160,7 +160,8 @@ function detectMidClause(v){
   const out = [];
   const last = t[t.length-1], first = t[0], prev = t[t.length-2];
   const pronounClose = prev === "as" && (last === "this" || last === "that");
-  if(DANGLING.has(last) && !pronounClose)
+  const nounBeing = last === "being" && (prev === "living" || prev === "human");
+  if(DANGLING.has(last) && !pronounClose && !nounBeing)
     out.push({code:"mid-clause", detail:'blank ends on "'+last+'" — the phrase dangles'});
   flagOpeningRunOn(t, first, last, out);
   const after = tokens(v.s)[0];

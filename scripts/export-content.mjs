@@ -13,6 +13,7 @@ import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
 const { loadBank, ROOT, FILES: BANK_FILES } = require("./load-bank.js");
+const { loadTablets } = require("./nkjv-load.js");
 
 const OUT_DIR = path.join(ROOT, "shared", "content");
 const OUT_FILES = ["manifest.json", "sites.json", "tablets.json", "verses.json"];
@@ -21,6 +22,14 @@ const MIRROR_DIRS = [
   path.join(ROOT, "mobile", "core", "src", "test", "resources", "content")
 ];
 const MIRROR_FILES = ["sites.json", "tablets.json", "verses.json"];
+
+const NKJV_OUT_DIR = path.join(ROOT, "shared", "content", "nkjv");
+const NKJV_MIRROR_DIRS = [
+  path.join(ROOT, "mobile", "androidApp", "src", "main", "assets", "content", "nkjv"),
+  path.join(ROOT, "mobile", "core", "src", "test", "resources", "content", "nkjv")
+];
+const NKJV_CONTENT_FILES = ["verses.json", "tablets.json", "sites-quotes.json"];
+
 const SOURCE_FILES = uniqueSorted(BANK_FILES.concat([
   "js/verses-tf.js",
   "js/verses-notes.js",
@@ -65,20 +74,19 @@ function hashSources(files) {
   return h.digest("hex");
 }
 
-function loadTablets() {
-  const { Tablets } = require("../js/tablets.js");
-  require("../js/tablets-canon.js");
-  require("../js/tablets-hall.js");
-  require("../js/tablets-more.js");
-  return Tablets;
-}
-
 function tierCounts(byTier) {
   const out = {};
   Object.keys(byTier || {}).sort().forEach(function (k) {
     out[String(k)] = (byTier[k] || []).length;
   });
   return out;
+}
+
+/* The NKJV modules are browser globals with a different shape from the KJV
+   ones (js/nkjv/verses.js exports NKJV_VERSES, not VERSES), so they are read
+   through loadBank("nkjv"), which applies the same shim the game does. */
+function loadNkjvBank() {
+  return loadBank("nkjv");
 }
 
 function versesPayload(bank, tf, notes) {
@@ -142,8 +150,29 @@ function buildOutputs() {
     "tablets.json": stableStringify(tabletData),
     "verses.json": stableStringify(verses)
   };
+  const nkjvVersesPath = path.join(ROOT, "js", "nkjv", "verses.js");
+  const hasNkjv = fs.existsSync(nkjvVersesPath);
+  const nkjvFiles = {};
+  if (hasNkjv) {
+    try {
+      const nkjvBank = loadNkjvBank();
+      const nkjvTf = fs.existsSync(path.join(ROOT, "js", "nkjv", "verses-tf.js")) ? require("../js/nkjv/verses-tf.js") : { TF_CLAIMS: [] };
+      const nkjvNotes = fs.existsSync(path.join(ROOT, "js", "nkjv", "verses-notes.js")) ? require("../js/nkjv/verses-notes.js") : { VERSE_NOTES: {} };
+      const nkjvTablets = fs.existsSync(path.join(ROOT, "js", "nkjv", "tablets.js")) ? require("../js/nkjv/tablets.js") : { NKJV_TABLETS: { chapters: [] } };
+      const nkjvQuotes = fs.existsSync(path.join(ROOT, "js", "nkjv", "quotes.js")) ? require("../js/nkjv/quotes.js") : {};
+
+      nkjvFiles["verses.json"] = stableStringify(versesPayload(nkjvBank, nkjvTf, nkjvNotes));
+      nkjvFiles["tablets.json"] = stableStringify(tabletsPayload(nkjvTablets.NKJV_TABLETS || nkjvTablets.Tablets || {}));
+      nkjvFiles["sites-quotes.json"] = stableStringify(nkjvQuotes);
+    } catch (e) {
+      console.warn("Could not export NKJV content:", e.message);
+    }
+  }
+
   return {
     files: files,
+    nkjvFiles: nkjvFiles,
+    hasNkjv: hasNkjv && Object.keys(nkjvFiles).length > 0,
     counts: {
       arcs: siteData.arcs.length,
       notes: Object.keys(verses.notes).length,
@@ -156,7 +185,8 @@ function buildOutputs() {
   };
 }
 
-function writeOutputs(files) {
+function writeOutputs(built) {
+  const files = built.files;
   fs.mkdirSync(OUT_DIR, { recursive: true });
   OUT_FILES.forEach(function (name) {
     fs.writeFileSync(path.join(OUT_DIR, name), files[name], "utf8");
@@ -167,9 +197,27 @@ function writeOutputs(files) {
       fs.writeFileSync(path.join(dir, name), files[name], "utf8");
     });
   });
+
+  if (built.hasNkjv) {
+    fs.mkdirSync(NKJV_OUT_DIR, { recursive: true });
+    NKJV_CONTENT_FILES.forEach(function (name) {
+      if (built.nkjvFiles[name]) {
+        fs.writeFileSync(path.join(NKJV_OUT_DIR, name), built.nkjvFiles[name], "utf8");
+      }
+    });
+    NKJV_MIRROR_DIRS.forEach(function (dir) {
+      fs.mkdirSync(dir, { recursive: true });
+      NKJV_CONTENT_FILES.forEach(function (name) {
+        if (built.nkjvFiles[name]) {
+          fs.writeFileSync(path.join(dir, name), built.nkjvFiles[name], "utf8");
+        }
+      });
+    });
+  }
 }
 
-function checkOutputs(files) {
+function checkOutputs(built) {
+  const files = built.files;
   let stale = false;
   OUT_FILES.forEach(function (name) {
     const dest = path.join(OUT_DIR, name);
@@ -193,6 +241,25 @@ function checkOutputs(files) {
       }
     });
   });
+
+  if (built.hasNkjv) {
+    NKJV_CONTENT_FILES.forEach(function (name) {
+      const dest = path.join(NKJV_OUT_DIR, name);
+      if (!fs.existsSync(dest) || toLf(fs.readFileSync(dest, "utf8")) !== built.nkjvFiles[name]) {
+        console.error("stale: nkjv/" + name + " does not match the JS banks");
+        stale = true;
+      }
+    });
+    NKJV_MIRROR_DIRS.forEach(function (dir) {
+      NKJV_CONTENT_FILES.forEach(function (name) {
+        const dest = path.join(dir, name);
+        if (!fs.existsSync(dest) || toLf(fs.readFileSync(dest, "utf8")) !== built.nkjvFiles[name]) {
+          console.error("stale: " + path.relative(ROOT, dest) + " does not match shared/content/nkjv");
+          stale = true;
+        }
+      });
+    });
+  }
   return stale;
 }
 
@@ -200,11 +267,11 @@ function main() {
   const check = process.argv.indexOf("--check") >= 0;
   const built = buildOutputs();
   if (check) {
-    if (checkOutputs(built.files)) process.exit(1);
-    console.log("shared/content is current");
+    if (checkOutputs(built)) process.exit(1);
+    console.log("shared/content is current" + (built.hasNkjv ? " (including NKJV)" : ""));
     return;
   }
-  writeOutputs(built.files);
+  writeOutputs(built);
   const c = built.counts;
   console.log(
     "wrote shared/content (" +

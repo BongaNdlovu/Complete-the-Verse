@@ -32,6 +32,7 @@ assert(html.includes("boot-verse"), "boot screen carries a verse line");
 assert(/function playBootSequence\(/.test(game), "playBootSequence helper present");
 
 assert(html.includes('id="v-signin"'), "sign-in door view present");
+assert(html.includes('id="v-edition"'), "edition picker view present");
 assert(html.includes('id="v-intro"'), "intro view present");
 assert(html.includes('id="v-tablets"'), "tablets view present");
 assert(html.includes('id="tablets-pause"'), "tablets pause overlay present");
@@ -245,7 +246,7 @@ assert(/hidden:true/.test(game), "the typed replay is kept off the menu");
 assert(game.includes("function openSiteBrief"), "sites get a briefing card");
 assert(game.includes("function recordSiteResult"), "finishing a site updates the journey");
 assert(game.includes("SAVE.pilgrim"), "journey progress is saved");
-assert(/pilgrim:Object\.assign/.test(game), "an older save migrates rather than being wiped");
+assert(/pilgrim:Object\.assign|function mergePilgrimSave/.test(game), "an older save migrates rather than being wiped");
 assert(game.includes("Live.configure"), "live conditions follow the setting");
 assert(game.includes('seg("liveWeather"'), "live conditions can be switched off");
 assert(game.includes('id="set-road"') || game.includes("set-road"),

@@ -45,9 +45,12 @@ const lessonClips = [
   ["lesson three tap the missing words in sequence", "lesson-three.mp3"],
   ["lesson four discern the true scripture reading", "lesson-four.mp3"],
   ["lesson five commit the words before they fade", "lesson-five.mp3"],
-  ["lesson five memorize the whole verse for one minute then choose the true king james line", "lesson-five.mp3"],
+  ["lesson five memorize the whole verse for one minute then choose the true line of the verse", "lesson-five.mp3"],
   ["lesson six assemble the verse from memory", "lesson-six.mp3"]
 ];
+/* Lesson five's recording has to stay honest in both editions, so no voice
+   cue may claim the line it asks for is the King James one. */
+assert(!/king james/i.test(director), "lesson voice cues are edition-neutral");
 assert(fs.existsSync(path.join(ROOT, "audio", "voice", "lesson-two.mp3")), "lesson-two asset exists on disk");
 lessonClips.forEach(([key, file]) => {
   const abs = path.join(ROOT, "audio", "voice", file);

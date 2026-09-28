@@ -368,29 +368,58 @@ document.querySelectorAll("[data-rtab]").forEach(b=>{
     renderRecords();
   });
 });
-function renderRecords(){
-  const el=$("records-body");
-  if(rtab==="board"){
-    if(!SAVE.board.length){ el.innerHTML='<div class="empty">No runs recorded on this device. The local chronicle is blank.</div>'; return; }
-    el.innerHTML='<div class="mtitle" style="color:var(--gold-dim);margin-bottom:1vh">Best runs on this device</div><div class="lb">'+SAVE.board.map((r,i)=>
-      '<div class="lbrow'+(i===0?" top":"")+'"><div class="pos">'+(i+1)+'</div>'+
-      '<div class="mode">'+esc(MODES[r.mode]?MODES[r.mode].name:r.mode)+' · '+esc((typeof resolveDiff==="function"?resolveDiff(r.diff):DIFFS.watchman).name)+' · '+esc(r.acc)+'%</div>'+
-      '<div class="sc">'+esc(fmt(r.score))+'</div><div class="dt">'+esc(r.date)+'</div></div>').join("")+'</div>';
-  } else if(rtab==="blitz"){
-    const cloudOn = typeof Cloud!=="undefined" && Cloud.configured();
-    if(!cloudOn){
-      el.innerHTML='<div class="empty">Cloud boards need a configured Supabase project (see BACKEND.md). Local play still works.</div>';
-      return;
-    }
-    const trustTag = (typeof Cloud!=="undefined" && typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct")
-      ? ' <span class="trust-pill">(Honor system)</span>' : '';
-    const title = "Blitz global" + trustTag;
-    el.innerHTML='<div class="mtitle">'+title+'</div><div class="board-loading">Loading…</div>';
-    /* Switching tabs mid-fetch must not let the slow board overwrite the
-       tab the player is now reading. */
-    const seq = (el._fetchSeq = (el._fetchSeq || 0) + 1);
-    const p = Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn()?Cloud.fetchMyBlitzRank():null]);
-    p.then(([rows, mine])=>{
+function renderLocalBoard(el){
+  if(!SAVE.board.length){ el.innerHTML='<div class="empty">No runs recorded on this device. The local chronicle is blank.</div>'; return; }
+  el.innerHTML='<div class="mtitle" style="color:var(--gold-dim);margin-bottom:1vh">Best runs on this device</div><div class="lb">'+SAVE.board.map((r,i)=>
+    '<div class="lbrow'+(i===0?" top":"")+'"><div class="pos">'+(i+1)+'</div>'+
+    '<div class="mode">'+esc(MODES[r.mode]?MODES[r.mode].name:r.mode)+' · '+esc((typeof resolveDiff==="function"?resolveDiff(r.diff):DIFFS.watchman).name)+' · '+esc(r.acc)+'%</div>'+
+    '<div class="sc">'+esc(fmt(r.score))+'</div><div class="dt">'+esc(r.date)+'</div></div>').join("")+'</div>';
+}
+function renderLifeStats(el){
+  const li=levelInfo(SAVE.xp);
+  const acc = SAVE.life.attempts ? Math.round(SAVE.life.correct/SAVE.life.attempts*100) : 0;
+  const booksC = Object.keys(SAVE.books).filter(b=>SAVE.books[b].c>0).length;
+  const curEd = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
+  const curDailyBest = (SAVE.best && SAVE.best.dailyByEdition && SAVE.best.dailyByEdition[curEd] !== undefined)
+    ? SAVE.best.dailyByEdition[curEd]
+    : (SAVE.best ? (SAVE.best.daily || 0) : 0);
+  el.innerHTML='<div class="statgrid">'+
+    box(li.level,"Level")+box(rankFor(li.level),"Rank")+box(fmt(SAVE.xp),"Total XP")+
+    box(fmt(SAVE.runs),"Runs")+box(fmt(SAVE.life.correct),"Verses kept")+box(acc+"%","Lifetime accuracy")+
+    box(SAVE.life.bestStreak,"Best streak")+box(booksC+" / 66","Books touched")+
+    box(fmt(SAVE.best.trial),"Trial best")+box(fmt(SAVE.best.endless),"Endless best")+
+    box(fmt(curDailyBest),"Daily best")+box(SAVE.life.sdBest,"Final Test best")+
+    box(SAVE.life.endlessBest,"Longest gauntlet")+box(SAVE.life.dailyDone,"Dailies completed")+
+    box(SAVE.life.quickRewards||0,"Quick rewards banked")+
+    box(SAVE.life.illumRewards||0,"Illuminate earned")+
+    box(Pilgrimage.clearedCount(SAVE.pilgrim)+" / "+Pilgrimage.count(),"Sites cleared")+
+    box(fmt(SAVE.best.pilgrimage),"Pilgrimage best")+
+    box(SAVE.seals.length+" / "+SEALS.length,"Seals")+
+    '</div>';
+  function box(a,b){ return '<div class="sbox"><b>'+esc(String(a))+'</b><span>'+esc(b)+'</span></div>'; }
+}
+function renderBookBars(el){
+  const rows = BOOKS_ORDER.filter(b=>SAVE.books[b] && SAVE.books[b].a>0)
+    .map(b=>({b, c:SAVE.books[b].c, a:SAVE.books[b].a, p:SAVE.books[b].c/SAVE.books[b].a}));
+  if(!rows.length){ el.innerHTML='<div class="empty">No book has been tested yet.</div>'; return; }
+  rows.sort((x,y)=>x.p-y.p);
+  el.innerHTML='<div class="bookbars"><div class="mtitle" style="color:var(--gold-dim)">Weakest books first — this is your revision list</div>'+
+    rows.map(r=>'<div class="bb"><i>'+esc(r.b)+'</i><div class="bar"><u style="width:'+(r.p*100)+'%"></u></div>'+
+    '<b>'+Math.round(r.p*100)+'%</b></div>').join("")+'</div>';
+}
+function renderBlitzBoard(el){
+  const cloudOn = typeof Cloud!=="undefined" && Cloud.configured();
+  if(!cloudOn){
+    el.innerHTML='<div class="empty">Cloud boards need a configured Supabase project (see BACKEND.md). Local play still works.</div>';
+    return;
+  }
+  const trustTag = (typeof Cloud!=="undefined" && typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct")
+    ? ' <span class="trust-pill">(Honor system)</span>' : '';
+  const title = "Blitz global" + trustTag;
+  el.innerHTML='<div class="mtitle">'+title+'</div><div class="board-loading">Loading…</div>';
+  const seq = (el._fetchSeq = (el._fetchSeq || 0) + 1);
+  Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn()?Cloud.fetchMyBlitzRank():null])
+    .then(([rows, mine])=>{
       if(el._fetchSeq !== seq) return;
       if(mine && rows) rows.forEach(function(r){ if(r.id === mine.id) r.mine = true; });
       if(!rows || !rows.length){
@@ -425,33 +454,13 @@ function renderRecords(){
       if(el._fetchSeq !== seq) return;
       el.innerHTML='<div class="mtitle">'+esc(title)+'</div><div class="empty">Could not reach the board.</div>';
     });
-  } else if(rtab==="life"){
-    const li=levelInfo(SAVE.xp);
-    const acc = SAVE.life.attempts ? Math.round(SAVE.life.correct/SAVE.life.attempts*100) : 0;
-    const booksC = Object.keys(SAVE.books).filter(b=>SAVE.books[b].c>0).length;
-    el.innerHTML='<div class="statgrid">'+
-      box(li.level,"Level")+box(rankFor(li.level),"Rank")+box(fmt(SAVE.xp),"Total XP")+
-      box(fmt(SAVE.runs),"Runs")+box(fmt(SAVE.life.correct),"Verses kept")+box(acc+"%","Lifetime accuracy")+
-      box(SAVE.life.bestStreak,"Best streak")+box(booksC+" / 66","Books touched")+
-      box(fmt(SAVE.best.trial),"Trial best")+box(fmt(SAVE.best.endless),"Endless best")+
-      box(fmt(SAVE.best.daily),"Daily best")+box(SAVE.life.sdBest,"Final Test best")+
-      box(SAVE.life.endlessBest,"Longest gauntlet")+box(SAVE.life.dailyDone,"Dailies completed")+
-      box(SAVE.life.quickRewards||0,"Quick rewards banked")+
-      box(SAVE.life.illumRewards||0,"Illuminate earned")+
-      box(Pilgrimage.clearedCount(SAVE.pilgrim)+" / "+Pilgrimage.count(),"Sites cleared")+
-      box(fmt(SAVE.best.pilgrimage),"Pilgrimage best")+
-      box(SAVE.seals.length+" / "+SEALS.length,"Seals")+
-      '</div>';
-    function box(a,b){ return '<div class="sbox"><b>'+esc(String(a))+'</b><span>'+esc(b)+'</span></div>'; }
-  } else {
-    const rows = BOOKS_ORDER.filter(b=>SAVE.books[b] && SAVE.books[b].a>0)
-      .map(b=>({b, c:SAVE.books[b].c, a:SAVE.books[b].a, p:SAVE.books[b].c/SAVE.books[b].a}));
-    if(!rows.length){ el.innerHTML='<div class="empty">No book has been tested yet.</div>'; return; }
-    rows.sort((x,y)=>x.p-y.p);
-    el.innerHTML='<div class="bookbars"><div class="mtitle" style="color:var(--gold-dim)">Weakest books first — this is your revision list</div>'+
-      rows.map(r=>'<div class="bb"><i>'+esc(r.b)+'</i><div class="bar"><u style="width:'+(r.p*100)+'%"></u></div>'+
-      '<b>'+Math.round(r.p*100)+'%</b></div>').join("")+'</div>';
-  }
+}
+function renderRecords(){
+  const el=$("records-body");
+  if(rtab==="board") renderLocalBoard(el);
+  else if(rtab==="blitz") renderBlitzBoard(el);
+  else if(rtab==="life") renderLifeStats(el);
+  else renderBookBars(el);
 }
 
 function bindLeaderboardReports(host, board){
@@ -552,6 +561,10 @@ function renderSettings(){
     ownerBlock +
     accountBlock +
     profileBlock +
+    setRow("Translation","King James Version (KJV) or New King James Version (NKJV). Verse memory and Daily are kept per edition; Pilgrimage sites, relics, and seals are shared.",
+      seg("translation",[["kjv","KJV"],["nkjv","NKJV"]],s.translation||"kjv")) +
+    setRow("Translation license","Scripture taken from the New King James Version®. Copyright © 1982 by Thomas Nelson. Used by permission. All rights reserved.",
+      '<div class="hint" style="text-align:right;">NKJV © 1982 Thomas Nelson</div>') +
     setRow("Ordeal","Disciple is the learning path. Watchman is the full clock.",
       seg("diff",[["disciple","Disciple"],["watchman","Watchman"]],s.diff||"disciple")) +
     setRow("Music","Ambient drone beneath the cathedral.",
@@ -639,6 +652,15 @@ function bindSettingsHandlers(){
         const key=g.dataset.seg; let v=b.dataset.val;
         if(v==="true") v=true; else if(v==="false") v=false;
         SAVE.set[key]=v;
+        if(key==="translation"){
+          SAVE.set.translationChosen = true;
+          persist();
+          Snd.ui();
+          if(typeof Edition !== "undefined" && Edition.activateEdition) Edition.activateEdition(v);
+          if(typeof toast === "function") toast("Switched to " + (v === "nkjv" ? "NKJV" : "KJV"));
+          if(typeof go === "function") go("menu");
+          return;
+        }
         if(key==="motion"){ SAVE.set.reduced = (v === "reduced"); }
         if(key==="reduced"){ SAVE.set.motion = v ? "reduced" : "full"; }
         if(key==="quality") SAVE.set.qualityLocked=true;

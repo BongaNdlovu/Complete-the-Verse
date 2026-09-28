@@ -129,7 +129,7 @@ var VERSES_MORE = [
 {b:"Nahum",r:"Nahum 2:1",t:5,p:"He that dasheth in pieces is come up before thy face:",a:"keep the munition, watch the way",s:", make thy loins strong, fortify thy power mightily.",d:["guard the tower, mark the road","hold the gate, keep the watch","man the wall, set the guard"]},
 
 {b:"Habakkuk",r:"Habakkuk 2:14",t:4,p:"For the earth shall be filled with",a:"the knowledge of the glory of the LORD",s:", as the waters cover the sea.",d:["the fear of the majesty of the LORD","the everlasting praise of his holy name","the light of the glory of our God"]},
-{b:"Habakkuk",r:"Habakkuk 3:17",t:5,p:"Although the fig tree shall not blossom, neither shall fruit be in the vines;",a:"yet I will rejoice in the LORD",s:", I will joy in the God of my salvation.",d:["still will I praise his name","I will not cease to trust him","yet shall my heart be glad"]},
+{b:"Habakkuk",r:"Habakkuk 3:17-18",t:5,p:"Although the fig tree shall not blossom, neither shall fruit be in the vines;",a:"yet I will rejoice in the LORD",s:", I will joy in the God of my salvation.",d:["still will I praise his name","I will not cease to trust him","yet shall my heart be glad"]},
 
 {b:"Zephaniah",r:"Zephaniah 3:9",t:5,p:"For then will I turn to the people a pure language, that they may all",a:"call upon the name of the LORD",s:", to serve him with one consent.",d:["walk in the ways of the LORD","seek the face of the Almighty","worship before the throne of his glory"]},
 {b:"Zephaniah",r:"Zephaniah 3:20",t:5,p:"At that time will I bring you again, even in the time that I gather you: for",a:"I will make you a name",s:"and a praise among all people of the earth,",d:["I will give you renown","I will set you on high","I will make you a joy"]},

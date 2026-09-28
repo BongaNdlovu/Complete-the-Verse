@@ -47,6 +47,7 @@ const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   /* ---------- 3. module surface ---------- */
   if (!err) {
     const t = name => vm.runInContext("typeof " + name, sb);
+    ok("edition exports Edition", t("Edition") === "object");
     ok("defer exports the late-pack loader", t("Defer") === "object");
     ok("util exports the DOM helper", t("$") === "function");
     ok("util exports the ref-dedupe pool helper", t("poolSansRepeatRefs") === "function");

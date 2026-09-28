@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Complete the Verse — A Trial of Scripture</title>
-<meta name="description" content="A biblical-thriller verse game on the King James Version: complete the missing phrase before the clock falls, walk the 46-site pilgrimage from Ur to Patmos, and train every verse with spaced repetition. Assemble from memory. A sixth act waits.">
+<meta name="description" content="A biblical-thriller verse game in KJV and NKJV: complete the missing phrase before the clock falls, walk the 46-site pilgrimage from Ur to Patmos, and train every verse with spaced repetition. Assemble from memory. A sixth act waits.">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="application-name" content="Complete the Verse">
 <meta name="apple-mobile-web-app-title" content="Complete the Verse">
@@ -22,12 +22,12 @@
 <meta property="og:image" content="https://complete-the-verse.vercel.app/assets/icon-512.png">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
-<meta property="og:image:alt" content="Complete the Verse — King James Bible memory game">
+<meta property="og:image:alt" content="Complete the Verse — Bible memory game">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Complete the Verse — A Trial of Scripture">
-<meta name="twitter:description" content="Free KJV memory game: complete the missing phrase, walk the pilgrimage from Ur to Patmos, train with spaced repetition.">
+<meta name="twitter:description" content="Free Bible memory game in KJV and NKJV: complete the missing phrase, walk the pilgrimage from Ur to Patmos, train with spaced repetition.">
 <meta name="twitter:image" content="https://complete-the-verse.vercel.app/assets/icon-512.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Complete the Verse","alternateName":"Complete the Verse — A Trial of Scripture","url":"https://complete-the-verse.vercel.app/","description":"King James Bible memory game with a 46-site pilgrimage map, spaced repetition, Blitz mode, and Word Tablets.","applicationCategory":"GameApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","isAccessibleForFree":true,"inLanguage":"en","image":"https://complete-the-verse.vercel.app/assets/icon-512.png","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Complete the Verse","alternateName":"Complete the Verse — A Trial of Scripture","url":"https://complete-the-verse.vercel.app/","description":"Bible memory game in KJV and NKJV with a 46-site pilgrimage map, spaced repetition, Blitz mode, and Word Tablets.","applicationCategory":"GameApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","isAccessibleForFree":true,"inLanguage":"en","image":"https://complete-the-verse.vercel.app/assets/icon-512.png","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
 <link rel="preload" href="fonts/cinzel-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/eb-garamond-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css">
@@ -35,7 +35,7 @@
 <!-- play.css, tablets.css, atlas.css, and Leaflet wait for js/defer.js. -->
 </head>
 <body class="biblical-thriller">
-<h1 class="sr-only">Complete the Verse — King James Bible memory game and pilgrimage from Ur to Patmos</h1>
+<h1 class="sr-only">Complete the Verse — Bible memory game and pilgrimage from Ur to Patmos</h1>
 <div id="offline-banner" class="offline-banner" role="status" aria-live="polite"></div>
 <div id="voice-caption" class="voice-caption" role="status" aria-live="polite" aria-atomic="true"></div>
 <div id="backdrop"></div>
@@ -103,6 +103,28 @@
       </div>
       <p class="hint" id="signin-status" role="status" aria-live="polite"></p>
       <p class="signin-legal"><a href="privacy.html">Privacy</a> · <a href="support.html">Reviews &amp; support</a> · A network is required the first time.</p>
+    </div>
+  </section>
+
+  <!-- ============ EDITION PICKER ============ -->
+  <section class="view" id="v-edition" aria-label="Choose translation">
+    <div class="scrollpad edition-pad">
+      <div class="kick">The Scripture Record</div>
+      <img class="game-logo" src="assets/logo.webp" alt="Complete the Verse" width="512" height="512">
+      <div class="h-lg" style="margin-top:1.2vh">Choose your translation</div>
+      <div class="fil"><i></i></div>
+      <p class="signin-copy">Select the text for your trial. Verse memory, Daily runs, and Word Tablets are tracked per edition. The road from Ur to Patmos and unlocked relics are shared.</p>
+      <div class="edition-actions" style="display:flex; flex-direction:column; gap:14px; max-width:340px; margin:20px auto 0;">
+        <button type="button" class="btn" id="edition-btn-kjv" data-edition="kjv">
+          <span style="display:block; font-size:1.1em; font-weight:600;">King James Version (KJV)</span>
+          <span class="hint" style="display:block; color:inherit; opacity:0.8; font-size:0.85em;">Classic 1611 cadence · Public domain</span>
+        </button>
+        <button type="button" class="btn ghost" id="edition-btn-nkjv" data-edition="nkjv">
+          <span style="display:block; font-size:1.1em; font-weight:600;">New King James Version (NKJV)</span>
+          <span class="hint" style="display:block; color:inherit; opacity:0.8; font-size:0.85em;">1982 Thomas Nelson edition</span>
+        </button>
+      </div>
+      <p class="hint" style="margin-top:20px; text-align:center;">You can switch between editions anytime in Settings.</p>
     </div>
   </section>
 
@@ -366,7 +388,7 @@
 
       <div class="question-content">
         <div class="question-body">
-          <div class="verse-stage" id="verse-stage">
+          <div class="verse-stage" id="verse-stage" data-kick="KING JAMES VERSION">
             <div class="verse-main" id="verse" aria-live="polite" aria-atomic="true"></div>
             <div class="ref-line"><i></i><span id="ref">&nbsp;</span><i></i></div>
           </div>
@@ -847,6 +869,18 @@
 <script src="js/passages.js"></script>
 <script src="js/legacy-ids.js"></script>
 <script src="js/bank.js"></script>
+<!-- The NKJV edition. These are data only: they declare NKJV_* globals and
+     touch nothing else, so loading them costs a parse and nothing more
+     until Edition.activateEdition("nkjv") swaps them into the live arrays.
+     They must load before edition.js, which snapshots both stores at boot. -->
+<script src="js/nkjv/verses.js"></script>
+<script src="js/nkjv/passages.js"></script>
+<script src="js/nkjv/verses-tf.js"></script>
+<script src="js/nkjv/verses-notes.js"></script>
+<script src="js/nkjv/tablets.js"></script>
+<script src="js/nkjv/quotes.js"></script>
+<script src="js/nkjv/beat.js"></script>
+<script src="js/nkjv/tutorial.js"></script>
 <script src="js/srs.js"></script>
 <script src="js/recall.js"></script>
 <script src="js/assemble.js"></script>
@@ -871,6 +905,7 @@
 <!-- Engine modules split from game.js along its natural seams. They
      define one global each and may only reference game.js bindings at
      runtime, never at parse time — the load order below is required. -->
+<script src="js/edition.js"></script>
 <script src="js/defer.js"></script>
 <script src="js/util.js"></script>
 <script src="js/audio.js"></script>

@@ -12,8 +12,14 @@ const QA = require("./verse-qa");
 const args = process.argv.slice(2);
 const showAll = args.includes("--all");
 const asJson = args.includes("--json");
+const bankArgIndex = args.indexOf("--bank");
+const targetBank = (bankArgIndex >= 0 && args[bankArgIndex + 1]) ? args[bankArgIndex + 1].toLowerCase() : "kjv";
 
-const bank = loadBank();
+const bank = loadBank(targetBank);
+if(bank && bank.empty){
+  console.log("PASS — NKJV bank not generated yet (licensed source required at content/nkjv/source/)");
+  process.exit(0);
+}
 const verses = bank.VERSES || [];
 const passageBlanks = (bank.PASSAGES || []).flatMap(QA.passageToVerses);
 

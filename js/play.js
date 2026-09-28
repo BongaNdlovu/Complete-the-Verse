@@ -158,8 +158,8 @@ const TUTORIAL_GUIDE = [
   "Lesson 1 · Recognition: Choose the phrase that completes the verse.",
   "Lesson 2 · Name the Passage: Select its book, chapter, and verse.",
   "Lesson 3 · Scribe's Cloze: Tap the missing words in sequence from the tray below.",
-  "Lesson 4 · True Scripture Duel: Discern and choose the genuine King James reading.",
-  "Lesson 5 · Fade-to-Memory: Memorize the whole verse — tap I'm Done when you hold it, then choose the true King James line.",
+  "Lesson 4 · True Scripture Duel: Discern and choose the true Scripture reading.",
+  "Lesson 5 · Fade-to-Memory: Memorize the whole verse — tap I'm Done when you hold it, then choose the true line of the verse.",
   "Lesson 6 · Assembled Recall: Drag or tap the words in order, then lock your answer."
 ];
 
@@ -168,7 +168,7 @@ const TUTORIAL_VOICE = [
   "Name the Passage: Select its book, chapter, and verse.",
   "Lesson three. Tap the missing words in sequence.",
   "Lesson four. Discern the true Scripture reading.",
-  "Lesson five. Memorize the whole verse for one minute, then choose the true King James line.",
+  "Lesson five. Memorize the whole verse for one minute, then choose the true line of the verse.",
   "Lesson six. Assemble the verse from memory."
 ];
 
@@ -524,7 +524,8 @@ function showBeatPlate(plate){
 }
 function beatSpeakPlate(plate, then){
   beatCaption(plate.line);
-  if(plate.vo && typeof Snd!=="undefined" && Snd.playVoice){
+  const isNkjv = (typeof Edition !== "undefined" && Edition.getEdition && Edition.getEdition() === "nkjv");
+  if(plate.vo && !isNkjv && typeof Snd!=="undefined" && Snd.playVoice){
     Snd.playVoice(Beat.url(plate.vo), 8000, then, then);
     return;
   }
@@ -570,7 +571,7 @@ function renderBeatQuestion(item){
   cueQuestionMusic();
   R.locked = false;
   R.selected = null;
-  $("ref").textContent = item.r + " — KJV";
+  $("ref").textContent = item.r + " — " + (typeof translationTag === "function" ? translationTag() : "KJV");
   $("verse").textContent = item.stem || "";
   fitVerseSize((item.stem||"").length);
   const how = $("warn-how");
@@ -1236,7 +1237,7 @@ function renderPassageReferenceQuestion(q, dur, scene){
   const how = $("warn-how");
   if(how) how.innerHTML = "Name the Passage<br>Select its book, chapter, and verse";
   const refEl = $("ref");
-  if(refEl) refEl.textContent = "Passage identification · King James Version";
+  if(refEl) refEl.textContent = "Passage identification · " + (typeof translationName === "function" ? translationName() : "King James Version");
 
   const passage = fullQuestionPassage(q);
   $("verse").innerHTML = '<span class="passage-reference-text">' + highlightVerse(passage) + '</span>';
@@ -1282,7 +1283,7 @@ function renderClozeQuestion(q, dur, scene){
   if(how) how.innerHTML = "1-2-3 Rapid Cloze<br>Tap missing words in sequence<span class=\"kb-hint\"> · keys 1–9, ⌫ unfills</span>";
 
   const refEl = $("ref");
-  if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";
+  if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + (typeof translationTag === "function" ? translationTag() : "KJV");
 
   $("verse").innerHTML = highlightVerse(q.p||"") + ' <span class="blank" id="blank">&#8195;&#8195;&#8195;</span>' + sep(q.s) + highlightVerse(q.s||"");
   fitVerseSize((q.p||"").length + (q.a||"").length + (q.s||"").length);
@@ -1436,12 +1437,12 @@ function renderDuelQuestion(q, dur, scene){
   R.currentMechanic = "duel";
   $("confirm-answer").style.display = "none";
   const how = $("warn-how");
-  if(how) how.innerHTML = "True Scripture Duel<br>Select the genuine King James reading";
+  if(how) how.innerHTML = "True Scripture Duel<br>Select the genuine " + (typeof translationName === "function" ? translationName() : "King James Version") + " reading";
 
   const refEl = $("ref");
-  if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";
+  if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + (typeof translationTag === "function" ? translationTag() : "KJV");
 
-  $("verse").innerHTML = '<span class="duel-prompt-kicker">Discern the genuine King James reading</span>';
+  $("verse").innerHTML = '<span class="duel-prompt-kicker">Discern the genuine ' + (typeof translationName === "function" ? translationName() : "King James") + ' reading</span>';
   fitVerseSize(42);
 
   const duelStage = $("duel-stage");
@@ -1499,9 +1500,9 @@ function illuminateDuel(){
   correct.classList.add("illum-cue");
   const marker = document.createElement("div");
   marker.className = "duel-illumination";
-  marker.textContent = "Illuminate · KJV cue";
+  marker.textContent = "Illuminate · " + (typeof translationTag === "function" ? translationTag() : "KJV") + " cue";
   correct.insertAdjacentElement ? correct.insertAdjacentElement("afterbegin", marker) : correct.appendChild(marker);
-  if(typeof toast === "function") toast("Illuminate — the genuine KJV reading is marked");
+  if(typeof toast === "function") toast("Illuminate — the genuine " + (typeof translationTag === "function" ? translationTag() : "KJV") + " reading is marked");
   return true;
 }
 
@@ -1587,7 +1588,7 @@ function renderTrueFalseQuestion(q, dur, scene){
   const how = $("warn-how");
   if(how) how.innerHTML = "The Judgement<br>True or False<span class=\"kb-hint\"> — T / F keys</span>";
   const refEl = $("ref");
-  if(refEl) refEl.textContent = "Out of " + claim.b + " — KJV";
+  if(refEl) refEl.textContent = "Out of " + claim.b + " — " + (typeof translationTag === "function" ? translationTag() : "KJV");
 
   $("verse").innerHTML = '<span class="tf-kicker">The Witness Speaks · Judge the Claim</span>';
   fitVerseSize(Math.max(42, claim.s.length));
@@ -1843,7 +1844,7 @@ function renderFadePickChoices(q, dur, scene){
     opts.appendChild(b);
   });
   const how = $("warn-how");
-  if(how) how.innerHTML = "Fade-to-Memory<br>Choose the true King James verse";
+  if(how) how.innerHTML = "Fade-to-Memory<br>Choose the true " + (typeof translationName === "function" ? translationName() : "King James") + " verse";
   armTimer(dur);
   startTimer(dur);
   renderPowers();
@@ -1891,13 +1892,26 @@ function illuminateFadePick(){
 }
 
 /* ================= 4. FADE-TO-MEMORY (DISSOLVING ECHO) ================= */
+function mountFadeCountdown(count){
+  const countdownEl = document.createElement("div");
+  countdownEl.className = "fade-countdown-bar";
+  countdownEl.id = "fade-bar";
+  countdownEl.textContent = "Memorize the whole verse: " + count + "s";
+  const stageEl = $("verse-stage");
+  if(stageEl){
+    if(typeof stageEl.prepend === "function") stageEl.prepend(countdownEl);
+    else if(typeof stageEl.insertBefore === "function") stageEl.insertBefore(countdownEl, stageEl.firstChild);
+    else if(typeof stageEl.appendChild === "function") stageEl.appendChild(countdownEl);
+  }
+  return countdownEl;
+}
 function renderFadeQuestion(q, dur, scene){
   R.currentMechanic = "fade";
   const how = $("warn-how");
   if(how) how.innerHTML = "Fade-to-Memory<br>Memorize the whole verse — reconstruction follows<span class=\"kb-hint\"> · D = I'm Done</span>";
 
   const refEl = $("ref");
-  if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + "KJV";
+  if(refEl) refEl.textContent = (q.r ? q.r + " — " : "") + (typeof translationTag === "function" ? translationTag() : "KJV");
 
   R.fadePhase = "memorize";
   R.fadeAssembly = null;
@@ -1918,16 +1932,7 @@ function renderFadeQuestion(q, dur, scene){
   const runToken = R.runToken;
   const sceneToken = scene;
   let count = Math.ceil(FADE_MEMORY_MS / 1000);
-  const countdownEl = document.createElement("div");
-  countdownEl.className = "fade-countdown-bar";
-  countdownEl.id = "fade-bar";
-  countdownEl.textContent = "Memorize the whole verse: " + count + "s";
-  const stageEl = $("verse-stage");
-  if(stageEl){
-    if(typeof stageEl.prepend === "function") stageEl.prepend(countdownEl);
-    else if(typeof stageEl.insertBefore === "function") stageEl.insertBefore(countdownEl, stageEl.firstChild);
-    else if(typeof stageEl.appendChild === "function") stageEl.appendChild(countdownEl);
-  }
+  const countdownEl = mountFadeCountdown(count);
 
   let echoTimer = null;
   const isCurrent = () => R.runToken === runToken && R.sceneToken === sceneToken && R.q === q && currentView === "play";
@@ -2033,7 +2038,7 @@ function renderQuestion(q, dur){
   cueQuestionMusic();
   syncCinematicBackdrop();
   clearOtherStages();
-  $("ref").textContent = q.r + " — KJV";
+  $("ref").textContent = q.r + " — " + (typeof translationTag === "function" ? translationTag() : "KJV");
   const mechanic = q.mechanic || R.mechanic || ((R.mode === "pilgrimage" || R.mode === "relay") ? selectPilgrimageMechanic(verseMechanicIndex(), q) : null);
   R.currentMechanic = mechanic;
   if(mechanic !== "fade"){

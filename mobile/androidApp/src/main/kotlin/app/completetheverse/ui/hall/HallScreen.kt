@@ -65,6 +65,7 @@ fun HallScreen(
     footerLine: String,
     pills: Map<String, String>,
     onDigitKey: ((Int) -> Unit)? = null,
+    translationLabel: String = "King James Version",
     modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -102,7 +103,7 @@ fun HallScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Kick("King James Version  ·  66 Books  ·  One final answer")
+            Kick(translationLabel + "  ·  66 Books  ·  One final answer")
             Image(
                 painter = painterResource(R.drawable.logo),
                 contentDescription = "Complete the Verse",

@@ -263,13 +263,26 @@ var Cloud = (function () {
     });
   }
 
-  function mergeDaily(local, remote) {
-    var ld = local.daily || {}, rd = remote.daily || {};
+  function mergeDailyEntry(ld, rd) {
+    ld = ld || {}; rd = rd || {};
     if (ld.date && rd.date && ld.date === rd.date) {
       return { date: ld.date, score: maxNum(ld.score, rd.score) };
     }
     if (ld.date) return { date: ld.date, score: ld.score || 0 };
     return { date: rd.date || "", score: rd.score || 0 };
+  }
+
+  function mergeDaily(local, remote) {
+    var ld = local.daily || {}, rd = remote.daily || {};
+    return mergeDailyEntry(ld, rd);
+  }
+
+  function mergeDailyByEdition(local, remote) {
+    var lde = local.dailyByEdition || {}, rde = remote.dailyByEdition || {};
+    return {
+      kjv: mergeDailyEntry(lde.kjv || local.daily, rde.kjv || remote.daily),
+      nkjv: mergeDailyEntry(lde.nkjv, rde.nkjv)
+    };
   }
 
   function mergeTablets(a, b) {
@@ -316,6 +329,7 @@ var Cloud = (function () {
     out.pilgrim = mergePilgrim(local.pilgrim, remote.pilgrim);
     out.tablets = mergeTablets(local.tablets, remote.tablets);
     out.daily = mergeDaily(local, remote);
+    out.dailyByEdition = mergeDailyByEdition(local, remote);
     out.set = Object.assign({}, remote.set || {}, local.set || {});
     out.board = (local.board && local.board.length) ? local.board
       : (remote.board || []).slice(0, 10);
@@ -844,8 +858,10 @@ var Cloud = (function () {
     if (!sb || !user) return { ok: false, reason: "signed-out" };
     var c = (typeof Polish !== "undefined" && Polish.clampDailyScore)
       ? Polish.clampDailyScore(row) : row;
+    var tr = (c && c.translation) || (typeof Edition !== "undefined" && Edition.getEdition ? Edition.getEdition() : "kjv");
     var payload = {
       play_date: c.play_date,
+      translation: tr,
       score: c.score | 0,
       accuracy: Number(c.accuracy) || 0,
       duration_ms: c.duration_ms == null ? null : c.duration_ms | 0,
@@ -890,15 +906,17 @@ var Cloud = (function () {
     return { ok: false, reason: edge.reason === "rate-limited" ? "rate-limited" : "trusted-submit-unavailable", via: "none" };
   }
 
-  async function fetchDailyBoard(playDate, limit) {
+  async function fetchDailyBoard(playDate, limit, translation) {
     lastBoardError = null;
     var sb = ensureClient();
     if (!sb) { lastBoardError = "not-configured"; return []; }
     limit = limit || 20;
+    var tr = translation || (typeof Edition !== "undefined" && Edition.getEdition ? Edition.getEdition() : "kjv");
     try {
       var res = await withTimeout(sb.from("daily_scores")
         .select("id, score, accuracy, diff, profiles(display_name)")
         .eq("play_date", playDate)
+        .eq("translation", tr)
         .order("score", { ascending: false })
         .limit(limit), 8000);
       if (res.error) { lastBoardError = "load-failed"; return []; }
@@ -956,13 +974,15 @@ var Cloud = (function () {
 
   /* How many players posted a score on a given date (for "of M" on the
      results screen). Read-only on the same table the board already uses. */
-  async function fetchDailyEntryCount(playDate) {
+  async function fetchDailyEntryCount(playDate, translation) {
     var sb = ensureClient();
     if (!sb || !playDate) return 0;
+    var tr = translation || (typeof Edition !== "undefined" && Edition.getEdition ? Edition.getEdition() : "kjv");
     try {
       var res = await withTimeout(sb.from("daily_scores")
         .select("id", { count: "exact", head: true })
-        .eq("play_date", playDate), 8000);
+        .eq("play_date", playDate)
+        .eq("translation", tr), 8000);
       if (res.error) return 0;
       return (res.count != null) ? Number(res.count) : 0;
     } catch (e) {
@@ -971,19 +991,22 @@ var Cloud = (function () {
   }
 
   /* Best daily score for a signed-in user on a given date (for "you" row). */
-  async function fetchMyDailyRank(playDate) {
+  async function fetchMyDailyRank(playDate, translation) {
     var sb = ensureClient();
     if (!sb || !user) return null;
+    var tr = translation || (typeof Edition !== "undefined" && Edition.getEdition ? Edition.getEdition() : "kjv");
     try {
       var mine = await withTimeout(sb.from("daily_scores")
         .select("id, score, accuracy, diff, profiles(display_name)")
         .eq("play_date", playDate)
+        .eq("translation", tr)
         .eq("user_id", user.id)
         .maybeSingle(), 8000);
       if (mine.error || !mine.data) return null;
       var above = await withTimeout(sb.from("daily_scores")
         .select("id", { count: "exact", head: true })
         .eq("play_date", playDate)
+        .eq("translation", tr)
         .gt("score", mine.data.score), 8000);
       var raw = (mine.data.profiles && mine.data.profiles.display_name) || "You";
       var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
@@ -1057,10 +1080,12 @@ var Cloud = (function () {
   async function upsertGhost(mode, runKey, bestScore, timeline, meta) {
     var sb = ensureClient();
     if (!sb || !user) return { ok: false, reason: "signed-out" };
+    var ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
+    var finalKey = (mode === "daily" && !String(runKey).includes("~")) ? (ed + "~" + runKey) : runKey;
     var res = await sb.from("run_ghosts").upsert({
       user_id: user.id,
       mode: mode,
-      run_key: runKey,
+      run_key: finalKey,
       best_score: bestScore | 0,
       timeline: timeline || { version: 1, samples: [] },
       meta: meta || {},
@@ -1074,10 +1099,12 @@ var Cloud = (function () {
     var sb = ensureClient();
     if (!sb) return [];
     limit = limit || 5;
+    var ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
+    var finalKey = (mode === "daily" && !String(runKey).includes("~")) ? (ed + "~" + runKey) : runKey;
     var res = await sb.from("run_ghosts")
       .select("best_score, timeline, meta, profiles(display_name)")
       .eq("mode", mode)
-      .eq("run_key", runKey)
+      .eq("run_key", finalKey)
       .order("best_score", { ascending: false })
       .limit(limit);
     if (res.error) return [];

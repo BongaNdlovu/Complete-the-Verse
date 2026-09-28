@@ -343,7 +343,7 @@ function paintTabletsHud(){
   const subEl = $("tablets-sub");
   if(subEl){
     const pace = R.tabletTutorial ? "Learn the Hold" : ((Tablets.levelName && Tablets.levelName(R.tabletLevel)) || "I");
-    subEl.textContent = pace + " · " + (ch.subtitle || "KJV");
+    subEl.textContent = pace + " · " + (ch.subtitle || (typeof translationTag === "function" ? translationTag() : "KJV"));
   }
   const remEl = $("tablets-remain");
   if(remEl) remEl.textContent = tabletsRemainText();

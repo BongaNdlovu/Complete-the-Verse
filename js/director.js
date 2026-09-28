@@ -129,7 +129,7 @@ const Director = (function(){
     "lesson three tap the missing words in sequence":"audio/voice/lesson-three.mp3",
     "lesson four discern the true scripture reading":"audio/voice/lesson-four.mp3",
     "lesson five commit the words before they fade":"audio/voice/lesson-five.mp3",
-    "lesson five memorize the whole verse for one minute then choose the true king james line":"audio/voice/lesson-five.mp3",
+    "lesson five memorize the whole verse for one minute then choose the true line of the verse":"audio/voice/lesson-five.mp3",
     "lesson five memorize the whole verse for thirty seconds then rebuild every word in order":"audio/voice/thirty-seconds.mp3",
     "memorize the whole verse for thirty seconds then rebuild every word in order":"audio/voice/thirty-seconds.mp3",
     "thirty second memorization tutorial":"audio/voice/thirty-seconds.mp3",

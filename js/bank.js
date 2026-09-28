@@ -44,6 +44,9 @@ VERSES.forEach(v => {
 
 function absorbVersePack(pack){
   if(!pack || !pack.length) return 0;
+  if(typeof Edition !== "undefined" && Edition.absorbDeferred) {
+    return Edition.absorbDeferred(pack);
+  }
   let n = 0;
   pack.forEach(v => {
     if(v.b === "Psalm") v.b = "Psalms";

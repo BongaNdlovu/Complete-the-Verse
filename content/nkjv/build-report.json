@@ -1,0 +1,5319 @@
+{
+  "generatedFrom": "content/nkjv/source/",
+  "stats": {
+    "cut": {
+      "curated": 5,
+      "hand": 15,
+      "aligned": 846,
+      "bank": null
+    },
+    "handSuperseded": [
+      "2 Chronicles 16:9 (bank won)",
+      "Ezekiel 36:26 (bank won)",
+      "1 Thessalonians 5:17 (bank won)",
+      "James 1:17 (bank won)",
+      "Ezekiel 36:26 (bank won)",
+      "1 Thessalonians 5:17 (bank won)",
+      "Esther 9:22 (bank won)",
+      "Judges 7:18 (aligned won)",
+      "Genesis 12:3 (curated won)",
+      "Proverbs 29:18 (bank won)",
+      "James 2:17 (bank won)"
+    ],
+    "curatedSuperseded": [],
+    "answersByRef": {
+      "Genesis 1:1": [
+        "heavens and the earth"
+      ],
+      "Genesis 2:7": [
+        "living being"
+      ],
+      "Genesis 9:13": [
+        "rainbow"
+      ],
+      "Genesis 50:20": [
+        "alive"
+      ],
+      "Exodus 14:14": [
+        "hold your peace"
+      ],
+      "Exodus 20:3": [
+        "before me"
+      ],
+      "Exodus 3:14": [
+        "i am who i am"
+      ],
+      "Leviticus 19:18": [
+        "i am the lord"
+      ],
+      "Leviticus 17:11": [
+        "atonement"
+      ],
+      "Numbers 6:24": [
+        "bless you and keep you"
+      ],
+      "Numbers 23:19": [
+        "repent"
+      ],
+      "Deuteronomy 6:5": [
+        "your strength"
+      ],
+      "Deuteronomy 31:6": [
+        "leave you nor forsake you"
+      ],
+      "Joshua 1:9": [
+        "dismayed"
+      ],
+      "Joshua 24:15": [
+        "serve the lord"
+      ],
+      "Judges 6:12": [
+        "valor"
+      ],
+      "Judges 5:31": [
+        "full strength so the land"
+      ],
+      "Ruth 1:16": [
+        "your god my god"
+      ],
+      "1 Samuel 16:7": [
+        "heart"
+      ],
+      "1 Samuel 15:22": [
+        "fat of rams"
+      ],
+      "2 Samuel 22:2": [
+        "deliverer"
+      ],
+      "1 Kings 18:21": [
+        "opinions"
+      ],
+      "1 Kings 19:12": [
+        "still small voice"
+      ],
+      "2 Kings 6:16": [
+        "more than those who are with them"
+      ],
+      "1 Chronicles 16:34": [
+        "endures forever"
+      ],
+      "1 Chronicles 4:10": [
+        "territory"
+      ],
+      "2 Chronicles 7:14": [
+        "heal their land"
+      ],
+      "2 Chronicles 16:9": [
+        "loyal to him"
+      ],
+      "Ezra 7:10": [
+        "statutes and ordinances"
+      ],
+      "Nehemiah 8:10": [
+        "joy of the lord"
+      ],
+      "Nehemiah 6:3": [
+        "great work"
+      ],
+      "Esther 4:14": [
+        "such a time as this"
+      ],
+      "Esther 4:16": [
+        "i perish"
+      ],
+      "Job 1:21": [
+        "name of the lord"
+      ],
+      "Job 19:25": [
+        "last on the earth"
+      ],
+      "Job 13:15": [
+        "trust"
+      ],
+      "Psalm 23:1": [
+        "not want"
+      ],
+      "Psalm 46:1": [
+        "help"
+      ],
+      "Psalm 119:105": [
+        "lamp to my feet"
+      ],
+      "Psalm 27:1": [
+        "strength"
+      ],
+      "Psalm 51:10": [
+        "steadfast spirit"
+      ],
+      "Psalm 37:4": [
+        "desires of your heart"
+      ],
+      "Psalm 118:24": [
+        "rejoice and be glad in it"
+      ],
+      "Psalm 121:1": [
+        "whence comes my help"
+      ],
+      "Psalm 1:1": [
+        "seat of the scornful"
+      ],
+      "Psalm 34:8": [
+        "taste and see"
+      ],
+      "Psalm 19:1": [
+        "handiwork"
+      ],
+      "Psalm 139:14": [
+        "marvelous"
+      ],
+      "Psalm 91:1": [
+        "abide"
+      ],
+      "Psalm 147:3": [
+        "binds up their wounds"
+      ],
+      "Psalm 56:3": [
+        "trust in you"
+      ],
+      "Psalm 100:4": [
+        "courts with praise"
+      ],
+      "Psalm 30:5": [
+        "joy"
+      ],
+      "Psalm 42:1": [
+        "o god"
+      ],
+      "Psalm 90:12": [
+        "wisdom"
+      ],
+      "Psalm 133:1": [
+        "unity"
+      ],
+      "Psalm 22:1": [
+        "groaning"
+      ],
+      "Psalm 84:10": [
+        "doorkeeper"
+      ],
+      "Proverbs 3:5": [
+        "your own understanding"
+      ],
+      "Proverbs 18:10": [
+        "safe"
+      ],
+      "Proverbs 22:6": [
+        "depart from it"
+      ],
+      "Proverbs 15:1": [
+        "stirs up anger"
+      ],
+      "Proverbs 27:17": [
+        "countenance"
+      ],
+      "Proverbs 4:23": [
+        "issues of life"
+      ],
+      "Proverbs 16:3": [
+        "thoughts"
+      ],
+      "Ecclesiastes 3:1": [
+        "purpose"
+      ],
+      "Ecclesiastes 12:13": [
+        "this is man's all",
+        "fear god and keep his commandments"
+      ],
+      "Song of Solomon 2:1": [
+        "lily of the valleys",
+        "the rose of sharon"
+      ],
+      "Song of Solomon 8:7": [
+        "floods drown it"
+      ],
+      "Isaiah 40:31": [
+        "eagles"
+      ],
+      "Isaiah 41:10": [
+        "righteous"
+      ],
+      "Isaiah 53:5": [
+        "bruised"
+      ],
+      "Isaiah 9:6": [
+        "prince of peace"
+      ],
+      "Isaiah 1:18": [
+        "snow"
+      ],
+      "Isaiah 55:8": [
+        "says the lord"
+      ],
+      "Isaiah 43:2": [
+        "overflow you"
+      ],
+      "Isaiah 26:3": [
+        "stayed"
+      ],
+      "Isaiah 6:8": [
+        "here am i send me"
+      ],
+      "Jeremiah 29:11": [
+        "a future and a hope"
+      ],
+      "Jeremiah 17:9": [
+        "wicked"
+      ],
+      "Jeremiah 33:3": [
+        "mighty things"
+      ],
+      "Lamentations 3:22": [
+        "compassions",
+        "his compassions fail not"
+      ],
+      "Lamentations 3:23": [
+        "faithfulness",
+        "great is your faithfulness"
+      ],
+      "Ezekiel 36:26": [
+        "heart of stone",
+        "heart of flesh"
+      ],
+      "Ezekiel 37:4": [
+        "dry bones",
+        "hear the word of the lord"
+      ],
+      "Daniel 3:18": [
+        "gold image"
+      ],
+      "Daniel 12:3": [
+        "firmament"
+      ],
+      "Hosea 4:6": [
+        "knowledge"
+      ],
+      "Hosea 6:6": [
+        "burnt offerings",
+        "mercy and not sacrifice"
+      ],
+      "Joel 2:28": [
+        "prophesy"
+      ],
+      "Joel 3:14": [
+        "decision"
+      ],
+      "Amos 3:3": [
+        "unless they are agreed"
+      ],
+      "Amos 5:24": [
+        "mighty stream"
+      ],
+      "Obadiah 1:15": [
+        "your own head"
+      ],
+      "Obadiah 1:3": [
+        "pride of your heart"
+      ],
+      "Jonah 2:9": [
+        "thanksgiving",
+        "salvation is of the lord"
+      ],
+      "Jonah 1:17": [
+        "great fish"
+      ],
+      "Micah 6:8": [
+        "humbly",
+        "to walk humbly with your god"
+      ],
+      "Micah 5:2": [
+        "thousands of judah",
+        "bethlehem ephrathah"
+      ],
+      "Nahum 1:7": [
+        "stronghold",
+        "a stronghold in the day of trouble"
+      ],
+      "Nahum 1:3": [
+        "acquit the wicked",
+        "great in power"
+      ],
+      "Habakkuk 2:4": [
+        "faith",
+        "the just shall live by his faith"
+      ],
+      "Habakkuk 3:19": [
+        "deer's feet",
+        "like deer's feet"
+      ],
+      "Zephaniah 3:17": [
+        "singing",
+        "he will rejoice over you with gladness"
+      ],
+      "Haggai 2:9": [
+        "latter",
+        "greater than the former"
+      ],
+      "Haggai 1:6": [
+        "little",
+        "bring in little"
+      ],
+      "Zechariah 4:6": [
+        "lord of hosts",
+        "but by my spirit"
+      ],
+      "Zechariah 9:9": [
+        "donkey",
+        "lowly and riding on a donkey"
+      ],
+      "Malachi 3:10": [
+        "windows of heaven"
+      ],
+      "Malachi 4:2": [
+        "healing in his wings",
+        "with healing in his wings"
+      ],
+      "Matthew 6:33": [
+        "added"
+      ],
+      "Matthew 11:28": [
+        "rest"
+      ],
+      "Matthew 5:14": [
+        "cannot be hidden"
+      ],
+      "Matthew 7:7": [
+        "opened to you"
+      ],
+      "Matthew 5:16": [
+        "glorify your father in heaven"
+      ],
+      "Matthew 28:19": [
+        "all the nations"
+      ],
+      "Matthew 5:6": [
+        "filled"
+      ],
+      "Matthew 16:26": [
+        "exchange"
+      ],
+      "Mark 16:15": [
+        "every creature"
+      ],
+      "Mark 10:27": [
+        "all things are possible"
+      ],
+      "Mark 11:24": [
+        "receive them"
+      ],
+      "Luke 1:37": [
+        "impossible"
+      ],
+      "Luke 6:31": [
+        "likewise"
+      ],
+      "Luke 19:10": [
+        "that which was lost"
+      ],
+      "John 3:16": [
+        "everlasting life"
+      ],
+      "John 14:6": [
+        "except through me"
+      ],
+      "John 1:1": [
+        "was god"
+      ],
+      "John 8:32": [
+        "make you free"
+      ],
+      "John 15:5": [
+        "nothing"
+      ],
+      "John 10:10": [
+        "more abundantly"
+      ],
+      "John 11:35": [
+        "wept"
+      ],
+      "Acts 1:8": [
+        "witnesses to me"
+      ],
+      "Acts 4:12": [
+        "must be saved",
+        "no other name under heaven"
+      ],
+      "Acts 17:28": [
+        "being"
+      ],
+      "Romans 3:23": [
+        "glory"
+      ],
+      "Romans 6:23": [
+        "eternal life"
+      ],
+      "Romans 8:28": [
+        "purpose"
+      ],
+      "Romans 12:2": [
+        "renewing"
+      ],
+      "Romans 10:9": [
+        "saved"
+      ],
+      "Romans 10:17": [
+        "word of god"
+      ],
+      "Romans 5:8": [
+        "for us"
+      ],
+      "Romans 8:39": [
+        "christ jesus our lord"
+      ],
+      "1 Corinthians 13:4": [
+        "puffed up"
+      ],
+      "1 Corinthians 10:13": [
+        "way of escape"
+      ],
+      "1 Corinthians 13:12": [
+        "mirror dimly"
+      ],
+      "1 Corinthians 15:55": [
+        "victory"
+      ],
+      "2 Corinthians 5:17": [
+        "creation",
+        "he is a new creation"
+      ],
+      "2 Corinthians 5:7": [
+        "sight"
+      ],
+      "2 Corinthians 12:9": [
+        "weakness"
+      ],
+      "Galatians 5:22": [
+        "longsuffering kindness goodness"
+      ],
+      "Galatians 6:9": [
+        "do not",
+        "if we do not"
+      ],
+      "Galatians 2:20": [
+        "lives"
+      ],
+      "Ephesians 2:8": [
+        "gift",
+        "it is the gift of god"
+      ],
+      "Ephesians 6:11": [
+        "wiles of the devil"
+      ],
+      "Ephesians 6:12": [
+        "darkness"
+      ],
+      "Philippians 4:13": [
+        "strengthens"
+      ],
+      "Philippians 4:6": [
+        "requests be made known to god"
+      ],
+      "Philippians 2:10": [
+        "under the earth"
+      ],
+      "Colossians 3:23": [
+        "heartily"
+      ],
+      "Colossians 1:17": [
+        "consist",
+        "in him all things consist"
+      ],
+      "1 Thessalonians 5:17": [
+        "without ceasing",
+        "pray without ceasing"
+      ],
+      "1 Thessalonians 5:18": [
+        "will of god in christ jesus"
+      ],
+      "2 Thessalonians 3:3": [
+        "establish you",
+        "guard you from the evil one"
+      ],
+      "2 Thessalonians 3:13": [
+        "doing good"
+      ],
+      "1 Timothy 6:10": [
+        "root of all kinds of evil"
+      ],
+      "1 Timothy 4:12": [
+        "conduct",
+        "an example to the believers"
+      ],
+      "2 Timothy 1:7": [
+        "sound mind"
+      ],
+      "2 Timothy 3:16": [
+        "inspiration of god"
+      ],
+      "2 Timothy 2:15": [
+        "rightly dividing"
+      ],
+      "Titus 3:5": [
+        "regeneration",
+        "through the washing of regeneration"
+      ],
+      "Titus 2:11": [
+        "appeared to all men"
+      ],
+      "Philemon 1:6": [
+        "christ jesus",
+        "may become effective"
+      ],
+      "Hebrews 11:1": [
+        "evidence"
+      ],
+      "Hebrews 13:8": [
+        "forever"
+      ],
+      "Hebrews 4:12": [
+        "two edged sword"
+      ],
+      "Hebrews 12:1": [
+        "ensnares"
+      ],
+      "James 4:7": [
+        "flee from you"
+      ],
+      "James 1:22": [
+        "deceiving",
+        "doers of the word"
+      ],
+      "James 1:17": [
+        "variation or shadow of turning"
+      ],
+      "1 Peter 5:7": [
+        "cares",
+        "for he cares for you"
+      ],
+      "1 Peter 2:9": [
+        "his own special people",
+        "a royal priesthood"
+      ],
+      "2 Peter 3:9": [
+        "repentance"
+      ],
+      "2 Peter 1:21": [
+        "moved by the holy spirit"
+      ],
+      "1 John 1:9": [
+        "unrighteousness"
+      ],
+      "1 John 4:8": [
+        "god is love"
+      ],
+      "1 John 4:4": [
+        "the world"
+      ],
+      "2 John 1:6": [
+        "commandments"
+      ],
+      "3 John 1:2": [
+        "prospers"
+      ],
+      "3 John 1:4": [
+        "walk in truth"
+      ],
+      "Jude 1:24": [
+        "faultless"
+      ],
+      "Jude 1:3": [
+        "delivered to the saints"
+      ],
+      "Revelation 3:20": [
+        "dine"
+      ],
+      "Revelation 21:4": [
+        "former things"
+      ],
+      "Revelation 1:8": [
+        "almighty"
+      ],
+      "Revelation 12:11": [
+        "testimony"
+      ],
+      "Revelation 22:13": [
+        "first and the last"
+      ],
+      "Genesis 17:1": [
+        "walk before me"
+      ],
+      "Exodus 15:2": [
+        "my strength and song"
+      ],
+      "Leviticus 19:2": [
+        "'you shall be holy"
+      ],
+      "Leviticus 26:12": [
+        "you shall be my people"
+      ],
+      "Numbers 6:26": [
+        "give you peace"
+      ],
+      "Numbers 13:30": [
+        "we are well able to overcome it"
+      ],
+      "Deuteronomy 30:19": [
+        "choose life"
+      ],
+      "Deuteronomy 33:27": [
+        "the everlasting arms"
+      ],
+      "Joshua 3:5": [
+        "sanctify yourselves"
+      ],
+      "Joshua 21:45": [
+        "all came to pass"
+      ],
+      "Judges 13:18": [
+        "wonderful"
+      ],
+      "Judges 2:10": [
+        "not know the lord"
+      ],
+      "Ruth 4:13": [
+        "the lord gave her conception"
+      ],
+      "Ruth 2:12": [
+        "under whose wings"
+      ],
+      "Ruth 4:15": [
+        "better to you than seven sons"
+      ],
+      "1 Samuel 17:47": [
+        "the battle is the lord's"
+      ],
+      "1 Samuel 3:9": [
+        "'speak lord for your servant hears"
+      ],
+      "2 Samuel 12:7": [
+        "you are the man"
+      ],
+      "2 Samuel 22:31": [
+        "his way is perfect"
+      ],
+      "2 Samuel 24:24": [
+        "costs me nothing"
+      ],
+      "1 Kings 3:9": [
+        "an understanding heart"
+      ],
+      "1 Kings 8:27": [
+        "the heaven of heavens cannot contain you"
+      ],
+      "2 Kings 2:11": [
+        "a whirlwind into heaven"
+      ],
+      "2 Kings 5:14": [
+        "restored like the flesh of a little child"
+      ],
+      "2 Kings 6:17": [
+        "horses and chariots of fire"
+      ],
+      "1 Chronicles 29:11": [
+        "the glory the victory"
+      ],
+      "1 Chronicles 28:9": [
+        "with a loyal heart"
+      ],
+      "2 Chronicles 20:15": [
+        "the battle is not yours but god's"
+      ],
+      "2 Chronicles 15:7": [
+        "your work shall be rewarded"
+      ],
+      "Ezra 9:8": [
+        "a peg in his holy place"
+      ],
+      "Ezra 7:9": [
+        "the good hand of his god upon him"
+      ],
+      "Ezra 10:4": [
+        "be of good courage and do it"
+      ],
+      "Nehemiah 9:17": [
+        "god ready to pardon"
+      ],
+      "Nehemiah 4:6": [
+        "the people had a mind to work"
+      ],
+      "Esther 8:16": [
+        "light and gladness joy"
+      ],
+      "Esther 2:17": [
+        "grace and favor in his sight"
+      ],
+      "Job 23:10": [
+        "i shall come forth as gold"
+      ],
+      "Ecclesiastes 4:12": [
+        "a threefold cord is not quickly broken"
+      ],
+      "Song of Solomon 8:6": [
+        "love is as strong as death"
+      ],
+      "Jeremiah 31:3": [
+        "with an everlasting love"
+      ],
+      "Daniel 3:17": [
+        "is able to deliver us"
+      ],
+      "Daniel 6:10": [
+        "three times that day"
+      ],
+      "Hosea 14:4": [
+        "i will love them freely"
+      ],
+      "Joel 2:13": [
+        "slow to anger"
+      ],
+      "Joel 2:25": [
+        "the years that the swarming locust has eaten"
+      ],
+      "Amos 4:12": [
+        "prepare to meet your god"
+      ],
+      "Amos 5:14": [
+        "that you may live"
+      ],
+      "Obadiah 1:21": [
+        "the kingdom shall be the lord's"
+      ],
+      "Obadiah 1:4": [
+        "there i will bring you down"
+      ],
+      "Jonah 4:11": [
+        "that great city"
+      ],
+      "Zephaniah 2:3": [
+        "justice seek righteousness seek"
+      ],
+      "Zephaniah 1:12": [
+        "search jerusalem with lamps"
+      ],
+      "Malachi 3:6": [
+        "i do not"
+      ],
+      "Mark 10:45": [
+        "a ransom for many"
+      ],
+      "Luke 2:14": [
+        "goodwill toward men"
+      ],
+      "Philippians 4:7": [
+        "which surpasses all understanding"
+      ],
+      "Colossians 3:2": [
+        "on things above"
+      ],
+      "1 Thessalonians 4:16": [
+        "with the voice of an archangel"
+      ],
+      "2 Thessalonians 3:10": [
+        "neither shall he eat"
+      ],
+      "1 Timothy 1:15": [
+        "of whom i am chief"
+      ],
+      "2 Timothy 4:7": [
+        "i have kept the faith"
+      ],
+      "Titus 1:2": [
+        "god who cannot lie"
+      ],
+      "Titus 2:13": [
+        "the blessed hope"
+      ],
+      "Philemon 1:17": [
+        "receive him as you"
+      ],
+      "Philemon 1:7": [
+        "been refreshed by you brother"
+      ],
+      "2 Peter 3:8": [
+        "a thousand years as one day"
+      ],
+      "2 Peter 1:4": [
+        "exceedingly great and precious promises"
+      ],
+      "1 John 3:1": [
+        "children of god"
+      ],
+      "2 John 1:9": [
+        "not have god"
+      ],
+      "2 John 1:12": [
+        "that our joy may be full"
+      ],
+      "2 John 1:3": [
+        "mercy and peace"
+      ],
+      "3 John 1:11": [
+        "what is good he who does good"
+      ],
+      "3 John 1:8": [
+        "fellow workers for the truth"
+      ],
+      "Jude 1:20": [
+        "on your most holy faith"
+      ],
+      "Jude 1:21": [
+        "looking for the mercy of our lord"
+      ],
+      "Jude 1:25": [
+        "glory and majesty dominion and power"
+      ],
+      "Genesis 1:27": [
+        "in the image of god"
+      ],
+      "Genesis 15:6": [
+        "for righteousness"
+      ],
+      "Genesis 28:15": [
+        "wherever you go"
+      ],
+      "Exodus 33:14": [
+        "i will give you rest"
+      ],
+      "Exodus 34:6": [
+        "merciful and gracious"
+      ],
+      "Leviticus 19:32": [
+        "honor the presence of an old man"
+      ],
+      "Leviticus 6:13": [
+        "it shall never go out"
+      ],
+      "Numbers 14:18": [
+        "forgiving iniquity and transgression"
+      ],
+      "Numbers 32:23": [
+        "be sure your sin will find you out"
+      ],
+      "Deuteronomy 8:3": [
+        "the mouth of the lord"
+      ],
+      "Deuteronomy 6:7": [
+        "when you sit in your house"
+      ],
+      "Joshua 1:8": [
+        "meditate in it day and night"
+      ],
+      "Joshua 10:25": [
+        "be strong and of good courage"
+      ],
+      "Judges 7:20": [
+        "and of gideon"
+      ],
+      "Judges 16:28": [
+        "remember me i pray"
+      ],
+      "Ruth 4:14": [
+        "without a close"
+      ],
+      "Ruth 1:17": [
+        "the lord do so to me"
+      ],
+      "1 Samuel 2:2": [
+        "nor is there any rock like our god"
+      ],
+      "1 Samuel 12:24": [
+        "serve him in truth with all your heart"
+      ],
+      "2 Samuel 7:16": [
+        "your throne shall be established forever '"
+      ],
+      "2 Samuel 12:13": [
+        "the lord also has put away your sin"
+      ],
+      "1 Kings 8:57": [
+        "nor forsake us"
+      ],
+      "1 Kings 17:16": [
+        "up nor did the jar of oil"
+      ],
+      "2 Kings 5:13": [
+        "'wash and be clean'"
+      ],
+      "2 Kings 22:19": [
+        "and a curse and you"
+      ],
+      "1 Chronicles 16:11": [
+        "seek his face evermore"
+      ],
+      "1 Chronicles 29:14": [
+        "to offer so willingly as this"
+      ],
+      "2 Chronicles 15:2": [
+        "he will be found by you"
+      ],
+      "2 Chronicles 32:8": [
+        "the lord our god to help us"
+      ],
+      "Ezra 8:23": [
+        "he answered our prayer"
+      ],
+      "Ezra 1:3": [
+        "his god be with him"
+      ],
+      "Nehemiah 4:14": [
+        "fight for your brethren"
+      ],
+      "Nehemiah 2:20": [
+        "himself will prosper us"
+      ],
+      "Esther 9:22": [
+        "mourning to a holiday"
+      ],
+      "Esther 6:1": [
+        "the king could not sleep"
+      ],
+      "Job 42:2": [
+        "no purpose of yours can be withheld"
+      ],
+      "Ecclesiastes 3:11": [
+        "he has put eternity in their hearts except"
+      ],
+      "Ecclesiastes 9:10": [
+        "do it with your might"
+      ],
+      "Song of Solomon 2:4": [
+        "his banner over me was love"
+      ],
+      "Song of Solomon 4:7": [
+        "there is no spot in you"
+      ],
+      "Jeremiah 1:5": [
+        "before you were born"
+      ],
+      "Jeremiah 6:16": [
+        "you will find rest for your souls"
+      ],
+      "Lamentations 3:25": [
+        "the soul who seeks him"
+      ],
+      "Lamentations 3:26": [
+        "wait quietly for the salvation of the lord"
+      ],
+      "Ezekiel 18:32": [
+        "therefore turn and live"
+      ],
+      "Ezekiel 34:16": [
+        "bring back what was driven away"
+      ],
+      "Daniel 2:22": [
+        "light dwells with him"
+      ],
+      "Daniel 4:35": [
+        "among the inhabitants of the earth"
+      ],
+      "Hosea 10:12": [
+        "break up your fallow ground"
+      ],
+      "Hosea 12:6": [
+        "observe mercy and justice"
+      ],
+      "Joel 2:32": [
+        "shall be saved"
+      ],
+      "Joel 2:12": [
+        "with all your heart"
+      ],
+      "Amos 8:11": [
+        "of hearing the words of the lord"
+      ],
+      "Amos 9:13": [
+        "the plowman shall overtake the reaper"
+      ],
+      "Obadiah 1:17": [
+        "there shall be holiness"
+      ],
+      "Obadiah 1:12": [
+        "judah in the day of their destruction"
+      ],
+      "Jonah 1:3": [
+        "from the presence of the lord"
+      ],
+      "Jonah 3:10": [
+        "god relented from the disaster"
+      ],
+      "Micah 7:18": [
+        "pardoning iniquity"
+      ],
+      "Micah 4:3": [
+        "beat their swords into plowshares"
+      ],
+      "Nahum 1:15": [
+        "the feet of him who brings good tidings"
+      ],
+      "Nahum 2:1": [
+        "man the fort watch the road"
+      ],
+      "Habakkuk 2:14": [
+        "the knowledge of the glory of the lord"
+      ],
+      "Habakkuk 3:17-18": [
+        "yet i will rejoice in the lord"
+      ],
+      "Zephaniah 3:9": [
+        "call on the name of the lord"
+      ],
+      "Zephaniah 3:20": [
+        "i will give you fame"
+      ],
+      "Haggai 1:5": [
+        "consider your ways"
+      ],
+      "Haggai 2:4": [
+        "for i am with you"
+      ],
+      "Zechariah 2:8": [
+        "the apple of his eye"
+      ],
+      "Zechariah 8:16": [
+        "speak each man the truth"
+      ],
+      "Malachi 2:10": [
+        "has not one god created us"
+      ],
+      "Malachi 3:16": [
+        "the lord listened and heard them"
+      ],
+      "Mark 8:36": [
+        "loses his own soul"
+      ],
+      "Mark 12:30": [
+        "with all your mind"
+      ],
+      "Luke 11:9": [
+        "seek and you will find"
+      ],
+      "Luke 15:20": [
+        "had compassion and ran"
+      ],
+      "Acts 2:38": [
+        "let every one of you be baptized"
+      ],
+      "Acts 16:31": [
+        "believe on the lord jesus christ"
+      ],
+      "1 Corinthians 16:14": [
+        "be done with love"
+      ],
+      "1 Corinthians 2:9": [
+        "the things which god has prepared"
+      ],
+      "2 Corinthians 4:18": [
+        "the things which are not seen are eternal"
+      ],
+      "2 Corinthians 9:7": [
+        "god loves a cheerful giver"
+      ],
+      "Galatians 3:28": [
+        "you are all one in christ jesus"
+      ],
+      "Galatians 5:1": [
+        "which christ has made us free"
+      ],
+      "Ephesians 4:32": [
+        "as god in christ forgave you"
+      ],
+      "Ephesians 5:2": [
+        "given himself for us"
+      ],
+      "Philippians 1:21": [
+        "to die is gain"
+      ],
+      "Philippians 4:8": [
+        "whatever things are true"
+      ],
+      "Colossians 3:12": [
+        "on tender mercies kindness"
+      ],
+      "Colossians 2:6": [
+        "so walk in him"
+      ],
+      "1 Thessalonians 5:21": [
+        "hold fast what is good"
+      ],
+      "1 Thessalonians 5:11": [
+        "edify one another"
+      ],
+      "2 Thessalonians 2:15": [
+        "hold the traditions which you were taught"
+      ],
+      "2 Thessalonians 3:16": [
+        "give you peace always in every way"
+      ],
+      "1 Timothy 6:12": [
+        "lay hold on eternal life"
+      ],
+      "1 Timothy 2:5": [
+        "one mediator between god and men"
+      ],
+      "2 Timothy 2:3": [
+        "as a good soldier of jesus christ"
+      ],
+      "2 Timothy 4:8": [
+        "the crown of righteousness"
+      ],
+      "Titus 2:7": [
+        "a pattern of good works"
+      ],
+      "Philemon 1:11": [
+        "profitable to you and to me"
+      ],
+      "Philemon 1:16": [
+        "a slave a beloved"
+      ],
+      "Hebrews 12:2": [
+        "the author and finisher of our faith"
+      ],
+      "Hebrews 4:16": [
+        "obtain mercy and find grace"
+      ],
+      "James 1:5": [
+        "who gives to all liberally"
+      ],
+      "James 5:16": [
+        "the effective fervent prayer of a righteous man"
+      ],
+      "1 Peter 1:3": [
+        "has begotten us again to a living hope"
+      ],
+      "1 Peter 3:15": [
+        "always be ready to give a defense"
+      ],
+      "2 Peter 1:5": [
+        "add to your faith virtue"
+      ],
+      "2 Peter 3:18": [
+        "knowledge of our lord and savior"
+      ],
+      "1 John 4:19": [
+        "because he first loved us"
+      ],
+      "1 John 5:14": [
+        "he hears us"
+      ],
+      "2 John 1:4": [
+        "walking in truth"
+      ],
+      "2 John 1:8": [
+        "that we may receive a full reward"
+      ],
+      "3 John 1:5": [
+        "whatever you do for the brethren"
+      ],
+      "3 John 1:14": [
+        "we shall speak face to face"
+      ],
+      "Jude 1:22": [
+        "have compassion making a distinction"
+      ],
+      "Revelation 5:12": [
+        "worthy is the lamb who was slain"
+      ],
+      "Revelation 22:17": [
+        "let him who hears say come"
+      ],
+      "Genesis 12:1": [
+        "a land that i will show you"
+      ],
+      "Genesis 22:2": [
+        "your only son isaac whom you love"
+      ],
+      "Genesis 22:8": [
+        "god will provide for himself the lamb"
+      ],
+      "Genesis 22:12": [
+        "you have not withheld your son"
+      ],
+      "Genesis 22:14": [
+        "the mount of the lord"
+      ],
+      "Genesis 37:24": [
+        "the pit was empty"
+      ],
+      "Genesis 37:28": [
+        "twenty shekels of silver"
+      ],
+      "Genesis 45:5": [
+        "to preserve life"
+      ],
+      "Genesis 3:15": [
+        "he shall bruise your head"
+      ],
+      "Exodus 3:2": [
+        "the bush was not consumed"
+      ],
+      "Exodus 3:5": [
+        "this place take your sandals off your feet"
+      ],
+      "Exodus 4:12": [
+        "teach you what you shall say"
+      ],
+      "Exodus 14:13": [
+        "see the salvation of the lord"
+      ],
+      "Exodus 14:21": [
+        "a strong east wind"
+      ],
+      "Exodus 15:1": [
+        "the horse and its rider"
+      ],
+      "Exodus 15:11": [
+        "glorious in holiness"
+      ],
+      "Exodus 19:4": [
+        "on eagles' wings"
+      ],
+      "Judges 6:14": [
+        "have i not sent you"
+      ],
+      "Judges 6:16": [
+        "as one man"
+      ],
+      "Judges 7:2": [
+        "too many for me"
+      ],
+      "Judges 7:7": [
+        "the three hundred men who lapped"
+      ],
+      "Judges 16:17": [
+        "like any other man"
+      ],
+      "Judges 16:20": [
+        "the lord had departed from him"
+      ],
+      "Judges 16:30": [
+        "let me die with the philistines"
+      ],
+      "Judges 21:25": [
+        "everyone did what was right"
+      ],
+      "Judges 4:14": [
+        "this is the day"
+      ],
+      "1 Samuel 3:10": [
+        "speak for your servant hears"
+      ],
+      "1 Samuel 7:3": [
+        "put away the foreign gods"
+      ],
+      "1 Samuel 7:12": [
+        "far the lord has helped us"
+      ],
+      "1 Samuel 8:7": [
+        "they have rejected me"
+      ],
+      "1 Samuel 17:45": [
+        "in the name of the lord of hosts"
+      ],
+      "1 Kings 17:1": [
+        "there shall not be dew nor rain"
+      ],
+      "1 Kings 18:24": [
+        "the god who answers by fire"
+      ],
+      "1 Kings 18:38": [
+        "the fire of the lord fell"
+      ],
+      "1 Kings 18:36": [
+        "you are god in israel"
+      ],
+      "1 Kings 19:10": [
+        "torn down your altars"
+      ],
+      "2 Kings 18:13": [
+        "all the fortified cities of judah"
+      ],
+      "2 Kings 19:32": [
+        "nor shoot an arrow there"
+      ],
+      "2 Kings 19:35": [
+        "one hundred and eighty five thousand"
+      ],
+      "Isaiah 37:36": [
+        "there were the corpses all dead"
+      ],
+      "Isaiah 37:33": [
+        "nor build a siege mound against it"
+      ],
+      "2 Chronicles 3:1": [
+        "mount moriah"
+      ],
+      "2 Chronicles 32:9": [
+        "laid siege against lachish"
+      ],
+      "Hebrews 11:17": [
+        "offered up isaac"
+      ],
+      "Hebrews 11:19": [
+        "even from the dead"
+      ],
+      "Hebrews 11:29": [
+        "as by dry land"
+      ],
+      "James 5:17": [
+        "prayed earnestly that it would not rain"
+      ],
+      "Hosea 10:9": [
+        "from the days of gibeah"
+      ],
+      "Job 42:5": [
+        "my eye sees you"
+      ],
+      "Numbers 24:17": [
+        "a scepter shall rise out of israel"
+      ],
+      "Deuteronomy 10:12": [
+        "the lord your god require of you"
+      ],
+      "Deuteronomy 32:31": [
+        "not like our rock"
+      ],
+      "Joshua 4:24": [
+        "the hand of the lord"
+      ],
+      "Joshua 10:8": [
+        "i have delivered them into your hand"
+      ],
+      "Ruth 1:1": [
+        "a famine in the land"
+      ],
+      "Ruth 4:16": [
+        "laid him on her bosom"
+      ],
+      "Ruth 3:18": [
+        "sit still my daughter"
+      ],
+      "2 Samuel 7:12": [
+        "set up your seed after you"
+      ],
+      "2 Samuel 7:22": [
+        "there is none like you"
+      ],
+      "2 Samuel 23:2": [
+        "his word was on my tongue"
+      ],
+      "Mark 12:31": [
+        "shall love your neighbor as yourself"
+      ],
+      "Mark 2:17": [
+        "i did not come to call the righteous"
+      ],
+      "Mark 4:9": [
+        "he who has ears to hear"
+      ],
+      "Mark 8:34": [
+        "take up his cross"
+      ],
+      "Mark 16:6": [
+        "he is risen he is not here"
+      ],
+      "Luke 10:27": [
+        "'your neighbor as yourself"
+      ],
+      "Luke 1:47": [
+        "god my savior"
+      ],
+      "Luke 2:11": [
+        "a savior who is christ the lord"
+      ],
+      "Luke 1:38": [
+        "it be to me according to your word"
+      ],
+      "Luke 4:18": [
+        "anointed me to preach the gospel"
+      ],
+      "Luke 5:32": [
+        "sinners to repentance"
+      ],
+      "Luke 6:38": [
+        "good measure pressed down"
+      ],
+      "Luke 9:23": [
+        "take up his cross daily"
+      ],
+      "Luke 15:7": [
+        "one sinner who repents"
+      ],
+      "Luke 18:1": [
+        "always ought to pray"
+      ],
+      "Luke 2:52": [
+        "increased in wisdom and stature"
+      ],
+      "Luke 16:13": [
+        "serve god and mammon"
+      ],
+      "Luke 17:21": [
+        "the kingdom of god is within you"
+      ],
+      "Luke 21:36": [
+        "stand before the son of man"
+      ],
+      "Luke 23:34": [
+        "father forgive them"
+      ],
+      "Luke 24:32": [
+        "heart burn within us"
+      ],
+      "Acts 3:19": [
+        "sins may be blotted out"
+      ],
+      "Acts 5:29": [
+        "we ought to obey god rather than men"
+      ],
+      "Acts 1:11": [
+        "will so come in like manner"
+      ],
+      "Acts 20:35": [
+        "more blessed to give than to receive"
+      ],
+      "Acts 2:21": [
+        "calls on the name of the lord"
+      ],
+      "Acts 4:20": [
+        "the things which we have seen"
+      ],
+      "Acts 5:42": [
+        "teaching and preaching jesus as the christ"
+      ],
+      "Acts 16:25": [
+        "praying and singing hymns to god"
+      ],
+      "Acts 17:11": [
+        "searched the scriptures daily"
+      ],
+      "Acts 20:24": [
+        "finish my race with joy"
+      ],
+      "Acts 24:16": [
+        "without offense toward god"
+      ],
+      "Acts 7:59": [
+        "lord jesus receive my spirit"
+      ],
+      "Ezekiel 33:11": [
+        "turn from his way and live"
+      ],
+      "Ezekiel 3:17": [
+        "a watchman for the house of israel"
+      ],
+      "Ezekiel 14:6": [
+        "repent turn away from your idols"
+      ],
+      "Ezekiel 22:30": [
+        "stand in the gap before me"
+      ],
+      "Ezekiel 37:27": [
+        "i will be their god"
+      ],
+      "Ezekiel 34:23": [
+        "one shepherd over them"
+      ],
+      "Ezekiel 47:12": [
+        "they will bear fruit every month"
+      ],
+      "Daniel 2:20": [
+        "the name of god forever"
+      ],
+      "Daniel 9:9": [
+        "belong mercy and forgiveness"
+      ],
+      "Daniel 1:8": [
+        "purposed in his heart"
+      ],
+      "Daniel 9:23": [
+        "you are greatly beloved"
+      ],
+      "Daniel 10:19": [
+        "fear not peace be to you"
+      ],
+      "Daniel 7:27": [
+        "an everlasting kingdom"
+      ],
+      "Zechariah 14:9": [
+        "king over all the earth"
+      ],
+      "Zechariah 1:3": [
+        "return to me"
+      ],
+      "Zechariah 2:10": [
+        "dwell in your midst"
+      ],
+      "Zechariah 3:2": [
+        "not a brand plucked from the fire"
+      ],
+      "Zechariah 7:9": [
+        "'execute true justice show mercy"
+      ],
+      "Zechariah 12:10": [
+        "look on me whom they pierced yes"
+      ],
+      "Zechariah 13:9": [
+        "'this is my people'"
+      ],
+      "1 Corinthians 11:1": [
+        "imitate me just"
+      ],
+      "1 Corinthians 13:13": [
+        "the greatest of these is love"
+      ],
+      "1 Corinthians 9:24": [
+        "receives the prize"
+      ],
+      "1 Corinthians 10:31": [
+        "do all to the glory of god"
+      ],
+      "1 Corinthians 12:13": [
+        "baptized into one body whether"
+      ],
+      "1 Corinthians 13:8": [
+        "never fails"
+      ],
+      "1 Corinthians 14:33": [
+        "the author of confusion"
+      ],
+      "Ephesians 6:1": [
+        "obey your parents in the lord"
+      ],
+      "Ephesians 1:7": [
+        "redemption through his blood"
+      ],
+      "Ephesians 2:10": [
+        "created in christ jesus for good works"
+      ],
+      "Ephesians 3:20": [
+        "exceedingly abundantly above all"
+      ],
+      "Ephesians 4:2": [
+        "with one another in love"
+      ],
+      "Ephesians 4:26": [
+        "go down on your wrath"
+      ],
+      "Ephesians 4:29": [
+        "impart grace to the hearers"
+      ],
+      "Ephesians 5:8": [
+        "walk as children of light"
+      ],
+      "Ephesians 6:10": [
+        "be strong in the lord"
+      ],
+      "Ephesians 5:25": [
+        "love your wives"
+      ],
+      "Ephesians 1:3": [
+        "every spiritual blessing"
+      ],
+      "Ephesians 5:11": [
+        "the unfruitful works of darkness"
+      ],
+      "1 Timothy 2:1": [
+        "supplications prayers intercessions"
+      ],
+      "1 Timothy 4:8": [
+        "godliness is profitable for all things"
+      ],
+      "1 Timothy 6:6": [
+        "great gain"
+      ],
+      "1 Timothy 6:11": [
+        "flee these things"
+      ],
+      "1 Timothy 3:16": [
+        "the mystery of godliness"
+      ],
+      "1 Timothy 6:17": [
+        "trust in uncertain riches"
+      ],
+      "1 Peter 1:16": [
+        "be holy for i am holy"
+      ],
+      "1 Peter 2:24": [
+        "stripes you were healed"
+      ],
+      "1 Peter 1:8": [
+        "joy inexpressible and full of glory"
+      ],
+      "1 Peter 2:5": [
+        "a spiritual house"
+      ],
+      "1 Peter 4:10": [
+        "good stewards of the manifold grace of god"
+      ],
+      "1 Peter 1:7": [
+        "to praise honor and glory"
+      ],
+      "1 Peter 1:25": [
+        "endures forever now"
+      ],
+      "1 Peter 2:11": [
+        "abstain from fleshly lusts"
+      ],
+      "1 Peter 3:18": [
+        "the just for the unjust"
+      ],
+      "1 John 1:7": [
+        "the blood of jesus christ his son"
+      ],
+      "1 John 4:7": [
+        "love is of god"
+      ],
+      "1 John 2:15": [
+        "the love of the father"
+      ],
+      "1 John 2:1": [
+        "an advocate with the father"
+      ],
+      "1 John 2:6": [
+        "walk just as he walked"
+      ],
+      "1 John 3:16": [
+        "laid down his life for us"
+      ],
+      "1 John 3:18": [
+        "love in word or in tongue"
+      ],
+      "1 John 5:3": [
+        "keep his commandments"
+      ],
+      "1 John 5:11": [
+        "god has given us eternal life"
+      ],
+      "Genesis 1:5": [
+        "the evening and the morning"
+      ],
+      "Genesis 2:1": [
+        "all the host of them"
+      ],
+      "Genesis 2:2": [
+        "he rested on the seventh day"
+      ],
+      "Genesis 3:9": [
+        "where are you"
+      ],
+      "Genesis 4:9": [
+        "am i my brother's keeper"
+      ],
+      "Genesis 8:22": [
+        "day and night shall not cease"
+      ],
+      "Genesis 24:56": [
+        "prospered my way"
+      ],
+      "Genesis 28:16": [
+        "i did not know it"
+      ],
+      "Genesis 49:10": [
+        "shiloh comes"
+      ],
+      "Exodus 12:13": [
+        "i will pass over you"
+      ],
+      "Exodus 19:5": [
+        "a special treasure to me"
+      ],
+      "Exodus 23:20": [
+        "to keep you in the way"
+      ],
+      "Exodus 33:11": [
+        "a man speaks to his friend"
+      ],
+      "Leviticus 11:44": [
+        "i am holy"
+      ],
+      "Numbers 10:35": [
+        "your enemies be scattered"
+      ],
+      "Deuteronomy 7:7": [
+        "the least of all peoples"
+      ],
+      "Deuteronomy 11:18": [
+        "bind them as a sign on your hand"
+      ],
+      "Deuteronomy 32:4": [
+        "righteous and upright is he"
+      ],
+      "Judges 7:18": [
+        "'the sword of the lord and of gideon"
+      ],
+      "Ruth 2:20": [
+        "this man is a relation of ours"
+      ],
+      "1 Samuel 24:12": [
+        "my hand shall not be against you"
+      ],
+      "1 Kings 17:14": [
+        "the jar of oil run"
+      ],
+      "2 Kings 2:9": [
+        "a double portion of your spirit"
+      ],
+      "2 Kings 4:26": [
+        "it is well"
+      ],
+      "2 Chronicles 14:11": [
+        "we rest on you"
+      ],
+      "Ezra 3:11": [
+        "endures forever toward israel"
+      ],
+      "Job 2:10": [
+        "shall we not accept adversity"
+      ],
+      "Job 37:14": [
+        "consider the wondrous works of god"
+      ],
+      "Psalm 4:8": [
+        "make me dwell in safety"
+      ],
+      "Psalm 19:14": [
+        "acceptable in your sight"
+      ],
+      "Psalm 25:4": [
+        "teach me your paths"
+      ],
+      "Psalm 29:2": [
+        "worship the lord in the beauty of holiness"
+      ],
+      "Psalm 34:1": [
+        "his praise shall continually be in my mouth"
+      ],
+      "Psalm 86:11": [
+        "unite my heart to fear your name"
+      ],
+      "Psalm 100:3": [
+        "the sheep of his pasture"
+      ],
+      "Psalm 107:1": [
+        "his mercy endures forever"
+      ],
+      "Psalm 119:89": [
+        "your word is settled in heaven"
+      ],
+      "Psalm 138:8": [
+        "perfect that which concerns me"
+      ],
+      "Psalm 145:9": [
+        "his tender mercies are over all his works"
+      ],
+      "Psalm 150:6": [
+        "praise the lord"
+      ],
+      "Proverbs 2:6": [
+        "knowledge and understanding"
+      ],
+      "Proverbs 10:22": [
+        "he adds no sorrow with it"
+      ],
+      "Proverbs 11:30": [
+        "he who wins souls is wise"
+      ],
+      "Proverbs 17:22": [
+        "a broken spirit dries the bones"
+      ],
+      "Proverbs 20:1": [
+        "led astray by it is not wise"
+      ],
+      "Proverbs 28:1": [
+        "the righteous are bold as a lion"
+      ],
+      "Isaiah 11:9": [
+        "full of the knowledge of the lord"
+      ],
+      "Isaiah 12:2": [
+        "my strength and song"
+      ],
+      "Isaiah 25:8": [
+        "wipe away tears from all faces"
+      ],
+      "Isaiah 35:10": [
+        "everlasting joy on their heads"
+      ],
+      "Isaiah 45:22": [
+        "i am god and there is no other"
+      ],
+      "Jeremiah 9:24": [
+        "exercising lovingkindness judgment and righteousness"
+      ],
+      "Jeremiah 15:16": [
+        "the joy and rejoicing of my heart"
+      ],
+      "Ezekiel 34:15": [
+        "i will make them lie down"
+      ],
+      "Daniel 6:26": [
+        "shall not be destroyed"
+      ],
+      "Amos 4:13": [
+        "makes the morning darkness"
+      ],
+      "Haggai 2:7": [
+        "come to the desire of all nations"
+      ],
+      "Matthew 5:12": [
+        "great is your reward in heaven"
+      ],
+      "Matthew 7:12": [
+        "do also to them"
+      ],
+      "Matthew 19:26": [
+        "with god all things are possible"
+      ],
+      "Mark 1:15": [
+        "repent and believe in the gospel"
+      ],
+      "Mark 11:22": [
+        "have faith in god"
+      ],
+      "Luke 1:49": [
+        "holy is his name"
+      ],
+      "John 10:27": [
+        "they follow me"
+      ],
+      "John 14:2": [
+        "i go to prepare a place for you"
+      ],
+      "Acts 9:4": [
+        "saul saul why are you persecuting me"
+      ],
+      "Acts 10:34": [
+        "god shows no partiality"
+      ],
+      "Romans 8:14": [
+        "these are sons of god"
+      ],
+      "Romans 8:18": [
+        "the glory which shall be revealed in us"
+      ],
+      "Romans 14:8": [
+        "we are the lord's"
+      ],
+      "1 Corinthians 3:16": [
+        "the spirit of god dwells in you"
+      ],
+      "1 Corinthians 15:22": [
+        "all shall be made alive"
+      ],
+      "1 Corinthians 15:57": [
+        "the victory through our lord jesus christ"
+      ],
+      "1 Corinthians 16:13": [
+        "stand fast in the faith"
+      ],
+      "2 Corinthians 1:3": [
+        "god of all comfort"
+      ],
+      "Galatians 5:25": [
+        "walk in the spirit"
+      ],
+      "Ephesians 5:14": [
+        "christ will give you light"
+      ],
+      "Philippians 2:14": [
+        "complaining"
+      ],
+      "Colossians 4:6": [
+        "seasoned with salt"
+      ],
+      "1 Thessalonians 5:19": [
+        "not despise prophecies"
+      ],
+      "2 Thessalonians 2:16": [
+        "everlasting consolation and good hope by grace"
+      ],
+      "Hebrews 11:3": [
+        "framed by the word of god"
+      ],
+      "James 3:17": [
+        "full of mercy and good fruits"
+      ],
+      "Revelation 4:11": [
+        "created all things"
+      ],
+      "Genesis 13:14": [
+        "are northward southward eastward and westward"
+      ],
+      "Genesis 26:24": [
+        "i am with you i will bless you"
+      ],
+      "Exodus 6:7": [
+        "i will be your god"
+      ],
+      "Exodus 15:18": [
+        "reign forever and ever"
+      ],
+      "Exodus 31:3": [
+        "all manner of workmanship"
+      ],
+      "Deuteronomy 1:30": [
+        "he will fight for you"
+      ],
+      "Deuteronomy 8:18": [
+        "gives you power to get wealth"
+      ],
+      "Deuteronomy 10:17": [
+        "who shows no partiality nor takes"
+      ],
+      "Judges 5:3": [
+        "will sing to the lord"
+      ],
+      "1 Samuel 14:6": [
+        "from saving by many or by few"
+      ],
+      "2 Samuel 23:3": [
+        "'he who rules over men must be just"
+      ],
+      "1 Chronicles 16:29": [
+        "worship the lord in the beauty of holiness"
+      ],
+      "2 Chronicles 30:9": [
+        "turn his face from you"
+      ],
+      "Nehemiah 9:6": [
+        "the earth and everything on it"
+      ],
+      "Job 5:17": [
+        "do not despise the chastening of the almighty"
+      ],
+      "Psalm 2:11": [
+        "rejoice with trembling"
+      ],
+      "Psalm 9:1": [
+        "i will tell of all your marvelous works"
+      ],
+      "Psalm 27:4": [
+        "behold the beauty of the lord"
+      ],
+      "Psalm 32:1": [
+        "transgression is forgiven"
+      ],
+      "Psalm 40:8": [
+        "your law is within my heart"
+      ],
+      "Psalm 47:1": [
+        "shout to god with the voice of triumph"
+      ],
+      "Psalm 66:1": [
+        "all the earth"
+      ],
+      "Psalm 89:1": [
+        "make known your faithfulness to all generations"
+      ],
+      "Psalm 95:1": [
+        "the rock of our salvation"
+      ],
+      "Psalm 96:1": [
+        "sing to the lord all the earth"
+      ],
+      "Psalm 103:8": [
+        "slow to anger and abounding in mercy"
+      ],
+      "Psalm 105:1": [
+        "make known his deeds among the peoples"
+      ],
+      "Psalm 111:10": [
+        "his praise endures forever"
+      ],
+      "Psalm 113:3": [
+        "lord's name is to be praised"
+      ],
+      "Psalm 115:1": [
+        "of your mercy because of your truth"
+      ],
+      "Psalm 116:12": [
+        "all his benefits toward me"
+      ],
+      "Psalm 126:3": [
+        "and we are glad"
+      ],
+      "Psalm 130:5": [
+        "in his word i do hope"
+      ],
+      "Psalm 136:1": [
+        "his mercy endures forever"
+      ],
+      "Proverbs 8:17": [
+        "those who seek me diligently will find me"
+      ],
+      "Proverbs 13:20": [
+        "the companion of fools will be destroyed"
+      ],
+      "Proverbs 15:3": [
+        "on the evil and the good"
+      ],
+      "Proverbs 18:24": [
+        "a friend who sticks closer than a brother"
+      ],
+      "Proverbs 24:16": [
+        "rise again"
+      ],
+      "Genesis 1:3": [
+        "there was light"
+      ],
+      "Genesis 1:26": [
+        "in our image according to our likeness"
+      ],
+      "Genesis 2:18": [
+        "a helper comparable to him"
+      ],
+      "Genesis 3:19": [
+        "to dust you shall return"
+      ],
+      "Genesis 9:16": [
+        "the everlasting covenant between god"
+      ],
+      "Genesis 12:2": [
+        "you shall be a blessing"
+      ],
+      "Genesis 12:3": [
+        "all the families of the earth"
+      ],
+      "Genesis 18:14": [
+        "sarah shall have a son"
+      ],
+      "Genesis 32:28": [
+        "have prevailed"
+      ],
+      "Genesis 45:8": [
+        "a ruler throughout all the land of egypt"
+      ],
+      "Exodus 15:26": [
+        "i am the lord who heals you"
+      ],
+      "Exodus 20:8": [
+        "to keep it holy"
+      ],
+      "Exodus 20:12": [
+        "your days may be long upon the land"
+      ],
+      "Exodus 33:18": [
+        "show me your glory"
+      ],
+      "Leviticus 20:7": [
+        "be holy"
+      ],
+      "Leviticus 20:26": [
+        "mine"
+      ],
+      "Numbers 6:25": [
+        "be gracious to you"
+      ],
+      "Numbers 11:23": [
+        "what i say will happen to you"
+      ],
+      "Numbers 14:21": [
+        "the glory of the lord"
+      ],
+      "Deuteronomy 4:29": [
+        "with all your heart"
+      ],
+      "Deuteronomy 7:9": [
+        "a thousand generations"
+      ],
+      "Deuteronomy 29:29": [
+        "all the words of this law"
+      ],
+      "Deuteronomy 30:14": [
+        "in your mouth and in your heart"
+      ],
+      "Deuteronomy 31:8": [
+        "not fear nor be dismayed"
+      ],
+      "Joshua 24:14": [
+        "put away the gods which your fathers served"
+      ],
+      "Judges 6:24": [
+        "the lord is peace"
+      ],
+      "1 Samuel 1:27": [
+        "which i asked of him"
+      ],
+      "1 Samuel 12:23": [
+        "in ceasing to pray for you"
+      ],
+      "2 Samuel 22:33": [
+        "he makes my way perfect"
+      ],
+      "1 Kings 8:56": [
+        "one word of all his good promise"
+      ],
+      "1 Kings 19:11": [
+        "a great and strong wind"
+      ],
+      "2 Kings 20:6": [
+        "i will defend this city"
+      ],
+      "1 Chronicles 16:25": [
+        "to be feared above all gods"
+      ],
+      "2 Chronicles 20:12": [
+        "our eyes are upon you"
+      ],
+      "Ezra 3:13": [
+        "the sound was heard afar off"
+      ],
+      "Nehemiah 1:5": [
+        "observe your commandments"
+      ],
+      "Esther 5:2": [
+        "the golden scepter that was in his hand"
+      ],
+      "Job 1:8": [
+        "one who fears god and shuns evil"
+      ],
+      "Job 5:19": [
+        "no evil shall touch you"
+      ],
+      "Job 14:1": [
+        "of few days and full of trouble"
+      ],
+      "Job 28:28": [
+        "to depart from evil is understanding"
+      ],
+      "Job 38:4": [
+        "i laid the foundations of the earth"
+      ],
+      "Psalm 16:11": [
+        "pleasures forevermore"
+      ],
+      "Psalm 18:2": [
+        "the horn of my salvation"
+      ],
+      "Psalm 23:4": [
+        "your rod and your staff they comfort me"
+      ],
+      "Psalm 24:1": [
+        "those who dwell therein"
+      ],
+      "Psalm 27:14": [
+        "wait i say on the lord"
+      ],
+      "Psalm 32:8": [
+        "i will guide you with my eye"
+      ],
+      "Psalm 34:18": [
+        "have a contrite spirit"
+      ],
+      "Psalm 37:5": [
+        "he shall bring it to pass"
+      ],
+      "Psalm 40:1": [
+        "he inclined to me and heard my cry"
+      ],
+      "Psalm 46:10": [
+        "i will be exalted in the earth"
+      ],
+      "Psalm 51:17": [
+        "you will not despise"
+      ],
+      "Psalm 55:22": [
+        "the righteous to be moved"
+      ],
+      "Psalm 62:1": [
+        "my salvation"
+      ],
+      "Psalm 73:26": [
+        "my portion forever"
+      ],
+      "Psalm 103:1": [
+        "bless his holy name"
+      ],
+      "Psalm 103:12": [
+        "our transgressions from us"
+      ],
+      "Psalm 119:11": [
+        "i might not sin against you"
+      ],
+      "Psalm 127:1": [
+        "the watchman stays awake in vain"
+      ],
+      "Psalm 139:23": [
+        "know my anxieties"
+      ],
+      "Psalm 145:18": [
+        "call upon him in truth"
+      ],
+      "Proverbs 1:5": [
+        "attain wise counsel"
+      ],
+      "Proverbs 3:7": [
+        "fear the lord and depart from evil"
+      ],
+      "Proverbs 9:10": [
+        "the knowledge of the holy one is understanding"
+      ],
+      "Proverbs 11:14": [
+        "in the multitude of counselors there is safety"
+      ],
+      "Proverbs 14:12": [
+        "its end is the way of death"
+      ],
+      "Proverbs 16:9": [
+        "the lord directs his steps"
+      ],
+      "Proverbs 16:18": [
+        "a haughty spirit before a fall"
+      ],
+      "Proverbs 17:17": [
+        "a brother is born for adversity"
+      ],
+      "Proverbs 19:21": [
+        "the lord's counsel that will stand"
+      ],
+      "Proverbs 21:31": [
+        "deliverance is of the lord"
+      ],
+      "Proverbs 29:18": [
+        "happy is he who keeps the law"
+      ],
+      "Ecclesiastes 1:2": [
+        "all is vanity"
+      ],
+      "Ecclesiastes 12:1": [
+        "in the days of your youth"
+      ],
+      "Song of Solomon 2:11": [
+        "the rain is over and gone"
+      ],
+      "Isaiah 7:14": [
+        "call his name immanuel"
+      ],
+      "Isaiah 26:4": [
+        "everlasting strength"
+      ],
+      "Isaiah 40:8": [
+        "stands forever"
+      ],
+      "Isaiah 40:29": [
+        "he increases strength"
+      ],
+      "Isaiah 43:1": [
+        "i have called you by your name"
+      ],
+      "Isaiah 43:19": [
+        "rivers in the desert"
+      ],
+      "Isaiah 53:6": [
+        "the iniquity of us all"
+      ],
+      "Isaiah 54:17": [
+        "their righteousness is from me"
+      ],
+      "Isaiah 55:6": [
+        "call upon him while he is near"
+      ],
+      "Isaiah 55:11": [
+        "the thing for which i sent it"
+      ],
+      "Isaiah 61:1": [
+        "liberty to the captives"
+      ],
+      "Jeremiah 17:7": [
+        "trusts in the lord"
+      ],
+      "Jeremiah 17:14": [
+        "you are my praise"
+      ],
+      "Jeremiah 20:9": [
+        "i could not"
+      ],
+      "Jeremiah 23:29": [
+        "breaks the rock in pieces"
+      ],
+      "Jeremiah 32:17": [
+        "there is nothing too hard for you"
+      ],
+      "Lamentations 3:21": [
+        "i have hope"
+      ],
+      "Ezekiel 11:19": [
+        "a heart of flesh"
+      ],
+      "Ezekiel 36:27": [
+        "you will keep my judgments and do them"
+      ],
+      "Daniel 3:25": [
+        "like the son of god"
+      ],
+      "Daniel 6:22": [
+        "because i was found innocent before him"
+      ],
+      "Hosea 6:3": [
+        "the latter and former rain to the earth"
+      ],
+      "Hosea 11:4": [
+        "i stooped and fed them"
+      ],
+      "Amos 3:7": [
+        "his servants the prophets"
+      ],
+      "Micah 7:7": [
+        "my god will hear me"
+      ],
+      "Habakkuk 2:20": [
+        "let all the earth keep silence before him"
+      ],
+      "Zechariah 13:1": [
+        "for sin and for uncleanness"
+      ],
+      "Malachi 3:1": [
+        "he is coming says the lord of hosts"
+      ],
+      "Matthew 4:4": [
+        "the mouth of god"
+      ],
+      "Matthew 5:3": [
+        "theirs is the kingdom of heaven"
+      ],
+      "Matthew 5:8": [
+        "they shall see god"
+      ],
+      "Matthew 5:9": [
+        "they shall be called sons of god"
+      ],
+      "Matthew 5:44": [
+        "spitefully use you and persecute you"
+      ],
+      "Matthew 6:9": [
+        "our father in heaven"
+      ],
+      "Matthew 7:14": [
+        "difficult is the way"
+      ],
+      "Matthew 6:34": [
+        "sufficient for the day is its own trouble"
+      ],
+      "Matthew 7:13": [
+        "there are many who go in by it"
+      ],
+      "Matthew 9:37": [
+        "the laborers are few"
+      ],
+      "Matthew 10:28": [
+        "both soul and body in hell"
+      ],
+      "Matthew 11:29": [
+        "you will find rest for your souls"
+      ],
+      "Matthew 16:24": [
+        "follow me"
+      ],
+      "Matthew 18:20": [
+        "in the midst of them"
+      ],
+      "Matthew 22:37": [
+        "with all your mind"
+      ],
+      "Matthew 24:35": [
+        "my words will by no means pass away"
+      ],
+      "Matthew 25:21": [
+        "enter into the joy of your lord"
+      ],
+      "Mark 1:17": [
+        "fishers of men"
+      ],
+      "Mark 9:23": [
+        "all things are possible to him who believes"
+      ],
+      "Mark 10:14": [
+        "of such is the kingdom of god"
+      ],
+      "Luke 6:27": [
+        "do good to those who hate you"
+      ],
+      "Luke 9:24": [
+        "will save it"
+      ],
+      "Luke 12:15": [
+        "the abundance of the things he possesses"
+      ],
+      "Luke 12:32": [
+        "to give you the kingdom"
+      ],
+      "Luke 18:27": [
+        "possible with god"
+      ],
+      "John 1:14": [
+        "full of grace and truth"
+      ],
+      "John 1:29": [
+        "takes away the sin of the world"
+      ],
+      "John 3:3": [
+        "see the kingdom of god"
+      ],
+      "John 3:30": [
+        "i must decrease"
+      ],
+      "John 4:24": [
+        "in spirit and truth"
+      ],
+      "John 5:24": [
+        "has passed from death into life"
+      ],
+      "John 6:35": [
+        "shall never thirst"
+      ],
+      "John 8:12": [
+        "the light of life"
+      ],
+      "John 10:11": [
+        "gives his life for the sheep"
+      ],
+      "John 11:25": [
+        "die he shall live"
+      ],
+      "John 13:34": [
+        "that you also love one another"
+      ],
+      "John 14:1": [
+        "believe also in me"
+      ],
+      "John 14:27": [
+        "let it be afraid"
+      ],
+      "John 15:13": [
+        "lay down one's life for his friends"
+      ],
+      "John 16:33": [
+        "i have overcome the world"
+      ],
+      "John 17:17": [
+        "your word is truth"
+      ],
+      "John 20:29": [
+        "yet have believed"
+      ],
+      "Acts 4:31": [
+        "spoke the word of god with boldness"
+      ],
+      "Acts 16:9": [
+        "help us"
+      ],
+      "Romans 1:16": [
+        "also for the greek"
+      ],
+      "Romans 5:1": [
+        "peace with god through our lord jesus christ"
+      ],
+      "Romans 8:1": [
+        "to the spirit"
+      ],
+      "Romans 8:31": [
+        "who can be against us"
+      ],
+      "Romans 10:13": [
+        "shall be saved"
+      ],
+      "Romans 12:1": [
+        "your reasonable service"
+      ],
+      "Romans 12:21": [
+        "overcome evil with good"
+      ],
+      "Romans 15:13": [
+        "by the power of the holy"
+      ],
+      "1 Corinthians 1:18": [
+        "the power of god"
+      ],
+      "1 Corinthians 6:19": [
+        "you are not your own"
+      ],
+      "1 Corinthians 15:58": [
+        "not in vain in the lord"
+      ],
+      "2 Corinthians 4:16": [
+        "the inward man is being renewed"
+      ],
+      "2 Corinthians 5:21": [
+        "the righteousness of god in him"
+      ],
+      "2 Corinthians 12:10": [
+        "then i am strong"
+      ],
+      "Galatians 2:16": [
+        "no flesh shall be justified"
+      ],
+      "Galatians 5:16": [
+        "fulfill the lust of the flesh"
+      ],
+      "Galatians 6:2": [
+        "fulfill the law of christ"
+      ],
+      "Ephesians 3:16": [
+        "in the inner man"
+      ],
+      "Ephesians 4:15": [
+        "the head christ"
+      ],
+      "Ephesians 6:13": [
+        "to stand"
+      ],
+      "Philippians 1:6": [
+        "the day of jesus christ"
+      ],
+      "Philippians 2:3": [
+        "esteem others better than himself"
+      ],
+      "Philippians 2:5": [
+        "in christ jesus"
+      ],
+      "Philippians 3:14": [
+        "the upward call of god in christ jesus"
+      ],
+      "Colossians 1:13": [
+        "the kingdom of the son of his love"
+      ],
+      "Colossians 3:16": [
+        "to the lord"
+      ],
+      "1 Thessalonians 4:13": [
+        "have no hope"
+      ],
+      "2 Timothy 1:12": [
+        "until that day"
+      ],
+      "2 Timothy 2:13": [
+        "he cannot deny himself"
+      ],
+      "2 Timothy 4:17": [
+        "the mouth of the lion"
+      ],
+      "Hebrews 10:23": [
+        "he who promised is faithful"
+      ],
+      "Hebrews 11:6": [
+        "a rewarder of those who diligently seek him"
+      ],
+      "Hebrews 12:14": [
+        "no one will see the lord"
+      ],
+      "Hebrews 13:5": [
+        "i will never leave you nor forsake you"
+      ],
+      "James 1:2": [
+        "various trials"
+      ],
+      "James 1:12": [
+        "love him"
+      ],
+      "James 2:17": [
+        "by itself"
+      ],
+      "James 4:8": [
+        "purify your hearts you double minded"
+      ],
+      "1 Peter 5:8": [
+        "seeking whom he may devour"
+      ],
+      "1 John 1:5": [
+        "in him is no darkness at all"
+      ],
+      "1 John 4:18": [
+        "not been made perfect in love"
+      ],
+      "1 John 5:4": [
+        "world our faith"
+      ],
+      "Revelation 1:18": [
+        "the keys of hades and of death"
+      ],
+      "Revelation 2:10": [
+        "i will give you the crown of life"
+      ],
+      "Revelation 3:11": [
+        "no one may take your crown"
+      ],
+      "Revelation 7:17": [
+        "every tear from their eyes"
+      ],
+      "Revelation 19:16": [
+        "king of kings and lord of lords"
+      ],
+      "Revelation 21:5": [
+        "these words are true and faithful"
+      ],
+      "Revelation 22:20": [
+        "even so come lord jesus"
+      ]
+    },
+    "passageBlanks": 81,
+    "tabletBlanks": 1231,
+    "quotes": 46,
+    "tutorial": 6,
+    "cinema": 0,
+    "beatRefs": 0,
+    "tfRefs": 0,
+    "noteRefs": 131,
+    "items": 899,
+    "spent": {
+      "Genesis 1:1": {
+        "auto|heaven and the earth": true
+      },
+      "Genesis 2:7": {
+        "auto|living soul": true
+      },
+      "Genesis 9:13": {
+        "auto|bow": true
+      },
+      "Genesis 50:20": {
+        "auto|alive": true
+      },
+      "Exodus 14:14": {
+        "auto|hold your peace": true
+      },
+      "Exodus 20:3": {
+        "auto|before me": true
+      },
+      "Exodus 3:14": {
+        "auto|I AM THAT I AM": true
+      },
+      "Leviticus 19:18": {
+        "auto|I am the LORD": true
+      },
+      "Leviticus 17:11": {
+        "auto|atonement": true
+      },
+      "Numbers 6:24": {
+        "auto|bless thee, and keep thee": true
+      },
+      "Numbers 23:19": {
+        "auto|repent": true
+      },
+      "Deuteronomy 6:5": {
+        "auto|might": true
+      },
+      "Deuteronomy 31:6": {
+        "auto|fail thee, nor forsake thee": true
+      },
+      "Joshua 1:9": {
+        "auto|dismayed": true
+      },
+      "Joshua 24:15": {
+        "auto|serve the LORD": true
+      },
+      "Judges 6:12": {
+        "auto|valour": true
+      },
+      "Judges 5:31": {
+        "auto|might": true
+      },
+      "Ruth 1:16": {
+        "auto|thy God my God": true
+      },
+      "1 Samuel 16:7": {
+        "auto|heart": true
+      },
+      "1 Samuel 15:22": {
+        "auto|fat of rams": true
+      },
+      "2 Samuel 22:2": {
+        "auto|deliverer": true
+      },
+      "1 Kings 18:21": {
+        "auto|opinions": true
+      },
+      "1 Kings 19:12": {
+        "auto|still small voice": true
+      },
+      "2 Kings 6:16": {
+        "auto|more than they that be with them": true
+      },
+      "1 Chronicles 16:34": {
+        "auto|endureth for ever": true
+      },
+      "1 Chronicles 4:10": {
+        "hand": true
+      },
+      "2 Chronicles 7:14": {
+        "auto|heal their land": true
+      },
+      "2 Chronicles 16:9": {
+        "bank|perfect": true
+      },
+      "Ezra 7:10": {
+        "auto|statutes and judgments": true
+      },
+      "Nehemiah 8:10": {
+        "auto|joy of the LORD": true
+      },
+      "Nehemiah 6:3": {
+        "auto|great work": true
+      },
+      "Esther 4:14": {
+        "auto|such a time as this?": true
+      },
+      "Esther 4:16": {
+        "auto|I perish": true
+      },
+      "Job 1:21": {
+        "auto|name of the LORD": true
+      },
+      "Job 19:25": {
+        "hand": true
+      },
+      "Job 13:15": {
+        "auto|trust": true
+      },
+      "Psalm 23:1": {
+        "auto|not want": true
+      },
+      "Psalm 46:1": {
+        "auto|help": true
+      },
+      "Psalm 119:105": {
+        "bank|light": true
+      },
+      "Psalm 27:1": {
+        "auto|strength": true
+      },
+      "Psalm 51:10": {
+        "auto|right spirit": true
+      },
+      "Psalm 37:4": {
+        "auto|desires of thine heart": true
+      },
+      "Psalm 118:24": {
+        "auto|rejoice and be glad in it": true
+      },
+      "Psalm 121:1": {
+        "bank|help": true
+      },
+      "Psalm 1:1": {
+        "auto|seat of the scornful": true
+      },
+      "Psalm 34:8": {
+        "auto|taste and see": true
+      },
+      "Psalm 19:1": {
+        "auto|handywork": true
+      },
+      "Psalm 139:14": {
+        "auto|marvellous": true
+      },
+      "Psalm 91:1": {
+        "auto|abide": true
+      },
+      "Psalm 147:3": {
+        "auto|bindeth up their wounds": true
+      },
+      "Psalm 56:3": {
+        "auto|trust in thee": true
+      },
+      "Psalm 100:4": {
+        "auto|courts with praise": true
+      },
+      "Psalm 30:5": {
+        "auto|joy": true
+      },
+      "Psalm 42:1": {
+        "auto|O God": true
+      },
+      "Psalm 90:12": {
+        "auto|wisdom": true
+      },
+      "Psalm 133:1": {
+        "auto|unity": true
+      },
+      "Psalm 22:1": {
+        "auto|roaring": true
+      },
+      "Psalm 84:10": {
+        "auto|doorkeeper": true
+      },
+      "Proverbs 3:5": {
+        "auto|thine own understanding": true
+      },
+      "Proverbs 18:10": {
+        "auto|safe": true
+      },
+      "Proverbs 22:6": {
+        "auto|depart from it": true
+      },
+      "Proverbs 15:1": {
+        "auto|stir up anger": true
+      },
+      "Proverbs 27:17": {
+        "auto|countenance": true
+      },
+      "Proverbs 4:23": {
+        "auto|issues of life": true
+      },
+      "Proverbs 16:3": {
+        "auto|thoughts": true
+      },
+      "Ecclesiastes 3:1": {
+        "auto|purpose": true
+      },
+      "Ecclesiastes 12:13": {
+        "bank|whole duty of man": true,
+        "bank|Fear God, and keep his commandments": true
+      },
+      "Song of Solomon 2:1": {
+        "bank|lily of the valleys": true,
+        "bank|the rose of Sharon": true
+      },
+      "Song of Solomon 8:7": {
+        "auto|floods drown it": true
+      },
+      "Isaiah 40:31": {
+        "auto|eagles": true
+      },
+      "Isaiah 41:10": {
+        "auto|righteousness": true
+      },
+      "Isaiah 53:5": {
+        "auto|bruised": true
+      },
+      "Isaiah 9:6": {
+        "auto|Prince of Peace": true
+      },
+      "Isaiah 1:18": {
+        "auto|snow": true
+      },
+      "Isaiah 55:8": {
+        "auto|saith the LORD": true
+      },
+      "Isaiah 43:2": {
+        "auto|overflow thee": true
+      },
+      "Isaiah 26:3": {
+        "auto|stayed": true
+      },
+      "Isaiah 6:8": {
+        "auto|Here am I; send me.": true
+      },
+      "Jeremiah 29:11": {
+        "auto|expected end": true
+      },
+      "Jeremiah 17:9": {
+        "auto|wicked": true
+      },
+      "Jeremiah 33:3": {
+        "auto|mighty things": true
+      },
+      "Lamentations 3:22": {
+        "bank|compassions": true,
+        "bank|his compassions fail not": true
+      },
+      "Lamentations 3:23": {
+        "auto|faithfulness": true,
+        "auto|great is thy faithfulness": true
+      },
+      "Ezekiel 36:26": {
+        "bank|stony heart": true,
+        "bank|an heart of flesh": true
+      },
+      "Ezekiel 37:4": {
+        "bank|dry bones": true,
+        "bank|hear the word of the LORD": true
+      },
+      "Daniel 3:18": {
+        "auto|golden image": true
+      },
+      "Daniel 12:3": {
+        "auto|firmament": true
+      },
+      "Hosea 4:6": {
+        "auto|knowledge": true
+      },
+      "Hosea 6:6": {
+        "bank|burnt offerings": true,
+        "bank|mercy, and not sacrifice": true
+      },
+      "Joel 2:28": {
+        "auto|prophesy": true
+      },
+      "Joel 3:14": {
+        "auto|decision": true
+      },
+      "Amos 3:3": {
+        "auto|except they be agreed?": true
+      },
+      "Amos 5:24": {
+        "auto|mighty stream": true
+      },
+      "Obadiah 1:15": {
+        "auto|thine own head": true
+      },
+      "Obadiah 1:3": {
+        "auto|pride of thine heart": true
+      },
+      "Jonah 2:9": {
+        "auto|thanksgiving": true,
+        "auto|Salvation is of the LORD": true
+      },
+      "Jonah 1:17": {
+        "auto|great fish": true
+      },
+      "Micah 6:8": {
+        "auto|humbly": true,
+        "auto|to walk humbly with thy God": true
+      },
+      "Micah 5:2": {
+        "auto|thousands of Judah": true,
+        "auto|Bethlehem Ephratah": true
+      },
+      "Nahum 1:7": {
+        "auto|strong hold": true,
+        "auto|a strong hold in the day of trouble": true
+      },
+      "Nahum 1:3": {
+        "auto|acquit the wicked": true,
+        "auto|great in power": true
+      },
+      "Habakkuk 2:4": {
+        "auto|faith": true,
+        "auto|the just shall live by his faith": true
+      },
+      "Habakkuk 3:19": {
+        "auto|hinds' feet": true,
+        "auto|like hinds' feet": true
+      },
+      "Zephaniah 3:17": {
+        "bank|singing": true,
+        "bank|he will rejoice over thee with joy": true
+      },
+      "Haggai 2:9": {
+        "auto|latter": true,
+        "auto|greater than of the former": true
+      },
+      "Haggai 1:6": {
+        "auto|little": true,
+        "auto|bring in little": true
+      },
+      "Zechariah 4:6": {
+        "auto|LORD of hosts": true,
+        "auto|but by my spirit": true
+      },
+      "Zechariah 9:9": {
+        "bank|ass": true,
+        "bank|lowly, and riding upon an ass": true
+      },
+      "Malachi 3:10": {
+        "auto|windows of heaven": true
+      },
+      "Malachi 4:2": {
+        "auto|healing in his wings": true,
+        "auto|with healing in his wings": true
+      },
+      "Matthew 6:33": {
+        "auto|added": true
+      },
+      "Matthew 11:28": {
+        "auto|rest": true
+      },
+      "Matthew 5:14": {
+        "auto|cannot be hid": true
+      },
+      "Matthew 7:7": {
+        "auto|opened unto you": true
+      },
+      "Matthew 5:16": {
+        "auto|glorify your Father which is in heaven": true
+      },
+      "Matthew 28:19": {
+        "auto|teach all nations": true
+      },
+      "Matthew 5:6": {
+        "auto|filled": true
+      },
+      "Matthew 16:26": {
+        "auto|exchange": true
+      },
+      "Mark 16:15": {
+        "auto|every creature": true
+      },
+      "Mark 10:27": {
+        "auto|all things are possible": true
+      },
+      "Mark 11:24": {
+        "auto|receive them": true
+      },
+      "Luke 1:37": {
+        "auto|impossible": true
+      },
+      "Luke 6:31": {
+        "auto|likewise": true
+      },
+      "Luke 19:10": {
+        "auto|that which was lost": true
+      },
+      "John 3:16": {
+        "auto|everlasting life": true
+      },
+      "John 14:6": {
+        "auto|but by me": true
+      },
+      "John 1:1": {
+        "auto|was God": true
+      },
+      "John 8:32": {
+        "auto|make you free": true
+      },
+      "John 15:5": {
+        "auto|nothing": true
+      },
+      "John 10:10": {
+        "auto|more abundantly": true
+      },
+      "John 11:35": {
+        "auto|wept": true
+      },
+      "Acts 1:8": {
+        "auto|witnesses unto me": true
+      },
+      "Acts 4:12": {
+        "auto|must be saved": true,
+        "auto|none other name under heaven": true
+      },
+      "Acts 17:28": {
+        "auto|being": true
+      },
+      "Romans 3:23": {
+        "auto|glory": true
+      },
+      "Romans 6:23": {
+        "auto|eternal life": true
+      },
+      "Romans 8:28": {
+        "auto|purpose": true
+      },
+      "Romans 12:2": {
+        "auto|renewing": true
+      },
+      "Romans 10:9": {
+        "auto|saved": true
+      },
+      "Romans 10:17": {
+        "auto|word of God": true
+      },
+      "Romans 5:8": {
+        "auto|for us": true
+      },
+      "Romans 8:39": {
+        "auto|Christ Jesus our Lord": true
+      },
+      "1 Corinthians 13:4": {
+        "auto|puffed up": true
+      },
+      "1 Corinthians 10:13": {
+        "auto|way to escape": true
+      },
+      "1 Corinthians 13:12": {
+        "auto|darkly": true
+      },
+      "1 Corinthians 15:55": {
+        "auto|victory": true
+      },
+      "2 Corinthians 5:17": {
+        "auto|creature": true,
+        "auto|he is a new creature": true
+      },
+      "2 Corinthians 5:7": {
+        "auto|sight": true
+      },
+      "2 Corinthians 12:9": {
+        "auto|weakness": true
+      },
+      "Galatians 5:22": {
+        "bank|longsuffering": true
+      },
+      "Galatians 6:9": {
+        "auto|faint not": true,
+        "auto|if we faint not": true
+      },
+      "Galatians 2:20": {
+        "auto|liveth": true
+      },
+      "Ephesians 2:8": {
+        "auto|gift": true,
+        "auto|it is the gift of God": true
+      },
+      "Ephesians 6:11": {
+        "auto|wiles of the devil": true
+      },
+      "Ephesians 6:12": {
+        "auto|darkness": true
+      },
+      "Philippians 4:13": {
+        "auto|strengtheneth": true
+      },
+      "Philippians 4:6": {
+        "auto|requests be made known unto God": true
+      },
+      "Philippians 2:10": {
+        "auto|under the earth": true
+      },
+      "Colossians 3:23": {
+        "auto|heartily": true
+      },
+      "Colossians 1:17": {
+        "auto|consist": true,
+        "auto|by him all things consist": true
+      },
+      "1 Thessalonians 5:17": {
+        "bank|without ceasing": true,
+        "bank|Pray without ceasing": true
+      },
+      "1 Thessalonians 5:18": {
+        "auto|will of God in Christ Jesus": true
+      },
+      "2 Thessalonians 3:3": {
+        "bank|stablish you": true,
+        "bank|keep you from evil": true
+      },
+      "2 Thessalonians 3:13": {
+        "auto|well doing": true
+      },
+      "1 Timothy 6:10": {
+        "auto|root of all evil": true
+      },
+      "1 Timothy 4:12": {
+        "auto|conversation": true,
+        "auto|an example of the believers": true
+      },
+      "2 Timothy 1:7": {
+        "auto|sound mind": true
+      },
+      "2 Timothy 3:16": {
+        "auto|inspiration of God": true
+      },
+      "2 Timothy 2:15": {
+        "auto|rightly dividing": true
+      },
+      "Titus 3:5": {
+        "auto|regeneration": true,
+        "auto|by the washing of regeneration": true
+      },
+      "Titus 2:11": {
+        "auto|appeared to all men": true
+      },
+      "Philemon 1:6": {
+        "auto|Christ Jesus": true,
+        "auto|may become effectual": true
+      },
+      "Hebrews 11:1": {
+        "auto|evidence": true
+      },
+      "Hebrews 13:8": {
+        "auto|for ever": true
+      },
+      "Hebrews 4:12": {
+        "auto|twoedged sword": true
+      },
+      "Hebrews 12:1": {
+        "auto|beset": true
+      },
+      "James 4:7": {
+        "auto|flee from you": true
+      },
+      "James 1:22": {
+        "auto|deceiving": true,
+        "auto|doers of the word": true
+      },
+      "James 1:17": {
+        "bank|variableness": true
+      },
+      "1 Peter 5:7": {
+        "auto|careth": true,
+        "auto|for he careth for you": true
+      },
+      "1 Peter 2:9": {
+        "bank|peculiar people": true,
+        "bank|a royal priesthood": true
+      },
+      "2 Peter 3:9": {
+        "auto|repentance": true
+      },
+      "2 Peter 1:21": {
+        "auto|moved by the Holy Ghost": true
+      },
+      "1 John 1:9": {
+        "auto|unrighteousness": true
+      },
+      "1 John 4:8": {
+        "auto|God is love": true
+      },
+      "1 John 4:4": {
+        "auto|the world": true
+      },
+      "2 John 1:6": {
+        "auto|commandments": true
+      },
+      "3 John 1:2": {
+        "auto|prospereth": true
+      },
+      "3 John 1:4": {
+        "auto|walk in truth": true
+      },
+      "Jude 1:24": {
+        "auto|faultless": true
+      },
+      "Jude 1:3": {
+        "auto|delivered unto the saints": true
+      },
+      "Revelation 3:20": {
+        "auto|sup": true
+      },
+      "Revelation 21:4": {
+        "auto|former things": true
+      },
+      "Revelation 1:8": {
+        "auto|Almighty": true
+      },
+      "Revelation 12:11": {
+        "auto|testimony": true
+      },
+      "Revelation 22:13": {
+        "auto|first and the last": true
+      },
+      "Genesis 17:1": {
+        "auto|walk before me": true
+      },
+      "Exodus 15:2": {
+        "auto|my strength and song": true
+      },
+      "Leviticus 19:2": {
+        "auto|Ye shall be holy": true
+      },
+      "Leviticus 26:12": {
+        "auto|ye shall be my people": true
+      },
+      "Numbers 6:26": {
+        "auto|give thee peace": true
+      },
+      "Numbers 13:30": {
+        "auto|we are well able to overcome it": true
+      },
+      "Deuteronomy 30:19": {
+        "auto|choose life": true
+      },
+      "Deuteronomy 33:27": {
+        "auto|the everlasting arms": true
+      },
+      "Joshua 3:5": {
+        "auto|Sanctify yourselves": true
+      },
+      "Joshua 21:45": {
+        "auto|all came to pass": true
+      },
+      "Judges 13:18": {
+        "auto|secret": true
+      },
+      "Judges 2:10": {
+        "auto|knew not the LORD": true
+      },
+      "Ruth 4:13": {
+        "auto|the LORD gave her conception": true
+      },
+      "Ruth 2:12": {
+        "auto|under whose wings": true
+      },
+      "Ruth 4:15": {
+        "auto|better to thee than seven sons": true
+      },
+      "1 Samuel 17:47": {
+        "auto|the battle is the LORD'S": true
+      },
+      "1 Samuel 3:9": {
+        "auto|Speak, LORD; for thy servant heareth": true
+      },
+      "2 Samuel 12:7": {
+        "auto|Thou art the man": true
+      },
+      "2 Samuel 22:31": {
+        "auto|his way is perfect": true
+      },
+      "2 Samuel 24:24": {
+        "hand": true
+      },
+      "1 Kings 3:9": {
+        "auto|an understanding heart": true
+      },
+      "1 Kings 8:27": {
+        "auto|the heaven of heavens cannot contain thee": true
+      },
+      "2 Kings 2:11": {
+        "auto|a whirlwind into heaven": true
+      },
+      "2 Kings 5:14": {
+        "auto|like unto the flesh of a little child": true
+      },
+      "2 Kings 6:17": {
+        "auto|horses and chariots of fire": true
+      },
+      "1 Chronicles 29:11": {
+        "auto|the glory, and the victory": true
+      },
+      "1 Chronicles 28:9": {
+        "auto|with a perfect heart": true
+      },
+      "2 Chronicles 20:15": {
+        "auto|the battle is not yours, but God's": true
+      },
+      "2 Chronicles 15:7": {
+        "auto|your work shall be rewarded": true
+      },
+      "Ezra 9:8": {
+        "auto|a nail in his holy place": true
+      },
+      "Ezra 7:9": {
+        "auto|the good hand of his God upon him": true
+      },
+      "Ezra 10:4": {
+        "auto|be of good courage, and do it": true
+      },
+      "Nehemiah 9:17": {
+        "auto|a God ready to pardon": true
+      },
+      "Nehemiah 4:6": {
+        "auto|the people had a mind to work": true
+      },
+      "Esther 8:16": {
+        "auto|light, and gladness, and joy": true
+      },
+      "Esther 2:17": {
+        "auto|grace and favour in his sight": true
+      },
+      "Job 23:10": {
+        "auto|I shall come forth as gold": true
+      },
+      "Ecclesiastes 4:12": {
+        "auto|a threefold cord is not quickly broken": true
+      },
+      "Song of Solomon 8:6": {
+        "auto|love is strong as death": true
+      },
+      "Jeremiah 31:3": {
+        "auto|with an everlasting love": true
+      },
+      "Daniel 3:17": {
+        "auto|is able to deliver us": true
+      },
+      "Daniel 6:10": {
+        "auto|three times a day": true
+      },
+      "Hosea 14:4": {
+        "auto|I will love them freely": true
+      },
+      "Joel 2:13": {
+        "auto|slow to anger": true
+      },
+      "Joel 2:25": {
+        "auto|the years that the locust hath eaten": true
+      },
+      "Amos 4:12": {
+        "auto|prepare to meet thy God": true
+      },
+      "Amos 5:14": {
+        "auto|that ye may live": true
+      },
+      "Obadiah 1:21": {
+        "auto|the kingdom shall be the LORD'S": true
+      },
+      "Obadiah 1:4": {
+        "auto|thence will I bring thee down": true
+      },
+      "Jonah 4:11": {
+        "auto|that great city": true
+      },
+      "Zephaniah 2:3": {
+        "auto|seek righteousness, seek meekness": true
+      },
+      "Zephaniah 1:12": {
+        "auto|search Jerusalem with candles": true
+      },
+      "Malachi 3:6": {
+        "auto|I change not": true
+      },
+      "Mark 10:45": {
+        "auto|a ransom for many": true
+      },
+      "Luke 2:14": {
+        "auto|good will toward men": true
+      },
+      "Philippians 4:7": {
+        "auto|which passeth all understanding": true
+      },
+      "Colossians 3:2": {
+        "auto|on things above": true
+      },
+      "1 Thessalonians 4:16": {
+        "auto|with the voice of the archangel": true
+      },
+      "2 Thessalonians 3:10": {
+        "auto|neither should he eat": true
+      },
+      "1 Timothy 1:15": {
+        "auto|of whom I am chief": true
+      },
+      "2 Timothy 4:7": {
+        "auto|I have kept the faith": true
+      },
+      "Titus 1:2": {
+        "auto|God, that cannot lie": true
+      },
+      "Titus 2:13": {
+        "auto|that blessed hope": true
+      },
+      "Philemon 1:17": {
+        "auto|receive him as myself": true
+      },
+      "Philemon 1:7": {
+        "auto|are refreshed by thee, brother": true
+      },
+      "2 Peter 3:8": {
+        "auto|a thousand years as one day": true
+      },
+      "2 Peter 1:4": {
+        "auto|exceeding great and precious promises": true
+      },
+      "1 John 3:1": {
+        "bank|the sons of God": true
+      },
+      "2 John 1:9": {
+        "auto|hath not God": true
+      },
+      "2 John 1:12": {
+        "auto|that our joy may be full": true
+      },
+      "2 John 1:3": {
+        "auto|mercy, and peace": true
+      },
+      "3 John 1:11": {
+        "auto|that which is good": true
+      },
+      "3 John 1:8": {
+        "auto|fellowhelpers to the truth": true
+      },
+      "Jude 1:20": {
+        "auto|on your most holy faith": true
+      },
+      "Jude 1:21": {
+        "auto|looking for the mercy of our Lord": true
+      },
+      "Jude 1:25": {
+        "auto|glory and majesty, dominion and power": true
+      },
+      "Genesis 1:27": {
+        "auto|in the image of God": true
+      },
+      "Genesis 15:6": {
+        "auto|for righteousness": true
+      },
+      "Genesis 28:15": {
+        "auto|whither thou goest": true
+      },
+      "Exodus 33:14": {
+        "auto|I will give thee rest": true
+      },
+      "Exodus 34:6": {
+        "auto|merciful and gracious": true
+      },
+      "Leviticus 19:32": {
+        "auto|honour the face of the old man": true
+      },
+      "Leviticus 6:13": {
+        "auto|it shall never go out": true
+      },
+      "Numbers 14:18": {
+        "auto|forgiving iniquity and transgression": true
+      },
+      "Numbers 32:23": {
+        "auto|be sure your sin will find you out": true
+      },
+      "Deuteronomy 8:3": {
+        "auto|the mouth of the LORD": true
+      },
+      "Deuteronomy 6:7": {
+        "auto|when thou sittest in thine house": true
+      },
+      "Joshua 1:8": {
+        "auto|meditate therein day and night": true
+      },
+      "Joshua 10:25": {
+        "auto|be strong and of good courage": true
+      },
+      "Judges 7:20": {
+        "auto|and of Gideon": true
+      },
+      "Judges 16:28": {
+        "auto|remember me, I pray thee": true
+      },
+      "Ruth 4:14": {
+        "auto|without a kinsman": true
+      },
+      "Ruth 1:17": {
+        "auto|the LORD do so to me": true
+      },
+      "1 Samuel 2:2": {
+        "auto|neither is there any rock like our God": true
+      },
+      "1 Samuel 12:24": {
+        "auto|serve him in truth with all your heart": true
+      },
+      "2 Samuel 7:16": {
+        "auto|thy throne shall be established for ever": true
+      },
+      "2 Samuel 12:13": {
+        "auto|The LORD also hath put away thy sin": true
+      },
+      "1 Kings 8:57": {
+        "auto|nor forsake us": true
+      },
+      "1 Kings 17:16": {
+        "auto|neither did the cruse of oil fail": true
+      },
+      "2 Kings 5:13": {
+        "auto|Wash, and be clean": true
+      },
+      "2 Kings 22:19": {
+        "auto|I also have heard thee": true
+      },
+      "1 Chronicles 16:11": {
+        "auto|seek his face continually": true
+      },
+      "1 Chronicles 29:14": {
+        "auto|to offer so willingly after this sort": true
+      },
+      "2 Chronicles 15:2": {
+        "auto|he will be found of you": true
+      },
+      "2 Chronicles 32:8": {
+        "auto|the LORD our God to help us": true
+      },
+      "Ezra 8:23": {
+        "auto|he was intreated of us": true
+      },
+      "Ezra 1:3": {
+        "auto|his God be with him": true
+      },
+      "Nehemiah 4:14": {
+        "auto|fight for your brethren": true
+      },
+      "Nehemiah 2:20": {
+        "auto|he will prosper us": true
+      },
+      "Esther 9:22": {
+        "bank|from mourning into a good day": true
+      },
+      "Esther 6:1": {
+        "auto|could not the king sleep": true
+      },
+      "Job 42:2": {
+        "hand": true
+      },
+      "Ecclesiastes 3:11": {
+        "auto|he hath set the world in their heart": true
+      },
+      "Ecclesiastes 9:10": {
+        "auto|do it with thy might": true
+      },
+      "Song of Solomon 2:4": {
+        "auto|his banner over me was love": true
+      },
+      "Song of Solomon 4:7": {
+        "auto|there is no spot in thee": true
+      },
+      "Jeremiah 1:5": {
+        "auto|before thou camest forth out of the womb": true
+      },
+      "Jeremiah 6:16": {
+        "auto|ye shall find rest for your souls": true
+      },
+      "Lamentations 3:25": {
+        "auto|the soul that seeketh him": true
+      },
+      "Lamentations 3:26": {
+        "auto|quietly wait for the salvation of the LORD": true
+      },
+      "Ezekiel 18:32": {
+        "auto|turn yourselves, and live ye": true
+      },
+      "Ezekiel 34:16": {
+        "auto|bring again that which was driven away": true
+      },
+      "Daniel 2:22": {
+        "auto|the light dwelleth with him": true
+      },
+      "Daniel 4:35": {
+        "auto|among the inhabitants of the earth": true
+      },
+      "Hosea 10:12": {
+        "auto|break up your fallow ground": true
+      },
+      "Hosea 12:6": {
+        "auto|keep mercy and judgment": true
+      },
+      "Joel 2:32": {
+        "auto|shall be delivered": true
+      },
+      "Joel 2:12": {
+        "auto|with all your heart": true
+      },
+      "Amos 8:11": {
+        "auto|of hearing the words of the LORD": true
+      },
+      "Amos 9:13": {
+        "auto|the plowman shall overtake the reaper": true
+      },
+      "Obadiah 1:17": {
+        "auto|there shall be holiness": true
+      },
+      "Obadiah 1:12": {
+        "auto|the day that he became a stranger": true
+      },
+      "Jonah 1:3": {
+        "auto|from the presence of the LORD": true
+      },
+      "Jonah 3:10": {
+        "auto|God repented of the evil": true
+      },
+      "Micah 7:18": {
+        "auto|that pardoneth iniquity": true
+      },
+      "Micah 4:3": {
+        "auto|beat their swords into plowshares": true
+      },
+      "Nahum 1:15": {
+        "auto|the feet of him that bringeth good tidings": true
+      },
+      "Nahum 2:1": {
+        "auto|keep the munition, watch the way": true
+      },
+      "Habakkuk 2:14": {
+        "auto|the knowledge of the glory of the LORD": true
+      },
+      "Habakkuk 3:17-18": {
+        "auto|yet I will rejoice in the LORD": true
+      },
+      "Zephaniah 3:9": {
+        "auto|call upon the name of the LORD": true
+      },
+      "Zephaniah 3:20": {
+        "auto|I will make you a name": true
+      },
+      "Haggai 1:5": {
+        "auto|Consider your ways": true
+      },
+      "Haggai 2:4": {
+        "auto|for I am with you": true
+      },
+      "Zechariah 2:8": {
+        "auto|the apple of his eye": true
+      },
+      "Zechariah 8:16": {
+        "auto|Speak ye every man the truth": true
+      },
+      "Malachi 2:10": {
+        "auto|hath not one God created us": true
+      },
+      "Malachi 3:16": {
+        "auto|the LORD hearkened, and heard it": true
+      },
+      "Mark 8:36": {
+        "auto|lose his own soul": true
+      },
+      "Mark 12:30": {
+        "auto|with all thy mind": true
+      },
+      "Luke 11:9": {
+        "auto|seek, and ye shall find": true
+      },
+      "Luke 15:20": {
+        "auto|had compassion, and ran": true
+      },
+      "Acts 2:38": {
+        "curated": true
+      },
+      "Acts 16:31": {
+        "auto|Believe on the Lord Jesus Christ": true
+      },
+      "1 Corinthians 16:14": {
+        "bank|be done with charity": true
+      },
+      "1 Corinthians 2:9": {
+        "auto|the things which God hath prepared": true
+      },
+      "2 Corinthians 4:18": {
+        "auto|the things which are not seen are eternal": true
+      },
+      "2 Corinthians 9:7": {
+        "auto|God loveth a cheerful giver": true
+      },
+      "Galatians 3:28": {
+        "auto|ye are all one in Christ Jesus": true
+      },
+      "Galatians 5:1": {
+        "auto|wherewith Christ hath made us free": true
+      },
+      "Ephesians 4:32": {
+        "auto|as God for Christ's sake hath forgiven you": true
+      },
+      "Ephesians 5:2": {
+        "auto|hath given himself for us": true
+      },
+      "Philippians 1:21": {
+        "auto|to die is gain": true
+      },
+      "Philippians 4:8": {
+        "auto|whatsoever things are true": true
+      },
+      "Colossians 3:12": {
+        "auto|bowels of mercies, kindness": true
+      },
+      "Colossians 2:6": {
+        "auto|so walk ye in him": true
+      },
+      "1 Thessalonians 5:21": {
+        "auto|hold fast that which is good": true
+      },
+      "1 Thessalonians 5:11": {
+        "auto|edify one another": true
+      },
+      "2 Thessalonians 2:15": {
+        "auto|hold the traditions which ye have been taught": true
+      },
+      "2 Thessalonians 3:16": {
+        "auto|give you peace always by all means": true
+      },
+      "1 Timothy 6:12": {
+        "auto|lay hold on eternal life": true
+      },
+      "1 Timothy 2:5": {
+        "auto|one mediator between God and men": true
+      },
+      "2 Timothy 2:3": {
+        "auto|as a good soldier of Jesus Christ": true
+      },
+      "2 Timothy 4:8": {
+        "auto|a crown of righteousness": true
+      },
+      "Titus 2:7": {
+        "auto|a pattern of good works": true
+      },
+      "Philemon 1:11": {
+        "auto|profitable to thee and to me": true
+      },
+      "Philemon 1:16": {
+        "auto|a brother beloved": true
+      },
+      "Hebrews 12:2": {
+        "auto|the author and finisher of our faith": true
+      },
+      "Hebrews 4:16": {
+        "auto|obtain mercy, and find grace": true
+      },
+      "James 1:5": {
+        "auto|that giveth to all men liberally": true
+      },
+      "James 5:16": {
+        "auto|The effectual fervent prayer of a righteous man": true
+      },
+      "1 Peter 1:3": {
+        "auto|hath begotten us again unto a lively hope": true
+      },
+      "1 Peter 3:15": {
+        "auto|be ready always to give an answer": true
+      },
+      "2 Peter 1:5": {
+        "auto|add to your faith virtue": true
+      },
+      "2 Peter 3:18": {
+        "auto|the knowledge of our Lord and Saviour": true
+      },
+      "1 John 4:19": {
+        "auto|because he first loved us": true
+      },
+      "1 John 5:14": {
+        "auto|he heareth us": true
+      },
+      "2 John 1:4": {
+        "auto|walking in truth": true
+      },
+      "2 John 1:8": {
+        "auto|that we receive a full reward": true
+      },
+      "3 John 1:5": {
+        "curated": true
+      },
+      "3 John 1:14": {
+        "auto|we shall speak face to face": true
+      },
+      "Jude 1:22": {
+        "auto|have compassion, making a difference": true
+      },
+      "Revelation 5:12": {
+        "auto|Worthy is the Lamb that was slain": true
+      },
+      "Revelation 22:17": {
+        "auto|let him that heareth say, Come": true
+      },
+      "Genesis 12:1": {
+        "auto|a land that I will shew thee": true
+      },
+      "Genesis 22:2": {
+        "auto|thine only son Isaac, whom thou lovest": true
+      },
+      "Genesis 22:8": {
+        "auto|God will provide himself a lamb": true
+      },
+      "Genesis 22:12": {
+        "auto|thou hast not withheld thy son": true
+      },
+      "Genesis 22:14": {
+        "auto|the mount of the LORD": true
+      },
+      "Genesis 37:24": {
+        "auto|the pit was empty": true
+      },
+      "Genesis 37:28": {
+        "auto|twenty pieces of silver": true
+      },
+      "Genesis 45:5": {
+        "auto|to preserve life": true
+      },
+      "Genesis 3:15": {
+        "auto|it shall bruise thy head": true
+      },
+      "Exodus 3:2": {
+        "auto|the bush was not consumed": true
+      },
+      "Exodus 3:5": {
+        "auto|put off thy shoes from off thy feet": true
+      },
+      "Exodus 4:12": {
+        "auto|teach thee what thou shalt say": true
+      },
+      "Exodus 14:13": {
+        "auto|see the salvation of the LORD": true
+      },
+      "Exodus 14:21": {
+        "auto|a strong east wind": true
+      },
+      "Exodus 15:1": {
+        "auto|the horse and his rider": true
+      },
+      "Exodus 15:11": {
+        "auto|glorious in holiness": true
+      },
+      "Exodus 19:4": {
+        "auto|on eagles' wings": true
+      },
+      "Judges 6:14": {
+        "auto|have not I sent thee": true
+      },
+      "Judges 6:16": {
+        "auto|as one man": true
+      },
+      "Judges 7:2": {
+        "auto|too many for me": true
+      },
+      "Judges 7:7": {
+        "auto|the three hundred men that lapped": true
+      },
+      "Judges 16:17": {
+        "auto|like any other man": true
+      },
+      "Judges 16:20": {
+        "auto|the LORD was departed from him": true
+      },
+      "Judges 16:30": {
+        "auto|Let me die with the Philistines": true
+      },
+      "Judges 21:25": {
+        "auto|every man did that which was right": true
+      },
+      "Judges 4:14": {
+        "auto|this is the day": true
+      },
+      "1 Samuel 3:10": {
+        "auto|Speak; for thy servant heareth": true
+      },
+      "1 Samuel 7:3": {
+        "auto|put away the strange gods": true
+      },
+      "1 Samuel 7:12": {
+        "auto|Hitherto hath the LORD helped us": true
+      },
+      "1 Samuel 8:7": {
+        "auto|they have rejected me": true
+      },
+      "1 Samuel 17:45": {
+        "auto|in the name of the LORD of hosts": true
+      },
+      "1 Kings 17:1": {
+        "auto|there shall not be dew nor rain": true
+      },
+      "1 Kings 18:24": {
+        "auto|the God that answereth by fire": true
+      },
+      "1 Kings 18:38": {
+        "auto|the fire of the LORD fell": true
+      },
+      "1 Kings 18:36": {
+        "auto|thou art God in Israel": true
+      },
+      "1 Kings 19:10": {
+        "auto|thrown down thine altars": true
+      },
+      "2 Kings 18:13": {
+        "auto|all the fenced cities of Judah": true
+      },
+      "2 Kings 19:32": {
+        "auto|nor shoot an arrow there": true
+      },
+      "2 Kings 19:35": {
+        "auto|an hundred fourscore and five thousand": true
+      },
+      "Isaiah 37:36": {
+        "auto|they were all dead corpses": true
+      },
+      "Isaiah 37:33": {
+        "auto|nor cast a bank against it": true
+      },
+      "2 Chronicles 3:1": {
+        "auto|mount Moriah": true
+      },
+      "2 Chronicles 32:9": {
+        "auto|laid siege against Lachish": true
+      },
+      "Hebrews 11:17": {
+        "auto|offered up Isaac": true
+      },
+      "Hebrews 11:19": {
+        "auto|even from the dead": true
+      },
+      "Hebrews 11:29": {
+        "auto|as by dry land": true
+      },
+      "James 5:17": {
+        "auto|prayed earnestly that it might not rain": true
+      },
+      "Hosea 10:9": {
+        "auto|from the days of Gibeah": true
+      },
+      "Job 42:5": {
+        "auto|mine eye seeth thee": true
+      },
+      "Numbers 24:17": {
+        "auto|a Sceptre shall rise out of Israel": true
+      },
+      "Deuteronomy 10:12": {
+        "auto|the LORD thy God require of thee": true
+      },
+      "Deuteronomy 32:31": {
+        "auto|not as our Rock": true
+      },
+      "Joshua 4:24": {
+        "auto|the hand of the LORD": true
+      },
+      "Joshua 10:8": {
+        "auto|I have delivered them into thine hand": true
+      },
+      "Ruth 1:1": {
+        "auto|a famine in the land": true
+      },
+      "Ruth 4:16": {
+        "auto|laid it in her bosom": true
+      },
+      "Ruth 3:18": {
+        "auto|Sit still, my daughter": true
+      },
+      "2 Samuel 7:12": {
+        "auto|set up thy seed after thee": true
+      },
+      "2 Samuel 7:22": {
+        "auto|there is none like thee": true
+      },
+      "2 Samuel 23:2": {
+        "auto|his word was in my tongue": true
+      },
+      "Mark 12:31": {
+        "auto|shalt love thy neighbour as thyself": true
+      },
+      "Mark 2:17": {
+        "auto|I came not to call the righteous": true
+      },
+      "Mark 4:9": {
+        "auto|He that hath ears to hear": true
+      },
+      "Mark 8:34": {
+        "auto|take up his cross": true
+      },
+      "Mark 16:6": {
+        "auto|he is risen; he is not here": true
+      },
+      "Luke 10:27": {
+        "auto|thy neighbour as thyself": true
+      },
+      "Luke 1:47": {
+        "auto|God my Saviour": true
+      },
+      "Luke 2:11": {
+        "auto|a Saviour, which is Christ the Lord": true
+      },
+      "Luke 1:38": {
+        "auto|be it unto me according to thy word": true
+      },
+      "Luke 4:18": {
+        "auto|anointed me to preach the gospel": true
+      },
+      "Luke 5:32": {
+        "auto|sinners to repentance": true
+      },
+      "Luke 6:38": {
+        "auto|good measure, pressed down": true
+      },
+      "Luke 9:23": {
+        "auto|take up his cross daily": true
+      },
+      "Luke 15:7": {
+        "auto|one sinner that repenteth": true
+      },
+      "Luke 18:1": {
+        "auto|always to pray": true
+      },
+      "Luke 2:52": {
+        "auto|increased in wisdom and stature": true
+      },
+      "Luke 16:13": {
+        "auto|serve God and mammon": true
+      },
+      "Luke 17:21": {
+        "auto|the kingdom of God is within you": true
+      },
+      "Luke 21:36": {
+        "auto|stand before the Son of man": true
+      },
+      "Luke 23:34": {
+        "auto|Father, forgive them": true
+      },
+      "Luke 24:32": {
+        "auto|heart burn within us": true
+      },
+      "Acts 3:19": {
+        "auto|sins may be blotted out": true
+      },
+      "Acts 5:29": {
+        "auto|We ought to obey God rather than men": true
+      },
+      "Acts 1:11": {
+        "auto|shall so come in like manner": true
+      },
+      "Acts 20:35": {
+        "auto|more blessed to give than to receive": true
+      },
+      "Acts 2:21": {
+        "auto|call on the name of the Lord": true
+      },
+      "Acts 4:20": {
+        "auto|the things which we have seen": true
+      },
+      "Acts 5:42": {
+        "auto|teach and preach Jesus Christ": true
+      },
+      "Acts 16:25": {
+        "auto|prayed, and sang praises unto God": true
+      },
+      "Acts 17:11": {
+        "auto|searched the scriptures daily": true
+      },
+      "Acts 20:24": {
+        "auto|finish my course with joy": true
+      },
+      "Acts 24:16": {
+        "auto|void of offence toward God": true
+      },
+      "Acts 7:59": {
+        "auto|Lord Jesus, receive my spirit": true
+      },
+      "Ezekiel 33:11": {
+        "auto|turn from his way and live": true
+      },
+      "Ezekiel 3:17": {
+        "auto|a watchman unto the house of Israel": true
+      },
+      "Ezekiel 14:6": {
+        "auto|Repent, and turn yourselves from your idols": true
+      },
+      "Ezekiel 22:30": {
+        "auto|stand in the gap before me": true
+      },
+      "Ezekiel 37:27": {
+        "auto|I will be their God": true
+      },
+      "Ezekiel 34:23": {
+        "auto|one shepherd over them": true
+      },
+      "Ezekiel 47:12": {
+        "auto|new fruit according to his months": true
+      },
+      "Daniel 2:20": {
+        "auto|the name of God for ever": true
+      },
+      "Daniel 9:9": {
+        "auto|belong mercies and forgivenesses": true
+      },
+      "Daniel 1:8": {
+        "auto|purposed in his heart": true
+      },
+      "Daniel 9:23": {
+        "auto|thou art greatly beloved": true
+      },
+      "Daniel 10:19": {
+        "auto|fear not: peace be unto thee": true
+      },
+      "Daniel 7:27": {
+        "auto|an everlasting kingdom": true
+      },
+      "Zechariah 14:9": {
+        "auto|king over all the earth": true
+      },
+      "Zechariah 1:3": {
+        "auto|Turn ye unto me": true
+      },
+      "Zechariah 2:10": {
+        "auto|dwell in the midst of thee": true
+      },
+      "Zechariah 3:2": {
+        "auto|a brand plucked out of the fire": true
+      },
+      "Zechariah 7:9": {
+        "auto|Execute true judgment, and shew mercy": true
+      },
+      "Zechariah 12:10": {
+        "auto|look upon me whom they have pierced": true
+      },
+      "Zechariah 13:9": {
+        "auto|It is my people": true
+      },
+      "1 Corinthians 11:1": {
+        "auto|followers of me": true
+      },
+      "1 Corinthians 13:13": {
+        "auto|the greatest of these is charity": true
+      },
+      "1 Corinthians 9:24": {
+        "auto|receiveth the prize": true
+      },
+      "1 Corinthians 10:31": {
+        "auto|do all to the glory of God": true
+      },
+      "1 Corinthians 12:13": {
+        "auto|baptized into one body": true
+      },
+      "1 Corinthians 13:8": {
+        "auto|never faileth": true
+      },
+      "1 Corinthians 14:33": {
+        "auto|the author of confusion": true
+      },
+      "Ephesians 6:1": {
+        "auto|obey your parents in the Lord": true
+      },
+      "Ephesians 1:7": {
+        "auto|redemption through his blood": true
+      },
+      "Ephesians 2:10": {
+        "auto|created in Christ Jesus unto good works": true
+      },
+      "Ephesians 3:20": {
+        "auto|exceeding abundantly above all": true
+      },
+      "Ephesians 4:2": {
+        "auto|forbearing one another in love": true
+      },
+      "Ephesians 4:26": {
+        "auto|go down upon your wrath": true
+      },
+      "Ephesians 4:29": {
+        "auto|minister grace unto the hearers": true
+      },
+      "Ephesians 5:8": {
+        "auto|walk as children of light": true
+      },
+      "Ephesians 6:10": {
+        "auto|be strong in the Lord": true
+      },
+      "Ephesians 5:25": {
+        "auto|love your wives": true
+      },
+      "Ephesians 1:3": {
+        "auto|all spiritual blessings": true
+      },
+      "Ephesians 5:11": {
+        "auto|the unfruitful works of darkness": true
+      },
+      "1 Timothy 2:1": {
+        "auto|supplications, prayers, intercessions": true
+      },
+      "1 Timothy 4:8": {
+        "auto|godliness is profitable unto all things": true
+      },
+      "1 Timothy 6:6": {
+        "auto|great gain": true
+      },
+      "1 Timothy 6:11": {
+        "auto|flee these things": true
+      },
+      "1 Timothy 3:16": {
+        "auto|the mystery of godliness": true
+      },
+      "1 Timothy 6:17": {
+        "auto|trust in uncertain riches": true
+      },
+      "1 Peter 1:16": {
+        "auto|Be ye holy; for I am holy": true
+      },
+      "1 Peter 2:24": {
+        "auto|stripes ye were healed": true
+      },
+      "1 Peter 1:8": {
+        "auto|joy unspeakable and full of glory": true
+      },
+      "1 Peter 2:5": {
+        "auto|a spiritual house": true
+      },
+      "1 Peter 4:10": {
+        "auto|good stewards of the manifold grace of God": true
+      },
+      "1 Peter 1:7": {
+        "auto|praise and honour and glory": true
+      },
+      "1 Peter 1:25": {
+        "auto|endureth for ever": true
+      },
+      "1 Peter 2:11": {
+        "auto|abstain from fleshly lusts": true
+      },
+      "1 Peter 3:18": {
+        "auto|the just for the unjust": true
+      },
+      "1 John 1:7": {
+        "auto|the blood of Jesus Christ his Son": true
+      },
+      "1 John 4:7": {
+        "auto|love is of God": true
+      },
+      "1 John 2:15": {
+        "auto|the love of the Father": true
+      },
+      "1 John 2:1": {
+        "auto|an advocate with the Father": true
+      },
+      "1 John 2:6": {
+        "hand": true
+      },
+      "1 John 3:16": {
+        "auto|laid down his life for us": true
+      },
+      "1 John 3:18": {
+        "auto|love in word, neither in tongue": true
+      },
+      "1 John 5:3": {
+        "auto|keep his commandments": true
+      },
+      "1 John 5:11": {
+        "auto|God hath given to us eternal life": true
+      },
+      "Genesis 1:5": {
+        "auto|the evening and the morning": true
+      },
+      "Genesis 2:1": {
+        "auto|all the host of them": true
+      },
+      "Genesis 2:2": {
+        "auto|he rested on the seventh day": true
+      },
+      "Genesis 3:9": {
+        "auto|Where art thou": true
+      },
+      "Genesis 4:9": {
+        "auto|Am I my brother's keeper": true
+      },
+      "Genesis 8:22": {
+        "auto|day and night shall not cease": true
+      },
+      "Genesis 24:56": {
+        "auto|prospered my way": true
+      },
+      "Genesis 28:16": {
+        "auto|I knew it not": true
+      },
+      "Genesis 49:10": {
+        "auto|Shiloh come": true
+      },
+      "Exodus 12:13": {
+        "auto|I will pass over you": true
+      },
+      "Exodus 19:5": {
+        "auto|a peculiar treasure unto me": true
+      },
+      "Exodus 23:20": {
+        "auto|to keep thee in the way": true
+      },
+      "Exodus 33:11": {
+        "auto|a man speaketh unto his friend": true
+      },
+      "Leviticus 11:44": {
+        "auto|I am holy": true
+      },
+      "Numbers 10:35": {
+        "auto|thine enemies be scattered": true
+      },
+      "Deuteronomy 7:7": {
+        "auto|the fewest of all people": true
+      },
+      "Deuteronomy 11:18": {
+        "auto|bind them for a sign upon your hand": true
+      },
+      "Deuteronomy 32:4": {
+        "auto|just and right is he": true
+      },
+      "Judges 7:18": {
+        "auto|The sword of the LORD, and of Gideon": true
+      },
+      "Ruth 2:20": {
+        "auto|The man is near of kin unto us": true
+      },
+      "1 Samuel 24:12": {
+        "auto|mine hand shall not be upon thee": true
+      },
+      "1 Kings 17:14": {
+        "auto|the cruse of oil fail": true
+      },
+      "2 Kings 2:9": {
+        "auto|a double portion of thy spirit": true
+      },
+      "2 Kings 4:26": {
+        "auto|It is well": true
+      },
+      "2 Chronicles 14:11": {
+        "auto|we rest on thee": true
+      },
+      "Ezra 3:11": {
+        "hand": true
+      },
+      "Job 2:10": {
+        "auto|shall we not receive evil": true
+      },
+      "Job 37:14": {
+        "auto|consider the wondrous works of God": true
+      },
+      "Psalm 4:8": {
+        "auto|makest me dwell in safety": true
+      },
+      "Psalm 19:14": {
+        "auto|acceptable in thy sight": true
+      },
+      "Psalm 25:4": {
+        "auto|teach me thy paths": true
+      },
+      "Psalm 29:2": {
+        "auto|worship the LORD in the beauty of holiness": true
+      },
+      "Psalm 34:1": {
+        "auto|his praise shall continually be in my mouth": true
+      },
+      "Psalm 86:11": {
+        "auto|unite my heart to fear thy name": true
+      },
+      "Psalm 100:3": {
+        "auto|the sheep of his pasture": true
+      },
+      "Psalm 107:1": {
+        "auto|his mercy endureth for ever": true
+      },
+      "Psalm 119:89": {
+        "auto|thy word is settled in heaven": true
+      },
+      "Psalm 138:8": {
+        "auto|perfect that which concerneth me": true
+      },
+      "Psalm 145:9": {
+        "auto|his tender mercies are over all his works": true
+      },
+      "Psalm 150:6": {
+        "auto|praise the LORD": true
+      },
+      "Proverbs 2:6": {
+        "auto|knowledge and understanding": true
+      },
+      "Proverbs 10:22": {
+        "auto|he addeth no sorrow with it": true
+      },
+      "Proverbs 11:30": {
+        "auto|he that winneth souls is wise": true
+      },
+      "Proverbs 17:22": {
+        "auto|a broken spirit drieth the bones": true
+      },
+      "Proverbs 20:1": {
+        "hand": true
+      },
+      "Proverbs 28:1": {
+        "auto|the righteous are bold as a lion": true
+      },
+      "Isaiah 11:9": {
+        "auto|full of the knowledge of the LORD": true
+      },
+      "Isaiah 12:2": {
+        "auto|my strength and my song": true
+      },
+      "Isaiah 25:8": {
+        "auto|wipe away tears from off all faces": true
+      },
+      "Isaiah 35:10": {
+        "auto|everlasting joy upon their heads": true
+      },
+      "Isaiah 45:22": {
+        "auto|I am God, and there is none else": true
+      },
+      "Jeremiah 9:24": {
+        "auto|exercise lovingkindness, judgment, and righteousness": true
+      },
+      "Jeremiah 15:16": {
+        "auto|the joy and rejoicing of mine heart": true
+      },
+      "Ezekiel 34:15": {
+        "auto|I will cause them to lie down": true
+      },
+      "Daniel 6:26": {
+        "auto|shall not be destroyed": true
+      },
+      "Amos 4:13": {
+        "auto|maketh the morning darkness": true
+      },
+      "Haggai 2:7": {
+        "auto|the desire of all nations shall come": true
+      },
+      "Matthew 5:12": {
+        "auto|great is your reward in heaven": true
+      },
+      "Matthew 7:12": {
+        "auto|do ye even so to them": true
+      },
+      "Matthew 19:26": {
+        "auto|with God all things are possible": true
+      },
+      "Mark 1:15": {
+        "auto|repent ye, and believe the gospel": true
+      },
+      "Mark 11:22": {
+        "auto|Have faith in God": true
+      },
+      "Luke 1:49": {
+        "auto|holy is his name": true
+      },
+      "John 10:27": {
+        "auto|they follow me": true
+      },
+      "John 14:2": {
+        "auto|I go to prepare a place for you": true
+      },
+      "Acts 9:4": {
+        "auto|Saul, Saul, why persecutest thou me": true
+      },
+      "Acts 10:34": {
+        "auto|God is no respecter of persons": true
+      },
+      "Romans 8:14": {
+        "auto|they are the sons of God": true
+      },
+      "Romans 8:18": {
+        "auto|the glory which shall be revealed in us": true
+      },
+      "Romans 14:8": {
+        "auto|we are the Lord's": true
+      },
+      "1 Corinthians 3:16": {
+        "auto|the Spirit of God dwelleth in you": true
+      },
+      "1 Corinthians 15:22": {
+        "auto|all be made alive": true
+      },
+      "1 Corinthians 15:57": {
+        "auto|the victory through our Lord Jesus Christ": true
+      },
+      "1 Corinthians 16:13": {
+        "auto|stand fast in the faith": true
+      },
+      "2 Corinthians 1:3": {
+        "auto|the God of all comfort": true
+      },
+      "Galatians 5:25": {
+        "auto|walk in the Spirit": true
+      },
+      "Ephesians 5:14": {
+        "auto|Christ shall give thee light": true
+      },
+      "Philippians 2:14": {
+        "auto|murmurings and disputings": true
+      },
+      "Colossians 4:6": {
+        "auto|seasoned with salt": true
+      },
+      "1 Thessalonians 5:19": {
+        "auto|Despise not prophesyings": true
+      },
+      "2 Thessalonians 2:16": {
+        "auto|everlasting consolation and good hope through grace": true
+      },
+      "Hebrews 11:3": {
+        "auto|framed by the word of God": true
+      },
+      "James 3:17": {
+        "auto|full of mercy and good fruits": true
+      },
+      "Revelation 4:11": {
+        "hand": true
+      },
+      "Genesis 13:14": {
+        "auto|northward, and southward, and eastward, and westward": true
+      },
+      "Genesis 26:24": {
+        "auto|I am with thee, and will bless thee": true
+      },
+      "Exodus 6:7": {
+        "hand": true
+      },
+      "Exodus 15:18": {
+        "auto|reign for ever and ever": true
+      },
+      "Exodus 31:3": {
+        "auto|all manner of workmanship": true
+      },
+      "Deuteronomy 1:30": {
+        "auto|he shall fight for you": true
+      },
+      "Deuteronomy 8:18": {
+        "auto|giveth thee power to get wealth": true
+      },
+      "Deuteronomy 10:17": {
+        "auto|regardeth not persons, nor taketh reward": true
+      },
+      "Judges 5:3": {
+        "auto|will sing unto the LORD": true
+      },
+      "1 Samuel 14:6": {
+        "auto|to save by many or by few": true
+      },
+      "2 Samuel 23:3": {
+        "auto|He that ruleth over men must be just": true
+      },
+      "1 Chronicles 16:29": {
+        "auto|worship the LORD in the beauty of holiness": true
+      },
+      "2 Chronicles 30:9": {
+        "auto|turn away his face from you": true
+      },
+      "Nehemiah 9:6": {
+        "auto|the earth, and all things that are therein": true
+      },
+      "Job 5:17": {
+        "auto|despise not thou the chastening of the Almighty": true
+      },
+      "Psalm 2:11": {
+        "auto|rejoice with trembling": true
+      },
+      "Psalm 9:1": {
+        "auto|I will shew forth all thy marvellous works": true
+      },
+      "Psalm 27:4": {
+        "auto|behold the beauty of the LORD": true
+      },
+      "Psalm 32:1": {
+        "auto|transgression is forgiven": true
+      },
+      "Psalm 40:8": {
+        "auto|thy law is within my heart": true
+      },
+      "Psalm 47:1": {
+        "auto|shout unto God with the voice of triumph": true
+      },
+      "Psalm 66:1": {
+        "bank|all ye lands": true
+      },
+      "Psalm 89:1": {
+        "auto|make known thy faithfulness to all generations": true
+      },
+      "Psalm 95:1": {
+        "auto|the rock of our salvation": true
+      },
+      "Psalm 96:1": {
+        "auto|sing unto the LORD, all the earth": true
+      },
+      "Psalm 103:8": {
+        "auto|slow to anger, and plenteous in mercy": true
+      },
+      "Psalm 105:1": {
+        "auto|make known his deeds among the people": true
+      },
+      "Psalm 111:10": {
+        "auto|his praise endureth for ever": true
+      },
+      "Psalm 113:3": {
+        "auto|the LORD'S name is to be praised": true
+      },
+      "Psalm 115:1": {
+        "auto|thy mercy, and for thy truth's sake": true
+      },
+      "Psalm 116:12": {
+        "auto|all his benefits toward me": true
+      },
+      "Psalm 126:3": {
+        "auto|whereof we are glad": true
+      },
+      "Psalm 130:5": {
+        "auto|in his word do I hope": true
+      },
+      "Psalm 136:1": {
+        "auto|his mercy endureth for ever": true
+      },
+      "Proverbs 8:17": {
+        "auto|those that seek me early shall find me": true
+      },
+      "Proverbs 13:20": {
+        "auto|a companion of fools shall be destroyed": true
+      },
+      "Proverbs 15:3": {
+        "auto|beholding the evil and the good": true
+      },
+      "Proverbs 18:24": {
+        "auto|a friend that sticketh closer than a brother": true
+      },
+      "Proverbs 24:16": {
+        "auto|riseth up again": true
+      },
+      "Genesis 1:3": {
+        "auto|there was light": true
+      },
+      "Genesis 1:26": {
+        "auto|in our image, after our likeness": true
+      },
+      "Genesis 2:18": {
+        "auto|an help meet for him": true
+      },
+      "Genesis 3:19": {
+        "auto|unto dust shalt thou return": true
+      },
+      "Genesis 9:16": {
+        "auto|the everlasting covenant between God": true
+      },
+      "Genesis 12:2": {
+        "auto|thou shalt be a blessing": true
+      },
+      "Genesis 12:3": {
+        "curated": true
+      },
+      "Genesis 18:14": {
+        "auto|Sarah shall have a son": true
+      },
+      "Genesis 32:28": {
+        "auto|hast prevailed": true
+      },
+      "Genesis 45:8": {
+        "auto|a ruler throughout all the land of Egypt": true
+      },
+      "Exodus 15:26": {
+        "auto|I am the LORD that healeth thee": true
+      },
+      "Exodus 20:8": {
+        "auto|to keep it holy": true
+      },
+      "Exodus 20:12": {
+        "curated": true
+      },
+      "Exodus 33:18": {
+        "auto|shew me thy glory": true
+      },
+      "Leviticus 20:7": {
+        "auto|be ye holy": true
+      },
+      "Leviticus 20:26": {
+        "auto|a people unto me": true
+      },
+      "Numbers 6:25": {
+        "auto|be gracious unto thee": true
+      },
+      "Numbers 11:23": {
+        "auto|my word shall come to pass unto thee": true
+      },
+      "Numbers 14:21": {
+        "auto|the glory of the LORD": true
+      },
+      "Deuteronomy 4:29": {
+        "auto|with all thy heart": true
+      },
+      "Deuteronomy 7:9": {
+        "hand": true
+      },
+      "Deuteronomy 29:29": {
+        "auto|all the words of this law": true
+      },
+      "Deuteronomy 30:14": {
+        "auto|in thy mouth, and in thy heart": true
+      },
+      "Deuteronomy 31:8": {
+        "auto|fear not, neither be dismayed": true
+      },
+      "Joshua 24:14": {
+        "auto|put away the gods which your fathers served": true
+      },
+      "Judges 6:24": {
+        "hand": true
+      },
+      "1 Samuel 1:27": {
+        "auto|which I asked of him": true
+      },
+      "1 Samuel 12:23": {
+        "auto|in ceasing to pray for you": true
+      },
+      "2 Samuel 22:33": {
+        "auto|he maketh my way perfect": true
+      },
+      "1 Kings 8:56": {
+        "auto|one word of all his good promise": true
+      },
+      "1 Kings 19:11": {
+        "hand": true
+      },
+      "2 Kings 20:6": {
+        "auto|I will defend this city": true
+      },
+      "1 Chronicles 16:25": {
+        "auto|to be feared above all gods": true
+      },
+      "2 Chronicles 20:12": {
+        "auto|our eyes are upon thee": true
+      },
+      "Ezra 3:13": {
+        "auto|the noise was heard afar off": true
+      },
+      "Nehemiah 1:5": {
+        "auto|observe his commandments": true
+      },
+      "Esther 5:2": {
+        "auto|the golden sceptre that was in his hand": true
+      },
+      "Job 1:8": {
+        "auto|one that feareth God, and escheweth evil": true
+      },
+      "Job 5:19": {
+        "auto|there shall no evil touch thee": true
+      },
+      "Job 14:1": {
+        "auto|of few days, and full of trouble": true
+      },
+      "Job 28:28": {
+        "auto|to depart from evil is understanding": true
+      },
+      "Job 38:4": {
+        "auto|I laid the foundations of the earth": true
+      },
+      "Psalm 16:11": {
+        "auto|pleasures for evermore": true
+      },
+      "Psalm 18:2": {
+        "auto|the horn of my salvation": true
+      },
+      "Psalm 23:4": {
+        "auto|thy rod and thy staff they comfort me": true
+      },
+      "Psalm 24:1": {
+        "auto|they that dwell therein": true
+      },
+      "Psalm 27:14": {
+        "auto|wait, I say, on the LORD": true
+      },
+      "Psalm 32:8": {
+        "auto|I will guide thee with mine eye": true
+      },
+      "Psalm 34:18": {
+        "auto|be of a contrite spirit": true
+      },
+      "Psalm 37:5": {
+        "auto|he shall bring it to pass": true
+      },
+      "Psalm 40:1": {
+        "auto|he inclined unto me, and heard my cry": true
+      },
+      "Psalm 46:10": {
+        "auto|I will be exalted in the earth": true
+      },
+      "Psalm 51:17": {
+        "auto|thou wilt not despise": true
+      },
+      "Psalm 55:22": {
+        "auto|the righteous to be moved": true
+      },
+      "Psalm 62:1": {
+        "auto|my salvation": true
+      },
+      "Psalm 73:26": {
+        "auto|my portion for ever": true
+      },
+      "Psalm 103:1": {
+        "auto|bless his holy name": true
+      },
+      "Psalm 103:12": {
+        "auto|our transgressions from us": true
+      },
+      "Psalm 119:11": {
+        "auto|I might not sin against thee": true
+      },
+      "Psalm 127:1": {
+        "auto|the watchman waketh but in vain": true
+      },
+      "Psalm 139:23": {
+        "auto|know my thoughts": true
+      },
+      "Psalm 145:18": {
+        "auto|call upon him in truth": true
+      },
+      "Proverbs 1:5": {
+        "auto|attain unto wise counsels": true
+      },
+      "Proverbs 3:7": {
+        "auto|fear the LORD, and depart from evil": true
+      },
+      "Proverbs 9:10": {
+        "auto|the knowledge of the holy is understanding": true
+      },
+      "Proverbs 11:14": {
+        "auto|in the multitude of counsellors there is safety": true
+      },
+      "Proverbs 14:12": {
+        "auto|the end thereof are the ways of death": true
+      },
+      "Proverbs 16:9": {
+        "auto|the LORD directeth his steps": true
+      },
+      "Proverbs 16:18": {
+        "auto|an haughty spirit before a fall": true
+      },
+      "Proverbs 17:17": {
+        "auto|a brother is born for adversity": true
+      },
+      "Proverbs 19:21": {
+        "auto|the counsel of the LORD, that shall stand": true
+      },
+      "Proverbs 21:31": {
+        "auto|safety is of the LORD": true
+      },
+      "Proverbs 29:18": {
+        "bank|happy is he": true
+      },
+      "Ecclesiastes 1:2": {
+        "auto|all is vanity": true
+      },
+      "Ecclesiastes 12:1": {
+        "auto|in the days of thy youth": true
+      },
+      "Song of Solomon 2:11": {
+        "auto|the rain is over and gone": true
+      },
+      "Isaiah 7:14": {
+        "auto|call his name Immanuel": true
+      },
+      "Isaiah 26:4": {
+        "auto|everlasting strength": true
+      },
+      "Isaiah 40:8": {
+        "auto|shall stand for ever": true
+      },
+      "Isaiah 40:29": {
+        "auto|he increaseth strength": true
+      },
+      "Isaiah 43:1": {
+        "auto|I have called thee by thy name": true
+      },
+      "Isaiah 43:19": {
+        "auto|rivers in the desert": true
+      },
+      "Isaiah 53:6": {
+        "auto|the iniquity of us all": true
+      },
+      "Isaiah 54:17": {
+        "auto|their righteousness is of me": true
+      },
+      "Isaiah 55:6": {
+        "auto|call ye upon him while he is near": true
+      },
+      "Isaiah 55:11": {
+        "auto|the thing whereto I sent it": true
+      },
+      "Isaiah 61:1": {
+        "auto|liberty to the captives": true
+      },
+      "Jeremiah 17:7": {
+        "auto|trusteth in the LORD": true
+      },
+      "Jeremiah 17:14": {
+        "auto|thou art my praise": true
+      },
+      "Jeremiah 20:9": {
+        "auto|I could not stay": true
+      },
+      "Jeremiah 23:29": {
+        "auto|breaketh the rock in pieces": true
+      },
+      "Jeremiah 32:17": {
+        "auto|there is nothing too hard for thee": true
+      },
+      "Lamentations 3:21": {
+        "auto|have I hope": true
+      },
+      "Ezekiel 11:19": {
+        "auto|an heart of flesh": true
+      },
+      "Ezekiel 36:27": {
+        "auto|ye shall keep my judgments, and do them": true
+      },
+      "Daniel 3:25": {
+        "auto|like the Son of God": true
+      },
+      "Daniel 6:22": {
+        "auto|before him innocency was found in me": true
+      },
+      "Hosea 6:3": {
+        "auto|the latter and former rain unto the earth": true
+      },
+      "Hosea 11:4": {
+        "auto|I laid meat unto them": true
+      },
+      "Amos 3:7": {
+        "auto|his servants the prophets": true
+      },
+      "Micah 7:7": {
+        "auto|my God will hear me": true
+      },
+      "Habakkuk 2:20": {
+        "auto|let all the earth keep silence before him": true
+      },
+      "Zechariah 13:1": {
+        "auto|for sin and for uncleanness": true
+      },
+      "Malachi 3:1": {
+        "auto|he shall come, saith the LORD of hosts": true
+      },
+      "Matthew 4:4": {
+        "auto|the mouth of God": true
+      },
+      "Matthew 5:3": {
+        "auto|theirs is the kingdom of heaven": true
+      },
+      "Matthew 5:8": {
+        "auto|they shall see God": true
+      },
+      "Matthew 5:9": {
+        "auto|they shall be called the children of God": true
+      },
+      "Matthew 5:44": {
+        "auto|despitefully use you, and persecute you": true
+      },
+      "Matthew 6:9": {
+        "auto|Our Father which art in heaven": true
+      },
+      "Matthew 7:14": {
+        "auto|narrow is the way": true
+      },
+      "Matthew 6:34": {
+        "auto|Sufficient unto the day is the evil thereof": true
+      },
+      "Matthew 7:13": {
+        "hand": true
+      },
+      "Matthew 9:37": {
+        "auto|the labourers are few": true
+      },
+      "Matthew 10:28": {
+        "auto|both soul and body in hell": true
+      },
+      "Matthew 11:29": {
+        "auto|ye shall find rest unto your souls": true
+      },
+      "Matthew 16:24": {
+        "auto|follow me": true
+      },
+      "Matthew 18:20": {
+        "auto|in the midst of them": true
+      },
+      "Matthew 22:37": {
+        "auto|with all thy mind": true
+      },
+      "Matthew 24:35": {
+        "auto|my words shall not pass away": true
+      },
+      "Matthew 25:21": {
+        "auto|enter thou into the joy of thy lord": true
+      },
+      "Mark 1:17": {
+        "auto|fishers of men": true
+      },
+      "Mark 9:23": {
+        "auto|all things are possible to him that believeth": true
+      },
+      "Mark 10:14": {
+        "auto|of such is the kingdom of God": true
+      },
+      "Luke 6:27": {
+        "auto|do good to them which hate you": true
+      },
+      "Luke 9:24": {
+        "auto|the same shall save it": true
+      },
+      "Luke 12:15": {
+        "auto|the abundance of the things which he possesseth": true
+      },
+      "Luke 12:32": {
+        "auto|to give you the kingdom": true
+      },
+      "Luke 18:27": {
+        "auto|possible with God": true
+      },
+      "John 1:14": {
+        "auto|full of grace and truth": true
+      },
+      "John 1:29": {
+        "auto|taketh away the sin of the world": true
+      },
+      "John 3:3": {
+        "auto|see the kingdom of God": true
+      },
+      "John 3:30": {
+        "auto|I must decrease": true
+      },
+      "John 4:24": {
+        "auto|in spirit and in truth": true
+      },
+      "John 5:24": {
+        "auto|is passed from death unto life": true
+      },
+      "John 6:35": {
+        "auto|shall never thirst": true
+      },
+      "John 8:12": {
+        "auto|the light of life": true
+      },
+      "John 10:11": {
+        "auto|giveth his life for the sheep": true
+      },
+      "John 11:25": {
+        "auto|yet shall he live": true
+      },
+      "John 13:34": {
+        "hand": true
+      },
+      "John 14:1": {
+        "auto|believe also in me": true
+      },
+      "John 14:27": {
+        "auto|let it be afraid": true
+      },
+      "John 15:13": {
+        "auto|lay down his life for his friends": true
+      },
+      "John 16:33": {
+        "auto|I have overcome the world": true
+      },
+      "John 17:17": {
+        "auto|thy word is truth": true
+      },
+      "John 20:29": {
+        "auto|yet have believed": true
+      },
+      "Acts 4:31": {
+        "auto|spake the word of God with boldness": true
+      },
+      "Acts 16:9": {
+        "auto|help us": true
+      },
+      "Romans 1:16": {
+        "auto|also to the Greek": true
+      },
+      "Romans 5:1": {
+        "auto|peace with God through our Lord Jesus Christ": true
+      },
+      "Romans 8:1": {
+        "auto|after the Spirit": true
+      },
+      "Romans 8:31": {
+        "auto|who can be against us": true
+      },
+      "Romans 10:13": {
+        "auto|shall be saved": true
+      },
+      "Romans 12:1": {
+        "auto|your reasonable service": true
+      },
+      "Romans 12:21": {
+        "auto|overcome evil with good": true
+      },
+      "Romans 15:13": {
+        "auto|the power of the Holy Ghost": true
+      },
+      "1 Corinthians 1:18": {
+        "auto|the power of God": true
+      },
+      "1 Corinthians 6:19": {
+        "auto|ye are not your own": true
+      },
+      "1 Corinthians 15:58": {
+        "auto|not in vain in the Lord": true
+      },
+      "2 Corinthians 4:16": {
+        "hand": true
+      },
+      "2 Corinthians 5:21": {
+        "auto|the righteousness of God in him": true
+      },
+      "2 Corinthians 12:10": {
+        "auto|then am I strong": true
+      },
+      "Galatians 2:16": {
+        "auto|no flesh be justified": true
+      },
+      "Galatians 5:16": {
+        "auto|fulfil the lust of the flesh": true
+      },
+      "Galatians 6:2": {
+        "auto|fulfil the law of Christ": true
+      },
+      "Ephesians 3:16": {
+        "auto|in the inner man": true
+      },
+      "Ephesians 4:15": {
+        "auto|the head, even Christ": true
+      },
+      "Ephesians 6:13": {
+        "auto|to stand": true
+      },
+      "Philippians 1:6": {
+        "auto|the day of Jesus Christ": true
+      },
+      "Philippians 2:3": {
+        "auto|esteem other better than themselves": true
+      },
+      "Philippians 2:5": {
+        "auto|in Christ Jesus": true
+      },
+      "Philippians 3:14": {
+        "auto|the high calling of God in Christ Jesus": true
+      },
+      "Colossians 1:13": {
+        "curated": true
+      },
+      "Colossians 3:16": {
+        "auto|to the Lord": true
+      },
+      "1 Thessalonians 4:13": {
+        "auto|have no hope": true
+      },
+      "2 Timothy 1:12": {
+        "auto|against that day": true
+      },
+      "2 Timothy 2:13": {
+        "auto|he cannot deny himself": true
+      },
+      "2 Timothy 4:17": {
+        "auto|the mouth of the lion": true
+      },
+      "Hebrews 10:23": {
+        "auto|he is faithful that promised": true
+      },
+      "Hebrews 11:6": {
+        "auto|a rewarder of them that diligently seek him": true
+      },
+      "Hebrews 12:14": {
+        "auto|no man shall see the Lord": true
+      },
+      "Hebrews 13:5": {
+        "auto|I will never leave thee, nor forsake thee": true
+      },
+      "James 1:2": {
+        "auto|divers temptations": true
+      },
+      "James 1:12": {
+        "auto|love him": true
+      },
+      "James 2:17": {
+        "bank|being alone": true
+      },
+      "James 4:8": {
+        "auto|purify your hearts, ye double minded": true
+      },
+      "1 Peter 5:8": {
+        "auto|seeking whom he may devour": true
+      },
+      "1 John 1:5": {
+        "auto|in him is no darkness at all": true
+      },
+      "1 John 4:18": {
+        "auto|is not made perfect in love": true
+      },
+      "1 John 5:4": {
+        "auto|our faith": true
+      },
+      "Revelation 1:18": {
+        "auto|the keys of hell and of death": true
+      },
+      "Revelation 2:10": {
+        "auto|I will give thee a crown of life": true
+      },
+      "Revelation 3:11": {
+        "auto|no man take thy crown": true
+      },
+      "Revelation 7:17": {
+        "auto|all tears from their eyes": true
+      },
+      "Revelation 19:16": {
+        "auto|KING OF KINGS, AND LORD OF LORDS": true
+      },
+      "Revelation 21:5": {
+        "auto|these words are true and faithful": true
+      },
+      "Revelation 22:20": {
+        "auto|Even so, come, Lord Jesus": true
+      }
+    }
+  },
+  "counts": {
+    "verses": 899,
+    "passages": 27,
+    "passageBlanks": 81,
+    "tabletChapters": 144,
+    "tabletBlanks": 1231,
+    "siteQuotes": 46,
+    "tutorial": 6,
+    "tfClaims": 280,
+    "notes": 131,
+    "beatQuestions": 0
+  },
+  "unresolved": 0,
+  "parityProblems": [],
+  "verseGate": {
+    "total": 899,
+    "clean": 896,
+    "failing": 0
+  }
+}

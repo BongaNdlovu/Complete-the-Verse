@@ -425,9 +425,11 @@ function renderModeCard(k, due, dailyDone, road){
   const m = MODES[k];
   if(!m || m.hidden) return "";
   let pill = "";
+  const curEd = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
+  const activeDaily = (SAVE.dailyByEdition && SAVE.dailyByEdition[curEd]) ? SAVE.dailyByEdition[curEd] : (SAVE.daily || { date: "", score: 0 });
   if(m.incoming) pill = '<span class="pill">Incoming</span>';
   else if(k==="daily") pill = dailyDone
-    ? '<span class="pill done">Done · '+fmt(SAVE.daily.score)+'</span>'
+    ? '<span class="pill done">Done · '+fmt(activeDaily.score)+'</span>'
     : '<span class="pill">Today</span>';
   else if(k==="practice" && due) pill = '<span class="pill due">'+fmt(due)+' due</span>';
   else if(k==="pilgrimage") pill = road.complete
@@ -439,42 +441,39 @@ function renderModeCard(k, due, dailyDone, road){
     '<span class="tagline">'+esc(m.incoming ? "Incoming" : m.tagline)+'</span></button>';
 }
 
-function renderMenu(){
-  const today = todayKey();
-  const dailyDone = SAVE.daily.date === today;
-  const due = dueToday();
-  const road = pilgrimOverview();
-  updateCloudChip();
-  updateOfflineBanner();
+function renderMenuRoad(road){
   const prog = $("menu-road-progress");
-  if(prog){
-    const pass = (typeof Pilgrimage !== "undefined" && Pilgrimage.spiralPass)
-      ? Pilgrimage.spiralPass(SAVE.pilgrim) : 1;
-    const std = (pass > 1 && typeof Pilgrimage.passStandard === "function")
-      ? Pilgrimage.passStandard(pass) : null;
-    if(std){
-      prog.textContent = std.title + " · " + (road.complete
-        ? "Ur to Patmos again"
-        : (road.cleared+" of "+road.total+" · next: "+(road.current?road.current.name:"Ur")));
-    } else {
-      prog.textContent = road.complete
-        ? "Road complete · Ur to Patmos"
-        : (road.cleared+" of "+road.total+" sites · next: "+(road.current?road.current.name:"Ur"));
-    }
+  if(!prog) return;
+  const pass = (typeof Pilgrimage !== "undefined" && Pilgrimage.spiralPass)
+    ? Pilgrimage.spiralPass(SAVE.pilgrim) : 1;
+  const std = (pass > 1 && typeof Pilgrimage.passStandard === "function")
+    ? Pilgrimage.passStandard(pass) : null;
+  const next = road.current ? road.current.name : "Ur";
+  if(std){
+    prog.textContent = std.title + " · " + (road.complete
+      ? "Ur to Patmos again"
+      : (road.cleared+" of "+road.total+" · next: "+next));
+  } else {
+    prog.textContent = road.complete
+      ? "Road complete · Ur to Patmos"
+      : (road.cleared+" of "+road.total+" sites · next: "+next);
   }
+}
+function renderMenuReview(due){
   const reviewBtn = $("menu-review-due");
   const reviewBar = $("menu-review-bar");
-  if(reviewBtn){
-    if(due > 0){
-      if(reviewBar) reviewBar.style.display = "";
-      reviewBtn.style.display = "";
-      reviewBtn.textContent = "Review " + due + " due";
-      reviewBtn.onclick = ()=>{ Snd.unlock(); startRun("practice", SAVE.set.diff); };
-    } else {
-      if(reviewBar) reviewBar.style.display = "none";
-      reviewBtn.style.display = "none";
-    }
+  if(!reviewBtn) return;
+  if(due > 0){
+    if(reviewBar) reviewBar.style.display = "";
+    reviewBtn.style.display = "";
+    reviewBtn.textContent = "Review " + due + " due";
+    reviewBtn.onclick = ()=>{ Snd.unlock(); startRun("practice", SAVE.set.diff); };
+  } else {
+    if(reviewBar) reviewBar.style.display = "none";
+    reviewBtn.style.display = "none";
   }
+}
+function renderMenuGroups(due, dailyDone, road){
   const rendered = new Set();
   let groupsHtml = MENU_GROUPS.map(g => {
     const visibleModes = g.modes.filter(k => MODES[k] && !MODES[k].hidden);
@@ -509,11 +508,24 @@ function renderMenu(){
       if(MODES[b.dataset.mode].atlas) go("atlas"); else openBrief(b.dataset.mode);
     });
   });
+}
+function renderMenu(){
+  const today = todayKey();
+  const menuEd = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
+  const menuDaily = (SAVE.dailyByEdition && SAVE.dailyByEdition[menuEd]) ? SAVE.dailyByEdition[menuEd] : (SAVE.daily || { date: "", score: 0 });
+  const dailyDone = menuDaily.date === today;
+  const due = dueToday();
+  const road = pilgrimOverview();
+  updateCloudChip();
+  updateOfflineBanner();
+  renderMenuRoad(road);
+  renderMenuReview(due);
+  renderMenuGroups(due, dailyDone, road);
   const done = SAVE.seals.length, tot = SEALS.length;
   $("menu-hint").textContent = SAVE.runs
     ? fmt(SAVE.runs)+" runs · "+fmt(SAVE.life.correct)+" verses kept · "+done+"/"+tot+" seals"
       + (due ? " · "+fmt(due)+" due for review" : " · nothing due")
-    : VERSES.length+" verses · all 66 books · King James Version";
+    : VERSES.length+" verses · all 66 books · " + ((typeof translationName === "function") ? translationName() : "King James Version");
   if(typeof mountPlayerReviewsPanel === "function") mountPlayerReviewsPanel("menu-player-reviews", 2);
 }
 
@@ -1120,6 +1132,38 @@ function leaveSignInThen(next){
     if(fn) fn();
   }, ms);
 }
+function bindEditionPicker(){
+  const kjvBtn = $("edition-btn-kjv");
+  const nkjvBtn = $("edition-btn-nkjv");
+  if(kjvBtn && !kjvBtn._bound){
+    kjvBtn._bound = true;
+    kjvBtn.addEventListener("click", function(){
+      if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
+      if(typeof Edition !== "undefined" && Edition.selectEdition) Edition.selectEdition("kjv");
+      else {
+        SAVE.set.translation = "kjv";
+        SAVE.set.translationChosen = true;
+        persist();
+        if(!SAVE.set.tutorialSeen) showTutorialIfNeeded(false);
+        else go("menu");
+      }
+    });
+  }
+  if(nkjvBtn && !nkjvBtn._bound){
+    nkjvBtn._bound = true;
+    nkjvBtn.addEventListener("click", function(){
+      if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
+      if(typeof Edition !== "undefined" && Edition.selectEdition) Edition.selectEdition("nkjv");
+      else {
+        SAVE.set.translation = "nkjv";
+        SAVE.set.translationChosen = true;
+        persist();
+        if(!SAVE.set.tutorialSeen) showTutorialIfNeeded(false);
+        else go("menu");
+      }
+    });
+  }
+}
 function enterHallAfterAuth(fromSignIn){
   const cleared = !!(SAVE.life && SAVE.life.sitesCleared);
   const walked = !!(SAVE.pilgrim && SAVE.pilgrim.lastPlayed);
@@ -1142,6 +1186,12 @@ function withSiteNotice(next){
   else next();
 }
 function enterCoffeePath(){
+  /* Nothing re-applied a saved translation after a reload, so KJV text came
+     back wearing an NKJV label. activateEdition is idempotent; first-time
+     players (no translation chosen) never get here before the picker. */
+  if(typeof Edition !== "undefined" && typeof SAVE !== "undefined" && SAVE.set && SAVE.set.translation === "nkjv"){
+    Edition.activateEdition("nkjv");
+  }
   if(typeof window !== "undefined" && window._saveCorruptPending){
     window._saveCorruptPending = false;
     presentSaveCorrupt(enterCoffeePath);
@@ -1169,7 +1219,14 @@ function enterCoffeePath(){
 }
 function openAfterBoot(){
   const goOn = function(){
-    if(currentView==="boot") enterCoffeePath();
+    if(currentView==="boot"){
+      if(typeof SAVE !== "undefined" && SAVE.set && !SAVE.set.translationChosen){
+        bindEditionPicker();
+        go("edition");
+        return;
+      }
+      enterCoffeePath();
+    }
   };
   if(typeof Cloud!=="undefined" && Cloud.whenReady){
     Cloud.whenReady().then(goOn).catch(goOn);

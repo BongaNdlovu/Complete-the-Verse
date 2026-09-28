@@ -40,8 +40,12 @@ ok("index does not advertise a 36-count road",
 
 const man = JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.webmanifest"), "utf8"));
 ok("manifest names live verse count",
-  String(man.description).indexOf(String(verses) + " KJV verses") >= 0,
+  String(man.description).indexOf(String(verses) + " verses") >= 0,
   man.description);
+ok("manifest is edition-neutral",
+  /KJV or NKJV|KJV and NKJV/.test(String(man.description)));
+ok("index metadata is edition-neutral",
+  !/King James Bible memory game/.test(index) && index.indexOf("KJV and NKJV") >= 0);
 ok("manifest names live site count",
   String(man.description).indexOf(String(sites) + "-site") >= 0,
   man.description);
@@ -64,12 +68,17 @@ ok("guide does not still say 423 in the browser",
 ok("guide does not still say 36 relics as current",
   !/\b36 relics\b/.test(guide));
 
+/* The suite list lives in test/suite-list.js so that test.js and the
+   restricted-environment runner in scripts/ cannot drift apart. */
 const testJs = fs.readFileSync(path.join(ROOT, "test.js"), "utf8");
-const suiteBlock = testJs.match(/const SUITE = \[([\s\S]*?)\];/);
+const suiteList = fs.readFileSync(path.join(ROOT, "test", "suite-list.js"), "utf8");
+const suiteBlock = suiteList.match(/module\.exports = \[([\s\S]*?)\];/);
 const suiteCount = suiteBlock
   ? suiteBlock[1].split("\n").filter(function (l) { return /^\s*\[/.test(l); }).length
   : 0;
-ok("test.js registers the live suite list", suiteCount >= 30, suiteCount);
+ok("suite-list.js registers the live suite list", suiteCount >= 30, suiteCount);
+ok("test.js runs the shared suite list",
+  /require\("\.\/test\/suite-list\.js"\)/.test(testJs));
 ok("guide names live suite count",
   guide.indexOf(String(suiteCount) + " suites") >= 0 ||
   guide.indexOf(String(suiteCount) + " test suites") >= 0,

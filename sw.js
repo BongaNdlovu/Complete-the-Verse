@@ -13,7 +13,7 @@
       stale cache eviction.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.8.76";
+const CACHE_VERSION = "ctv-v1.9.1";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MEDIA_CACHE = "ctv-media-" + CACHE_VERSION;
@@ -48,6 +48,17 @@ const PRECACHE_ASSETS = [
   "js/passages.js",
   "js/legacy-ids.js",
   "js/bank.js",
+  /* The NKJV edition ships as data-only modules on the boot path: a player
+     who picks NKJV offline must get the bank, not an empty hall. */
+  "js/nkjv/verses.js",
+  "js/nkjv/passages.js",
+  "js/nkjv/verses-tf.js",
+  "js/nkjv/verses-notes.js",
+  "js/nkjv/tablets.js",
+  "js/nkjv/quotes.js",
+  "js/nkjv/beat.js",
+  "js/nkjv/tutorial.js",
+  "js/edition.js",
   "js/srs.js",
   "js/recall.js",
   "js/assemble.js",

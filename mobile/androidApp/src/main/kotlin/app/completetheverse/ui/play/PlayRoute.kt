@@ -24,6 +24,7 @@ import app.completetheverse.core.play.PlayPhase
 import app.completetheverse.core.play.PlayQuestion
 import app.completetheverse.core.play.Ghosts
 import app.completetheverse.core.play.PlayResult
+import app.completetheverse.core.save.Save
 import app.completetheverse.core.save.SaveBlob
 import app.completetheverse.ui.theme.LocalVisualProfile
 import app.completetheverse.save.SaveCoordinator
@@ -201,6 +202,8 @@ fun PlayRoute(
         onResultsHall = if (onHall != null) ({ leaveToHall() }) else null,
         guideKick = guideKickPrefix?.let { "$it · Lesson ${viewModel.index + 1} of ${viewModel.total}" },
         guideCopy = guides.getOrNull(viewModel.index),
+        translationTag = Save.translationTag(saves.snapshot()),
+        translationName = Save.translationName(saves.snapshot()),
         fxBeat = viewModel.fxBeat,
         pausedByHide = viewModel.pausedByHide,
         powers = viewModel.powers,

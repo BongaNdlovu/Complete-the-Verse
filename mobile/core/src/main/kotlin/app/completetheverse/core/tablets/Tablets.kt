@@ -163,9 +163,13 @@ object Tablets {
     fun held(miss: Int, idx: Int, total: Int): Boolean =
         miss == 0 && idx >= total && total > 0
 
-    fun recordOf(save: SaveBlob, id: String): TabletRecord {
+    fun editionKey(chapterId: String, translation: String = "kjv"): String =
+        if (translation == "nkjv") "nkjv~$chapterId" else chapterId
+
+    fun recordOf(save: SaveBlob, id: String, translation: String = "kjv"): TabletRecord {
         val pack = save["tablets"] as? JsonObject ?: return TabletRecord()
-        val row = pack[id] as? JsonObject ?: return TabletRecord()
+        val key = editionKey(id, translation)
+        val row = pack[key] as? JsonObject ?: return TabletRecord()
         return TabletRecord(best = jsonInt(row["best"]), held = jsonBool(row["held"]))
     }
 

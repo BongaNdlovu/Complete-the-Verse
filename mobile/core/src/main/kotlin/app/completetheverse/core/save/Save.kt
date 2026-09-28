@@ -263,6 +263,16 @@ object Save {
             put("date", "")
             put("score", 0)
         }
+        putJsonObject("dailyByEdition") {
+            putJsonObject("kjv") {
+                put("date", "")
+                put("score", 0)
+            }
+            putJsonObject("nkjv") {
+                put("date", "")
+                put("score", 0)
+            }
+        }
         putJsonObject("habit") {
             put("count", 0)
             put("lastDate", "")
@@ -292,6 +302,8 @@ object Save {
             put("shake", true)
             put("voice", true)
             put("diff", "disciple")
+            put("translation", "kjv")
+            put("translationChosen", false)
             put("tutorialDone", false)
             put("tutorialSeen", false)
             put("tabletsTutorialDone", false)
@@ -312,6 +324,27 @@ object Save {
             put("vkb", false)
             put("characterDone", false)
         }
+    }
+
+    fun translation(save: SaveBlob): String =
+        ((save["set"] as? JsonObject)?.get("translation") as? JsonPrimitive)?.contentOrNull ?: "kjv"
+
+    fun translationChosen(save: SaveBlob): Boolean =
+        ((save["set"] as? JsonObject)?.get("translationChosen") as? JsonPrimitive)?.booleanOrNull ?: false
+
+    fun translationTag(save: SaveBlob): String =
+        if (translation(save) == "nkjv") "NKJV" else "KJV"
+
+    fun translationName(save: SaveBlob): String =
+        if (translation(save) == "nkjv") "New King James Version" else "King James Version"
+
+    fun chooseTranslation(save: SaveBlob, key: String): SaveBlob {
+        val edition = if (key == "nkjv") "nkjv" else "kjv"
+        return patchSet(
+            save,
+            "translation" to JsonPrimitive(edition),
+            "translationChosen" to JsonPrimitive(true),
+        )
     }
 
     fun settingsOf(save: SaveBlob): JsonObject =

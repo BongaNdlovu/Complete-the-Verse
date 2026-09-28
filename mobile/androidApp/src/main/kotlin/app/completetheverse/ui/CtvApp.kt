@@ -44,6 +44,7 @@ import app.completetheverse.ui.audio.CtvSound
 import app.completetheverse.ui.audio.LocalCtvSound
 import app.completetheverse.ui.beat.BeatRoute
 import app.completetheverse.ui.hall.ComingSoonScreen
+import app.completetheverse.ui.edition.EditionPickScreen
 import app.completetheverse.ui.hall.HallScreen
 import app.completetheverse.ui.hall.MENU_ORDER
 import app.completetheverse.ui.hall.MODES
@@ -80,6 +81,7 @@ private sealed interface CtvScreen {
     data object SignIn : CtvScreen
     data object Hall : CtvScreen
     data object Settings : CtvScreen
+    data object EditionPick : CtvScreen
     data object Practice : CtvScreen
     data class Mode(val key: String) : CtvScreen
     data object Pilgrimage : CtvScreen
@@ -102,6 +104,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             CtvScreen.SignIn -> "signin"
             CtvScreen.Hall -> "hall"
             CtvScreen.Settings -> "settings"
+            CtvScreen.EditionPick -> "edition"
             CtvScreen.Practice -> "practice"
             is CtvScreen.Mode -> "mode\u001f${screen.key}"
             CtvScreen.Pilgrimage -> "pilgrimage"
@@ -124,6 +127,7 @@ private val CtvScreenSaver = Saver<CtvScreen, String>(
             "pick-set" -> CtvScreen.CharacterPick(true)
             "signin" -> CtvScreen.SignIn
             "settings" -> CtvScreen.Settings
+            "edition" -> CtvScreen.EditionPick
             "practice" -> CtvScreen.Practice
             "mode" -> CtvScreen.Mode(parts.getOrElse(1) { "trial" })
             "pilgrimage" -> CtvScreen.Pilgrimage
@@ -177,6 +181,7 @@ fun CtvApp(
     onFetchBlitzBoard: suspend (Int) -> List<BlitzBoardRow> = { emptyList() },
     raceCode: String? = null,
     onGhostFinish: (mode: String, siteId: String?, result: PlayResult) -> Unit = { _, _, _ -> },
+    onChooseTranslation: (String) -> Unit = {},
 ) {
     var screen by rememberSaveable(stateSaver = CtvScreenSaver) {
         mutableStateOf<CtvScreen>(CtvScreen.Boot)
@@ -250,10 +255,10 @@ fun CtvApp(
         if (saveGeneration == 0) return
         val next = Save.markIntroPlayed(saves.snapshot())
         saves.persistAsync(next)
-        screen = if (!Save.profileReady(next)) {
-            CtvScreen.CharacterPick(false)
-        } else {
-            CtvScreen.Hall
+        screen = when {
+            !Save.translationChosen(next) -> CtvScreen.EditionPick
+            !Save.profileReady(next) -> CtvScreen.CharacterPick(false)
+            else -> CtvScreen.Hall
         }
     }
 
@@ -301,6 +306,18 @@ fun CtvApp(
         when (val current = if (saveGeneration == 0) CtvScreen.Boot else screen) {
             CtvScreen.Boot -> BootSplash()
             CtvScreen.Intro -> IntroScreen(onFinished = { finishIntro() })
+            CtvScreen.EditionPick -> EditionPickScreen(
+                onPick = { key ->
+                    if (saveGeneration == 0) return@EditionPickScreen
+                    onChooseTranslation(key)
+                    val next = Save.chooseTranslation(saves.snapshot(), key)
+                    screen = when {
+                        !Save.profileReady(next) -> CtvScreen.CharacterPick(false)
+                        !Save.tutorialDone(next) -> CtvScreen.Lessons(false)
+                        else -> CtvScreen.Hall
+                    }
+                },
+            )
             is CtvScreen.CharacterPick -> CharacterPickScreen(
                 initialName = playerName,
                 initialScholarId = scholar.id,
@@ -357,7 +374,7 @@ fun CtvApp(
                     "${stats.runs} runs · ${stats.correct} verses kept · $sealsGot/$sealsTot seals" +
                         if (due > 0) " · $due due for review" else " · nothing due"
                 } else {
-                    "all 66 books · King James Version"
+                    "all 66 books · " + Save.translationName(save)
                 }
                 val pills = buildMap<String, String> {
                     if (Modes.dailyAlreadyRecorded(save)) put("daily", "Done") else put("daily", "Today")
@@ -372,6 +389,7 @@ fun CtvApp(
                     }
                 }
                 HallScreen(
+                translationLabel = Save.translationName(save),
                 onMode = { mode ->
                     when {
                         mode.key == "beat" -> screen = CtvScreen.Beat
@@ -420,6 +438,7 @@ fun CtvApp(
                 settings = settings,
                 scholarShort = scholar.short,
                 scholarHint = "${scholar.name} — your scholar. Portrait on the menu; they walk the map.",
+                translation = Save.translation(save),
                 onChange = { next ->
                     persistSettings(
                         if (next.quality != settings.quality) next.copy(qualityLocked = true) else next,
@@ -430,6 +449,10 @@ fun CtvApp(
                     screen = CtvScreen.CharacterPick(true)
                 },
                 onLessons = { screen = CtvScreen.Lessons(true) },
+                onChangeTranslation = { key ->
+                    if (saveGeneration == 0) return@SettingsScreen
+                    onChooseTranslation(key)
+                },
                 onBack = { screen = CtvScreen.Hall },
             )
             CtvScreen.Practice -> PracticeRoute(
@@ -563,9 +586,10 @@ private fun settingsFromSave(save: SaveBlob, fallback: CtvSettings = CtvSettings
 
 private fun reconcileOnboarding(current: CtvScreen, save: SaveBlob): CtvScreen {
     if (!Save.introPlayed(save)) return CtvScreen.Intro
+    if (!Save.translationChosen(save)) return CtvScreen.EditionPick
     if (!Save.profileReady(save)) return CtvScreen.CharacterPick(false)
     return when (current) {
-        CtvScreen.Boot, CtvScreen.Intro -> CtvScreen.Hall
+        CtvScreen.Boot, CtvScreen.Intro, CtvScreen.EditionPick -> CtvScreen.Hall
         is CtvScreen.CharacterPick -> if (current.fromSettings) current else CtvScreen.Hall
         else -> current
     }

@@ -1,0 +1,1018 @@
+{
+  "misses": [
+    {
+      "r": "Deuteronomy 7:9",
+      "a": "to a thousand generations",
+      "miss": "collapsed-span"
+    },
+    {
+      "r": "Proverbs 29:18",
+      "a": "happy is he",
+      "miss": "collapsed-span"
+    },
+    {
+      "r": "James 2:17",
+      "a": "being alone",
+      "miss": "collapsed-span"
+    }
+  ],
+  "faults": [
+    {
+      "r": "Judges 5:31",
+      "a": "full strength.\" So the land had rest for forty years",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "1 Chronicles 4:10",
+      "a": "territory, that Your hand would be with me, and that You would keep me from evil, that I may not cause pain!\" So God granted him what he requested",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Job 19:25",
+      "a": "last on",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Psalm 119:105",
+      "a": "light to",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Psalm 100:4",
+      "a": "courts with praise. Be thankful to Him, and bless His name",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Song of Solomon 8:7",
+      "a": "floods drown it. If a man would give for love All the wealth of his house, It would be utterly despised",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Isaiah 40:31",
+      "a": "like eagles, They shall run and not be weary, They shall walk and not faint",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Isaiah 43:2",
+      "a": "overflow you. When you walk through the fire, you shall not be burned, Nor shall the flame scorch",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Hosea 4:6",
+      "a": "knowledge. Because you have rejected knowledge, I also will reject you from being priest for Me; Because you have forgotten the law of your God, I also will forget your children",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Joel 2:28",
+      "a": "prophesy, Your old men shall dream dreams, Your young men shall see visions",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Nahum 1:3",
+      "a": "acquit the wicked. The Lord has His way In the whirlwind and in the storm, And the clouds are the dust of His feet",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Malachi 4:2",
+      "a": "healing in His wings; And you shall go out And grow fat like stall-fed calves",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Matthew 6:33",
+      "a": "added to",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Matthew 7:7",
+      "a": "opened to",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Acts 17:28",
+      "a": "being, as also some of your own poets have said, 'For we are also His offspring.'",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Romans 6:23",
+      "a": "eternal life in",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 Corinthians 10:13",
+      "a": "way of escape, that you may be able to bear it",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "2 Corinthians 12:9",
+      "a": "weakness.\" Therefore most gladly I will rather boast in my infirmities, that the power of Christ may rest upon",
+      "flags": [
+        "answer-too-long",
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Philippians 2:10",
+      "a": "those under",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 Timothy 6:10",
+      "a": "a root of all kinds of evil, for which some have strayed from the faith in their greediness, and pierced themselves through with many sorrows",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Hebrews 4:12",
+      "a": "two-edged sword, piercing even to the division of soul and spirit, and of joints and marrow, and is a discerner of the thoughts and intents of the heart",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "James 4:7",
+      "a": "flee from",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "James 1:17",
+      "a": "variation or",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 Peter 2:9",
+      "a": "His own special people, that you may proclaim the praises of Him who called you out of darkness into His marvelous light",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "2 John 1:6",
+      "a": "commandments. This is the commandment, that as you have heard from the beginning, you should walk in it",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Revelation 21:4",
+      "a": "former things have",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Revelation 12:11",
+      "a": "testimony, and they did not love their lives to the death",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Leviticus 19:2",
+      "a": "'You shall",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Deuteronomy 33:27",
+      "a": "everlasting arms; He will thrust out the enemy from before you, And will say, 'Destroy!'",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "1 Samuel 3:9",
+      "a": "'Speak, Lord, for Your servant hears.' \" So Samuel went and lay down in his place",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "2 Samuel 12:7",
+      "a": "\"You are the man! Thus says the Lord God of Israel: 'I anointed you king over Israel, and I delivered you from the hand of Saul",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "2 Samuel 24:24",
+      "a": "costs me nothing.\" So David bought the threshing floor and the oxen for fifty shekels of silver",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "1 Kings 8:27",
+      "a": "heaven and the heaven of heavens cannot contain You",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Jonah 4:11",
+      "a": "great city, in which",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Zechariah 9:9",
+      "a": "Lowly and riding on",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 Thessalonians 5:17",
+      "a": "pray without ceasing",
+      "flags": [
+        "no-context",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Philemon 1:17",
+      "a": "receive him as you would",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 John 3:1",
+      "a": "children of God! Therefore the world does not know us, because it did not know Him",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "2 John 1:3",
+      "a": "mercy, and peace will",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "3 John 1:11",
+      "a": "what is good. He who does good is of God, but he who does evil has not seen God",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Genesis 1:27",
+      "a": "the image of",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Ruth 1:17",
+      "a": "The Lord do so to",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "2 Samuel 12:13",
+      "a": "\"The Lord also has put away your",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 Kings 17:16",
+      "a": "used up, nor did the jar of oil run dry",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "2 Kings 22:19",
+      "a": "when you heard what I spoke against this place and against its inhabitants, that they would become a desolation and a curse, and you tore your clothes and wept before Me, I also have heard you,\"",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "2 Chronicles 15:2",
+      "a": "found by",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Ezra 1:3",
+      "a": "May his God be with",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Esther 9:22",
+      "a": "mourning to a holiday; that they should make them days of feasting and joy, of sending presents to one another and gifts to the poor",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Esther 6:1",
+      "a": "king could not sleep. So one was",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Job 42:2",
+      "a": "no purpose of Yours can be withheld from",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Ecclesiastes 9:10",
+      "a": "it with your might",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Song of Solomon 4:7",
+      "a": "And there is no spot in",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Jeremiah 6:16",
+      "a": "in it; Then you will find rest for your souls. But they said, 'We will not walk in it.'",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Obadiah 1:12",
+      "a": "his captivity; Nor should you have rejoiced over the children of Judah In the day of their destruction; Nor should you have spoken proudly In the day of distress",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Nahum 1:15",
+      "a": "feet of him who brings good tidings, Who proclaims",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Nahum 2:1",
+      "a": "Man the fort! Watch the road! Strengthen your flanks",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Habakkuk 3:17",
+      "a": "Though the labor of the olive may fail, And the fields yield no food; Though the flock may be cut off from the fold, And there be no herd",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Malachi 3:16",
+      "a": "listened and heard them; So",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Acts 2:38",
+      "a": "\"Repent, and let every one of you be baptized",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Ephesians 5:2",
+      "a": "given Himself for",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 Timothy 6:12",
+      "a": "lay hold on eternal life, to which",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 Peter 1:3",
+      "a": "has begotten us again to a living hope through",
+      "flags": [
+        "answer-too-long",
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "3 John 1:5",
+      "a": "you do faithfully whatever you do for",
+      "flags": [
+        "option-count",
+        "mid-clause",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Genesis 12:1",
+      "a": "To a land that I will show",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Genesis 22:12",
+      "a": "since you have not withheld your son, your",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Exodus 3:2",
+      "a": "but the bush was not consumed",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Exodus 3:5",
+      "a": "near this place. Take your sandals off your feet",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Judges 7:2",
+      "a": "too many for",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Judges 7:7",
+      "a": "\"By the three hundred men who lapped",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Isaiah 37:33",
+      "a": "build a siege mound against",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "2 Chronicles 32:9",
+      "a": "the forces with him laid siege against Lachish), to Hezekiah king of Judah",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Hebrews 11:29",
+      "a": "as by dry land, whereas",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "James 5:17",
+      "a": "prayed earnestly that it would",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Hosea 10:9",
+      "a": "from the days",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Deuteronomy 10:12",
+      "a": "your God require of",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "2 Samuel 7:22",
+      "a": "none like You, nor",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Mark 4:9",
+      "a": "\"He who has ears to",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Luke 1:38",
+      "a": "Let it be to me according to your word.\"",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Luke 24:32",
+      "a": "heart burn within",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Acts 3:19",
+      "a": "sins may be blotted out, so",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Ezekiel 33:11",
+      "a": "his way and",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Ezekiel 22:30",
+      "a": "stand in the gap before Me on behalf of",
+      "flags": [
+        "answer-too-long",
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Ezekiel 34:23",
+      "a": "establish one shepherd over",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Daniel 7:27",
+      "a": "given to the people, the saints of the Most High. His kingdom is an everlasting",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Ephesians 5:8",
+      "a": "Walk as children of",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 Peter 2:5",
+      "a": "a spiritual house, a",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 John 2:6",
+      "a": "to walk just as He walked",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Exodus 12:13",
+      "a": "pass over",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Judges 7:18",
+      "a": "'The sword of the Lord and of Gideon!' \"",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Ruth 2:20",
+      "a": "\"This man is a relation",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 Samuel 24:12",
+      "a": "my hand shall not be against",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "2 Chronicles 14:11",
+      "a": "rest on",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Ezra 3:11",
+      "a": "endures forever toward Israel.\" Then all the people shouted with a great shout, when they praised the Lord, because the foundation of the house of the Lord was laid",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Psalm 138:8",
+      "a": "perfect that which concerns me; Your",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Proverbs 10:22",
+      "a": "He adds no sorrow with",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Proverbs 20:1",
+      "a": "whoever is led astray by it is not wise",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Haggai 2:7",
+      "a": "they shall come to the Desire",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "John 14:2",
+      "a": "go to prepare a place for",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Romans 8:14",
+      "a": "these are sons",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 Corinthians 3:16",
+      "a": "Spirit of God dwells in",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Deuteronomy 10:17",
+      "a": "awesome, who shows no partiality nor takes a bribe",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "1 Samuel 14:6",
+      "a": "young man who bore his armor, \"Come, let us go over to the garrison of these uncircumcised; it may be that the Lord will work for us. For nothing restrains the Lord from saving by many or by few.\"",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "1 Chronicles 16:29",
+      "a": "Oh, worship the Lord in the beauty of holiness",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "2 Chronicles 30:9",
+      "a": "turn His face from",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Psalm 27:4",
+      "a": "behold the beauty",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Psalm 47:1",
+      "a": "peoples! Shout to God with the voice of triumph",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Genesis 12:3",
+      "a": "all the families of the earth shall be blessed.\"",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Exodus 20:12",
+      "a": "your days may be long upon",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Numbers 6:25",
+      "a": "be gracious to",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Numbers 11:23",
+      "a": "what I say will happen to",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Judges 6:24",
+      "a": "The-Lord-Is-Peace. To this day it is still",
+      "flags": [
+        "answer-too-long",
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "1 Kings 19:11",
+      "a": "a great and strong wind tore into the mountains",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Esther 5:2",
+      "a": "golden scepter that was in his hand. Then",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Job 38:4",
+      "a": "I laid the foundations of the earth? Tell Me",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "Psalm 119:11",
+      "a": "might not sin against",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Ecclesiastes 12:1",
+      "a": "of your youth, Before",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Jeremiah 17:7",
+      "a": "who trusts in",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Jeremiah 32:17",
+      "a": "There is nothing too hard for",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Hosea 6:3",
+      "a": "Like the latter and former rain to the earth",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "John 5:24",
+      "a": "passed from death",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "John 17:17",
+      "a": "Your word is",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "Romans 8:31",
+      "a": "who can be against",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    },
+    {
+      "r": "2 Corinthians 4:16",
+      "a": "the inward man is being renewed day by day",
+      "flags": [
+        "answer-too-long",
+        "option-count"
+      ]
+    },
+    {
+      "r": "2 Corinthians 5:21",
+      "a": "become the righteousness of God in",
+      "flags": [
+        "option-count",
+        "mid-clause"
+      ]
+    }
+  ]
+}

@@ -140,6 +140,8 @@ fun PlayStage(
     onResultsHall: (() -> Unit)? = null,
     guideKick: String? = null,
     guideCopy: String? = null,
+    translationTag: String = "KJV",
+    translationName: String = "King James Version",
     fxBeat: FxBeat? = null,
     pausedByHide: Boolean = false,
     powers: PowerBank = PowerBank(),
@@ -617,7 +619,7 @@ private fun PlayBody(
         Mechanic.PassageRef -> "Name the Passage"
         Mechanic.Cloze -> "1-2-3 Rapid Cloze"
         Mechanic.Duel -> "True Scripture Duel"
-        Mechanic.Fade -> if (fadePhase == FadePhase.Reconstruct) "Choose the true King James verse" else "Fade-to-Memory"
+        Mechanic.Fade -> if (fadePhase == FadePhase.Reconstruct) "Choose the true " + translationName + " verse" else "Fade-to-Memory"
         Mechanic.TrueFalse -> "The Judgement"
         Mechanic.Assemble -> "Place the words"
         else -> "Complete the verse"
@@ -642,7 +644,7 @@ private fun PlayBody(
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = "Passage identification  —  King James Version",
+                text = "Passage identification  —  " + translationName,
                 modifier = Modifier.padding(top = 14.dp),
                 color = CtvColors.goldDim,
                 fontFamily = CtvFonts.body,
@@ -662,7 +664,7 @@ private fun PlayBody(
         }
         Mechanic.Duel -> if (duel != null) {
             Text(
-                text = "Discern the genuine King James reading",
+                text = "Discern the genuine " + translationName + " reading",
                 color = Color(0xFFF4EFE4),
                 fontFamily = CtvFonts.body,
                 fontStyle = FontStyle.Italic,
@@ -682,7 +684,7 @@ private fun PlayBody(
                 modifier = Modifier.padding(bottom = 4.dp),
             )
             Text(
-                text = "Out of ${claim.b} — KJV",
+                text = "Out of ${claim.b} — $translationTag",
                 color = CtvColors.goldDim,
                 fontFamily = CtvFonts.body,
                 fontStyle = FontStyle.Italic,

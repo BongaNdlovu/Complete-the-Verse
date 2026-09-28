@@ -44,9 +44,11 @@ fun SettingsScreen(
     settings: CtvSettings,
     scholarShort: String?,
     scholarHint: String,
+    translation: String,
     onChange: (CtvSettings) -> Unit,
     onChangeAvatar: () -> Unit,
     onLessons: () -> Unit,
+    onChangeTranslation: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -95,6 +97,16 @@ fun SettingsScreen(
                     GhostButton(
                         text = scholarShort?.let { "Change · $it" } ?: "Choose avatar",
                         onClick = onChangeAvatar,
+                    )
+                }
+                SetRow(
+                    label = "Translation",
+                    hint = "Verse memory and Daily are kept per edition. The road, relics, and seals are shared.",
+                ) {
+                    SegControl(
+                        options = listOf("kjv" to "KJV", "nkjv" to "NKJV"),
+                        selected = translation,
+                        onSelect = onChangeTranslation,
                     )
                 }
                 SetRow(

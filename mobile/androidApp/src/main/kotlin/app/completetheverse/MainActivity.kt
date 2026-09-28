@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
                     onFetchBlitzBoard = saveVm::fetchBlitzBoard,
                     raceCode = saveVm.raceCode ?: FriendRace.parseRaceCodeFromUrl(incomingUri),
                     onGhostFinish = saveVm::flushGhost,
+                    onChooseTranslation = saveVm::chooseTranslation,
                 )
             }
         }

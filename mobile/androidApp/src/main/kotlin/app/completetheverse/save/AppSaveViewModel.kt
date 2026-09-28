@@ -21,6 +21,7 @@ import app.completetheverse.core.pilgrimage.Arc
 import app.completetheverse.core.pilgrimage.Site
 import app.completetheverse.core.pilgrimage.Sites
 import app.completetheverse.core.records.BlitzBoardRow
+import app.completetheverse.core.save.Save
 import app.completetheverse.core.tablets.Tablets
 import app.completetheverse.core.tablets.TabletsBank
 import kotlinx.coroutines.Dispatchers
@@ -106,13 +107,25 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
                 withContext(Dispatchers.Main) { authReady = true }
             }
         }
+        reloadBanks()
+    }
+
+    private fun bankPaths(translation: String): Triple<String, String, String> {
+        val prefix = if (translation == "nkjv") "content/nkjv/" else "content/"
+        return Triple(prefix + "verses.json", prefix + "tablets.json", "content/sites.json")
+    }
+
+    fun reloadBanks() {
+        val app = getApplication<Application>()
+        val translation = Save.translation(saves.snapshot())
+        val (versePath, tabletPath, sitesPath) = bankPaths(translation)
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val bank = app.assets.open("content/verses.json").bufferedReader().use {
+                val bank = app.assets.open(versePath).bufferedReader().use {
                     Bank.parse(it.readText())
                 }
                 val road = try {
-                    app.assets.open("content/sites.json").bufferedReader().use {
+                    app.assets.open(sitesPath).bufferedReader().use {
                         Sites.parse(it.readText())
                     }
                 } catch (_: Exception) {
@@ -143,7 +156,7 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
         }
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val bank = app.assets.open("content/tablets.json").bufferedReader().use {
+                val bank = app.assets.open(tabletPath).bufferedReader().use {
                     Tablets.parse(it.readText())
                 }
                 withContext(Dispatchers.Main) {
@@ -159,6 +172,13 @@ class AppSaveViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
         }
+    }
+
+    fun chooseTranslation(key: String) {
+        val next = Save.chooseTranslation(saves.snapshot(), key)
+        saves.persistAsync(next)
+        saveGeneration++
+        reloadBanks()
     }
 
     fun sendCode(email: String) {

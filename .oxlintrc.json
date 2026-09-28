@@ -11,7 +11,10 @@
     "js/verses-notes.js",
     "js/passages.js",
     "js/empires.js",
-    "js/sites.js"
+    "js/sites.js",
+    "js/nkjv/**",
+    "scripts/verify-nkjv-qa.js",
+    "scripts/test-align.js"
   ],
   "categories": {
     "correctness": "off",

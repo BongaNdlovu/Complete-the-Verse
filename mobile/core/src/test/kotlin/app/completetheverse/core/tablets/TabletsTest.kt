@@ -350,4 +350,21 @@ class TabletsTest {
         assertEquals("true", (row["held"] as JsonPrimitive).content)
         assertEquals(100, Tablets.jsonInt(row["best"]))
     }
+
+    @Test
+    fun dualEditionTabletsIsolation() {
+        assertEquals("psalm23", Tablets.editionKey("psalm23", "kjv"))
+        assertEquals("nkjv~psalm23", Tablets.editionKey("psalm23", "nkjv"))
+
+        val saveWithKjvHold = saveHeld("psalm23")
+        assertTrue(Tablets.recordOf(saveWithKjvHold, "psalm23", "kjv").held)
+        assertFalse(Tablets.recordOf(saveWithKjvHold, "psalm23", "nkjv").held)
+
+        val saveWithNkjvHold = saveHeld("nkjv~psalm23")
+        assertTrue(Tablets.recordOf(saveWithNkjvHold, "psalm23", "nkjv").held)
+        assertFalse(Tablets.recordOf(saveWithNkjvHold, "psalm23", "kjv").held)
+
+        assertEquals("kjv", Save.translation(Save.DEFAULT))
+        assertFalse(Save.translationChosen(Save.DEFAULT))
+    }
 }

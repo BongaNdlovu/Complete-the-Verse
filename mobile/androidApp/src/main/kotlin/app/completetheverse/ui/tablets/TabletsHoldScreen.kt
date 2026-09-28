@@ -94,6 +94,7 @@ fun TabletsHoldScreen(
     skipHeavy: Boolean,
     flyTick: Int,
     shatterTick: Int,
+    translationTag: String = "KJV",
     onPick: (String) -> Unit,
     onIlluminate: () -> Unit,
     onWinnow: () -> Unit,
@@ -287,7 +288,7 @@ private fun HoldHeader(
                 )
                 Text(
                     text = (if (tutorial) "Learn the Hold" else "Pace ${Tablets.levelName(Tablets.paceOf(chapter))}") +
-                        " · " + chapter.subtitle.ifEmpty { "KJV" },
+                        " · " + chapter.subtitle.ifEmpty { translationTag },
                     color = CtvColors.goldDim,
                     fontFamily = CtvFonts.body,
                     fontStyle = FontStyle.Italic,
