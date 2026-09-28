@@ -44,3 +44,6 @@ mobile/.kotlin/
 
 # NKJV licensed source dump (never commit licensed text dump)
 content/nkjv/source/
+
+.vercel
+.env*
