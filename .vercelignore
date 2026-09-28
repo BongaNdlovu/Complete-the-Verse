@@ -18,10 +18,11 @@ scripts/
 .DS_Store
 android/
 android-standalone/
-# Backend sources, native app and dev artifacts never serve from the web
+# Backend sources, native app and dev artifacts never serve from the web.
+# Root-anchored: bare names would also match vendor/supabase/ (runtime!)
 # (vendor/ stays: js/cloud.js loads supabase-js from it at runtime).
-supabase/
-mobile/
-shared/
-artifacts/
+/supabase/
+/mobile/
+/shared/
+/artifacts/
 twa-manifest.json
