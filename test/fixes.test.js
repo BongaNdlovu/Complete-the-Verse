@@ -63,7 +63,7 @@ ok("the site brief host is still in the markup", /id="sb-diffs"/.test(index));
    cannot leak into the next day's ledger. */
 ok("any Daily ending (finish, death, or one leave) records the daily",
    /R\.mode==="daily" && \(reason==="complete" \|\| reason==="death" \|\| reason==="abandon"\) && SAVE\.daily\.date !== dailyKey/.test(game) &&
-   /R\.dailyKey = todayKey\(\)/.test(game));
+   /const day = todayKey\(\);[\s\S]{0,260}R\.dailyKey = day;/.test(game));
 
 /* §2.3 — serve-time usedIds. */
 ok("startRun no longer pre-commits the draw",
@@ -92,13 +92,13 @@ ok("the standard brief still names the lock keys for two-tap mode",
 /* §3.3 — the same verse never surfaces twice in one run. */
 ok("draw paths filter by reference",
    ["drawVerse", "drawEndlessVerse", "buildDailyList", "buildReviewQueue"]
-     .every(fn => new RegExp("function " + fn + "[\\s\\S]{0,600}?poolSansRepeatRefs\\(").test(game)),
+     .every(fn => new RegExp("function " + fn + "[\\s\\S]{0,1400}?poolSansRepeatRefs\\(").test(game)),
    "every pick-mode draw wraps its pool");
 ok("the set-piece book pool filters by reference too",
    /poolSansRepeatRefs\(VERSES\.filter\(x=>x\.b===s\.book/.test(game));
 ok("a served verse's reference is recorded", /R\.usedRefs\.add\(refKey\(v\)\)/.test(game));
 ok("the daily list records references as it draws",
-   /function buildDailyList[\s\S]{0,700}R\.usedRefs\.add\(refKey\(v\)\)[\s\S]{0,200}out\.push/.test(game));
+   /function buildDailyList[\s\S]{0,1500}R\.usedRefs\.add\(refKey\(v\)\)[\s\S]{0,200}out\.push/.test(game));
 
 /* §3.4 — the Daily's competitive layer: fixed mechanic beats (identical
    for every player) plus difficulty-weighted scoring for that board. */

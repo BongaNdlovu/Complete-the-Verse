@@ -141,6 +141,38 @@ console.log("=== LEADERBOARD ACCURACY ===");
   eq("a later run cannot post again", read(sb, "__posts.daily.length"), 1);
 }
 
+// The Daily draw forgets its last two weeks — the repetition window.
+{
+  const sb = boot();
+  exec(sb, `R.usedRefs = new Set();`);
+
+  const naive = read(sb, `naiveDailyDraw("2026-09-29", "kjv").join(",")`);
+  const naiveAgain = read(sb, `naiveDailyDraw("2026-09-29", "kjv").join(",")`);
+  eq("the seeded draw replays identically for every player", naive, naiveAgain);
+
+  eq("offsetDateKey rolls back across months",
+     read(sb, `offsetDateKey("2026-10-01", -1)`), "2026-09-30");
+  eq("offsetDateKey rolls back across years",
+     read(sb, `offsetDateKey("2027-01-01", -1)`), "2026-12-31");
+
+  const todayIds = read(sb, `(R.usedRefs = new Set(), buildDailyList("2026-09-29").list.map(x => x.v.id))`);
+  const windowIds = read(sb, `(() => {
+    const s = [];
+    for (let d = 1; d <= 14; d++)
+      naiveDailyDraw(offsetDateKey("2026-09-29", -d), "kjv").forEach(id => s.push(id));
+    return s;
+  })()`);
+  const overlap = todayIds.filter(id => windowIds.indexOf(id) >= 0).length;
+  eq("no verse from the last 14 days reappears today", overlap, 0);
+
+  exec(sb, `R.usedRefs = new Set();`);
+  const again = read(sb, `buildDailyList("2026-09-29").list.map(x => x.v.id)`);
+  eq("every player still faces the same twenty", again.join(","), todayIds.join(","));
+
+  const full = read(sb, `buildDailyList("2026-09-29").list.length`);
+  eq("the excluded draw still deals twenty verses", full, 20);
+}
+
 // Blitz: pausing holds the clock and does not count as time survived.
 {
   const sb = boot();

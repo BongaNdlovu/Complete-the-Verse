@@ -580,14 +580,14 @@ function invalidateRun(){
 }
 function drawVerse(tier, rnd){
   const r = rnd || Math.random;
-  let pool = poolSansRepeatRefs(BY_TIER[tier].filter(v=>!R.used.has(v.id)));
+  let pool = poolSansRepeatRefs(BY_TIER[tier].filter(v=>!R.used.has(v.id)), R.usedRefs);
   if(!pool.length){ R.used.clear(); pool = BY_TIER[tier].slice(); }
   const v = pool[Math.floor(r()*pool.length)];
   R.used.add(v.id);
   return v;
 }
 function drawEndlessVerse(tier){
-  let pool=poolSansRepeatRefs(BY_TIER[tier].filter(v=>!R.used.has(v.id)));
+  let pool=poolSansRepeatRefs(BY_TIER[tier].filter(v=>!R.used.has(v.id)), R.usedRefs);
   if(!pool.length){
     BY_TIER[tier].forEach(v=>R.used.delete(v.id));
     pool=BY_TIER[tier].slice();
@@ -610,7 +610,7 @@ function drawEndlessVerse(tier){
    The queue is built once at the start of the run so the session is a
    coherent list rather than a fresh weighted roll each question. */
 function buildReviewQueue(len){
-  const pool = poolSansRepeatRefs(VERSES.filter(v => !R.used.has(v.id)));
+  const pool = poolSansRepeatRefs(VERSES.filter(v => !R.used.has(v.id)), R.usedRefs);
   return SRS.buildQueue(pool.length ? pool : VERSES.slice(), cardFor, today(), len,
     list => shuffle(list));
 }
@@ -633,14 +633,44 @@ function drawReviewVerse(){
   R.used.add(chosen.id);
   return chosen;
 }
-function buildDailyList(){
+/* The exact seeded sequence a date drew for one translation, with no
+   memory of other days. Pure: replays identically for every player and
+   every request, which is what keeps the repetition window fair. */
+function naiveDailyDraw(dateKey, ed){
+  const rnd = mulberry32(seedFromString("ctv-"+ed+"-"+dateKey));
+  const pattern = [1,1,2,2,2,3,3,3,3,3,4,4,4,4,5,5,5,5,5,5];
+  const used = new Set(), usedRefs = new Set(), ids = [];
+  pattern.forEach(t=>{
+    let pool = poolSansRepeatRefs(BY_TIER[t].filter(v=>!used.has(v.id)), usedRefs);
+    if(!pool.length) pool = BY_TIER[t].slice();
+    const v = pool[Math.floor(rnd()*pool.length)];
+    used.add(v.id); usedRefs.add(refKey(v));
+    ids.push(v.id);
+  });
+  return ids;
+}
+
+function buildDailyList(dayKey){
   const ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : ((SAVE.set && SAVE.set.translation) || "kjv");
-  const rnd = mulberry32(seedFromString("ctv-"+ed+"-"+todayKey()));
+  const day = dayKey || todayKey();
+  /* Repetition guard: replay the seeded draws of the previous two weeks
+     and keep those verses out of today's pool. The exclusion derives from
+     the same shared seeds as the draw itself, so every player still faces
+     the identical twenty — just never a fresh repeat. */
+  const windowDays = (typeof Polish!=="undefined" && Polish.DAILY_REPEAT_WINDOW) || 14;
+  const exclude = new Set();
+  for(let back=1; back<=windowDays; back++){
+    naiveDailyDraw(offsetDateKey(day, -back), ed).forEach(id=>exclude.add(id));
+  }
+  const rnd = mulberry32(seedFromString("ctv-"+ed+"-"+day));
   const pattern = [1,1,2,2,2,3,3,3,3,3,4,4,4,4,5,5,5,5,5,5];
   const MECHANIC_SLOTS = {4:"duel", 9:"cloze", 13:"passage-ref", 16:"typed", 19:"fade"};
   const used = new Set(), out = [];
   pattern.forEach((t,i)=>{
-    let pool = poolSansRepeatRefs(BY_TIER[t].filter(v=>!used.has(v.id)));
+    /* Skip the window's verses first; if a tier runs dry, allow its older
+       repeats rather than breaking the fixed draw. */
+    let pool = poolSansRepeatRefs(BY_TIER[t].filter(v=>!used.has(v.id) && !exclude.has(v.id)), R.usedRefs);
+    if(!pool.length) pool = poolSansRepeatRefs(BY_TIER[t].filter(v=>!used.has(v.id)), R.usedRefs);
     if(!pool.length) pool = BY_TIER[t].slice();
     const v = pool[Math.floor(rnd()*pool.length)];
     used.add(v.id); R.usedRefs.add(refKey(v));
@@ -901,10 +931,11 @@ function startRun(mode, diffKey, options){
   document.body.classList.toggle("team-blue", mode==="team" && R.teamSide==="blue");
   document.body.classList.remove("setpiece-active","overdrive","momentum-1","momentum-2","momentum-3","momentum-4","blitz-edge","blitz-edge-2","blitz-edge-3");
   if(mode==="daily"){
-    R.daily = buildDailyList();
+    const day = todayKey();
+    R.daily = buildDailyList(day);
     /* The draw is keyed to the day the run started; a run crossing
        midnight must still record and submit against that day. */
-    R.dailyKey = todayKey();
+    R.dailyKey = day;
   }
   renderLives();
   syncWitness();

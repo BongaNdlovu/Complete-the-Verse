@@ -156,7 +156,7 @@ const SetPieces=(function(){
     if(s.sameBook&&s.book){
       // Never repeat a verse the site already used — if the book is
       // drained, fall back to the site pool (which also excludes used).
-      const pool=poolSansRepeatRefs(VERSES.filter(x=>x.b===s.book&&!R.used.has(x.id)));
+      const pool=poolSansRepeatRefs(VERSES.filter(x=>x.b===s.book&&!R.used.has(x.id)), R.usedRefs);
       v=pool.length?pool[Math.floor(Math.random()*pool.length)]:drawBound(tier);
       R.used.add(v.id);
     }else{

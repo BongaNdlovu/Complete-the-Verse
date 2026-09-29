@@ -524,6 +524,10 @@ var Polish = (function () {
      ladder the honour falls on every 100th day. Pure, mirrored by tests. */
   var DAILY_STREAK_MILESTONES = [3, 7, 14, 21, 30, 50, 75, 100, 150, 200, 300, 365];
 
+  /* The Daily draw forgets the verses of this many previous days, so the
+     same verse cannot come back within the window. Pure constant. */
+  var DAILY_REPEAT_WINDOW = 14;
+
   function dailyStreakMilestone(count) {
     var n = Math.max(0, count | 0);
     if (DAILY_STREAK_MILESTONES.indexOf(n) >= 0) return true;
@@ -577,6 +581,7 @@ var Polish = (function () {
     verseChunks: verseChunks,
     dailyMechanicWeight: dailyMechanicWeight,
     DAILY_STREAK_MILESTONES: DAILY_STREAK_MILESTONES,
+    DAILY_REPEAT_WINDOW: DAILY_REPEAT_WINDOW,
     dailyStreakMilestone: dailyStreakMilestone,
     nextDailyStreak: nextDailyStreak,
     BEATS: BEATS,
