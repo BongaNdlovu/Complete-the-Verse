@@ -32,7 +32,7 @@ function buildMailto(name, rating, text) {
 
 {
   ok("1 player-reviews.js exports an array", Array.isArray(list));
-  ok("1 five seed reviews are published", list && list.length === 5);
+  ok("1 six seed reviews are published", list && list.length === 6);
   ok("1 every review has name, rating, and text",
     list.every(function (r) {
       return r.name && r.text && Number(r.rating) >= 1 && Number(r.rating) <= 5;
@@ -45,7 +45,7 @@ function buildMailto(name, rating, text) {
       var fake = { innerHTML: "" };
       ctx.mountPlayerReviewsPanel(fake, 2);
       return fake.innerHTML.indexOf("menu-reviews-head") >= 0 &&
-        fake.innerHTML.indexOf("4.6") >= 0 &&
+        fake.innerHTML.indexOf("4.7") >= 0 &&
         fake.innerHTML.indexOf("leave-review") >= 0 &&
         (fake.innerHTML.match(/class="review"/g) || []).length === 2;
     })());
@@ -53,9 +53,9 @@ function buildMailto(name, rating, text) {
 
 {
   const html = renderReviews(list);
-  ok("2 render lists all five names",
+  ok("2 render lists all six names",
     list.every(function (r) { return html.indexOf(String(r.name).replace(/[<>&"]/g, "")) >= 0; }));
-  ok("2 render uses review cards", (html.match(/class="review"/g) || []).length === 5);
+  ok("2 render uses review cards", (html.match(/class="review"/g) || []).length === 6);
   ok("2 four-star review shows four filled stars",
     html.indexOf('aria-label="4 out of 5">★★★★☆') >= 0);
   ok("2 empty list shows placeholder", renderReviews([]).indexOf("No published reviews yet") >= 0);

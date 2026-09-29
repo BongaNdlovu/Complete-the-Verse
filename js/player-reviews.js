@@ -1,5 +1,11 @@
 var PLAYER_REVIEWS = [
   {
+    name: "Leandra Odendaal",
+    rating: 5,
+    date: "Sep 2026",
+    text: "I entered the sequencing correctly on the one question, but it wouldn't accept it. Not sure why.\n\nAll in all an excellent venture. Maybe build on levels of difficulty. Please keep going, would love to see the rest."
+  },
+  {
     name: "Marcus T.",
     rating: 5,
     date: "Sep 2026",
@@ -61,7 +67,13 @@ function renderPlayerReviewsHTML(list, limit) {
 }
 
 function mountPlayerReviews(hostId, limit) {
-  mountPlayerReviewsPanel(hostId, limit);
+  var host = typeof hostId === "string" ? document.getElementById(hostId) : hostId;
+  if (!host) return;
+  if (host.id === "published-reviews" || (!limit && host.id !== "menu-player-reviews")) {
+    host.innerHTML = renderPlayerReviewsHTML(PLAYER_REVIEWS, limit);
+  } else {
+    mountPlayerReviewsPanel(host, limit);
+  }
 }
 
 function mountPlayerReviewsPanel(hostId, limit) {
