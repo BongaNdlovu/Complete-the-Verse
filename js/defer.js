@@ -11,7 +11,7 @@ var Defer = (function () {
   var PACKS = {
     play: ["css/play.css"],
     more: ["js/verses-more.js"],
-    banks: ["js/verses-ascent.js", "js/verses-tf.js"],
+    banks: ["js/verses-ascent.js", "js/verses-tf.js", "js/verses-expansion.js"],
     tablets: ["css/tablets.css", "js/tablets-more.js"],
     atlas: ["vendor/leaflet/leaflet.css", "css/atlas.css", "vendor/leaflet/leaflet.js"]
   };
@@ -30,6 +30,7 @@ var Defer = (function () {
     if (done[src]) return true;
     if (src.indexOf("verses-more") >= 0) return typeof VERSES_MORE !== "undefined";
     if (src.indexOf("verses-ascent") >= 0) return typeof VERSES_ASCENT !== "undefined";
+    if (src.indexOf("verses-expansion") >= 0) return typeof VERSES_EXPANSION !== "undefined";
     if (src.indexOf("verses-tf") >= 0) return typeof TF_CLAIMS !== "undefined";
     if (src.indexOf("tablets-more") >= 0) {
       return typeof Tablets !== "undefined" && Tablets.more && Tablets.more.length;
@@ -39,7 +40,7 @@ var Defer = (function () {
     return !!(document.querySelector('script[src="' + src + '"], link[href="' + src + '"]'));
   }
   function afterScript(src) {
-    if ((src.indexOf("verses-more") >= 0 || src.indexOf("verses-ascent") >= 0) &&
+    if ((src.indexOf("verses-more") >= 0 || src.indexOf("verses-ascent") >= 0 || src.indexOf("verses-expansion") >= 0) &&
         typeof absorbDeferredBanks === "function") {
       absorbDeferredBanks();
     }
@@ -82,7 +83,7 @@ var Defer = (function () {
   }
   function readyFor(mode) {
     if (headless()) return true;
-    var banks = already(PACKS.banks[0]) && already(PACKS.banks[1]);
+    var banks = PACKS.banks.every(already);
     var play = already(PACKS.play[0]);
     var more = already(PACKS.more[0]);
     if (mode === "atlas") return already(PACKS.atlas[PACKS.atlas.length - 1]) && already(PACKS.atlas[0]);

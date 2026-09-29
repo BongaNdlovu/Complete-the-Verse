@@ -28,6 +28,7 @@ VERSES.push(...VERSES_EXTRA);
    absent. */
 if(typeof VERSES_MORE !== "undefined") VERSES.push(...VERSES_MORE);
 if(typeof VERSES_ASCENT !== "undefined") VERSES.push(...VERSES_ASCENT);
+if(typeof VERSES_EXPANSION !== "undefined") VERSES.push(...VERSES_EXPANSION);
 
 /* The canonical key is plural. Normalize the legacy singular rows once at
    the bank boundary so filters, maps, and lifetime stats agree. */
@@ -63,6 +64,7 @@ function absorbDeferredBanks(){
   var n = 0;
   if(typeof VERSES_MORE !== "undefined") n += absorbVersePack(VERSES_MORE);
   if(typeof VERSES_ASCENT !== "undefined") n += absorbVersePack(VERSES_ASCENT);
+  if(typeof VERSES_EXPANSION !== "undefined") n += absorbVersePack(VERSES_EXPANSION);
   return n;
 }
 
@@ -80,6 +82,7 @@ if(typeof module !== "undefined" && module.exports){
   module.exports = { VERSES, VERSES_EXTRA,
     VERSES_MORE: (typeof VERSES_MORE !== "undefined") ? VERSES_MORE : [],
     VERSES_ASCENT: (typeof VERSES_ASCENT !== "undefined") ? VERSES_ASCENT : [],
+    VERSES_EXPANSION: (typeof VERSES_EXPANSION !== "undefined") ? VERSES_EXPANSION : [],
     PASSAGES, BY_TIER, BY_ID, BOOKS_ORDER, verseId, LEGACY_IDS,
     absorbVersePack, absorbDeferredBanks };
 }

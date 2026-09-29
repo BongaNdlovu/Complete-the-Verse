@@ -21,8 +21,8 @@ console.log('======================================================');
 const kjvBank = loadBank('kjv');
 const nkjvBank = loadBank('nkjv');
 
-check('KJV verses count is 899', kjvBank.VERSES.length === 899, { count: kjvBank.VERSES.length });
-check('NKJV verses count is 899', nkjvBank.VERSES.length === 899, { count: nkjvBank.VERSES.length });
+check('KJV verses count is 1399', kjvBank.VERSES.length === 1399, { count: kjvBank.VERSES.length });
+check('NKJV verses count is 1399', nkjvBank.VERSES.length === 1399, { count: nkjvBank.VERSES.length });
 check('KJV and NKJV cover same 66 books', 
   new Set(kjvBank.VERSES.map(v => v.b)).size === 66 && 
   new Set(nkjvBank.VERSES.map(v => v.b)).size === 66

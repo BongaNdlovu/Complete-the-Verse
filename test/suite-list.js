@@ -6,6 +6,7 @@ module.exports = [
   ["verse-qa logic", "test/verse-qa.test.js"],
   ["verses-more", "test/verses-more.test.js"],
   ["verses-ascent", "test/verses-ascent.test.js"],
+  ["verses-expansion", "test/verses-expansion.test.js"],
   ["assemble", "test/assemble.test.js"],
   ["meta climb", "test/meta.test.js"],
   ["quick rewards", "test/rewards.test.js"],

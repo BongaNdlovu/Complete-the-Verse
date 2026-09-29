@@ -11688,6 +11688,6506 @@ const NKJV_VERSES = [
       "Come, Lord, and do not wait",
       "Amen. Come, you King"
     ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 1:4",
+    "t": 2,
+    "p": "And God saw the light, that it was good; and God divided the light",
+    "a": "from the darkness",
+    "s": ".",
+    "d": [
+      "from the earth",
+      "into the heavens",
+      "to the night"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 1:11",
+    "t": 3,
+    "p": "Then God said, \"Let the earth bring forth grass, the herb that yields seed, and the fruit tree that yields fruit according",
+    "a": "to its kind",
+    "s": ", whose seed is in itself, on the earth\"; and it was so.",
+    "d": [
+      "after his kind",
+      "in its season",
+      "out of the dust"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 1:31",
+    "t": 2,
+    "p": "Then God saw everything that He had made, and indeed it was",
+    "a": "very good",
+    "s": ". So the evening and the morning were the sixth day.",
+    "d": [
+      "finished in beauty",
+      "holy to him",
+      "blessed forever"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 2:3",
+    "t": 3,
+    "p": "Then God blessed the seventh day and sanctified it, because in it",
+    "a": "He rested from all His work",
+    "s": "which God had created and made.",
+    "d": [
+      "he had rested from all his work",
+      "he ceased from his creation",
+      "the heavens were finished"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 2:15",
+    "t": 3,
+    "p": "Then the LORD God took the man and put him in the garden of Eden",
+    "a": "to tend and keep it",
+    "s": ".",
+    "d": [
+      "to dress it and to keep it",
+      "to eat of every tree",
+      "to walk before his face"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 6:8",
+    "t": 2,
+    "p": "But Noah",
+    "a": "found grace in the eyes of the LORD",
+    "s": ".",
+    "d": [
+      "found mercy in the eyes of the LORD",
+      "found favor in the eyes of the LORD",
+      "found peace in the eyes of the LORD"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 15:1",
+    "t": 2,
+    "p": "After these things the word of the LORD came to Abram in a vision, saying, \"Do not be afraid, Abram. I am your shield,",
+    "a": "your exceedingly great reward",
+    "s": ".\"",
+    "d": [
+      "your exceeding great reward",
+      "your strong tower of defence",
+      "your portion in the land"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 18:25",
+    "t": 3,
+    "p": "Far be it from You to do such a thing as this, to slay the righteous with the wicked, so that the righteous should be as the wicked; far be it from You! Shall not the Judge of all the earth",
+    "a": "do right",
+    "s": "?\"",
+    "d": [
+      "judge his people?",
+      "execute true judgment?",
+      "judge righteously?"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 24:12",
+    "t": 3,
+    "p": "Then he said, \"O LORD God of my master Abraham, please give me success this day, and",
+    "a": "show kindness to my master",
+    "s": "Abraham.",
+    "d": [
+      "prosper my way this day",
+      "hear the prayer of my heart",
+      "grant peace to your servant"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 39:2",
+    "t": 3,
+    "p": "The LORD was with Joseph, and he was",
+    "a": "a successful man",
+    "s": "; and he was in the house of his master the Egyptian.",
+    "d": [
+      "a prosperous man",
+      "a mighty ruler",
+      "a faithful steward"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 49:18",
+    "t": 3,
+    "p": "I have waited for",
+    "a": "your salvation, O LORD",
+    "s": "!",
+    "d": [
+      "your promise, O God",
+      "the day of your power",
+      "your deliverance, O King"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 49:22",
+    "t": 4,
+    "p": "\"Joseph is a fruitful bough,",
+    "a": "A fruitful bough by a well",
+    "s": "; His branches run over the wall.",
+    "d": [
+      "a tender plant of righteousness",
+      "a green tree in the field",
+      "a branch of living water"
+    ]
+  },
+  {
+    "b": "Genesis",
+    "r": "Genesis 50:24",
+    "t": 3,
+    "p": "And Joseph said to his brethren, \"I am dying; but",
+    "a": "God will surely visit you",
+    "s": ", and bring you out of this land to the land of which He swore to Abraham, to Isaac, and to Jacob.\"",
+    "d": [
+      "the LORD shall preserve your seed",
+      "the Almighty shall redeem your house",
+      "God will remember his promise"
+    ]
+  },
+  {
+    "b": "Exodus",
+    "r": "Exodus 20:2",
+    "t": 2,
+    "p": "\"I am the LORD your God, who brought you out of the land of Egypt,",
+    "a": "out of the house of bondage",
+    "s": ".",
+    "d": [
+      "from the power of Pharaoh",
+      "into this goodly mountain",
+      "by a mighty outstretched arm"
+    ]
+  },
+  {
+    "b": "Exodus",
+    "r": "Exodus 16:4",
+    "t": 3,
+    "p": "Then the LORD said to Moses, \"Behold, I will rain",
+    "a": "bread from heaven",
+    "s": "for you. And the people shall go out and gather a certain quota every day, that I may test them, whether they will walk in My law or not.",
+    "d": [
+      "water from the rock",
+      "manna in the desert",
+      "quails upon the ground"
+    ]
+  },
+  {
+    "b": "Exodus",
+    "r": "Exodus 18:21",
+    "t": 4,
+    "p": "Moreover you shall select from all the people able men,",
+    "a": "such as fear God, men of truth",
+    "s": ", hating covetousness; and place such over them to be rulers of thousands, rulers of hundreds, rulers of fifties, and rulers of tens.",
+    "d": [
+      "elders among the people of Israel",
+      "princes of the tribes of Judah",
+      "mighty men of great valor"
+    ]
+  },
+  {
+    "b": "Exodus",
+    "r": "Exodus 20:7",
+    "t": 2,
+    "p": "\"You shall not take the name of the LORD your God in vain, for the LORD will not hold him guiltless who takes",
+    "a": "His name in vain",
+    "s": ".",
+    "d": [
+      "an oath deceitfully",
+      "the covenant lightly",
+      "his praise away"
+    ]
+  },
+  {
+    "b": "Exodus",
+    "r": "Exodus 20:13",
+    "t": 1,
+    "p": "",
+    "a": "\"You shall not murder",
+    "s": ".",
+    "d": [
+      "You shall not kill",
+      "You shall not steal",
+      "You shall not covet"
+    ]
+  },
+  {
+    "b": "Exodus",
+    "r": "Exodus 20:15",
+    "t": 1,
+    "p": "",
+    "a": "\"You shall not steal",
+    "s": ".",
+    "d": [
+      "You shall not kill",
+      "You shall not covet",
+      "You shall not lie"
+    ]
+  },
+  {
+    "b": "Exodus",
+    "r": "Exodus 20:16",
+    "t": 2,
+    "p": "\"You shall not bear",
+    "a": "false witness",
+    "s": "against your neighbor.",
+    "d": [
+      "evil report",
+      "unjust judgment",
+      "hateful malice"
+    ]
+  },
+  {
+    "b": "Exodus",
+    "r": "Exodus 23:25",
+    "t": 3,
+    "p": "\"So you shall serve the LORD your God, and",
+    "a": "He will bless your bread and your water",
+    "s": ". And I will take sickness away from the midst of you.",
+    "d": [
+      "he shall bless your bread, and your water",
+      "he shall make you abundant in goods",
+      "he shall give you peace in your borders"
+    ]
+  },
+  {
+    "b": "Exodus",
+    "r": "Exodus 34:10",
+    "t": 4,
+    "p": "And He said: \"Behold, I make a covenant. Before all your people",
+    "a": "I will do marvels",
+    "s": "such as have not been done in all the earth, nor in any nation; and all the people among whom you are shall see the work of the LORD. For it is an awesome thing that I will do with you.",
+    "d": [
+      "I will show great signs",
+      "I will bring salvation",
+      "I will reveal my arm"
+    ]
+  },
+  {
+    "b": "Exodus",
+    "r": "Exodus 40:34",
+    "t": 3,
+    "p": "Then the cloud covered the tabernacle of meeting, and",
+    "a": "the glory of the LORD filled the tabernacle",
+    "s": ".",
+    "d": [
+      "the presence of God descended upon the mount",
+      "the fire of the altar was kindled",
+      "the holy cloud removed from the camp"
+    ]
+  },
+  {
+    "b": "Leviticus",
+    "r": "Leviticus 19:17",
+    "t": 3,
+    "p": "",
+    "a": "'You shall not hate your brother",
+    "s": "in your heart. You shall surely rebuke your neighbor, and not bear sin because of him.",
+    "d": [
+      "You shall not hate your brother",
+      "You shall not oppress the stranger",
+      "You shall not avenge the wrong"
+    ]
+  },
+  {
+    "b": "Leviticus",
+    "r": "Leviticus 19:30",
+    "t": 3,
+    "p": "'You shall keep My Sabbaths and",
+    "a": "reverence My sanctuary",
+    "s": ": I am the LORD.",
+    "d": [
+      "walk in my statutes",
+      "hallow my sabbaths",
+      "keep my covenant"
+    ]
+  },
+  {
+    "b": "Leviticus",
+    "r": "Leviticus 20:8",
+    "t": 3,
+    "p": "And you shall keep My statutes, and perform them:",
+    "a": "I am the LORD who sanctifies you",
+    "s": ".",
+    "d": [
+      "I am the LORD which sanctify you",
+      "I am the LORD your holy Redeemer",
+      "I am the God of Abraham your father"
+    ]
+  },
+  {
+    "b": "Leviticus",
+    "r": "Leviticus 22:32",
+    "t": 4,
+    "p": "",
+    "a": "You shall not profane My holy name",
+    "s": ", but I will be hallowed among the children of Israel. I am the LORD who sanctifies you,",
+    "d": [
+      "Neither shall you profane my holy name",
+      "Neither shall you despise my commandments",
+      "Neither shall you pollute my altar with sin"
+    ]
+  },
+  {
+    "b": "Leviticus",
+    "r": "Leviticus 25:17",
+    "t": 4,
+    "p": "",
+    "a": "Therefore you shall not oppress one another",
+    "s": ", but you shall fear your God; for I am the LORD your God.",
+    "d": [
+      "You shall not therefore oppress one another",
+      "You shall not take usury of your brethren",
+      "You shall not withhold the pledge of the poor"
+    ]
+  },
+  {
+    "b": "Leviticus",
+    "r": "Leviticus 25:35",
+    "t": 4,
+    "p": "'If one of your brethren becomes poor, and falls into poverty among you, then",
+    "a": "you shall help him",
+    "s": ", like a stranger or a sojourner, that he may live with you.",
+    "d": [
+      "you shall relieve him",
+      "you shall comfort him",
+      "you shall restore his goods"
+    ]
+  },
+  {
+    "b": "Leviticus",
+    "r": "Leviticus 26:6",
+    "t": 3,
+    "p": "",
+    "a": "I will give peace in the land",
+    "s": ", and you shall lie down, and none will make you afraid; I will rid the land of evil beasts, and the sword will not go through your land.",
+    "d": [
+      "I will open the windows of heaven",
+      "I will establish my covenant with you",
+      "I will drive out all your adversaries"
+    ]
+  },
+  {
+    "b": "Leviticus",
+    "r": "Leviticus 26:11",
+    "t": 4,
+    "p": "I will set",
+    "a": "My tabernacle among you",
+    "s": ", and My soul shall not abhor you.",
+    "d": [
+      "my dwelling in your borders",
+      "my holy presence with you",
+      "the altar of my praise"
+    ]
+  },
+  {
+    "b": "Numbers",
+    "r": "Numbers 14:9",
+    "t": 3,
+    "p": "Only do not rebel against the LORD, nor fear the people of the land, for they are our bread; their protection has departed from them, and the LORD is with us. Do",
+    "a": "not fear them",
+    "s": ".\"",
+    "d": [
+      "fear them not",
+      "stand fast in faith",
+      "be of good courage"
+    ]
+  },
+  {
+    "b": "Numbers",
+    "r": "Numbers 14:14",
+    "t": 4,
+    "p": "and they will tell it to the inhabitants of this land. They have heard that You, LORD, are among these people; that You, LORD,",
+    "a": "are seen face to face",
+    "s": "and Your cloud stands above them, and You go before them in a pillar of cloud by day and in a pillar of fire by night.",
+    "d": [
+      "dwell in unapproachable light",
+      "walk in the holy camp",
+      "have chosen this chosen race"
+    ]
+  },
+  {
+    "b": "Numbers",
+    "r": "Numbers 21:9",
+    "t": 4,
+    "p": "So Moses made a bronze serpent, and put it on a pole; and so it was, if a serpent had bitten anyone, when",
+    "a": "he looked at the bronze serpent, he lived",
+    "s": ".",
+    "d": [
+      "he beheld the serpent of brass, he lived",
+      "he called upon the LORD, he was healed",
+      "he confessed his iniquity, his soul was saved"
+    ]
+  },
+  {
+    "b": "Numbers",
+    "r": "Numbers 23:20",
+    "t": 3,
+    "p": "Behold, I have received a command to bless; He has blessed, and",
+    "a": "I cannot reverse it",
+    "s": ".",
+    "d": [
+      "he will not repent",
+      "no man can disannul it",
+      "his counsel shall stand"
+    ]
+  },
+  {
+    "b": "Numbers",
+    "r": "Numbers 24:5",
+    "t": 3,
+    "p": "",
+    "a": "\"How lovely are your tents, O Jacob",
+    "s": "! Your dwellings, O Israel!",
+    "d": [
+      "How blessed is the nation of Israel",
+      "How goodly are your tents, O Jacob",
+      "Great is the beauty of your dwelling"
+    ]
+  },
+  {
+    "b": "Numbers",
+    "r": "Numbers 24:16",
+    "t": 4,
+    "p": "The utterance of him who hears the words of God, And has",
+    "a": "the knowledge of the Most High",
+    "s": ", Who sees the vision of the Almighty, Who falls down, with eyes wide open:",
+    "d": [
+      "the secret of his counsel",
+      "the mystery of the heavens",
+      "the deep things of the Spirit"
+    ]
+  },
+  {
+    "b": "Numbers",
+    "r": "Numbers 23:21",
+    "t": 3,
+    "p": "\"He has not observed iniquity in Jacob, Nor has He seen wickedness in Israel. The LORD his God is with him, And",
+    "a": "the shout of a King is among them",
+    "s": ".",
+    "d": [
+      "the glory of his power shall abide",
+      "the ark of the covenant shall lead them",
+      "the blessing of the Almighty is upon them"
+    ]
+  },
+  {
+    "b": "Numbers",
+    "r": "Numbers 35:33",
+    "t": 5,
+    "p": "So you shall not pollute the land where you are;",
+    "a": "for blood defiles the land",
+    "s": ", and no atonement can be made for the land, for the blood that is shed on it, except by the blood of him who shed it.",
+    "d": [
+      "for murder is an abomination before him",
+      "for iniquity brings down destruction",
+      "for blood defiles the earth"
+    ]
+  },
+  {
+    "b": "Deuteronomy",
+    "r": "Deuteronomy 4:2",
+    "t": 3,
+    "p": "",
+    "a": "You shall not add to the word",
+    "s": "which I command you, nor take from it, that you may keep the commandments of the LORD your God which I command you.",
+    "d": [
+      "You shall not turn aside from the law",
+      "You shall not despise the commandment",
+      "You shall not forget the covenant"
+    ]
+  },
+  {
+    "b": "Deuteronomy",
+    "r": "Deuteronomy 4:24",
+    "t": 3,
+    "p": "For the LORD your God is",
+    "a": "a consuming fire",
+    "s": ", a jealous God.",
+    "d": [
+      "an everlasting King",
+      "a righteous Judge",
+      "a strong fortress"
+    ]
+  },
+  {
+    "b": "Deuteronomy",
+    "r": "Deuteronomy 6:4",
+    "t": 1,
+    "p": "\"Hear, O Israel:",
+    "a": "The LORD our God, the LORD is one",
+    "s": "!",
+    "d": [
+      "The LORD our God is one LORD",
+      "The LORD our God is God alone",
+      "The LORD our God is holy and true"
+    ]
+  },
+  {
+    "b": "Deuteronomy",
+    "r": "Deuteronomy 11:1",
+    "t": 3,
+    "p": "\"Therefore you shall love the LORD your God, and",
+    "a": "keep His charge, His statutes",
+    "s": ", His judgments, and His commandments always.",
+    "d": [
+      "walk in all his holy ways",
+      "serve him with a true heart",
+      "cleave to his righteous oath"
+    ]
+  },
+  {
+    "b": "Deuteronomy",
+    "r": "Deuteronomy 12:32",
+    "t": 3,
+    "p": "\"Whatever I command you, be careful to observe it; you shall not add to it",
+    "a": "nor take away from it",
+    "s": ".",
+    "d": [
+      "nor diminish from it",
+      "neither turn aside",
+      "nor break my covenant"
+    ]
+  },
+  {
+    "b": "Deuteronomy",
+    "r": "Deuteronomy 28:2",
+    "t": 3,
+    "p": "And all these blessings shall",
+    "a": "come upon you and overtake you",
+    "s": ", because you obey the voice of the LORD your God:",
+    "d": [
+      "come on you, and overtake you",
+      "abide with you, and preserve you",
+      "multiply upon you and your children"
+    ]
+  },
+  {
+    "b": "Deuteronomy",
+    "r": "Deuteronomy 30:11",
+    "t": 3,
+    "p": "\"For this commandment which I command you today",
+    "a": "is not too mysterious for you",
+    "s": ", nor is it far off.",
+    "d": [
+      "it is not sealed in heaven",
+      "it is not hidden from you",
+      "it is not too hard for you"
+    ]
+  },
+  {
+    "b": "Deuteronomy",
+    "r": "Deuteronomy 32:3",
+    "t": 2,
+    "p": "For I proclaim the name of the LORD:",
+    "a": "Ascribe greatness to our God",
+    "s": ".",
+    "d": [
+      "bow before his sacred presence",
+      "ascribe you greatness to our God",
+      "praise his holy name forever"
+    ]
+  },
+  {
+    "b": "Deuteronomy",
+    "r": "Deuteronomy 33:29",
+    "t": 3,
+    "p": "Happy are you, O Israel! Who is like you,",
+    "a": "a people saved by the LORD",
+    "s": ", The shield of your help And the sword of your majesty! Your enemies shall submit to you, And you shall tread down their high places.\"",
+    "d": [
+      "O people saved by the LORD",
+      "O nation holy in his sight",
+      "O children of the living God"
+    ]
+  },
+  {
+    "b": "Deuteronomy",
+    "r": "Deuteronomy 34:10",
+    "t": 4,
+    "p": "But since then there has not arisen in Israel a prophet like Moses,",
+    "a": "whom the LORD knew face to face",
+    "s": ",",
+    "d": [
+      "who bare the ark of the covenant before Israel",
+      "whom the MASTER knew face to face",
+      "whom the KING knew face to face"
+    ]
+  },
+  {
+    "b": "Joshua",
+    "r": "Joshua 1:5",
+    "t": 2,
+    "p": "No man shall be able to stand before you all the days of your life; as I was with Moses,",
+    "a": "so I will be with you",
+    "s": ". I will not leave you nor forsake you.",
+    "d": [
+      "so shall my presence go",
+      "so shall you overcome",
+      "your way shall prosper"
+    ]
+  },
+  {
+    "b": "Joshua",
+    "r": "Joshua 1:7",
+    "t": 2,
+    "p": "Only be strong and very courageous, that you may observe to do",
+    "a": "according to all the law",
+    "s": "which Moses My servant commanded you; do not turn from it to the right hand or to the left, that you may prosper wherever you go.",
+    "d": [
+      "the holy statutes of God",
+      "all the words of this covenant",
+      "the judgments of the LORD"
+    ]
+  },
+  {
+    "b": "Joshua",
+    "r": "Joshua 2:11",
+    "t": 3,
+    "p": "And as soon as we heard these things, our hearts melted; neither did there remain any more courage in anyone because of you, for the LORD your God,",
+    "a": "He is God in heaven above",
+    "s": "and on earth beneath.",
+    "d": [
+      "his holy throne is exalted",
+      "his kingdom is forevermore",
+      "he rules over all nations"
+    ]
+  },
+  {
+    "b": "Joshua",
+    "r": "Joshua 10:12",
+    "t": 3,
+    "p": "Then Joshua spoke to the LORD in the day when the LORD delivered up the Amorites before the children of Israel, and he said in the sight of Israel: \"Sun, stand still over Gibeon; And",
+    "a": "Moon, in the Valley of Aijalon",
+    "s": ".\"",
+    "d": [
+      "the stars of heaven in their courses",
+      "the host of heaven in the height",
+      "you, Moon, in the valley of Ajalon"
+    ]
+  },
+  {
+    "b": "Joshua",
+    "r": "Joshua 22:5",
+    "t": 3,
+    "p": "But take careful heed to do the commandment and the law which Moses the servant of the LORD commanded you,",
+    "a": "to love the LORD your God",
+    "s": ", to walk in all His ways, to keep His commandments, to hold fast to Him, and to serve Him with all your heart and with all your soul.\"",
+    "d": [
+      "to keep his holy sabbaths",
+      "to offer sacrifices with joy",
+      "to walk before him in truth"
+    ]
+  },
+  {
+    "b": "Joshua",
+    "r": "Joshua 23:14",
+    "t": 3,
+    "p": "\"Behold, this day I am going the way of all the earth. And you know in all your hearts and in all your souls that not one thing has failed of all the good things which",
+    "a": "the LORD your God spoke concerning you",
+    "s": ". All have come to pass for you; not one word of them has failed.",
+    "d": [
+      "the prophets of Israel declared",
+      "the covenant of our fathers promised",
+      "the law of Moses commanded"
+    ]
+  },
+  {
+    "b": "Joshua",
+    "r": "Joshua 24:16",
+    "t": 2,
+    "p": "So the people answered and said: \"Far be it from us that we should forsake the LORD",
+    "a": "to serve other gods",
+    "s": ";",
+    "d": [
+      "to turn from his law",
+      "to worship strange idols",
+      "to walk after vanity"
+    ]
+  },
+  {
+    "b": "Joshua",
+    "r": "Joshua 24:24",
+    "t": 2,
+    "p": "And the people said to Joshua, \"The LORD our God we will serve, and",
+    "a": "His voice we will obey",
+    "s": "!\"",
+    "d": [
+      "his voice will we obey",
+      "his holy law will we keep",
+      "his name will we glorify"
+    ]
+  },
+  {
+    "b": "Judges",
+    "r": "Judges 2:18",
+    "t": 4,
+    "p": "And when the LORD raised up judges for them, the LORD was with the judge and delivered them out of the hand of their enemies all the days of the judge; for the LORD was moved to pity by their groaning because of those who",
+    "a": "oppressed them and harassed them",
+    "s": ".",
+    "d": [
+      "oppressed them and vexed them",
+      "spoiled their heritage",
+      "persecuted their children"
+    ]
+  },
+  {
+    "b": "Judges",
+    "r": "Judges 3:9",
+    "t": 3,
+    "p": "When the children of Israel cried out to the LORD,",
+    "a": "the LORD raised up a deliverer",
+    "s": "for the children of Israel, who delivered them: Othniel the son of Kenaz, Caleb's younger brother.",
+    "d": [
+      "the Almighty showed great mercy",
+      "an angel appeared in their midst",
+      "the high priest offered a sacrifice"
+    ]
+  },
+  {
+    "b": "Judges",
+    "r": "Judges 5:2",
+    "t": 3,
+    "p": "\"When leaders lead in Israel,",
+    "a": "When the people willingly offer themselves",
+    "s": ", Bless the LORD!",
+    "d": [
+      "when the host went forth to the battle",
+      "when the sound of trumpets was heard",
+      "when the glory of the Lord was revealed"
+    ]
+  },
+  {
+    "b": "Judges",
+    "r": "Judges 5:12",
+    "t": 3,
+    "p": "\"Awake, awake, Deborah! Awake, awake, sing a song! Arise, Barak, and",
+    "a": "lead your captives away",
+    "s": ", O son of Abinoam!",
+    "d": [
+      "blow the trumpet of war",
+      "smite the host of Canaan",
+      "break the iron chariots"
+    ]
+  },
+  {
+    "b": "Judges",
+    "r": "Judges 8:23",
+    "t": 3,
+    "p": "But Gideon said to them, \"I will not rule over you, nor shall my son rule over you;",
+    "a": "the LORD shall rule over you",
+    "s": ".\"",
+    "d": [
+      "the king shall reign in righteousness",
+      "the princes of Israel shall judge",
+      "the high priest shall guide you"
+    ]
+  },
+  {
+    "b": "Judges",
+    "r": "Judges 13:5",
+    "t": 3,
+    "p": "For behold, you shall conceive and bear a son. And no razor shall come upon his head, for the child shall be a Nazirite to God from the womb; and he shall",
+    "a": "begin to deliver Israel",
+    "s": "out of the hand of the Philistines.\"",
+    "d": [
+      "judge the twelve tribes",
+      "stand before the altar",
+      "smite the Philistines"
+    ]
+  },
+  {
+    "b": "Judges",
+    "r": "Judges 13:23",
+    "t": 3,
+    "p": "But his wife said to him, \"If the LORD had desired to kill us, He would not have",
+    "a": "accepted a burnt offering and a grain offering",
+    "s": "from our hands, nor would He have shown us all these things, nor would He have told us such things as these at this time.\"",
+    "d": [
+      "received a burnt offering and a meat offering",
+      "smitten the hosts of our adversaries",
+      "forsaken the covenant of our fathers"
+    ]
+  },
+  {
+    "b": "Ruth",
+    "r": "Ruth 1:8",
+    "t": 3,
+    "p": "And Naomi said to her two daughters-in-law, \"Go, return each to her mother's house. The LORD deal kindly with you,",
+    "a": "as you have dealt with the dead",
+    "s": "and with me.",
+    "d": [
+      "with all kindness and truth",
+      "according to your tender mercy",
+      "in the land of your dwelling"
+    ]
+  },
+  {
+    "b": "Ruth",
+    "r": "Ruth 2:4",
+    "t": 2,
+    "p": "Now behold, Boaz came from Bethlehem, and said to the reapers, \"The LORD be with you!\" And they answered him,",
+    "a": "\"The LORD bless you",
+    "s": "!\"",
+    "d": [
+      "Peace be to you",
+      "The LORD preserve you",
+      "Grace be with you"
+    ]
+  },
+  {
+    "b": "Ruth",
+    "r": "Ruth 2:11",
+    "t": 3,
+    "p": "And Boaz answered and said to her, \"It has been fully reported to me, all that you have done for your mother-in-law since the death of your husband, and how you have left your father and your mother",
+    "a": "and the land of your birth",
+    "s": ", and have come to a people whom you did not know before.",
+    "d": [
+      "to dwell among a strange people",
+      "with a sorrowful and troubled heart",
+      "and the land of your nativity"
+    ]
+  },
+  {
+    "b": "Ruth",
+    "r": "Ruth 3:11",
+    "t": 2,
+    "p": "And now, my daughter, do not fear. I will do for you all that you request, for all the people of my town know that",
+    "a": "you are a virtuous woman",
+    "s": ".",
+    "d": [
+      "your faith has saved you",
+      "your kindness is great",
+      "you have found grace"
+    ]
+  },
+  {
+    "b": "1 Samuel",
+    "r": "1 Samuel 2:1",
+    "t": 2,
+    "p": "And Hannah prayed and said:",
+    "a": "\"My heart rejoices in the LORD",
+    "s": "; My horn is exalted in the LORD. I smile at my enemies, Because I rejoice in Your salvation.",
+    "d": [
+      "My tongue shall speak praise",
+      "My lips shall give thanks",
+      "My soul does magnify God"
+    ]
+  },
+  {
+    "b": "1 Samuel",
+    "r": "1 Samuel 2:10",
+    "t": 3,
+    "p": "The adversaries of the LORD shall be broken in pieces; From heaven He will thunder against them. The LORD",
+    "a": "will judge the ends of the earth",
+    "s": ". \"He will give strength to His king, And exalt the horn of His anointed.\"",
+    "d": [
+      "shall judge the ends of the earth",
+      "shall establish his holy kingdom",
+      "shall deliver his chosen people"
+    ]
+  },
+  {
+    "b": "1 Samuel",
+    "r": "1 Samuel 12:20",
+    "t": 3,
+    "p": "Then Samuel said to the people, \"Do not fear. You have done all this wickedness; yet do not turn aside from following the LORD, but",
+    "a": "serve the LORD with all your heart",
+    "s": ".",
+    "d": [
+      "walk uprightly before his presence",
+      "keep the statutes of his covenant",
+      "cleave to his holy testimonies"
+    ]
+  },
+  {
+    "b": "1 Samuel",
+    "r": "1 Samuel 12:22",
+    "t": 3,
+    "p": "For the LORD",
+    "a": "will not forsake His people",
+    "s": ", for His great name's sake, because it has pleased the LORD to make you His people.",
+    "d": [
+      "will not forget his covenant",
+      "will give peace in the land",
+      "will show mercy to David"
+    ]
+  },
+  {
+    "b": "1 Samuel",
+    "r": "1 Samuel 16:13",
+    "t": 3,
+    "p": "Then Samuel took the horn of oil and anointed him in the midst of his brothers; and the Spirit of the LORD",
+    "a": "came upon David from that day forward",
+    "s": ". So Samuel arose and went to Ramah.",
+    "d": [
+      "guided all his righteous goings",
+      "departed from Saul the son of Kish",
+      "rested upon the prophets of Israel"
+    ]
+  },
+  {
+    "b": "1 Samuel",
+    "r": "1 Samuel 18:14",
+    "t": 3,
+    "p": "And David",
+    "a": "behaved wisely in all his ways",
+    "s": ", and the LORD was with him.",
+    "d": [
+      "behaved himself wisely in all his ways",
+      "prospered mightily in the land",
+      "walked uprightly in the holy camp"
+    ]
+  },
+  {
+    "b": "1 Samuel",
+    "r": "1 Samuel 25:32",
+    "t": 3,
+    "p": "Then David said to Abigail:",
+    "a": "\"Blessed is the LORD God of Israel",
+    "s": ", who sent you this day to meet me!",
+    "d": [
+      "Great is the glory of our Redeemer",
+      "Praise you the name of the holy One",
+      "Give thanks to the King of heaven"
+    ]
+  },
+  {
+    "b": "1 Samuel",
+    "r": "1 Samuel 30:6",
+    "t": 3,
+    "p": "Now David was greatly distressed, for the people spoke of stoning him, because the soul of all the people was grieved, every man for his sons and his daughters. But David",
+    "a": "strengthened himself in the LORD his God",
+    "s": ".",
+    "d": [
+      "encouraged himself in the LORD his God",
+      "trusted in the mercy of the Almighty",
+      "called upon the Rock of his salvation"
+    ]
+  },
+  {
+    "b": "2 Samuel",
+    "r": "2 Samuel 7:18",
+    "t": 3,
+    "p": "Then King David went in and sat before the LORD; and he said:",
+    "a": "\"Who am I, O Lord GOD",
+    "s": "? And what is my house, that You have brought me this far?",
+    "d": [
+      "What is my father's house?",
+      "Why have you chosen me?",
+      "How shall I praise you?"
+    ]
+  },
+  {
+    "b": "2 Samuel",
+    "r": "2 Samuel 7:28",
+    "t": 3,
+    "p": "\"And now, O Lord GOD, You are God, and",
+    "a": "Your words are true",
+    "s": ", and You have promised this goodness to Your servant.",
+    "d": [
+      "your promise is sure",
+      "your throne shall endure",
+      "your counsel shall stand"
+    ]
+  },
+  {
+    "b": "2 Samuel",
+    "r": "2 Samuel 22:3",
+    "t": 2,
+    "p": "The God of my strength,",
+    "a": "in whom I will trust",
+    "s": "; My shield and the horn of my salvation, My stronghold and my refuge; My Savior, You save me from violence.",
+    "d": [
+      "in him will I trust",
+      "my soul shall rejoice",
+      "my hope shall endure"
+    ]
+  },
+  {
+    "b": "2 Samuel",
+    "r": "2 Samuel 22:29",
+    "t": 3,
+    "p": "\"For You are my lamp, O LORD;",
+    "a": "The LORD shall enlighten my darkness",
+    "s": ".",
+    "d": [
+      "the LORD will lighten my darkness",
+      "his truth shall be my shield",
+      "the Almighty will preserve my soul"
+    ]
+  },
+  {
+    "b": "2 Samuel",
+    "r": "2 Samuel 22:36",
+    "t": 2,
+    "p": "\"You have also given me the shield of Your salvation;",
+    "a": "Your gentleness has made me great",
+    "s": ".",
+    "d": [
+      "your tender mercy has preserved me",
+      "your holy arm has given the victory",
+      "your righteousness is my high tower"
+    ]
+  },
+  {
+    "b": "2 Samuel",
+    "r": "2 Samuel 22:47",
+    "t": 2,
+    "p": "",
+    "a": "\"The LORD lives! Blessed be my Rock! Let",
+    "s": "God be exalted, The Rock of my salvation!",
+    "d": [
+      "Great is the glory of the God of Jacob",
+      "The LORD lives; and blessed be my rock",
+      "Praise you the name of the holy Redeemer"
+    ]
+  },
+  {
+    "b": "2 Samuel",
+    "r": "2 Samuel 23:5",
+    "t": 3,
+    "p": "\"Although my house is not so with God, Yet He has made with me",
+    "a": "an everlasting covenant",
+    "s": ", Ordered in all things and secure. For this is all my salvation and all my desire; Will He not make it increase?",
+    "d": [
+      "a promise of peace",
+      "a righteous kingdom",
+      "a house of mercy"
+    ]
+  },
+  {
+    "b": "2 Samuel",
+    "r": "2 Samuel 24:14",
+    "t": 3,
+    "p": "And David said to Gad, \"I am in great distress. Please let us fall into the hand of the LORD, for",
+    "a": "His mercies are great",
+    "s": "; but do not let me fall into the hand of man.\"",
+    "d": [
+      "his power is glorious",
+      "his counsel is righteous",
+      "his truth is unchangeable"
+    ]
+  },
+  {
+    "b": "1 Kings",
+    "r": "1 Kings 2:3",
+    "t": 3,
+    "p": "And keep the charge of the LORD your God: to",
+    "a": "walk in His ways, to keep His statutes",
+    "s": ", His commandments, His judgments, and His testimonies, as it is written in the Law of Moses, that you may prosper in all that you do and wherever you turn;",
+    "d": [
+      "offer pure sacrifices upon his altar",
+      "praise the beauty of his sanctuary",
+      "cleave to the covenant of our God"
+    ]
+  },
+  {
+    "b": "1 Kings",
+    "r": "1 Kings 8:60",
+    "t": 2,
+    "p": "that all the peoples of the earth may know that the LORD is God;",
+    "a": "there is no other",
+    "s": ".",
+    "d": [
+      "that there is none else",
+      "that he is holy",
+      "that his word is true"
+    ]
+  },
+  {
+    "b": "1 Kings",
+    "r": "1 Kings 8:61",
+    "t": 3,
+    "p": "Let your heart therefore be",
+    "a": "loyal to the LORD our God",
+    "s": ", to walk in His statutes and keep His commandments, as at this day.\"",
+    "d": [
+      "perfect with the LORD our God",
+      "established in all his truth",
+      "cleansed from every secret sin"
+    ]
+  },
+  {
+    "b": "1 Kings",
+    "r": "1 Kings 17:24",
+    "t": 2,
+    "p": "Then the woman said to Elijah, \"Now by this I know that you are a man of God, and that the word of the LORD",
+    "a": "in your mouth is the truth",
+    "s": ".\"",
+    "d": [
+      "is confirmed with signs",
+      "brings life from above",
+      "has delivered my child"
+    ]
+  },
+  {
+    "b": "1 Kings",
+    "r": "1 Kings 18:37",
+    "t": 2,
+    "p": "",
+    "a": "Hear me, O LORD, hear me",
+    "s": ", that this people may know that You are the LORD God, and that You have turned their hearts back to You again.\"",
+    "d": [
+      "Save now, O LORD, save",
+      "Look down from heaven, O God",
+      "Send down your fire, O King"
+    ]
+  },
+  {
+    "b": "1 Kings",
+    "r": "1 Kings 18:39",
+    "t": 2,
+    "p": "Now when all the people saw it, they fell on their faces; and they said,",
+    "a": "\"The LORD, He is God",
+    "s": "! The LORD, He is God!\"",
+    "d": [
+      "Great is the God of heaven",
+      "The God of Elijah reigns",
+      "The holy One of Israel lives"
+    ]
+  },
+  {
+    "b": "1 Kings",
+    "r": "1 Kings 19:18",
+    "t": 3,
+    "p": "Yet I have reserved",
+    "a": "seven thousand in Israel",
+    "s": ", all whose knees have not bowed to Baal, and every mouth that has not kissed him.\"",
+    "d": [
+      "a faithful holy remnant",
+      "a multitude of righteous men",
+      "ten thousand chosen souls"
+    ]
+  },
+  {
+    "b": "2 Kings",
+    "r": "2 Kings 2:14",
+    "t": 3,
+    "p": "Then he took the mantle of Elijah that had fallen from him, and struck the water, and said,",
+    "a": "\"Where is the LORD God of Elijah",
+    "s": "?\" And when he also had struck the water, it was divided this way and that; and Elisha crossed over.",
+    "d": [
+      "The God of our fathers has heard",
+      "Show now your mighty power, O Lord",
+      "\"Where is the MASTER God of Elijah"
+    ]
+  },
+  {
+    "b": "2 Kings",
+    "r": "2 Kings 17:39",
+    "t": 3,
+    "p": "But",
+    "a": "the LORD your God you shall fear",
+    "s": "; and He will deliver you from the hand of all your enemies.\"",
+    "d": [
+      "the commandments of Moses you shall do",
+      "his holy temple you shall respect",
+      "to his righteous law you shall cleave"
+    ]
+  },
+  {
+    "b": "2 Kings",
+    "r": "2 Kings 18:5",
+    "t": 2,
+    "p": "",
+    "a": "He trusted in the LORD God of Israel",
+    "s": ", so that after him was none like him among all the kings of Judah, nor who were before him.",
+    "d": [
+      "He walked in all the ways of David",
+      "He kept the statutes of the temple",
+      "He sought the face of the Almighty"
+    ]
+  },
+  {
+    "b": "2 Kings",
+    "r": "2 Kings 19:14",
+    "t": 3,
+    "p": "And Hezekiah received the letter from the hand of the messengers, and read it; and Hezekiah went up to the house of the LORD, and",
+    "a": "spread it before the LORD",
+    "s": ".",
+    "d": [
+      "cried aloud for heavenly help",
+      "bowed himself upon his face",
+      "poured out his soul in prayer"
+    ]
+  },
+  {
+    "b": "2 Kings",
+    "r": "2 Kings 20:3",
+    "t": 3,
+    "p": "\"Remember now, O LORD, I pray, how I have walked before You",
+    "a": "in truth and with a loyal heart",
+    "s": ", and have done what was good in Your sight.\" And Hezekiah wept bitterly.",
+    "d": [
+      "in truth and with a perfect heart",
+      "in righteous fear and holy praise",
+      "with pure hands and clean thoughts"
+    ]
+  },
+  {
+    "b": "2 Kings",
+    "r": "2 Kings 20:5",
+    "t": 3,
+    "p": "\"Return and tell Hezekiah the leader of My people, 'Thus says the LORD, the God of David your father: \"I have heard your prayer,",
+    "a": "I have seen your tears",
+    "s": "; surely I will heal you. On the third day you shall go up to the house of the LORD.",
+    "d": [
+      "I have remembered my promise",
+      "I have forgiven your transgression",
+      "I will deliver your city"
+    ]
+  },
+  {
+    "b": "2 Kings",
+    "r": "2 Kings 23:25",
+    "t": 3,
+    "p": "Now before him there was no king like him, who turned to the LORD",
+    "a": "with all his heart",
+    "s": ", with all his soul, and with all his might, according to all the Law of Moses; nor after him did any arise like him.",
+    "d": [
+      "with pure uprightness",
+      "in great humility",
+      "with holy rejoicing"
+    ]
+  },
+  {
+    "b": "1 Chronicles",
+    "r": "1 Chronicles 16:8",
+    "t": 2,
+    "p": "Oh, give thanks to the LORD!",
+    "a": "Call upon His name",
+    "s": "; Make known His deeds among the peoples!",
+    "d": [
+      "praise his holy name",
+      "rejoice in his presence",
+      "sing to his honor"
+    ]
+  },
+  {
+    "b": "1 Chronicles",
+    "r": "1 Chronicles 16:10",
+    "t": 2,
+    "p": "",
+    "a": "Glory in His holy name",
+    "s": "; Let the hearts of those rejoice who seek the LORD!",
+    "d": [
+      "Rejoice in the God of our salvation",
+      "Give thanks for all his wondrous works",
+      "Glory you in his holy name"
+    ]
+  },
+  {
+    "b": "1 Chronicles",
+    "r": "1 Chronicles 16:31",
+    "t": 2,
+    "p": "Let the heavens rejoice, and let the earth be glad; And let them say among the nations,",
+    "a": "\"The LORD reigns",
+    "s": ".\"",
+    "d": [
+      "God is righteous",
+      "The King comes",
+      "Our Lord lives"
+    ]
+  },
+  {
+    "b": "1 Chronicles",
+    "r": "1 Chronicles 17:20",
+    "t": 2,
+    "p": "O LORD,",
+    "a": "there is none like You",
+    "s": ", nor is there any God besides You, according to all that we have heard with our ears.",
+    "d": [
+      "your majesty is glorious",
+      "your throne shall endure",
+      "your judgments are holy"
+    ]
+  },
+  {
+    "b": "1 Chronicles",
+    "r": "1 Chronicles 22:19",
+    "t": 3,
+    "p": "Now",
+    "a": "set your heart and your soul",
+    "s": "to seek the LORD your God. Therefore arise and build the sanctuary of the LORD God, to bring the ark of the covenant of the LORD and the holy articles of God into the house that is to be built for the name of the LORD.\"",
+    "d": [
+      "walk uprightly in the holy way",
+      "offer pure incense before the altar",
+      "prepare your minds for his service"
+    ]
+  },
+  {
+    "b": "1 Chronicles",
+    "r": "1 Chronicles 28:20",
+    "t": 2,
+    "p": "And David said to his son Solomon,",
+    "a": "\"Be strong and of good courage",
+    "s": ", and do it; do not fear nor be dismayed, for the LORD God—my God—will be with you. He will not leave you nor forsake you, until you have finished all the work for the service of the house of the LORD.",
+    "d": [
+      "Stand fast in the righteous faith",
+      "Trust in the God of our fathers",
+      "Fear not the face of any king"
+    ]
+  },
+  {
+    "b": "1 Chronicles",
+    "r": "1 Chronicles 29:12",
+    "t": 3,
+    "p": "",
+    "a": "Both riches and honor come from You",
+    "s": ", And You reign over all. In Your hand is power and might; In Your hand it is to make great And to give strength to all.",
+    "d": [
+      "Great wisdom and power belong to God",
+      "Both riches and honor come of you",
+      "Salvation and peace are in your hand"
+    ]
+  },
+  {
+    "b": "2 Chronicles",
+    "r": "2 Chronicles 1:12",
+    "t": 3,
+    "p": "",
+    "a": "wisdom and knowledge are granted to you",
+    "s": "; and I will give you riches and wealth and honor, such as none of the kings have had who were before you, nor shall any after you have the like.\"",
+    "d": [
+      "Riches and honor shall follow your throne",
+      "Great peace and victory are in your hand",
+      "Length of days and health are your portion"
+    ]
+  },
+  {
+    "b": "2 Chronicles",
+    "r": "2 Chronicles 19:7",
+    "t": 3,
+    "p": "Now therefore, let",
+    "a": "the fear of the LORD",
+    "s": "be upon you; take care and do it, for there is no iniquity with the LORD our God, no partiality, nor taking of bribes.\"",
+    "d": [
+      "the wisdom of God",
+      "the holy commandment",
+      "the covenant of peace"
+    ]
+  },
+  {
+    "b": "2 Chronicles",
+    "r": "2 Chronicles 20:6",
+    "t": 3,
+    "p": "and said: \"O LORD God of our fathers,",
+    "a": "are You not God in heaven",
+    "s": ", and do You not rule over all the kingdoms of the nations, and in Your hand is there not power and might, so that no one is able to withstand You?",
+    "d": [
+      "is not your kingdom exalted?",
+      "do you not judge the earth?",
+      "have you not chosen Israel?"
+    ]
+  },
+  {
+    "b": "2 Chronicles",
+    "r": "2 Chronicles 20:17",
+    "t": 2,
+    "p": "You will not need to fight in this battle. Position yourselves, stand still and",
+    "a": "see the salvation of the LORD",
+    "s": ", who is with you, O Judah and Jerusalem!' Do not fear or be dismayed; tomorrow go out against them, for the LORD is with you.\"",
+    "d": [
+      "behold the glory of his arm",
+      "know the peace of his presence",
+      "praise the majesty of his grace"
+    ]
+  },
+  {
+    "b": "2 Chronicles",
+    "r": "2 Chronicles 20:20",
+    "t": 2,
+    "p": "So they rose early in the morning and went out into the Wilderness of Tekoa; and as they went out, Jehoshaphat stood and said, \"Hear me, O Judah and you inhabitants of Jerusalem:",
+    "a": "Believe in the LORD your God",
+    "s": ", and you shall be established; believe His prophets, and you shall prosper.\"",
+    "d": [
+      "Stand fast in holy faith",
+      "Praise the beauty of holiness",
+      "Fear not the mighty host"
+    ]
+  },
+  {
+    "b": "2 Chronicles",
+    "r": "2 Chronicles 20:21",
+    "t": 2,
+    "p": "And when he had consulted with the people, he appointed those who should sing to the LORD, and who should",
+    "a": "praise the beauty of holiness",
+    "s": ", as they went out before the army and were saying: \"Praise the LORD, For His mercy endures forever.\"",
+    "d": [
+      "magnify the King of heaven",
+      "exalt his glorious holy name",
+      "sing to the Lord with joy"
+    ]
+  },
+  {
+    "b": "2 Chronicles",
+    "r": "2 Chronicles 30:27",
+    "t": 3,
+    "p": "Then the priests, the Levites, arose and blessed the people, and their voice was heard; and their prayer came up",
+    "a": "to His holy dwelling place",
+    "s": ", to heaven.",
+    "d": [
+      "before the throne of God",
+      "into the temple of glory",
+      "to the court of heaven"
+    ]
+  },
+  {
+    "b": "Ezra",
+    "r": "Ezra 1:5",
+    "t": 3,
+    "p": "Then the heads of the fathers' houses of Judah and Benjamin, and the priests and the Levites, with all",
+    "a": "whose spirits God had moved",
+    "s": ", arose to go up and build the house of the LORD which is in Jerusalem.",
+    "d": [
+      "whose spirit God had raised",
+      "who feared the holy commandment",
+      "who kept the ancient covenant"
+    ]
+  },
+  {
+    "b": "Ezra",
+    "r": "Ezra 6:14",
+    "t": 3,
+    "p": "So the elders of the Jews built, and they prospered",
+    "a": "through the prophesying of Haggai",
+    "s": "the prophet and Zechariah the son of Iddo. And they built and finished it, according to the commandment of the God of Israel, and according to the command of Cyrus, Darius, and Artaxerxes king of Persia.",
+    "d": [
+      "by the commandment of the elders",
+      "with holy rejoicing of the priests",
+      "under the decree of the king"
+    ]
+  },
+  {
+    "b": "Ezra",
+    "r": "Ezra 7:6",
+    "t": 3,
+    "p": "this Ezra came up from Babylon; and he was",
+    "a": "a skilled scribe",
+    "s": "in the Law of Moses, which the LORD God of Israel had given. The king granted him all his request, according to the hand of the LORD his God upon him.",
+    "d": [
+      "a ready scribe",
+      "a faithful priest",
+      "a righteous ruler"
+    ]
+  },
+  {
+    "b": "Ezra",
+    "r": "Ezra 7:27",
+    "t": 3,
+    "p": "",
+    "a": "Blessed be the LORD God of our fathers",
+    "s": ", who has put such a thing as this in the king's heart, to beautify the house of the LORD which is in Jerusalem,",
+    "d": [
+      "Great is the glory of the God of Jacob",
+      "Praise you the name of the holy One",
+      "Give thanks to the King of heaven"
+    ]
+  },
+  {
+    "b": "Ezra",
+    "r": "Ezra 7:28",
+    "t": 3,
+    "p": "and has extended mercy to me before the king and his counselors, and before all the king's mighty princes. So I was encouraged, as",
+    "a": "the hand of the LORD my God",
+    "s": "was upon me; and I gathered leading men of Israel to go up with me.",
+    "d": [
+      "the holy counsel of the elders",
+      "the tender mercy of our King",
+      "the ancient promise of our fathers"
+    ]
+  },
+  {
+    "b": "Ezra",
+    "r": "Ezra 8:21",
+    "t": 3,
+    "p": "Then I proclaimed a fast there at the river of Ahava, that we might humble ourselves before our God, to seek from Him",
+    "a": "the right way for us",
+    "s": "and our little ones and all our possessions.",
+    "d": [
+      "protection from the enemy",
+      "peace in our borders",
+      "favor before the king"
+    ]
+  },
+  {
+    "b": "Ezra",
+    "r": "Ezra 9:6",
+    "t": 3,
+    "p": "And I said: \"O my God, I am too ashamed and humiliated to lift up my face to You, my God; for",
+    "a": "our iniquities have risen higher than our heads",
+    "s": ", and our guilt has grown up to the heavens.",
+    "d": [
+      "our iniquities are increased over our head",
+      "our secret transgressions are revealed before you",
+      "our unrighteous deeds have provoked your anger"
+    ]
+  },
+  {
+    "b": "Ezra",
+    "r": "Ezra 9:15",
+    "t": 2,
+    "p": "",
+    "a": "O LORD God of Israel, You are righteous",
+    "s": ", for we are left as a remnant, as it is this day. Here we are before You, in our guilt, though no one can stand before You because of this!\"",
+    "d": [
+      "O King of heaven, your name is holy",
+      "Lord of all hosts, you are our shield",
+      "God of our fathers, your mercy endures"
+    ]
+  },
+  {
+    "b": "Nehemiah",
+    "r": "Nehemiah 1:11",
+    "t": 3,
+    "p": "O Lord, I pray, please let Your ear be attentive to the prayer of Your servant, and to the prayer of Your servants who desire to fear Your name; and",
+    "a": "let Your servant prosper this day, I pray",
+    "s": ", and grant him mercy in the sight of this man.\" For I was the king's cupbearer.",
+    "d": [
+      "deliver my people from the hands of heathen",
+      "remember the covenant made with our fathers",
+      "prosper, I pray you, your servant this day"
+    ]
+  },
+  {
+    "b": "Nehemiah",
+    "r": "Nehemiah 2:18",
+    "t": 2,
+    "p": "And I told them of the hand of my God which had been good upon me, and also of the king's words that he had spoken to me. So they said,",
+    "a": "\"Let us rise up and build",
+    "s": ".\" Then they set their hands to this good work.",
+    "d": [
+      "Let us repair the gates",
+      "The God of heaven will help",
+      "Arise and restore the wall"
+    ]
+  },
+  {
+    "b": "Nehemiah",
+    "r": "Nehemiah 4:9",
+    "t": 3,
+    "p": "Nevertheless",
+    "a": "we made our prayer to our God",
+    "s": ", and because of them we set a watch against them day and night.",
+    "d": [
+      "we sought the counsel of the elders",
+      "we sounded the trumpet of warning",
+      "we placed our confidence in the Lord"
+    ]
+  },
+  {
+    "b": "Nehemiah",
+    "r": "Nehemiah 4:20",
+    "t": 2,
+    "p": "Wherever you hear the sound of the trumpet, rally to us there.",
+    "a": "Our God will fight for us",
+    "s": ".\"",
+    "d": [
+      "our God shall fight for us",
+      "his right hand will deliver Israel",
+      "the enemy shall be put to flight"
+    ]
+  },
+  {
+    "b": "Nehemiah",
+    "r": "Nehemiah 8:6",
+    "t": 3,
+    "p": "And Ezra blessed the LORD, the great God. Then all the people answered,",
+    "a": "\"Amen, Amen!\" while lifting up their hands",
+    "s": ". And they bowed their heads and worshiped the LORD with their faces to the ground.",
+    "d": [
+      "Praise be to the God of our salvation",
+      "Glory and honor to the Almighty forever",
+      "Hallelujah to the King of heaven"
+    ]
+  },
+  {
+    "b": "Nehemiah",
+    "r": "Nehemiah 8:8",
+    "t": 3,
+    "p": "So they read distinctly from the book, in the Law of God;",
+    "a": "and they gave the sense",
+    "s": ", and helped them to understand the reading.",
+    "d": [
+      "distinctly, and gave the sense",
+      "before all the congregation of Israel",
+      "explaining the statutes with care"
+    ]
+  },
+  {
+    "b": "Nehemiah",
+    "r": "Nehemiah 12:43",
+    "t": 3,
+    "p": "Also that day they offered great sacrifices, and rejoiced, for God had made them rejoice",
+    "a": "with great joy",
+    "s": "; the women and the children also rejoiced, so that the joy of Jerusalem was heard afar off.",
+    "d": [
+      "in holy peace",
+      "with loud praise",
+      "before the altar"
+    ]
+  },
+  {
+    "b": "Nehemiah",
+    "r": "Nehemiah 13:31",
+    "t": 3,
+    "p": "and to bringing the wood offering and the firstfruits at appointed times.",
+    "a": "Remember me, O my God, for good",
+    "s": "!",
+    "d": [
+      "Preserve my soul in the day of evil",
+      "Establish the work of our hands, O God",
+      "Pardon the sins of your servant, O Lord"
+    ]
+  },
+  {
+    "b": "Esther",
+    "r": "Esther 2:15",
+    "t": 3,
+    "p": "Now when the turn came for Esther the daughter of Abihail the uncle of Mordecai, who had taken her as his daughter, to go in to the king, she requested nothing but what Hegai the king's eunuch, the custodian of the women, advised. And Esther",
+    "a": "obtained favor in the sight of all",
+    "s": "who saw her.",
+    "d": [
+      "found great grace before the king",
+      "walked in beauty and quiet peace",
+      "excelled in wisdom and understanding"
+    ]
+  },
+  {
+    "b": "Esther",
+    "r": "Esther 4:13",
+    "t": 3,
+    "p": "And Mordecai told them to answer Esther: \"Do not",
+    "a": "think in your heart that you will escape",
+    "s": "in the king's palace any more than all the other Jews.",
+    "d": [
+      "Remember the great covenant of our fathers",
+      "Fear not the fury of the king's decree",
+      "Think not with yourself that you shall escape"
+    ]
+  },
+  {
+    "b": "Esther",
+    "r": "Esther 5:8",
+    "t": 3,
+    "p": "If I have found favor in the sight of the king, and if it pleases the king",
+    "a": "to grant my petition",
+    "s": "and fulfill my request, then let the king and Haman come to the banquet which I will prepare for them, and tomorrow I will do as the king has said.\"",
+    "d": [
+      "to hear my prayer",
+      "to spare my people",
+      "to accept my offering"
+    ]
+  },
+  {
+    "b": "Esther",
+    "r": "Esther 6:3",
+    "t": 3,
+    "p": "Then the king said, \"What honor or dignity has been bestowed on Mordecai for this?\" And the king's servants who attended him said,",
+    "a": "\"Nothing has been done for him",
+    "s": ".\"",
+    "d": [
+      "There is nothing done for him",
+      "A crown was placed on his head",
+      "The king has rewarded his deed"
+    ]
+  },
+  {
+    "b": "Esther",
+    "r": "Esther 6:13",
+    "t": 3,
+    "p": "When Haman told his wife Zeresh and all his friends everything that had happened to him, his wise men and his wife Zeresh said to him, \"If Mordecai, before whom you have begun to fall, is of Jewish descent, you will not prevail against him but",
+    "a": "will surely fall before him",
+    "s": ".\"",
+    "d": [
+      "must bow down to the earth",
+      "shall surely fall before him",
+      "shall not prevail in battle"
+    ]
+  },
+  {
+    "b": "Esther",
+    "r": "Esther 7:3",
+    "t": 3,
+    "p": "Then Queen Esther answered and said, \"If I have found favor in your sight, O king, and if it pleases the king, let my life be given me",
+    "a": "at my petition",
+    "s": ", and my people at my request.",
+    "d": [
+      "for my sake",
+      "before the king",
+      "in your presence"
+    ]
+  },
+  {
+    "b": "Esther",
+    "r": "Esther 8:17",
+    "t": 3,
+    "p": "And in every province and city, wherever the king's command and decree came,",
+    "a": "the Jews had joy and gladness",
+    "s": ", a feast and a holiday. Then many of the people of the land became Jews, because fear of the Jews fell upon them.",
+    "d": [
+      "the city of Shushan rejoiced",
+      "there was great thanksgiving to God",
+      "the decree of death was broken"
+    ]
+  },
+  {
+    "b": "Esther",
+    "r": "Esther 10:3",
+    "t": 3,
+    "p": "For Mordecai the Jew was second to King Ahasuerus, and was great among the Jews and well received by the multitude of his brethren,",
+    "a": "seeking the good of his people",
+    "s": "and speaking peace to all his countrymen.",
+    "d": [
+      "seeking the wealth of his people",
+      "ruling with justice and peace",
+      "honoured above all the princes"
+    ]
+  },
+  {
+    "b": "Job",
+    "r": "Job 5:9",
+    "t": 3,
+    "p": "",
+    "a": "Who does great things, and unsearchable",
+    "s": ", Marvelous things without number.",
+    "d": [
+      "Whose kingdom is from everlasting to everlasting",
+      "Who heals the broken in heart with mercy",
+      "Who judges the righteous with true equity"
+    ]
+  },
+  {
+    "b": "Job",
+    "r": "Job 12:13",
+    "t": 3,
+    "p": "",
+    "a": "\"With Him are wisdom and strength",
+    "s": ", He has counsel and understanding.",
+    "d": [
+      "Before his throne is light unapproachable",
+      "To his name belongs all thanksgiving",
+      "\"With Him are knowledge and strength"
+    ]
+  },
+  {
+    "b": "Job",
+    "r": "Job 22:21",
+    "t": 2,
+    "p": "",
+    "a": "\"Now acquaint yourself with Him",
+    "s": ", and be at peace; Thereby good will come to you.",
+    "d": [
+      "Walk uprightly before the LORD",
+      "Offer sacrifices of righteousness",
+      "Keep the holy commandments"
+    ]
+  },
+  {
+    "b": "Job",
+    "r": "Job 23:12",
+    "t": 3,
+    "p": "I have not departed from the commandment of His lips;",
+    "a": "I have treasured the words of His mouth",
+    "s": "More than my necessary food.",
+    "d": [
+      "I have esteemed the words of his mouth",
+      "I have remembered his holy covenant",
+      "my soul has longed for his salvation"
+    ]
+  },
+  {
+    "b": "Job",
+    "r": "Job 33:4",
+    "t": 2,
+    "p": "",
+    "a": "The Spirit of God has made me",
+    "s": ", And the breath of the Almighty gives me life.",
+    "d": [
+      "The word of the Lord created the heavens",
+      "His tender mercies are over all his works",
+      "The hand of the Almighty formed the earth"
+    ]
+  },
+  {
+    "b": "Job",
+    "r": "Job 34:21",
+    "t": 3,
+    "p": "\"For",
+    "a": "His eyes are on the ways of man",
+    "s": ", And He sees all his steps.",
+    "d": [
+      "his eyes are upon the ways of man",
+      "his righteous throne is established on high",
+      "his holy counsel shall stand forever"
+    ]
+  },
+  {
+    "b": "Job",
+    "r": "Job 37:5",
+    "t": 3,
+    "p": "",
+    "a": "God thunders marvelously with His voice",
+    "s": "; He does great things which we cannot comprehend.",
+    "d": [
+      "The LORD reigns in beauty and great power",
+      "His holy light shines over all the earth",
+      "He makes the clouds his chariot in heaven"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 5:3",
+    "t": 2,
+    "p": "",
+    "a": "My voice You shall hear in the morning",
+    "s": ", O LORD; In the morning I will direct it to You, And I will look up.",
+    "d": [
+      "My soul shall make her boast in the LORD",
+      "My voice shall you hear in the morning",
+      "I will sing praises to the God of Jacob"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 16:8",
+    "t": 2,
+    "p": "",
+    "a": "I have set the LORD always before me",
+    "s": "; Because He is at my right hand I shall not be moved.",
+    "d": [
+      "In his holy word have I placed my confidence",
+      "My soul does wait for the God of my salvation",
+      "I will sing praises to the Rock of my refuge"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 19:7",
+    "t": 2,
+    "p": "",
+    "a": "The law of the LORD is perfect",
+    "s": ", converting the soul; The testimony of the LORD is sure, making wise the simple;",
+    "d": [
+      "The word of our God shall stand",
+      "The holy covenant is unchangeable",
+      "The path of righteousness is peace"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 20:7",
+    "t": 2,
+    "p": "Some trust in chariots, and some in horses; But",
+    "a": "we will remember the name of the LORD",
+    "s": "our God.",
+    "d": [
+      "our trust shall be in the God of Jacob",
+      "his righteous arm shall give the victory",
+      "our soul shall rejoice in his holy power"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 26:8",
+    "t": 3,
+    "p": "LORD, I have loved",
+    "a": "the habitation of Your house",
+    "s": ", And the place where Your glory dwells.",
+    "d": [
+      "the beauty of your temple",
+      "the courts of your praise",
+      "the secret of your presence"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 28:7",
+    "t": 2,
+    "p": "",
+    "a": "The LORD is my strength and my shield",
+    "s": "; My heart trusted in Him, and I am helped; Therefore my heart greatly rejoices, And with my song I will praise Him.",
+    "d": [
+      "The God of Jacob is our high refuge",
+      "The Lord of hosts is with his people",
+      "His holy arm has worked our salvation"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 31:24",
+    "t": 2,
+    "p": "",
+    "a": "Be of good courage",
+    "s": ", And He shall strengthen your heart, All you who hope in the LORD.",
+    "d": [
+      "Stand fast in faith",
+      "Fear not the enemy",
+      "Trust in his mercy"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 32:7",
+    "t": 2,
+    "p": "",
+    "a": "You are my hiding place",
+    "s": "; You shall preserve me from trouble; You shall surround me with songs of deliverance. Selah",
+    "d": [
+      "The LORD is my fortress",
+      "God is our rock of hope",
+      "He is my strong salvation"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 33:4",
+    "t": 2,
+    "p": "For",
+    "a": "the word of the LORD is right",
+    "s": ", And all His work is done in truth.",
+    "d": [
+      "the judgments of God are true",
+      "his holy throne is exalted",
+      "the truth of the LORD is right"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 33:12",
+    "t": 2,
+    "p": "Blessed is the nation",
+    "a": "whose God is the LORD",
+    "s": ", The people He has chosen as His own inheritance.",
+    "d": [
+      "that fears his name",
+      "that keeps his law",
+      "that walks in truth"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 34:3",
+    "t": 2,
+    "p": "",
+    "a": "Oh, magnify the LORD with me",
+    "s": ", And let us exalt His name together.",
+    "d": [
+      "O magnify the LORD with me",
+      "Sing praises to the living God",
+      "Rejoice in the Lord of hosts"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 36:5",
+    "t": 3,
+    "p": "",
+    "a": "Your mercy, O LORD, is in the heavens",
+    "s": "; Your faithfulness reaches to the clouds.",
+    "d": [
+      "Your righteousness shines as the morning",
+      "Your holy throne is established forever",
+      "Your truth is declared among the nations"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 62:5",
+    "t": 2,
+    "p": "My soul, wait silently for God alone, For",
+    "a": "my expectation is from Him",
+    "s": ".",
+    "d": [
+      "his mercy shall preserve me",
+      "my soul shall not be moved",
+      "in his word do I hope"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 63:1",
+    "t": 2,
+    "p": "O God, You are my God;",
+    "a": "Early will I seek You",
+    "s": "; My soul thirsts for You; My flesh longs for You In a dry and thirsty land Where there is no water.",
+    "d": [
+      "in faith will I call",
+      "my tongue shall praise you",
+      "my soul shall bless you"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 84:1",
+    "t": 2,
+    "p": "",
+    "a": "How lovely is Your tabernacle",
+    "s": ", O LORD of hosts!",
+    "d": [
+      "Blessed is the place of prayer",
+      "Great is the house of praise",
+      "How amiable are your tabernacles"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 92:1",
+    "t": 2,
+    "p": "It is good to give thanks to the LORD, And",
+    "a": "to sing praises to Your name",
+    "s": ", O Most High;",
+    "d": [
+      "to rejoice in the house of our God",
+      "to declare your lovingkindness in truth",
+      "to worship before your glorious throne"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 95:6",
+    "t": 2,
+    "p": "Oh come,",
+    "a": "let us worship and bow down",
+    "s": "; Let us kneel before the LORD our Maker.",
+    "d": [
+      "let us praise his holy name",
+      "let us enter his sanctuary",
+      "let us rejoice before him"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 96:9",
+    "t": 2,
+    "p": "Oh, worship the LORD",
+    "a": "in the beauty of holiness",
+    "s": "! Tremble before Him, all the earth.",
+    "d": [
+      "with songs of thanksgiving",
+      "before his glorious throne",
+      "in his sacred dwelling"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 100:1",
+    "t": 1,
+    "p": "",
+    "a": "Make a joyful shout to the LORD",
+    "s": ", all you lands!",
+    "d": [
+      "Sing praises to the King of heaven",
+      "Make a joyful noise to the LORD",
+      "Praise you the name of the Almighty"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 103:2",
+    "t": 1,
+    "p": "Bless the LORD, O my soul, And",
+    "a": "forget not all His benefits",
+    "s": ":",
+    "d": [
+      "rejoice in his holy salvation",
+      "trust in his tender compassions",
+      "proclaim his truth to the people"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 119:18",
+    "t": 2,
+    "p": "",
+    "a": "Open my eyes",
+    "s": ", that I may see Wondrous things from Your law.",
+    "d": [
+      "Open you mine eyes",
+      "Incline you my heart",
+      "Enlighten you my soul"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 121:2",
+    "t": 2,
+    "p": "",
+    "a": "My help comes from the LORD",
+    "s": ", Who made heaven and earth.",
+    "d": [
+      "My hope is in the living God",
+      "My soul trusts in the Almighty",
+      "His right hand has delivered me"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 145:3",
+    "t": 2,
+    "p": "",
+    "a": "Great is the LORD",
+    "s": ", and greatly to be praised; And His greatness is unsearchable.",
+    "d": [
+      "Holy is our God",
+      "The King of heaven",
+      "The Lord of all"
+    ]
+  },
+  {
+    "b": "Psalms",
+    "r": "Psalm 145:8",
+    "t": 2,
+    "p": "The LORD is gracious and",
+    "a": "full of compassion, Slow to anger",
+    "s": "and great in mercy.",
+    "d": [
+      "glorious in holiness; fearful in praises",
+      "righteous in judgment; holy in truth",
+      "our rock of salvation; our strong tower"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 1:7",
+    "t": 2,
+    "p": "",
+    "a": "The fear of the LORD",
+    "s": "is the beginning of knowledge, But fools despise wisdom and instruction.",
+    "d": [
+      "The wisdom of God",
+      "The holy statute",
+      "The way of truth"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 3:6",
+    "t": 1,
+    "p": "In all your ways acknowledge Him, And",
+    "a": "He shall direct your paths",
+    "s": ".",
+    "d": [
+      "he shall make you to prosper",
+      "your soul shall dwell at ease",
+      "peace shall be in your borders"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 3:9",
+    "t": 2,
+    "p": "",
+    "a": "Honor the LORD with your possessions",
+    "s": ", And with the firstfruits of all your increase;",
+    "d": [
+      "Keep the commandments of life with joy",
+      "Honor the LORD with your substance",
+      "Trust in the Almighty with all your heart"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 4:7",
+    "t": 2,
+    "p": "",
+    "a": "Wisdom is the principal thing",
+    "s": "; Therefore get wisdom. And in all your getting, get understanding.",
+    "d": [
+      "The fear of God is true life",
+      "Understanding is a wellspring",
+      "Knowledge is the principal thing"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 4:18",
+    "t": 2,
+    "p": "But the path of the just is",
+    "a": "like the shining sun",
+    "s": ", That shines ever brighter unto the perfect day.",
+    "d": [
+      "as the shining light",
+      "as a watered garden",
+      "like a fruitful tree"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 11:2",
+    "t": 3,
+    "p": "When pride comes, then comes shame; But",
+    "a": "with the humble is wisdom",
+    "s": ".",
+    "d": [
+      "with the lowly is wisdom",
+      "with the upright is peace",
+      "in the righteous is life"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 12:25",
+    "t": 3,
+    "p": "Anxiety in the heart of man causes depression, But",
+    "a": "a good word makes it glad",
+    "s": ".",
+    "d": [
+      "the counsel of peace is sweet",
+      "a joyful sound brings healing",
+      "a great word makes it glad"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 14:34",
+    "t": 2,
+    "p": "",
+    "a": "Righteousness exalts a nation",
+    "s": ", But sin is a reproach to any people.",
+    "d": [
+      "Mercy and truth preserve kings",
+      "Wisdom establishes the throne",
+      "Holiness exalts a nation"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 15:13",
+    "t": 3,
+    "p": "",
+    "a": "A merry heart makes a cheerful countenance",
+    "s": ", But by sorrow of the heart the spirit is broken.",
+    "d": [
+      "A wise son hears his father's instruction",
+      "The soft tongue breaks the bone of pride",
+      "A faithful witness delivers humble souls"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 15:23",
+    "t": 3,
+    "p": "A man has joy by the answer of his mouth, And",
+    "a": "a word spoken in due season",
+    "s": ", how good it is!",
+    "d": [
+      "the prayer of an upright heart",
+      "a faithful friend in trouble",
+      "the rebuke of a wise man"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 16:7",
+    "t": 2,
+    "p": "When a man's ways",
+    "a": "please the LORD",
+    "s": ", He makes even his enemies to be at peace with him.",
+    "d": [
+      "keep his covenant",
+      "walk in righteousness",
+      "fear his judgment"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 16:16",
+    "t": 3,
+    "p": "How much better",
+    "a": "to get wisdom than gold",
+    "s": "! And to get understanding is to be chosen rather than silver.",
+    "d": [
+      "to choose virtue than pearls!",
+      "to love peace than great power!",
+      "to seek truth than rubies!"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 22:1",
+    "t": 2,
+    "p": "",
+    "a": "A good name",
+    "s": "is to be chosen rather than great riches, Loving favor rather than silver and gold.",
+    "d": [
+      "True wisdom",
+      "Holy peace",
+      "Pure honor"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 25:11",
+    "t": 3,
+    "p": "A word fitly spoken is like",
+    "a": "apples of gold In settings of silver",
+    "s": ".",
+    "d": [
+      "apples of gold in pictures of silver",
+      "crowns of glory upon the head of kings",
+      "precious jewels in a golden vessel"
+    ]
+  },
+  {
+    "b": "Proverbs",
+    "r": "Proverbs 31:30",
+    "t": 2,
+    "p": "Charm is deceitful and beauty is passing, But",
+    "a": "a woman who fears the LORD",
+    "s": ", she shall be praised.",
+    "d": [
+      "the righteous that walk in truth",
+      "a prudent servant of the house",
+      "the humble that keep his word"
+    ]
+  },
+  {
+    "b": "Ecclesiastes",
+    "r": "Ecclesiastes 1:9",
+    "t": 3,
+    "p": "That which has been is what will be, That which is done is what will be done, And",
+    "a": "there is nothing new under the sun",
+    "s": ".",
+    "d": [
+      "there is no new thing under the sun",
+      "all the days of man are vanity and sorrow",
+      "the eye of man is never satisfied with seeing"
+    ]
+  },
+  {
+    "b": "Ecclesiastes",
+    "r": "Ecclesiastes 3:14",
+    "t": 3,
+    "p": "I know that",
+    "a": "whatever God does, It shall be forever",
+    "s": ". Nothing can be added to it, And nothing taken from it. God does it, that men should fear before Him.",
+    "d": [
+      "the counsel of the Almighty shall never fail",
+      "his righteous works declare his eternal power",
+      "the throne of his majesty endures forever"
+    ]
+  },
+  {
+    "b": "Ecclesiastes",
+    "r": "Ecclesiastes 4:9",
+    "t": 2,
+    "p": "",
+    "a": "Two are better than one",
+    "s": ", Because they have a good reward for their labor.",
+    "d": [
+      "Wisdom is better than strength",
+      "Peace is better than riches",
+      "Patience is better than pride"
+    ]
+  },
+  {
+    "b": "Ecclesiastes",
+    "r": "Ecclesiastes 5:2",
+    "t": 2,
+    "p": "Do not be rash with your mouth, And let not your heart utter anything hastily before God. For",
+    "a": "God is in heaven, and you on earth",
+    "s": "; Therefore let your words be few.",
+    "d": [
+      "The LORD is holy, and his counsel is deep",
+      "His eyes behold the children of all men",
+      "God is in heaven, and you upon earth"
+    ]
+  },
+  {
+    "b": "Ecclesiastes",
+    "r": "Ecclesiastes 7:1",
+    "t": 2,
+    "p": "",
+    "a": "A good name is better than precious ointment",
+    "s": ", And the day of death than the day of one's birth;",
+    "d": [
+      "A quiet spirit is better than great possessions",
+      "Wisdom is more profitable than houses and land",
+      "The rebuke of the wise is better than songs"
+    ]
+  },
+  {
+    "b": "Ecclesiastes",
+    "r": "Ecclesiastes 7:8",
+    "t": 3,
+    "p": "The end of a thing is better than its beginning;",
+    "a": "The patient in spirit",
+    "s": "is better than the proud in spirit.",
+    "d": [
+      "the humble in heart",
+      "the prudent in soul",
+      "the upright in way"
+    ]
+  },
+  {
+    "b": "Ecclesiastes",
+    "r": "Ecclesiastes 9:11",
+    "t": 3,
+    "p": "I returned and saw under the sun that-",
+    "a": "The race is not to the swift",
+    "s": ", Nor the battle to the strong, Nor bread to the wise, Nor riches to men of understanding, Nor favor to men of skill; But time and chance happen to them all.",
+    "d": [
+      "the kingdom is not to the proud",
+      "the riches are not to the cruel",
+      "the crown is not to the mighty"
+    ]
+  },
+  {
+    "b": "Ecclesiastes",
+    "r": "Ecclesiastes 12:7",
+    "t": 3,
+    "p": "Then the dust will return to the earth as it was, And",
+    "a": "the spirit will return to God",
+    "s": "who gave it.",
+    "d": [
+      "the soul shall dwell in peace",
+      "the righteous shall see his face",
+      "the memory shall never be moved"
+    ]
+  },
+  {
+    "b": "Song of Solomon",
+    "r": "Song of Solomon 1:2",
+    "t": 2,
+    "p": "Let him kiss me with the kisses of his mouth- For",
+    "a": "your love is better than wine",
+    "s": ".",
+    "d": [
+      "your name is as sweet incense",
+      "your voice brings gladness",
+      "your grace is better than wine"
+    ]
+  },
+  {
+    "b": "Song of Solomon",
+    "r": "Song of Solomon 1:4",
+    "t": 3,
+    "p": "",
+    "a": "Draw me away! We will run after you",
+    "s": ". The king has brought me into his chambers. We will be glad and rejoice in you. We will remember your love more than wine. Rightly do they love you.",
+    "d": [
+      "Lead me in the path of righteousness",
+      "Draw me, we will run after you",
+      "Show me the glory of your presence"
+    ]
+  },
+  {
+    "b": "Song of Solomon",
+    "r": "Song of Solomon 2:10",
+    "t": 2,
+    "p": "My beloved spoke, and said to me:",
+    "a": "\"Rise up, my love, my fair one",
+    "s": ", And come away.",
+    "d": [
+      "Awake, O daughter of Zion, and sing",
+      "Rejoice greatly, O bride of the King",
+      "Turn again, my beloved, to me"
+    ]
+  },
+  {
+    "b": "Song of Solomon",
+    "r": "Song of Solomon 2:12",
+    "t": 3,
+    "p": "",
+    "a": "The flowers appear on the earth",
+    "s": "; The time of singing has come, And the voice of the turtledove Is heard in our land.",
+    "d": [
+      "The winter is past and gone",
+      "The joy of heaven shines",
+      "The flowers appear on the world"
+    ]
+  },
+  {
+    "b": "Song of Solomon",
+    "r": "Song of Solomon 2:16",
+    "t": 2,
+    "p": "My beloved is mine, and I am his.",
+    "a": "He feeds his flock among the lilies",
+    "s": ".",
+    "d": [
+      "his love is sweet wine",
+      "his countenance is as Lebanon",
+      "his banner over me is love"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 2:3",
+    "t": 3,
+    "p": "Many people shall come and say, \"Come, and let us go up to the mountain of the LORD, To the house of the God of Jacob; He will teach us His ways, And",
+    "a": "we shall walk in His paths",
+    "s": ".\" For out of Zion shall go forth the law, And the word of the LORD from Jerusalem.",
+    "d": [
+      "we will walk in his paths",
+      "he shall give us peace",
+      "we will keep his statutes"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 6:3",
+    "t": 1,
+    "p": "And one cried to another and said:",
+    "a": "\"Holy, holy, holy is the LORD of hosts",
+    "s": "; The whole earth is full of His glory!\"",
+    "d": [
+      "Great and marvelous are your works, Lord",
+      "Righteous and true are your holy ways",
+      "Praise and honor belong to our God"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 11:1",
+    "t": 3,
+    "p": "There shall come forth",
+    "a": "a Rod from the stem of Jesse",
+    "s": ", And a Branch shall grow out of his roots.",
+    "d": [
+      "a rod out of the stem of Jesse",
+      "a righteous branch from the throne of David",
+      "a mighty savior out of the tribes of Judah"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 12:3",
+    "t": 2,
+    "p": "Therefore with joy you will draw water",
+    "a": "From the wells of salvation",
+    "s": ".",
+    "d": [
+      "out of the wells of salvation",
+      "from the fountain of living waters",
+      "before the altar of his holy presence"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 25:1",
+    "t": 2,
+    "p": "",
+    "a": "O LORD, You are my God",
+    "s": ". I will exalt You, I will praise Your name, For You have done wonderful things; Your counsels of old are faithfulness and truth.",
+    "d": [
+      "Great is the holy King",
+      "You are our strong refuge",
+      "Praise belongs to you"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 32:17",
+    "t": 2,
+    "p": "",
+    "a": "The work of righteousness will be peace",
+    "s": ", And the effect of righteousness, quietness and assurance forever.",
+    "d": [
+      "the work of righteousness shall be peace",
+      "the fear of the Lord is fountain of life",
+      "the fruit of wisdom is everlasting joy"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 33:22",
+    "t": 2,
+    "p": "(For the LORD is our Judge,",
+    "a": "The LORD is our Lawgiver",
+    "s": ", The LORD is our King; He will save us);",
+    "d": [
+      "the King of heaven is our shield",
+      "the Almighty is our strong tower",
+      "the Holy One is our Redeemer"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 35:1",
+    "t": 3,
+    "p": "The wilderness and the wasteland shall be glad for them, And the desert shall rejoice",
+    "a": "and blossom as the rose",
+    "s": ";",
+    "d": [
+      "and bring forth pleasant fruits",
+      "with songs of joyful thanksgiving",
+      "in the beauty of the spring"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 42:3",
+    "t": 3,
+    "p": "",
+    "a": "A bruised reed He will not break",
+    "s": ", And smoking flax He will not quench; He will bring forth justice for truth.",
+    "d": [
+      "A bruised reed shall he not break",
+      "The afflicted soul will he not despise",
+      "The humble heart shall find great mercy"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 44:6",
+    "t": 2,
+    "p": "\"Thus says the LORD, the King of Israel, And his Redeemer, the LORD of hosts: 'I am the First and I am the Last;",
+    "a": "Besides Me there is no God",
+    "s": ".",
+    "d": [
+      "beside me there is no God",
+      "before my throne all shall bow",
+      "my glorious kingdom shall stand"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 53:3",
+    "t": 1,
+    "p": "He is despised and rejected by men,",
+    "a": "A Man of sorrows and acquainted with grief",
+    "s": ". And we hid, as it were, our faces from Him; He was despised, and we did not esteem Him.",
+    "d": [
+      "despised of all the rulers of the people",
+      "bearing our transgressions in his body",
+      "the righteous servant of the living God"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 53:4",
+    "t": 1,
+    "p": "",
+    "a": "Surely He has borne our griefs",
+    "s": "And carried our sorrows; Yet we esteemed Him stricken, Smitten by God, and afflicted.",
+    "d": [
+      "Truly he was wounded for our sins",
+      "He was delivered for our offenses",
+      "By his stripes we are all restored"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 60:1",
+    "t": 1,
+    "p": "",
+    "a": "Arise, shine; For your light has come",
+    "s": "! And the glory of the LORD is risen upon you.",
+    "d": [
+      "Rejoice greatly, O daughter of Jerusalem",
+      "Arise, shine; for your light is come",
+      "Awake, O Zion, and put on your strength"
+    ]
+  },
+  {
+    "b": "Isaiah",
+    "r": "Isaiah 61:10",
+    "t": 2,
+    "p": "I will greatly rejoice in the LORD,",
+    "a": "My soul shall be joyful in my God",
+    "s": "; For He has clothed me with the garments of salvation, He has covered me with the robe of righteousness, As a bridegroom decks himself with ornaments, And as a bride adorns herself with her jewels.",
+    "d": [
+      "my heart shall praise the holy King",
+      "my lips shall speak of all his truth",
+      "my tongue shall magnify his grace"
+    ]
+  },
+  {
+    "b": "Jeremiah",
+    "r": "Jeremiah 1:8",
+    "t": 2,
+    "p": "Do not be afraid of their faces,",
+    "a": "For I am with you to deliver you",
+    "s": ",\" says the LORD.",
+    "d": [
+      "the words of my mouth shall not fail",
+      "my holy spirit shall guide your ways",
+      "my righteous hand will defend your soul"
+    ]
+  },
+  {
+    "b": "Jeremiah",
+    "r": "Jeremiah 9:23",
+    "t": 2,
+    "p": "Thus says the LORD: \"Let not the wise man",
+    "a": "glory in his wisdom",
+    "s": ", Let not the mighty man glory in his might, Nor let the rich man glory in his riches;",
+    "d": [
+      "trust in his riches",
+      "boast of his power",
+      "rejoice in his honor"
+    ]
+  },
+  {
+    "b": "Jeremiah",
+    "r": "Jeremiah 10:10",
+    "t": 2,
+    "p": "But",
+    "a": "the LORD is the true God",
+    "s": "; He is the living God and the everlasting King. At His wrath the earth will tremble, And the nations will not be able to endure His indignation.",
+    "d": [
+      "the Almighty is our King",
+      "his holy name is exalted",
+      "the God of heaven reigns"
+    ]
+  },
+  {
+    "b": "Jeremiah",
+    "r": "Jeremiah 10:12",
+    "t": 3,
+    "p": "",
+    "a": "He has made the earth by His power",
+    "s": ", He has established the world by His wisdom, And has stretched out the heavens at His discretion.",
+    "d": [
+      "He created all nations for his praise",
+      "He established the world in righteousness",
+      "He rules the heavens in his majesty"
+    ]
+  },
+  {
+    "b": "Jeremiah",
+    "r": "Jeremiah 17:8",
+    "t": 3,
+    "p": "For he shall be",
+    "a": "like a tree planted by the waters",
+    "s": ", Which spreads out its roots by the river, And will not fear when heat comes; But its leaf will be green, And will not be anxious in the year of drought, Nor will cease from yielding fruit.",
+    "d": [
+      "as a tree planted by the waters",
+      "like a green olive tree of God",
+      "as a cedar in the mount of Lebanon"
+    ]
+  },
+  {
+    "b": "Jeremiah",
+    "r": "Jeremiah 23:23",
+    "t": 3,
+    "p": "\"Am",
+    "a": "I a God near at hand",
+    "s": ",\" says the LORD, \"And not a God afar off?",
+    "d": [
+      "Am I a God at hand",
+      "Is not my word like fire",
+      "Can any hide in secret"
+    ]
+  },
+  {
+    "b": "Jeremiah",
+    "r": "Jeremiah 23:24",
+    "t": 2,
+    "p": "Can anyone hide himself in secret places, So I shall not see him?\" says the LORD;",
+    "a": "\"Do I not fill heaven and earth",
+    "s": "?\" says the LORD.",
+    "d": [
+      "Do not I fill heaven and earth?",
+      "Is not my word an enduring rock?",
+      "Shall not my counsel stand forever?"
+    ]
+  },
+  {
+    "b": "Jeremiah",
+    "r": "Jeremiah 29:12",
+    "t": 2,
+    "p": "Then you will call upon Me and go and pray to Me,",
+    "a": "and I will listen to you",
+    "s": ".",
+    "d": [
+      "and heal all your backslidings",
+      "and forgive your transgression",
+      "and I will hearken to you"
+    ]
+  },
+  {
+    "b": "Jeremiah",
+    "r": "Jeremiah 29:13",
+    "t": 1,
+    "p": "And you will seek Me and find Me, when you search for Me",
+    "a": "with all your heart",
+    "s": ".",
+    "d": [
+      "in faith and truth",
+      "with joyful songs",
+      "in holy respect"
+    ]
+  },
+  {
+    "b": "Jeremiah",
+    "r": "Jeremiah 32:27",
+    "t": 2,
+    "p": "\"Behold, I am the LORD, the God of all flesh.",
+    "a": "Is there anything too hard for Me",
+    "s": "?",
+    "d": [
+      "is there any thing too hard for me?",
+      "can any man resist my holy decree?",
+      "is not the whole earth in my hand?"
+    ]
+  },
+  {
+    "b": "Lamentations",
+    "r": "Lamentations 3:24",
+    "t": 2,
+    "p": "",
+    "a": "\"The LORD is my portion",
+    "s": ",\" says my soul, \"Therefore I hope in Him!\"",
+    "d": [
+      "God is my salvation",
+      "He is my strong rock",
+      "My soul has chosen him"
+    ]
+  },
+  {
+    "b": "Lamentations",
+    "r": "Lamentations 3:32",
+    "t": 3,
+    "p": "Though He causes grief, Yet He will show compassion",
+    "a": "According to the multitude of His mercies",
+    "s": ".",
+    "d": [
+      "before the face of all the congregation",
+      "to all them that call upon his name",
+      "According to the multitude of His compassions"
+    ]
+  },
+  {
+    "b": "Lamentations",
+    "r": "Lamentations 3:33",
+    "t": 3,
+    "p": "",
+    "a": "For He does not afflict willingly",
+    "s": ", Nor grieve the children of men.",
+    "d": [
+      "For he does not do afflict willingly",
+      "The Lord will not cast off forever",
+      "His anger endures but for a moment"
+    ]
+  },
+  {
+    "b": "Lamentations",
+    "r": "Lamentations 3:40",
+    "t": 2,
+    "p": "",
+    "a": "Let us search out and examine our ways",
+    "s": ", And turn back to the LORD;",
+    "d": [
+      "Let us search and try our ways",
+      "Let us offer sacrifices of peace",
+      "Bow down before his holy altar"
+    ]
+  },
+  {
+    "b": "Lamentations",
+    "r": "Lamentations 5:21",
+    "t": 2,
+    "p": "Turn us back to You, O LORD, and we will be restored;",
+    "a": "Renew our days as of old",
+    "s": ",",
+    "d": [
+      "forgive the sins of our fathers",
+      "restore the peace of Jerusalem",
+      "remember your holy covenant"
+    ]
+  },
+  {
+    "b": "Ezekiel",
+    "r": "Ezekiel 1:28",
+    "t": 3,
+    "p": "Like the appearance of a rainbow in a cloud on a rainy day, so was the appearance of the brightness all around it. This was the appearance of",
+    "a": "the likeness of the glory of the LORD",
+    "s": ". So when I saw it, I fell on my face, and I heard a voice of One speaking.",
+    "d": [
+      "the presence of the angel of his covenant",
+      "the majesty of his heavenly sanctuary",
+      "the throne of his righteousness on high"
+    ]
+  },
+  {
+    "b": "Ezekiel",
+    "r": "Ezekiel 18:21",
+    "t": 3,
+    "p": "\"But if a wicked man turns from all his sins which he has committed, keeps all My statutes, and does what is lawful and right,",
+    "a": "he shall surely live; he shall not die",
+    "s": ".",
+    "d": [
+      "the Lord will blot out all his sins",
+      "his soul shall dwell in quiet peace",
+      "he shall inherit the holy mountain"
+    ]
+  },
+  {
+    "b": "Ezekiel",
+    "r": "Ezekiel 18:23",
+    "t": 3,
+    "p": "Do I have any pleasure at all",
+    "a": "that the wicked should die",
+    "s": "?\" says the Lord GOD, \"and not that he should turn from his ways and live?",
+    "d": [
+      "that my people should perish?",
+      "in the destruction of men?",
+      "in the sorrow of the earth?"
+    ]
+  },
+  {
+    "b": "Ezekiel",
+    "r": "Ezekiel 34:11",
+    "t": 2,
+    "p": "'For thus says the Lord GOD: \"Indeed I Myself",
+    "a": "will search for My sheep",
+    "s": "and seek them out.",
+    "d": [
+      "will both search my sheep",
+      "will heal the broken heart",
+      "will gather the outcasts"
+    ]
+  },
+  {
+    "b": "Ezekiel",
+    "r": "Ezekiel 34:12",
+    "t": 3,
+    "p": "As a shepherd seeks out his flock on the day he is among his scattered sheep,",
+    "a": "so will I seek out My sheep",
+    "s": "and deliver them from all the places where they were scattered on a cloudy and dark day.",
+    "d": [
+      "so shall my hand guide them",
+      "thus will I restore Israel",
+      "so shall my peace be given"
+    ]
+  },
+  {
+    "b": "Ezekiel",
+    "r": "Ezekiel 34:26",
+    "t": 2,
+    "p": "I will make them and the places all around My hill a blessing; and I will cause showers to come down in their season;",
+    "a": "there shall be showers of blessing",
+    "s": ".",
+    "d": [
+      "the land shall yield her increase",
+      "peace shall abound in their tents",
+      "my holy presence shall dwell there"
+    ]
+  },
+  {
+    "b": "Ezekiel",
+    "r": "Ezekiel 37:3",
+    "t": 2,
+    "p": "And He said to me, \"Son of man, can these bones live?\" So I answered,",
+    "a": "\"O Lord GOD, You know",
+    "s": ".\"",
+    "d": [
+      "Your holy arm can save them",
+      "You have power over death",
+      "Your word can give them life"
+    ]
+  },
+  {
+    "b": "Ezekiel",
+    "r": "Ezekiel 48:35",
+    "t": 2,
+    "p": "All the way around shall be eighteen thousand cubits; and the name of the city from that day shall be:",
+    "a": "THE LORD IS THERE",
+    "s": ".\"",
+    "d": [
+      "God is our king",
+      "Holy is our Lord",
+      "Peace to Zion"
+    ]
+  },
+  {
+    "b": "Daniel",
+    "r": "Daniel 2:44",
+    "t": 2,
+    "p": "And in the days of these kings the God of heaven will",
+    "a": "set up a kingdom",
+    "s": "which shall never be destroyed; and the kingdom shall not be left to other people; it shall break in pieces and consume all these kingdoms, and it shall stand forever.",
+    "d": [
+      "establish his throne",
+      "reveal his power",
+      "judge all nations"
+    ]
+  },
+  {
+    "b": "Daniel",
+    "r": "Daniel 4:37",
+    "t": 3,
+    "p": "Now I, Nebuchadnezzar, praise and extol and honor the King of heaven, all of whose works are truth, and His ways justice. And those who walk in pride",
+    "a": "He is able to put",
+    "s": "down.",
+    "d": [
+      "he is able to abase",
+      "he will bring down low",
+      "his wrath shall scatter"
+    ]
+  },
+  {
+    "b": "Daniel",
+    "r": "Daniel 6:27",
+    "t": 2,
+    "p": "He delivers and rescues, And He works",
+    "a": "signs and wonders In heaven",
+    "s": "and on earth, Who has delivered Daniel from the power of the lions.",
+    "d": [
+      "glory and honor on earth",
+      "righteousness before all",
+      "salvation to his own"
+    ]
+  },
+  {
+    "b": "Daniel",
+    "r": "Daniel 7:13",
+    "t": 3,
+    "p": "\"I was watching in the night visions, And behold,",
+    "a": "One like the Son of Man",
+    "s": ", Coming with the clouds of heaven! He came to the Ancient of Days, And they brought Him near before Him.",
+    "d": [
+      "the prince of the angels",
+      "the holy king of heaven",
+      "the messenger of peace"
+    ]
+  },
+  {
+    "b": "Daniel",
+    "r": "Daniel 7:14",
+    "t": 2,
+    "p": "Then to Him was given dominion and glory and a kingdom, That all peoples, nations, and languages should serve Him. His dominion is",
+    "a": "an everlasting dominion",
+    "s": ", Which shall not pass away, And His kingdom the one Which shall not be destroyed.",
+    "d": [
+      "a holy habitation",
+      "a glorious kingdom",
+      "a righteous sceptre"
+    ]
+  },
+  {
+    "b": "Daniel",
+    "r": "Daniel 9:4",
+    "t": 3,
+    "p": "And I prayed to the LORD my God, and made confession, and said, \"O Lord,",
+    "a": "great and awesome God, who",
+    "s": "keeps His covenant and mercy with those who love Him, and with those who keep His commandments,",
+    "d": [
+      "the great and dreadful God",
+      "the everlasting holy King",
+      "the righteous judge of men"
+    ]
+  },
+  {
+    "b": "Daniel",
+    "r": "Daniel 9:18",
+    "t": 3,
+    "p": "O my God, incline Your ear and hear; open Your eyes and see our desolations, and the city which is called by Your name; for we do not present our supplications before You because of our righteous deeds,",
+    "a": "but because of Your great mercies",
+    "s": ".",
+    "d": [
+      "but for your great mercies",
+      "and for your covenant's sake",
+      "in faith of your promise"
+    ]
+  },
+  {
+    "b": "Daniel",
+    "r": "Daniel 9:19",
+    "t": 2,
+    "p": "O Lord, hear! O Lord, forgive! O Lord, listen and act! Do not delay for Your own sake, my God, for Your city and Your people are",
+    "a": "called by Your name",
+    "s": ".\"",
+    "d": [
+      "cleansed by your blood",
+      "kept by your power",
+      "guided by your hand"
+    ]
+  },
+  {
+    "b": "Hosea",
+    "r": "Hosea 2:19",
+    "t": 3,
+    "p": "\"I will betroth you to Me forever; Yes, I will betroth you to Me",
+    "a": "In righteousness and justice",
+    "s": ", In lovingkindness and mercy;",
+    "d": [
+      "in righteousness, and in judgment",
+      "with songs of joyful thanksgiving",
+      "In holiness and justice"
+    ]
+  },
+  {
+    "b": "Hosea",
+    "r": "Hosea 2:20",
+    "t": 3,
+    "p": "I will betroth you to Me in faithfulness, And",
+    "a": "you shall know the LORD",
+    "s": ".",
+    "d": [
+      "your soul shall dwell in peace",
+      "he will show you his mercy",
+      "his truth shall be your shield"
+    ]
+  },
+  {
+    "b": "Hosea",
+    "r": "Hosea 6:1",
+    "t": 2,
+    "p": "",
+    "a": "Come, and let us return to the LORD",
+    "s": "; For He has torn, but He will heal us; He has stricken, but He will bind us up.",
+    "d": [
+      "Turn again, O Israel, from the path of evil",
+      "Praise you the name of the Almighty forever",
+      "Come, and let us return to the MASTER"
+    ]
+  },
+  {
+    "b": "Hosea",
+    "r": "Hosea 13:4",
+    "t": 2,
+    "p": "\"Yet I am the LORD your God Ever since the land of Egypt, And you shall know no God but Me; For",
+    "a": "there is no savior besides Me",
+    "s": ".",
+    "d": [
+      "my holy throne is from everlasting",
+      "beside my name there is none else",
+      "there is no savior beside me"
+    ]
+  },
+  {
+    "b": "Hosea",
+    "r": "Hosea 14:1",
+    "t": 2,
+    "p": "O Israel,",
+    "a": "return to the LORD your God",
+    "s": ", For you have stumbled because of your iniquity;",
+    "d": [
+      "walk in all his commandments",
+      "offer pure sacrifices of peace",
+      "cleave to his holy covenant"
+    ]
+  },
+  {
+    "b": "Hosea",
+    "r": "Hosea 14:2",
+    "t": 3,
+    "p": "Take words with you, And return to the LORD. Say to Him, \"Take away all iniquity;",
+    "a": "Receive us graciously",
+    "s": ", For we will offer the sacrifices of our lips.",
+    "d": [
+      "pardon our iniquities",
+      "heal all our backslidings",
+      "remember your covenant"
+    ]
+  },
+  {
+    "b": "Hosea",
+    "r": "Hosea 14:9",
+    "t": 3,
+    "p": "Who is wise? Let him understand these things. Who is prudent? Let him know them. For",
+    "a": "the ways of the LORD are right",
+    "s": "; The righteous walk in them, But transgressors stumble in them.",
+    "d": [
+      "the counsel of God shall stand",
+      "his holy judgments are true",
+      "the path of wisdom is peace"
+    ]
+  },
+  {
+    "b": "Joel",
+    "r": "Joel 1:14",
+    "t": 3,
+    "p": "",
+    "a": "Consecrate a fast",
+    "s": ", Call a sacred assembly; Gather the elders And all the inhabitants of the land Into the house of the LORD your God, And cry out to the LORD.",
+    "d": [
+      "Call upon the Lord",
+      "Gather the people",
+      "Sanctify you a fast"
+    ]
+  },
+  {
+    "b": "Joel",
+    "r": "Joel 2:21",
+    "t": 2,
+    "p": "Fear not, O land; Be glad and rejoice, For",
+    "a": "the LORD has done marvelous things",
+    "s": "!",
+    "d": [
+      "the LORD will do great things",
+      "his holy arm shall deliver you",
+      "the King of heaven will give peace"
+    ]
+  },
+  {
+    "b": "Joel",
+    "r": "Joel 3:10",
+    "t": 2,
+    "p": "Beat your plowshares into swords And your pruning hooks into spears;",
+    "a": "Let the weak say, 'I am strong",
+    "s": ".' \"",
+    "d": [
+      "let the weak say, I am strong",
+      "let the poor rejoice in the Lord",
+      "let the sorrowful sing of his grace"
+    ]
+  },
+  {
+    "b": "Joel",
+    "r": "Joel 3:16",
+    "t": 2,
+    "p": "The LORD also will roar from Zion, And utter His voice from Jerusalem; The heavens and earth will shake; But the LORD will be",
+    "a": "a shelter for His people",
+    "s": ", And the strength of the children of Israel.",
+    "d": [
+      "the hope of his people",
+      "the rock of salvation",
+      "a helper in trouble"
+    ]
+  },
+  {
+    "b": "Joel",
+    "r": "Joel 3:18",
+    "t": 3,
+    "p": "And it will come to pass in that day That the mountains shall drip with new wine,",
+    "a": "The hills shall flow with milk",
+    "s": ", And all the brooks of Judah shall be flooded with water; A fountain shall flow from the house of the LORD And water the Valley of Acacias.",
+    "d": [
+      "the valleys shall shout for joy",
+      "the pastures shall bring forth increase",
+      "the land shall be filled with peace"
+    ]
+  },
+  {
+    "b": "Amos",
+    "r": "Amos 1:2",
+    "t": 2,
+    "p": "And he said:",
+    "a": "\"The LORD roars from Zion",
+    "s": ", And utters His voice from Jerusalem; The pastures of the shepherds mourn, And the top of Carmel withers.\"",
+    "d": [
+      "The LORD will roar from Zion",
+      "The holy One of Israel shall judge",
+      "His mighty voice shall shake the earth"
+    ]
+  },
+  {
+    "b": "Amos",
+    "r": "Amos 3:8",
+    "t": 2,
+    "p": "",
+    "a": "A lion has roared! Who will not fear",
+    "s": "? The Lord GOD has spoken! Who can but prophesy?",
+    "d": [
+      "The trumpet has sounded, who will not hear?",
+      "The day of the Lord comes, who can abide?",
+      "The holy God has spoken, who can doubt?"
+    ]
+  },
+  {
+    "b": "Amos",
+    "r": "Amos 5:4",
+    "t": 2,
+    "p": "For thus says the LORD to the house of Israel:",
+    "a": "\"Seek Me and live",
+    "s": ";",
+    "d": [
+      "Keep my commandments, and prosper",
+      "search for Me and live",
+      "follow Me and live"
+    ]
+  },
+  {
+    "b": "Amos",
+    "r": "Amos 5:6",
+    "t": 2,
+    "p": "",
+    "a": "Seek the LORD and live",
+    "s": ", Lest He break out like fire in the house of Joseph, And devour it, With no one to quench it in Bethel-",
+    "d": [
+      "Trust in his name, and find rest",
+      "Call upon his mercy, and be saved",
+      "Walk in his statutes, and have peace"
+    ]
+  },
+  {
+    "b": "Amos",
+    "r": "Amos 5:15",
+    "t": 2,
+    "p": "",
+    "a": "Hate evil, love good",
+    "s": "; Establish justice in the gate. It may be that the LORD God of hosts Will be gracious to the remnant of Joseph.",
+    "d": [
+      "Hate sin, love good",
+      "Hate wrong, love good",
+      "Hate wickedness, love good"
+    ]
+  },
+  {
+    "b": "Amos",
+    "r": "Amos 9:14",
+    "t": 2,
+    "p": "I will bring back the captives of My people Israel;",
+    "a": "They shall build the waste cities",
+    "s": "and inhabit them; They shall plant vineyards and drink wine from them; They shall also make gardens and eat fruit from them.",
+    "d": [
+      "they shall restore the holy temple",
+      "they shall walk in righteous peace",
+      "they shall offer pure sacrifices"
+    ]
+  },
+  {
+    "b": "Amos",
+    "r": "Amos 9:15",
+    "t": 2,
+    "p": "",
+    "a": "I will plant them in their land",
+    "s": ", And no longer shall they be pulled up From the land I have given them,\" Says the LORD your God.",
+    "d": [
+      "I will plant them upon their land",
+      "I will give them peace in their borders",
+      "they shall dwell safely in their cities"
+    ]
+  },
+  {
+    "b": "Obadiah",
+    "r": "Obadiah 1:1",
+    "t": 3,
+    "p": "The vision of Obadiah. Thus says the Lord GOD concerning Edom",
+    "a": "We have heard a report from the LORD",
+    "s": ", And a messenger has been sent among the nations, saying, \"Arise, and let us rise up against her for battle\"):",
+    "d": [
+      "A vision of the Almighty was declared",
+      "The word of the holy prophet came to pass",
+      "The judgment of heaven is revealed this day"
+    ]
+  },
+  {
+    "b": "Obadiah",
+    "r": "Obadiah 1:2",
+    "t": 3,
+    "p": "\"Behold, I will make you",
+    "a": "small among the nations",
+    "s": "; You shall be greatly despised.",
+    "d": [
+      "small among the heathen",
+      "a reproach to the nations",
+      "desolate in your borders"
+    ]
+  },
+  {
+    "b": "Obadiah",
+    "r": "Obadiah 1:8",
+    "t": 3,
+    "p": "\"Will I not in that day,\" says the LORD,",
+    "a": "\"Even destroy the wise men from Edom",
+    "s": ", And understanding from the mountains of Esau?",
+    "d": [
+      "even destroy the wise men out of Edom",
+      "cut off the princes of the strangers",
+      "scatter the host of the ungodly"
+    ]
+  },
+  {
+    "b": "Obadiah",
+    "r": "Obadiah 1:10",
+    "t": 3,
+    "p": "\"For violence against your brother Jacob,",
+    "a": "Shame shall cover you",
+    "s": ", And you shall be cut off forever.",
+    "d": [
+      "judgment shall fall upon you",
+      "fear shall compass your house",
+      "sorrow shall overtake your soul"
+    ]
+  },
+  {
+    "b": "Jonah",
+    "r": "Jonah 1:9",
+    "t": 2,
+    "p": "So he said to them, \"I am a Hebrew; and",
+    "a": "I fear the LORD, the God of heaven",
+    "s": ", who made the sea and the dry land.\"",
+    "d": [
+      "I worship the Almighty King of all",
+      "I serve the living God of Abraham",
+      "My hope is in the Holy One of Jacob"
+    ]
+  },
+  {
+    "b": "Jonah",
+    "r": "Jonah 2:2",
+    "t": 2,
+    "p": "And he said: \"I cried out to the LORD because of my affliction, And He answered me. \"Out of the belly of Sheol I cried,",
+    "a": "And You heard my voice",
+    "s": ".",
+    "d": [
+      "and deliveredst my soul",
+      "and healedst my plague",
+      "and showedst your mercy"
+    ]
+  },
+  {
+    "b": "Jonah",
+    "r": "Jonah 2:7",
+    "t": 2,
+    "p": "\"When my soul fainted within me,",
+    "a": "I remembered the LORD",
+    "s": "; And my prayer went up to You, Into Your holy temple.",
+    "d": [
+      "my heart sought peace",
+      "I cried to my God",
+      "I turned to him"
+    ]
+  },
+  {
+    "b": "Jonah",
+    "r": "Jonah 3:5",
+    "t": 2,
+    "p": "So",
+    "a": "the people of Nineveh believed God",
+    "s": ", proclaimed a fast, and put on sackcloth, from the greatest to the least of them.",
+    "d": [
+      "the king of Assyria bowed in fear",
+      "the princes of the city repented",
+      "all the inhabitants wept aloud"
+    ]
+  },
+  {
+    "b": "Jonah",
+    "r": "Jonah 4:2",
+    "t": 2,
+    "p": "So he prayed to the LORD, and said, \"Ah, LORD, was not this what I said when I was still in my country? Therefore I fled previously to Tarshish; for I know that",
+    "a": "You are a gracious and merciful God",
+    "s": ", slow to anger and abundant in lovingkindness, One who relents from doing harm.",
+    "d": [
+      "you are a gracious God, and merciful",
+      "your throne is established in righteousness",
+      "great is your lovingkindness toward Israel"
+    ]
+  },
+  {
+    "b": "Micah",
+    "r": "Micah 1:3",
+    "t": 3,
+    "p": "For behold,",
+    "a": "the LORD is coming out of His place",
+    "s": "; He will come down And tread on the high places of the earth.",
+    "d": [
+      "the King of glory shall judge the earth",
+      "the Holy One will reveal his mighty arm",
+      "the LORD comes forth out of his place"
+    ]
+  },
+  {
+    "b": "Micah",
+    "r": "Micah 2:7",
+    "t": 3,
+    "p": "You who are named the house of Jacob: \"Is the Spirit of the LORD restricted? Are these His doings?",
+    "a": "Do not My words do good",
+    "s": "To him who walks uprightly?",
+    "d": [
+      "shall not his truth abide",
+      "is not his promise sure",
+      "does not do his mercy endure"
+    ]
+  },
+  {
+    "b": "Micah",
+    "r": "Micah 4:2",
+    "t": 2,
+    "p": "Many nations shall come and say, \"Come, and let us go up to the mountain of the LORD,",
+    "a": "To the house of the God of Jacob",
+    "s": "; He will teach us His ways, And we shall walk in His paths.\" For out of Zion the law shall go forth, And the word of the LORD from Jerusalem.",
+    "d": [
+      "before the altar of his holy temple",
+      "into the courts of everlasting praise",
+      "to the sanctuary of the living King"
+    ]
+  },
+  {
+    "b": "Micah",
+    "r": "Micah 4:5",
+    "t": 2,
+    "p": "For all people walk each in the name of his god, But we will walk",
+    "a": "in the name of the LORD our God",
+    "s": "Forever and ever.",
+    "d": [
+      "before the throne of his holy temple",
+      "in the glory of the LORD our God",
+      "in the honor of the LORD our God"
+    ]
+  },
+  {
+    "b": "Micah",
+    "r": "Micah 4:7",
+    "t": 2,
+    "p": "I will make the lame a remnant, And the outcast a strong nation; So",
+    "a": "the LORD will reign over them",
+    "s": "in Mount Zion From now on, even forever.",
+    "d": [
+      "the LORD shall reign over them",
+      "the King of glory shall judge",
+      "his holy arm shall deliver them"
+    ]
+  },
+  {
+    "b": "Micah",
+    "r": "Micah 6:6",
+    "t": 2,
+    "p": "With what shall I come before the LORD, And",
+    "a": "bow myself before the High God",
+    "s": "? Shall I come before Him with burnt offerings, With calves a year old?",
+    "d": [
+      "enter into his glorious presence?",
+      "make my supplication in faith?",
+      "offer pure praise to the Lord?"
+    ]
+  },
+  {
+    "b": "Micah",
+    "r": "Micah 7:8",
+    "t": 1,
+    "p": "Do not rejoice over me, my enemy; When I fall, I will arise; When I sit in darkness,",
+    "a": "The LORD will be a light to me",
+    "s": ".",
+    "d": [
+      "his holy arm shall lift up my soul",
+      "the God of my salvation will save me",
+      "his tender mercy shall compass my path"
+    ]
+  },
+  {
+    "b": "Nahum",
+    "r": "Nahum 1:2",
+    "t": 3,
+    "p": "",
+    "a": "God is jealous, and the LORD avenges",
+    "s": "; The LORD avenges and is furious. The LORD will take vengeance on His adversaries, And He reserves wrath for His enemies;",
+    "d": [
+      "The Almighty is righteous in judgment",
+      "The Holy One will not acquit the wicked",
+      "The King of heaven will plead his cause"
+    ]
+  },
+  {
+    "b": "Nahum",
+    "r": "Nahum 1:4",
+    "t": 3,
+    "p": "He",
+    "a": "rebukes the sea and makes it dry",
+    "s": ", And dries up all the rivers. Bashan and Carmel wither, And the flower of Lebanon wilts.",
+    "d": [
+      "rules the heavens in his great power",
+      "makes the clouds his holy chariot",
+      "judges the earth in righteous equity"
+    ]
+  },
+  {
+    "b": "Nahum",
+    "r": "Nahum 1:5",
+    "t": 3,
+    "p": "",
+    "a": "The mountains quake before Him",
+    "s": ", The hills melt, And the earth heaves at His presence, Yes, the world and all who dwell in it.",
+    "d": [
+      "The mountains quake at him",
+      "The pillars of heaven shake",
+      "The depths of the sea roar"
+    ]
+  },
+  {
+    "b": "Nahum",
+    "r": "Nahum 1:9",
+    "t": 3,
+    "p": "What do you conspire against the LORD? He will make an utter end of it.",
+    "a": "Affliction will not rise up a second time",
+    "s": ".",
+    "d": [
+      "affliction shall not rise up the second time",
+      "his adversaries shall be consumed as stubble",
+      "the decree of the ungodly shall be broken"
+    ]
+  },
+  {
+    "b": "Nahum",
+    "r": "Nahum 1:12",
+    "t": 3,
+    "p": "Thus says the LORD: \"Though they are safe, and likewise many, Yet in this manner they will be cut down When he passes through. Though I have afflicted you,",
+    "a": "I will afflict you no more",
+    "s": ";",
+    "d": [
+      "my wrath is turned away",
+      "I will heal your wound",
+      "your peace shall abound"
+    ]
+  },
+  {
+    "b": "Habakkuk",
+    "r": "Habakkuk 1:5",
+    "t": 3,
+    "p": "\"Look among the nations and watch- Be utterly astounded! For",
+    "a": "I will work a work in your days",
+    "s": "Which you would not believe, though it were told you.",
+    "d": [
+      "I will reveal my arm to the nations",
+      "my word shall accomplish all my will",
+      "the day of judgment comes quickly"
+    ]
+  },
+  {
+    "b": "Habakkuk",
+    "r": "Habakkuk 2:2",
+    "t": 2,
+    "p": "Then the LORD answered me and said: \"Write the vision And",
+    "a": "make it plain on tablets",
+    "s": ", That he may run who reads it.",
+    "d": [
+      "make it plain upon tables",
+      "proclaim it with holy fear",
+      "seal it until the time"
+    ]
+  },
+  {
+    "b": "Habakkuk",
+    "r": "Habakkuk 2:3",
+    "t": 2,
+    "p": "For the vision is yet for an appointed time; But at the end it will speak, and it will not lie. Though it tarries, wait for it; Because",
+    "a": "it will surely come, It will not tarry",
+    "s": ".",
+    "d": [
+      "the word of the Lord shall not fail",
+      "the vision of heaven shall be fulfilled",
+      "his righteous decree is established forever"
+    ]
+  },
+  {
+    "b": "Habakkuk",
+    "r": "Habakkuk 3:2",
+    "t": 2,
+    "p": "O LORD, I have heard Your speech and was afraid; O LORD, revive Your work in the midst of the years! In the midst of the years make it known;",
+    "a": "In wrath remember mercy",
+    "s": ".",
+    "d": [
+      "forgive our secret sins",
+      "look down from heaven",
+      "in judgment show your love"
+    ]
+  },
+  {
+    "b": "Habakkuk",
+    "r": "Habakkuk 3:18",
+    "t": 1,
+    "p": "Yet I will rejoice in the LORD, I will joy",
+    "a": "in the God of my salvation",
+    "s": ".",
+    "d": [
+      "in the rock of my refuge",
+      "in the King of my praise",
+      "in the Lord of my peace"
+    ]
+  },
+  {
+    "b": "Zephaniah",
+    "r": "Zephaniah 1:7",
+    "t": 2,
+    "p": "Be silent in the presence of the Lord GOD; For",
+    "a": "the day of the LORD is at hand",
+    "s": ", For the LORD has prepared a sacrifice; He has invited His guests.",
+    "d": [
+      "the holy King shall reveal his arm",
+      "the time of righteousness is near",
+      "the judgment of heaven comes soon"
+    ]
+  },
+  {
+    "b": "Zephaniah",
+    "r": "Zephaniah 1:14",
+    "t": 2,
+    "p": "",
+    "a": "The great day of the LORD is near",
+    "s": "; It is near and hastens quickly. The noise of the day of the LORD is bitter; There the mighty men shall cry out.",
+    "d": [
+      "The glorious kingdom shall be revealed",
+      "The day of his wrath shall overtake them",
+      "The holy judgment of heaven comes"
+    ]
+  },
+  {
+    "b": "Zephaniah",
+    "r": "Zephaniah 3:12",
+    "t": 3,
+    "p": "I will leave in your midst",
+    "a": "A meek and humble people",
+    "s": ", And they shall trust in the name of the LORD.",
+    "d": [
+      "an afflicted and poor people",
+      "a holy and humble nation",
+      "a remnant of true worship"
+    ]
+  },
+  {
+    "b": "Zephaniah",
+    "r": "Zephaniah 3:14",
+    "t": 2,
+    "p": "",
+    "a": "Sing, O daughter of Zion",
+    "s": "! Shout, O Israel! Be glad and rejoice with all your heart, O daughter of Jerusalem!",
+    "d": [
+      "Rejoice, O chosen people",
+      "Shout aloud, O Israel",
+      "Praise the holy King"
+    ]
+  },
+  {
+    "b": "Zephaniah",
+    "r": "Zephaniah 3:15",
+    "t": 2,
+    "p": "The LORD has taken away your judgments, He has cast out your enemy. The King of Israel, the LORD, is in your midst; You",
+    "a": "shall see disaster no more",
+    "s": ".",
+    "d": [
+      "you shall not see evil any more",
+      "your peace shall endure forevermore",
+      "his holy presence will deliver you"
+    ]
+  },
+  {
+    "b": "Haggai",
+    "r": "Haggai 1:7",
+    "t": 2,
+    "p": "Thus says the LORD of hosts:",
+    "a": "\"Consider your ways",
+    "s": "!",
+    "d": [
+      "Remember my law",
+      "Sanctify your heart",
+      "Keep my covenant"
+    ]
+  },
+  {
+    "b": "Haggai",
+    "r": "Haggai 1:8",
+    "t": 3,
+    "p": "",
+    "a": "Go up to the mountains and bring wood",
+    "s": "and build the temple, that I may take pleasure in it and be glorified,\" says the LORD.",
+    "d": [
+      "Enter into the courts with thanksgiving",
+      "Offer sacrifices upon his holy altar",
+      "Gather the elders of the congregation"
+    ]
+  },
+  {
+    "b": "Haggai",
+    "r": "Haggai 1:12",
+    "t": 2,
+    "p": "Then Zerubbabel the son of Shealtiel, and Joshua the son of Jehozadak, the high priest, with all the remnant of the people, obeyed the voice of the LORD their God, and the words of Haggai the prophet, as the LORD their God had sent him; and",
+    "a": "the people feared the presence of the LORD",
+    "s": ".",
+    "d": [
+      "the people did fear before the LORD",
+      "the elders kept the holy covenant",
+      "all the host bowed in thanksgiving"
+    ]
+  },
+  {
+    "b": "Haggai",
+    "r": "Haggai 1:13",
+    "t": 2,
+    "p": "Then Haggai, the LORD's messenger, spoke the LORD's message to the people, saying,",
+    "a": "\"I am with you, says the LORD",
+    "s": ".\"",
+    "d": [
+      "Fear not the faces of the heathen",
+      "My holy promise shall not fail",
+      "My spirit remains among you"
+    ]
+  },
+  {
+    "b": "Haggai",
+    "r": "Haggai 2:5",
+    "t": 2,
+    "p": "'According to the word that I covenanted with you when you came out of Egypt, so",
+    "a": "My Spirit remains among you; do not fear",
+    "s": "!'",
+    "d": [
+      "my holy presence shall protect your city",
+      "my covenant shall stand with all your seed",
+      "my righteous arm will scatter your enemies"
+    ]
+  },
+  {
+    "b": "Zechariah",
+    "r": "Zechariah 1:16",
+    "t": 2,
+    "p": "'Therefore thus says the LORD:",
+    "a": "\"I am returning to Jerusalem with mercy",
+    "s": "; My house shall be built in it,\" says the LORD of hosts, \"And a surveyor's line shall be stretched out over Jerusalem.\" '",
+    "d": [
+      "I am returned to Jerusalem with mercies",
+      "My holy throne shall be established",
+      "The glory of the Lord shall be seen"
+    ]
+  },
+  {
+    "b": "Zechariah",
+    "r": "Zechariah 2:13",
+    "t": 2,
+    "p": "",
+    "a": "Be silent, all flesh, before the LORD",
+    "s": ", for He is aroused from His holy habitation!\"",
+    "d": [
+      "Be silent, O all flesh, before the LORD",
+      "Bow down, all you nations, before the King",
+      "Praise you the name of the most High God"
+    ]
+  },
+  {
+    "b": "Zechariah",
+    "r": "Zechariah 4:10",
+    "t": 2,
+    "p": "For who has despised",
+    "a": "the day of small things",
+    "s": "? For these seven rejoice to see The plumb line in the hand of Zerubbabel. They are the eyes of the LORD, Which scan to and fro throughout the whole earth.\"",
+    "d": [
+      "the promise of his word?",
+      "the house of his glory?",
+      "the counsel of the Lord?"
+    ]
+  },
+  {
+    "b": "Zechariah",
+    "r": "Zechariah 8:3",
+    "t": 2,
+    "p": "\"Thus says the LORD:",
+    "a": "'I will return to Zion",
+    "s": ", And dwell in the midst of Jerusalem. Jerusalem shall be called the City of Truth, The Mountain of the LORD of hosts, The Holy Mountain.'",
+    "d": [
+      "I will heal my people",
+      "My peace is established",
+      "My glory is revealed"
+    ]
+  },
+  {
+    "b": "Zechariah",
+    "r": "Zechariah 8:7",
+    "t": 2,
+    "p": "\"Thus says the LORD of hosts: 'Behold,",
+    "a": "I will save My people",
+    "s": "from the land of the east And from the land of the west;",
+    "d": [
+      "I will heal their land",
+      "my peace shall abide",
+      "my arm will defend"
+    ]
+  },
+  {
+    "b": "Zechariah",
+    "r": "Zechariah 8:8",
+    "t": 2,
+    "p": "I will bring them back, And they shall dwell in the midst of Jerusalem. They shall be My people And I will be their God,",
+    "a": "In truth and righteousness",
+    "s": ".'",
+    "d": [
+      "in truth and in righteousness",
+      "with all their whole heart",
+      "in holy peace and praise"
+    ]
+  },
+  {
+    "b": "Zechariah",
+    "r": "Zechariah 8:19",
+    "t": 2,
+    "p": "\"Thus says the LORD of hosts: 'The fast of the fourth month, The fast of the fifth, The fast of the seventh, And the fast of the tenth, Shall be joy and gladness and cheerful feasts For the house of",
+    "a": "Judah. Therefore love truth and peace",
+    "s": ".'",
+    "d": [
+      "therefore love the truth and peace",
+      "walk in his holy commandments",
+      "offer pure sacrifices of joy"
+    ]
+  },
+  {
+    "b": "Malachi",
+    "r": "Malachi 1:6",
+    "t": 2,
+    "p": "\"A son honors his father, And a servant his master. If then I am the Father,",
+    "a": "Where is My honor",
+    "s": "? And if I am a Master, Where is My reverence? Says the LORD of hosts To you priests who despise My name. Yet you say, 'In what way have we despised Your name?'",
+    "d": [
+      "where is your fear?",
+      "where is mine honor?",
+      "why do you sin?"
+    ]
+  },
+  {
+    "b": "Malachi",
+    "r": "Malachi 1:11",
+    "t": 2,
+    "p": "For from the rising of the sun, even to its going down,",
+    "a": "My name shall be great among the Gentiles",
+    "s": "; In every place incense shall be offered to My name, And a pure offering; For My name shall be great among the nations,\" Says the LORD of hosts.",
+    "d": [
+      "all the ends of the earth shall fear me",
+      "holy offerings shall be brought to my house",
+      "pure incense shall arise to my throne"
+    ]
+  },
+  {
+    "b": "Malachi",
+    "r": "Malachi 2:6",
+    "t": 2,
+    "p": "",
+    "a": "The law of truth was in his mouth",
+    "s": ", And injustice was not found on his lips. He walked with Me in peace and equity, And turned many away from iniquity.",
+    "d": [
+      "The word of life was upon his lips",
+      "The holy covenant was in his heart",
+      "The praise of God was his strength"
+    ]
+  },
+  {
+    "b": "Malachi",
+    "r": "Malachi 3:3",
+    "t": 2,
+    "p": "He will sit as",
+    "a": "a refiner and a purifier of silver",
+    "s": "; He will purify the sons of Levi, And purge them as gold and silver, That they may offer to the LORD An offering in righteousness.",
+    "d": [
+      "a righteous king in holy power",
+      "a faithful judge of his house",
+      "a helper to the fatherless"
+    ]
+  },
+  {
+    "b": "Malachi",
+    "r": "Malachi 3:17",
+    "t": 2,
+    "p": "\"They shall be Mine,\" says the LORD of hosts, \"On the day",
+    "a": "that I make them My jewels",
+    "s": ". And I will spare them As a man spares his own son who serves him.\"",
+    "d": [
+      "when I make up my jewels",
+      "when I visit my people",
+      "when I reveal my glory"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 3:17",
+    "t": 1,
+    "p": "And suddenly a voice came from heaven, saying,",
+    "a": "\"This is My beloved Son",
+    "s": ", in whom I am well pleased.\"",
+    "d": [
+      "Behold the Lamb of God",
+      "He is the King of Israel",
+      "You are the chosen One"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 4:19",
+    "t": 1,
+    "p": "Then He said to them, \"Follow Me, and I will make you",
+    "a": "fishers of men",
+    "s": ".\"",
+    "d": [
+      "servants of truth",
+      "heralds of peace",
+      "preachers of faith"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 5:4",
+    "t": 1,
+    "p": "Blessed are those who mourn, For",
+    "a": "they shall be comforted",
+    "s": ".",
+    "d": [
+      "they shall inherit glory",
+      "their joy shall be full",
+      "great is their reward"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 5:5",
+    "t": 1,
+    "p": "Blessed are the meek, For",
+    "a": "they shall inherit the earth",
+    "s": ".",
+    "d": [
+      "theirs is the kingdom of heaven",
+      "they shall obtain great mercy",
+      "they shall see the holy God"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 5:7",
+    "t": 1,
+    "p": "Blessed are the merciful, For",
+    "a": "they shall obtain mercy",
+    "s": ".",
+    "d": [
+      "they shall see God",
+      "peace shall be theirs",
+      "they shall find rest"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 6:10",
+    "t": 1,
+    "p": "",
+    "a": "Your kingdom come",
+    "s": ". Your will be done On earth as it is in heaven.",
+    "d": [
+      "Your name be praised",
+      "Your power appear",
+      "Your glory shine"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 9:13",
+    "t": 2,
+    "p": "But go and learn what this means:",
+    "a": "'I desire mercy and not sacrifice",
+    "s": ".' For I did not come to call the righteous, but sinners, to repentance.\"",
+    "d": [
+      "I will have mercy, and not sacrifice",
+      "the humble in spirit shall find life",
+      "keep the commandments of the law"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 10:32",
+    "t": 2,
+    "p": "\"Therefore whoever",
+    "a": "confesses Me before men",
+    "s": ", him I will also confess before My Father who is in heaven.",
+    "d": [
+      "keep my holy words",
+      "walk in my truth",
+      "bear witness of me"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 16:16",
+    "t": 1,
+    "p": "Simon Peter answered and said, \"You are the Christ,",
+    "a": "the Son of the living God",
+    "s": ".\"",
+    "d": [
+      "the King of all nations",
+      "the prophet of the Highest",
+      "the Redeemer of our souls"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 21:22",
+    "t": 2,
+    "p": "And whatever things you ask in prayer,",
+    "a": "believing, you will receive",
+    "s": ".\"",
+    "d": [
+      "asking, it shall be given",
+      "believing, you shall receive",
+      "in faith, you shall prosper"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 28:18",
+    "t": 1,
+    "p": "And Jesus came and spoke to them, saying,",
+    "a": "\"All authority has been given to Me",
+    "s": "in heaven and on earth.",
+    "d": [
+      "The kingdom of heaven is at hand",
+      "The everlasting truth is revealed",
+      "All power is given to me"
+    ]
+  },
+  {
+    "b": "Matthew",
+    "r": "Matthew 28:20",
+    "t": 1,
+    "p": "teaching them to observe all things that I have commanded you; and lo,",
+    "a": "I am with you always",
+    "s": ", even to the end of the age.\" Amen.",
+    "d": [
+      "my grace shall be sufficient",
+      "my spirit will lead you",
+      "my peace I give to you"
+    ]
+  },
+  {
+    "b": "Mark",
+    "r": "Mark 1:1",
+    "t": 1,
+    "p": "The beginning of the gospel of Jesus Christ,",
+    "a": "the Son of God",
+    "s": ".",
+    "d": [
+      "the King of Israel",
+      "the holy prophet",
+      "the Lord from heaven"
+    ]
+  },
+  {
+    "b": "Mark",
+    "r": "Mark 2:5",
+    "t": 1,
+    "p": "When Jesus saw their faith, He said to the paralytic, \"Son,",
+    "a": "your sins are forgiven you",
+    "s": ".\"",
+    "d": [
+      "arise, and walk in joy",
+      "your faith has saved you",
+      "your soul shall have peace"
+    ]
+  },
+  {
+    "b": "Mark",
+    "r": "Mark 3:35",
+    "t": 2,
+    "p": "For",
+    "a": "whoever does the will of God",
+    "s": "is My brother and My sister and mother.\"",
+    "d": [
+      "shall do the will of God",
+      "hears my holy words",
+      "walks in all my ways"
+    ]
+  },
+  {
+    "b": "Mark",
+    "r": "Mark 4:39",
+    "t": 1,
+    "p": "Then He arose and rebuked the wind, and said to the sea, \"Peace, be still!\" And the wind ceased and",
+    "a": "there was a great calm",
+    "s": ".",
+    "d": [
+      "the waves were made quiet",
+      "the storm was turned away",
+      "all his disciples marvelled"
+    ]
+  },
+  {
+    "b": "Mark",
+    "r": "Mark 10:52",
+    "t": 1,
+    "p": "Then Jesus said to him, \"Go your way;",
+    "a": "your faith has made you well",
+    "s": ".\" And immediately he received his sight and followed Jesus on the road.",
+    "d": [
+      "go in the peace of the Lord",
+      "your faith has made you whole",
+      "your prayer is heard in heaven"
+    ]
+  },
+  {
+    "b": "Mark",
+    "r": "Mark 12:32",
+    "t": 1,
+    "p": "So the scribe said to Him, \"Well said, Teacher. You have spoken the truth, for",
+    "a": "there is one God",
+    "s": ", and there is no other but He.",
+    "d": [
+      "the Lord is King",
+      "God is righteous",
+      "holy is his name"
+    ]
+  },
+  {
+    "b": "Mark",
+    "r": "Mark 12:34",
+    "t": 2,
+    "p": "Now when Jesus saw that he answered wisely, He said to him, \"You are",
+    "a": "not far from the kingdom of God",
+    "s": ".\" But after that no one dared question Him.",
+    "d": [
+      "established in all righteous truth",
+      "an heir of the heavenly promise",
+      "walking in the light of the Lord"
+    ]
+  },
+  {
+    "b": "Mark",
+    "r": "Mark 13:31",
+    "t": 1,
+    "p": "Heaven and earth will pass away, but",
+    "a": "My words will by no means pass away",
+    "s": ".",
+    "d": [
+      "my words shall not pass away",
+      "the truth of God shall endure",
+      "My sayings will by no means pass away"
+    ]
+  },
+  {
+    "b": "Mark",
+    "r": "Mark 16:16",
+    "t": 1,
+    "p": "He who",
+    "a": "believes and is baptized will be saved",
+    "s": "; but he who does not believe will be condemned.",
+    "d": [
+      "believes and is baptized shall be saved",
+      "keeps my holy commandments shall live",
+      "believes and is baptized will be healed"
+    ]
+  },
+  {
+    "b": "Mark",
+    "r": "Mark 2:28",
+    "t": 1,
+    "p": "Therefore the Son of Man is",
+    "a": "also Lord of the Sabbath",
+    "s": ".\"",
+    "d": [
+      "Lord also of the sabbath",
+      "King of all the holy earth",
+      "Judge of both quick and dead"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 1:28",
+    "t": 1,
+    "p": "And having come in, the angel said to her, \"Rejoice, highly favored one,",
+    "a": "the Lord is with you",
+    "s": "; blessed are you among women!\"",
+    "d": [
+      "fear not the day",
+      "rejoice in hope",
+      "your faith is great"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 1:46",
+    "t": 1,
+    "p": "And Mary said:",
+    "a": "\"My soul magnifies the Lord",
+    "s": ",",
+    "d": [
+      "My tongue shall sing his praise",
+      "My lips shall give thanksgiving",
+      "My soul does magnify the Lord"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 1:68",
+    "t": 2,
+    "p": "\"Blessed is the Lord God of Israel, For He has",
+    "a": "visited and redeemed His people",
+    "s": ",",
+    "d": [
+      "established his covenant forever",
+      "lifted up the horn of salvation",
+      "shown great mercy to Israel"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 1:78",
+    "t": 2,
+    "p": "Through the tender mercy of our God, With which",
+    "a": "the Dayspring from on high has visited us",
+    "s": ";",
+    "d": [
+      "the glory of the Father has appeared",
+      "the arm of the Lord has brought peace",
+      "the everlasting light has dawned on all"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 2:10",
+    "t": 1,
+    "p": "Then the angel said to them, \"Do not be afraid, for behold, I bring you",
+    "a": "good tidings of great joy",
+    "s": "which will be to all people.",
+    "d": [
+      "the peace of the kingdom",
+      "the salvation of our God",
+      "a holy light from heaven"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 6:36",
+    "t": 2,
+    "p": "Therefore be merciful, just",
+    "a": "as your Father also is merciful",
+    "s": ".",
+    "d": [
+      "according to his holy commandment",
+      "even as the Lord has forgiven you",
+      "that you may be children of light"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 7:50",
+    "t": 1,
+    "p": "Then He said to the woman, \"Your faith has saved you.",
+    "a": "Go in peace",
+    "s": ".\"",
+    "d": [
+      "sin no more",
+      "fear not now",
+      "rejoice today"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 10:2",
+    "t": 2,
+    "p": "Then He said to them, \"The harvest truly is great, but",
+    "a": "the laborers are few",
+    "s": "; therefore pray the Lord of the harvest to send out laborers into His harvest.",
+    "d": [
+      "the labourers are few",
+      "the fields are white",
+      "the time is at hand"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 10:20",
+    "t": 2,
+    "p": "Nevertheless do not rejoice in this, that the spirits are subject to you, but rather rejoice because",
+    "a": "your names are written in heaven",
+    "s": ".\"",
+    "d": [
+      "the kingdom of God is within you",
+      "great is your reward in eternity",
+      "you have believed on the true light"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 11:28",
+    "t": 2,
+    "p": "But He said, \"More than that, blessed are those who",
+    "a": "hear the word of God and keep it",
+    "s": "!\"",
+    "d": [
+      "walk in his truth and do his will",
+      "believe on the Son of the Highest",
+      "worship the Father in the spirit"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 15:10",
+    "t": 2,
+    "p": "Likewise, I say to you, there is joy",
+    "a": "in the presence of the angels of God",
+    "s": "over one sinner who repents.\"",
+    "d": [
+      "before the throne of his everlasting kingdom",
+      "among all the hosts of the heavenly spirits",
+      "to the ends of the earth with rejoicing"
+    ]
+  },
+  {
+    "b": "Luke",
+    "r": "Luke 24:49",
+    "t": 2,
+    "p": "Behold, I send the Promise of My Father upon you; but tarry in the city of Jerusalem until you are endued",
+    "a": "with power from on high",
+    "s": ".\"",
+    "d": [
+      "with the holy anointing",
+      "by the heavenly spirit",
+      "through the true gospel"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 1:4",
+    "t": 1,
+    "p": "In Him was life, and the life was",
+    "a": "the light of men",
+    "s": ".",
+    "d": [
+      "the hope of all",
+      "the life eternal",
+      "the way of truth"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 1:5",
+    "t": 2,
+    "p": "And",
+    "a": "the light shines in the darkness",
+    "s": ", and the darkness did not comprehend it.",
+    "d": [
+      "the truth is revealed to all",
+      "his glorious glory appeared",
+      "the day of salvation is come"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 1:9",
+    "t": 2,
+    "p": "",
+    "a": "That was the true Light",
+    "s": "which gives light to every man coming into the world.",
+    "d": [
+      "He was the holy Prophet",
+      "In him was life eternal",
+      "He is the Lord of glory"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 1:12",
+    "t": 1,
+    "p": "But as many as received Him, to them He gave",
+    "a": "the right to become children of God",
+    "s": ", to those who believe in His name:",
+    "d": [
+      "power to become the sons of God",
+      "grace to enter the heavenly rest",
+      "faith to inherit everlasting life"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 1:17",
+    "t": 1,
+    "p": "For the law was given through Moses, but",
+    "a": "grace and truth came through Jesus Christ",
+    "s": ".",
+    "d": [
+      "grace and truth came by Jesus Christ",
+      "the glory of the Father was revealed",
+      "remission of sins was preached to all"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 1:18",
+    "t": 2,
+    "p": "No one has seen God at any time. The only begotten Son, who is",
+    "a": "in the bosom of the Father",
+    "s": ", He has declared Him.",
+    "d": [
+      "at the right hand of power",
+      "before the foundation of all",
+      "full of holy grace and truth"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 4:14",
+    "t": 1,
+    "p": "but whoever drinks of the water that I shall give him will never thirst. But the water that I shall give him will become in him a fountain of water",
+    "a": "springing up into everlasting life",
+    "s": ".\"",
+    "d": [
+      "bringing forth peace and righteousness",
+      "flowing to all the thirsty nations",
+      "giving joy to all the humble souls"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 6:68",
+    "t": 1,
+    "p": "But Simon Peter answered Him, \"Lord, to whom shall we go?",
+    "a": "You have the words of eternal life",
+    "s": ".",
+    "d": [
+      "you are the Christ the Son of God",
+      "in you alone do our souls find rest",
+      "you are the true bread from heaven"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 8:36",
+    "t": 1,
+    "p": "Therefore if the Son makes you free,",
+    "a": "you shall be free indeed",
+    "s": ".",
+    "d": [
+      "peace shall dwell with you",
+      "you shall have life eternal",
+      "you shall know the true God"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 12:32",
+    "t": 1,
+    "p": "And I, if I am lifted up from the earth,",
+    "a": "will draw all peoples to Myself",
+    "s": ".\"",
+    "d": [
+      "shall be glorified in heaven",
+      "will give my life for the sheep",
+      "shall overcome the whole world"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 14:15",
+    "t": 1,
+    "p": "\"If you love Me,",
+    "a": "keep My commandments",
+    "s": ".",
+    "d": [
+      "follow my footsteps",
+      "walk in my pathway",
+      "believe on my word"
+    ]
+  },
+  {
+    "b": "John",
+    "r": "John 15:4",
+    "t": 1,
+    "p": "",
+    "a": "Abide in Me, and I in you",
+    "s": ". As the branch cannot bear fruit of itself, unless it abides in the vine, neither can you, unless you abide in Me.",
+    "d": [
+      "Walk in love, as brethren",
+      "Cleave to me with all joy",
+      "Love the Lord in sincerity"
+    ]
+  },
+  {
+    "b": "Acts",
+    "r": "Acts 2:4",
+    "t": 1,
+    "p": "And they were all",
+    "a": "filled with the Holy Spirit",
+    "s": "and began to speak with other tongues, as the Spirit gave them utterance.",
+    "d": [
+      "gathered in one accord",
+      "endued with great faith",
+      "rejoicing in the Lord"
+    ]
+  },
+  {
+    "b": "Acts",
+    "r": "Acts 2:32",
+    "t": 2,
+    "p": "This Jesus God has raised up, of",
+    "a": "which we are all witnesses",
+    "s": ".",
+    "d": [
+      "according to the scriptures",
+      "by his mighty outstretched arm",
+      "in the presence of the people"
+    ]
+  },
+  {
+    "b": "Acts",
+    "r": "Acts 2:42",
+    "t": 2,
+    "p": "And they continued steadfastly",
+    "a": "in the apostles' doctrine and fellowship",
+    "s": ", in the breaking of bread, and in prayers.",
+    "d": [
+      "with great joy and simplicity of heart",
+      "according to the commandment of Christ",
+      "in prayer and holy praise to God"
+    ]
+  },
+  {
+    "b": "Acts",
+    "r": "Acts 3:6",
+    "t": 1,
+    "p": "Then Peter said,",
+    "a": "\"Silver and gold I do not",
+    "s": "have, but what I do have I give you: In the name of Jesus Christ of Nazareth, rise up and walk.\"",
+    "d": [
+      "Silver and gold have I none",
+      "Earthly riches I possess not",
+      "Gifts of this world I bring not"
+    ]
+  },
+  {
+    "b": "Acts",
+    "r": "Acts 5:32",
+    "t": 2,
+    "p": "And",
+    "a": "we are His witnesses to these things",
+    "s": ", and so also is the Holy Spirit whom God has given to those who obey Him.\"",
+    "d": [
+      "we are his witnesses of these things",
+      "we preach Christ crucified and risen",
+      "we declare the counsel of God to all"
+    ]
+  },
+  {
+    "b": "Acts",
+    "r": "Acts 7:56",
+    "t": 2,
+    "p": "and said, \"Look! I see the heavens opened and the Son of Man",
+    "a": "standing at the right hand of God",
+    "s": "!\"",
+    "d": [
+      "standing on the right hand of God",
+      "sitting upon the throne of his glory",
+      "crowned with majesty in the heavens"
+    ]
+  },
+  {
+    "b": "Acts",
+    "r": "Acts 13:38",
+    "t": 2,
+    "p": "Therefore let it be known to you, brethren, that through this Man is preached to you",
+    "a": "the forgiveness of sins",
+    "s": ";",
+    "d": [
+      "the kingdom of heaven",
+      "the promise of the Spirit",
+      "the gift of eternal life"
+    ]
+  },
+  {
+    "b": "Acts",
+    "r": "Acts 14:22",
+    "t": 2,
+    "p": "strengthening the souls of the disciples, exhorting them to continue in the faith, and saying, \"We must through many tribulations",
+    "a": "enter the kingdom of God",
+    "s": ".\"",
+    "d": [
+      "enter into the kingdom of God",
+      "inherit the heavenly reward",
+      "obtain the crown of life"
+    ]
+  },
+  {
+    "b": "Acts",
+    "r": "Acts 18:10",
+    "t": 2,
+    "p": "for I am with you, and no one will attack you to hurt you; for",
+    "a": "I have many people in this city",
+    "s": ".\"",
+    "d": [
+      "I have much people in this city",
+      "my holy gospel shall be preached",
+      "the word of truth shall not fail"
+    ]
+  },
+  {
+    "b": "Acts",
+    "r": "Acts 26:18",
+    "t": 2,
+    "p": "to open their eyes, in order",
+    "a": "to turn them from darkness to light",
+    "s": ", and from the power of Satan to God, that they may receive forgiveness of sins and an inheritance among those who are sanctified by faith in Me.'",
+    "d": [
+      "to preach the glorious gospel to all",
+      "to declare the holy truth of heaven",
+      "to open the ancient gates of Zion"
+    ]
+  },
+  {
+    "b": "Romans",
+    "r": "Romans 1:17",
+    "t": 2,
+    "p": "For in it the righteousness of God is revealed from faith to faith; as it is written,",
+    "a": "\"The just shall live by faith",
+    "s": ".\"",
+    "d": [
+      "The law of God is holy and true",
+      "The gift of grace is eternal life",
+      "The glory of the Lord shall appear"
+    ]
+  },
+  {
+    "b": "Romans",
+    "r": "Romans 5:5",
+    "t": 2,
+    "p": "Now hope does not disappoint, because",
+    "a": "the love of God",
+    "s": "has been poured out in our hearts by the Holy Spirit who was given to us.",
+    "d": [
+      "the peace of Christ",
+      "the light of truth",
+      "the hope of glory"
+    ]
+  },
+  {
+    "b": "Romans",
+    "r": "Romans 8:16",
+    "t": 2,
+    "p": "The Spirit Himself bears witness with our spirit that",
+    "a": "we are children of God",
+    "s": ",",
+    "d": [
+      "we shall reign with him forever",
+      "he has forgiven all our sins",
+      "we are the children of God"
+    ]
+  },
+  {
+    "b": "Romans",
+    "r": "Romans 8:37",
+    "t": 1,
+    "p": "Yet in all these things we are",
+    "a": "more than conquerors through Him who loved us",
+    "s": ".",
+    "d": [
+      "more than conquerors through him that loved us",
+      "heirs of the kingdom of everlasting glory",
+      "partakers of the holy heavenly calling"
+    ]
+  },
+  {
+    "b": "Romans",
+    "r": "Romans 8:38",
+    "t": 2,
+    "p": "For I am persuaded that",
+    "a": "neither death nor life",
+    "s": ", nor angels nor principalities nor powers, nor things present nor things to come,",
+    "d": [
+      "neither tribulations, nor pain",
+      "neither height, nor depth",
+      "neither principalities, nor powers"
+    ]
+  },
+  {
+    "b": "Romans",
+    "r": "Romans 10:10",
+    "t": 2,
+    "p": "For with the heart one believes unto righteousness, and with the mouth",
+    "a": "confession is made unto salvation",
+    "s": ".",
+    "d": [
+      "the heart is cleansed from all sin",
+      "we receive the promised Holy Spirit",
+      "grace is multiplied to all peace"
+    ]
+  },
+  {
+    "b": "Romans",
+    "r": "Romans 12:9",
+    "t": 2,
+    "p": "Let love be without hypocrisy. Abhor what is evil.",
+    "a": "Cling to what is good",
+    "s": ".",
+    "d": [
+      "cleave to that which is good",
+      "walk in the holy commandments",
+      "love one another with pure heart"
+    ]
+  },
+  {
+    "b": "Romans",
+    "r": "Romans 12:12",
+    "t": 2,
+    "p": "",
+    "a": "rejoicing in hope, patient in tribulation",
+    "s": ", continuing steadfastly in prayer;",
+    "d": [
+      "Standing fast in faith; steadfast in truth",
+      "Walking in pure love; fervent in prayer",
+      "Abounding in great peace; holy in heart"
+    ]
+  },
+  {
+    "b": "Romans",
+    "r": "Romans 12:18",
+    "t": 2,
+    "p": "If it is possible, as much as depends on you,",
+    "a": "live peaceably with all men",
+    "s": ".",
+    "d": [
+      "walk uprightly in the truth",
+      "keep the unity of the Spirit",
+      "do good to the brethren"
+    ]
+  },
+  {
+    "b": "Romans",
+    "r": "Romans 16:20",
+    "t": 2,
+    "p": "And the God of peace",
+    "a": "will crush Satan under your feet shortly",
+    "s": ". The grace of our Lord Jesus Christ be with you. Amen.",
+    "d": [
+      "shall bruise Satan under your feet shortly",
+      "shall establish your hearts in all truth",
+      "shall give you peace through Jesus Christ"
+    ]
+  },
+  {
+    "b": "1 Corinthians",
+    "r": "1 Corinthians 1:9",
+    "t": 2,
+    "p": "",
+    "a": "God is faithful",
+    "s": ", by whom you were called into the fellowship of His Son, Jesus Christ our Lord.",
+    "d": [
+      "Christ is risen",
+      "Grace is given",
+      "The Lord reigns"
+    ]
+  },
+  {
+    "b": "1 Corinthians",
+    "r": "1 Corinthians 1:30",
+    "t": 2,
+    "p": "But of Him you are in Christ Jesus, who became for us",
+    "a": "wisdom from God—and righteousness and sanctification",
+    "s": "and redemption-",
+    "d": [
+      "wisdom, and righteousness, and sanctification",
+      "grace, and peace, and holy lovingkindness",
+      "truth, and power, and heavenly salvation"
+    ]
+  },
+  {
+    "b": "1 Corinthians",
+    "r": "1 Corinthians 3:11",
+    "t": 2,
+    "p": "For no other foundation can anyone lay than that which is laid,",
+    "a": "which is Jesus Christ",
+    "s": ".",
+    "d": [
+      "the Lord of all glory",
+      "the rock of our salvation",
+      "the holy Son of God"
+    ]
+  },
+  {
+    "b": "1 Corinthians",
+    "r": "1 Corinthians 6:20",
+    "t": 2,
+    "p": "For you were bought at a price; therefore",
+    "a": "glorify God in your body",
+    "s": "and in your spirit, which are God's.",
+    "d": [
+      "walk in the light of truth",
+      "keep the commandments of life",
+      "offer pure spiritual praise"
+    ]
+  },
+  {
+    "b": "1 Corinthians",
+    "r": "1 Corinthians 12:27",
+    "t": 1,
+    "p": "Now you are",
+    "a": "the body of Christ",
+    "s": ", and members individually.",
+    "d": [
+      "the temple of God",
+      "the flock of peace",
+      "the heirs of life"
+    ]
+  },
+  {
+    "b": "1 Corinthians",
+    "r": "1 Corinthians 13:7",
+    "t": 2,
+    "p": "",
+    "a": "bears all things, believes all things",
+    "s": ", hopes all things, endures all things.",
+    "d": [
+      "Endures with joy, abides in holy peace",
+      "bears all works, believes all things",
+      "bears all blessings, believes all things"
+    ]
+  },
+  {
+    "b": "1 Corinthians",
+    "r": "1 Corinthians 15:3",
+    "t": 2,
+    "p": "For I delivered to you first of all that which I also received: that",
+    "a": "Christ died for our sins",
+    "s": "according to the Scriptures,",
+    "d": [
+      "the Lord was raised in power",
+      "he was delivered for our peace",
+      "he gave his life for the world"
+    ]
+  },
+  {
+    "b": "1 Corinthians",
+    "r": "1 Corinthians 15:4",
+    "t": 2,
+    "p": "and that He was buried, and that",
+    "a": "He rose again the third day",
+    "s": "according to the Scriptures,",
+    "d": [
+      "he ascended into the heavens",
+      "he sat down on the right hand",
+      "he shall come again in glory"
+    ]
+  },
+  {
+    "b": "1 Corinthians",
+    "r": "1 Corinthians 15:20",
+    "t": 2,
+    "p": "But",
+    "a": "now Christ is risen from the dead",
+    "s": ", and has become the firstfruits of those who have fallen asleep.",
+    "d": [
+      "the day of eternal redemption is come",
+      "the victory over death is accomplished",
+      "the glorious kingdom of heaven is at hand"
+    ]
+  },
+  {
+    "b": "1 Corinthians",
+    "r": "1 Corinthians 15:54",
+    "t": 2,
+    "p": "So when this corruptible has put on incorruption, and this mortal has put on immortality, then shall be brought to pass the saying that is written:",
+    "a": "\"Death is swallowed up in victory",
+    "s": ".\"",
+    "d": [
+      "The kingdom of darkness is destroyed",
+      "The corruptible has put on life",
+      "The saints shall reign forevermore"
+    ]
+  },
+  {
+    "b": "2 Corinthians",
+    "r": "2 Corinthians 1:4",
+    "t": 2,
+    "p": "",
+    "a": "who comforts us in all our tribulation",
+    "s": ", that we may be able to comfort those who are in any trouble, with the comfort with which we ourselves are comforted by God.",
+    "d": [
+      "Who delivers our souls from eternal death",
+      "Who forgives all our secret iniquities",
+      "Who leads his chosen sheep with peace"
+    ]
+  },
+  {
+    "b": "2 Corinthians",
+    "r": "2 Corinthians 3:17",
+    "t": 2,
+    "p": "Now the Lord is the Spirit; and where the Spirit of the Lord is,",
+    "a": "there is liberty",
+    "s": ".",
+    "d": [
+      "there is peace",
+      "truth shall abide",
+      "the Lord reigns"
+    ]
+  },
+  {
+    "b": "2 Corinthians",
+    "r": "2 Corinthians 4:7",
+    "t": 2,
+    "p": "But we have",
+    "a": "this treasure in earthen vessels",
+    "s": ", that the excellence of the power may be of God and not of us.",
+    "d": [
+      "the holy light in our spirits",
+      "the heavenly hope in our souls",
+      "the glorious gospel in our hearts"
+    ]
+  },
+  {
+    "b": "2 Corinthians",
+    "r": "2 Corinthians 4:17",
+    "t": 2,
+    "p": "For",
+    "a": "our light affliction",
+    "s": ", which is but for a moment, is working for us a far more exceeding and eternal weight of glory,",
+    "d": [
+      "our earthly trial",
+      "this present sorrow",
+      "our heavy burden"
+    ]
+  },
+  {
+    "b": "2 Corinthians",
+    "r": "2 Corinthians 5:20",
+    "t": 2,
+    "p": "Now then,",
+    "a": "we are ambassadors for Christ",
+    "s": ", as though God were pleading through us: we implore you on Christ's behalf, be reconciled to God.",
+    "d": [
+      "we preach the word of truth",
+      "we seek the heavenly kingdom",
+      "we walk in uprightness of heart"
+    ]
+  },
+  {
+    "b": "2 Corinthians",
+    "r": "2 Corinthians 13:14",
+    "t": 1,
+    "p": "The grace of the Lord Jesus Christ, and the love of God, and",
+    "a": "the communion of the Holy Spirit",
+    "s": "be with you all. Amen.",
+    "d": [
+      "the everlasting peace of God",
+      "the glorious hope of salvation",
+      "the heavenly joy of our Lord"
+    ]
+  },
+  {
+    "b": "Galatians",
+    "r": "Galatians 4:7",
+    "t": 2,
+    "p": "Therefore you are",
+    "a": "no longer a slave but a son",
+    "s": ", and if a son, then an heir of God through Christ.",
+    "d": [
+      "no more a servant, but a son",
+      "heirs of the kingdom of God",
+      "partakers of the holy calling"
+    ]
+  },
+  {
+    "b": "Galatians",
+    "r": "Galatians 5:13",
+    "t": 2,
+    "p": "For you, brethren, have been called to liberty; only do not use liberty as an opportunity for the flesh, but",
+    "a": "through love serve one another",
+    "s": ".",
+    "d": [
+      "by love serve one another",
+      "walk in the holy commandments",
+      "keep the unity of the brethren"
+    ]
+  },
+  {
+    "b": "Galatians",
+    "r": "Galatians 5:23",
+    "t": 2,
+    "p": "gentleness, self-control.",
+    "a": "Against such there is no law",
+    "s": ".",
+    "d": [
+      "in these things is great peace",
+      "these are the fruits of light",
+      "such shall inherit the kingdom"
+    ]
+  },
+  {
+    "b": "Galatians",
+    "r": "Galatians 6:7",
+    "t": 1,
+    "p": "Do not be deceived, God is not mocked; for whatever a man sows,",
+    "a": "that he will also reap",
+    "s": ".",
+    "d": [
+      "that shall he also reap",
+      "he shall find his reward",
+      "his soul shall be judged"
+    ]
+  },
+  {
+    "b": "Galatians",
+    "r": "Galatians 1:4",
+    "t": 2,
+    "p": "",
+    "a": "who gave Himself for our sins",
+    "s": ", that He might deliver us from this present evil age, according to the will of our God and Father,",
+    "d": [
+      "Who redeemed us from all iniquity",
+      "Who was delivered for our offenses",
+      "Who has called us to his kingdom"
+    ]
+  },
+  {
+    "b": "Galatians",
+    "r": "Galatians 6:14",
+    "t": 2,
+    "p": "But God forbid that I should boast except",
+    "a": "in the cross of our Lord Jesus Christ",
+    "s": ", by whom the world has been crucified to me, and I to the world.",
+    "d": [
+      "in the glorious heavenly promise of God",
+      "in the rich mercy of our living Redeemer",
+      "in the eternal throne of righteous truth"
+    ]
+  },
+  {
+    "b": "Ephesians",
+    "r": "Ephesians 1:13",
+    "t": 2,
+    "p": "In Him you also trusted, after you heard the word of truth, the gospel of your salvation; in whom also, having believed, you were",
+    "a": "sealed with the Holy Spirit of promise",
+    "s": ",",
+    "d": [
+      "sealed with that holy Spirit of promise",
+      "cleansed by the precious blood of the Lamb",
+      "justified through faith in his holy name"
+    ]
+  },
+  {
+    "b": "Ephesians",
+    "r": "Ephesians 2:9",
+    "t": 1,
+    "p": "",
+    "a": "not of works, lest anyone should boast",
+    "s": ".",
+    "d": [
+      "Not of works, lest any man should boast",
+      "According to the purpose of his holy will",
+      "By the free gift of everlasting righteousness"
+    ]
+  },
+  {
+    "b": "Ephesians",
+    "r": "Ephesians 2:14",
+    "t": 2,
+    "p": "",
+    "a": "For He Himself is our peace",
+    "s": ", who has made both one, and has broken down the middle wall of separation,",
+    "d": [
+      "For he is our peace",
+      "He is the true light",
+      "God is our salvation"
+    ]
+  },
+  {
+    "b": "Ephesians",
+    "r": "Ephesians 2:19",
+    "t": 2,
+    "p": "Now, therefore, you are no longer strangers and foreigners, but",
+    "a": "fellow citizens with the saints",
+    "s": "and members of the household of God,",
+    "d": [
+      "fellowcitizens with the saints",
+      "partakers of the holy promise",
+      "heirs of the heavenly kingdom"
+    ]
+  },
+  {
+    "b": "Ephesians",
+    "r": "Ephesians 3:19",
+    "t": 2,
+    "p": "to know",
+    "a": "the love of Christ which passes knowledge",
+    "s": "; that you may be filled with all the fullness of God.",
+    "d": [
+      "the glorious mystery of the gospel of God",
+      "the unsearchable riches of his holy grace",
+      "the heavenly peace that keeps all hearts"
+    ]
+  },
+  {
+    "b": "Ephesians",
+    "r": "Ephesians 4:1",
+    "t": 2,
+    "p": "I, therefore, the prisoner of the Lord, beseech you to",
+    "a": "walk worthy of the calling",
+    "s": "with which you were called,",
+    "d": [
+      "walk worthy of the vocation",
+      "keep the unity of the Spirit",
+      "stand fast in holy righteousness"
+    ]
+  },
+  {
+    "b": "Ephesians",
+    "r": "Ephesians 4:3",
+    "t": 2,
+    "p": "endeavoring to keep",
+    "a": "the unity of the Spirit",
+    "s": "in the bond of peace.",
+    "d": [
+      "the fellowship of saints",
+      "the righteousness of faith",
+      "the peace of Jesus Christ"
+    ]
+  },
+  {
+    "b": "Ephesians",
+    "r": "Ephesians 5:1",
+    "t": 2,
+    "p": "Therefore be",
+    "a": "imitators of God as dear children",
+    "s": ".",
+    "d": [
+      "followers of God, as dear children",
+      "servants of Christ in all sincerity",
+      "heirs of the kingdom of heaven"
+    ]
+  },
+  {
+    "b": "Philippians",
+    "r": "Philippians 1:3",
+    "t": 2,
+    "p": "I thank my God",
+    "a": "upon every remembrance of you",
+    "s": ",",
+    "d": [
+      "in all my holy prayers to God",
+      "for your fellowship in the gospel",
+      "with thanksgiving for your love"
+    ]
+  },
+  {
+    "b": "Philippians",
+    "r": "Philippians 2:9",
+    "t": 2,
+    "p": "Therefore God also has highly exalted Him and given Him",
+    "a": "the name which is above every name",
+    "s": ",",
+    "d": [
+      "all power in the heavens and the earth",
+      "the everlasting throne of righteousness",
+      "the glory of the Father from beginning"
+    ]
+  },
+  {
+    "b": "Philippians",
+    "r": "Philippians 3:8",
+    "t": 2,
+    "p": "Yet indeed I also count all things loss for",
+    "a": "the excellence of the knowledge of Christ Jesus",
+    "s": "my Lord, for whom I have suffered the loss of all things, and count them as rubbish, that I may gain Christ",
+    "d": [
+      "the excellency of the knowledge of Christ Jesus",
+      "the glorious hope of our heavenly calling above",
+      "the unsearchable riches of the holy covenant"
+    ]
+  },
+  {
+    "b": "Philippians",
+    "r": "Philippians 3:13",
+    "t": 2,
+    "p": "Brethren, I do not count myself to have apprehended; but one thing I do,",
+    "a": "forgetting those things which are behind",
+    "s": "and reaching forward to those things which are ahead,",
+    "d": [
+      "pressing toward the mark of our high calling",
+      "looking to the glorious author of our faith",
+      "forgetting those works which are behind"
+    ]
+  },
+  {
+    "b": "Philippians",
+    "r": "Philippians 4:4",
+    "t": 1,
+    "p": "",
+    "a": "Rejoice in the Lord always",
+    "s": ". Again I will say, rejoice!",
+    "d": [
+      "Praise the King of glory",
+      "Sing praises with the heart",
+      "Give thanks to our God"
+    ]
+  },
+  {
+    "b": "Philippians",
+    "r": "Philippians 4:19",
+    "t": 1,
+    "p": "And my God",
+    "a": "shall supply all your need",
+    "s": "according to His riches in glory by Christ Jesus.",
+    "d": [
+      "will establish all your ways",
+      "shall preserve your spirit",
+      "will give you perfect peace"
+    ]
+  },
+  {
+    "b": "Colossians",
+    "r": "Colossians 1:15",
+    "t": 2,
+    "p": "He is",
+    "a": "the image of the invisible God",
+    "s": ", the firstborn over all creation.",
+    "d": [
+      "the prince of the heavenly host",
+      "the author of eternal salvation",
+      "the righteous judge of all men"
+    ]
+  },
+  {
+    "b": "Colossians",
+    "r": "Colossians 1:18",
+    "t": 2,
+    "p": "And He is",
+    "a": "the head of the body, the church",
+    "s": ", who is the beginning, the firstborn from the dead, that in all things He may have the preeminence.",
+    "d": [
+      "the foundation of our holy faith",
+      "the prince of everlasting peace",
+      "the mediator of the new covenant"
+    ]
+  },
+  {
+    "b": "Colossians",
+    "r": "Colossians 1:27",
+    "t": 2,
+    "p": "To them God willed to make known what are the riches of the glory of this mystery among the Gentiles: which is",
+    "a": "Christ in you, the hope of glory",
+    "s": ".",
+    "d": [
+      "the word of life, which is eternal",
+      "the holy spirit of promise in power",
+      "the glorious riches of his grace"
+    ]
+  },
+  {
+    "b": "Colossians",
+    "r": "Colossians 3:1",
+    "t": 2,
+    "p": "If then you were raised with Christ,",
+    "a": "seek those things which are above",
+    "s": ", where Christ is, sitting at the right hand of God.",
+    "d": [
+      "walk in the light of his holy truth",
+      "put on the new man in righteousness",
+      "cleave to the Lord with all your heart"
+    ]
+  },
+  {
+    "b": "Colossians",
+    "r": "Colossians 3:15",
+    "t": 2,
+    "p": "And let",
+    "a": "the peace of God",
+    "s": "rule in your hearts, to which also you were called in one body; and be thankful.",
+    "d": [
+      "the word of truth",
+      "the holy spirit",
+      "the love of Christ"
+    ]
+  },
+  {
+    "b": "Colossians",
+    "r": "Colossians 3:17",
+    "t": 2,
+    "p": "And whatever you do in word or deed, do all",
+    "a": "in the name of the Lord Jesus",
+    "s": ", giving thanks to God the Father through Him.",
+    "d": [
+      "before the presence of our God",
+      "according to all the holy law",
+      "to the praise of the Father"
+    ]
+  },
+  {
+    "b": "1 Thessalonians",
+    "r": "1 Thessalonians 1:3",
+    "t": 2,
+    "p": "remembering without ceasing",
+    "a": "your work of faith, labor of love",
+    "s": ", and patience of hope in our Lord Jesus Christ in the sight of our God and Father,",
+    "d": [
+      "your fellowship in the holy gospel of peace",
+      "your patience in all trials and tribulations",
+      "your righteous walk before the living God"
+    ]
+  },
+  {
+    "b": "1 Thessalonians",
+    "r": "1 Thessalonians 1:9",
+    "t": 2,
+    "p": "For they themselves declare concerning us what manner of entry we had to you, and how you turned to God from idols",
+    "a": "to serve the living and true God",
+    "s": ",",
+    "d": [
+      "to keep the commandments of Jesus",
+      "to walk in the path of righteousness",
+      "to wait for the heavenly kingdom"
+    ]
+  },
+  {
+    "b": "1 Thessalonians",
+    "r": "1 Thessalonians 3:12",
+    "t": 2,
+    "p": "And may the Lord make you",
+    "a": "increase and abound in love",
+    "s": "to one another and to all, just as we do to you,",
+    "d": [
+      "walk worthy of the Lord God",
+      "stand fast in the holy truth",
+      "cleave to all righteousness"
+    ]
+  },
+  {
+    "b": "1 Thessalonians",
+    "r": "1 Thessalonians 4:17",
+    "t": 2,
+    "p": "Then we who are alive and remain shall be caught up together with them in the clouds to meet the Lord in the air. And thus",
+    "a": "we shall always be with the Lord",
+    "s": ".",
+    "d": [
+      "shall we ever be with the Lord",
+      "shall all sorrow pass away",
+      "we shall reign in righteousness"
+    ]
+  },
+  {
+    "b": "1 Thessalonians",
+    "r": "1 Thessalonians 5:16",
+    "t": 1,
+    "p": "",
+    "a": "Rejoice always",
+    "s": ",",
+    "d": [
+      "Rejoice evermore",
+      "Pray without fear",
+      "Give thanks always"
+    ]
+  },
+  {
+    "b": "1 Thessalonians",
+    "r": "1 Thessalonians 5:25",
+    "t": 1,
+    "p": "",
+    "a": "Brethren, pray for us",
+    "s": ".",
+    "d": [
+      "Walk in holy peace",
+      "Fear not the wicked",
+      "Serve the Lord always"
+    ]
+  },
+  {
+    "b": "2 Thessalonians",
+    "r": "2 Thessalonians 1:3",
+    "t": 3,
+    "p": "We are bound to thank God always for you, brethren, as it is fitting, because",
+    "a": "your faith grows exceedingly",
+    "s": ", and the love of every one of you all abounds toward each other,",
+    "d": [
+      "your hope grows exceedingly",
+      "your trust grows exceedingly",
+      "your belief grows exceedingly"
+    ]
+  },
+  {
+    "b": "2 Thessalonians",
+    "r": "2 Thessalonians 1:12",
+    "t": 2,
+    "p": "that the name of our Lord Jesus Christ",
+    "a": "may be glorified in you",
+    "s": ", and you in Him, according to the grace of our God and the Lord Jesus Christ.",
+    "d": [
+      "shall be revealed on high",
+      "will give you perfect peace",
+      "does rule in all your hearts"
+    ]
+  },
+  {
+    "b": "2 Thessalonians",
+    "r": "2 Thessalonians 2:14",
+    "t": 2,
+    "p": "to which He called you by our gospel, for the obtaining of",
+    "a": "the glory of our Lord Jesus Christ",
+    "s": ".",
+    "d": [
+      "the eternal kingdom of our Father",
+      "the heavenly inheritance of saints",
+      "the holy promise of his coming"
+    ]
+  },
+  {
+    "b": "2 Thessalonians",
+    "r": "2 Thessalonians 3:5",
+    "t": 2,
+    "p": "Now may the Lord direct your hearts",
+    "a": "into the love of God",
+    "s": "and into the patience of Christ.",
+    "d": [
+      "in the path of peace",
+      "through the true faith",
+      "to the holy kingdom"
+    ]
+  },
+  {
+    "b": "2 Thessalonians",
+    "r": "2 Thessalonians 3:18",
+    "t": 1,
+    "p": "The grace of our Lord Jesus Christ",
+    "a": "be with you all. Amen",
+    "s": ".",
+    "d": [
+      "abide with your spirit",
+      "give you holy peace",
+      "dwell in your hearts"
+    ]
+  },
+  {
+    "b": "1 Timothy",
+    "r": "1 Timothy 1:2",
+    "t": 2,
+    "p": "To Timothy, a true son in the faith:",
+    "a": "Grace, mercy, and peace",
+    "s": "from God our Father and Jesus Christ our Lord.",
+    "d": [
+      "Faith, and holy love",
+      "Glory, and great praise",
+      "Truth, and perfect joy"
+    ]
+  },
+  {
+    "b": "1 Timothy",
+    "r": "1 Timothy 1:14",
+    "t": 2,
+    "p": "And the grace of our Lord was",
+    "a": "exceedingly abundant, with faith and love",
+    "s": "which are in Christ Jesus.",
+    "d": [
+      "exceeding abundant with faith and love",
+      "full of heavenly peace and righteous joy",
+      "established according to the holy promise"
+    ]
+  },
+  {
+    "b": "1 Timothy",
+    "r": "1 Timothy 1:17",
+    "t": 1,
+    "p": "Now to",
+    "a": "the King eternal, immortal, invisible",
+    "s": ", to God who alone is wise, be honor and glory forever and ever. Amen.",
+    "d": [
+      "the righteous judge, holy and true",
+      "the rock of ages, glorious on high",
+      "the Ruler eternal, immortal, invisible"
+    ]
+  },
+  {
+    "b": "1 Timothy",
+    "r": "1 Timothy 2:3",
+    "t": 2,
+    "p": "For this is",
+    "a": "good and acceptable in the sight of God",
+    "s": "our Savior,",
+    "d": [
+      "the true commandment of the holy gospel",
+      "well pleasing before our heavenly Father",
+      "righteous according to the ancient promise"
+    ]
+  },
+  {
+    "b": "1 Timothy",
+    "r": "1 Timothy 2:4",
+    "t": 2,
+    "p": "who desires all men to be saved and",
+    "a": "to come to the knowledge of the truth",
+    "s": ".",
+    "d": [
+      "to enter into the glorious rest of heaven",
+      "to receive the forgiveness of their sins",
+      "to walk in the light of his holy presence"
+    ]
+  },
+  {
+    "b": "1 Timothy",
+    "r": "1 Timothy 4:10",
+    "t": 2,
+    "p": "For to this end we both labor and suffer reproach, because",
+    "a": "we trust in the living God",
+    "s": ", who is the Savior of all men, especially of those who believe.",
+    "d": [
+      "we seek the heavenly kingdom",
+      "we preach the word of truth",
+      "we walk by faith and peace"
+    ]
+  },
+  {
+    "b": "2 Timothy",
+    "r": "2 Timothy 1:6",
+    "t": 2,
+    "p": "Therefore I remind you to",
+    "a": "stir up the gift of God",
+    "s": "which is in you through the laying on of my hands.",
+    "d": [
+      "walk in the light of truth",
+      "keep the holy commandment",
+      "stand fast in the gospel"
+    ]
+  },
+  {
+    "b": "2 Timothy",
+    "r": "2 Timothy 1:9",
+    "t": 2,
+    "p": "who has saved us and",
+    "a": "called us with a holy calling",
+    "s": ", not according to our works, but according to His own purpose and grace which was given to us in Christ Jesus before time began,",
+    "d": [
+      "justified us by his free grace",
+      "redeemed us from all iniquity",
+      "sealed us with the Holy Spirit"
+    ]
+  },
+  {
+    "b": "2 Timothy",
+    "r": "2 Timothy 2:1",
+    "t": 2,
+    "p": "You therefore, my son,",
+    "a": "be strong in the grace",
+    "s": "that is in Christ Jesus.",
+    "d": [
+      "walk in the holy faith",
+      "stand in the light of God",
+      "cleave to all truth"
+    ]
+  },
+  {
+    "b": "2 Timothy",
+    "r": "2 Timothy 2:11",
+    "t": 2,
+    "p": "This is a faithful saying: For if we died with Him,",
+    "a": "We shall also live with Him",
+    "s": ".",
+    "d": [
+      "our souls shall dwell at ease",
+      "we shall reign in his kingdom",
+      "we shall inherit life eternal"
+    ]
+  },
+  {
+    "b": "2 Timothy",
+    "r": "2 Timothy 2:24",
+    "t": 2,
+    "p": "And a servant of the Lord must not quarrel but be",
+    "a": "gentle to all, able",
+    "s": "to teach, patient,",
+    "d": [
+      "blameless in the faith",
+      "holy before the Lord",
+      "righteous in your way"
+    ]
+  },
+  {
+    "b": "2 Timothy",
+    "r": "2 Timothy 4:2",
+    "t": 1,
+    "p": "",
+    "a": "Preach the word! Be ready in season",
+    "s": "and out of season. Convince, rebuke, exhort, with all longsuffering and teaching.",
+    "d": [
+      "Preach the word; be instant in season",
+      "Fight the good fight of faith in love",
+      "Stand fast in the liberty of Christ"
+    ]
+  },
+  {
+    "b": "Titus",
+    "r": "Titus 1:15",
+    "t": 2,
+    "p": "To the pure",
+    "a": "all things are pure",
+    "s": ", but to those who are defiled and unbelieving nothing is pure; but even their mind and conscience are defiled.",
+    "d": [
+      "all grace is given",
+      "truth shall abide",
+      "peace is restored"
+    ]
+  },
+  {
+    "b": "Titus",
+    "r": "Titus 2:1",
+    "t": 2,
+    "p": "But as for you, speak",
+    "a": "the things which are proper for sound doctrine",
+    "s": ":",
+    "d": [
+      "the things which become sound doctrine",
+      "the holy words of the new covenant",
+      "the glorious gospel of our salvation"
+    ]
+  },
+  {
+    "b": "Titus",
+    "r": "Titus 2:14",
+    "t": 2,
+    "p": "who gave Himself for us, that He might redeem us from every lawless deed and purify for Himself His",
+    "a": "own special people, zealous for good works",
+    "s": ".",
+    "d": [
+      "a peculiar people, zealous of good works",
+      "a holy priesthood, offering spiritual praise",
+      "the chosen flock of the heavenly Shepherd"
+    ]
+  },
+  {
+    "b": "Titus",
+    "r": "Titus 3:1",
+    "t": 2,
+    "p": "Remind them to be subject to rulers and authorities, to obey, to be",
+    "a": "ready for every good work",
+    "s": ",",
+    "d": [
+      "ready to every good work",
+      "established in holy faith",
+      "zealous of righteous peace"
+    ]
+  },
+  {
+    "b": "Titus",
+    "r": "Titus 3:8",
+    "t": 2,
+    "p": "This is a faithful saying, and these things I want you to affirm constantly, that those who have believed in God should be",
+    "a": "careful to maintain good works",
+    "s": ". These things are good and profitable to men.",
+    "d": [
+      "steadfast in the holy calling",
+      "blameless before all the saints",
+      "diligent in prayer and fasting"
+    ]
+  },
+  {
+    "b": "Philemon",
+    "r": "Philemon 1:3",
+    "t": 2,
+    "p": "",
+    "a": "Grace to you and peace",
+    "s": "from God our Father and the Lord Jesus Christ.",
+    "d": [
+      "Mercy, and holy joy",
+      "Love from heaven above",
+      "Praise to our God"
+    ]
+  },
+  {
+    "b": "Philemon",
+    "r": "Philemon 1:4",
+    "t": 3,
+    "p": "I thank my God,",
+    "a": "making mention of you always in my prayers",
+    "s": ",",
+    "d": [
+      "giving thanks to the Father of our salvation",
+      "rejoicing in the fellowship of the gospel",
+      "beseeching the Lord to establish your house"
+    ]
+  },
+  {
+    "b": "Philemon",
+    "r": "Philemon 1:5",
+    "t": 2,
+    "p": "",
+    "a": "hearing of your love and faith",
+    "s": "which you have toward the Lord Jesus and toward all the saints,",
+    "d": [
+      "Rejoicing in your great peace",
+      "Giving thanks for your holy walk",
+      "Blessing God for your good works"
+    ]
+  },
+  {
+    "b": "Philemon",
+    "r": "Philemon 1:20",
+    "t": 3,
+    "p": "Yes, brother, let me have joy from you in the Lord;",
+    "a": "refresh my heart in the Lord",
+    "s": ".",
+    "d": [
+      "refresh my bowels in the Lord",
+      "comfort my heart in the truth",
+      "strengthen my soul in faith"
+    ]
+  },
+  {
+    "b": "Hebrews",
+    "r": "Hebrews 1:1",
+    "t": 2,
+    "p": "God, who at various times and in various ways",
+    "a": "spoke in time past to the fathers",
+    "s": "by the prophets,",
+    "d": [
+      "revealed his glory to the ancient elders",
+      "showed forth his salvation to the patriarchs",
+      "declared his holy covenant to the people"
+    ]
+  },
+  {
+    "b": "Hebrews",
+    "r": "Hebrews 1:3",
+    "t": 2,
+    "p": "who being",
+    "a": "the brightness of His glory",
+    "s": "and the express image of His person, and upholding all things by the word of His power, when He had by Himself purged our sins, sat down at the right hand of the Majesty on high,",
+    "d": [
+      "the fountain of his mercy",
+      "the mystery of his grace",
+      "the beginning of his kingdom"
+    ]
+  },
+  {
+    "b": "Hebrews",
+    "r": "Hebrews 2:1",
+    "t": 2,
+    "p": "Therefore we must",
+    "a": "give the more earnest heed",
+    "s": "to the things we have heard, lest we drift away.",
+    "d": [
+      "hold fast the faithful word",
+      "abide in the holy commandments",
+      "stand firm in true righteousness"
+    ]
+  },
+  {
+    "b": "Hebrews",
+    "r": "Hebrews 2:3",
+    "t": 2,
+    "p": "how shall we escape",
+    "a": "if we neglect so great a salvation",
+    "s": ", which at the first began to be spoken by the Lord, and was confirmed to us by those who heard Him,",
+    "d": [
+      "if we despise the heavenly calling",
+      "if we turn from the holy covenant",
+      "if we refuse the word of grace"
+    ]
+  },
+  {
+    "b": "Hebrews",
+    "r": "Hebrews 4:14",
+    "t": 2,
+    "p": "Seeing then that we have a great High Priest who has passed through the heavens, Jesus the Son of God,",
+    "a": "let us hold fast our confession",
+    "s": ".",
+    "d": [
+      "let us hold fast our profession",
+      "let us draw near with boldness",
+      "let us keep the holy faith"
+    ]
+  },
+  {
+    "b": "Hebrews",
+    "r": "Hebrews 7:25",
+    "t": 2,
+    "p": "Therefore He is also able to save to the uttermost those who come to God through Him, since He always lives",
+    "a": "to make intercession for them",
+    "s": ".",
+    "d": [
+      "to establish them in his kingdom",
+      "to cleanse their hearts from evil",
+      "to give everlasting life to all"
+    ]
+  },
+  {
+    "b": "Hebrews",
+    "r": "Hebrews 10:24",
+    "t": 2,
+    "p": "And let us consider one another in",
+    "a": "order to stir up love and good works",
+    "s": ",",
+    "d": [
+      "to establish peace and brotherly kindness",
+      "to walk in holiness and true righteousness",
+      "to keep the commandments of the Lord"
+    ]
+  },
+  {
+    "b": "Hebrews",
+    "r": "Hebrews 10:25",
+    "t": 2,
+    "p": "not forsaking",
+    "a": "the assembling of ourselves together",
+    "s": ", as is the manner of some, but exhorting one another, and so much the more as you see the Day approaching.",
+    "d": [
+      "the holy communion of the saints",
+      "the fellowship of the righteous",
+      "the gathering of the faithful"
+    ]
+  },
+  {
+    "b": "Hebrews",
+    "r": "Hebrews 13:15",
+    "t": 2,
+    "p": "Therefore by Him let us continually offer",
+    "a": "the sacrifice of praise to God",
+    "s": ", that is, the fruit of our lips, giving thanks to His name.",
+    "d": [
+      "the sacrifice of praise to God continually",
+      "the prayer of faith before the Lord always",
+      "the offering of righteous deeds with joy"
+    ]
+  },
+  {
+    "b": "Hebrews",
+    "r": "Hebrews 13:16",
+    "t": 2,
+    "p": "But do not forget to do good and to share, for with such sacrifices",
+    "a": "God is well pleased",
+    "s": ".",
+    "d": [
+      "the Lord is delighted",
+      "our King is glorified",
+      "the Father is praised"
+    ]
+  },
+  {
+    "b": "James",
+    "r": "James 1:19",
+    "t": 1,
+    "p": "So then, my beloved brethren, let every man be swift to hear,",
+    "a": "slow to speak, slow to wrath",
+    "s": ";",
+    "d": [
+      "patient in spirit, meek in mind",
+      "gentle to all, harmless in heart",
+      "sober in life, peaceful in speech"
+    ]
+  },
+  {
+    "b": "James",
+    "r": "James 1:21",
+    "t": 2,
+    "p": "Therefore lay aside all filthiness and overflow of wickedness, and",
+    "a": "receive with meekness the implanted word",
+    "s": ", which is able to save your souls.",
+    "d": [
+      "receive with meekness the engrafted word",
+      "hear with gladness the message of truth",
+      "keep with diligence the holy commandments"
+    ]
+  },
+  {
+    "b": "James",
+    "r": "James 1:27",
+    "t": 1,
+    "p": "Pure and undefiled religion before God and the Father is this: to visit orphans and widows in their trouble, and to keep oneself",
+    "a": "unspotted from the world",
+    "s": ".",
+    "d": [
+      "blameless before all men",
+      "faultless in every way",
+      "cleansed from every sin"
+    ]
+  },
+  {
+    "b": "James",
+    "r": "James 2:26",
+    "t": 1,
+    "p": "For as the body without the spirit is dead, so",
+    "a": "faith without works is dead",
+    "s": "also.",
+    "d": [
+      "hope without patience is vain",
+      "knowledge without love is nothing",
+      "righteousness without truth fails"
+    ]
+  },
+  {
+    "b": "James",
+    "r": "James 3:18",
+    "t": 2,
+    "p": "Now",
+    "a": "the fruit of righteousness",
+    "s": "is sown in peace by those who make peace.",
+    "d": [
+      "the blessing of eternal peace",
+      "the wisdom of heavenly grace",
+      "the reward of faithful obedience"
+    ]
+  },
+  {
+    "b": "James",
+    "r": "James 4:10",
+    "t": 2,
+    "p": "",
+    "a": "Humble yourselves in the sight of the Lord",
+    "s": ", and He will lift you up.",
+    "d": [
+      "Bow down before the majesty of God",
+      "Walk meekly in the paths of wisdom",
+      "Seek you the face of the Most High"
+    ]
+  },
+  {
+    "b": "1 Peter",
+    "r": "1 Peter 1:15",
+    "t": 2,
+    "p": "but as He who called you is holy, you also",
+    "a": "be holy in all your conduct",
+    "s": ",",
+    "d": [
+      "blameless in every work of faith",
+      "righteous in all the ways of truth",
+      "steadfast in the hope of glory"
+    ]
+  },
+  {
+    "b": "1 Peter",
+    "r": "1 Peter 1:22",
+    "t": 2,
+    "p": "Since you have purified your souls in obeying the truth through the Spirit in sincere love of the brethren,",
+    "a": "love one another fervently with a pure heart",
+    "s": ",",
+    "d": [
+      "love one another with a pure heart fervently",
+      "walk together in brotherly peace continually",
+      "abide in the truth with all meekness of spirit"
+    ]
+  },
+  {
+    "b": "1 Peter",
+    "r": "1 Peter 2:2",
+    "t": 2,
+    "p": "as newborn babes,",
+    "a": "desire the pure milk of the word",
+    "s": ", that you may grow thereby,",
+    "d": [
+      "desire the sincere milk of the word",
+      "seek after the true bread of heaven",
+      "receive the faithful promises of Christ"
+    ]
+  },
+  {
+    "b": "1 Peter",
+    "r": "1 Peter 3:8",
+    "t": 2,
+    "p": "Finally, all",
+    "a": "of you be of one mind",
+    "s": ", having compassion for one another; love as brothers, be tenderhearted, be courteous;",
+    "d": [
+      "be you all of one mind",
+      "walk you in the holy truth",
+      "stand you fast in the faith"
+    ]
+  },
+  {
+    "b": "1 Peter",
+    "r": "1 Peter 4:8",
+    "t": 2,
+    "p": "And above all things have fervent love for one another, for",
+    "a": "\"love will cover a multitude of sins",
+    "s": ".\"",
+    "d": [
+      "righteousness shall deliver the soul from death",
+      "grace shall establish your hearts in all truth",
+      "mercy shall triumph over righteous judgment"
+    ]
+  },
+  {
+    "b": "1 Peter",
+    "r": "1 Peter 5:10",
+    "t": 2,
+    "p": "But may the God of all grace, who called us to His eternal glory by Christ Jesus, after you have suffered a while,",
+    "a": "perfect, establish, strengthen, and settle you",
+    "s": ".",
+    "d": [
+      "guide your footsteps into everlasting life",
+      "keep you blameless in holiness and peace",
+      "preserve your souls until the heavenly kingdom"
+    ]
+  },
+  {
+    "b": "2 Peter",
+    "r": "2 Peter 1:2",
+    "t": 2,
+    "p": "",
+    "a": "Grace and peace be multiplied to you",
+    "s": "in the knowledge of God and of Jesus our Lord,",
+    "d": [
+      "Hope and comfort be with your spirits",
+      "Righteousness and joy abide in you",
+      "Mercy and truth be granted to you"
+    ]
+  },
+  {
+    "b": "2 Peter",
+    "r": "2 Peter 1:3",
+    "t": 2,
+    "p": "as His divine power has given to us all things that",
+    "a": "pertain to life and godliness",
+    "s": ", through the knowledge of Him who called us by glory and virtue,",
+    "d": [
+      "bring forth everlasting salvation",
+      "lead to righteousness and peace",
+      "belong to the heavenly calling"
+    ]
+  },
+  {
+    "b": "2 Peter",
+    "r": "2 Peter 1:8",
+    "t": 2,
+    "p": "For if these things are yours and abound, you will",
+    "a": "be neither barren nor unfruitful",
+    "s": "in the knowledge of our Lord Jesus Christ.",
+    "d": [
+      "never stumble nor turn aside",
+      "not be shaken nor dismayed",
+      "always walk in living light"
+    ]
+  },
+  {
+    "b": "2 Peter",
+    "r": "2 Peter 1:10",
+    "t": 2,
+    "p": "Therefore, brethren, be even more diligent to",
+    "a": "make your call and election sure",
+    "s": ", for if you do these things you will never stumble;",
+    "d": [
+      "keep the commandments of the Lord",
+      "stand steadfast in the holy truth",
+      "abide faithful to the great end"
+    ]
+  },
+  {
+    "b": "2 Peter",
+    "r": "2 Peter 3:14",
+    "t": 2,
+    "p": "Therefore, beloved, looking forward to these things, be diligent to be found by Him in peace,",
+    "a": "without spot and blameless",
+    "s": ";",
+    "d": [
+      "in holiness and true peace",
+      "established in righteous faith",
+      "cleansed from every evil work"
+    ]
+  },
+  {
+    "b": "1 John",
+    "r": "1 John 2:17",
+    "t": 2,
+    "p": "And the world is passing away, and the lust of it; but he who does the will of God",
+    "a": "abides forever",
+    "s": ".",
+    "d": [
+      "shall never perish",
+      "has eternal peace",
+      "reigns in life"
+    ]
+  },
+  {
+    "b": "1 John",
+    "r": "1 John 3:2",
+    "t": 2,
+    "p": "Beloved, now we are children of God; and it has not yet been revealed what we shall be, but we know that when He is revealed,",
+    "a": "we shall be like Him",
+    "s": ", for we shall see Him as He is.",
+    "d": [
+      "we shall behold his face",
+      "we shall reign with him",
+      "we shall enter into rest"
+    ]
+  },
+  {
+    "b": "1 John",
+    "r": "1 John 3:23",
+    "t": 2,
+    "p": "And this is His commandment: that we should believe on the name of His Son Jesus Christ and",
+    "a": "love one another",
+    "s": ", as He gave us commandment.",
+    "d": [
+      "walk in the light",
+      "keep his sayings",
+      "abide in his peace"
+    ]
+  },
+  {
+    "b": "1 John",
+    "r": "1 John 4:16",
+    "t": 2,
+    "p": "And we have known and believed the love that God has for us. God is love, and he who abides in love",
+    "a": "abides in God, and God in him",
+    "s": ".",
+    "d": [
+      "dwells in God, and God in him",
+      "abides in the light of eternal life",
+      "walks in the holy truth of heaven"
+    ]
+  },
+  {
+    "b": "1 John",
+    "r": "1 John 5:12",
+    "t": 2,
+    "p": "",
+    "a": "He who has the Son has life",
+    "s": "; he who does not have the Son of God does not have life.",
+    "d": [
+      "He that has the Son has life",
+      "He that believes the word shall endure",
+      "Whoever loves the Lord has peace"
+    ]
+  },
+  {
+    "b": "1 John",
+    "r": "1 John 5:13",
+    "t": 2,
+    "p": "These things I have written to you who believe in the name of the Son of God, that you may know that",
+    "a": "you have eternal life",
+    "s": ", and that you may continue to believe in the name of the Son of God.",
+    "d": [
+      "your sins are forgiven",
+      "you are born of God",
+      "you know the true God"
+    ]
+  },
+  {
+    "b": "2 John",
+    "r": "2 John 1:2",
+    "t": 2,
+    "p": "because of the truth which abides in us and",
+    "a": "will be with us forever",
+    "s": ":",
+    "d": [
+      "shall be with us forever",
+      "abides in our hearts always",
+      "guides our feet into peace"
+    ]
+  },
+  {
+    "b": "2 John",
+    "r": "2 John 1:5",
+    "t": 2,
+    "p": "And now I plead with you, lady, not as though I wrote a new commandment to you, but that which we have had from the beginning:",
+    "a": "that we love one another",
+    "s": ".",
+    "d": [
+      "that we abide in peace",
+      "that you walk in truth",
+      "that you keep his law"
+    ]
+  },
+  {
+    "b": "2 John",
+    "r": "2 John 1:7",
+    "t": 2,
+    "p": "For many deceivers have gone out into the world who do not confess",
+    "a": "Jesus Christ as coming in the flesh",
+    "s": ". This is a deceiver and an antichrist.",
+    "d": [
+      "Jesus Christ is come in the flesh",
+      "the Lord Jesus is the holy Son of God",
+      "the eternal Word was made known to men"
+    ]
+  },
+  {
+    "b": "3 John",
+    "r": "3 John 1:1",
+    "t": 2,
+    "p": "The Elder, To the beloved Gaius,",
+    "a": "whom I love in truth",
+    "s": ":",
+    "d": [
+      "whom I greet in the Lord",
+      "who abides in holy peace",
+      "who walks in all love"
+    ]
+  },
+  {
+    "b": "3 John",
+    "r": "3 John 1:3",
+    "t": 2,
+    "p": "For I rejoiced greatly when brethren came and testified of the truth that is in you,",
+    "a": "just as you walk in the truth",
+    "s": ".",
+    "d": [
+      "even as you walk in the truth",
+      "because you are faithful in all things",
+      "seeing you love the brethren with pure heart"
+    ]
+  },
+  {
+    "b": "3 John",
+    "r": "3 John 1:12",
+    "t": 2,
+    "p": "Demetrius has",
+    "a": "a good testimony from all",
+    "s": ", and from the truth itself. And we also bear witness, and you know that our testimony is true.",
+    "d": [
+      "good report of all men",
+      "great honor among the saints",
+      "praise from all the brethren"
+    ]
+  },
+  {
+    "b": "Jude",
+    "r": "Jude 1:1",
+    "t": 2,
+    "p": "Jude, a bondservant of Jesus Christ, and brother of James, To those who are called, sanctified by God the Father, and",
+    "a": "preserved in Jesus Christ",
+    "s": ":",
+    "d": [
+      "sealed with the Holy Spirit",
+      "established in the faith",
+      "called to eternal life"
+    ]
+  },
+  {
+    "b": "Jude",
+    "r": "Jude 1:2",
+    "t": 2,
+    "p": "Mercy,",
+    "a": "peace, and love be multiplied",
+    "s": "to you.",
+    "d": [
+      "mercy, and truth, be with you",
+      "grace, and hope, abound in you",
+      "joy, and light, fill your hearts"
+    ]
+  },
+  {
+    "b": "Jude",
+    "r": "Jude 1:18",
+    "t": 2,
+    "p": "how they told you that there would be",
+    "a": "mockers in the last time",
+    "s": "who would walk according to their own ungodly lusts.",
+    "d": [
+      "false teachers in the world",
+      "ungodly men full of deceit",
+      "deceivers walking in darkness"
+    ]
+  },
+  {
+    "b": "Jude",
+    "r": "Jude 1:23",
+    "t": 2,
+    "p": "but others save with fear,",
+    "a": "pulling them out of the fire",
+    "s": ", hating even the garment defiled by the flesh.",
+    "d": [
+      "turning them from every evil way",
+      "leading them into righteous truth",
+      "delivering them from utter ruin"
+    ]
+  },
+  {
+    "b": "Revelation",
+    "r": "Revelation 1:3",
+    "t": 2,
+    "p": "Blessed is he who reads and those who hear",
+    "a": "the words of this prophecy",
+    "s": ", and keep those things which are written in it; for the time is near.",
+    "d": [
+      "the voice of the Lord",
+      "the counsel of the Spirit",
+      "the gospel of the kingdom"
+    ]
+  },
+  {
+    "b": "Revelation",
+    "r": "Revelation 1:7",
+    "t": 2,
+    "p": "Behold, He is coming with clouds, and",
+    "a": "every eye will see Him",
+    "s": ", even they who pierced Him. And all the tribes of the earth will mourn because of Him. Even so, Amen.",
+    "d": [
+      "every eye shall see him",
+      "all the nations shall fear",
+      "the heavens shall depart"
+    ]
+  },
+  {
+    "b": "Revelation",
+    "r": "Revelation 1:17",
+    "t": 2,
+    "p": "And when I saw Him, I fell at His feet as dead. But He laid His right hand on me, saying to me, \"Do not be afraid;",
+    "a": "I am the First and the Last",
+    "s": ".",
+    "d": [
+      "I am the root of David",
+      "I am the light of the world",
+      "I am the prince of life"
+    ]
+  },
+  {
+    "b": "Revelation",
+    "r": "Revelation 4:8",
+    "t": 1,
+    "p": "The four living creatures, each having six wings, were full of eyes around and within. And they do not rest day or night, saying:",
+    "a": "\"Holy, holy, holy, Lord God Almighty",
+    "s": ", Who was and is and is to come!\"",
+    "d": [
+      "\"Holy, righteous, holy, Lord God Almighty",
+      "\"Holy, pure, holy, Lord God Almighty",
+      "\"Holy, faithful, holy, Lord God Almighty"
+    ]
+  },
+  {
+    "b": "Revelation",
+    "r": "Revelation 7:12",
+    "t": 2,
+    "p": "saying:",
+    "a": "\"Amen! Blessing and glory and wisdom, Thanksgiving",
+    "s": "and honor and power and might, Be to our God forever and ever. Amen.\"",
+    "d": [
+      "Blessing, and glory, and wisdom, and thanksgiving",
+      "Salvation, and majesty, and peace, and righteousness",
+      "Praise, and adoration, and dominion, and truth"
+    ]
+  },
+  {
+    "b": "Revelation",
+    "r": "Revelation 14:13",
+    "t": 2,
+    "p": "Then I heard a voice from heaven saying to me, \"Write: 'Blessed are the dead who die in the Lord from now on.' \" \"Yes,\" says the Spirit,",
+    "a": "\"that they may rest from their labors",
+    "s": ", and their works follow them.\"",
+    "d": [
+      "that they may rest from their labours",
+      "for they shall enter into eternal glory",
+      "because their reward is with the Most High"
+    ]
+  },
+  {
+    "b": "Revelation",
+    "r": "Revelation 15:3",
+    "t": 2,
+    "p": "They sing the song of Moses, the servant of God, and the song of the Lamb, saying: \"Great and marvelous are Your works, Lord God Almighty!",
+    "a": "Just and true are Your ways",
+    "s": ", O King of the saints!",
+    "d": [
+      "holy and righteous are your judgments",
+      "great and mighty are your wonders",
+      "glorious and fearful are your deeds"
+    ]
+  },
+  {
+    "b": "Revelation",
+    "r": "Revelation 19:6",
+    "t": 2,
+    "p": "And I heard, as it were, the voice of a great multitude, as the sound of many waters and as the sound of mighty thunderings, saying,",
+    "a": "\"Alleluia! For the Lord God Omnipotent reigns",
+    "s": "!",
+    "d": [
+      "Hosanna: for the day of righteous salvation is come",
+      "Glory: for the sovereign Creator of heaven is exalted",
+      "Amen: for the eternal Lamb of God has conquered"
+    ]
+  },
+  {
+    "b": "Revelation",
+    "r": "Revelation 21:3",
+    "t": 2,
+    "p": "And I heard a loud voice from heaven saying, \"Behold,",
+    "a": "the tabernacle of God is with men",
+    "s": ", and He will dwell with them, and they shall be His people. God Himself will be with them and be their God.",
+    "d": [
+      "the kingdom of our Lord is established",
+      "the dwelling of the Holy One is revealed",
+      "the glorious city comes down in peace"
+    ]
+  },
+  {
+    "b": "Revelation",
+    "r": "Revelation 21:6",
+    "t": 2,
+    "p": "And He said to me, \"It is done!",
+    "a": "I am the Alpha and the Omega",
+    "s": ", the Beginning and the End. I will give of the fountain of the water of life freely to him who thirsts.",
+    "d": [
+      "I am the true Light",
+      "I am the Lord of glory",
+      "I am the Prince of peace"
+    ]
   }
 ];
 if(typeof module !== "undefined") module.exports = { NKJV_VERSES };

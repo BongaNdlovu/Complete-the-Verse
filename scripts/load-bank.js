@@ -7,7 +7,7 @@ const Module = require("module");
 
 const ROOT = path.join(__dirname, "..");
 const KJV_FILES = ["js/verses.js", "js/verses-extra.js", "js/verses-more.js",
-               "js/verses-ascent.js",
+               "js/verses-ascent.js", "js/verses-expansion.js",
                "js/passages.js", "js/bank.js"];
 const NKJV_FILES = ["js/nkjv/verses.js", "js/nkjv/passages.js", "js/bank.js"];
 
@@ -35,7 +35,7 @@ function loadBank(edition){
     })
     .join("\n;\n") +
     "\n;module.exports = (function(){ const out = {};" +
-    ["VERSES","VERSES_EXTRA","VERSES_MORE","VERSES_ASCENT","PASSAGES","BY_TIER","BOOKS_ORDER","LEGACY_IDS","verseId"]
+    ["VERSES","VERSES_EXTRA","VERSES_MORE","VERSES_ASCENT","VERSES_EXPANSION","PASSAGES","BY_TIER","BOOKS_ORDER","LEGACY_IDS","verseId"]
       .map(n => "try{ out." + n + " = " + n + "; }catch(e){}").join("") +
     " return out; })();";
   const m = new Module(path.join(ROOT, "js/__bank__.js"));
