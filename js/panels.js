@@ -143,6 +143,15 @@ function buildPlayerCard(){
     '<div class="pc-xp"><i id="pc-xpfill"></i></div>'+
     '<div class="pc-sub" id="pc-sub">0 / 320 XP</div>'+
     '<div class="pc-oil" id="pc-oil">0 oil</div></div>';
+  d.setAttribute("role", "button");
+  d.tabIndex = 0;
+  d.title = "See all ranks";
+  d.setAttribute("aria-label", "See all ranks");
+  function openRanks(){ Snd.ui(); openRecordsTab("ranks"); }
+  d.addEventListener("click", openRanks);
+  d.addEventListener("keydown", function(e){
+    if(e.key === "Enter" || e.key === " "){ e.preventDefault(); openRanks(); }
+  });
   document.body.appendChild(d);
 }
 function updatePlayerCard(){
@@ -363,7 +372,7 @@ function renderSeals(){
 let rtab = "board";
 /* Deep link: open the Chronicle straight onto a given tab (Daily Board). */
 function openRecordsTab(tab){
-  rtab = ["daily","blitz","life","books"].indexOf(tab) >= 0 ? tab : "board";
+  rtab = ["daily","blitz","life","ranks","books"].indexOf(tab) >= 0 ? tab : "board";
   document.querySelectorAll("[data-rtab]").forEach(x=>x.classList.toggle("on", x.dataset.rtab===rtab));
   renderRecords();
   go("records");
@@ -404,6 +413,34 @@ function renderLifeStats(el){
     box(SAVE.seals.length+" / "+SEALS.length,"Seals")+
     '</div>';
   function box(a,b){ return '<div class="sbox"><b>'+esc(String(a))+'</b><span>'+esc(b)+'</span></div>'; }
+}
+function xpToReachLevel(level){
+  let total = 0;
+  for(let l = 1; l < level; l++) total += Meta.xpNeeded(l);
+  return total;
+}
+function rankRowState(rank, next, level){
+  if(next && rank.l === next.l) return "next";
+  if(level < rank.l) return "locked";
+  return rankFor(level) === rank.t ? "current" : "earned";
+}
+function rankRowNote(state, rank, xp){
+  if(state === "current") return "Your rank";
+  if(state === "earned") return "Earned";
+  const reach = xpToReachLevel(rank.l);
+  if(state === "next") return fmt(Math.max(0, reach - xp)) + " XP to go";
+  return fmt(reach) + " XP total";
+}
+function renderRankLadder(el){
+  const xp = SAVE.xp || 0;
+  const level = levelInfo(xp).level;
+  const next = Meta.RANKS.find(r=>r.l > level) || null;
+  el.innerHTML = '<div class="mtitle" style="color:var(--gold-dim);margin-bottom:1vh">'+Meta.RANKS.length+' ranks · earn XP in any mode to climb</div>'+
+    '<ol class="ranklist">'+Meta.RANKS.map(function(r){
+      const state = rankRowState(r, next, level);
+      return '<li class="rankrow '+state+'"><span class="rk-lvl">Level '+r.l+'</span>'+
+        '<b class="rk-title">'+esc(r.t)+'</b><span class="rk-note">'+esc(rankRowNote(state, r, xp))+'</span></li>';
+    }).join("")+'</ol>';
 }
 function renderBookBars(el){
   const rows = BOOKS_ORDER.filter(b=>SAVE.books[b] && SAVE.books[b].a>0)
@@ -492,6 +529,7 @@ function renderRecords(){
   if(rtab==="board") renderLocalBoard(el);
   else if(rtab==="daily" || rtab==="blitz") renderCloudBoard(el, rtab);
   else if(rtab==="life") renderLifeStats(el);
+  else if(rtab==="ranks") renderRankLadder(el);
   else renderBookBars(el);
 }
 
@@ -716,7 +754,9 @@ function settingsOwnerNoticeHtml(){
     '<div class="admin-notice-actions">' +
     '<button class="btn sm" id="admin-notice-publish" type="button">Publish notice</button>' +
     '</div><p class="hint" id="admin-notice-status" role="status"></p>' +
-    '<div id="admin-notice-list" class="admin-notice-list"></div>');
+    '<div id="admin-notice-list" class="admin-notice-list"></div>') +
+    setRow("Admin hub", "Owner only. The full publishing desk on its own page.",
+      '<a class="btn ghost sm" id="admin-hub-link" href="admin.html">Open admin hub</a>');
 }
 function renderSettings(){
   const s=SAVE.set;

@@ -63,6 +63,10 @@ assert(/rank <= 3 \? " top"/.test(game) && /rank === 1 \? " rank-1"/.test(game),
   "top-3 podium styling on board rows");
 assert(/data-rtab="daily"/.test(index) && /Daily global/.test(index),
   "records has a Daily global tab");
+assert(/data-rtab="ranks"/.test(index) && /function renderRankLadder/.test(game) && /Meta\.RANKS\.map/.test(game),
+  "records has a Ranks tab listing every rank");
+assert(/openRecordsTab\("ranks"\)/.test(game) && /\.playercard\{cursor:pointer\}/.test(css),
+  "the hall player card opens the rank list");
 assert(/trackBoardSubmit\(Cloud\.submitDailyScore/.test(game) && /play_date: R\.dailyKey/.test(game),
   "a first finished Daily posts to the cloud board for the day it was drawn");
 assert(/function revealPlacement/.test(game),

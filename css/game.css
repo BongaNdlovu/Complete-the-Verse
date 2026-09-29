@@ -121,6 +121,7 @@ body.reduced .view.on>*{animation:none}
   transition:transform .15s,filter .2s,box-shadow .25s}
 .btn:hover{transform:translateY(-2px);filter:brightness(1.1);box-shadow:0 0 0 1px #fff6de inset,0 16px 56px -8px rgba(217,182,103,.9)}
 .btn:active{transform:translateY(1px)}
+a.btn{display:inline-block;text-decoration:none;text-align:center}
 .btn.ghost{background:none;color:var(--gold);box-shadow:0 0 0 1px var(--edge) inset}
 .btn.ghost:hover{background:rgba(217,182,103,.1);box-shadow:0 0 0 1px var(--gold) inset;filter:none}
 .btn.sm{font-size:.62rem;min-height:44px;padding:.8em 1.6em .68em 1.9em;letter-spacing:.24em}
@@ -568,6 +569,19 @@ body.team-blue #state-panel[data-kind="team-handoff"] #state-primary{
 .sbox b{display:block;font-family:var(--disp);font-size:clamp(1.2rem,2.8vw,1.8rem);color:var(--gold-hot);
   font-variant-numeric:tabular-nums}
 .sbox span{font-family:var(--ui);font-size:.68rem;letter-spacing:.24em;color:#b4aa98;text-transform:uppercase}
+.ranklist{list-style:none;margin:0 0 2.6vh;padding:0;width:min(760px,94vw);display:flex;flex-direction:column;gap:6px}
+.rankrow{display:grid;grid-template-columns:84px 1fr auto;gap:14px;align-items:center;padding:.8em 1.1em;
+  background:var(--panel);box-shadow:0 0 0 1px rgba(217,182,103,.12) inset}
+.rk-lvl{font-family:var(--ui);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:#b4aa98;font-variant-numeric:tabular-nums}
+.rk-title{font-family:var(--disp);font-size:1rem;letter-spacing:.06em;color:var(--parch-dim);font-weight:400}
+.rk-note{font-family:var(--ui);font-size:.72rem;color:#8f8676;text-align:right;font-variant-numeric:tabular-nums}
+.rankrow.earned .rk-title{color:var(--gold-dim)}
+.rankrow.current{box-shadow:0 0 0 1px var(--gold-hot) inset}
+.rankrow.current .rk-title,.rankrow.current .rk-note{color:var(--gold-hot)}
+.rankrow.next .rk-note{color:var(--gold-dim)}
+.rankrow.locked{opacity:.62}
+.playercard{cursor:pointer}
+.playercard:focus-visible{outline:2px solid var(--gold-hot);outline-offset:3px}
 .bookbars{width:min(1100px,94vw)}
 .bb{display:grid;grid-template-columns:120px 1fr 54px;gap:12px;align-items:center;margin-bottom:6px;font-size:.86rem}
 .bb i{font-family:var(--disp);font-style:normal;font-size:.68rem;letter-spacing:.12em;color:var(--parch-dim);

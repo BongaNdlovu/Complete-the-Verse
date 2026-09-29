@@ -86,6 +86,8 @@ function read(p) { return fs.readFileSync(path.join(ROOT, p), "utf8"); }
      !/service_role|SUPABASE_SERVICE/.test(hub) &&
      hub.includes("CLOUD_CONFIG.anonKey"));
   ok("the hub is not in the service-worker precache", !read("sw.js").includes("admin.html"));
+  ok("owner Settings links to the hub",
+     /function settingsOwnerNoticeHtml[\s\S]{0,1200}href="admin\.html"/.test(read("js/panels.js")));
 }
   ok("renderMenu delivers unseen messages", /Messages\.show\(\)/.test(read("js/briefs.js")));
 }
