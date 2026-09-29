@@ -131,11 +131,14 @@ console.log("=== LEADERBOARD ACCURACY ===");
   ok("server accepts a Disciple Daily", loadEdge(Date.parse(row.play_date + "T12:00:00Z")).plausibleDaily(row), row);
 }
 
-// An abandoned or failed Daily posts nothing.
+// A left Daily posts once — the score earned stands, penalty included.
 {
   const sb = boot();
   exec(sb, `startRun("daily", "watchman"); resolveAnswer(R.q, R.q.a, $("btn-opt-0"), 800, 6000); endRun("abandon");`);
-  eq("an abandoned Daily does not post", read(sb, "__posts.daily.length"), 0);
+  eq("an abandoned Daily posts once", read(sb, "__posts.daily.length"), 1);
+  eq("the posted reason is the leave", read(sb, "__posts.daily[0].reason"), "abandon");
+  exec(sb, `startRun("daily", "watchman"); endRun("complete");`);
+  eq("a later run cannot post again", read(sb, "__posts.daily.length"), 1);
 }
 
 // Blitz: pausing holds the clock and does not count as time survived.

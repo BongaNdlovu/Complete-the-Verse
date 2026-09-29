@@ -362,7 +362,7 @@ const MODES = {
     desc:"One continuous run. The timer shrinks a fraction each question and never resets.",
     tagline:"Infinite · shrinking clock", info:[["∞","Questions"],[modeClockLabel("endless"),"Clock"],["All 5","Tiers"]] },
   daily:{ key:"daily", name:"Daily Trial", kick:"One shot a day",
-    desc:"Twenty verses, drawn by today's date. Everyone who plays today gets exactly the same twenty in exactly the same order. Your first finished run sets the day's score — a run that ends early does not count, and after the score stands you may practise.",
+    desc:"Twenty verses, drawn by today's date. Everyone who plays today gets exactly the same twenty in exactly the same order. However the run ends — finished, lamps gone, or left once through the pause menu — what you have earned stands as the day's score. Leaving early takes a -15% penalty; after the score stands you may practise.",
     tagline:"20 verses · same for everyone", info:[["20","Verses"],["1","Recorded run"],[modeClockLabel("daily"),"Clock"]] },
   blitz:{ key:"blitz", name:"Scripture Blitz", kick:"Sixty seconds",
     desc:"A survival clock. Every correct answer adds two seconds; every miss burns four. The screen edges flare as time runs thin. How many verses can you hold?",
@@ -1900,9 +1900,9 @@ function togglePause(){
 }
 $("pause-resume").addEventListener("click", togglePause);
 function abandonRun(){
-  setPaused(false);
   if(typeof stopFriendRacePolling === "function") stopFriendRacePolling();
   if(!R.attempts){
+    setPaused(false);
     refundUnusedIlluminate();
     persist();
     invalidateRun();
@@ -1918,6 +1918,21 @@ function abandonRun(){
     go(R.mode==="pilgrimage"||R.mode==="pilgrim-recall"||R.mode==="relay" ? "atlas" : "menu");
     return;
   }
+  /* The Daily records whatever is earned when the run ends — but the
+     door only opens once, so leaving asks first and keeps the clock
+     frozen while the player decides. */
+  if(R.mode==="daily" && typeof showState==="function" &&
+     typeof Flow!=="undefined" && Flow.state && Flow.state("daily-quit")){
+    showState("daily-quit", {
+      body: "Are you sure? You can only do this once. The score so far — " + fmt(R.score) +
+            " points — will stand as today's Daily, with a small early-leave penalty (-15%). It cannot be replaced.",
+      primary: "Leave and record",
+      onPrimary: function(){ setPaused(false); endRun("abandon"); },
+      onSecondary: function(){ /* stay paused; Resume still works */ }
+    });
+    return;
+  }
+  setPaused(false);
   endRun("abandon");
 }
 $("pause-quit").addEventListener("click", abandonRun);

@@ -316,7 +316,9 @@ function recordDailyCompletion(ed, reason, total){
   if(!SAVE.dailyByEdition) SAVE.dailyByEdition = { kjv: { date: "", score: 0 }, nkjv: { date: "", score: 0 } };
   if(!SAVE.dailyByEdition[ed]) SAVE.dailyByEdition[ed] = { date: "", score: 0 };
   SAVE.daily = SAVE.dailyByEdition[ed];
-  if(R.mode==="daily" && reason==="complete" && SAVE.daily.date !== dailyKey){
+  /* Complete, lamps out, or left once through the pause menu — whatever
+     the run earned when it ended is the score that stands. */
+  if(R.mode==="daily" && (reason==="complete" || reason==="death" || reason==="abandon") && SAVE.daily.date !== dailyKey){
     SAVE.dailyByEdition[ed] = {date:dailyKey, score:total};
     SAVE.daily = SAVE.dailyByEdition[ed];
     SAVE.life.dailyDone++; dailyRecorded = true;

@@ -421,14 +421,13 @@ read(sb, "invalidateRun();");
   read(s, "startRun('daily','disciple')");
   read(s, "R.attempts = 6; R.correct = 3; R.qTotal = 6;");
   read(s, "endRun('death')");
-  eq("a death does not record the daily", read(s, "SAVE.daily.date"), "");
-  eq("a death does not count a completed daily", read(s, "SAVE.life.dailyDone"), 0);
+  eq("a death records the daily it earned", read(s, "SAVE.daily.date"), read(s, "todayKey()"));
+  eq("and counts it once", read(s, "SAVE.life.dailyDone"), 1);
 
   read(s, "startRun('daily','disciple')");
   read(s, "R.attempts = 20; R.correct = 18; R.qTotal = 20; R.dailyIdx = 20;");
   read(s, "endRun('complete')");
-  eq("a finished run records the daily", read(s, "SAVE.daily.date"), read(s, "todayKey()"));
-  eq("and counts it once", read(s, "SAVE.life.dailyDone"), 1);
+  eq("a second ending cannot replace the standing score", read(s, "SAVE.life.dailyDone"), 1);
 }
 
 /* ---------- the typed replay ---------- */

@@ -45,6 +45,13 @@ var Flow = (function(){
       primary: "Ready",
       secondary: ""
     },
+    "daily-quit": {
+      kick: "One shot a day",
+      title: "Leave the Daily?",
+      body: "You can only do this once. The score so far will stand as today's Daily — with a small early-leave penalty — and it cannot be replaced.",
+      primary: "Leave and record",
+      secondary: "Keep playing"
+    },
     "empty-draw": {
       kick: "The road",
       title: "This place has no reading",

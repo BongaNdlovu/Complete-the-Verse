@@ -680,9 +680,9 @@ function renderDailyBriefCard(){
   }
   host.style.display = "";
   const items = [
-    ["How today goes", "Twenty verses drawn by today's date — every player faces the same twenty in the same order. Answer before the clock closes; wrong answers cost a lamp, and a run that ends early does not count."],
+    ["How today goes", "Twenty verses drawn by today's date — every player faces the same twenty in the same order. Answer before the clock closes; wrong answers simply cost you part of the score."],
     ["What the board measures", "Points, not raw answers: a speed bonus per verse, a streak multiplier up to ×5, and harder beats weigh more (typed ×1.5, Fade ×2). The run then adds bonuses for your best streak, accuracy, and verses kept."],
-    ["One score stands", "Your first finished run is the day's score — it cannot be replaced or repeated. After it stands you may practise as much as you like; practice never touches the board."]
+    ["One score stands", "The first time today's run ends — finished, lamps gone, or left once through the pause menu — the score you have earned stands and cannot be replaced. Leaving early takes a small -15% penalty. Afterwards you may practise; practice never touches the board."]
   ];
   host.innerHTML =
     '<div class="dbrief">' +

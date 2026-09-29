@@ -55,30 +55,45 @@ var Messages = (function () {
 
   var sessionShown = false;
 
-  function cardHtml(m) {
+  /* The card is a SIGNAL, not the letter: it names the message and hands
+     the player to the message box. Only the offline fallback (which has
+     no message box to open) shows its full body. */
+  function cardHtml(m, full) {
+    var inner = full
+      ? '<p class="msg-body">' + m.body + '</p>' +
+        '<button type="button" class="msg-ack">I have read this</button>'
+      : '<p class="msg-teaser">A new message waits in the message box.</p>' +
+        '<button type="button" class="msg-ack msg-open">Open the message box</button>';
     return '<div class="msg-card" role="status" aria-live="polite">' +
       '<div class="msg-head"><span class="lbd-orn" aria-hidden="true">✦</span> Word from the hall' +
       '<button type="button" class="msg-close" aria-label="Dismiss">✕</button></div>' +
       '<b class="msg-title">' + m.title + '</b>' +
-      '<p class="msg-body">' + m.body + '</p>' +
-      '<button type="button" class="msg-ack">I have read this</button>' +
+      inner +
       '</div>';
   }
 
-  function present(host, m, onAck) {
+  function present(host, m, opts) {
+    opts = opts || {};
     var card = host.querySelector(".msg-card");
     requestAnimationFrame(function () { requestAnimationFrame(function () {
       card.classList.add("on");
     }); });
     function dismiss(remember) {
-      if (remember) onAck();
+      if (remember && opts.onAck) opts.onAck();
       card.classList.remove("on");
       setTimeout(function () { host.remove(); }, 480);
     }
     var closeBtn = host.querySelector(".msg-close");
     var ackBtn = host.querySelector(".msg-ack");
     if (closeBtn) closeBtn.addEventListener("click", function () { dismiss(true); });
-    if (ackBtn) ackBtn.addEventListener("click", function () { dismiss(true); });
+    if (ackBtn) ackBtn.addEventListener("click", function () {
+      if (opts.onOpen) {
+        dismiss(false);
+        opts.onOpen();
+        return;
+      }
+      dismiss(true);
+    });
     setTimeout(function () {
       /* Slide back out on its own; a throttled background tab may never
          have finished the slide-in, so don't depend on the .on class. */
@@ -91,9 +106,9 @@ var Messages = (function () {
     if (!m) return false;
     var host = document.createElement("div");
     host.id = "msg-host";
-    host.innerHTML = cardHtml(m);
+    host.innerHTML = cardHtml(m, true);
     document.body.appendChild(host);
-    present(host, m, function () { markLocalSeen(m.id); });
+    present(host, m, { onAck: function () { markLocalSeen(m.id); } });
     return true;
   }
 
@@ -112,10 +127,15 @@ var Messages = (function () {
         sessionShown = true;
         var host = document.createElement("div");
         host.id = "msg-host";
-        host.innerHTML = cardHtml(m);
+        host.innerHTML = cardHtml(m, false);
         document.body.appendChild(host);
-        present(host, m, function () {
-          if (typeof markNoticeRead === "function") markNoticeRead(m.id);
+        present(host, m, {
+          onAck: function () {
+            if (typeof markNoticeRead === "function") markNoticeRead(m.id);
+          },
+          onOpen: function () {
+            if (typeof go === "function") go("messages");
+          }
         });
         return true;
       }).catch(function () { return showLocal(force); });

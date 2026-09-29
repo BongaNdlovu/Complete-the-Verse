@@ -54,6 +54,7 @@ ok("0 is not a milestone", Polish.dailyStreakMilestone(0) === false);
   ok("card explains the 20-verse draw", briefs.includes("Twenty verses drawn by today's date"));
   ok("card explains what the board measures", briefs.includes("What the board measures"));
   ok("card states the one-score rule", briefs.includes("One score stands"));
+  ok("card teaches that any ending records", briefs.includes("lamps gone, or left once"));
   ok("card offers the seen tick", briefs.includes("I have seen this"));
   ok("the tick persists in the save", briefs.includes("SAVE.set.dailyBriefSeen = true"));
   ok("a recorded day shows the practice banner", briefs.includes("this run is practice"));
@@ -78,8 +79,13 @@ ok("0 is not a milestone", Polish.dailyStreakMilestone(0) === false);
 {
   const results = read("js/results.js");
   const edge = read("supabase/functions/submit-score/index.ts");
-  ok("local record keeps the one-recorded-run gate",
-     results.includes('R.mode==="daily" && reason==="complete" && SAVE.daily.date !== dailyKey'));
+  ok("every Daily ending records once (finish, lamps out, or left once)",
+     results.includes('(reason==="complete" || reason==="death" || reason==="abandon")') &&
+     results.includes('SAVE.daily.date !== dailyKey'));
+  ok("leaving the Daily warns that it can only be done once",
+     read("js/flow.js").includes('"daily-quit"') &&
+     read("js/flow.js").includes("You can only do this once") &&
+     /daily-quit[\s\S]{0,400}endRun\("abandon"\)/.test(read("js/game.js")));
   ok("recording a daily bumps the streak", /dailyStreak/.test(results) && results.includes("nextDailyStreak"));
   ok("daily replay is labelled practice, never a record shot",
      results.includes('"Practice the Same 20"'));

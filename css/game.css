@@ -2217,3 +2217,8 @@ body.reduced .msg-card{transition:opacity .3s ease}
   box-shadow:0 0 0 1px rgba(255,90,98,.35) inset;font-family:var(--ui);font-size:.64rem;
   letter-spacing:.14em;text-transform:uppercase;color:var(--parch-dim)}
 .pending-resend span{color:var(--blood-hot)}
+
+/* Message card teaser — signals a new message without revealing it */
+.msg-teaser{font-family:var(--ui);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold-dim);margin:.2em 0 .9em}
+.msg-ack.msg-open{background:rgba(217,182,103,.12);box-shadow:0 0 0 1px var(--gold) inset;color:var(--gold-hot)}
