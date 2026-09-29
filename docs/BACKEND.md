@@ -132,6 +132,25 @@ If you paste those two values here (anon key is public with RLS), the config fil
 
 ---
 
+## Announcements & the admin hub
+
+Player-facing announcements live in `public.site_notices` (the message box
+reads active notices; the hall's signal card shows the newest unread one).
+Publishing is admin-only through RLS: an account must be a row in
+`public.site_admins`.
+
+1. Apply `supabase/migrations/006_site_notices.sql` (tables, RLS, `is_site_admin()`).
+2. Open **`/admin.html`** on the deployed site and sign in with your email
+   (magic link or password).
+3. The first visit shows a copy-ready bootstrap snippet — run it once in the
+   Supabase SQL Editor to add your account to `site_admins`, press Re-check,
+   and the composer unlocks.
+4. Publishing inserts an active notice; "Retire previous announcements"
+   deactivates older ones so the box only shows current news.
+
+The hub page ships no elevated keys — it is the same publishable key as the
+game, and RLS decides who may write.
+
 ## Server-trusted scores (deploy once)
 
 `supabase/functions/submit-score/index.ts` re-clamps scores, rate-limits submissions, and writes under the caller's own auth. The client (`js/cloud.js`) **requires this Edge Function** for every Daily/Blitz submit and fails closed if it is unreachable, so untrusted browser writes cannot enter the boards. Deploy to enable trusted submissions:

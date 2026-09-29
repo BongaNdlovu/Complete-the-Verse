@@ -63,6 +63,23 @@ function read(p) { return fs.readFileSync(path.join(ROOT, p), "utf8"); }
   ok("loaded saves keep their seen list", game.includes("Array.isArray(s.messagesSeen)"));
   ok("messages module is loaded by the page", read("index.html").includes("js/messages.js"));
   ok("service worker precaches messages.js", read("sw.js").includes('"js/messages.js"'));
+
+/* ---------- The admin hub ---------- */
+{
+  const hub = read("admin.html");
+  ok("the hub exists and loads the vendored client",
+     hub.includes("vendor/supabase/supabase.js") && hub.includes("js/cloud-config.js"));
+  ok("the hub gates publishing on is_site_admin", hub.includes('rpc("is_site_admin")'));
+  ok("the hub writes site_notices", hub.includes('from("site_notices")') &&
+     hub.includes(".insert("));
+  ok("the hub offers the first-admin bootstrap",
+     hub.includes("site_admins (user_id)") && hub.includes("Re-check"));
+  ok("the hub can retire notices", hub.includes("update({ active: false })"));
+  ok("the hub never carries an elevated key",
+     !/service_role|SUPABASE_SERVICE/.test(hub) &&
+     hub.includes("CLOUD_CONFIG.anonKey"));
+  ok("the hub is not in the service-worker precache", !read("sw.js").includes("admin.html"));
+}
   ok("renderMenu delivers unseen messages", /Messages\.show\(\)/.test(read("js/briefs.js")));
 }
 
