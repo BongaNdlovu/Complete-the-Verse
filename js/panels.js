@@ -463,6 +463,150 @@ function renderRecords(){
   else renderBookBars(el);
 }
 
+function formatNoticeDate(isoStr){
+  if(!isoStr) return "";
+  try {
+    const d = new Date(isoStr);
+    if(isNaN(d.getTime())) return "";
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  } catch(e) {
+    return "";
+  }
+}
+
+function renderMessages(){
+  const el = $("messages-body");
+  if(!el) return;
+  const seq = (el._fetchSeq = (el._fetchSeq || 0) + 1);
+  el.innerHTML = '<div class="empty">Checking for updates...</div>';
+
+  if(typeof Cloud === "undefined" || !Cloud.configured || !Cloud.configured() || !Cloud.fetchSiteNotices){
+    el.innerHTML = '<div class="empty">Could not reach the keeper\'s post.</div>';
+    return;
+  }
+
+  Cloud.fetchSiteNotices().then(function(rows){
+    if(el._fetchSeq !== seq) return;
+    if(!rows){
+      el.innerHTML = '<div class="empty">Could not reach the keeper\'s post.</div>';
+      return;
+    }
+    const visible = rows.filter(function(r){
+      return typeof getNoticeState === "function" ? getNoticeState(r.id) !== "hidden" : true;
+    });
+    if(!visible.length){
+      el.innerHTML = '<div class="empty">No updates from the keeper yet.</div>';
+      if(typeof refreshMessagesBadge === "function") refreshMessagesBadge(rows);
+      return;
+    }
+
+    if(typeof refreshMessagesBadge === "function") refreshMessagesBadge(rows);
+
+    let html = '<div class="messages-topbar">' +
+      '<button class="btn ghost sm" id="msg-mark-all-read" type="button">Mark all read</button>' +
+      '</div><div class="messages-list">';
+
+    visible.forEach(function(n){
+      const isUnread = typeof getNoticeState === "function" ? getNoticeState(n.id) === "unread" : false;
+      const dateStr = formatNoticeDate(n.created_at);
+      html += '<article class="msg-card" data-msg-id="'+esc(n.id)+'" tabindex="0" role="button" aria-expanded="false">'+
+        '<div class="msg-head">'+
+          '<div class="msg-title-wrap">'+
+            '<span class="msg-unread-dot" aria-label="Unread"'+(isUnread ? '' : ' style="display:none;"')+'></span>'+
+            '<h3 class="msg-title">'+esc(n.title || "Notice")+'</h3>'+
+          '</div>'+
+          (dateStr ? '<time class="msg-date">'+esc(dateStr)+'</time>' : '')+
+        '</div>'+
+        '<div class="msg-detail" style="display:none;">'+
+          '<div class="msg-body">'+esc(n.body || "")+'</div>'+
+          '<div class="msg-actions">'+
+            '<button class="btn ghost sm msg-btn-unread" type="button">Mark unread</button>'+
+            '<button class="btn ghost sm msg-btn-delete" type="button">Delete</button>'+
+          '</div>'+
+        '</div>'+
+      '</article>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+
+    const markAllBtn = $("msg-mark-all-read");
+    if(markAllBtn){
+      markAllBtn.addEventListener("click", function(){
+        Snd.ui();
+        if(typeof markAllNoticesRead === "function") markAllNoticesRead(visible);
+        el.querySelectorAll(".msg-unread-dot").forEach(function(dot){ dot.style.display = "none"; });
+        if(typeof refreshMessagesBadge === "function") refreshMessagesBadge(rows);
+        toast("All updates marked as read");
+      });
+    }
+
+    el.querySelectorAll(".msg-card").forEach(function(card){
+      const msgId = card.dataset.msgId;
+      const detail = card.querySelector(".msg-detail");
+      const unreadDot = card.querySelector(".msg-unread-dot");
+      const btnUnread = card.querySelector(".msg-btn-unread");
+      const btnDelete = card.querySelector(".msg-btn-delete");
+
+      function toggleOpen(){
+        const isClosed = detail.style.display === "none";
+        if(isClosed){
+          detail.style.display = "";
+          card.setAttribute("aria-expanded", "true");
+          if(typeof markNoticeRead === "function") markNoticeRead(msgId);
+          if(unreadDot) unreadDot.style.display = "none";
+          if(typeof refreshMessagesBadge === "function") refreshMessagesBadge(rows);
+        } else {
+          detail.style.display = "none";
+          card.setAttribute("aria-expanded", "false");
+        }
+      }
+
+      card.addEventListener("click", function(e){
+        if(e.target.closest(".msg-actions")) return;
+        Snd.ui();
+        toggleOpen();
+      });
+
+      card.addEventListener("keydown", function(e){
+        if(e.target === card && (e.key === "Enter" || e.key === " ")){
+          e.preventDefault();
+          Snd.ui();
+          toggleOpen();
+        }
+      });
+
+      if(btnUnread){
+        btnUnread.addEventListener("click", function(e){
+          e.stopPropagation();
+          Snd.ui();
+          if(typeof markNoticeUnread === "function") markNoticeUnread(msgId);
+          if(unreadDot) unreadDot.style.display = "";
+          if(typeof refreshMessagesBadge === "function") refreshMessagesBadge(rows);
+          toast("Marked unread");
+        });
+      }
+
+      if(btnDelete){
+        btnDelete.addEventListener("click", function(e){
+          e.stopPropagation();
+          Snd.ui();
+          if(typeof hideNotice === "function") hideNotice(msgId);
+          card.remove();
+          const remaining = el.querySelectorAll(".msg-card");
+          if(!remaining.length){
+            el.innerHTML = '<div class="empty">No updates from the keeper yet.</div>';
+          }
+          if(typeof refreshMessagesBadge === "function") refreshMessagesBadge(rows);
+          toast("Update deleted");
+        });
+      }
+    });
+  }).catch(function(){
+    if(el._fetchSeq !== seq) return;
+    el.innerHTML = '<div class="empty">Could not reach the keeper\'s post.</div>';
+  });
+}
+
 function bindLeaderboardReports(host, board){
   if(!host || typeof Cloud==="undefined" || !Cloud.reportScore) return;
   host.querySelectorAll("[data-report-score]").forEach(function(btn){
@@ -533,14 +677,14 @@ function settingsAccountHtml(){
 }
 function settingsOwnerNoticeHtml(){
   if(typeof Cloud==="undefined" || !Cloud.isSiteAdmin || !Cloud.isSiteAdmin()) return "";
-  return setRow("Site notice",
-    "Owner only. Every player must read the active notice before entering the hall.",
+  return setRow("Site updates",
+    "Owner only. A new update stops every player once, then stays in their box.",
     '<input id="admin-notice-title" type="text" maxlength="120" placeholder="Title, e.g. Maintenance tonight">' +
     '<textarea id="admin-notice-body" maxlength="2000" rows="4" placeholder="Your update for all players"></textarea>' +
     '<div class="admin-notice-actions">' +
     '<button class="btn sm" id="admin-notice-publish" type="button">Publish notice</button>' +
-    '<button class="btn ghost sm" id="admin-notice-clear" type="button">Clear active notice</button>' +
-    '</div><p class="hint" id="admin-notice-status" role="status"></p>');
+    '</div><p class="hint" id="admin-notice-status" role="status"></p>' +
+    '<div id="admin-notice-list" class="admin-notice-list"></div>');
 }
 function renderSettings(){
   const s=SAVE.set;
@@ -747,9 +891,61 @@ function bindSettingsHandlers(){
   }
 
   const noticePublish = $("admin-notice-publish");
-  const noticeClear = $("admin-notice-clear");
   const noticeStatus = $("admin-notice-status");
+  const noticeList = $("admin-notice-list");
   function setNoticeStatus(msg){ if(noticeStatus) noticeStatus.textContent = msg || ""; }
+
+  function refreshOwnerNoticeList(){
+    if(!noticeList || typeof Cloud === "undefined" || !Cloud.fetchSiteNotices) return;
+    const seq = (noticeList._fetchSeq = (noticeList._fetchSeq || 0) + 1);
+    noticeList.innerHTML = '<div class="hint">Loading active updates...</div>';
+    Cloud.fetchSiteNotices().then(function(rows){
+      if(noticeList._fetchSeq !== seq) return;
+      if(!rows || !rows.length){
+        noticeList.innerHTML = '<div class="hint">No active updates.</div>';
+        if(typeof refreshMessagesBadge === "function") refreshMessagesBadge(rows || []);
+        return;
+      }
+      let html = '<div class="admin-notice-items">';
+      rows.forEach(function(r){
+        const bodySnippet = r.body ? (r.body.length > 60 ? r.body.slice(0, 60) + "..." : r.body) : "";
+        html += '<div class="admin-notice-row" data-notice-id="'+esc(r.id)+'">'+
+          '<div class="admin-notice-info"><strong>'+esc(r.title||"Notice")+'</strong><small>'+esc(bodySnippet)+'</small></div>'+
+          '<button class="btn ghost sm admin-notice-withdraw" type="button" data-withdraw-id="'+esc(r.id)+'">Withdraw</button>'+
+          '</div>';
+      });
+      html += '</div>';
+      noticeList.innerHTML = html;
+      if(typeof refreshMessagesBadge === "function") refreshMessagesBadge(rows);
+      noticeList.querySelectorAll(".admin-notice-withdraw").forEach(function(btn){
+        btn.addEventListener("click", function(){
+          Snd.ui();
+          btn.disabled = true;
+          const wid = btn.dataset.withdrawId;
+          Cloud.withdrawSiteNotice(wid).then(function(res){
+            if(res && res.ok){
+              toast("Notice withdrawn");
+              setNoticeStatus("Notice withdrawn.");
+              refreshOwnerNoticeList();
+              if(typeof refreshMessagesBadge === "function") refreshMessagesBadge();
+            } else {
+              btn.disabled = false;
+              setNoticeStatus("Could not withdraw notice.");
+            }
+          }).catch(function(){
+            btn.disabled = false;
+            setNoticeStatus("Could not withdraw notice.");
+          });
+        });
+      });
+    }).catch(function(){
+      if(noticeList._fetchSeq !== seq) return;
+      noticeList.innerHTML = '<div class="hint">Could not load notices.</div>';
+    });
+  }
+
+  if(noticeList) refreshOwnerNoticeList();
+
   if(noticePublish){
     noticePublish.addEventListener("click", function(){
       Snd.ui();
@@ -763,23 +959,16 @@ function bindSettingsHandlers(){
         if(res && res.ok){
           setNoticeStatus("Notice published. Every player will see it before the hall.");
           if(bodyEl) bodyEl.value = "";
+          if(titleEl) titleEl.value = "";
           toast("Site notice published");
+          refreshOwnerNoticeList();
+          if(typeof refreshMessagesBadge === "function") refreshMessagesBadge();
         } else {
           setNoticeStatus(res && res.reason === "body-short" ? "Notice needs at least eight characters." : "Could not publish notice.");
         }
-      });
-    });
-  }
-  if(noticeClear){
-    noticeClear.addEventListener("click", function(){
-      Snd.ui();
-      noticeClear.disabled = true;
-      Cloud.clearSiteNotices().then(function(res){
-        noticeClear.disabled = false;
-        if(res && res.ok){
-          setNoticeStatus("Active notice cleared.");
-          toast("Site notice cleared");
-        } else setNoticeStatus("Could not clear notice.");
+      }).catch(function(){
+        noticePublish.disabled = false;
+        setNoticeStatus("Could not publish notice.");
       });
     });
   }

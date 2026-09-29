@@ -280,12 +280,66 @@ details.mode-group>summary::-webkit-details-marker{display:none}
 .menu-reviews-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:1.4vh auto 0;width:min(1080px,92vw)}
 .menu-reviews-spot .menu-reviews-cards .review-text{-webkit-line-clamp:3}
 .admin-notice-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:.8rem}
+.admin-notice-items{display:flex;flex-direction:column;gap:8px;margin-top:.8rem;width:100%;max-width:420px}
+.admin-notice-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:.6rem .8rem;background:var(--panel);border:1px solid var(--edge);box-sizing:border-box}
+.admin-notice-info{display:flex;flex-direction:column;gap:2px;min-width:0;text-align:left}
+.admin-notice-info strong{color:var(--gold-hot);font-size:.84rem}
+.admin-notice-info small{color:var(--parch-dim);font-size:.74rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #settings-body textarea{width:100%;max-width:420px;min-height:6rem;margin-top:.5rem;font:inherit;color:var(--parch);background:var(--panel);border:1px solid var(--edge);padding:.65rem .75rem;box-sizing:border-box}
 #settings-body #admin-notice-title{width:100%;max-width:420px;margin-top:.5rem;font:inherit;color:var(--parch);background:var(--panel);border:1px solid var(--edge);padding:.55rem .65rem;box-sizing:border-box}
 @media(max-width:719px){
   .menu-reviews-actions--inline{justify-content:flex-start;width:100%}
 }
 .subnav{display:flex;gap:12px;margin-top:4vh;flex-wrap:wrap;justify-content:center}
+.subnav .badge,#menu-messages-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:var(--gold-hot);color:#150f04;font-family:var(--ui);font-size:.65rem;font-weight:700;line-height:1;vertical-align:middle}
+
+/* Envelope on the hall menu. The glyph is the status: faint outline when
+   the box is empty, sealed when something is unread, open when all are read. */
+.menu-envelope{position:fixed;top:calc(var(--safe-t) + 12px);right:max(16px,3.4vw);z-index:12;
+  width:52px;height:52px;display:grid;place-items:center;padding:0;border:none;cursor:pointer;
+  background:var(--panel);color:var(--gold-dim);
+  box-shadow:0 0 0 1px var(--edge) inset,0 12px 32px rgba(0,0,0,.55);backdrop-filter:blur(12px)}
+.menu-envelope-glyph{display:grid;place-items:center}
+.menu-envelope-glyph svg{display:none;grid-area:1/1}
+.menu-envelope.is-empty{opacity:.62}
+.menu-envelope.is-empty .env-empty{display:block}
+.menu-envelope.is-read{color:var(--gold);opacity:1}
+.menu-envelope.is-read .env-open{display:block}
+.menu-envelope.is-unread,.menu-envelope.has-unread{color:var(--gold-hot);opacity:1}
+.menu-envelope.is-unread .env-closed,.menu-envelope.has-unread .env-closed{display:block}
+.menu-envelope.is-unread,.menu-envelope.has-unread{
+  box-shadow:0 0 0 1px var(--gold-hot) inset,0 0 18px -2px rgba(247,213,139,.55);
+  animation:msgPulse 2.8s ease-in-out infinite}
+.menu-envelope .badge{position:absolute;top:-5px;right:-5px;margin-left:0}
+.menu-envelope:hover{color:var(--gold-hot);box-shadow:0 0 0 1px var(--gold) inset,0 12px 32px rgba(0,0,0,.55)}
+.menu-envelope.is-unread:hover,.menu-envelope.has-unread:hover{box-shadow:0 0 0 1px var(--gold-hot) inset,0 0 22px -2px rgba(247,213,139,.7)}
+.menu-envelope:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+@keyframes msgPulse{0%,100%{box-shadow:0 0 0 1px var(--gold-hot) inset,0 0 14px -4px rgba(247,213,139,.35)}50%{box-shadow:0 0 0 1px #fff inset,0 0 24px -2px rgba(247,213,139,.6)}}
+body.reduced .menu-envelope,body.motion-calm .menu-envelope{animation:none}
+@media(prefers-reduced-motion:reduce){.menu-envelope{animation:none}}
+@media(max-width:600px){
+  .menu-envelope{width:46px;height:46px;right:max(12px,env(safe-area-inset-right))}
+  .menu-envelope-glyph svg{width:22px;height:22px}
+}
+
+/* ================= MESSAGES VIEW ================= */
+.messages-topbar{width:min(1100px,94vw);display:flex;justify-content:flex-end;margin-bottom:12px}
+.messages-list{width:min(1100px,94vw);display:flex;flex-direction:column;gap:10px}
+.msg-card{padding:1.1em 1.2em;background:var(--panel);box-shadow:0 0 0 1px rgba(217,182,103,.13) inset;
+  transition:.2s;cursor:pointer;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));text-align:left}
+.msg-card:hover{box-shadow:0 0 0 1px var(--edge) inset;transform:translateX(3px)}
+.msg-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.msg-title-wrap{display:flex;align-items:center;gap:8px;min-width:0}
+.msg-unread-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold-hot);
+  box-shadow:0 0 8px rgba(229,193,88,.8);flex-shrink:0}
+.msg-title{margin:0;font-family:var(--disp);font-size:.95rem;letter-spacing:.08em;color:var(--gold-hot);font-weight:600}
+.msg-date{font-family:var(--ui);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--parch-dim);white-space:nowrap}
+.msg-detail{margin-top:12px;padding-top:12px;border-top:1px solid rgba(217,182,103,.12)}
+.msg-body{font-size:1rem;line-height:1.6;color:#d7d0c0;white-space:pre-wrap;margin-bottom:14px}
+.msg-actions{display:flex;gap:8px;justify-content:flex-end}
+@media(max-width:600px){
+  .msg-head{flex-direction:column;align-items:flex-start;gap:4px}
+}
 
 @media (max-width:900px){
   .playercard{position:static;margin:0 auto 1.5rem auto;width:min(100%, 360px)}

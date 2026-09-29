@@ -130,6 +130,26 @@
 
   <!-- ============ MENU ============ -->
   <section class="view" id="v-menu">
+    <button class="menu-messages-btn menu-envelope is-empty" data-go="messages" id="menu-messages-btn" type="button" aria-label="Messages, nothing waiting.">
+        <span class="menu-envelope-glyph" aria-hidden="true">
+          <svg class="env-empty" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+            <path d="M3.5 7.5h17v10h-17z"></path>
+            <path d="M3.5 7.5 12 13.5 20.5 7.5"></path>
+          </svg>
+          <svg class="env-closed" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+            <path d="M3.5 7.5h17v10h-17z" fill="currentColor" fill-opacity="0.16"></path>
+            <path d="M3.5 7.5 12 13.5 20.5 7.5"></path>
+            <circle cx="12" cy="12.2" r="2.15" fill="currentColor" stroke="none"></circle>
+          </svg>
+          <svg class="env-open" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+            <path d="M7 9.5h10V6.2H7z" fill="currentColor" fill-opacity="0.14"></path>
+            <path d="M8.2 7.6h7.6M8.2 8.7h5.2" stroke-width="1.1"></path>
+            <path d="M3.5 10.5h17V20h-17z"></path>
+            <path d="M3.5 10.5 12 16.2 20.5 10.5"></path>
+          </svg>
+        </span>
+        <span class="badge" id="menu-messages-badge" style="display:none"></span>
+      </button>
     <div class="scrollpad">
       <div class="menu-reviews-spot">
         <section class="menu-player-reviews" id="menu-player-reviews" aria-label="What players say">
@@ -690,6 +710,17 @@
         <button class="btn ghost sm" data-go="menu">Back</button>
       </div>
       <div class="listwrap" id="records-body"></div>
+    </div>
+  </section>
+
+  <!-- ============ MESSAGES ============ -->
+  <section class="view" id="v-messages">
+    <div class="scrollpad" style="align-items:center">
+      <div class="panelhead">
+        <div><div class="kick">Updates</div><div class="h-lg" style="margin-top:.5vh">The Keeper's Post</div></div>
+        <button class="btn ghost sm" data-go="menu">Back</button>
+      </div>
+      <div class="listwrap" id="messages-body"></div>
     </div>
   </section>
 

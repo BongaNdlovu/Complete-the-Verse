@@ -127,8 +127,8 @@ assert(/onSync/ .test(cloud) && /Syncing/.test(read("js/briefs.js")) && /Sync er
   "cloud syncing and error status are surfaced");
 assert(/exchangeCodeForSession/.test(cloud) && /skipBrowserRedirect:\s*true/.test(cloud),
   "Google OAuth assigns the provider URL and recovers the PKCE code");
-assert(/INITIAL_SESSION/.test(game),
-  "the hall opens after an OAuth return session, not only SIGNED_IN");
+assert(/INITIAL_SESSION/.test(game) && /TOKEN_REFRESHED/.test(game),
+  "the hall opens after a restored or refreshed session, not only a fresh sign-in");
 assert(/waitForInitialAuth/.test(cloud) && /applyAuthEvent/.test(cloud),
   "auth waits for session restore instead of clearing it on boot");
 assert(!/prompt:\s*"select_account"/.test(cloud),
@@ -141,13 +141,18 @@ assert(/site_admins/.test(read("supabase/migrations/006_site_notices.sql")) &&
   "site admin identity is server-side; no owner email ships to clients");
 
 /* PWA service worker and offline capability contracts. */
-assert(/navigator\.serviceWorker\.register\(['"]\.\/sw\.js['"]\)/.test(read("js/register-sw.js")),
-  "service worker registration is wired in register-sw.js");
+assert(/navigator\.serviceWorker\.register\(['"]\.\/sw\.js['"]/.test(read("js/register-sw.js")) &&
+  /updateViaCache:\s*"none"/.test(read("js/register-sw.js")) &&
+  /controllerchange/.test(read("js/register-sw.js")) &&
+  /reg\.update\(/.test(read("js/register-sw.js")),
+  "service worker registration bypasses the HTTP cache and reloads on update");
 assert(/js\/register-sw\.js/.test(index), "register-sw.js is loaded from index.html");
 assert(/const CACHE_NAME =/.test(sw) && /CACHE_VERSION/.test(sw),
   "service worker defines a version-stamped cache name");
-assert(/request\.mode === "navigate"/.test(sw) && /fetch\(request\)/.test(sw),
-  "service worker implements network-first strategy for navigation / HTML shell");
+assert(/request\.mode === "navigate"/.test(sw) && /isAppShell/.test(sw) && /cache:\s*"no-cache"/.test(sw),
+  "service worker revalidates HTML, JS, and CSS instead of serving a stale copy");
+assert(/view === "play"/.test(read("js/register-sw.js")),
+  "a worker update waits until a run is over before reloading");
 assert(/!path\.includes\("audio\/"\)/.test(sw) && /!path\.endsWith\("\.mp3"\)/.test(sw),
   "audio is explicitly excluded from precaching");
 assert(!/assets\/beats\/goliath/.test(sw),
@@ -325,9 +330,12 @@ assert(/Content-Type/.test(read("vercel.json")) &&
 const vercelJson = read("vercel.json");
 assert(/max-age=0, must-revalidate/.test(vercelJson) && /\/sw\.js/.test(vercelJson),
   "HTML and the service worker stay revalidate-always");
-assert(/\/css\/:path\*/.test(vercelJson) && /max-age=86400/.test(vercelJson) &&
-  /\/js\/:path\*/.test(vercelJson) && /\/assets\/:path\*/.test(vercelJson),
-  "CSS, JS, and assets get a one-day public cache");
+assert(/\/css\/:path\*[\s\S]{0,180}max-age=0, must-revalidate/.test(vercelJson) &&
+  /\/js\/:path\*[\s\S]{0,180}max-age=0, must-revalidate/.test(vercelJson),
+  "CSS and JS revalidate so a deploy is not stuck for a day");
+assert(/\/fonts\/:path\*/.test(vercelJson) && /\/assets\/:path\*/.test(vercelJson) &&
+  /max-age=86400/.test(vercelJson),
+  "fonts and images keep a one-day public cache");
 assert(fs.existsSync(path.join(ROOT, "favicon.ico")), "root favicon.ico is present");
 assert(/Typical climate — live weather paused/.test(read("js/atlas.js")),
   "atlas notes when live weather is paused");

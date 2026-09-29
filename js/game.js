@@ -31,11 +31,25 @@ const DEFAULT_SAVE = {
        translation:"kjv", translationChosen:false,
        character:"amina", scholarId:"amina", playerName:"", profileDone:false, tabletStone:"sandstone", tabletTrial:false,
        vkb:false,
+       noticeBox:{},
        /* legacy keys kept so old saves merge cleanly */
        characterDone:false}
 };
 let SAVE = load();
 if(typeof window !== "undefined") window.SAVE = SAVE;
+function mergeNoticeBoxSave(s){
+  const box = Object.assign({}, (s && s.set && s.set.noticeBox) || {});
+  if(s && s.set && s.set.ackNoticeId && !box[s.set.ackNoticeId]){
+    box[s.set.ackNoticeId] = "read";
+  }
+  const keys = Object.keys(box);
+  if(keys.length > 80){
+    const pruned = {};
+    keys.slice(-80).forEach(function(k){ pruned[k] = box[k]; });
+    return pruned;
+  }
+  return box;
+}
 function mergeTabletsSave(s){
   const t = (s && s.tablets) || {};
   const ids = (typeof Tablets !== "undefined" && Tablets.chapters)
@@ -60,11 +74,13 @@ function mergeLoadedSave(s){
     s.set.translation = "kjv";
     s.set.translationChosen = true;
   }
+  const mergedSet = Object.assign({}, DEFAULT_SAVE.set, (s && s.set) || {});
+  mergedSet.noticeBox = mergeNoticeBoxSave(s);
   return Object.assign(JSON.parse(JSON.stringify(DEFAULT_SAVE)), s, {
     v:3,
     best:mergeBestSave(s),
     life:Object.assign({}, DEFAULT_SAVE.life, s.life||{}),
-    set:Object.assign({}, DEFAULT_SAVE.set, s.set||{}),
+    set:mergedSet,
     daily:Object.assign({}, DEFAULT_SAVE.daily, s.daily||{}),
     dailyByEdition:Object.assign({kjv:(s && s.daily)||{date:"",score:0}, nkjv:{date:"",score:0}}, (s && s.dailyByEdition)||{}),
     srs:Object.assign({}, s.srs||{}),
@@ -452,7 +468,7 @@ function enterViewAmbience(view){
   if(view==="boot"){ Backdrop.palette("menu"); syncHallVideo(SAVE.set.quality); }
   if(view==="signin"){ Backdrop.palette("menu"); Snd.ambience("menu"); syncHallVideo(SAVE.set.quality); }
   if(view==="menu"){ Backdrop.palette("menu"); Snd.ambience("menu"); renderMenu(); syncHallVideo(SAVE.set.quality); }
-  if(view==="brief"||view==="study"||view==="seals"||view==="records"||view==="settings"||view==="relics"){
+  if(view==="brief"||view==="study"||view==="seals"||view==="records"||view==="settings"||view==="relics"||view==="messages"){
     syncHallVideo(SAVE.set.quality);
   }
   if(view==="results"){
@@ -477,6 +493,7 @@ function enterViewPanels(view){
   if(view==="seals") renderSeals();
   if(view==="records") renderRecords();
   if(view==="settings") renderSettings();
+  if(view==="messages" && typeof renderMessages === "function") renderMessages();
 }
 function resolveGoView(view){
   if(typeof holdForSignIn==="function" && holdForSignIn() && typeof openWithoutSession==="function" && !openWithoutSession(view)){
@@ -511,7 +528,7 @@ document.addEventListener("click", e=>{
 let lastHoverAt=0, lastHoverEl=null;
 document.addEventListener("pointerover", e=>{
   if(currentView==="play"||currentView==="boot"||currentView==="act") return;
-  const t=e.target.closest(".btn, .mode, .tab, .pwr:not(.spent)");
+  const t=e.target.closest(".btn, .mode, .tab, .pwr:not(.spent), .menu-messages-btn");
   if(!t || t===lastHoverEl || t.disabled) return;
   lastHoverEl=t;
   const now=Date.now();
@@ -520,7 +537,7 @@ document.addEventListener("pointerover", e=>{
   Snd.hover();
 });
 document.addEventListener("pointerout", e=>{
-  const t=e.target.closest(".btn, .mode, .tab, .pwr");
+  const t=e.target.closest(".btn, .mode, .tab, .pwr, .menu-messages-btn");
   if(t && t===lastHoverEl) lastHoverEl=null;
 });
 
@@ -2275,8 +2292,14 @@ function bindBootButtons(){
   if(odBank) odBank.addEventListener("click", ()=>{ Snd.ui(); resolveOverdrive("bank"); });
 }
 function onAuthSignedIn(ev, hasUser){
-  if(!ev || (ev.event!=="SIGNED_IN" && !(ev.event==="INITIAL_SESSION" && hasUser))) return;
+  if(!ev || !hasUser) return;
   const atDoor = currentView==="signin" || currentView==="boot";
+  const restored = ev.event==="SIGNED_IN" || ev.event==="INITIAL_SESSION" || (ev.event==="TOKEN_REFRESHED" && atDoor);
+  if(!restored) return;
+  if(ev.event==="TOKEN_REFRESHED"){
+    if(atDoor && typeof enterCoffeePath==="function") enterCoffeePath();
+    return;
+  }
   Cloud.syncOnBoot(SAVE).then(function(res){
     if(res && res.ok && res.save){
       SAVE = res.save; persist();

@@ -61,7 +61,7 @@ const sb = boot();
    SECTION 1: ROUTING, VIEWS, AND NAVIGATION
    ================================================================== */
 {
-  const views = ["boot", "intro", "menu", "play", "results", "atlas", "relics", "seals", "settings", "records", "journal"];
+  const views = ["boot", "intro", "menu", "play", "results", "atlas", "relics", "seals", "settings", "records", "journal", "messages"];
   views.forEach(v => {
     exec(sb, 'go("' + v + '");');
     eq("Router switches to " + v + " view", read(sb, "currentView"), v);

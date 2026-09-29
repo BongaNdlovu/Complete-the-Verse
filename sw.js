@@ -2,18 +2,18 @@
    SERVICE WORKER — Complete the Verse PWA & Offline Support
 
    Caching strategy:
-   1. Network-first for navigation requests and HTML shell so production
-      updates deploy immediately without stale-cache locks.
-   2. Cache-first for immutable static assets (CSS, JS, fonts, images).
+   1. Network-first, revalidated, for HTML, JS, and CSS. A deploy replaces
+      what the player runs. The cache is only the offline copy.
+   2. Cache-first for fonts and images, which are not the game record.
    3. Explicit audio exclusion from precaching. Audio is cached at
       runtime on first play with an LRU cap of 25 files and 12 MB.
       Media is 30 files / 16 MB, and a single clip over 4 MB (the
       18 MB prologue) is never stored.
    4. Lifecycle: skipWaiting on install, clientsClaim on activate, and
-      stale cache eviction.
+      stale cache eviction. The page reloads when a new worker takes over.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.9.2";
+const CACHE_VERSION = "ctv-v1.9.6";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MEDIA_CACHE = "ctv-media-" + CACHE_VERSION;
@@ -113,6 +113,42 @@ function isAudio(url) {
   return url.pathname.includes("/audio/") || url.pathname.endsWith(".mp3") || url.pathname.endsWith(".ogg") || url.pathname.endsWith(".wav");
 }
 
+/* HTML, scripts, and styles are the game. They must revalidate while online. */
+function isAppShell(url) {
+  if (url.origin !== self.location.origin) return false;
+  var path = url.pathname;
+  return path.endsWith(".js") || path.endsWith(".css") || path.endsWith(".html") ||
+    path.endsWith(".webmanifest") || path.endsWith(".json") || path.endsWith("/sw.js");
+}
+
+function revalidate(request) {
+  return fetch(request, { cache: "no-cache" });
+}
+
+function storeShell(request, response) {
+  if (!response || response.status !== 200) return;
+  var url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.endsWith("/sw.js")) return;
+  if (url.searchParams.has("code") || url.searchParams.has("error")) return;
+  var copy = response.clone();
+  caches.open(CACHE_NAME).then(function (cache) {
+    cache.put(request, copy);
+  });
+}
+
+function shellFallback(request) {
+  return caches.match(request).then(function (cached) {
+    if (cached) return cached;
+    if (request.mode === "navigate") {
+      return caches.match("index.html").then(function (index) {
+        return index || caches.match("./") || new Response("", { status: 504, statusText: "Offline" });
+      });
+    }
+    return new Response("", { status: 504, statusText: "Offline" });
+  });
+}
+
 /* Helper to check if a URL is heavy dynamic media */
 function isMedia(url) {
   return url.pathname.includes("/assets/journey/") ||
@@ -194,7 +230,7 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-/* Fetch Event — network-first for navigation, cache-first for assets, LRU runtime for audio */
+/* Fetch Event — revalidate the game shell, cache-first for fonts and pictures, LRU for audio */
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
@@ -222,24 +258,15 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /* Navigation / HTML Shell Strategy: Network-first to guarantee deploy freshness */
-  if (request.mode === "navigate" || url.pathname.endsWith("/index.html") || url.pathname === "/" || url.pathname.endsWith("/")) {
+  /* Pages, scripts, and styles: ask the network, keep the reply for offline. */
+  if (request.mode === "navigate" || url.pathname === "/" || url.pathname.endsWith("/") || isAppShell(url)) {
     event.respondWith(
-      fetch(request)
-        .then(async (networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            if (!url.searchParams.has("code") && !url.searchParams.has("error")) {
-              const cache = await caches.open(CACHE_NAME);
-              cache.put(request, networkResponse.clone());
-            }
-          }
-          return networkResponse;
-        })
-        .catch(async () => {
-          const cached = await caches.match(request);
-          if (cached) return cached;
-          return caches.match("index.html") || caches.match("./");
-        })
+      revalidate(request).then(function (networkResponse) {
+        storeShell(request, networkResponse);
+        return networkResponse;
+      }).catch(function () {
+        return shellFallback(request);
+      })
     );
     return;
   }
@@ -269,7 +296,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /* Static Assets Strategy: Cache-first with network fallback */
+  /* Fonts and images: cache-first. They are not the game record. */
   event.respondWith(
     caches.match(request).then(async (cached) => {
       if (cached) return cached;

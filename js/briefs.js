@@ -521,6 +521,7 @@ function renderMenu(){
   renderMenuRoad(road);
   renderMenuReview(due);
   renderMenuGroups(due, dailyDone, road);
+  if(typeof refreshMessagesBadge === "function") refreshMessagesBadge();
   const done = SAVE.seals.length, tot = SEALS.length;
   $("menu-hint").textContent = SAVE.runs
     ? fmt(SAVE.runs)+" runs · "+fmt(SAVE.life.correct)+" verses kept · "+done+"/"+tot+" seals"

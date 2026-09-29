@@ -558,6 +558,27 @@ async function runTests() {
     eq("Cloud.isReady() returns true after completion", vm.runInContext("Cloud.isReady()", ctx), true);
   }
 
+  // TEST 10: a saved session is a sign-in before the access token is refreshed
+  {
+    const { ctx, localStorage } = makeBrowserContext("https://complete-the-verse.vercel.app/");
+    localStorage.setItem("sb-test-auth-token", JSON.stringify({
+      access_token: "kept-access",
+      refresh_token: "kept-refresh",
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      expires_in: 3600,
+      token_type: "bearer",
+      user: { id: "user-kept", email: "fanelesibonge50@gmail.com" }
+    }));
+    vm.runInContext("var CLOUD_CONFIG = { url: 'https://test.supabase.co', anonKey: 'test-key' };", ctx);
+    vm.runInContext(supabaseJs, ctx);
+    vm.runInContext(cloudJs, ctx);
+    const signedInImmediately = vm.runInContext("Cloud.whenReady(), Cloud.isSignedIn()", ctx);
+    eq("saved session counts as signed in before auth refresh finishes", signedInImmediately, true);
+    await vm.runInContext("Cloud.whenReady()", ctx);
+    eq("saved session is still signed in after auth init", vm.runInContext("Cloud.isSignedIn()", ctx), true);
+    eq("saved session keeps the same account", vm.runInContext("Cloud.user() && Cloud.user().id", ctx), "user-kept");
+  }
+
   console.log((fail ? "FAIL" : "PASS") + " — google auth · " + pass + " assertions passed" + (fail ? " · " + fail + " FAILED" : ""));
   process.exit(fail ? 1 : 0);
 }

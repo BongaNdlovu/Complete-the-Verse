@@ -14,7 +14,7 @@ var Flow = (function(){
      key off this constant; keep them in sync when it moves. */
   var JUDGE_MS = 2500;
   var VIEWS = ["boot","intro","signin","edition","menu","brief","sitebrief","atlas","act","play","tablets",
-               "results","study","relics","seals","records","settings"];
+               "results","study","relics","seals","records","settings","messages"];
 
   var STATES = {
     "load-fail": {

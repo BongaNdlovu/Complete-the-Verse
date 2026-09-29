@@ -23,6 +23,7 @@ var Cloud = (function () {
   var syncing = false;
   var readyPromise = null;
   var isReady = false;
+  var authLock = Promise.resolve();
   var hooks = { onAuth: null, onSync: null, onError: null };
 
   function cfg() {
@@ -75,7 +76,14 @@ var Cloud = (function () {
         autoRefreshToken: true,
         detectSessionInUrl: true,
         flowType: detectFlowType(),
-        storage: typeof localStorage !== "undefined" ? localStorage : undefined
+        storage: typeof localStorage !== "undefined" ? localStorage : undefined,
+        /* navigator.locks can stall restore and discard a rotated refresh
+           token before it is written. A queue in this page is enough. */
+        lock: function (_name, _acquireTimeout, fn) {
+          var run = authLock.then(function () { return fn(); }, function () { return fn(); });
+          authLock = run.then(function () {}, function () {});
+          return run;
+        }
       }
     });
     return client;
@@ -109,7 +117,34 @@ var Cloud = (function () {
     return whenReady();
   }
 
+  function authStorageKey() {
+    var ref = "local";
+    try { ref = new URL(cfg().url || "").hostname.split(".")[0] || ref; } catch (e) {}
+    return "sb-" + ref + "-auth-token";
+  }
+
+  /* A saved refresh token is a sign-in. Read it before any network call so
+     a returning player is not sent to the door while the access token refreshes. */
+  function storedSessionUser() {
+    if (typeof localStorage === "undefined") return null;
+    try {
+      var raw = localStorage.getItem(authStorageKey());
+      if (!raw) return null;
+      var session = JSON.parse(raw);
+      if (session && session.user && session.user.id && session.refresh_token) return session.user;
+    } catch (e) {}
+    return null;
+  }
+
+  function adoptStoredSession() {
+    if (user && user.id) return user;
+    var remembered = storedSessionUser();
+    if (remembered) user = remembered;
+    return user;
+  }
+
   function whenReady() {
+    adoptStoredSession();
     if (readyPromise) return readyPromise;
     if (!configured()) {
       isReady = true;
@@ -309,6 +344,24 @@ var Cloud = (function () {
     return out;
   }
 
+  function mergeNoticeBox(local, remote) {
+    var lnb = Object.assign({}, (local && local.set && local.set.noticeBox) || {});
+    if (local && local.set && local.set.ackNoticeId && !lnb[local.set.ackNoticeId]) {
+      lnb[local.set.ackNoticeId] = "read";
+    }
+    var rnb = Object.assign({}, (remote && remote.set && remote.set.noticeBox) || {});
+    if (remote && remote.set && remote.set.ackNoticeId && !rnb[remote.set.ackNoticeId]) {
+      rnb[remote.set.ackNoticeId] = "read";
+    }
+    if (!Object.keys(lnb).length && !Object.keys(rnb).length) return undefined;
+    var merged = Object.assign({}, rnb, lnb);
+    var keys = Object.keys(merged);
+    if (keys.length <= 80) return merged;
+    var pruned = {};
+    keys.slice(-80).forEach(function (k) { pruned[k] = merged[k]; });
+    return pruned;
+  }
+
   function mergeSave(local, remote) {
     local = local || {};
     remote = remote || {};
@@ -329,8 +382,9 @@ var Cloud = (function () {
     out.pilgrim = mergePilgrim(local.pilgrim, remote.pilgrim);
     out.tablets = mergeTablets(local.tablets, remote.tablets);
     out.daily = mergeDaily(local, remote);
-    out.dailyByEdition = mergeDailyByEdition(local, remote);
     out.set = Object.assign({}, remote.set || {}, local.set || {});
+    var nb = mergeNoticeBox(local, remote);
+    if (nb) out.set.noticeBox = nb;
     out.board = (local.board && local.board.length) ? local.board
       : (remote.board || []).slice(0, 10);
     return migrateBlitzUnits(out);
@@ -374,6 +428,24 @@ var Cloud = (function () {
     }
   }
 
+  async function fetchSiteNotices(limit) {
+    if (!configured()) return null;
+    var sb = ensureClient();
+    if (!sb) return null;
+    var n = typeof limit === "number" && limit > 0 ? Math.min(limit, 100) : 40;
+    try {
+      var res = await withTimeout(
+        sb.from("site_notices").select("id,title,body,created_at").eq("active", true)
+          .order("created_at", { ascending: false }).limit(n),
+        8000
+      );
+      if (res.error) return null;
+      return res.data || [];
+    } catch (e) {
+      return null;
+    }
+  }
+
   async function publishSiteNotice(title, body) {
     if (!isSiteAdmin()) return { ok: false, reason: "not-admin" };
     var sb = ensureClient();
@@ -382,7 +454,6 @@ var Cloud = (function () {
     body = String(body || "").trim().slice(0, 2000);
     if (body.length < 8) return { ok: false, reason: "body-short" };
     try {
-      await withTimeout(sb.from("site_notices").update({ active: false }).eq("active", true), 8000);
       var ins = await withTimeout(
         sb.from("site_notices").insert({ title: title, body: body, active: true })
           .select("id,title,body,created_at").single(),
@@ -390,6 +461,23 @@ var Cloud = (function () {
       );
       if (ins.error) return { ok: false, reason: ins.error.message || "insert-failed" };
       return { ok: true, notice: ins.data };
+    } catch (e) {
+      return { ok: false, reason: "failed" };
+    }
+  }
+
+  async function withdrawSiteNotice(id) {
+    if (!isSiteAdmin()) return { ok: false, reason: "not-admin" };
+    if (!id) return { ok: false, reason: "no-id" };
+    var sb = ensureClient();
+    if (!sb) return { ok: false, reason: "no-client" };
+    try {
+      var res = await withTimeout(
+        sb.from("site_notices").update({ active: false }).eq("id", id),
+        8000
+      );
+      if (res.error) return { ok: false, reason: res.error.message || "withdraw-failed" };
+      return { ok: true };
     } catch (e) {
       return { ok: false, reason: "failed" };
     }
@@ -453,13 +541,17 @@ var Cloud = (function () {
     history.replaceState(null, "", (location.origin || "") + path);
   }
   function applyAuthEvent(event, session) {
-    adminFlag = false;
     if (event === "SIGNED_OUT") {
+      /* Refresh rotation can emit this while the saved session is still
+         valid. Only a sign-out that actually cleared storage sticks. */
+      if (storedSessionUser()) return;
       user = null;
       profile = null;
+      adminFlag = false;
       lastRevision = 0;
       return;
     }
+    adminFlag = false;
     if (event === "INITIAL_SESSION") {
       if (session && session.user) user = session.user;
       return;
@@ -480,10 +572,12 @@ var Cloud = (function () {
       }
       sb.auth.onAuthStateChange(function (event, session) {
         applyAuthEvent(event, session);
-        if (user) refreshProfile();
-        else if (event === "SIGNED_OUT" || (event === "INITIAL_SESSION" && !user)) profile = null;
+        if (!user && (event === "SIGNED_OUT" || event === "INITIAL_SESSION")) profile = null;
         emit("onAuth", { event: event, user: user, profile: profile });
         if (event === "INITIAL_SESSION") finish();
+        /* Profile reads take the auth lock. Doing that inside this callback
+           can stall the write that saves a refreshed session. */
+        if (user) setTimeout(function () { refreshProfile(); }, 0);
       });
       recoverCallbackSession(sb).then(function () {
         if (user) {
@@ -557,6 +651,7 @@ var Cloud = (function () {
     });
   }
   async function init() {
+    adoptStoredSession();
     if (!configured()) {
       isReady = true;
       return { ok: false, reason: "not-configured" };
@@ -1185,7 +1280,9 @@ var Cloud = (function () {
     userEmail: userEmail,
     isSiteAdmin: isSiteAdmin,
     fetchActiveSiteNotice: fetchActiveSiteNotice,
+    fetchSiteNotices: fetchSiteNotices,
     publishSiteNotice: publishSiteNotice,
+    withdrawSiteNotice: withdrawSiteNotice,
     clearSiteNotices: clearSiteNotices,
     boardLoadFailed: boardLoadFailed,
     authNotice: authNotice,
