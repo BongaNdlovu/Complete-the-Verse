@@ -24,10 +24,11 @@ vm.runInContext(src, sb, { filename: 'bundle.js' });
 function read(expr) { return vm.runInContext(expr, sb); }
 function exec(code) { return vm.runInContext(code, sb); }
 
-console.log('--- Step 1: Wipe translation flag / fresh profile -> boot -> edition picker, not hall ---');
+console.log('--- Step 1: Wipe translation flag / fresh profile -> hall paused on the choice card ---');
 exec('currentView = "boot"; SAVE.set.translationChosen = false; openAfterBoot();');
 console.log('Current view after boot:', read('currentView'));
-if (read('currentView') !== 'edition') throw new Error('Expected edition view, got ' + read('currentView'));
+if (read('currentView') !== 'menu') throw new Error('Expected the hall, got ' + read('currentView'));
+if (!read('document.getElementById("v-edition").classList.contains("on")')) throw new Error('Expected the edition card over the hall');
 
 console.log('--- Step 2: Pick NKJV -> tutorial uses NKJV wording -> hall kick/badge say NKJV ---');
 exec('Edition.selectEdition("nkjv");');

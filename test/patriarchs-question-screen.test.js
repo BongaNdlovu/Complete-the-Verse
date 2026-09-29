@@ -86,6 +86,15 @@ assert(/renderPassageReferenceQuestion\(q, dur, scene\)/.test(play) && /renderCl
        /renderTrueFalseQuestion\(q, dur, scene\)/.test(play),
   "existing mechanic render paths remain intact");
 
+assert(play.includes('const DAILY_SCENE = "assets/daily/ocean.mp4"'), "Daily uses only the ocean clip");
+assert(play.includes('const DAILY_KING_SRC = "assets/daily/king-of-kings.webp"'), "Daily stands the King of Kings on the question screen");
+assert(play.includes('const DAILY_KING_NAME = "King of Kings"'), "the Daily figure is named King of Kings");
+assert(/R\.mode === "daily"[\s\S]{0,220}vid\.muted = true[\s\S]{0,80}vid\.volume = 0/.test(play),
+  "the Daily clip stays silent");
+assert(fs.existsSync(path.join(ROOT, "assets", "daily", "ocean.mp4")), "Daily ocean clip is present");
+assert(fs.existsSync(path.join(ROOT, "assets", "daily", "king-of-kings.webp")), "King of Kings artwork is present");
+assert(css.includes("body.daily-king .question-abraham"), "Daily keeps the figure on a narrow screen");
+
 if (fails.length) {
   console.error("FAIL (" + fails.length + ")");
   fails.forEach((f) => console.error(" - " + f));

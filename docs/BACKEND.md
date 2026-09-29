@@ -21,7 +21,7 @@ In Supabase → Authentication → URL configuration:
 
 ### Play Console (account required)
 
-Honest declaration: **sign-in is required to sync one save and post Blitz.** Guests cannot start a new run. A local `ctv_save_v3` already on the device still merges after they sign in. Offline play works only after a session has been stored on that device.
+Honest declaration: **sign-in is required to sync one save and post Daily and Blitz scores.** Guests cannot start a new run. A local `ctv_save_v3` already on the device still merges after they sign in. Offline play works only after a session has been stored on that device.
 
 Suggested listing line (replaces “guests keep local bests”):
 

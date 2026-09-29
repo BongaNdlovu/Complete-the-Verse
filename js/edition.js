@@ -297,6 +297,7 @@ var Edition = (function(){
       if(typeof persist === "function") persist();
     }
     activateEdition(key);
+    if(typeof hideEditionGate === "function") hideEditionGate();
     if(typeof enterCoffeePath === "function") {
       enterCoffeePath();
     } else if(typeof showTutorialIfNeeded === "function" && typeof SAVE !== "undefined" && !SAVE.set.tutorialSeen) {

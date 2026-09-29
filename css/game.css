@@ -211,8 +211,28 @@ body.reduced #v-signin.leaving .signin-pad{transition:none;transform:none;filter
 #v-boot .game-logo{width:min(18rem,56vw);margin-bottom:1.6vh}
 /* The edition picker must fit both buttons above the fold on a short
    laptop screen (1366x850), so its chrome is tighter than the menu's. */
-#v-edition .scrollpad{padding-top:calc(var(--safe-t) + 12px);padding-bottom:4vh}
-#v-edition .game-logo{width:min(13rem,40vw);margin-top:.6vh}
+#v-edition.edition-gate{
+  position:fixed;inset:0;z-index:13000;display:none;align-items:center;justify-content:center;
+  padding:4vh 4vw;background:rgba(4,4,10,.78)}
+#v-edition.edition-gate.on{display:flex}
+#v-edition.edition-gate[hidden]{display:none!important}
+.edition-card{
+  width:min(420px,92vw);padding:1.5rem 1.35rem 1.35rem;text-align:center;
+  background:var(--panel);box-shadow:0 0 0 1px var(--edge) inset,0 24px 80px rgba(0,0,0,.55);border-radius:3px}
+.edition-card .fil{width:min(220px,70%);margin:1rem auto}
+.edition-lock{color:var(--parch);line-height:1.55;font-size:1.02rem;max-width:36ch;margin:.2rem auto 0}
+.edition-keep{margin:.7rem auto 0}
+.edition-actions{display:flex;flex-direction:column;gap:12px;margin-top:1.15rem}
+.edition-actions .btn{width:100%}
+.edition-name{display:block;font-size:1.02em}
+.edition-locked{font-family:var(--disp);letter-spacing:.12em;text-transform:uppercase;color:var(--gold-hot);font-size:.84rem}
+.menu-start-over{
+  position:fixed;top:calc(var(--safe-t) + 16px);left:0;right:0;margin-inline:auto;width:max-content;z-index:13;
+  min-height:44px;padding:.55em 1.15em;font-family:var(--ui);font-size:.72rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--gold);background:var(--panel);cursor:pointer;
+  box-shadow:0 0 0 1px var(--edge) inset,0 12px 32px rgba(0,0,0,.55)}
+.menu-start-over:hover{box-shadow:0 0 0 1px var(--gold) inset,0 12px 32px rgba(0,0,0,.55)}
+body.edition-gate-open #v-menu .scrollpad{overflow:hidden}
 .menu-subtitle{max-width:48ch;text-align:center;color:var(--parch-dim);font-style:italic;font-size:clamp(.95rem,1.8vw,1.15rem);line-height:1.6;margin:0 auto}
 .playercard{position:fixed;top:calc(var(--safe-t) + 12px);left:max(16px, 3.4vw);z-index:12;
   display:flex;align-items:center;gap:14px;padding:.65em 1.25em .65em .8em;
@@ -267,7 +287,6 @@ details.mode-group>summary::-webkit-details-marker{display:none}
 .menu-player-reviews{width:100%;margin:0;text-align:left}
 .menu-reviews-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.65rem 1rem;margin-bottom:.8rem}
 .menu-reviews-meta{display:flex;flex-wrap:wrap;align-items:baseline;gap:.5rem 1rem}
-.menu-reviews-actions--inline{width:auto;margin:0;justify-content:flex-end;flex:1 1 auto}
 .menu-reviews-kicker{font-family:var(--disp);font-size:.78rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
 .menu-reviews-score{font-family:var(--ui);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim)}
 .menu-reviews-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
@@ -278,6 +297,7 @@ details.mode-group>summary::-webkit-details-marker{display:none}
 .menu-reviews-cards .review-stars{color:var(--gold);font-size:.82rem}
 .menu-reviews-cards .review-date{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--parch-dim)}
 .menu-reviews-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:1.4vh auto 0;width:min(1080px,92vw)}
+.menu-reviews-actions.menu-reviews-actions--inline{width:auto;max-width:100%;margin:0;justify-content:flex-end;flex:1 1 auto}
 .menu-reviews-spot .menu-reviews-cards .review-text{-webkit-line-clamp:3}
 .admin-notice-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:.8rem}
 .admin-notice-items{display:flex;flex-direction:column;gap:8px;margin-top:.8rem;width:100%;max-width:420px}
@@ -288,7 +308,7 @@ details.mode-group>summary::-webkit-details-marker{display:none}
 #settings-body textarea{width:100%;max-width:420px;min-height:6rem;margin-top:.5rem;font:inherit;color:var(--parch);background:var(--panel);border:1px solid var(--edge);padding:.65rem .75rem;box-sizing:border-box}
 #settings-body #admin-notice-title{width:100%;max-width:420px;margin-top:.5rem;font:inherit;color:var(--parch);background:var(--panel);border:1px solid var(--edge);padding:.55rem .65rem;box-sizing:border-box}
 @media(max-width:719px){
-  .menu-reviews-actions--inline{justify-content:flex-start;width:100%}
+  .menu-reviews-actions.menu-reviews-actions--inline{justify-content:flex-start;width:100%}
 }
 .subnav{display:flex;gap:12px;margin-top:4vh;flex-wrap:wrap;justify-content:center}
 .subnav .badge,#menu-messages-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:var(--gold-hot);color:#150f04;font-family:var(--ui);font-size:.65rem;font-weight:700;line-height:1;vertical-align:middle}
@@ -343,7 +363,12 @@ body.reduced .menu-envelope,body.motion-calm .menu-envelope{animation:none}
 
 @media (max-width:900px){
   .playercard{position:static;margin:0 auto 1.5rem auto;width:min(100%, 360px)}
-  #v-menu .scrollpad{padding-top:calc(var(--safe-t) + 16px)}
+  #v-menu .scrollpad{padding-top:calc(var(--safe-t) + 80px)}
+}
+@media (min-width:901px){
+  /* The scribe card and the envelope are fixed in the hall corners.
+     Reviews start on that same band, so the menu begins beneath them. */
+  #v-menu .scrollpad{padding-top:calc(var(--safe-t) + 120px)}
 }
 
 /* ================= BRIEF ================= */
@@ -1273,7 +1298,7 @@ body.reduced #reveal-stage.play .reveal-art{animation:none;opacity:1;transform:n
 
 @media (max-width:720px){
   .playercard{position:static;margin:0 auto 18px;max-width:92vw}
-  #v-menu .scrollpad{padding-top:calc(var(--safe-t) + 16px)}
+  #v-menu .scrollpad{padding-top:calc(var(--safe-t) + 80px)}
   .setrow{flex-direction:column;align-items:stretch;gap:12px;padding:1.35em 0}
   .setrow .seg, .setrow input[type=range]{align-self:flex-start}
   .res-primary{gap:12px;margin-top:3.6vh}

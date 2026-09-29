@@ -90,7 +90,7 @@
       <img class="game-logo" src="assets/logo.webp" alt="Complete the Verse" width="512" height="512">
       <div class="h-lg" style="margin-top:1.2vh">Enter the hall</div>
       <div class="fil"><i></i></div>
-      <p class="signin-copy">An account holds one save across devices and posts Blitz. Progress already on this device merges when you sign in.</p>
+      <p class="signin-copy">An account holds one save across devices and posts your Daily and Blitz scores. Progress already on this device merges when you sign in.</p>
       <button type="button" class="btn signin-google" id="signin-google">Continue with Google</button>
       <p class="signin-or">or email a 6-digit code</p>
       <form class="signin-email-form" id="signin-email-form">
@@ -106,27 +106,26 @@
     </div>
   </section>
 
-  <!-- ============ EDITION PICKER ============ -->
-  <section class="view" id="v-edition" aria-label="Choose translation">
-    <div class="scrollpad edition-pad">
+  <!-- Edition gate. Not a view: it pauses the hall until a translation is chosen. -->
+  <div id="v-edition" class="edition-gate" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="edition-title">
+    <div class="edition-card">
       <div class="kick">The Scripture Record</div>
-      <img class="game-logo" src="assets/logo.webp" alt="Complete the Verse" width="512" height="512">
-      <div class="h-lg" style="margin-top:1.2vh">Choose your translation</div>
+      <div class="h-lg" id="edition-title">Choose your translation</div>
       <div class="fil"><i></i></div>
-      <p class="signin-copy">Select the text for your trial. Verse memory, Daily runs, and Word Tablets are tracked per edition. The road from Ur to Patmos and unlocked relics are shared.</p>
-      <div class="edition-actions" style="display:flex; flex-direction:column; gap:14px; max-width:340px; margin:20px auto 0;">
+      <p class="edition-lock">This choice stays locked for the whole game. It cannot be changed during a run or in Settings. Start over at the top of the hall is the only way to choose again.</p>
+      <p class="hint edition-keep">The road, relics, and verse memory stay.</p>
+      <div class="edition-actions">
         <button type="button" class="btn" id="edition-btn-kjv" data-edition="kjv">
-          <span style="display:block; font-size:1.1em; font-weight:600;">King James Version (KJV)</span>
-          <span class="hint" style="display:block; color:inherit; opacity:0.8; font-size:0.85em;">Classic 1611 cadence · Public domain</span>
+          <span class="edition-name">King James Version</span>
+          <span class="hint">Classic 1611 cadence</span>
         </button>
         <button type="button" class="btn ghost" id="edition-btn-nkjv" data-edition="nkjv">
-          <span style="display:block; font-size:1.1em; font-weight:600;">New King James Version (NKJV)</span>
-          <span class="hint" style="display:block; color:inherit; opacity:0.8; font-size:0.85em;">1982 Thomas Nelson edition</span>
+          <span class="edition-name">New King James Version</span>
+          <span class="hint">1982 Thomas Nelson edition</span>
         </button>
       </div>
-      <p class="hint" style="margin-top:20px; text-align:center;">You can switch between editions anytime in Settings.</p>
     </div>
-  </section>
+  </div>
 
   <!-- ============ MENU ============ -->
   <section class="view" id="v-menu">
@@ -150,6 +149,7 @@
         </span>
         <span class="badge" id="menu-messages-badge" style="display:none"></span>
       </button>
+    <button type="button" class="menu-start-over" id="menu-start-over">Start over</button>
     <div class="scrollpad">
       <div class="menu-reviews-spot">
         <section class="menu-player-reviews" id="menu-player-reviews" aria-label="What players say">
@@ -703,6 +703,7 @@
         <div><div class="kick">Records</div><div class="h-lg" style="margin-top:.5vh">The Chronicle</div></div>
         <div class="tabs">
           <button class="tab on" data-rtab="board">Local</button>
+          <button class="tab" data-rtab="daily">Daily global</button>
           <button class="tab" data-rtab="blitz">Blitz global</button>
           <button class="tab" data-rtab="life">Lifetime</button>
           <button class="tab" data-rtab="books">By Book</button>

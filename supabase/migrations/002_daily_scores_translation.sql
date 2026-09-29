@@ -9,6 +9,9 @@ alter table public.daily_scores
   drop constraint if exists daily_scores_user_date;
 
 alter table public.daily_scores
+  drop constraint if exists daily_scores_user_date_translation;
+
+alter table public.daily_scores
   add constraint daily_scores_user_date_translation
   unique (user_id, play_date, translation);
 

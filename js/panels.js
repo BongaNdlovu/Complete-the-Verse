@@ -407,35 +407,57 @@ function renderBookBars(el){
     rows.map(r=>'<div class="bb"><i>'+esc(r.b)+'</i><div class="bar"><u style="width:'+(r.p*100)+'%"></u></div>'+
     '<b>'+Math.round(r.p*100)+'%</b></div>').join("")+'</div>';
 }
-function renderBlitzBoard(el){
+function cloudBoardSpec(board){
+  if(board === "daily"){
+    const day = todayKey();
+    const ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
+    return {
+      title: "Daily global · " + day + " · " + ed.toUpperCase(),
+      empty: "No Daily scores yet today. Sign in and finish a Daily Trial to appear here.",
+      load: function(){
+        return Promise.all([Cloud.fetchDailyBoard(day, 25, ed), Cloud.isSignedIn() ? Cloud.fetchMyDailyRank(day, ed) : null]);
+      },
+      cell: function(r){ return fmt(r.score) + (r.accuracy != null ? ' · ' + Math.round(Number(r.accuracy)) + '%' : ''); }
+    };
+  }
+  return {
+    title: "Blitz global",
+    empty: "No scores yet. Sign in and finish a run to appear here.",
+    load: function(){
+      return Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn() ? Cloud.fetchMyBlitzRank() : null]);
+    },
+    cell: function(r){ return fmt(r.score) + ' verses' + (r.survived_ms != null ? ' · ' + Math.round(r.survived_ms/1000) + 's' : ''); }
+  };
+}
+function renderCloudBoard(el, board){
   const cloudOn = typeof Cloud!=="undefined" && Cloud.configured();
   if(!cloudOn){
     el.innerHTML='<div class="empty">Cloud boards need a configured Supabase project (see BACKEND.md). Local play still works.</div>';
     return;
   }
+  const spec = cloudBoardSpec(board);
   const trustTag = (typeof Cloud!=="undefined" && typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct")
     ? ' <span class="trust-pill">(Honor system)</span>' : '';
-  const title = "Blitz global" + trustTag;
+  const title = esc(spec.title) + trustTag;
   el.innerHTML='<div class="mtitle">'+title+'</div><div class="board-loading">Loading…</div>';
   const seq = (el._fetchSeq = (el._fetchSeq || 0) + 1);
-  Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn()?Cloud.fetchMyBlitzRank():null])
+  spec.load()
     .then(([rows, mine])=>{
       if(el._fetchSeq !== seq) return;
       if(mine && rows) rows.forEach(function(r){ if(r.id === mine.id) r.mine = true; });
       if(!rows || !rows.length){
         const fail = Cloud.boardLoadFailed && Cloud.boardLoadFailed();
-        el.innerHTML='<div class="mtitle">'+esc(title)+'</div><div class="empty">'+(fail
+        el.innerHTML='<div class="mtitle">'+title+'</div><div class="empty">'+(fail
           ? "Could not reach the board."
-          : "No scores yet. Sign in and finish a run to appear here.")+'</div>';
+          : esc(spec.empty))+'</div>';
         return;
       }
       let html = '<div class="mtitle">'+title+'</div><div class="lb global-lb">';
       rows.forEach(r=>{
-        const extra = fmt(r.score)+' verses'+(r.survived_ms!=null?' · '+Math.round(r.survived_ms/1000)+'s':'');
-        html += '<div class="lbrow'+(r.mine?" mine":"")+(r.rank===1?" top":"")+'" data-score-id="'+esc(r.id||"")+'" data-score-board="'+rtab+'">'+
+        html += '<div class="lbrow'+(r.mine?" mine":"")+(r.rank===1?" top":"")+'" data-score-id="'+esc(r.id||"")+'" data-score-board="'+board+'">'+
           '<div class="pos">'+r.rank+'</div>'+
           '<div class="mode">'+esc(r.name)+(r.mine?' · you':'')+'</div>'+
-          '<div class="sc">'+extra+'</div>'+
+          '<div class="sc">'+spec.cell(r)+'</div>'+
           (Cloud.isSignedIn() && r.id ? '<button type="button" class="board-report" data-report-score="'+esc(r.id)+'">Report</button>' : '')+
           '</div>';
       });
@@ -443,22 +465,22 @@ function renderBlitzBoard(el){
       if(mine && !rows.some(r=>r.mine)){
         html += '<div class="board-you-sep">Your best on this board</div><div class="lb global-lb">'+
           '<div class="lbrow mine"><div class="pos">'+mine.rank+'</div><div class="mode">'+esc(mine.name)+' · you</div>'+
-          '<div class="sc">'+fmt(mine.score)+' verses</div></div></div>';
+          '<div class="sc">'+spec.cell(mine)+'</div></div></div>';
       }
       if(!Cloud.isSignedIn()){
         html += '<div class="hint" style="margin-top:1.4vh">Sign in under Settings to post scores and see your rank.</div>';
       }
       el.innerHTML = html;
-      bindLeaderboardReports(el, rtab);
+      bindLeaderboardReports(el, board);
     }).catch(()=>{
       if(el._fetchSeq !== seq) return;
-      el.innerHTML='<div class="mtitle">'+esc(title)+'</div><div class="empty">Could not reach the board.</div>';
+      el.innerHTML='<div class="mtitle">'+title+'</div><div class="empty">Could not reach the board.</div>';
     });
 }
 function renderRecords(){
   const el=$("records-body");
   if(rtab==="board") renderLocalBoard(el);
-  else if(rtab==="blitz") renderBlitzBoard(el);
+  else if(rtab==="daily" || rtab==="blitz") renderCloudBoard(el, rtab);
   else if(rtab==="life") renderLifeStats(el);
   else renderBookBars(el);
 }
@@ -657,7 +679,7 @@ function settingsAccountSignedInHtml(who){
 function settingsAccountGuestHtml(){
   const pending = (typeof localStorage!=="undefined"?localStorage.getItem("cloud_pending_email"):"")||"";
   return '<div class="setrow account"><div><label>Cloud account</label><small>An account is required to enter the hall. Google or a 6-digit email code. Local progress on this device merges after sign-in. <a href="privacy.html">Privacy</a></small></div></div>'+
-    '<div class="setrow"><div><label>Google sign-in</label><small>Sign in with your Google account to sync saves and post Blitz.</small></div>'+
+    '<div class="setrow"><div><label>Google sign-in</label><small>Sign in with your Google account to sync saves and post Daily and Blitz scores.</small></div>'+
     '<button class="btn sm" id="cloud-google" type="button">Continue with Google</button></div>'+
     '<div class="setrow"><div><label>Email sign-in</label><small>We email a 6-digit code.</small></div>'+
     '<div class="cloud-name"><input id="cloud-email" type="email" placeholder="you@example.com" value="'+esc(pending)+'" autocomplete="email"><button class="btn sm" id="cloud-signin" type="button">Send code</button></div></div>'+
@@ -705,8 +727,8 @@ function renderSettings(){
     ownerBlock +
     accountBlock +
     profileBlock +
-    setRow("Translation","King James Version (KJV) or New King James Version (NKJV). Verse memory and Daily are kept per edition; Pilgrimage sites, relics, and seals are shared.",
-      seg("translation",[["kjv","KJV"],["nkjv","NKJV"]],s.translation||"kjv")) +
+    setRow("Translation","Locked for this game. It cannot be changed during a run or in Settings. Start over at the top of the hall to choose again. The road, relics, and verse memory stay.",
+      '<span class="edition-locked">'+(s.translation==="nkjv" ? "New King James Version" : "King James Version")+'</span>') +
     setRow("Translation license","Scripture taken from the New King James Version®. Copyright © 1982 by Thomas Nelson. Used by permission. All rights reserved.",
       '<div class="hint" style="text-align:right;">NKJV © 1982 Thomas Nelson</div>') +
     setRow("Ordeal","Disciple is the learning path. Watchman is the full clock.",
@@ -795,16 +817,11 @@ function bindSettingsHandlers(){
       b.addEventListener("click", ()=>{
         const key=g.dataset.seg; let v=b.dataset.val;
         if(v==="true") v=true; else if(v==="false") v=false;
-        SAVE.set[key]=v;
         if(key==="translation"){
-          SAVE.set.translationChosen = true;
-          persist();
-          Snd.ui();
-          if(typeof Edition !== "undefined" && Edition.activateEdition) Edition.activateEdition(v);
-          if(typeof toast === "function") toast("Switched to " + (v === "nkjv" ? "NKJV" : "KJV"));
-          if(typeof go === "function") go("menu");
+          if(typeof toast === "function") toast("The translation is locked. Start over on the hall to choose again.");
           return;
         }
+        SAVE.set[key]=v;
         if(key==="motion"){ SAVE.set.reduced = (v === "reduced"); }
         if(key==="reduced"){ SAVE.set.motion = v ? "reduced" : "full"; }
         if(key==="quality") SAVE.set.qualityLocked=true;

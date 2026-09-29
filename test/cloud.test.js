@@ -20,7 +20,7 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
   eq("whenReady exists", typeof Cloud.whenReady, "function");
   eq("isReady exists", typeof Cloud.isReady, "function");
   eq("authNotice google-unavailable", Cloud.authNotice("google-unavailable"), "Google sign-in is not enabled on this project yet.");
-  eq("authNotice session-required", Cloud.authNotice("session-required"), "Sign in to enter the hall. One account holds the save and posts Blitz.");
+  eq("authNotice session-required", Cloud.authNotice("session-required"), "Sign in to enter the hall. One account holds the save and posts Daily and Blitz scores.");
   eq("authNotice signed-out", Cloud.authNotice("signed-out"), "Sign in to enter the hall.");
 }
 

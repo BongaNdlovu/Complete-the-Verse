@@ -230,6 +230,33 @@ function exec(sb, code) { return vm.runInContext(code, sb); }
   eq("KJV first tutorial answer restored", read(sb, "TUTORIAL_QUESTIONS[0].a"), kjvFirstA);
 }
 
+// Test 10: The hall card locks the translation until Start over
+{
+  const sb = boot();
+  exec(sb, `
+    currentView = "menu";
+    SAVE.set.translationChosen = false;
+    SAVE.pilgrim.sites = { ur: { cleared: true } };
+    SAVE.oil = 7;
+    showEditionGate();
+  `);
+  eq("the choice card pauses the hall", read(sb, "$('v-edition').classList.contains('on')"), true);
+  eq("the hall stays up under the card", read(sb, "currentView"), "menu");
+  exec(sb, "Edition.selectEdition('nkjv')");
+  eq("choosing closes the card", read(sb, "$('v-edition').classList.contains('on')"), false);
+  eq("choosing keeps the road", read(sb, "SAVE.pilgrim.sites.ur.cleared"), true);
+  eq("choosing keeps oil", read(sb, "SAVE.oil"), 7);
+  exec(sb, "currentView = 'menu'; showEditionGate(); Edition.selectEdition('kjv');");
+  eq("start over can return to KJV", read(sb, "Edition.getEdition()"), "kjv");
+  eq("start over still keeps the road", read(sb, "SAVE.pilgrim.sites.ur.cleared"), true);
+  exec(sb, "go('settings')");
+  const settings = read(sb, "$('settings-body').innerHTML");
+  ok("settings does not offer a translation switch", settings.indexOf('data-seg="translation"') < 0);
+  ok("settings says the translation is locked", settings.indexOf("Locked for this game") >= 0);
+  exec(sb, "R.running = true; R.ended = false; currentView = 'menu'; showEditionGate();");
+  eq("a live run does not open the choice card", read(sb, "$('v-edition').classList.contains('on')"), false);
+}
+
 if (fail) {
   console.log("FAIL — edition · " + pass + " passed · " + fail + " failed");
   process.exit(1);

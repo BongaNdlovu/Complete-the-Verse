@@ -180,6 +180,21 @@ function upsertRaceGhost(isPilgrim, siteCleared, total, survivedMs){
 function endRunCloudSubmit(dailyRecorded, isPilgrim, siteCleared, total, acc, survivedMs, reason){
   if(R.mode==="team") return;
   if(!(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn())) return;
+  if(dailyRecorded){
+    trackBoardSubmit(Cloud.submitDailyScore({
+      play_date: R.dailyKey || todayKey(),
+      translation: (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv",
+      score: total,
+      accuracy: Math.round(acc*100),
+      duration_ms: survivedMs,
+      diff: R.diff.key,
+      correct: R.correct||0,
+      attempts: R.attempts||0,
+      best: R.best||0,
+      baseScore: R.score||0,
+      reason: reason
+    }));
+  }
   if(R.mode==="blitz"){
     trackBoardSubmit(Cloud.submitBlitzScore({
       score: R.correct||0,
@@ -395,7 +410,8 @@ function endRun(reason){
   ctx.acc = scored.acc;
   endRunGrantSeals(scored.total, ctx.trialWon, ctx.finished);
   const saved = endRunPersistXp(reason, ctx, scored.total);
-  const survivedMs = Math.max(0, Date.now() - (R.startedAt||Date.now()));
+  const pausedNow = (R.paused && R.pauseStartedAt) ? Math.max(0, performance.now() - R.pauseStartedAt) : 0;
+  const survivedMs = Math.max(0, Date.now() - (R.startedAt||Date.now()) - (R.pausedMs||0) - pausedNow);
   endRunGhosts(ctx.isPilgrim, scored.total, survivedMs);
   if(R.mode==="blitz") SAVE.life.blitzBest = Math.max(SAVE.life.blitzBest||0, R.correct||0);
   endRunJournal(ctx.isPilgrim, ctx.siteCleared, scored.total, scored.acc);
@@ -913,6 +929,15 @@ function countUpScore(total){
    the network delivers it; the reveal waits for its slot in the
    sequence so it never steals the count-up's beat. */
 let dailyPlacement = null;
+let lastDailyRank = 0;
+/* The previously recorded rank lives in the save; it is what makes the
+   movement arrow honest ("vs your last daily"). A record stamped for the
+   board being shown is this very run's result, not a baseline. */
+function loadLastDailyRank(dayKey){
+  const rec = (typeof SAVE !== "undefined") && SAVE.lastDaily;
+  if(rec && rec.rank && rec.date && rec.date !== dayKey) return rec.rank;
+  return 0;
+}
 function ensurePlacementHost(){
   const board = $("res-board");
   if(!board || !board.parentNode) return null;
@@ -1057,6 +1082,48 @@ function fillTabletsLocalBoard(el){
     }, (pack[ch.id].best || 0) + "%");
   }).join("");
 }
+function fillResultsDailyBoard(el, trustTag){
+  const dayKey = (R && R.dailyKey) || todayKey();
+  const ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
+  const title = '<div class="mtitle">Daily board · '+esc(dayKey)+' · '+esc(ed.toUpperCase())+trustTag+'</div>';
+  lastDailyRank = loadLastDailyRank(dayKey);
+  el.style.display = "";
+  el.innerHTML = title+'<div class="board-loading">Loading…</div>';
+  Promise.all([
+    Cloud.fetchDailyBoard(dayKey, 15, ed),
+    Cloud.isSignedIn() ? Cloud.fetchMyDailyRank(dayKey, ed) : Promise.resolve(null),
+    (typeof Cloud.fetchDailyEntryCount === "function") ? Cloud.fetchDailyEntryCount(dayKey, ed) : Promise.resolve(0)
+  ]).then(([rows, mine, entryCount])=>{
+    if(currentView !== "results") return;
+    if(mine && rows) rows.forEach(function(r){ if(r.id === mine.id) r.mine = true; });
+    if(!rows.length){
+      const fail = Cloud.boardLoadFailed && Cloud.boardLoadFailed();
+      el.innerHTML = title+'<div class="empty">'+(fail
+        ? "Could not load the board. Check your connection."
+        : "No scores yet today. Be the first: finish a Daily Trial while signed in.")+'</div>';
+      return;
+    }
+    const mineRow = rows.find(r=>r.mine);
+    const myRank = (mineRow && mineRow.rank) || (mine && mine.rank) || null;
+    if(myRank && entryCount){
+      dailyPlacement = '<div class="place-line"><b>#'+myRank+'</b><span> of '+fmt(entryCount)+
+        ' today</span><i>The daily reading</i></div>';
+      SAVE.lastDaily = { date: dayKey, rank: myRank };
+      if(typeof persist === "function") persist();
+    }
+    renderPlacement();
+    let html = title + rows.map(r=>{
+      if(r.mine && lastDailyRank) r.move = lastDailyRank - r.rank;
+      return boardRowHtml(r, fmt(r.score)+(r.accuracy!=null?' · '+Math.round(r.accuracy)+'%':''));
+    }).join("");
+    if(mine && !rows.some(r=>r.mine)){
+      html += '<div class="board-you-sep">Your rank</div>'+boardRowHtml(mine, fmt(mine.score));
+    }
+    el.innerHTML = html;
+  }).catch(()=>{
+    el.innerHTML = '<div class="mtitle">Daily board</div><div class="empty">Could not load the board. Check your connection.</div>';
+  });
+}
 function fillResultsBoard(mode){
   const el = $("res-board");
   if(!el) return;
@@ -1070,6 +1137,10 @@ function fillResultsBoard(mode){
   if(typeof Cloud==="undefined" || !Cloud.configured()) return;
   const trustTag = (typeof Cloud!=="undefined" && typeof Cloud.lastSubmitVia === "function" && Cloud.lastSubmitVia() === "direct")
     ? ' <span class="trust-pill">(Honor system)</span>' : '';
+  if(mode==="daily"){
+    fillResultsDailyBoard(el, trustTag);
+    return;
+  }
   if(mode==="blitz"){
     el.style.display = "";
     el.innerHTML = '<div class="mtitle">Blitz board'+trustTag+'</div><div class="board-loading">Loading…</div>';

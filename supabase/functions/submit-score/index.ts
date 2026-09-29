@@ -23,15 +23,21 @@ function json(body: Record<string, unknown>, status = 200) {
   });
 }
 
-function todayUtc() {
-  return new Date().toISOString().slice(0, 10);
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function utcDay(offsetDays: number) {
+  return new Date(Date.now() + offsetDays * DAY_MS).toISOString().slice(0, 10);
 }
 
+/* play_date is the player's local calendar day, so it can sit one day
+   ahead of UTC (east of Greenwich) or behind it (west, or a run finished
+   just after midnight). */
 function validDate(value: unknown) {
   const date = String(value || "");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
   const parsed = new Date(date + "T00:00:00.000Z");
-  return parsed.toISOString().slice(0, 10) === date && date <= todayUtc();
+  if (isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== date) return false;
+  return date >= utcDay(-2) && date <= utcDay(1);
 }
 
 function diffScore(diff: string) {
@@ -78,27 +84,47 @@ function plausibleBlitz(row) {
   return true;
 }
 
-async function upsertDailyScore(supabase, user, body) {
-  if (!validDate(body.play_date)) return json({ error: "invalid-date" }, 400);
-  const diff = String(body.diff || "watchman").slice(0, 32);
-  if (!DIFFS.has(diff)) return json({ error: "invalid-difficulty" }, 400);
-  const translation = (String(body.translation || "kjv").toLowerCase() === "nkjv") ? "nkjv" : "kjv";
-  const row = {
+function dailyRow(body, diff: string) {
+  return {
     play_date: String(body.play_date),
     score: Math.max(0, Math.min(MAX_DAILY, Number(body.score) || 0)),
     accuracy: Math.max(0, Math.min(100, Number(body.accuracy) || 0)),
     duration_ms: body.duration_ms == null ? null : Math.max(0, Math.min(MAX_DURATION_MS, Number(body.duration_ms) || 0)),
     diff,
-    translation,
+    translation: (String(body.translation || "kjv").toLowerCase() === "nkjv") ? "nkjv" : "kjv",
     correct: Math.max(0, Number(body.correct) || 0),
     attempts: Math.max(0, Number(body.attempts) || 0),
     best: Math.max(0, Number(body.best) || 0),
     baseScore: Math.max(0, Math.round(Number(body.baseScore) || 0)),
     reason: String(body.reason || "")
   };
+}
+
+/* The first finished Daily of the day stands; later posts are logged and kept out. */
+async function keptDailyScore(supabase, user, row) {
+  const existing = await supabase.from("daily_scores")
+    .select("score")
+    .eq("user_id", user.id)
+    .eq("play_date", row.play_date)
+    .eq("translation", row.translation)
+    .maybeSingle();
+  if (existing.error) return json({ error: "rejected" }, 400);
+  if (!existing.data) return null;
+  const logKeep = await supabase.from("score_submission_log").insert({ user_id: user.id, kind: "daily" });
+  if (logKeep.error) return json({ error: "submission-log-failed" }, 503);
+  return json({ ok: true, score: existing.data.score, kept: true });
+}
+
+async function upsertDailyScore(supabase, user, body) {
+  if (!validDate(body.play_date)) return json({ error: "invalid-date" }, 400);
+  const diff = String(body.diff || "watchman").slice(0, 32);
+  if (!DIFFS.has(diff)) return json({ error: "invalid-difficulty" }, 400);
+  const row = dailyRow(body, diff);
   if (!plausibleDaily(row)) return json({ error: "rejected" }, 400);
   const score = settleDaily(row).total;
-  const { error } = await supabase.from("daily_scores").upsert({
+  const kept = await keptDailyScore(supabase, user, row);
+  if (kept) return kept;
+  const { error } = await supabase.from("daily_scores").insert({
     user_id: user.id,
     play_date: row.play_date,
     translation: row.translation,
@@ -106,7 +132,8 @@ async function upsertDailyScore(supabase, user, body) {
     accuracy: row.accuracy,
     duration_ms: row.duration_ms,
     diff
-  }, { onConflict: "user_id,play_date,translation" });
+  });
+  if (error && error.code === "23505") return json({ ok: true, kept: true });
   if (error) return json({ error: "rejected" }, 400);
   const log = await supabase.from("score_submission_log").insert({ user_id: user.id, kind: "daily" });
   if (log.error) return json({ error: "submission-log-failed" }, 503);
@@ -138,7 +165,8 @@ async function upsertBlitzScore(supabase, user, body) {
     user_id: user.id,
     score: row.score,
     survived_ms: row.survived_ms,
-    diff
+    diff,
+    created_at: new Date().toISOString()
   }, { onConflict: "user_id" });
   if (error) return json({ error: "rejected" }, 400);
   const log = await supabase.from("score_submission_log").insert({ user_id: user.id, kind: "blitz" });

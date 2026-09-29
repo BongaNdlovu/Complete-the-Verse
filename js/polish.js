@@ -38,6 +38,7 @@ var Polish = (function () {
     row = row || {};
     return {
       play_date: String(row.play_date || "").slice(0, 32),
+      translation: String(row.translation || "").toLowerCase() === "nkjv" ? "nkjv" : "kjv",
       score: Math.round(clamp(row.score, 0, MAX_DAILY_SCORE)),
       accuracy: clamp(row.accuracy, 0, MAX_ACCURACY),
       duration_ms: row.duration_ms == null ? null : Math.round(clamp(row.duration_ms, 0, MAX_DURATION_MS)),

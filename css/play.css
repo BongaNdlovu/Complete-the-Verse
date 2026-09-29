@@ -1557,6 +1557,23 @@ body:has(#site-quote.on) .powerbar{
   .question-abraham{display:none!important}
   body.abraham-active .question-content{width:100%;margin-left:0;margin-right:0}
   body.abraham-active .verse-stage{width:100%}
+  body.daily-king .question-abraham{
+    display:block!important;
+    width:clamp(112px,32vw,180px);
+    height:min(62vh,560px);
+    right:0;
+    bottom:0;
+    opacity:1;
+  }
+  body.daily-king .question-content,
+  body.biblical-thriller.daily-king #v-play .question-content{
+    width:auto;
+    max-width:none;
+    margin-left:8px;
+    margin-right:calc(clamp(112px,32vw,180px) + 8px);
+  }
+  body.daily-king .verse-stage,
+  body.biblical-thriller.daily-king #v-play .verse-stage{width:100%}
 }
 
 body.mode-beat .powerbar,

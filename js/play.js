@@ -37,6 +37,10 @@ const ROAD_QUESTION_BEDS = [
   "heroes","pointOfImpact","primarySuspect",
   "theTrace","theUncovering","awakeningMachine","machineAwakening"
 ];
+const DAILY_SCENE = "assets/daily/ocean.mp4";
+const DAILY_STILL = "assets/daily/ocean-still.webp";
+const DAILY_KING_SRC = "assets/daily/king-of-kings.webp";
+const DAILY_KING_NAME = "King of Kings";
 const SITE_AMBIENT = {
   ur:"assets/journey/ur.mp4", haran:"assets/journey/haran.mp4",
   shechem:"assets/journey/shechem.mp4", bethel:"assets/journey/bethel.mp4",
@@ -982,6 +986,11 @@ function buildChoices(q, rnd){
 function updateSiteVideoVolume(){
   const vid = $("cine-parallax-video");
   if(!vid) return;
+  if(typeof R !== "undefined" && R.mode === "daily"){
+    vid.muted = true;
+    vid.volume = 0;
+    return;
+  }
   const base = (typeof Snd!=="undefined" && Snd.sfxLevel) ? Snd.sfxLevel() : 0.7;
   vid.volume = Math.max(0, Math.min(1, base * 0.45));
 }
@@ -1010,11 +1019,36 @@ function stopSiteAmbientVideo(vid, el){
     try { vid.pause(); } catch(e){}
   }
 }
+function syncDailyBackdrop(el, vid){
+  el.style.backgroundImage = 'url("' + DAILY_STILL + '")';
+  if(!vid) return;
+  const allowDaily = (typeof currentView !== "undefined" && currentView === "play") && heavyMediaAllowed();
+  if(!allowDaily){
+    stopSiteAmbientVideo(vid, el);
+    el.style.backgroundImage = 'url("' + DAILY_STILL + '")';
+    el.style.opacity = "1";
+    return;
+  }
+  playSiteAmbientVideo(vid, el, DAILY_SCENE, {}, "");
+  vid.muted = true;
+  vid.defaultMuted = true;
+  vid.volume = 0;
+  if(typeof Snd !== "undefined" && typeof Snd.setRain === "function") Snd.setRain(false);
+}
+function backdropSiteId(){
+  if(R.siteId) return R.siteId;
+  const site = R.q && typeof Pilgrimage!=="undefined" && Pilgrimage.siteForBook ? Pilgrimage.siteForBook(R.q.b) : null;
+  return (site && site.id) || "ur";
+}
 function syncCinematicBackdrop(){
   const el = $("cine-parallax-img");
   const vid = $("cine-parallax-video");
   if(!el) return;
-  const siteId = R.siteId || (R.q && typeof Pilgrimage!=="undefined" && Pilgrimage.siteForBook ? (Pilgrimage.siteForBook(R.q.b)||{}).id : null) || "ur";
+  if(R && R.mode === "daily"){
+    syncDailyBackdrop(el, vid);
+    return;
+  }
+  const siteId = backdropSiteId();
   const vig = (typeof Pilgrimage !== "undefined" && Pilgrimage.vignette) ? Pilgrimage.vignette(siteId) : null;
   const imgUrl = vig ? (vig.image || vig.fallback) : "";
   el.style.backgroundImage = imgUrl ? 'url("' + imgUrl + '")' : "none";
@@ -1079,27 +1113,35 @@ function isCompanionPlay(site){
     && currentView === "play");
 }
 
+function companionMechanic(mechanic){
+  if(R && R.passage) return "passage";
+  if(R && R.recon) return "reconstruct";
+  return mechanic || (R && R.typed ? "typed" : "choice");
+}
+function paintCompanionFigure(el, active, daily, site){
+  const img = el.querySelector("img");
+  const src = daily ? DAILY_KING_SRC : companionQuestionSrc(site);
+  if(img && active && src && img.getAttribute("src") !== src) img.src = src;
+  const sign = $("question-abraham-sign");
+  const name = daily ? DAILY_KING_NAME : companionQuestionName(site);
+  if(sign && sign.textContent !== name) sign.textContent = name;
+}
 function syncAbrahamPresentation(mechanic){
   const el = $("question-abraham");
   if(!el) return;
   const site = R && R.siteId && typeof Pilgrimage !== "undefined" && Pilgrimage.site
     ? Pilgrimage.site(R.siteId) : null;
-  const active = isCompanionPlay(site);
-  const kind = R && R.passage ? "passage"
-    : R && R.recon ? "reconstruct"
-    : mechanic || (R && R.typed ? "typed" : "choice");
-  const img = el.querySelector("img");
-  const src = companionQuestionSrc(site);
-  if(img && active && src && img.getAttribute("src") !== src) img.src = src;
-  const sign = $("question-abraham-sign");
-  const name = companionQuestionName(site);
-  if(sign && sign.textContent !== name) sign.textContent = name;
+  const daily = !!(R && R.mode === "daily" && typeof currentView !== "undefined" && currentView === "play");
+  const active = daily || isCompanionPlay(site);
+  const kind = companionMechanic(mechanic);
+  paintCompanionFigure(el, active, daily, site);
   clearTimeout(el._reactionTimer);
   el.classList.remove("success", "failure");
   el.classList.toggle("on", active);
   document.body.classList.toggle("abraham-active", active);
+  document.body.classList.toggle("daily-king", daily);
   el.dataset.mechanic = kind;
-  el.dataset.site = site ? site.id : "";
+  el.dataset.site = daily ? "" : (site ? site.id : "");
 }
 
 function reactAbraham(ok){

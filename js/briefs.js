@@ -522,6 +522,7 @@ function renderMenu(){
   renderMenuReview(due);
   renderMenuGroups(due, dailyDone, road);
   if(typeof refreshMessagesBadge === "function") refreshMessagesBadge();
+  bindStartOver();
   const done = SAVE.seals.length, tot = SEALS.length;
   $("menu-hint").textContent = SAVE.runs
     ? fmt(SAVE.runs)+" runs · "+fmt(SAVE.life.correct)+" verses kept · "+done+"/"+tot+" seals"
@@ -1133,6 +1134,41 @@ function leaveSignInThen(next){
     if(fn) fn();
   }, ms);
 }
+function showEditionGate(){
+  if(typeof currentView !== "undefined" && currentView !== "menu") return;
+  if(typeof R !== "undefined" && R.running && !R.ended) return;
+  bindEditionPicker();
+  const el = $("v-edition");
+  if(!el) return;
+  el.hidden = false;
+  el.classList.add("on");
+  el.setAttribute("aria-hidden", "false");
+  document.body.classList.add("edition-gate-open");
+  const first = $("edition-btn-kjv");
+  if(first && first.focus) first.focus();
+}
+function hideEditionGate(){
+  const el = $("v-edition");
+  if(!el) return;
+  el.classList.remove("on");
+  el.hidden = true;
+  el.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("edition-gate-open");
+}
+function bindStartOver(){
+  const btn = $("menu-start-over");
+  if(!btn || btn._bound) return;
+  btn._bound = true;
+  btn.addEventListener("click", function(){
+    if(typeof R !== "undefined" && R.running && !R.ended){
+      if(typeof toast === "function") toast("Leave the run before choosing again");
+      return;
+    }
+    if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
+    if(currentView !== "menu" && typeof go === "function") go("menu");
+    showEditionGate();
+  });
+}
 function bindEditionPicker(){
   const kjvBtn = $("edition-btn-kjv");
   const nkjvBtn = $("edition-btn-nkjv");
@@ -1166,18 +1202,20 @@ function bindEditionPicker(){
   }
 }
 function enterHallAfterAuth(fromSignIn){
-  const cleared = !!(SAVE.life && SAVE.life.sitesCleared);
-  const walked = !!(SAVE.pilgrim && SAVE.pilgrim.lastPlayed);
   scheduleDeferredPrefetch();
+  if(typeof SAVE !== "undefined" && SAVE.set && !SAVE.set.translationChosen){
+    go("menu");
+    showEditionGate();
+    return;
+  }
   if(!SAVE.set.tutorialSeen){
     showTutorialIfNeeded(fromSignIn);
     return;
   }
-  if(cleared || walked){
-    go("menu");
-    return;
-  }
+  const cleared = !!(SAVE.life && SAVE.life.sitesCleared);
+  const walked = !!(SAVE.pilgrim && SAVE.pilgrim.lastPlayed);
   go("menu");
+  if(cleared || walked) return;
   if(typeof profileReady === "function" && !profileReady()) openProfileSetup(true);
 }
 /* site-notice.js is an optional script: the hall must still open when it is
@@ -1220,14 +1258,7 @@ function enterCoffeePath(){
 }
 function openAfterBoot(){
   const goOn = function(){
-    if(currentView==="boot"){
-      if(typeof SAVE !== "undefined" && SAVE.set && !SAVE.set.translationChosen){
-        bindEditionPicker();
-        go("edition");
-        return;
-      }
-      enterCoffeePath();
-    }
+    if(currentView==="boot") enterCoffeePath();
   };
   if(typeof Cloud!=="undefined" && Cloud.whenReady){
     Cloud.whenReady().then(goOn).catch(goOn);

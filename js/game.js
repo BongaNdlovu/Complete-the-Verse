@@ -501,7 +501,12 @@ function resolveGoView(view){
   }
   return view;
 }
+function openEditionFromGo(){
+  if(currentView!=="menu") go("menu");
+  if(currentView==="menu" && typeof showEditionGate==="function") showEditionGate();
+}
 function go(view){
+  if(view==="edition"){ openEditionFromGo(); return; }
   view = resolveGoView(view);
   const leaving = currentView;
   const plan = (typeof Flow!=="undefined" && Flow.leaveView) ? Flow.leaveView(leaving, view) : null;
@@ -509,8 +514,7 @@ function go(view){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
   const el = $("v-"+view); if(el) el.classList.add("on");
   currentView = view;
-  if((view==="play" || view==="tablets" || view==="atlas") && typeof closeCharacterPicker === "function") closeCharacterPicker();
-  if(view!=="atlas" && typeof Atlas!=="undefined" && Atlas.closeVignette) Atlas.closeVignette();
+  closeOverlaysFor(view);
   enterViewChrome(view);
   enterViewPanels(view);
   if(view==="signin" && typeof paintSignIn==="function") paintSignIn();
@@ -520,6 +524,14 @@ function go(view){
   if(view==="play" || view==="tablets") syncHallVideo(SAVE.set.quality);
   if(typeof Director!=="undefined" && Director.syncFx) Director.syncFx();
   if(view==="play") ensureLoop(); else if(!(plan && plan.stopLoop===false)) stopLoop();
+  leaveEditionGate(view);
+}
+function closeOverlaysFor(view){
+  if((view==="play" || view==="tablets" || view==="atlas") && typeof closeCharacterPicker === "function") closeCharacterPicker();
+  if(view!=="atlas" && typeof Atlas!=="undefined" && Atlas.closeVignette) Atlas.closeVignette();
+}
+function leaveEditionGate(view){
+  if(view!=="menu" && typeof hideEditionGate==="function") hideEditionGate();
 }
 document.addEventListener("click", e=>{
   const b = e.target.closest("[data-go]");
@@ -735,7 +747,8 @@ function startRunOpenStage(mode, isPilgrim, siteId, relay){
     : mode==="relay" ? (Pilgrimage.arc(relay.arcKey) || {name:"The Long Road"}).name
     : MODES[mode].name;
   applySiteSky(isPilgrim ? siteId : mode==="relay" ? relay.sites[0] : null);
-  if(!(isPilgrim || mode==="relay")) applySitePlate("hall");
+  if(mode==="daily") applySitePlate(null);
+  else if(!(isPilgrim || mode==="relay")) applySitePlate("hall");
   go("play"); nextQuestion();
 }
 
@@ -790,7 +803,7 @@ function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDra
     fast:0, sdCount:0, tiersSeen:new Set(), booksRun:new Set(),
     running:false, tEnd:0, tTotal:0, qStart:0, q:null, paused:false, locked:false, selected:null,
     actNoLoss:true, gotUnshaken:false, dailyIdx:0, daily:null, endlessBase:12000,
-    startedAt:Date.now(), lastTickSec:-1, lastHeart:0, pressureStage:-1,
+    startedAt:Date.now(), pausedMs:0, pauseStartedAt:0, lastTickSec:-1, lastHeart:0, pressureStage:-1,
     setpiece:null, setpieceDone:new Set(), oneLifeCalled:false, overdriveGift:false,
     overdriveRide:false, overdriveOffered:false, armorUsed:false, speed:false,
     passage:null, recon:null, usedPass:new Set(), adaptivePick:"",
@@ -1829,8 +1842,16 @@ function bindAudioDock(){
 }
 
 /* ------------------------- PAUSE ------------------------- */
+function trackPauseTime(v){
+  if(v && !R.paused) R.pauseStartedAt = performance.now();
+  if(!v && R.paused && R.pauseStartedAt){
+    R.pausedMs = (R.pausedMs||0) + Math.max(0, performance.now() - R.pauseStartedAt);
+    R.pauseStartedAt = 0;
+  }
+}
 function setPaused(v){
   if(currentView!=="play") return;
+  trackPauseTime(v);
   R.paused = v;
   const pauseEl = $("pause");
   if(pauseEl) pauseEl.classList.toggle("on", v);
@@ -1857,7 +1878,12 @@ let pauseStamp=0;
 function togglePause(){
   if(currentView!=="play" || !R.running) return;
   if(!R.paused){ pauseStamp = performance.now(); setPaused(true); }
-  else { const d = performance.now()-pauseStamp; R.tEnd += d; setPaused(false); }
+  else {
+    const d = performance.now()-pauseStamp;
+    R.tEnd += d;
+    if(R.blitzEnd) R.blitzEnd += d;
+    setPaused(false);
+  }
 }
 $("pause-resume").addEventListener("click", togglePause);
 function abandonRun(){

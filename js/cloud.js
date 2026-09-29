@@ -622,7 +622,7 @@ var Cloud = (function () {
     if (reason === "not-configured") return "Cloud is not available on this build.";
     if (reason === "unavailable") return "Could not send the link. Try again.";
     if (reason === "signed-out") return "Sign in to enter the hall.";
-    if (reason === "session-required") return "Sign in to enter the hall. One account holds the save and posts Blitz.";
+    if (reason === "session-required") return "Sign in to enter the hall. One account holds the save and posts Daily and Blitz scores.";
     if (reason === "name-too-short") return "Name needs at least two letters.";
     if (reason === "trusted-submit-unavailable") return "Trusted leaderboard submission is unavailable.";
     if (reason === "otp-expired" || reason === "link-expired") return "Email code or link expired / pre-scanned. Enter the 6-digit code from your email or request a new one.";
@@ -1013,6 +1013,8 @@ var Cloud = (function () {
         .eq("play_date", playDate)
         .eq("translation", tr)
         .order("score", { ascending: false })
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true })
         .limit(limit), 8000);
       if (res.error) { lastBoardError = "load-failed"; return []; }
       return (res.data || []).map(function (r, i) {
@@ -1045,6 +1047,8 @@ var Cloud = (function () {
         .select("id, score, survived_ms, diff, profiles(display_name)")
         .order("score", { ascending: false })
         .order("survived_ms", { ascending: false })
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true })
         .limit(limit), 8000);
       if (res.error) { lastBoardError = "load-failed"; return []; }
       return (res.data || []).map(function (r, i) {
@@ -1092,17 +1096,19 @@ var Cloud = (function () {
     var tr = translation || (typeof Edition !== "undefined" && Edition.getEdition ? Edition.getEdition() : "kjv");
     try {
       var mine = await withTimeout(sb.from("daily_scores")
-        .select("id, score, accuracy, diff, profiles(display_name)")
+        .select("id, score, accuracy, diff, created_at, profiles(display_name)")
         .eq("play_date", playDate)
         .eq("translation", tr)
         .eq("user_id", user.id)
         .maybeSingle(), 8000);
       if (mine.error || !mine.data) return null;
+      var s = mine.data.score;
+      var at = mine.data.created_at;
       var above = await withTimeout(sb.from("daily_scores")
         .select("id", { count: "exact", head: true })
         .eq("play_date", playDate)
         .eq("translation", tr)
-        .gt("score", mine.data.score), 8000);
+        .or("score.gt." + s + ",and(score.eq." + s + ",created_at.lt.\"" + at + "\")"), 8000);
       var raw = (mine.data.profiles && mine.data.profiles.display_name) || "You";
       var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
         ? (Polish.sanitizeDisplayName(raw) || "You") : String(raw).slice(0, 32);
@@ -1125,7 +1131,7 @@ var Cloud = (function () {
     if (!sb || !user) return null;
     try {
       var mine = await withTimeout(sb.from("blitz_scores")
-        .select("id, score, survived_ms, diff, profiles(display_name)")
+        .select("id, score, survived_ms, diff, created_at, profiles(display_name)")
         .eq("user_id", user.id)
         .order("score", { ascending: false })
         .order("survived_ms", { ascending: false })
@@ -1134,9 +1140,12 @@ var Cloud = (function () {
       if (mine.error || !mine.data) return null;
       var s = mine.data.score;
       var ms = mine.data.survived_ms;
+      var at = mine.data.created_at;
       var above = await withTimeout(sb.from("blitz_scores")
         .select("id", { count: "exact", head: true })
-        .or("score.gt." + s + ",and(score.eq." + s + ",survived_ms.gt." + ms + ")"), 8000);
+        .or("score.gt." + s +
+          ",and(score.eq." + s + ",survived_ms.gt." + ms + ")" +
+          ",and(score.eq." + s + ",survived_ms.eq." + ms + ",created_at.lt.\"" + at + "\")"), 8000);
       var raw = (mine.data.profiles && mine.data.profiles.display_name) || "You";
       var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
         ? (Polish.sanitizeDisplayName(raw) || "You") : String(raw).slice(0, 32);

@@ -54,7 +54,10 @@ ok("play stages close the profile overlay", /view==="play" \|\| view==="tablets"
   eq("fresh save has not seen the intro", read(sb, "SAVE.set.introPlayed"), false);
   eq("fresh save has not finished First Light", read(sb, "SAVE.set.tutorialDone"), false);
   exec(sb, "enterCoffeePath()");
-  eq("first-run boot opens the tutorial", read(sb, "R.mode"), "tutorial");
+  eq("first-run boot pauses on the hall", read(sb, "currentView"), "menu");
+  ok("translation card is open before First Light", read(sb, "$('v-edition').classList.contains('on')"));
+  exec(sb, "Edition.selectEdition('kjv')");
+  eq("choosing a translation opens the tutorial", read(sb, "R.mode"), "tutorial");
   eq("tutorial is on the play stage", read(sb, "currentView"), "play");
   eq("tutorial is not marked done before it is played", read(sb, "SAVE.set.tutorialDone"), false);
   eq("tutorial is not marked seen before it is played", read(sb, "SAVE.set.tutorialSeen"), false);
@@ -65,20 +68,20 @@ ok("play stages close the profile overlay", /view==="play" \|\| view==="tablets"
 
 {
   const sb = boot();
-  exec(sb, "SAVE.set.tutorialDone = true; SAVE.pilgrim.lastPlayed = 'ur'; persist(); enterCoffeePath()");
+  exec(sb, "SAVE.set.translationChosen = true; SAVE.set.translation = 'kjv'; SAVE.set.tutorialDone = true; SAVE.pilgrim.lastPlayed = 'ur'; persist(); enterCoffeePath()");
   eq("an old skip still opens First Light", read(sb, "R.mode"), "tutorial");
   eq("an old skip does not dump onto the atlas", read(sb, "currentView"), "play");
 }
 
 {
   const sb = boot();
-  exec(sb, "SAVE.set.tutorialDone = true; SAVE.set.tutorialSeen = true; SAVE.pilgrim.lastPlayed = 'ur'; persist(); enterCoffeePath()");
+  exec(sb, "SAVE.set.translationChosen = true; SAVE.set.translation = 'kjv'; SAVE.set.tutorialDone = true; SAVE.set.tutorialSeen = true; SAVE.pilgrim.lastPlayed = 'ur'; persist(); enterCoffeePath()");
   eq("a walked save opens the main hall", read(sb, "currentView"), "menu");
 }
 
 {
   const sb = boot();
-  exec(sb, "SAVE.set.tutorialDone = true; SAVE.set.tutorialSeen = true; persist(); enterCoffeePath()");
+  exec(sb, "SAVE.set.translationChosen = true; SAVE.set.translation = 'kjv'; SAVE.set.tutorialDone = true; SAVE.set.tutorialSeen = true; persist(); enterCoffeePath()");
   eq("a taught save with no road opens the menu", read(sb, "currentView"), "menu");
 }
 

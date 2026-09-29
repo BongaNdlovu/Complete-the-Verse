@@ -61,10 +61,10 @@ assert(/fillResultsInsights/.test(game), "results insights filler");
 /* competitive clarity: podium rows on the remaining cloud board */
 assert(/rank <= 3 \? " top"/.test(game) && /rank === 1 \? " rank-1"/.test(game),
   "top-3 podium styling on board rows");
-assert(!/data-rtab="daily"/.test(index) && !/Daily global/.test(index),
-  "records has no Daily global tab");
-assert(!/trackBoardSubmit\(Cloud\.submitDailyScore/.test(game),
-  "daily finishes do not post to the cloud board");
+assert(/data-rtab="daily"/.test(index) && /Daily global/.test(index),
+  "records has a Daily global tab");
+assert(/trackBoardSubmit\(Cloud\.submitDailyScore/.test(game) && /play_date: R\.dailyKey/.test(game),
+  "a first finished Daily posts to the cloud board for the day it was drawn");
 assert(/function revealPlacement/.test(game),
   "placement reveal rides the results sequence");
 assert(/drawHeatmap/.test(game), "heatmap drawer");
