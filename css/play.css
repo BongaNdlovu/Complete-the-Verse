@@ -494,6 +494,7 @@ body.reduced .res-details[open] .breakdown,body.reduced .res-details[open] .stat
 .res-details .breakdown,.res-details .stats,.res-details .xpbar,.res-details .sealsrow,.res-details .missed{
   width:100%;max-height:none}
 .res-primary{margin:1.6vh 0 1vh}
+.res-primary #res-again{padding-left:2.2em;padding-right:1.95em}
 @media (max-width:900px){
   .answers{flex-wrap:wrap;gap:12px}
   .chev{display:none}

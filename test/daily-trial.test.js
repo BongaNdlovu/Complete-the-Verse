@@ -89,6 +89,11 @@ ok("0 is not a milestone", Polish.dailyStreakMilestone(0) === false);
   ok("recording a daily bumps the streak", /dailyStreak/.test(results) && results.includes("nextDailyStreak"));
   ok("daily replay is labelled practice, never a record shot",
      results.includes('"Practice the Same 20"'));
+  ok("the placement line keeps its height above the board (no flex collapse)",
+     /\.res-placement\{flex-shrink:0;/.test(read("css/game.css")) &&
+     !/\.res-placement\{[^}]*min-height:0/.test(read("css/game.css")));
+  ok("a first record names no previous score of 0",
+     results.includes('(o.prevBest > 0 ? " — previous "'));
   ok("edge keeps the stored score when one exists", edge.includes("kept: true"));
   ok("a failed submit keeps the run's numbers for retry",
      /SAVE\.pendingDaily = \{ date: todayKey\(\), payload: dailyPayload/.test(results));

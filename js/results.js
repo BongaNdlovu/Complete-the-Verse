@@ -636,13 +636,9 @@ function renderResultsBestLine(o){
     $("res-best").textContent = "";
     return;
   }
-  if(R.mode==="blitz"){
-    if(o.isRecord) best = "New "+MODES[R.mode].name+" record — previous "+fmt(o.prevBest)+" verses";
-    else best = MODES[R.mode].name+" best — "+fmt(SAVE.best[R.mode]||0)+" verses";
-  } else {
-    if(o.isRecord) best = "New "+MODES[R.mode].name+" record — previous "+fmt(o.prevBest);
-    else best = MODES[R.mode].name+" best — "+fmt(SAVE.best[R.mode]||0);
-  }
+  const unit = R.mode==="blitz" ? " verses" : "";
+  if(o.isRecord) best = "New "+MODES[R.mode].name+" record"+(o.prevBest > 0 ? " — previous "+fmt(o.prevBest)+unit : "");
+  else best = MODES[R.mode].name+" best — "+fmt(SAVE.best[R.mode]||0)+unit;
   if(R.mode==="daily" && !o.dailyRecorded) best += " · today's score already recorded (practice run)";
   $("res-best").textContent = best;
 }

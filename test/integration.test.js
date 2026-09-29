@@ -520,8 +520,8 @@ read(sb, "invalidateRun();");
   eq("blitz SAVE.best records verses", read(s, "SAVE.best.blitz"), 14);
   eq("blitz SAVE.life.blitzBest records verses", read(s, "SAVE.life.blitzBest"), 14);
   eq("blitz cloud submission sends verses", read(s, "submitted && submitted.score"), 14);
-  ok("blitz res-best mentions verses", read(s, "document.getElementById('res-best').textContent.indexOf('0 verses') >= 0"));
-
+  ok("a first blitz record names no previous score of 0",
+    read(s, "(function(t){ return /record$/.test(t) && t.indexOf('previous') < 0; })(document.getElementById('res-best').textContent)"));
   read(s, "startRun('blitz','disciple'); R.correct = 10; R.attempts = 12; R.score = 3600;");
   read(s, "endRun('complete')");
   eq("blitz SAVE.best retains previous higher best", read(s, "SAVE.best.blitz"), 14);

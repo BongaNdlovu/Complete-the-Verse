@@ -1127,7 +1127,7 @@ body.quality-low #v-results:before{animation:none!important}
 .board-you-sep{font-family:var(--ui);letter-spacing:.18em;text-transform:uppercase;font-size:.62rem;color:var(--gold-dim);
   margin:1.2vh 0 .6vh;text-align:center}
 /* Placement beat + leaderboard polish (top-3 podium, movement arrows) */
-.res-placement{min-height:0;opacity:0;transform:translateY(6px);transition:opacity .5s ease,transform .5s ease;margin:.4vh 0}
+.res-placement{flex-shrink:0;opacity:0;transform:translateY(6px);transition:opacity .5s ease,transform .5s ease;margin:.4vh 0}
 .res-placement.on{opacity:1;transform:none}
 .place-line{display:flex;align-items:baseline;justify-content:center;gap:.45em;
   font-family:var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim)}
