@@ -13,7 +13,7 @@
       stale cache eviction.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.9.1";
+const CACHE_VERSION = "ctv-v1.9.2";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MEDIA_CACHE = "ctv-media-" + CACHE_VERSION;
