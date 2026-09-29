@@ -309,6 +309,14 @@ function recordDailyCompletion(ed, reason, total){
     SAVE.dailyByEdition[ed] = {date:dailyKey, score:total};
     SAVE.daily = SAVE.dailyByEdition[ed];
     SAVE.life.dailyDone++; dailyRecorded = true;
+    /* The Daily streak counts consecutive recorded days, shared across
+       editions — reading either translation on consecutive days holds. */
+    if(typeof Polish!=="undefined" && Polish.nextDailyStreak){
+      const ds = (SAVE.dailyStreak = SAVE.dailyStreak || {count:0, lastDate:"", best:0, celebrated:0});
+      ds.count = Polish.nextDailyStreak(ds.count, ds.lastDate, dailyKey);
+      ds.lastDate = dailyKey;
+      ds.best = Math.max(ds.best || 0, ds.count);
+    }
   }
   return dailyRecorded;
 }
@@ -817,11 +825,21 @@ function scheduleTabletsRoadContinue(){
     }, 1900);
   });
 }
+/* A Daily replay is practice only — the day's score already stands —
+   so it must never read like another shot at the record. */
+function againLabelFor(mode){
+  return mode==="daily" ? "Practice the Same 20" : "Run It Back";
+}
 function renderResultsRetryReview(o){
   if(R.mode==="tablets") scheduleTabletsRoadContinue();
   const retryBtn = $("res-retry");
   const againBtn = $("res-again");
-  if(againBtn) againBtn.style.display = R.mode==="tablets" ? "none" : "";
+  if(againBtn){
+    againBtn.style.display = R.mode==="tablets" ? "none" : "";
+    /* A Daily replay is practice only — the day's score already stands —
+       so it must never read like another shot at the record. */
+    againBtn.textContent = againLabelFor(R.mode);
+  }
   if(retryBtn && (R.mode==="beat" || R.mode==="team" || R.mode==="tablets")){
     retryBtn.style.display = "";
     retryBtn.textContent = R.mode==="team" ? "Play again" : R.mode==="tablets" ? tabletsRetryLabel() : retryBtn.textContent;
@@ -1105,21 +1123,22 @@ function fillResultsDailyBoard(el, trustTag){
     }
     const mineRow = rows.find(r=>r.mine);
     const myRank = (mineRow && mineRow.rank) || (mine && mine.rank) || null;
+    const myTie = ((mineRow && mineRow.tied) || (mine && mine.tied)) ? "T" : "#";
     if(myRank && entryCount){
-      dailyPlacement = '<div class="place-line"><b>#'+myRank+'</b><span> of '+fmt(entryCount)+
+      dailyPlacement = '<div class="place-line"><b>'+myTie+myRank+'</b><span> of '+fmt(entryCount)+
         ' today</span><i>The daily reading</i></div>';
       SAVE.lastDaily = { date: dayKey, rank: myRank };
       if(typeof persist === "function") persist();
     }
     renderPlacement();
-    let html = title + rows.map(r=>{
-      if(r.mine && lastDailyRank) r.move = lastDailyRank - r.rank;
-      return boardRowHtml(r, fmt(r.score)+(r.accuracy!=null?' · '+Math.round(r.accuracy)+'%':''));
-    }).join("");
-    if(mine && !rows.some(r=>r.mine)){
-      html += '<div class="board-you-sep">Your rank</div>'+boardRowHtml(mine, fmt(mine.score));
-    }
-    el.innerHTML = html;
+    /* Movement is only honest against a previous day's baseline. */
+    rows.forEach(function(r){
+      if(r.mine && lastDailyRank > 0 && typeof r.rank === "number") r.move = lastDailyRank - r.rank;
+    });
+    el.innerHTML = title + Leaderboard.board({
+      kind: "daily", compact: true, head: false, rows: rows,
+      mine: (mine && !rows.some(r=>r.mine)) ? mine : null
+    });
   }).catch(()=>{
     el.innerHTML = '<div class="mtitle">Daily board</div><div class="empty">Could not load the board. Check your connection.</div>';
   });
@@ -1158,13 +1177,10 @@ function fillResultsBoard(mode){
         return;
       }
       let html = '<div class="mtitle">Blitz board'+trustTag+'</div>'+
-        rows.map(r=>{
-          const sec = r.survived_ms != null ? Math.round(r.survived_ms/1000)+'s' : '';
-          return boardRowHtml(r, fmt(r.score)+' verses'+(sec?' · '+sec:''));
-        }).join("");
-      if(mine && !rows.some(r=>r.mine)){
-        html += '<div class="board-you-sep">Your rank</div>'+boardRowHtml(mine, fmt(mine.score)+' verses');
-      }
+        Leaderboard.board({
+          kind: "blitz", compact: true, head: false, rows: rows,
+          mine: (mine && !rows.some(r=>r.mine)) ? mine : null
+        });
       el.innerHTML = html;
     }).catch(()=>{
       el.innerHTML = '<div class="mtitle">Blitz board</div><div class="empty">Could not load the board. Check your connection.</div>';

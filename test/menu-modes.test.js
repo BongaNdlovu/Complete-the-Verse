@@ -42,9 +42,12 @@ hiddenModes.forEach(k => {
   ok(k + " is hidden from the menu", /\bhidden:\s*true\b/.test(b));
 });
 
-/* The menu renders in a fixed order with the campaign first. */
-ok("MENU_ORDER puts the Pilgrimage first",
-  /const MENU_ORDER = \["pilgrimage"/.test(src));
+/* The menu renders in a fixed order: the Daily hero leads, the
+   campaign is the first of the grouped cards. */
+ok("MENU_ORDER puts the Daily first",
+  /const MENU_ORDER = \["daily"/.test(src));
+ok("MENU_ORDER puts the Pilgrimage before the challenges",
+  /const MENU_ORDER = \["daily", "pilgrimage"/.test(src));
 ok("MENU_ORDER lists pilgrimage",
   new RegExp("const MENU_ORDER = \\[[^\\]]*\"pilgrimage\"").test(src));
 
@@ -63,8 +66,8 @@ ok("pilgrimage still mixes typed questions",
   /typedN\s*=\s*Math\.min\(2/.test(src) || /last two of every stop are typed/.test(src) ||
   /R\.typed\s*=\s*n\s*>\s*0\s*&&\s*R\.siteIdx\s*>\s*\(n\s*-\s*typedN\)/.test(src) ||
   /isLastBeat/.test(src));
-ok("Recall and Team Mode sit with the Drill under More",
-  /More[\s\S]*modes:\s*\["daily", "practice", "recall", "team", "blitz", "trial", "endless"\]/.test(src));
+ok("Recall and Team Mode sit with the Drill under the More drawer",
+  /Practice[\s\S]{0,120}more:\s*true[\s\S]{0,120}modes:\s*\["practice", "recall", "team"\]/.test(src));
 
 ok("The Valley is incoming, not hidden",
   /beat:\{[^}]*incoming:\s*true/.test(src) && !/\bbeat:\{[^}]*hidden:\s*true/.test(src));
@@ -78,8 +81,9 @@ ok("MENU_GROUPS defines The Road",
   /The Road/.test(src));
 ok("MENU_GROUPS covers pilgrimage",
   /modes:\s*\[[^\]]*"pilgrimage"/.test(src));
-ok("MENU_GROUPS covers More with the quiz modes closed",
-  /More[\s\S]*closed:\s*true[\s\S]*modes:\s*\["daily", "practice", "recall", "team", "blitz", "trial", "endless"\]/.test(src));
+ok("MENU_GROUPS folds Valley, Practice and Challenges behind more:true",
+  /The Valley[\s\S]{0,60}more:\s*true/.test(src) &&
+  /Challenges[\s\S]{0,60}more:\s*true[\s\S]{0,120}modes:\s*\["blitz", "trial", "endless"\]/.test(src));
 
 if (fail) {
   console.log("FAIL — menu modes · " + pass + " passed · " + fail + " failed");

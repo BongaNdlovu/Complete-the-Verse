@@ -416,10 +416,11 @@ function updateOfflineBanner(){
 const MENU_GROUPS = [
   { name: "The Road",    modes: ["pilgrimage"] },
   { name: "The Tablets", modes: ["tablets"] },
-  { name: "The Valley",  modes: ["beat"] },
-  { name: "More", quiet: true, closed: true, modes: ["daily", "practice", "recall", "team", "blitz", "trial", "endless"] }
+  { name: "The Valley",  more: true, modes: ["beat"] },
+  { name: "Practice",    more: true, quiet: true, modes: ["practice", "recall", "team"] },
+  { name: "Challenges",  more: true, quiet: true, modes: ["blitz", "trial", "endless"] }
 ];
-const MENU_ORDER = ["pilgrimage", "beat", "tablets", "daily", "blitz", "trial", "endless", "practice", "team"];
+const MENU_ORDER = ["daily", "pilgrimage", "beat", "tablets", "blitz", "trial", "endless", "practice", "team"];
 
 function renderModeCard(k, due, dailyDone, road){
   const m = MODES[k];
@@ -439,6 +440,32 @@ function renderModeCard(k, due, dailyDone, road){
   const cls = m.incoming ? "mode incoming" : "mode";
   return '<button class="'+cls+'" data-mode="'+k+'"'+(m.incoming?' aria-disabled="true"':'')+'>'+pill+'<b>'+esc(m.name)+'</b><p>'+esc(m.desc)+'</p>'+
     '<span class="tagline">'+esc(m.incoming ? "Incoming" : m.tagline)+'</span></button>';
+}
+
+/* The Daily leads the hall: a smaller, animated, highlighted button that
+   sits above every other mode, with the Daily Board beside it. It carries
+   the day's state — the streak earned so far, and whether the score
+   already stands. */
+function renderDailyHero(dailyDone){
+  const ds = SAVE.dailyStreak || {};
+  const streak = ds.count || 0;
+  return '<div class="daily-hero-row">' +
+    '<div class="daily-hero-wrap">' +
+    '<button class="daily-hero' + (dailyDone ? ' recorded' : '') + '" data-mode="daily" type="button" ' +
+    'aria-label="Daily Trial' + (dailyDone ? " — today's score stands" : " — one recorded run a day") + '">' +
+    '<span class="dh-ring" aria-hidden="true"></span>' +
+    '<span class="dh-kick">One shot a day · 20 verses</span>' +
+    '<b>Daily Trial</b>' +
+    '<span class="dh-meta">' +
+    (dailyDone
+      ? 'Today\u2019s score stands · <i class="dh-score">' + fmt(SAVE.daily.score) + '</i>'
+      : 'The reading is open') +
+    (streak > 0 ? ' · <i class="dh-streak">' + streak + '-day streak</i>' : '') +
+    '</span></button></div>' +
+    '<button class="daily-board-btn" id="daily-board-btn" type="button" ' +
+    'aria-label="Open the Daily leaderboard">' +
+    '<b>Daily Board</b><span>Who walked today</span></button>' +
+    '</div>';
 }
 
 function renderMenuRoad(road){
@@ -474,8 +501,8 @@ function renderMenuReview(due){
   }
 }
 function renderMenuGroups(due, dailyDone, road){
-  const rendered = new Set();
-  let groupsHtml = MENU_GROUPS.map(g => {
+  const rendered = new Set(["daily"]);
+  function groupHtml(g){
     const visibleModes = g.modes.filter(k => MODES[k] && !MODES[k].hidden);
     if(!visibleModes.length) return "";
     visibleModes.forEach(k => rendered.add(k));
@@ -483,12 +510,19 @@ function renderMenuGroups(due, dailyDone, road){
       visibleModes.map(k => renderModeCard(k, due, dailyDone, road)).join("") +
       '</div>';
     const cls = "mode-group" + (g.quiet ? " quiet" : "");
-    if(g.closed){
-      return '<details class="'+cls+'"><summary class="mode-group-head">' + esc(g.name) + '</summary>' + cards + '</details>';
-    }
     return '<div class="'+cls+'">' +
       '<div class="mode-group-head">' + esc(g.name) + '</div>' + cards + '</div>';
-  }).join("");
+  }
+  let groupsHtml = renderDailyHero(dailyDone);
+  /* Only the Road and the Tablets stand open; everything else folds
+     into the More drawer below. */
+  groupsHtml += MENU_GROUPS.filter(g => !g.more).map(groupHtml).join("");
+  groupsHtml += '<div class="more-wrap">' +
+    '<button class="more-toggle" id="more-toggle" type="button" aria-expanded="false" aria-controls="more-modes">' +
+    'More <i class="more-caret" aria-hidden="true">▾</i></button>' +
+    '<div class="more-modes" id="more-modes" hidden>' +
+    MENU_GROUPS.filter(g => g.more).map(groupHtml).join("") +
+    '</div></div>';
 
   const orphans = Object.keys(MODES).filter(k => !rendered.has(k) && !MODES[k].hidden);
   if(orphans.length){
@@ -523,6 +557,25 @@ function renderMenu(){
   renderMenuGroups(due, dailyDone, road);
   if(typeof refreshMessagesBadge === "function") refreshMessagesBadge();
   bindStartOver();
+  const moreToggle = $("more-toggle"), moreModes = $("more-modes");
+  if(moreToggle && moreModes){
+    moreToggle.addEventListener("click", ()=>{
+      const open = moreModes.hidden;
+      moreModes.hidden = !open;
+      moreToggle.classList.toggle("open", open);
+      moreToggle.setAttribute("aria-expanded", String(open));
+      Snd.ui();
+    });
+  }
+  const boardBtn = $("daily-board-btn");
+  if(boardBtn){
+    boardBtn.addEventListener("click", ()=>{
+      Snd.ui();
+      if(typeof openRecordsTab === "function") openRecordsTab("daily");
+    });
+  }
+  /* A word from the hall: unseen announcements slide in from the left. */
+  if(typeof Messages !== "undefined" && Messages.show) Messages.show();
   const done = SAVE.seals.length, tot = SEALS.length;
   $("menu-hint").textContent = SAVE.runs
     ? fmt(SAVE.runs)+" runs · "+fmt(SAVE.life.correct)+" verses kept · "+done+"/"+tot+" seals"
@@ -607,6 +660,74 @@ function waitForTabletsPack(then){
   Defer.forTablets().then(then);
   return true;
 }
+/* The Daily's instruction card: how the twenty verses go, what the board
+   measures, and the day's state. Shows expanded until the player ticks
+   "I have seen this"; the tick persists and the card never repeats. */
+function renderDailyBriefCard(){
+  const host = $("daily-brief-card");
+  if(!host) return;
+  const ds = SAVE.dailyStreak || {};
+  const recorded = SAVE.daily.date === todayKey();
+  const seen = SAVE.set.dailyBriefSeen;
+  /* Once the tick is given the full card never repeats; a recorded day
+     keeps only the small practice banner so the state stays honest. */
+  if(seen){
+    if(!recorded){ host.innerHTML = ""; host.style.display = "none"; return; }
+    host.style.display = "";
+    host.innerHTML = '<div class="dbrief collapsed"><div class="dbrief-banner">Today\'s score stands · <b>' +
+      fmt(SAVE.daily.score) + '</b> — this run is practice.</div></div>';
+    return;
+  }
+  host.style.display = "";
+  const items = [
+    ["How today goes", "Twenty verses drawn by today's date — every player faces the same twenty in the same order. Answer before the clock closes; wrong answers cost a lamp, and a run that ends early does not count."],
+    ["What the board measures", "Points, not raw answers: a speed bonus per verse, a streak multiplier up to ×5, and harder beats weigh more (typed ×1.5, Fade ×2). The run then adds bonuses for your best streak, accuracy, and verses kept."],
+    ["One score stands", "Your first finished run is the day's score — it cannot be replaced or repeated. After it stands you may practise as much as you like; practice never touches the board."]
+  ];
+  host.innerHTML =
+    '<div class="dbrief">' +
+    '<div class="dbrief-head"><span class="lbd-orn" aria-hidden="true">✦</span> Before you begin</div>' +
+    (recorded ? '<div class="dbrief-banner">Today\'s score stands · <b>' + fmt(SAVE.daily.score) + '</b> — this run is practice.</div>' : '') +
+    items.map(i => '<div class="dbrief-item"><b>' + esc(i[0]) + '</b><span>' + esc(i[1]) + '</span></div>').join("") +
+    ((ds.count || ds.best)
+      ? '<div class="dbrief-streak">Current streak · <b>' + (ds.count || 0) + (ds.count === 1 ? ' day' : ' days') + '</b>' +
+        (ds.best ? ' · best ' + ds.best : '') + '</div>'
+      : '') +
+    '<label class="dbrief-check"><input type="checkbox" id="daily-seen-check">' +
+    '<i aria-hidden="true"></i><span>I have seen this</span></label>' +
+    '</div>';
+  const check = $("daily-seen-check");
+  if(check) check.addEventListener("change", function(){
+    if(!check.checked) return;
+    SAVE.set.dailyBriefSeen = true;
+    if(typeof persist === "function") persist();
+    Snd.ui();
+    const card = host.querySelector(".dbrief");
+    if(card) card.classList.add("dismissed");
+    setTimeout(function(){ renderDailyBriefCard(); }, 360);
+  });
+}
+
+/* The Daily's brief chrome: the instruction card plus the once-per-
+   milestone streak celebration when the Daily opens. Other modes clear
+   the card. Kept out of openBrief for the complexity gate. */
+function paintDailyBriefChrome(mode){
+  if(mode!=="daily"){
+    const host = $("daily-brief-card");
+    if(host){ host.innerHTML = ""; host.style.display = "none"; }
+    return;
+  }
+  renderDailyBriefCard();
+  const ds = SAVE.dailyStreak || {};
+  if(ds.count && ds.count > (ds.celebrated || 0) &&
+     typeof Polish!=="undefined" && Polish.dailyStreakMilestone && Polish.dailyStreakMilestone(ds.count) &&
+     typeof Celebration!=="undefined" && Celebration.celebrateStreak){
+    Celebration.celebrateStreak(ds.count);
+    ds.celebrated = ds.count;
+    if(typeof persist === "function") persist();
+  }
+}
+
 function openBrief(mode){
   const m = MODES[mode];
   if(!m || m.incoming){
@@ -624,6 +745,7 @@ function openBrief(mode){
   $("brief-desc").textContent = m.desc;
   $("brief-info").innerHTML = m.info.map(i=>'<div class="bi"><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></div>').join("");
   paintBriefModeChrome(mode);
+  paintDailyBriefChrome(mode);
   go("brief");
 }
 function renderDiffs(){

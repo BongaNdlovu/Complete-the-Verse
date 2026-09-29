@@ -17,6 +17,10 @@ const DEFAULT_SAVE = {
   ghosts:{pilgrimage:null, pilgrimageBySite:{}, trial:null, blitz:null},
   daily:{date:"", score:0},
   dailyByEdition:{kjv:{date:"", score:0}, nkjv:{date:"", score:0}},
+  /* Consecutive days with a recorded Daily run. */
+  dailyStreak:{count:0, lastDate:"", best:0, celebrated:0},
+  /* Announcement cards the player has dismissed. */
+  messagesSeen:[],
   /* Habit streak tracking across calendar days */
   habit:{count:0, lastDate:"", lastDay:0, best:0, history:{}},
   /* The road from Ur to Patmos. Shape is owned by pilgrimage.js —
@@ -83,6 +87,8 @@ function mergeLoadedSave(s){
     set:mergedSet,
     daily:Object.assign({}, DEFAULT_SAVE.daily, s.daily||{}),
     dailyByEdition:Object.assign({kjv:(s && s.daily)||{date:"",score:0}, nkjv:{date:"",score:0}}, (s && s.dailyByEdition)||{}),
+    dailyStreak:Object.assign({count:0, lastDate:"", best:0, celebrated:0}, s.dailyStreak||{}),
+    messagesSeen: Array.isArray(s.messagesSeen) ? s.messagesSeen.slice() : [],
     srs:Object.assign({}, s.srs||{}),
     habit:Object.assign({count:0, lastDate:"", lastDay:0, best:0, history:{}}, s.habit||{}),
     pilgrim: mergePilgrimSave(s),

@@ -184,7 +184,8 @@ console.log("=== LEADERBOARD ACCURACY ===");
   const edgeSrc = fs.readFileSync(path.join(ROOT, "supabase", "functions", "submit-score", "index.ts"), "utf8");
   ok("Daily board breaks ties by first to post",
     /from\("daily_scores"\)[\s\S]{0,400}order\("score"[\s\S]{0,120}order\("created_at", \{ ascending: true \}\)/.test(cloud));
-  ok("Daily rank counts earlier ties", /score\.eq\."\s*\+\s*s\s*\+\s*",created_at\.lt\./.test(cloud));
+  ok("Daily rank shares ties (competition ranking, board-consistent)",
+    /\.gt\("score", mine\.data\.score\)[\s\S]{0,200}\.eq\("score", mine\.data\.score\)/.test(cloud));
   ok("Blitz rank counts earlier ties", /survived_ms\.eq\.[\s\S]{0,60}created_at\.lt\./.test(cloud));
   ok("server keeps the first Daily of the day", /!existing\.data\) return null;[\s\S]{0,300}kept: true/.test(edgeSrc) &&
     /const kept = await keptDailyScore[\s\S]{0,60}if \(kept\) return kept;/.test(edgeSrc) &&

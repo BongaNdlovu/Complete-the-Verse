@@ -13,7 +13,7 @@
       stale cache eviction. The page reloads when a new worker takes over.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.9.7";
+const CACHE_VERSION = "ctv-v1.9.8";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MEDIA_CACHE = "ctv-media-" + CACHE_VERSION;
@@ -84,6 +84,9 @@ const PRECACHE_ASSETS = [
   "js/typed.js",
   "js/rewards.js",
   "js/sequences.js",
+  "js/leaderboard.js",
+  "js/confetti.js",
+  "js/messages.js",
   "js/panels.js",
   "js/cinematic.js",
   "js/results.js",

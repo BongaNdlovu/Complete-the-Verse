@@ -53,8 +53,9 @@ const engineSrc = readEngine(ROOT);
     /blitz:\{\s*key:"blitz"(?![^}]*hidden:true)/.test(engineSrc) &&
     /endless:\{\s*key:"endless"(?![^}]*hidden:true)/.test(engineSrc) &&
     /practice:\{\s*key:"practice"(?![^}]*hidden:true)/.test(engineSrc));
-  ok("MENU_GROUPS keeps the Pilgrimage first and adds useful paths",
-    /MENU_GROUPS\s*=\s*\[[\s\S]*The Road[\s\S]*pilgrimage[\s\S]*The Tablets[\s\S]*More[\s\S]*closed:\s*true[\s\S]*daily/.test(engineSrc));
+  ok("MENU_GROUPS keeps the Pilgrimage first among cards; the Daily leads as the hero",
+    /MENU_GROUPS\s*=\s*\[[\s\S]*The Road[\s\S]*pilgrimage[\s\S]*The Tablets[\s\S]*Practice[\s\S]*recall[\s\S]*Challenges/.test(engineSrc) &&
+    !/The Road[\s\S]*Today[\s\S]*daily[\s\S]*Practice[\s\S]*Challenges/.test(engineSrc));
 }
 
 /* ==================================================================

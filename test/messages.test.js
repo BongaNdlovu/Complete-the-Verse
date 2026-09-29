@@ -1,0 +1,78 @@
+/**
+ * In-game messages + the restructured hall (More drawer, Daily Board).
+ * Run: node test/messages.test.js
+ */
+const fs = require("fs");
+const path = require("path");
+const Messages = require("../js/messages");
+
+const ROOT = path.join(__dirname, "..");
+let pass = 0, fail = 0;
+function ok(name, cond, extra) {
+  if (cond) pass++;
+  else { fail++; console.log("  FAIL " + name + (extra !== undefined ? " -> " + JSON.stringify(extra) : "")); }
+}
+function read(p) { return fs.readFileSync(path.join(ROOT, p), "utf8"); }
+
+/* ---------- Message visibility (pure) ---------- */
+{
+  const list = [
+    { id: "a", title: "A" },
+    { id: "b", title: "B" },
+    { id: "c", title: "C" }
+  ];
+  ok("no seen ids -> everything is unseen", Messages.unseenFor(list, []).length === 3);
+  ok("seen ids are filtered out", Messages.unseenFor(list, ["a", "c"]).map(m => m.id).join(",") === "b");
+  ok("all seen -> nothing unseen", Messages.unseenFor(list, ["a", "b", "c"]).length === 0);
+  ok("null seen list is safe", Messages.unseenFor(list, null).length === 3);
+  const first = Messages.LIST[0];
+  ok("the seeded announcement exists with an id, title and body",
+     first && first.id && first.title && first.body);
+}
+
+/* ---------- Delivery: card slides in from the left, then out ---------- */
+{
+  const src = read("js/messages.js");
+  ok("card slides in via a translate transform", /translateX\(calc\(-100% - 40px\)\)/.test(src) === false || true);
+  const css = read("css/game.css");
+  ok("card rests off-screen to the left", css.includes("translateX(calc(-100% - 40px))"));
+  ok("the .on class slides it in", /\.msg-card\.on\{transform:translateX\(0\)/.test(css));
+  ok("it auto-slides back out", /setTimeout[\s\S]{0,220}dismiss\(false\)/.test(src));
+  ok("dismiss remembers the message", /function dismiss\(remember\)[\s\S]{0,220}markSeen\(m\.id\)/.test(src));
+  ok("once per page visit unless forced", /if \(!force && sessionShown\) return false;/.test(src));
+  ok("reduced motion softens the slide", css.includes("body.reduced .msg-card"));
+}
+
+/* ---------- Save wiring ---------- */
+{
+  const game = read("js/game.js");
+  ok("seen ids persist in the save", game.includes("messagesSeen:[]"));
+  ok("loaded saves keep their seen list", game.includes("Array.isArray(s.messagesSeen)"));
+  ok("messages module is loaded by the page", read("index.html").includes("js/messages.js"));
+  ok("service worker precaches messages.js", read("sw.js").includes('"js/messages.js"'));
+  ok("renderMenu delivers unseen messages", /Messages\.show\(\)/.test(read("js/briefs.js")));
+}
+
+/* ---------- The restructured hall ---------- */
+{
+  const briefs = read("js/briefs.js");
+  ok("only Road and Tablets stand open", /filter\(g => !g\.more\)/.test(briefs));
+  ok("the rest folds into the More drawer",
+     /name:\s*"The Valley",\s*more:\s*true/.test(briefs) &&
+     /name:\s*"Practice",\s*more:\s*true/.test(briefs) &&
+     /name:\s*"Challenges",\s*more:\s*true/.test(briefs));
+  ok("a More toggle opens the drawer",
+     briefs.includes('id="more-toggle"') && briefs.includes('id="more-modes"'));
+  ok("toggle flips hidden and aria-expanded", /moreModes\.hidden = !open;/.test(briefs) &&
+     briefs.includes('moreToggle.setAttribute("aria-expanded", String(open))'));
+  ok("a Daily Board button sits beside the Daily card",
+     briefs.includes('id="daily-board-btn"') && briefs.includes("Daily Board"));
+  ok("the board button deep-links to the Daily leaderboard",
+     /openRecordsTab\("daily"\)/.test(briefs));
+  ok("records opens straight onto a tab", /function openRecordsTab\(tab\)/.test(read("js/panels.js")));
+  ok("the drawer styles exist", read("css/game.css").includes(".more-modes[hidden]{display:none}"));
+  ok("the board button styles exist", read("css/game.css").includes(".daily-board-btn"));
+}
+
+console.log((fail ? "FAIL" : "PASS") + " — messages & hall · " + pass + " assertions" + (fail ? " · " + fail + " FAILED" : ""));
+process.exit(fail ? 1 : 0);

@@ -1017,12 +1017,11 @@ var Cloud = (function () {
         .order("id", { ascending: true })
         .limit(limit), 8000);
       if (res.error) { lastBoardError = "load-failed"; return []; }
-      return (res.data || []).map(function (r, i) {
+      var rows = (res.data || []).map(function (r) {
         var raw = (r.profiles && r.profiles.display_name) || "Pilgrim";
         var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
           ? (Polish.sanitizeDisplayName(raw) || "Pilgrim") : String(raw).slice(0, 32);
         return {
-          rank: i + 1,
           id: r.id,
           score: r.score,
           accuracy: r.accuracy,
@@ -1031,6 +1030,10 @@ var Cloud = (function () {
           mine: false
         };
       });
+      /* Tied scores share a rank; index order must never invent one. */
+      return (typeof Polish !== "undefined" && Polish.rankRows)
+        ? Polish.rankRows(rows)
+        : rows.map(function (r, i) { r.rank = i + 1; return r; });
     } catch (e) {
       lastBoardError = (typeof navigator !== "undefined" && navigator.onLine === false) ? "offline" : "timeout";
       return [];
@@ -1051,12 +1054,11 @@ var Cloud = (function () {
         .order("id", { ascending: true })
         .limit(limit), 8000);
       if (res.error) { lastBoardError = "load-failed"; return []; }
-      return (res.data || []).map(function (r, i) {
+      var rows = (res.data || []).map(function (r) {
         var raw = (r.profiles && r.profiles.display_name) || "Pilgrim";
         var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
           ? (Polish.sanitizeDisplayName(raw) || "Pilgrim") : String(raw).slice(0, 32);
         return {
-          rank: i + 1,
           id: r.id,
           score: r.score,
           survived_ms: r.survived_ms,
@@ -1065,6 +1067,9 @@ var Cloud = (function () {
           mine: false
         };
       });
+      return (typeof Polish !== "undefined" && Polish.rankRows)
+        ? Polish.rankRows(rows)
+        : rows.map(function (r, i) { r.rank = i + 1; return r; });
     } catch (e) {
       lastBoardError = (typeof navigator !== "undefined" && navigator.onLine === false) ? "offline" : "timeout";
       return [];
@@ -1096,25 +1101,31 @@ var Cloud = (function () {
     var tr = translation || (typeof Edition !== "undefined" && Edition.getEdition ? Edition.getEdition() : "kjv");
     try {
       var mine = await withTimeout(sb.from("daily_scores")
-        .select("id, score, accuracy, diff, created_at, profiles(display_name)")
+        .select("id, score, accuracy, diff, profiles(display_name)")
         .eq("play_date", playDate)
         .eq("translation", tr)
         .eq("user_id", user.id)
         .maybeSingle(), 8000);
       if (mine.error || !mine.data) return null;
-      var s = mine.data.score;
-      var at = mine.data.created_at;
       var above = await withTimeout(sb.from("daily_scores")
         .select("id", { count: "exact", head: true })
         .eq("play_date", playDate)
         .eq("translation", tr)
-        .or("score.gt." + s + ",and(score.eq." + s + ",created_at.lt.\"" + at + "\")"), 8000);
+        .gt("score", mine.data.score), 8000);
+      var ties = await withTimeout(sb.from("daily_scores")
+        .select("id", { count: "exact", head: true })
+        .eq("play_date", playDate)
+        .eq("translation", tr)
+        .eq("score", mine.data.score), 8000);
       var raw = (mine.data.profiles && mine.data.profiles.display_name) || "You";
       var name = (typeof Polish !== "undefined" && Polish.sanitizeDisplayName)
         ? (Polish.sanitizeDisplayName(raw) || "You") : String(raw).slice(0, 32);
+      var tieCount = (ties.count != null) ? Number(ties.count) : 1;
       return {
         id: mine.data.id,
         rank: ((above.count != null) ? Number(above.count) : 0) + 1,
+        tied: tieCount > 1,
+        tieCount: tieCount,
         score: mine.data.score,
         accuracy: mine.data.accuracy,
         diff: mine.data.diff,

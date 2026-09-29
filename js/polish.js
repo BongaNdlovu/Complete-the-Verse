@@ -92,6 +92,25 @@ var Polish = (function () {
     };
   }
 
+  /* Standard competition ranking (1,2,2,4) for a board already sorted
+     best-first. Tied scores share a rank instead of getting fake distinct
+     ones from array order, and carry tied:true so rows can show "T-2".
+     Pure, mirrored by tests; this must agree with fetchMyDailyRank, which
+     ranks by counting the rows strictly above. */
+  function rankRows(rows) {
+    var sorted = (rows || []).map(function (r) { return Object.assign({}, r); });
+    var prevScore = null, prevRank = 0;
+    sorted.forEach(function (r, i) {
+      if (i > 0 && r.score === prevScore) r.rank = prevRank;
+      else { prevRank = i + 1; prevScore = r.score; r.rank = prevRank; }
+    });
+    sorted.forEach(function (r, i) {
+      r.tied = (i > 0 && sorted[i - 1].score === r.score) ||
+               (i < sorted.length - 1 && sorted[i + 1].score === r.score);
+    });
+    return sorted;
+  }
+
   function plausibleDaily(row) {
     row = row || {};
     var correct = row.correct | 0;
@@ -499,6 +518,30 @@ var Polish = (function () {
     return DAILY_MECHANIC_WEIGHTS[mechanic || "none"] || 1.0;
   }
 
+  /* ---------- Daily streak ----------
+     Consecutive LOCAL days with a recorded Daily run. Milestones earn a
+     confetti celebration when the Daily is next opened; after the fixed
+     ladder the honour falls on every 100th day. Pure, mirrored by tests. */
+  var DAILY_STREAK_MILESTONES = [3, 7, 14, 21, 30, 50, 75, 100, 150, 200, 300, 365];
+
+  function dailyStreakMilestone(count) {
+    var n = Math.max(0, count | 0);
+    if (DAILY_STREAK_MILESTONES.indexOf(n) >= 0) return true;
+    return n > 365 && n % 100 === 0;
+  }
+
+  function nextDailyStreak(streak, lastDate, today) {
+    var prev = streak | 0;
+    if (!lastDate || lastDate === today) return prev || 1;
+    /* Yesterday's key is today minus one local calendar day. */
+    var parts = String(today || "").split("-");
+    var y = new Date(Number(parts[0]) || 2000, (Number(parts[1]) || 1) - 1, Number(parts[2]) || 1);
+    y.setDate(y.getDate() - 1);
+    var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+    var yesterday = y.getFullYear() + "-" + pad(y.getMonth() + 1) + "-" + pad(y.getDate());
+    return lastDate === yesterday ? prev + 1 : 1;
+  }
+
   return {
     MAX_DAILY_SCORE: MAX_DAILY_SCORE,
     MAX_BLITZ_SCORE: MAX_BLITZ_SCORE,
@@ -511,6 +554,7 @@ var Polish = (function () {
     clampDailyScore: clampDailyScore,
     clampBlitzScore: clampBlitzScore,
     settleDaily: settleDaily,
+    rankRows: rankRows,
     plausibleDaily: plausibleDaily,
     plausibleBlitz: plausibleBlitz,
     bookMastery: bookMastery,
@@ -532,6 +576,9 @@ var Polish = (function () {
     describeModeClock: describeModeClock,
     verseChunks: verseChunks,
     dailyMechanicWeight: dailyMechanicWeight,
+    DAILY_STREAK_MILESTONES: DAILY_STREAK_MILESTONES,
+    dailyStreakMilestone: dailyStreakMilestone,
+    nextDailyStreak: nextDailyStreak,
     BEATS: BEATS,
     streakIgniteAt: streakIgniteAt
   };

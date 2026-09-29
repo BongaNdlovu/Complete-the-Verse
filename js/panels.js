@@ -361,6 +361,13 @@ function renderSeals(){
 
 /* ------------------------- RECORDS ------------------------- */
 let rtab = "board";
+/* Deep link: open the Chronicle straight onto a given tab (Daily Board). */
+function openRecordsTab(tab){
+  rtab = ["daily","blitz","life","books"].indexOf(tab) >= 0 ? tab : "board";
+  document.querySelectorAll("[data-rtab]").forEach(x=>x.classList.toggle("on", x.dataset.rtab===rtab));
+  renderRecords();
+  go("records");
+}
 document.querySelectorAll("[data-rtab]").forEach(b=>{
   b.addEventListener("click", ()=>{
     rtab=b.dataset.rtab; Snd.ui();
@@ -413,18 +420,26 @@ function cloudBoardSpec(board){
     const ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
     return {
       title: "Daily global · " + day + " · " + ed.toUpperCase(),
+      headTitle: "Daily global",
+      headDate: day + " · " + ed.toUpperCase(),
       empty: "No Daily scores yet today. Sign in and finish a Daily Trial to appear here.",
       load: function(){
-        return Promise.all([Cloud.fetchDailyBoard(day, 25, ed), Cloud.isSignedIn() ? Cloud.fetchMyDailyRank(day, ed) : null]);
+        return Promise.all([
+          Cloud.fetchDailyBoard(day, 25, ed),
+          Cloud.isSignedIn() ? Cloud.fetchMyDailyRank(day, ed) : null,
+          (typeof Cloud.fetchDailyEntryCount === "function") ? Cloud.fetchDailyEntryCount(day, ed) : Promise.resolve(0)
+        ]);
       },
       cell: function(r){ return fmt(r.score) + (r.accuracy != null ? ' · ' + Math.round(Number(r.accuracy)) + '%' : ''); }
     };
   }
   return {
     title: "Blitz global",
+    headTitle: "Blitz global",
+    headDate: "",
     empty: "No scores yet. Sign in and finish a run to appear here.",
     load: function(){
-      return Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn() ? Cloud.fetchMyBlitzRank() : null]);
+      return Promise.all([Cloud.fetchBlitzBoard(25), Cloud.isSignedIn() ? Cloud.fetchMyBlitzRank() : null, Promise.resolve(0)]);
     },
     cell: function(r){ return fmt(r.score) + ' verses' + (r.survived_ms != null ? ' · ' + Math.round(r.survived_ms/1000) + 's' : ''); }
   };
@@ -442,7 +457,7 @@ function renderCloudBoard(el, board){
   el.innerHTML='<div class="mtitle">'+title+'</div><div class="board-loading">Loading…</div>';
   const seq = (el._fetchSeq = (el._fetchSeq || 0) + 1);
   spec.load()
-    .then(([rows, mine])=>{
+    .then(([rows, mine, entryCount])=>{
       if(el._fetchSeq !== seq) return;
       if(mine && rows) rows.forEach(function(r){ if(r.id === mine.id) r.mine = true; });
       if(!rows || !rows.length){
@@ -452,25 +467,20 @@ function renderCloudBoard(el, board){
           : esc(spec.empty))+'</div>';
         return;
       }
-      let html = '<div class="mtitle">'+title+'</div><div class="lb global-lb">';
-      rows.forEach(r=>{
-        html += '<div class="lbrow'+(r.mine?" mine":"")+(r.rank===1?" top":"")+'" data-score-id="'+esc(r.id||"")+'" data-score-board="'+board+'">'+
-          '<div class="pos">'+r.rank+'</div>'+
-          '<div class="mode">'+esc(r.name)+(r.mine?' · you':'')+'</div>'+
-          '<div class="sc">'+spec.cell(r)+'</div>'+
-          (Cloud.isSignedIn() && r.id ? '<button type="button" class="board-report" data-report-score="'+esc(r.id)+'">Report</button>' : '')+
-          '</div>';
+      el.innerHTML = Leaderboard.board({
+        title: spec.headTitle,
+        date: spec.headDate,
+        note: entryCount ? fmt(entryCount)+" pilgrims on the road" : "",
+        trust: trustTag,
+        kind: board,
+        reports: Cloud.isSignedIn(),
+        rows: rows,
+        mine: (mine && !rows.some(r=>r.mine)) ? mine : null,
+        mineLabel: "Your best on this board"
       });
-      html += '</div>';
-      if(mine && !rows.some(r=>r.mine)){
-        html += '<div class="board-you-sep">Your best on this board</div><div class="lb global-lb">'+
-          '<div class="lbrow mine"><div class="pos">'+mine.rank+'</div><div class="mode">'+esc(mine.name)+' · you</div>'+
-          '<div class="sc">'+spec.cell(mine)+'</div></div></div>';
-      }
       if(!Cloud.isSignedIn()){
-        html += '<div class="hint" style="margin-top:1.4vh">Sign in under Settings to post scores and see your rank.</div>';
+        el.innerHTML += '<div class="hint" style="margin-top:1.4vh">Sign in under Settings to post scores and see your rank.</div>';
       }
-      el.innerHTML = html;
       bindLeaderboardReports(el, board);
     }).catch(()=>{
       if(el._fetchSeq !== seq) return;

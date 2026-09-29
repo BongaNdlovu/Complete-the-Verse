@@ -25,7 +25,7 @@ The Play Store app is native Compose (`mobile/`, package `app.completetheverse`)
 ## How to test and lint
 
 ```bash
-  npm test          # node test.js — 58 suites
+  npm test          # node test.js — 73 suites
 npm run lint      # Oxlint cyclomatic complexity, max 20
 ```
 
