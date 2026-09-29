@@ -62,11 +62,16 @@
   .check input{width:16px;height:16px;accent-color:#d9b667}
   .hidden{display:none}
   a{color:var(--gold)}
+  a.btn{text-decoration:none}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
 </style>
 </head>
 <body>
 <div class="hub">
-  <div class="kick">Complete the Verse</div>
+  <div class="topbar">
+    <div class="kick">Complete the Verse</div>
+    <a class="btn ghost small" id="btn-back" href="./">&larr; Back to the hall</a>
+  </div>
   <h1>Admin Hub</h1>
   <div class="rule"></div>
 

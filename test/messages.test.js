@@ -71,6 +71,7 @@ function read(p) { return fs.readFileSync(path.join(ROOT, p), "utf8"); }
   ok("the hub exists and loads the vendored client",
      page.includes("vendor/supabase/supabase.js") && page.includes("js/cloud-config.js") &&
      page.includes('<script src="js/admin-hub.js"></script>'));
+  ok("the hub has a way back to the hall", /id="btn-back" href="\.\/"/.test(page));
   ok("the hub page carries no inline script (CSP is script-src 'self')",
      !/<script>/.test(page) && /script-src 'self'/.test(read("vercel.json")));
   ok("publishing retires older notices, not the new one",
