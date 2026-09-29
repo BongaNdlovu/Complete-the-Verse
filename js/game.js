@@ -21,6 +21,8 @@ const DEFAULT_SAVE = {
   dailyStreak:{count:0, lastDate:"", best:0, celebrated:0},
   /* Announcement cards the player has dismissed. */
   messagesSeen:[],
+  /* A Daily whose submit failed — retried until the board has it. */
+  pendingDaily:null,
   /* Habit streak tracking across calendar days */
   habit:{count:0, lastDate:"", lastDay:0, best:0, history:{}},
   /* The road from Ur to Patmos. Shape is owned by pilgrimage.js —
@@ -89,6 +91,7 @@ function mergeLoadedSave(s){
     dailyByEdition:Object.assign({kjv:(s && s.daily)||{date:"",score:0}, nkjv:{date:"",score:0}}, (s && s.dailyByEdition)||{}),
     dailyStreak:Object.assign({count:0, lastDate:"", best:0, celebrated:0}, s.dailyStreak||{}),
     messagesSeen: Array.isArray(s.messagesSeen) ? s.messagesSeen.slice() : [],
+    pendingDaily: (s.pendingDaily && s.pendingDaily.payload) ? s.pendingDaily : null,
     srs:Object.assign({}, s.srs||{}),
     habit:Object.assign({count:0, lastDate:"", lastDay:0, best:0, history:{}}, s.habit||{}),
     pilgrim: mergePilgrimSave(s),
@@ -2340,6 +2343,7 @@ function onAuthSignedIn(ev, hasUser){
       updateCloudChip();
       if(res.merged) toast("Progress merged from the cloud");
     }
+    if(typeof Cloud.retryPendingDaily === "function") Cloud.retryPendingDaily();
   });
   if(atDoor && typeof enterCoffeePath==="function") enterCoffeePath();
 }
@@ -2388,6 +2392,7 @@ function bindCloudBoot(){
           updatePlayerCard();
         }
         updateCloudChip();
+        if(typeof Cloud.retryPendingDaily === "function") Cloud.retryPendingDaily();
       });
     }
     updateCloudChip();

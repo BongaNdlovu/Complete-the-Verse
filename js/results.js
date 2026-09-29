@@ -181,7 +181,9 @@ function endRunCloudSubmit(dailyRecorded, isPilgrim, siteCleared, total, acc, su
   if(R.mode==="team") return;
   if(!(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn())) return;
   if(dailyRecorded){
-    trackBoardSubmit(Cloud.submitDailyScore({
+    /* The exact numbers of THIS run are kept in the save until the board
+       confirms them — a failed submit is retried, never silently lost. */
+    const dailyPayload = {
       play_date: R.dailyKey || todayKey(),
       translation: (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv",
       score: total,
@@ -193,6 +195,15 @@ function endRunCloudSubmit(dailyRecorded, isPilgrim, siteCleared, total, acc, su
       best: R.best||0,
       baseScore: R.score||0,
       reason: reason
+    };
+    SAVE.pendingDaily = { date: todayKey(), payload: dailyPayload, tries: 0 };
+    if(typeof persist === "function") persist();
+    trackBoardSubmit(Cloud.submitDailyScore(dailyPayload).then(function(res){
+      if(res && res.ok && SAVE.pendingDaily){
+        SAVE.pendingDaily = null;
+        if(typeof persist === "function") persist();
+      }
+      return res;
     }));
   }
   if(R.mode==="blitz"){
@@ -1135,10 +1146,33 @@ function fillResultsDailyBoard(el, trustTag){
     rows.forEach(function(r){
       if(r.mine && lastDailyRank > 0 && typeof r.rank === "number") r.move = lastDailyRank - r.rank;
     });
-    el.innerHTML = title + Leaderboard.board({
+    let boardHtml = title + Leaderboard.board({
       kind: "daily", compact: true, head: false, rows: rows,
       mine: (mine && !rows.some(r=>r.mine)) ? mine : null
     });
+    if(SAVE.pendingDaily && SAVE.pendingDaily.date === dayKey && Cloud.isSignedIn()){
+      boardHtml += '<div class="pending-resend"><span>This score has not reached the board yet.</span>' +
+        '<button type="button" class="btn sm" id="resend-daily">Resend my score</button></div>';
+    }
+    el.innerHTML = boardHtml;
+    const resend = $("resend-daily");
+    if(resend){
+      resend.addEventListener("click", async function(){
+        resend.disabled = true;
+        resend.textContent = "Sending…";
+        const res = await Cloud.submitDailyScore(SAVE.pendingDaily.payload);
+        if(res && res.ok){
+          SAVE.pendingDaily = null;
+          if(typeof persist === "function") persist();
+          toast("Score sent to the Daily board");
+          fillResultsDailyBoard(el, trustTag);
+        } else {
+          resend.disabled = false;
+          resend.textContent = "Resend my score";
+          toast("Still unreachable — it will retry automatically");
+        }
+      });
+    }
   }).catch(()=>{
     el.innerHTML = '<div class="mtitle">Daily board</div><div class="empty">Could not load the board. Check your connection.</div>';
   });

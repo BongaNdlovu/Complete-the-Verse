@@ -84,6 +84,18 @@ ok("0 is not a milestone", Polish.dailyStreakMilestone(0) === false);
   ok("daily replay is labelled practice, never a record shot",
      results.includes('"Practice the Same 20"'));
   ok("edge keeps the stored score when one exists", edge.includes("kept: true"));
+  ok("a failed submit keeps the run's numbers for retry",
+     /SAVE\.pendingDaily = \{ date: todayKey\(\), payload: dailyPayload/.test(results));
+  ok("a confirmed submit clears the pending record",
+     (results.match(/SAVE\.pendingDaily = null/g) || []).length >= 1);
+  ok("the board offers a resend while pending",
+     results.includes("Resend my score") && results.includes("pending-resend"));
+  ok("the cloud retries pending dailies at boot and gives up after five",
+     /async function retryPendingDaily/.test(read("js/cloud.js")) &&
+     /gave-up/.test(read("js/cloud.js")) &&
+     /pend\.tries \|\| 0\) >= 5/.test(read("js/cloud.js")));
+  ok("boot syncs trigger the retry",
+     (read("js/game.js").match(/Cloud\.retryPendingDaily\(\)/g) || []).length >= 2);
   ok("edge checks the existing row before writing",
      /from\("daily_scores"\)\s*\n?\s*\.select\("score"\)/.test(edge));
 }

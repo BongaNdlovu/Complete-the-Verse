@@ -2210,3 +2210,10 @@ body.reduced .msg-card{transition:opacity .3s ease}
   letter-spacing:.2em;text-transform:uppercase;color:var(--gold-hot);
   box-shadow:0 0 0 1px var(--edge) inset;transition:.2s}
 .msg-ack:hover,.msg-ack:focus-visible{box-shadow:0 0 0 1px var(--gold) inset;color:var(--gold)}
+
+/* Pending Daily resend — shown when a score never reached the board */
+.pending-resend{display:flex;align-items:center;gap:.8em;justify-content:center;flex-wrap:wrap;
+  margin-top:.9em;padding:.65em .8em;background:rgba(192,39,45,.08);
+  box-shadow:0 0 0 1px rgba(255,90,98,.35) inset;font-family:var(--ui);font-size:.64rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--parch-dim)}
+.pending-resend span{color:var(--blood-hot)}

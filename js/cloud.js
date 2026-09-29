@@ -948,6 +948,30 @@ var Cloud = (function () {
     }
   }
 
+  /* A Daily whose first submit failed stays in the save and is retried
+     here (boot and after every sync). The server keeps the first finished
+     run per day, so a retry can never overwrite a recorded score. */
+  async function retryPendingDaily() {
+    if (!isSignedIn()) return { ok: false, reason: "signed-out" };
+    var pend = (typeof SAVE !== "undefined" && SAVE.pendingDaily) ? SAVE.pendingDaily : null;
+    if (!pend || !pend.payload) return { ok: false, reason: "none" };
+    if ((pend.tries || 0) >= 5) return { ok: false, reason: "gave-up" };
+    var res = await submitDailyScore(pend.payload);
+    if (res && res.ok) {
+      if (typeof SAVE !== "undefined" && SAVE.pendingDaily) {
+        SAVE.pendingDaily = null;
+        if (typeof persist === "function") persist();
+      }
+      emit("onSync", { direction: "daily-retry-ok" });
+      return { ok: true };
+    }
+    if (typeof SAVE !== "undefined" && SAVE.pendingDaily) {
+      SAVE.pendingDaily.tries = (SAVE.pendingDaily.tries || 0) + 1;
+      if (typeof persist === "function") persist();
+    }
+    return { ok: false, reason: (res && res.reason) || "failed" };
+  }
+
   async function submitDailyScore(row) {
     var sb = ensureClient();
     if (!sb || !user) return { ok: false, reason: "signed-out" };
@@ -1320,6 +1344,7 @@ var Cloud = (function () {
     schedulePush: schedulePush,
     syncOnBoot: syncOnBoot,
     submitDailyScore: submitDailyScore,
+    retryPendingDaily: retryPendingDaily,
     submitBlitzScore: submitBlitzScore,
     lastSubmitVia: function () { return lastSubmitVia; },
     setLastSubmitVia: function (v) { lastSubmitVia = v; },
