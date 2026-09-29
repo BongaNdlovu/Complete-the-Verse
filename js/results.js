@@ -1111,6 +1111,32 @@ function fillTabletsLocalBoard(el){
     }, (pack[ch.id].best || 0) + "%");
   }).join("");
 }
+/* Shown under the board while this run's score has not reached it. */
+function renderPendingDailyResend(dayKey){
+  if(!(SAVE.pendingDaily && SAVE.pendingDaily.date === dayKey)) return "";
+  if(!(typeof Cloud !== "undefined" && Cloud.isSignedIn())) return "";
+  return '<div class="pending-resend"><span>This score has not reached the board yet.</span>' +
+    '<button type="button" class="btn sm" id="resend-daily">Resend my score</button></div>';
+}
+function bindPendingDailyResend(el, trustTag){
+  const resend = $("resend-daily");
+  if(!resend) return;
+  resend.addEventListener("click", async function(){
+    resend.disabled = true;
+    resend.textContent = "Sending…";
+    const res = await Cloud.submitDailyScore(SAVE.pendingDaily.payload);
+    if(res && res.ok){
+      SAVE.pendingDaily = null;
+      if(typeof persist === "function") persist();
+      toast("Score sent to the Daily board");
+      fillResultsDailyBoard(el, trustTag);
+    } else {
+      resend.disabled = false;
+      resend.textContent = "Resend my score";
+      toast("Still unreachable — it will retry automatically");
+    }
+  });
+}
 function fillResultsDailyBoard(el, trustTag){
   const dayKey = (R && R.dailyKey) || todayKey();
   const ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
@@ -1146,33 +1172,12 @@ function fillResultsDailyBoard(el, trustTag){
     rows.forEach(function(r){
       if(r.mine && lastDailyRank > 0 && typeof r.rank === "number") r.move = lastDailyRank - r.rank;
     });
-    let boardHtml = title + Leaderboard.board({
+    const boardHtml = title + Leaderboard.board({
       kind: "daily", compact: true, head: false, rows: rows,
       mine: (mine && !rows.some(r=>r.mine)) ? mine : null
-    });
-    if(SAVE.pendingDaily && SAVE.pendingDaily.date === dayKey && Cloud.isSignedIn()){
-      boardHtml += '<div class="pending-resend"><span>This score has not reached the board yet.</span>' +
-        '<button type="button" class="btn sm" id="resend-daily">Resend my score</button></div>';
-    }
+    }) + renderPendingDailyResend(dayKey);
     el.innerHTML = boardHtml;
-    const resend = $("resend-daily");
-    if(resend){
-      resend.addEventListener("click", async function(){
-        resend.disabled = true;
-        resend.textContent = "Sending…";
-        const res = await Cloud.submitDailyScore(SAVE.pendingDaily.payload);
-        if(res && res.ok){
-          SAVE.pendingDaily = null;
-          if(typeof persist === "function") persist();
-          toast("Score sent to the Daily board");
-          fillResultsDailyBoard(el, trustTag);
-        } else {
-          resend.disabled = false;
-          resend.textContent = "Resend my score";
-          toast("Still unreachable — it will retry automatically");
-        }
-      });
-    }
+    bindPendingDailyResend(el, trustTag);
   }).catch(()=>{
     el.innerHTML = '<div class="mtitle">Daily board</div><div class="empty">Could not load the board. Check your connection.</div>';
   });

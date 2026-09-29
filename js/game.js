@@ -75,6 +75,10 @@ function mergeBestSave(s){
   mergedBest.dailyByEdition = Object.assign({kjv: (s && s.best && s.best.daily) || 0, nkjv: 0}, (s && s.best && s.best.dailyByEdition) || {});
   return mergedBest;
 }
+/* Only a pending daily that still carries its run numbers is kept. */
+function normalizePendingDaily(v){
+  return (v && v.payload) ? v : null;
+}
 function mergeLoadedSave(s){
   if(s && s.set && typeof s.set.translation === "undefined"){
     s.set.translation = "kjv";
@@ -91,7 +95,7 @@ function mergeLoadedSave(s){
     dailyByEdition:Object.assign({kjv:(s && s.daily)||{date:"",score:0}, nkjv:{date:"",score:0}}, (s && s.dailyByEdition)||{}),
     dailyStreak:Object.assign({count:0, lastDate:"", best:0, celebrated:0}, s.dailyStreak||{}),
     messagesSeen: Array.isArray(s.messagesSeen) ? s.messagesSeen.slice() : [],
-    pendingDaily: (s.pendingDaily && s.pendingDaily.payload) ? s.pendingDaily : null,
+    pendingDaily: normalizePendingDaily(s.pendingDaily),
     srs:Object.assign({}, s.srs||{}),
     habit:Object.assign({count:0, lastDate:"", lastDay:0, best:0, history:{}}, s.habit||{}),
     pilgrim: mergePilgrimSave(s),
