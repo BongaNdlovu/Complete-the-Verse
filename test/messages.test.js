@@ -25,6 +25,16 @@ function read(p) { return fs.readFileSync(path.join(ROOT, p), "utf8"); }
   ok("seen ids are filtered out", Messages.unseenFor(list, ["a", "c"]).map(m => m.id).join(",") === "b");
   ok("all seen -> nothing unseen", Messages.unseenFor(list, ["a", "b", "c"]).length === 0);
   ok("null seen list is safe", Messages.unseenFor(list, null).length === 3);
+  {
+    const rows = [
+      { id: "n1", title: "Old" },
+      { id: "n2", title: "New" }
+    ];
+    ok("newest unread server notice wins", Messages.pickUnread(rows, () => "unread").id === "n1");
+    ok("read notices are skipped", (Messages.pickUnread(rows, id => id === "n1" ? "read" : "unread") || {}).id === "n2");
+    ok("all read -> no card", Messages.pickUnread(rows, () => "read") === null);
+    ok("hidden counts as seen", Messages.pickUnread(rows, () => "hidden") === null);
+  }
   const first = Messages.LIST[0];
   ok("the seeded announcement exists with an id, title and body",
      first && first.id && first.title && first.body);
@@ -38,8 +48,11 @@ function read(p) { return fs.readFileSync(path.join(ROOT, p), "utf8"); }
   ok("card rests off-screen to the left", css.includes("translateX(calc(-100% - 40px))"));
   ok("the .on class slides it in", /\.msg-card\.on\{transform:translateX\(0\)/.test(css));
   ok("it auto-slides back out", /setTimeout[\s\S]{0,220}dismiss\(false\)/.test(src));
-  ok("dismiss remembers the message", /function dismiss\(remember\)[\s\S]{0,220}markSeen\(m\.id\)/.test(src));
+  ok("dismiss remembers a local message", /markLocalSeen\(m\.id\)/.test(src));
+  ok("dismiss marks a server notice read", /markNoticeRead\(m\.id\)/.test(src));
   ok("once per page visit unless forced", /if \(!force && sessionShown\) return false;/.test(src));
+  ok("server notices from the keeper's post win over the local list",
+     /Cloud\.fetchSiteNotices\(5\)[\s\S]{0,120}pickUnread/.test(src));
   ok("reduced motion softens the slide", css.includes("body.reduced .msg-card"));
 }
 

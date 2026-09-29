@@ -1,13 +1,17 @@
 /* ==================================================================
    MESSAGES — in-game announcements. A small card slides in from the
-   left hand side, rests, then slides back out. A message stays unseen
-   (and keeps returning with each visit to the hall) until the player
+   left hand side, rests, then slides back out. The card prefers the
+   keeper's server notices (site_notices via Cloud.fetchSiteNotices,
+   read state owned by site-notice.js); when the cloud is unreachable
+   it falls back to the local LIST below. A message stays unseen —
+   and keeps returning with each visit to the hall — until the player
    dismisses it. Pure helpers mirrored by tests.
    ================================================================== */
 
 var Messages = (function () {
 
-  /* New messages go on top. ids never repeat. */
+  /* Local fallback announcements (offline / unconfigured cloud).
+     New messages go on top. ids never repeat. */
   var LIST = [
     {
       id: "2026-09-29-daily-update",
@@ -23,14 +27,26 @@ var Messages = (function () {
     return (list || []).filter(function (m) { return !seen[m.id]; });
   }
 
-  function nextMessage() {
+  /* Newest server notice the player has neither read nor hidden. */
+  function pickUnread(rows, stateFn) {
+    rows = rows || [];
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      if (!r || !r.id) continue;
+      var state = stateFn ? stateFn(r.id) : "unread";
+      if (state !== "read" && state !== "hidden") return r;
+    }
+    return null;
+  }
+
+  function nextLocalMessage() {
     if (typeof SAVE === "undefined") return null;
     if (!SAVE.messagesSeen) SAVE.messagesSeen = [];
     var unseen = unseenFor(LIST, SAVE.messagesSeen);
     return unseen.length ? unseen[0] : null;
   }
 
-  function markSeen(id) {
+  function markLocalSeen(id) {
     if (typeof SAVE === "undefined") return;
     if (!SAVE.messagesSeen) SAVE.messagesSeen = [];
     if (SAVE.messagesSeen.indexOf(id) < 0) SAVE.messagesSeen.push(id);
@@ -49,23 +65,13 @@ var Messages = (function () {
       '</div>';
   }
 
-  /* Slide in, rest, slide out. Returns true when a card was shown. */
-  function show(force) {
-    if (typeof document === "undefined") return false;
-    var m = nextMessage();
-    if (!m) return false;
-    if (!force && sessionShown) return false; /* once per visit to the page */
-    sessionShown = true;
-    var host = document.createElement("div");
-    host.id = "msg-host";
-    host.innerHTML = cardHtml(m);
-    document.body.appendChild(host);
+  function present(host, m, onAck) {
     var card = host.querySelector(".msg-card");
     requestAnimationFrame(function () { requestAnimationFrame(function () {
       card.classList.add("on");
     }); });
     function dismiss(remember) {
-      if (remember) markSeen(m.id);
+      if (remember) onAck();
       card.classList.remove("on");
       setTimeout(function () { host.remove(); }, 480);
     }
@@ -78,7 +84,44 @@ var Messages = (function () {
          have finished the slide-in, so don't depend on the .on class. */
       if (host.isConnected) dismiss(false);
     }, 11000);
+  }
+
+  function showLocal(force) {
+    var m = nextLocalMessage();
+    if (!m) return false;
+    var host = document.createElement("div");
+    host.id = "msg-host";
+    host.innerHTML = cardHtml(m);
+    document.body.appendChild(host);
+    present(host, m, function () { markLocalSeen(m.id); });
     return true;
+  }
+
+  /* Slide in, rest, slide out. Server notices win over the local list.
+     Returns true when a card was shown. */
+  function show(force) {
+    if (typeof document === "undefined") return;
+    if (!force && sessionShown) return false; /* once per visit to the page */
+    if (typeof Cloud !== "undefined" && Cloud.configured && Cloud.configured() &&
+        typeof Cloud.fetchSiteNotices === "function" &&
+        typeof getNoticeState === "function") {
+      return Cloud.fetchSiteNotices(5).then(function (rows) {
+        if (!rows) return showLocal(force);
+        var m = pickUnread(rows, getNoticeState);
+        if (!m) return showLocal(force);
+        sessionShown = true;
+        var host = document.createElement("div");
+        host.id = "msg-host";
+        host.innerHTML = cardHtml(m);
+        document.body.appendChild(host);
+        present(host, m, function () {
+          if (typeof markNoticeRead === "function") markNoticeRead(m.id);
+        });
+        return true;
+      }).catch(function () { return showLocal(force); });
+    }
+    sessionShown = true;
+    return showLocal(force);
   }
 
   /* Test hook: forget that the page already showed its card. */
@@ -87,8 +130,9 @@ var Messages = (function () {
   return {
     LIST: LIST,
     unseenFor: unseenFor,
-    nextMessage: nextMessage,
-    markSeen: markSeen,
+    pickUnread: pickUnread,
+    nextMessage: nextLocalMessage,
+    markSeen: markLocalSeen,
     show: show,
     resetSession: resetSession
   };
