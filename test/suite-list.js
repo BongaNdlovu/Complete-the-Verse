@@ -51,6 +51,7 @@ module.exports = [
   ["excitement", "test/excitement.test.js"],
   ["beats", "test/beats.test.js"],
   ["answering", "test/answering.test.js"],
+  ["token match", "test/token-match.test.js"],
   ["keys", "test/keys.test.js"],
   ["interaction", "test/interaction-contract.test.js"],
   ["motion", "test/motion.test.js"],

@@ -29,7 +29,7 @@ play. `node test.js` (or `npm test`) is the logic gate. `npm run lint` runs Oxli
 ```
 index.html          the single page — all views are <section class="view">s
 README.md           repository entry point
-test.js             root test runner (runs all 68 test suites)
+test.js             root test runner (runs all 69 test suites)
 js/*.js             see module map below (loaded as classic <script>, globals)
 css/*.css           game styling, film FX, and atlas map
 vendor/leaflet/     Leaflet 1.9.4 (map — vendored, never CDN)
@@ -411,7 +411,7 @@ bank answers nearest in length — numbered fakes were removed.
 
 ## 10. Testing — the three styles (know which one you are writing)
 
-`node test.js` runs 68 suites in a fixed order: content gate → pure
+`node test.js` runs 69 suites in a fixed order: content gate → pure
 logic → integration sandbox → structural/static suites. CI also runs
 `npm run lint` (Oxlint `complexity` max 20) before the suite.
 

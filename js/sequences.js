@@ -22,6 +22,45 @@ function drawPassage(){
   R.usedPass.add(p.id);
   return p;
 }
+/* A trailing comma, semicolon, or period is not a different word.
+   "for ever." and "for ever" are the same token in a player's sequence.
+   Colons, question marks, and apostrophes stay — they can change the line. */
+function verseTokenKey(word){
+  return String(word == null ? "" : word).toLowerCase().replace(/[,;.]+$/g, "");
+}
+function verseTokenSequence(text){
+  return String(text == null ? "" : text).trim().split(/\s+/).filter(Boolean).map(verseTokenKey).join(" ");
+}
+function verseTokensMatch(a, b){
+  const left = verseTokenSequence(a), right = verseTokenSequence(b);
+  return left.length > 0 && left === right;
+}
+function verseSequencesMatch(player, expected){
+  if(!player || !expected || player.length !== expected.length || !player.length) return false;
+  for(let i = 0; i < player.length; i++){
+    if(!verseTokensMatch(player[i], expected[i])) return false;
+  }
+  return true;
+}
+/* The passage is right when the rebuilt line reads as the verse.
+   Two copies of a refrain are interchangeable; the fragment index is not. */
+function gradeReconstruction(slots, frags){
+  const parts = frags || [];
+  const placed = slots || [];
+  const built = placed.map(function(f){
+    return f == null || parts[f] == null ? "" : parts[f];
+  }).join(" ");
+  const whole = verseTokensMatch(built, parts.join(" "));
+  const slotOk = placed.map(function(f, i){
+    if(whole) return true;
+    if(f == null || parts[f] == null) return false;
+    return verseTokensMatch(parts[f], parts[i]);
+  });
+  let right = 0;
+  for(let i = 0; i < slotOk.length; i++) if(slotOk[i]) right++;
+  return { right: right, total: parts.length, whole: whole, slotOk: slotOk };
+}
+
 function clearSequence(){
   R.sceneToken = (R.sceneToken||0) + 1;
   R.passage = null; R.recon = null;
@@ -275,12 +314,14 @@ function resolveRecon(){
   const st = R.recon; if(!st) return;
   R.recon = null;
   stopTimer(); R.locked = true;
-  const right = st.slots.reduce((n,f,i)=> n + (f===i ? 1 : 0), 0);
+  const graded = gradeReconstruction(st.slots, st.frags);
+  const right = graded.right;
   const slots = $("recon-slots");
   if(slots) slots.querySelectorAll(".slot").forEach((el,i)=>{
+    const ok = !!graded.slotOk[i];
     el.classList.remove("empty","full");
-    el.classList.add(st.slots[i]===i ? "ok" : "no");
-    if(st.slots[i]!==i){
+    el.classList.add(ok ? "ok" : "no");
+    if(!ok){
       const sp = el.querySelector("span");
       if(sp) sp.textContent = st.frags[i];
     }
@@ -288,7 +329,18 @@ function resolveRecon(){
   const verseEl = $("verse");
   if(verseEl) verseEl.innerHTML = '<span class="recon-prompt">'+
     (right===st.frags.length ? "The passage stands whole" : "Fragments out of order")+'</span>';
-  finishSequence({book:st.p.b, id:st.p.id, right, total:st.frags.length, base:200});
+  finishSequence({book:st.p.b, id:st.p.id, right, total:graded.total, base:200});
+}
+
+if(typeof module !== "undefined" && module.exports){
+  module.exports = {
+    verseTokenKey: verseTokenKey,
+    verseTokenSequence: verseTokenSequence,
+    verseTokensMatch: verseTokensMatch,
+    verseSequencesMatch: verseSequencesMatch,
+    gradeReconstruction: gradeReconstruction,
+    fragmentize: fragmentize
+  };
 }
 
 /* ---------------- shared resolution ---------------- */

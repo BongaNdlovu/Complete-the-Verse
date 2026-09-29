@@ -238,13 +238,11 @@ function gradeTutorialChoice(q, choice, btn){
     renderTypedVerdict(graded);
     return { ok:Recall.isCorrect(graded.verdict), graded:graded };
   }
-  const choiceNorm = (typeof choice === "string") ? choice.trim().replace(/\s+/g, ' ').toLowerCase() : "";
   /* The Fade lesson's reconstruction pick offers whole verses, exactly as a
      real run does — the pick must be graded against the whole verse. */
   const fadeTarget = (R.currentMechanic === "fade" && R.fadePhase === "reconstruct") ? fullVerseText(q) : null;
   const targetRaw = fadeTarget || q.a;
-  const targetNorm = (typeof targetRaw === "string") ? targetRaw.trim().replace(/\s+/g, ' ').toLowerCase() : "";
-  const ok = (choice === targetRaw) || (choiceNorm !== "" && choiceNorm === targetNorm);
+  const ok = choiceMatchesVerse(choice, targetRaw);
   answerButtons().forEach(function(b){
     b.classList.remove("sel");
     if(b.dataset.val===targetRaw) b.classList.add("right");
@@ -660,7 +658,7 @@ function renderBeatCloze(item){
       R.beatFilled.push(c);
       b.classList.add("sel");
       if(R.beatFilled.length === item.blanks.length){
-        beatResolve(R.beatFilled.join("|") === item.blanks.join("|"));
+        beatResolve(verseSequencesMatch(R.beatFilled, item.blanks));
       }
     });
     opts.appendChild(b);
@@ -2093,7 +2091,7 @@ function confirmBeatAnswer(){
   if(!(R.mode==="beat" && R.q)) return false;
   if(R.q.kind==="order"){
     if((R.beatOrder||[]).length !== (R.q.order||[]).length) return true;
-    beatResolve(R.beatOrder.join("|") === R.q.order.join("|"));
+    beatResolve(verseSequencesMatch(R.beatOrder, R.q.order));
     return true;
   }
   if(R.q.kind==="multi"){
@@ -2214,6 +2212,17 @@ function recordDecision(ms){
   R.fastestMs=Math.min(R.fastestMs,safe);
 }
 
+/* Same word with a trailing comma, semicolon, or period still matches.
+   verseTokensMatch lives with the sequencing grader so both paths agree. */
+function choiceMatchesVerse(choice, targetRaw){
+  if(choice === targetRaw) return true;
+  if(typeof choice !== "string" || !choice.trim()) return false;
+  if(typeof verseTokensMatch === "function") return verseTokensMatch(choice, targetRaw);
+  const fold = function(s){ return String(s == null ? "" : s).trim().replace(/\s+/g, " ").toLowerCase(); };
+  const folded = fold(choice);
+  return folded !== "" && folded === fold(targetRaw);
+}
+
 function gradeQuestionChoice(q, choice, btn){
   if(R.typed){
     const target = (typeof assemblyTargetFor === "function") ? assemblyTargetFor(q) : q.a;
@@ -2227,11 +2236,9 @@ function gradeQuestionChoice(q, choice, btn){
     renderTypedVerdict(graded);
     return { ok: Recall.isCorrect(graded.verdict), graded: graded };
   }
-  const choiceNorm = (typeof choice === "string") ? choice.trim().replace(/\s+/g, ' ').toLowerCase() : "";
   const fadeTarget = (R.currentMechanic === "fade" && R.fadePhase === "reconstruct") ? fullVerseText(q) : null;
   const targetRaw = fadeTarget || q.a;
-  const targetNorm = (typeof targetRaw === "string") ? targetRaw.trim().replace(/\s+/g, ' ').toLowerCase() : "";
-  const ok = (choice === targetRaw) || (choiceNorm !== "" && choiceNorm === targetNorm);
+  const ok = choiceMatchesVerse(choice, targetRaw);
   answerButtons().forEach(b=>{
     b.classList.remove("sel");
     if(b.dataset.val===targetRaw) b.classList.add("right");
