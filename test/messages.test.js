@@ -66,9 +66,15 @@ function read(p) { return fs.readFileSync(path.join(ROOT, p), "utf8"); }
 
 /* ---------- The admin hub ---------- */
 {
-  const hub = read("admin.html");
+  const page = read("admin.html");
+  const hub = page + read("js/admin-hub.js");
   ok("the hub exists and loads the vendored client",
-     hub.includes("vendor/supabase/supabase.js") && hub.includes("js/cloud-config.js"));
+     page.includes("vendor/supabase/supabase.js") && page.includes("js/cloud-config.js") &&
+     page.includes('<script src="js/admin-hub.js"></script>'));
+  ok("the hub page carries no inline script (CSP is script-src 'self')",
+     !/<script>/.test(page) && /script-src 'self'/.test(read("vercel.json")));
+  ok("publishing retires older notices, not the new one",
+     /\.insert\(\{[^}]*\}\)\.select\("id"\)/.test(hub) && /\.neq\("id", ins\.data\.id\)/.test(hub));
   ok("the hub gates publishing on is_site_admin", hub.includes('rpc("is_site_admin")'));
   ok("the hub writes site_notices", hub.includes('from("site_notices")') &&
      hub.includes(".insert("));
