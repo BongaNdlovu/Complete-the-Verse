@@ -259,6 +259,8 @@ const CloudModule = require(path.join(ROOT, "js", "cloud.js"));
     /view==="messages"/.test(game) && /enterViewAmbience/.test(game));
   ok("6 owner notice list does not append ellipsis to short body",
     /r\.body\.length > 60/.test(panels));
+  ok("6 owner notice block has structured panel and composer",
+    /admin-notice-panel/.test(panels) && /admin-notice-composer/.test(panels));
   ok("6 grant_admin.sql ensures profile exists and binds assignment to profiles",
     /from public\.profiles/.test(grantSql) && /on_profile_admin_assignment/.test(grantSql));
 }

@@ -54,6 +54,8 @@ function read(p) { return fs.readFileSync(path.join(ROOT, p), "utf8"); }
   ok("server notices from the keeper's post win over the local list",
      /Cloud\.fetchSiteNotices\(5\)[\s\S]{0,120}pickUnread/.test(src));
   ok("reduced motion softens the slide", css.includes("body.reduced .msg-card"));
+  ok("messages-list cards are explicitly styled and not shadowed by #msg-host",
+     css.includes(".messages-list .msg-card") && css.includes("#msg-host .msg-card"));
 }
 
 /* ---------- Save wiring ---------- */

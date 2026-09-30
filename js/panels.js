@@ -747,14 +747,16 @@ function settingsAccountHtml(){
 }
 function settingsOwnerNoticeHtml(){
   if(typeof Cloud==="undefined" || !Cloud.isSiteAdmin || !Cloud.isSiteAdmin()) return "";
-  return setRow("Site updates",
-    "Owner only. A new update stops every player once, then stays in their box.",
-    '<input id="admin-notice-title" type="text" maxlength="120" placeholder="Title, e.g. Maintenance tonight">' +
-    '<textarea id="admin-notice-body" maxlength="2000" rows="4" placeholder="Your update for all players"></textarea>' +
+  return '<div class="setrow admin-notice-panel">' +
+    '<div><label>Site updates</label><small>Owner only. A new update stops every player once, then stays in their box.</small></div>' +
+    '<div class="admin-notice-composer">' +
+    '<input id="admin-notice-title" type="text" maxlength="120" placeholder="Title, e.g. Maintenance tonight" aria-label="Notice title">' +
+    '<textarea id="admin-notice-body" maxlength="2000" rows="3" placeholder="Your update for all players" aria-label="Notice body"></textarea>' +
     '<div class="admin-notice-actions">' +
     '<button class="btn sm" id="admin-notice-publish" type="button">Publish notice</button>' +
-    '</div><p class="hint" id="admin-notice-status" role="status"></p>' +
-    '<div id="admin-notice-list" class="admin-notice-list"></div>') +
+    '<p class="hint" id="admin-notice-status" role="status"></p>' +
+    '</div></div>' +
+    '<div id="admin-notice-list" class="admin-notice-list"></div></div>' +
     setRow("Admin hub", "Owner only. The full publishing desk on its own page.",
       '<a class="btn ghost sm" id="admin-hub-link" href="admin.html">Open admin hub</a>');
 }
