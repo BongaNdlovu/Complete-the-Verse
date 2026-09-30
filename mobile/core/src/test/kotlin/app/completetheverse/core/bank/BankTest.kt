@@ -55,7 +55,10 @@ class BankTest {
         assertEquals("heaven and the earth", first!!.a)
         assertEquals("Genesis", first.b)
         assertTrue(first.d.isNotEmpty())
-        assertTrue(bank.verses.all { it.id.isNotEmpty() && it.p.isNotEmpty() && it.a.isNotEmpty() && it.r.isNotEmpty() })
+        /* p may legitimately be empty: a verse can BEGIN with its answer
+           (Exodus 20:13 — "Thou shalt not kill" is the whole completion). */
+        assertTrue(bank.verses.all { it.id.isNotEmpty() && it.a.isNotEmpty() && it.r.isNotEmpty() })
+        assertTrue(bank.verses.none { it.s == null })
         assertTrue(bank.tfClaims.size >= 250)
         assertTrue(bank.tfClaims.any { it.v } && bank.tfClaims.any { !it.v })
     }
