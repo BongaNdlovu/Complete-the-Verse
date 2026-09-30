@@ -91,8 +91,8 @@ var Flow = (function(){
       kick: "Notice",
       title: "Update",
       body: "Read this before you continue.",
-      primary: "Continue",
-      secondary: ""
+      primary: "Open the message box",
+      secondary: "Later"
     }
   };
 

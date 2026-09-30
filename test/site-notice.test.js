@@ -294,6 +294,22 @@ async function testGating() {
   }
   ok("7 continuing marks newest notice read and lets player in", gatedNext && ctx.getNoticeState("newest-2") === "read");
 
+  // 1b. A long letter is clipped to a signal — the door stays reachable.
+  activeNotice = {
+    id: "long-1", title: "MAJOR UPGRADES",
+    body: "Word from the hall. ".repeat(30)
+  };
+  shown = null;
+  ctx.ensureSiteNoticeAck(function () {});
+  await new Promise(r => setImmediate(r));
+  ok("7 long letter is clipped in the cold-open",
+     shown && shown.opts && shown.opts.body.length < activeNotice.body.length &&
+     /message box/.test(shown.opts.body));
+  ok("7 the cold-open door opens the message box",
+     shown && shown.opts && shown.opts.primary === "Open the message box");
+  shown = null;
+  activeNotice = { id: "newest-2", title: "Update 2", body: "Body 2" };
+
   // 2. Next entry: newest notice is read -> does not gate, even with older unread notice
   shown = null;
   gatedNext = false;

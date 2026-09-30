@@ -1435,10 +1435,12 @@ body.reduced.wiping #v-play .stage{animation:none}
   background:rgba(4,4,10,.72)}
 .state-panel.on{display:flex}
 .state-card{
-  width:min(520px,92vw);padding:clamp(1.6rem,4vw,2.6rem) 1.6rem 1.8rem;
+  width:min(520px,92vw);max-height:86vh;overflow-y:auto;
+  padding:clamp(1.6rem,4vw,2.6rem) 1.6rem 1.8rem;
   background:var(--panel);box-shadow:0 0 0 1px var(--edge) inset,0 24px 80px rgba(0,0,0,.55);
   text-align:center;border-radius:3px}
-.state-body{color:var(--parch-dim);line-height:1.6;font-size:1.02rem;max-width:42ch;margin:0 auto}
+.state-body{color:var(--parch-dim);line-height:1.6;font-size:1.02rem;max-width:42ch;margin:0 auto;
+  max-height:48vh;overflow-y:auto}
 
 @media (max-width:600px){
   .typed-input{font-size:clamp(.95rem,4.4vw,1.2rem);padding:.75em .8em}

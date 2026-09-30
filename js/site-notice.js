@@ -171,6 +171,16 @@ function refreshMessagesBadge(notices) {
   }
 }
 
+/* Long letters overflow the state panel and strand the player above the
+   Continue door — clip here and let the message box carry the letter. */
+function teaserBody(body) {
+  var text = String(body || "").trim();
+  if (text.length <= 180) return text;
+  var cut = text.slice(0, 180);
+  cut = cut.slice(0, cut.lastIndexOf(" ") > 0 ? cut.lastIndexOf(" ") : 180);
+  return cut + "…  The full letter is in your message box.";
+}
+
 function ensureSiteNoticeAck(next) {
   if (typeof Cloud === "undefined" || !Cloud.fetchActiveSiteNotice) {
     if (next) next();
@@ -186,12 +196,20 @@ function ensureSiteNoticeAck(next) {
       if (next) next();
       return;
     }
+    /* The cold-open is a signal, not the letter: a long body must never
+       push the door out of reach. The full text waits in the message box. */
     showState("site-notice", {
       kick: "From the keeper",
       title: notice.title || "Notice",
-      body: notice.body || "",
-      primary: "Continue",
+      body: teaserBody(notice.body || ""),
+      primary: "Open the message box",
       onPrimary: function () {
+        ackSiteNotice(notice);
+        if (typeof hideState === "function") hideState();
+        if (typeof go === "function") go("messages");
+        if (next) next();
+      },
+      onSecondary: function () {
         ackSiteNotice(notice);
         if (typeof hideState === "function") hideState();
         if (next) next();
