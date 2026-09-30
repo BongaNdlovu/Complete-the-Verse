@@ -86,7 +86,7 @@ const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 
 /* ---------- 2. one list, three places ---------- */
 {
-  const tags = [...index.matchAll(/<script src="(js\/[^"]+)"><\/script>/g)].map(m => m[1]);
+  const tags = [...index.matchAll(/<script[^>]*\ssrc="(js\/[^"]+)"><\/script>/g)].map(m => m[1]);
   ok("every engine file is loaded by index.html",
      ENGINE_FILES.every(f => tags.includes(f)),
      ENGINE_FILES.filter(f => !tags.includes(f)));

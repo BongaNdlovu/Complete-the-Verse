@@ -282,7 +282,7 @@ const noteKeys = Object.keys(VERSE_NOTES);
 const allNotesValid = noteKeys.every(k => !!bankById[k]);
 assert(allNotesValid, "every verse note key resolves to a valid verse in the bank");
 
-assert(/<script src="js\/verses-notes\.js"><\/script>/.test(index),
+assert(/<script defer src="js\/verses-notes\.js"><\/script>/.test(index),
   "verses-notes.js is loaded in index.html");
 assert(fs.existsSync(path.join(ROOT, "shared", "content", "verses.json")),
   "shared/content/verses.json exists");

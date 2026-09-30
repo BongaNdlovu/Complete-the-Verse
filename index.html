@@ -30,6 +30,8 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Complete the Verse","alternateName":"Complete the Verse — A Trial of Scripture","url":"https://complete-the-verse.vercel.app/","description":"Bible memory game in KJV and NKJV with a 46-site pilgrimage map, spaced repetition, Blitz mode, and Word Tablets.","applicationCategory":"GameApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","isAccessibleForFree":true,"inLanguage":"en","image":"https://complete-the-verse.vercel.app/assets/icon-512.png","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
 <link rel="preload" href="fonts/cinzel-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/eb-garamond-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/barlow-condensed-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/logo.webp" as="image" fetchpriority="high">
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/game.css">
 <!-- play.css, tablets.css, atlas.css, and Leaflet wait for js/defer.js. -->
@@ -907,75 +909,75 @@
   </div>
 </div>
 
-<script src="js/verses.js"></script>
-<script src="js/verses-extra.js"></script>
-<script src="js/beat.js"></script>
-<script src="js/tablets.js"></script>
-<script src="js/tablets-canon.js"></script>
-<script src="js/tablets-hall.js"></script>
-<script src="js/verses-notes.js"></script>
-<script src="js/passages.js"></script>
-<script src="js/legacy-ids.js"></script>
-<script src="js/bank.js"></script>
+<script defer src="js/verses.js"></script>
+<script defer src="js/verses-extra.js"></script>
+<script defer src="js/beat.js"></script>
+<script defer src="js/tablets.js"></script>
+<script defer src="js/tablets-canon.js"></script>
+<script defer src="js/tablets-hall.js"></script>
+<script defer src="js/verses-notes.js"></script>
+<script defer src="js/passages.js"></script>
+<script defer src="js/legacy-ids.js"></script>
+<script defer src="js/bank.js"></script>
 <!-- The NKJV edition. These are data only: they declare NKJV_* globals and
      touch nothing else, so loading them costs a parse and nothing more
      until Edition.activateEdition("nkjv") swaps them into the live arrays.
      They must load before edition.js, which snapshots both stores at boot. -->
-<script src="js/nkjv/verses.js"></script>
-<script src="js/nkjv/passages.js"></script>
-<script src="js/nkjv/verses-tf.js"></script>
-<script src="js/nkjv/verses-notes.js"></script>
-<script src="js/nkjv/tablets.js"></script>
-<script src="js/nkjv/quotes.js"></script>
-<script src="js/nkjv/beat.js"></script>
-<script src="js/nkjv/tutorial.js"></script>
-<script src="js/srs.js"></script>
-<script src="js/recall.js"></script>
-<script src="js/assemble.js"></script>
-<script src="js/meta.js"></script>
-<script src="js/flow.js"></script>
+<script defer src="js/nkjv/verses.js"></script>
+<script defer src="js/nkjv/passages.js"></script>
+<script defer src="js/nkjv/verses-tf.js"></script>
+<script defer src="js/nkjv/verses-notes.js"></script>
+<script defer src="js/nkjv/tablets.js"></script>
+<script defer src="js/nkjv/quotes.js"></script>
+<script defer src="js/nkjv/beat.js"></script>
+<script defer src="js/nkjv/tutorial.js"></script>
+<script defer src="js/srs.js"></script>
+<script defer src="js/recall.js"></script>
+<script defer src="js/assemble.js"></script>
+<script defer src="js/meta.js"></script>
+<script defer src="js/flow.js"></script>
 <!-- The Pilgrimage. sites/empires are data; geo and live are pure
      helpers; pilgrimage holds the campaign rules and must load after
      bank.js because it captures the merged VERSES array; atlas draws
      the map and depends on all of the above. -->
-<script src="js/sites.js"></script>
-<script src="js/empires.js"></script>
-<script src="js/geo.js"></script>
-<script src="js/pilgrimage.js"></script>
-<script src="js/characters.js"></script>
-<script src="js/artifacts.js"></script>
-<script src="js/live.js"></script>
-<script src="js/atlas.js"></script>
+<script defer src="js/sites.js"></script>
+<script defer src="js/empires.js"></script>
+<script defer src="js/geo.js"></script>
+<script defer src="js/pilgrimage.js"></script>
+<script defer src="js/characters.js"></script>
+<script defer src="js/artifacts.js"></script>
+<script defer src="js/live.js"></script>
+<script defer src="js/atlas.js"></script>
 <!-- polish helpers first; Supabase SDK loads lazily via Cloud.initLazy when configured. -->
-<script src="js/polish.js"></script>
-<script src="js/cloud-config.js"></script>
-<script src="js/cloud.js"></script>
+<script defer src="js/polish.js"></script>
+<script defer src="js/cloud-config.js"></script>
+<script defer src="js/cloud.js"></script>
 <!-- Engine modules split from game.js along its natural seams. They
      define one global each and may only reference game.js bindings at
      runtime, never at parse time — the load order below is required. -->
-<script src="js/edition.js"></script>
-<script src="js/defer.js"></script>
-<script src="js/util.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/director.js"></script>
-<script src="js/setpieces.js"></script>
-<script src="js/viz.js"></script>
-<script src="js/typed.js"></script>
-<script src="js/rewards.js"></script>
-<script src="js/sequences.js"></script>
-<script src="js/leaderboard.js"></script>
-<script src="js/confetti.js"></script>
-<script src="js/messages.js"></script>
-<script src="js/panels.js"></script>
-<script src="js/cinematic.js"></script>
-<script src="js/results.js"></script>
-<script src="js/diag.js"></script>
-<script src="js/player-reviews.js"></script>
-<script src="js/site-notice.js"></script>
-<script src="js/briefs.js"></script>
-<script src="js/play.js"></script>
-<script src="js/tablets-run.js"></script>
-<script src="js/game.js"></script>
-<script src="js/register-sw.js"></script>
+<script defer src="js/edition.js"></script>
+<script defer src="js/defer.js"></script>
+<script defer src="js/util.js"></script>
+<script defer src="js/audio.js"></script>
+<script defer src="js/director.js"></script>
+<script defer src="js/setpieces.js"></script>
+<script defer src="js/viz.js"></script>
+<script defer src="js/typed.js"></script>
+<script defer src="js/rewards.js"></script>
+<script defer src="js/sequences.js"></script>
+<script defer src="js/leaderboard.js"></script>
+<script defer src="js/confetti.js"></script>
+<script defer src="js/messages.js"></script>
+<script defer src="js/panels.js"></script>
+<script defer src="js/cinematic.js"></script>
+<script defer src="js/results.js"></script>
+<script defer src="js/diag.js"></script>
+<script defer src="js/player-reviews.js"></script>
+<script defer src="js/site-notice.js"></script>
+<script defer src="js/briefs.js"></script>
+<script defer src="js/play.js"></script>
+<script defer src="js/tablets-run.js"></script>
+<script defer src="js/game.js"></script>
+<script defer src="js/register-sw.js"></script>
 </body>
 </html>

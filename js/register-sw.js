@@ -19,7 +19,7 @@ if (typeof runningInStandaloneApp === "function" && runningInStandaloneApp()) {
       reloadWhenSafe();
     });
   }
-  window.addEventListener("load", function () {
+  function registerNow() {
     navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then(function (reg) {
       function check() {
         reg.update().catch(function () {});
@@ -37,5 +37,10 @@ if (typeof runningInStandaloneApp === "function" && runningInStandaloneApp()) {
         });
       }
     });
-  });
+  }
+  /* Deferred scripts always run before load, but some embedded views
+     deliver the event unreliably — register immediately if load already
+     happened rather than waiting on an event that may not re-fire. */
+  if (document.readyState === "complete") registerNow();
+  else window.addEventListener("load", registerNow);
 }
