@@ -58,16 +58,22 @@ var Messages = (function () {
   /* The card is a SIGNAL, not the letter: it names the message and hands
      the player to the message box. Only the offline fallback (which has
      no message box to open) shows its full body. */
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
   function cardHtml(m, full) {
     var inner = full
-      ? '<p class="msg-body">' + m.body + '</p>' +
+      ? '<p class="msg-body">' + esc(m.body) + '</p>' +
         '<button type="button" class="msg-ack">I have read this</button>'
       : '<p class="msg-teaser">A new message waits in the message box.</p>' +
         '<button type="button" class="msg-ack msg-open">Open the message box</button>';
     return '<div class="msg-card" role="status" aria-live="polite">' +
       '<div class="msg-head"><span class="lbd-orn" aria-hidden="true">✦</span> Word from the hall' +
       '<button type="button" class="msg-close" aria-label="Dismiss">✕</button></div>' +
-      '<b class="msg-title">' + m.title + '</b>' +
+      '<b class="msg-title">' + esc(m.title) + '</b>' +
       inner +
       '</div>';
   }

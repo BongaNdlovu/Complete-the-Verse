@@ -92,7 +92,7 @@ var Flow = (function(){
       title: "Update",
       body: "Read this before you continue.",
       primary: "Open the message box",
-      secondary: "Later"
+      secondary: "Back to the hall"
     }
   };
 

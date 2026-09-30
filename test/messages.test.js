@@ -64,6 +64,22 @@ function read(p) { return fs.readFileSync(path.join(ROOT, p), "utf8"); }
   ok("messages module is loaded by the page", read("index.html").includes("js/messages.js"));
   ok("service worker precaches messages.js", read("sw.js").includes('"js/messages.js"'));
 
+/* ---------- Save payload hygiene ---------- */
+{
+  const Cloud = require("../js/cloud");
+  const poisoned = JSON.parse('{"__proto__":{"polluted":true},"xp":555,"best":{"daily":9}}');
+  const merged = Cloud.mergeSave({ xp: 1, best: {} }, poisoned);
+  ok("a hostile save blob merges without prototype pollution",
+     merged.xp === 555 && ({}).polluted === undefined);
+  ok("the hostile keys are stripped, not kept",
+     !Object.prototype.hasOwnProperty.call(merged, "__proto__"));
+  const card = (function () {
+    const src = read("js/messages.js");
+    return src.includes("esc(m.title)") && src.includes("esc(m.body)");
+  })();
+  ok("the signal card escapes server-authored text", card);
+}
+
 /* ---------- The admin hub ---------- */
 {
   const page = read("admin.html");

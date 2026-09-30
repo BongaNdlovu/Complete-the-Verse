@@ -206,8 +206,10 @@ function ensureSiteNoticeAck(next) {
       onPrimary: function () {
         ackSiteNotice(notice);
         if (typeof hideState === "function") hideState();
-        if (typeof go === "function") go("messages");
         if (next) next();
+        /* The hall-entry flow also navigates, so the box is claimed last —
+           otherwise the player lands in the hall instead of their letter. */
+        if (typeof go === "function") go("messages");
       },
       onSecondary: function () {
         ackSiteNotice(notice);

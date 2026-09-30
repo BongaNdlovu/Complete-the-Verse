@@ -363,6 +363,7 @@ var Cloud = (function () {
   }
 
   function mergeSave(local, remote) {
+    remote = sanitizeSavePayload(remote);
     local = local || {};
     remote = remote || {};
     if (!remote || (!remote.pilgrim && !remote.best && !remote.srs)) {
@@ -896,6 +897,24 @@ var Cloud = (function () {
   }
 
   /** Merge remote into local SAVE object; caller assigns + persist(). */
+  /* A hostile save blob may carry __proto__/constructor keys hoping to
+     poison the merge. Every key is re-housed onto a clean object before
+     the payload reaches mergeSave. */
+  function sanitizeSavePayload(value, depth) {
+    depth = depth || 0;
+    if (!value || typeof value !== "object") return value;
+    if (depth > 8) return Array.isArray(value) ? [] : {};
+    if (Array.isArray(value)) {
+      return value.map(function (v) { return sanitizeSavePayload(v, depth + 1); });
+    }
+    var out = {};
+    Object.keys(value).forEach(function (k) {
+      if (k === "__proto__" || k === "constructor" || k === "prototype") return;
+      out[k] = sanitizeSavePayload(value[k], depth + 1);
+    });
+    return out;
+  }
+
   async function syncOnBoot(localSave) {
     if (!isSignedIn()) return { ok: false, reason: "signed-out", save: localSave };
     setSyncing(true);

@@ -61,7 +61,8 @@ const CloudModule = require(path.join(ROOT, "js", "cloud.js"));
 {
   const ctx = {
     SAVE: { set: {} },
-    persist: function () {}
+    persist: function () {},
+    go: function (view) { if (ctx.__order) ctx.__order.push(view); }
   };
   vm.runInNewContext(notice, ctx);
   ok("3 pending when notice id differs", ctx.pendingSiteNotice({ id: "a" }));
@@ -104,7 +105,8 @@ const CloudModule = require(path.join(ROOT, "js", "cloud.js"));
   // old ackNoticeId counts as read and migrates
   const ctx = {
     SAVE: { set: { ackNoticeId: "legacy-42" } },
-    persist: function () {}
+    persist: function () {},
+    go: function (view) { if (ctx.__order) ctx.__order.push(view); }
   };
   vm.runInNewContext(notice, ctx);
   ok("4 old ackNoticeId counts as read", !ctx.pendingSiteNotice({ id: "legacy-42" }));
@@ -275,24 +277,30 @@ async function testGating() {
     showState: function (name, opts) {
       shown = { name: name, opts: opts };
     },
+    go: function (view) { goCalls.push(view); },
     hideState: function () {
       shown = null;
     },
-    persist: function () {}
+    persist: function () {},
+    go: function (view) { if (ctx.__order) ctx.__order.push(view); }
   };
   vm.runInNewContext(notice, ctx);
 
   // 1. Newest is unread -> it gates
   let gatedNext = false;
-  ctx.ensureSiteNoticeAck(function () { gatedNext = true; });
+  const order = [];
+  ctx.__order = order;
+  ctx.ensureSiteNoticeAck(function () { order.push("next"); gatedNext = true; });
   await new Promise(r => setImmediate(r));
   ok("7 newest unread notice gates before hall", shown !== null && shown.name === "site-notice" && !gatedNext);
 
-  // Player continues -> marks read
+  // Player continues -> marks read, completes the hall entry, THEN opens the box
   if (shown && shown.opts && shown.opts.onPrimary) {
     shown.opts.onPrimary();
   }
   ok("7 continuing marks newest notice read and lets player in", gatedNext && ctx.getNoticeState("newest-2") === "read");
+  ok("7 the message box is claimed after the hall entry, not before",
+     order.indexOf("next") >= 0 && order.indexOf("next") < order.indexOf("messages"));
 
   // 1b. A long letter is clipped to a signal — the door stays reachable.
   activeNotice = {
