@@ -1148,6 +1148,18 @@ let introStarted=false, introDone=false, introReady=false, introTapPending=false
 function dataSaverOn(){
   return !!(navigator.connection && navigator.connection.saveData);
 }
+/* Cellular network (or slower) as reported by the Network Information API.
+   Absent API or an unknown type counts as Wi-Fi — the optimistic default. */
+function cellularConnection(){
+  try{
+    const c = navigator.connection;
+    if(!c) return false;
+    const t = String(c.type || "").toLowerCase();
+    if(t === "cellular") return true;
+    const et = String(c.effectiveType || "").toLowerCase();
+    return et === "slow-2g" || et === "2g" || et === "3g";
+  }catch(e){ return false; }
+}
 function introAllowed(){
   const v=$("intro-video");
   if(!v || typeof v.play!=="function") return false;

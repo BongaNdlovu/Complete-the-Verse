@@ -1080,6 +1080,7 @@ function syncHallVideo(quality){
   // The hall is menu scenery, never a second gameplay backdrop.
   const allow=currentView!=="play" && currentView!=="tablets" && quality!=="low" && !document.body.classList.contains("reduced") && !holdForIntro && !dataSaverOn();
   if(!allow){
+    if(v._hallDelay){ clearTimeout(v._hallDelay); v._hallDelay = null; }
     try{ v.pause(); }catch(e){}
     document.body.classList.remove("hall-ready");
     return;
@@ -1091,13 +1092,26 @@ function syncHallVideo(quality){
     v.addEventListener("stalled", ()=>{ try{ v.play(); }catch(e){} });
   }
   if(!v.paused) return;
-  const p=v.play();
-  if(p&&p.catch) p.catch(()=>{});
+  /* Start a beat late: the backdrop's first stream otherwise competes
+     with boot and first-paint work on mid-range phones. */
+  if(v._hallDelay) clearTimeout(v._hallDelay);
+  v._hallDelay = setTimeout(function(){
+    v._hallDelay = null;
+    if(currentView==="play" || currentView==="tablets") return;
+    if(document.body.classList.contains("reduced") || dataSaverOn()) return;
+    const p=v.play();
+    if(p&&p.catch) p.catch(()=>{});
+  }, 1500);
 }
 function autoQuality(quality){
   if(SAVE.set.qualityLocked) return quality;
-  if(typeof navigator !== "undefined" && navigator.connection && navigator.connection.saveData) return "low";
-  if(window.matchMedia && matchMedia("(max-width:720px), (pointer:coarse)").matches && quality === "high") return "balanced";
+  if(typeof dataSaverOn === "function" && dataSaverOn()) return "low";
+  /* A phone on cellular gets the efficient tier outright: the GPU-costly
+     backdrop effects are exactly what mid-range devices drop frames on,
+     and cellular is where every fetched megabyte also hurts. */
+  const phone = window.matchMedia && matchMedia("(max-width:720px), (pointer:coarse)").matches;
+  if(phone && typeof cellularConnection === "function" && cellularConnection()) return "low";
+  if(phone && quality === "high") return "balanced";
   return quality;
 }
 function applySettings(){
