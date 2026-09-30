@@ -81,13 +81,24 @@ function mountPlayerReviewsPanel(hostId, limit) {
   if (!host) return;
   var avg = playerReviewAverage();
   var count = PLAYER_REVIEWS.length;
-  host.innerHTML =
+  var head =
     '<div class="menu-reviews-head"><div class="menu-reviews-meta"><span class="menu-reviews-kicker">What players say</span>' +
     (avg && count ? '<span class="menu-reviews-score">' + avg + ' / 5 · ' + count + ' reviews</span>' : '') +
     '</div><div class="menu-reviews-actions menu-reviews-actions--inline">' +
     '<a class="btn sm" href="support.html#leave-review">Leave a review</a>' +
-    '<a class="btn ghost sm" href="support.html">All reviews</a></div></div>' +
-    '<div class="menu-reviews-cards">' + renderPlayerReviewsHTML(PLAYER_REVIEWS, limit || 2) + '</div>';
+    '<a class="btn ghost sm" href="support.html">All reviews</a></div></div>';
+
+  if (limit) {
+    host.innerHTML = head + '<div class="menu-reviews-cards">' + renderPlayerReviewsHTML(PLAYER_REVIEWS, limit) + '</div>';
+    return;
+  }
+
+  var allCards = renderPlayerReviewsHTML(PLAYER_REVIEWS);
+  host.innerHTML = head +
+    '<div class="menu-reviews-cards menu-reviews-marquee">' +
+    '<div class="menu-reviews-track">' + allCards + '</div>' +
+    '<div class="menu-reviews-track" aria-hidden="true">' + allCards + '</div>' +
+    '</div>';
 }
 
 function playerReviewAverage() {

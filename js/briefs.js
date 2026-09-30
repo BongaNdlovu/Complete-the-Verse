@@ -581,7 +581,7 @@ function renderMenu(){
     ? fmt(SAVE.runs)+" runs · "+fmt(SAVE.life.correct)+" verses kept · "+done+"/"+tot+" seals"
       + (due ? " · "+fmt(due)+" due for review" : " · nothing due")
     : VERSES.length+" verses · all 66 books · " + ((typeof translationName === "function") ? translationName() : "King James Version");
-  if(typeof mountPlayerReviewsPanel === "function") mountPlayerReviewsPanel("menu-player-reviews", 2);
+  if(typeof mountPlayerReviewsPanel === "function") mountPlayerReviewsPanel("menu-player-reviews");
 }
 
 /* ------------------------- BRIEF ------------------------- */

@@ -49,6 +49,14 @@ function buildMailto(name, rating, text) {
         fake.innerHTML.indexOf("leave-review") >= 0 &&
         (fake.innerHTML.match(/class="review"/g) || []).length === 2;
     })());
+  ok("2 mountPlayerReviewsPanel without limit mounts continuous marquee with all reviews",
+    ctx.mountPlayerReviewsPanel && (function () {
+      var fake = { innerHTML: "" };
+      ctx.mountPlayerReviewsPanel(fake);
+      return fake.innerHTML.indexOf("menu-reviews-marquee") >= 0 &&
+        fake.innerHTML.indexOf("menu-reviews-track") >= 0 &&
+        (fake.innerHTML.match(/class="review"/g) || []).length === list.length * 2;
+    })());
 }
 
 {

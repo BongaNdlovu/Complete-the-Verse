@@ -291,6 +291,56 @@ details.mode-group>summary::-webkit-details-marker{display:none}
 .menu-reviews-kicker{font-family:var(--disp);font-size:.78rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
 .menu-reviews-score{font-family:var(--ui);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim)}
 .menu-reviews-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.menu-reviews-cards.menu-reviews-marquee{
+  display:flex;
+  grid-template-columns:none;
+  overflow:hidden;
+  user-select:none;
+  gap:16px;
+  width:100%;
+  position:relative;
+  mask-image:linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+  -webkit-mask-image:linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+  padding:4px 0;
+}
+.menu-reviews-track{
+  display:flex;
+  flex-shrink:0;
+  gap:16px;
+  align-items:stretch;
+  will-change:transform;
+  animation:reviewsSlide 50s linear infinite;
+}
+.menu-reviews-cards.menu-reviews-marquee:hover .menu-reviews-track,
+.menu-reviews-cards.menu-reviews-marquee:focus-within .menu-reviews-track{
+  animation-play-state:paused;
+}
+.menu-reviews-track .review{
+  width:clamp(280px, 32vw, 360px);
+  flex-shrink:0;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.menu-reviews-cards .review-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:.55rem;flex-wrap:wrap}
+@keyframes reviewsSlide{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(calc(-100% - 16px))}
+}
+body.reduced .menu-reviews-track,
+body.motion-calm .menu-reviews-track{
+  animation:none;
+}
+@media(prefers-reduced-motion:reduce){
+  .menu-reviews-track{animation:none}
+  .menu-reviews-cards.menu-reviews-marquee{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    mask-image:none;
+    -webkit-mask-image:none;
+  }
+}
 .menu-reviews-cards .review{margin:0;padding:.95rem 1rem;background:var(--panel);box-shadow:0 0 0 1px var(--edge) inset;border:none;border-radius:0;
   clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
 .menu-reviews-cards .review-text{font-size:.9rem;line-height:1.5;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
