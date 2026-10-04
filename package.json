@@ -6,6 +6,7 @@
     "test": "node test.js",
     "test:browser": "playwright test test/browser",
     "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
     "start": "node scripts/dev-server.js",
     "content:export": "node scripts/export-content.mjs",
     "content:check": "node scripts/export-content.mjs --check",

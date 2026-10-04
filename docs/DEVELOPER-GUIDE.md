@@ -90,7 +90,9 @@ js/cinematic.js     → procedural vector art, Seventh Lamp, combo stamps
 js/results.js       → run completion, scoring, habit streak, XP
 js/diag.js          → diagnostics ring buffer, error logging, telemetry dump
 js/briefs.js        → boot sequence, mode briefs, cold launch
-js/play.js          → stage clocks, live question timer, answering, life loss
+js/save.js          → save schema, DEFAULT_SAVE, load, persist, migrations
+js/clocks.js        → stage clocks, live question timer, tick cadence, blitz timer
+js/play.js          → question advance, answering, life loss
 js/game.js          → the engine orchestrator (everything above is in scope)
 ```
 

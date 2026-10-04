@@ -49,6 +49,7 @@ function plausibleDaily(row) {
   if (correct < 0 || correct > attempts) return false;
   if (best < 0 || best > correct) return false;
   if (base < 0 || base > DAILY_MAX_BASE) return false;
+  if ((Number(row.score) || 0) > MAX_DAILY) return false;
   const settled = settleDaily(row);
   if (Math.abs((Number(row.accuracy) || 0) - settled.accuracy) > 1) return false;
   if (Math.abs((Number(row.score) || 0) - settled.total) > 1) return false;

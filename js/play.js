@@ -2434,6 +2434,5 @@ if (typeof window !== "undefined") {
   window.illuminateFadePick = illuminateFadePick;
   window.confirmAnswer = confirmAnswer;
   window.timeUp = timeUp;
-  window.tickTimer = tickTimer;
   window.paintGhostMarker = paintGhostMarker;
 }

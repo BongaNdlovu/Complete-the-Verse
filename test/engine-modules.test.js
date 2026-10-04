@@ -81,7 +81,11 @@ const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
     ok("save defines DEFAULT_SAVE", t("DEFAULT_SAVE") === "object");
     ok("save defines load", t("load") === "function");
     ok("save defines persist", t("persist") === "function");
+    ok("save defines mergeLoadedSave", t("mergeLoadedSave") === "function");
     ok("clocks defines timer logic", t("startTimer") === "function");
+    ok("clocks defines stopTimer", t("stopTimer") === "function");
+    ok("clocks defines paintClockBar", t("paintClockBar") === "function");
+    ok("clocks defines WALL_PICK_MS", t("WALL_PICK_MS") === "number");
     ok("play defines question advance", t("nextQuestion") === "function");
     ok("play defines answer resolver", t("resolveAnswer") === "function");
   }

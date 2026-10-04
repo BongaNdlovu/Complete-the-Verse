@@ -142,6 +142,7 @@ function recoverCorruptSave(e){
 
 function load(){
   try{
+    if(typeof localStorage === "undefined") return JSON.parse(JSON.stringify(DEFAULT_SAVE));
     let raw = localStorage.getItem(SAVE_KEY), migrating = false;
     if(!raw){ raw = localStorage.getItem(LEGACY_SAVE_KEY); migrating = !!raw; }
     if(!raw) return JSON.parse(JSON.stringify(DEFAULT_SAVE));
@@ -265,4 +266,12 @@ if(typeof window !== "undefined"){
   window.migrateV2 = migrateV2;
   window.migrateProfile = migrateProfile;
   window.migrateBlitzUnits = migrateBlitzUnits;
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    SAVE_KEY, LEGACY_SAVE_KEY, DEFAULT_SAVE, load, persist,
+    mergeLoadedSave, mergeNoticeBoxSave, mergeTabletsSave, mergeBestSave,
+    recoverCorruptSave, migrateV2, migrateProfile, migrateBlitzUnits
+  };
 }
