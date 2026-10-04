@@ -153,22 +153,24 @@ clamp locally (Polish) → try functions.invoke("submit-score",
 
 Edge Function (`submit-score/index.ts`): rejects non-POST, verifies the
 caller via the forwarded Authorization header → `auth.getUser()`,
-re-clamps ceilings, then writes with the **verified** user id. Daily
-upserts on (user_id, play_date); blitz inserts.
+enforces rate limiting (`MAX_SUBMISSIONS_PER_WINDOW = 20` per 10m window
+via `score_submission_log`), evaluates a full **plausibility model**
+(`plausibleDaily` checking attempts, base score, accuracy and settled score
+parity; `plausibleBlitz` checking score vs correct count and survival time),
+and writes with the verified user id using the `service_role` client.
+Direct client INSERT/UPDATE on score tables is revoked by `005_edge_only_scores.sql`.
 
 **Evaluation**
 
 - ✅ Identity is established server-side; a forged user_id in the body
   is ignored (the function uses `user.id` from the verified session).
-- ✅ Browser writes cannot bypass the trusted path; the local result remains
-  available when a board submission is unavailable.
-- ⚠️ **Not yet deployed** (needs one `supabase functions deploy` — see
-  BACKEND.md §"Server-trusted scores"). Until then leaderboard submissions
-  remain unavailable by design; local play and local records still work.
-- ⚠️ The function trusts any under-ceiling value (no plausibility
-  model). Full anti-cheat would validate score/accuracy/duration
-  consistency (e.g. score vs verses-possible); documented as accepted
-  risk in SECURITY-EVALUATION §4.
+- ✅ Direct client writes are revoked in Postgres (`005_edge_only_scores.sql`);
+  all scores must pass through Edge verification.
+- ✅ Full plausibility model: formula re-calculation prevents inflated
+  claims even within theoretical maximum ceilings.
+- ✅ Rate-limiting: sliding window checks mitigate automated spam.
+- ℹ️ Deployment verification: runnable via `node scripts/smoke-backend.js`
+  and verified in production dashboard.
 
 ---
 
@@ -176,7 +178,7 @@ upserts on (user_id, play_date); blitz inserts.
 
 - `fetchDailyBoard(date, n)` / `fetchBlitzBoard(n)` — ordered selects
   with the board indexes; names joined from `profiles` and re-sanitized
-  client-side (defense in depth).
+  client-side (defense in depth). Supports multi-edition partitioning (KJV/NKJV).
 - `fetchMyDailyRank` / `fetchMyBlitzRank` — **fetch the top 100 rows and
   scan client-side** for the caller's id. Correct, and fine for the
   current board sizes, but it silently returns `null` past 100th place
@@ -193,26 +195,25 @@ upserts on (user_id, play_date); blitz inserts.
 | Item | State |
 |---|---|
 | Vercel | header-only config; `.vercelignore` trims tests, scripts, `content/`, `node_modules`, `*.md`, backup audio from the payload |
-| Supabase migrations | run via SQL editor, idempotent (`if not exists` / drop-policy-first); no CLI migration lockfile — keep that property when adding 004+ |
-| Edge Function | source present; deploy command + verification in BACKEND.md |
+| Supabase migrations | migrations `001..007` + `20260901104635` present in `supabase/migrations/`; combined bundle in `combined_migrations.sql` |
+| Edge Function | `supabase/functions/submit-score` source present with Deno serve, plausibility validation, and rate-limits |
 | Auth redirects | allow-listed origins (prod + localhost:8781) |
 | Secrets | anon key only in `js/cloud-config.js`; rotation runbook in SECURITY-EVALUATION §9 |
 
 ---
 
-## 8. Operational gaps & recommendations (priority order)
+## 8. Operational tooling & runbooks
 
-1. **Deploy `submit-score`** (one command) — converts the boards from
-   client-trusted to server-clamped. Add a smoke test: submit while
-   watching Functions logs.
-2. **Monitoring:** enable Supabase Function logs + a weekly SQL sanity
-   pass (top scores per board vs ceilings; row counts). No alerting
-   exists today.
-3. **Rank query:** switch my-rank fetches to a server-side count (§6)
+1. **Verification & Smoke Tests:** `scripts/smoke-backend.js` runs in-process
+   assertions on all plausibility rules and ceilings, plus optional live HTTP
+   smoke testing against deployed Supabase functions when configured.
+2. **Weekly Sanity Audit:** `supabase/sanity_check.sql` provides a turnkey SQL
+   query for the Supabase SQL Editor auditing ceiling violations, high watermarks,
+   abuse reports, and submission rates.
+3. **Moderation:** `004_leaderboard_moderation.sql` provides the `leaderboard_reports`
+   schema for player reports and audit flags.
+4. **Rank query optimization:** switch my-rank fetches to a server-side count (§6)
    once any board regularly exceeds ~100 rows.
-4. **Moderation hook:** scores have no report/block path; at minimum add
-   an `audit` boolean + manual delete recipe (dashboard SQL) for abusive
-   display names — name sanitization already limits the damage.
 5. **Atomic push (optional):** conditional upsert `where revision = $n`
    or a small Postgres function to close the double-client race (§4).
 6. **Backup story:** Supabase PITR covers the DB; localStorage-only
@@ -225,10 +226,11 @@ upserts on (user_id, play_date); blitz inserts.
 
 | Dimension | Grade | Notes |
 |---|---|---|
-| Data model | A− | small, indexed, cascades, constraints mirror client clamps |
-| Access control | A | RLS everywhere, owner-scoped, trigger functions locked down |
+| Data model | A | clean, indexed, cascades, multi-edition daily support (002) |
+| Access control | A | RLS on all tables, owner-scoped, triggers locked, edge-only scores (005) |
 | Concurrency | B+ | field-aware merge + advisory revision lock; rare double-client race documented |
-| Integrity vs cheating | B− | server clamp shipped but undeployed; no plausibility model |
-| Failure handling | A | offline-first; every cloud call no-ops; boards degrade gracefully |
-| Operations | C+ | no monitoring/alerting/moderation yet — the real gap |
+| Integrity vs cheating | A− | server-side plausibility model, rate limits, edge-only writes |
+| Failure handling | A | offline-first; every cloud call no-ops safely; boards degrade gracefully |
+| Operations | B+ | `sanity_check.sql` and `smoke-backend.js` operational tooling provided |
 | Cost/scale fit | A | O(1) writes per run, O(board) reads, free-tier friendly |
+

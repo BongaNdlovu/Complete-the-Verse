@@ -93,31 +93,23 @@ the renderers reviewed.
 |---|---|---|
 | localStorage progress | player can inflate their own XP/seals | by design — no economic value; boards unaffected |
 | Score *computation* | runs in browser | Edge Function clamps ceilings server-side (§5); DB CHECK constraints (migration 003) reject negatives/over-ceiling rows |
-| Score *submission* | client could post any under-ceiling value | **Edge-first submit shipped 2026-08-16** (`functions.invoke("submit-score")` with direct-write fallback). Until the function is deployed, boards remain client-trusted below the ceilings — see the open item |
-| Ghost timelines | coarse 0–1 progress curves, no impact on scores | cosmetic; accepted |
+| Score *submission* | client could post any under-ceiling value | **Edge-only submit enforced (005_edge_only_scores.sql)** (`functions.invoke("submit-score")`). Direct client write access is revoked; Edge Function applies full plausibility model (`settleDaily`/`plausibleDaily`/`plausibleBlitz`) and rate-limiting |
+| Ghost timelines | coarse 0–1 progress curves, no impact on scores | cosmetic; accepted (guarded by 007_run_ghosts_guard.sql) |
 | Clock/timer | inspectable & pausable | single-player fairness only; pausing hides the tab (auto-pause on `visibilitychange`) |
 
-A determined cheater with the anon key can always insert rows as
-themselves (e.g. via the REST endpoint directly) — the Edge Function
-reduces but cannot eliminate this for under-ceiling values. Full
-server-authoritative scoring would require replaying runs server-side;
-out of scope for this product stage and documented as such.
+Direct client table access via the REST endpoint is blocked by Postgres permissions (`005_edge_only_scores.sql` revokes INSERT/UPDATE on score tables from `authenticated` and `anon`). All submissions must route through the `submit-score` Edge Function, which re-evaluates the scoring formulas and clamps parameters.
 
 ---
 
-## 5. Open item — deploy `submit-score`
+## 5. Backend verification & ops tooling
 
 State: the function exists (`supabase/functions/submit-score/index.ts`),
-validates method + auth + ceilings, rate-limits callers, and the client requires it for board writes
-(pinned by `fixes.test.js` / `improvements.test.js`). It is **not yet
-deployed** (no Supabase access token in dev environments). Until
-deployed:
+validates method + auth + ceilings + plausibility, rate-limits callers, and writes via `service_role`.
+Verification and audit tools:
 
-- submissions fail closed in the browser when the function is unavailable,
-- local records remain available while trusted board submission is offline.
-
-Deploy command and verification steps: `BACKEND.md` § "Server-trusted
-scores".
+- `node scripts/smoke-backend.js`: verifies score ceiling rejection, date validation, and plausibility formulas in-process, with live HTTP testing when credentials are supplied.
+- `supabase/sanity_check.sql`: weekly SQL health query auditing ceiling violations, record highs, abuse reports, and submission rates.
+- Deploy command and verification steps: `BACKEND.md` § "Server-trusted scores".
 
 ---
 
