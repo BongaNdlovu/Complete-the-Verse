@@ -29,7 +29,7 @@ play. `node test.js` (or `npm test`) is the logic gate. `npm run lint` runs Oxli
 ```
 index.html          the single page — all views are <section class="view">s
 README.md           repository entry point
-test.js             root test runner (runs all 73 test suites)
+test.js             root test runner (runs every suite in test/suite-list.js)
 js/*.js             see module map below (loaded as classic <script>, globals)
 css/*.css           game styling, film FX, and atlas map
 vendor/leaflet/     Leaflet 1.9.4 (map — vendored, never CDN)
@@ -40,7 +40,7 @@ sfx/                8 effect samples
 content/            verse QA data (quarantine.json, legacy-order.json)
 scripts/            dev server + content QA/generation scripts
 supabase/           migrations + edge function (see BACKEND-EVALUATION.md)
-test/*.test.js      73 registered test suites (see §10)
+test/*.test.js      registered test suites — test/suite-list.js (see §10)
 docs/               living documentation and runbooks (see docs/README.md)
 docs/reports/       archived snapshot reports — not current truth
 plans/              product and smoke plans
@@ -105,33 +105,33 @@ js/game.js          → the engine orchestrator (everything above is in scope)
 
 ## 3. Module map
 
-| File | Lines (approx) | Kind | Owns |
+| File | Lines (measured 2026-10-04) | Kind | Owns |
 |---|---|---|---|
-| `js/game.js` | 1,200 | engine | save layer, modes, router, run orchestration |
-| `js/play.js` | 550 | engine | stage clocks, live question timer, answering, life loss |
-| `js/diag.js` | 90 | engine | session diagnostics ring buffer, error listener, dump export |
-| `js/briefs.js` | 740 | engine | boot sequence, mode briefs, cold launch |
-| `js/results.js` | 610 | engine | end of run, scoring, habit streak, results view |
-| `js/panels.js` | 650 | engine | settings, player card, records, journal dialogs |
-| `js/director.js` | 550 | engine | voice narration, callouts, momentum classes, ending stages |
-| `js/cinematic.js` | 270 | engine | procedural vector art, Seventh Lamp, combo stamps |
-| `js/setpieces.js` | 420 | engine | special milestone set-piece sequences |
-| `js/audio.js` | 410 | engine | Web Audio sound synthesizers, sample player |
-| `js/pilgrimage.js` | 750 | **pure** | site order, unlocking, clocks, verse pools, progress records |
-| `js/atlas.js` | 1,100 | view | Leaflet map, rail, dossier, layers, unlock ceremony |
-| `js/sites.js` / `js/empires.js` | 732/111 | data | 46 sites with coords/quotes/books/eras; empire polygons |
+| `js/game.js` | 2,480 | engine | save layer, modes, router `go(view)`, run state `R` + `startRun*` |
+| `js/play.js` | 2,530 | engine | stage clocks, `questionDuration`, `nextQuestion`, answering, life loss |
+| `js/diag.js` | 100 | engine | session diagnostics ring buffer, error listener, dump export |
+| `js/briefs.js` | 1,440 | engine | boot sequence, mode briefs, cold launch |
+| `js/results.js` | 1,250 | engine | end of run, scoring, habit streak, results view |
+| `js/panels.js` | 1,130 | engine | settings, player card, records, journal dialogs |
+| `js/director.js` | 320 | engine | voice narration, callouts, momentum classes, ending stages |
+| `js/cinematic.js` | 310 | engine | procedural vector art, Seventh Lamp, combo stamps |
+| `js/setpieces.js` | 180 | engine | special milestone set-piece sequences |
+| `js/audio.js` | 520 | engine | Web Audio sound synthesizers, sample player |
+| `js/pilgrimage.js` | 820 | **pure** | site order, unlocking, clocks, verse pools, progress records |
+| `js/atlas.js` | 1,430 | view | Leaflet map, rail, dossier, layers, unlock ceremony |
+| `js/sites.js` / `js/empires.js` | 1,240/110 | data | 46 sites with coords/quotes/books/eras; empire polygons |
 | `js/srs.js` | 165 | **pure** | SM-2 scheduler, day numbers, queue builder |
-| `js/recall.js` | 195 | **pure** | typed grading (exact/close/modernised/wrong), hints |
-| `js/assemble.js` | 130 | **pure** | word-tile assembly tokenization and slots |
-| `js/meta.js` | 120 | **pure** | XP curves, rank titles, meta progression |
-| `js/flow.js` | 150 | **pure** | UI state machine and modal flows |
-| `js/polish.js` | 340 | **pure** | clamps, PACE/FLAT clock constants, `pacedClockMs`, heatmap, ghosts, 66 book insights |
-| `js/live.js` | 300 | pure-ish | Open-Meteo fetch + 15-min cache + authored climate normals |
+| `js/recall.js` | 190 | **pure** | typed grading (exact/close/modernised/wrong), hints |
+| `js/assemble.js` | 230 | **pure** | word-tile assembly tokenization and slots |
+| `js/meta.js` | 90 | **pure** | XP curves, rank titles, meta progression |
+| `js/flow.js` | 155 | **pure** | UI state machine and modal flows |
+| `js/polish.js` | 590 | **pure** | clamps, PACE/FLAT clock constants, `pacedClockMs`, heatmap, ghosts, 66 book insights |
+| `js/live.js` | 305 | pure-ish | Open-Meteo fetch + 15-min cache + authored climate normals |
 | `js/geo.js` | 280 | **pure** | sun position/times, moon phase, solar clock, compass |
-| `js/characters.js` | 290 | data | 8 equipable scholars; Bible figures kept only for save compat |
-| `js/artifacts.js` | 325 | pure-ish | 46 relics; `unlockForSite` returns a **new** store |
-| `js/cloud.js` | 640 | client | auth, mergeSave, save push/pull, boards, trusted-edge score submit |
-| `js/bank.js` | 55 | data | merges verse packs, assigns stable ids |
+| `js/characters.js` | 320 | data | 8 equipable scholars; Bible figures kept only for save compat |
+| `js/artifacts.js` | 390 | pure-ish | 46 relics; `unlockForSite` returns a **new** store |
+| `js/cloud.js` | 1,400 | client | auth, mergeSave, save push/pull, boards, trusted-edge score submit |
+| `js/bank.js` | 90 | data | merges verse packs, assigns stable ids |
 
 "Pure" = no DOM, no storage, returns new objects, `module.exports` in
 Node — that is what makes the logic suites possible.
@@ -156,11 +156,12 @@ The engine is loaded via `ENGINE_FILES` in strict dependency order:
 12. **`js/briefs.js`** — boot sequence, mode briefs, cold launch into Ur.
 13. **`js/play.js`** — stage clocks, live question timer, answering, life loss.
 14. **`js/game.js`** — save layer, modes, router `go(view)`, run orchestration.
-10. **Menu + brief + site brief + relay brief** (§6.1).
-11. **Run state `R` + startRun/questionDuration/nextQuestion** (§5).
-12. **Play rendering** — choices, typed mode + on-screen keyboard, timer ring, powers, answering, passage/reconstruct engines, FX helpers.
-13. **Seals / endRun / renderResults / Study Hall / Records / Settings.**
-14. **Pause, input map, main loop, intro, boot.**
+
+Where the run loop lives today: run state `R`, `startRun` and its
+`startRun*` helpers, `go(view)` and `endRun` are in `game.js`;
+`questionDuration`, `nextQuestion`, answering and the timer are in
+`play.js`. Menu/briefs are in `briefs.js`; results rendering is in
+`results.js`.
 
 ### 4.1 Run tokens — how stale callbacks are killed
 
@@ -411,7 +412,7 @@ bank answers nearest in length — numbered fakes were removed.
 
 ## 10. Testing — the three styles (know which one you are writing)
 
-`node test.js` runs 74 suites in a fixed order: content gate → pure
+`node test.js` runs every suite in `test/suite-list.js` in a fixed order: content gate → pure
 logic → integration sandbox → structural/static suites. CI also runs
 `npm run lint` (Oxlint `complexity` max 20) before the suite.
 

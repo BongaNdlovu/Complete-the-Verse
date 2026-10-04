@@ -79,9 +79,11 @@ const suiteCount = suiteBlock
 ok("suite-list.js registers the live suite list", suiteCount >= 30, suiteCount);
 ok("test.js runs the shared suite list",
   /require\("\.\/test\/suite-list\.js"\)/.test(testJs));
-ok("guide names live suite count",
-  guide.indexOf(String(suiteCount) + " suites") >= 0 ||
-  guide.indexOf(String(suiteCount) + " test suites") >= 0,
+// The guide points at the list instead of hard-coding a count (counts went
+// stale: 28, then 73 while 74 ran). Any count that is written down is
+// checked against the real list by docs-truth.test.js.
+ok("guide points at test/suite-list.js",
+  guide.indexOf("test/suite-list.js") >= 0,
   { suiteCount: suiteCount });
 ok("guide does not still say 28 suites",
   guide.indexOf("28 suites") < 0 && guide.indexOf("28 test suites") < 0);

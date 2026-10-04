@@ -16,4 +16,4 @@ Every suite resolves the repo with `require("../scripts/repo-root")`. Engine con
 | Content pipe | `content-pipe` |
 | Production locks | `production-readiness`, `metadata`, `sky3d`, `fixes` |
 
-Adding a suite: create `test/foo.test.js`, append a row to the `SUITE` array in root `test.js`. See [`docs/DEVELOPER-GUIDE.md`](../docs/DEVELOPER-GUIDE.md) §10.
+Adding a suite: create `test/foo.test.js`, append a row to `test/suite-list.js` (root `test.js` and `scripts/run-suites-inproc.js` both read it). See [`docs/DEVELOPER-GUIDE.md`](../docs/DEVELOPER-GUIDE.md) §10.
