@@ -181,5 +181,23 @@ const rng = (function(){ let i = 0; return function(){ i = (i * 9301 + 49297) % 
     Polish.verseChunks("Behold I come quickly;").length, 1);
 }
 
+/* ---------- boundary conditions & edge cases ---------- */
+{
+  eq("join empty placed is empty string", Assemble.join([]), "");
+  eq("join all nulls is empty string", Assemble.join([null, null]), "");
+  eq("fakeCount for 0 words is 2", Assemble.fakeCount(0), 2);
+  eq("fakeCount for 1 word is 2", Assemble.fakeCount(1), 2);
+  eq("verseChunks on empty string is empty array", Polish.verseChunks("").length, 0);
+
+  const single = Assemble.build("peace", ["joy", "love"], rng);
+  eq("single word target has 1 slot", single.placed.length, 1);
+  eq("single word target has 3 bank tiles", single.bank.length, 3);
+  const peaceTile = single.bank.find(t => t.word === "peace");
+  Assemble.place(single, peaceTile.id, 0);
+  ok("single word filled is complete", Assemble.isFilled(single));
+  eq("single word join returns target", Assemble.join(single.placed), "peace");
+}
+
 console.log((fail ? "FAIL" : "PASS") + " — assemble · " + pass + " assertions passed" + (fail ? ", " + fail + " failed" : ""));
 process.exit(fail ? 1 : 0);
+

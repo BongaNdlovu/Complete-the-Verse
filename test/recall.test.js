@@ -139,5 +139,18 @@ const verdict = (typed, answer) => Recall.grade(typed, answer).verdict;
   ok("level 3 still withholds the rest", h3.indexOf("voice") < 0, h3);
 }
 
+/* ---------- boundary conditions & edge cases ---------- */
+{
+  eq("empty against empty is wrong with nothing entered hint", verdict("", ""), "wrong");
+  eq("null typed is wrong", verdict(null, "voice"), "wrong");
+  eq("null answer is wrong", verdict("voice", null), "wrong");
+  eq("hyphenated word matches space-separated", verdict("well beloved", "well-beloved"), "exact");
+  eq("non-breaking spaces collapse cleanly", verdict("still\u00a0small\u00a0voice", "still small voice"), "exact");
+  eq("alternating case matches exactly", verdict("sTiLL sMaLL VoIcE", "still small voice"), "exact");
+  eq("null distractors handled cleanly", Recall.grade("still small voice", "still small voice", null).verdict, "exact");
+  eq("empty array distractors handled cleanly", Recall.grade("still small voice", "still small voice", []).verdict, "exact");
+}
+
 console.log((fail ? "FAIL" : "PASS") + " — recall · " + pass + " assertions passed" + (fail ? ", " + fail + " failed" : ""));
 process.exit(fail ? 1 : 0);
+

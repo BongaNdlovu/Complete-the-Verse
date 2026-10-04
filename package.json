@@ -4,6 +4,7 @@
   "version": "1.8.3",
   "scripts": {
     "test": "node test.js",
+    "test:browser": "playwright test test/browser",
     "lint": "oxlint",
     "start": "node scripts/dev-server.js",
     "content:export": "node scripts/export-content.mjs",
@@ -12,6 +13,7 @@
     "optimize-media": "node scripts/optimise-media.js"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "oxlint": "^1.37.0"
   }
 }

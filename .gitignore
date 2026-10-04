@@ -20,6 +20,8 @@ skills-lock.json
 .tmp-proof/
 .tmp-lh/
 test-artifacts/
+test-results/
+playwright-report/
 
 # Promo video workspace (sources, renders, deps stay local)
 remotion-video/

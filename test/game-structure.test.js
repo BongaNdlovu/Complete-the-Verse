@@ -142,6 +142,12 @@ assert(thin.length === 0, "no book carries fewer than 4 verses (thin: " + thin.j
 [1,2,3,4,5].forEach(t => assert((bank.BY_TIER[t] || []).length >= 15,
   "tier " + t + " has enough verses to draw a run from (got " + (bank.BY_TIER[t] || []).length + ")"));
 
+const beginsWithAnswer = V.filter(v => !v.p || v.p === "");
+assert(beginsWithAnswer.length > 0, "bank supports verses that begin with their answer (empty p)");
+assert(beginsWithAnswer.some(v => v.r === "Exodus 20:13"), "Exodus 20:13 begins with its answer");
+assert(V.every(v => v.a && v.a.length > 0), "every verse has a non-empty answer a");
+assert(V.every(v => v.s !== null && v.s !== undefined), "every verse has defined suffix s");
+
 /* ---------- stable ids ---------- */
 const ids = new Set();
 let dupes = 0, indexish = 0;

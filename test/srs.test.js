@@ -142,5 +142,34 @@ const T = 20000;   // an arbitrary "today"
   eq("a long-interval card is held", SRS.strength({reps:4, ivl:30, lapses:0, ef:2.5, due:0}), "held");
 }
 
+/* ---------- boundary conditions & edge cases ---------- */
+{
+  eq("fraction boundary 0.4 grades 5", SRS.gradeAnswer({correct:true, fraction:0.4}), 5);
+  eq("fraction boundary 0.4001 grades 4", SRS.gradeAnswer({correct:true, fraction:0.4001}), 4);
+  eq("fraction boundary 0.8 grades 4", SRS.gradeAnswer({correct:true, fraction:0.8}), 4);
+  eq("fraction boundary 0.8001 grades 3", SRS.gradeAnswer({correct:true, fraction:0.8001}), 3);
+  eq("gradeAnswer handles null/empty gracefully", SRS.gradeAnswer(null), 1);
+  eq("gradeAnswer handles empty object gracefully", SRS.gradeAnswer({}), 1);
+  eq("gradeAnswer default fraction when correct is 0.5 (grades 4)", SRS.gradeAnswer({correct:true}), 4);
+
+  const cClampLow = SRS.schedule(null, -10, T);
+  eq("negative quality clamps to 0", cClampLow.ivl, 1);
+  const cClampHigh = SRS.schedule(null, 10, T);
+  eq("high quality clamps to 5", cClampHigh.ivl, 1);
+
+  const cardDue = { ef: 2.5, reps: 2, ivl: 10, due: T, lapses: 0 };
+  eq("card due today has overdueBy 0", SRS.overdueBy(cardDue, T), 0);
+  ok("card due today is due", SRS.isDue(cardDue, T));
+  eq("card due today was overdueBy -1 yesterday", SRS.overdueBy(cardDue, T - 1), -1);
+  ok("card due today was not due yesterday", !SRS.isDue(cardDue, T - 1));
+  eq("card due today is overdueBy 1 tomorrow", SRS.overdueBy(cardDue, T + 1), 1);
+  ok("card due today is due tomorrow", SRS.isDue(cardDue, T + 1));
+
+  const nearCap = { ef: 3.0, reps: 10, ivl: 300, due: T, lapses: 0 };
+  const capped = SRS.schedule(nearCap, 5, T);
+  eq("interval clamps at MAX_INTERVAL", capped.ivl, SRS.MAX_INTERVAL);
+}
+
 console.log((fail ? "FAIL" : "PASS") + " — srs · " + pass + " assertions passed" + (fail ? ", " + fail + " failed" : ""));
 process.exit(fail ? 1 : 0);
+
