@@ -6,7 +6,6 @@ const ROOT = require("../scripts/repo-root");
 const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
 const game = read("js/game.js");
 const play = read("js/play.js");
-const results = read("js/results.js");
 const flow = read("js/flow.js");
 const index = read("index.html");
 const css = read("css/game.css");

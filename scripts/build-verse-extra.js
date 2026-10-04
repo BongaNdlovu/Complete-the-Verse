@@ -294,18 +294,6 @@ function applySwap(text, from, to) {
   return text.replace(re, to);
 }
 
-function reorderWords(phrase) {
-  return null;
-}
-
-function dropWord(phrase) {
-  return null;
-}
-
-function addWord(phrase) {
-  return null;
-}
-
 function normKey(s) {
   return s.toLowerCase().replace(/[.,;:!?"""']/g, "").replace(/\s+/g, " ").trim();
 }

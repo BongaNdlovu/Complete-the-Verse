@@ -456,7 +456,6 @@ read(sb, "invalidateRun();");
 {
   const s = boot();
   read(s, "pendingSiteId='ur'; startRun('pilgrimage','disciple')");
-  const cold = read(s, "questionDuration()");
   read(s, "R.streak = 3; R.typed = true;");
   eq("Building does not stretch the typed wall clock", read(s, "questionDuration()"), 45000);
   eq("Swift Lock stays at the picker wall clock", read(s, "(function(){ R.speed=true; R.typed=false; return questionDuration(); })()"), 30000);

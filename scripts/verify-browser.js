@@ -78,7 +78,6 @@ if (read('SAVE.daily.score') !== 1800) throw new Error('NKJV daily score lost');
 
 console.log('--- Step 6: Desktop and phone-width viewport HTML inspection ---');
 const indexHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-const gameCss = fs.readFileSync(path.join(ROOT, 'css', 'game.css'), 'utf8');
 if (!indexHtml.includes('id="v-edition"')) throw new Error('#v-edition missing from HTML');
 if (!indexHtml.includes('data-edition="kjv"') || !indexHtml.includes('data-edition="nkjv"')) throw new Error('Pick buttons missing');
 console.log('Edition view markup and responsive layout styles verified.');

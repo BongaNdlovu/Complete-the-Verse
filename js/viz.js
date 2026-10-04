@@ -57,3 +57,7 @@ const Viz = (function(){
   return {draw, size};
 })();
 
+if (typeof window !== "undefined") {
+  window.Viz = Viz;
+}
+

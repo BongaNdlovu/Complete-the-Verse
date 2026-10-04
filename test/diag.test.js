@@ -9,7 +9,6 @@ const path = require("path");
 const vm = require("vm");
 const ROOT = require("../scripts/repo-root");
 const Diag = require("../js/diag");
-const Flow = require("../js/flow");
 const { makeSandbox } = require("../scripts/test-shim");
 const { ENGINE_FILES } = require("../scripts/engine-source");
 

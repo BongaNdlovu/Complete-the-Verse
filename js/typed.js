@@ -529,3 +529,11 @@ function renderTypedVerdict(g){
     g.verdict === "modernised" ? '<b class="no">Not the wording.</b> <span>'+esc(g.hint)+' The verse reads “'+esc(target)+'”.</span>' :
                               '<b class="no">Not this one.</b> <span>'+diffSentence(g.diff)+'The verse reads “'+esc(target)+'”.</span>';
 }
+
+if (typeof window !== "undefined") {
+  window.bindTypedPowerButtons = bindTypedPowerButtons;
+  window.typedHint = typedHint;
+  window.illuminateAssembly = illuminateAssembly;
+  window.renderTypedQuestion = renderTypedQuestion;
+  window.renderTypedVerdict = renderTypedVerdict;
+}

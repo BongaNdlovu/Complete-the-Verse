@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const ROOT = require('./repo-root');
 const { loadBank } = require('./load-bank');
-const QA = require('./verse-qa');
 
 let failures = [];
 function check(name, condition, extra) {

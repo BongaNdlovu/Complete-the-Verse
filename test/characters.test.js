@@ -34,13 +34,6 @@ function walkArc(key){
   }
   return p;
 }
-function walkAll(){
-  let p = P.blankProgress();
-  P.journey().forEach(s => {
-    p = P.record(p, s.id, { cleared: true, score: 50, accuracy: 90, at: 1 });
-  });
-  return p;
-}
 function walkSites(n){
   let p = P.blankProgress();
   for(let i = 0; i < n; i++){

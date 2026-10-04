@@ -427,12 +427,6 @@ var Pilgrimage = (function () {
     // the level would then be identical on every replay, which matters
     // because these levels are replayable and feed the scheduler.
     var signature = (s.books && s.books[0]) || "";
-    var bound = booksToSet(s.books);
-    function affinity(v) {
-      if (v.b === signature) return 0;
-      return bound[v.b] === 1 ? 1 : 2;
-    }
-
     var buckets = {};
     pool.forEach(function (v) {
       /* Coarse bucket by place affinity so chapter-linked verses rise. */
@@ -478,7 +472,6 @@ var Pilgrimage = (function () {
   function enforceSiteFloor(s, ordered, need, exclude, rnd, target) {
     var bound = booksToSet(s.books);
     var floor = siteFloorNeed(s, need);
-    var signature = (s.books && s.books[0]) || "";
 
     function rank(list) {
       return shuffled(list.slice(), rnd).sort(function (a, b) {
@@ -551,7 +544,6 @@ var Pilgrimage = (function () {
     var s = site(siteId);
     if (!s) return { verses: [], ring: "none", target: 1 };
 
-    var i = indexOf(siteId);
     var need = opts.need || VERSES_PER_SITE;
     var rnd = opts.rnd || seededRandom(seedFrom(siteId + ":" + (opts.attempt || 0)));
     var exclude = expandExclude(opts.exclude || {});

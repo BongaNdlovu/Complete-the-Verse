@@ -766,7 +766,6 @@ function renderSettings(){
   const ownerBlock = settingsOwnerNoticeHtml();
 
   const ch = activeCharacter();
-  const nameNow = playerDisplayName();
   const profileBlock =
     setRow("Your name", "Shown on this device and on cloud boards when signed in.",
       '<div class="cloud-name"><input id="set-player-name" type="text" maxlength="32" value="'+esc(SAVE.set.playerName||"")+'"><button class="btn ghost sm" id="set-name-save" type="button">Save</button></div>') +
@@ -1136,4 +1135,14 @@ function applySettings(){
   if(currentView==="play")Viz.size();
   updateCloudChip();
   updateOfflineBanner();
+}
+
+if (typeof window !== "undefined") {
+  window.queueArtifactReveal = queueArtifactReveal;
+  window.flushRevealsAfterResults = flushRevealsAfterResults;
+  window.renderRelics = renderRelics;
+  window.buildPlayerCard = buildPlayerCard;
+  window.renderStudy = renderStudy;
+  window.renderSeals = renderSeals;
+  window.renderMessages = renderMessages;
 }

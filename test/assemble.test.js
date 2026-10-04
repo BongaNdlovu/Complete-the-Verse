@@ -105,7 +105,6 @@ const rng = (function(){ let i = 0; return function(){ i = (i * 9301 + 49297) % 
 {
   const st = Assemble.build("still small voice", ["mighty rushing wind"], rng);
   const still = st.bank.find(t => t.word === "still");
-  const small = st.bank.find(t => t.word === "small");
 
   // Tap a bank card with an empty slot: it places immediately.
   let r = Assemble.resolveTap(st, { tileId: still.id });
@@ -138,7 +137,6 @@ const rng = (function(){ let i = 0; return function(){ i = (i * 9301 + 49297) % 
     const tile = st2.bank.find(t => t.word === w && t.dest === i);
     Assemble.place(st2, tile.id, i);
   });
-  const wrong = st2.placed[3]; // "light" sits in slot 3
   const good = st2.bank.find(t => !st2.placed.some(p => p && p.id === t.id));
   eq("fixture starts fully seated except the unplaced word", good || null, null);
   // Force the replace scenario: return one word to the bank, then commit

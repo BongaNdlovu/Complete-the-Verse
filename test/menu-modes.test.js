@@ -1,6 +1,4 @@
-const fs = require("fs");
 const ROOT = require("../scripts/repo-root");
-const path = require("path");
 
 const { readEngine } = require("../scripts/engine-source");
 const src = readEngine(ROOT);
@@ -19,11 +17,11 @@ function modeBlock(key) {
   const modesMatch = src.match(/const MODES = \{([\s\S]*?)\n\s*\};/);
   const modesSrc = modesMatch ? modesMatch[1] : src;
   const markers = ["\n  " + key + ":", "\n  \"" + key + "\":", "\n" + key + ":", "\n\"" + key + "\":"];
-  let start = -1, marker = "";
-  markers.some(function(m){ const i = modesSrc.indexOf(m); if(i < 0) return false; start = i + m.length; marker = m; return true; });
+  let start = -1;
+  markers.some(function(m){ const i = modesSrc.indexOf(m); if(i < 0) return false; start = i + m.length; return true; });
   if(start < 0) return "";
   const rest = modesSrc.slice(start);
-  const next = rest.slice(1).search(/\n\s*\"?[A-Za-z0-9-]+\"?\s*:\s*\{/);
+  const next = rest.slice(1).search(/\n\s*"?[A-Za-z0-9-]+"?\s*:\s*\{/);
   return next < 0 ? rest : rest.slice(0, next + 1);
 }
 

@@ -16,8 +16,6 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
 // Load vendor Supabase SDK
 const supabaseJs = fs.readFileSync(path.join(__dirname, "../vendor/supabase/supabase.js"), "utf8");
 const cloudJs = fs.readFileSync(path.join(__dirname, "../js/cloud.js"), "utf8");
-const briefsJs = fs.readFileSync(path.join(__dirname, "../js/briefs.js"), "utf8");
-const gameJs = fs.readFileSync(path.join(__dirname, "../js/game.js"), "utf8");
 
 class MemoryStorage {
   constructor() { this.store = new Map(); }
@@ -146,7 +144,7 @@ function makeBrowserContext(initialUrl, fetchHandler) {
 async function runTests() {
   // TEST 1: Adaptive Flow Detection
   {
-    const { ctx, window } = makeBrowserContext("https://complete-the-verse.vercel.app/?code=pkce-auth-code-123");
+    const { ctx } = makeBrowserContext("https://complete-the-verse.vercel.app/?code=pkce-auth-code-123");
     vm.runInContext("var CLOUD_CONFIG = { url: 'https://test.supabase.co', anonKey: 'test-key' };", ctx);
     vm.runInContext(supabaseJs, ctx);
     vm.runInContext(cloudJs, ctx);
@@ -205,7 +203,7 @@ async function runTests() {
       };
     };
 
-    const { ctx, window, localStorage } = makeBrowserContext(
+    const { ctx, localStorage } = makeBrowserContext(
       "https://complete-the-verse.vercel.app/?code=sample-pkce-code",
       mockFetch
     );
@@ -270,7 +268,7 @@ async function runTests() {
 
   // TEST 4: game.js bindCloudBoot handles INITIAL_SESSION and SIGNED_IN from door (#v-signin)
   {
-    const { ctx, window, document } = makeBrowserContext("https://complete-the-verse.vercel.app/");
+    const { ctx } = makeBrowserContext("https://complete-the-verse.vercel.app/");
     
     // Set up mock game environment
     vm.runInContext(`
@@ -524,7 +522,6 @@ async function runTests() {
     vm.runInContext(supabaseJs, ctx);
     vm.runInContext(cloudJs, ctx);
 
-    let emittedError = null;
     vm.runInContext(`
       Cloud.on("onError", function(err){
         window._emittedError = err;

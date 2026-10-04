@@ -46,7 +46,7 @@ const OPTION_CODES = new Set([
    register the NKJV edition is written in. */
 const ARCHAIC = new Set(S.MODERNISE.keys());
 
-const EDGE = /^[^A-Za-z0-9'"]+|[^A-Za-z0-9'"]+$/g;
+const _EDGE = /^[^A-Za-z0-9'"]+|[^A-Za-z0-9'"]+$/g;
 const words = t => String(t == null ? "" : t).split(" ").filter(Boolean);
 
 /* The lookup key for a token: lowercased, with every mark of punctuation

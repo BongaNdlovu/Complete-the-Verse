@@ -957,7 +957,6 @@ function openSiteBrief(siteId, mode){
   // Conditions at the real place, right now.
   const r = Live.readingFor(s);
   const now = new Date();
-  const sun = Geo.sunPosition(now, s.coords[0], s.coords[1]);
   $("sb-live").innerHTML = [
     [r.tempC + "°C", r.live ? "Temperature now" : "Typical temperature"],
     [r.sky ? r.sky.label : "—", "Sky"],
@@ -1453,4 +1452,22 @@ function armIntro(){
      loads on the first tap (see beginIntroPlayback). */
   setIntroHint("Tap to begin");
   if(v.readyState>=3) markReady();
+}
+
+if (typeof window !== "undefined") {
+  window.openCharacterPicker = openCharacterPicker;
+  window.openWithoutSession = openWithoutSession;
+  window.MENU_ORDER = MENU_ORDER;
+  window.savePilgrim = savePilgrim;
+  window.openAtlas = openAtlas;
+  window.applySiteSky = applySiteSky;
+  window.siteClockMs = siteClockMs;
+  window.bankRelaySite = bankRelaySite;
+  window.recordSiteResult = recordSiteResult;
+  window.bindTutorial = bindTutorial;
+  window.introAllowed = introAllowed;
+  window.hideEditionGate = hideEditionGate;
+  window.armIntro = armIntro;
+  window.pendingSiteId = pendingSiteId;
+  window.signinLeaveTimer = signinLeaveTimer;
 }

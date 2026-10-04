@@ -6,8 +6,6 @@
  * asserted against the source text, matching the structural-test convention
  * (game.js runs DOM code on load and cannot be require()d in bare Node).
  */
-const fs = require("fs");
-const path = require("path");
 const Recall = require("../js/recall");
 
 const ROOT = require("../scripts/repo-root");

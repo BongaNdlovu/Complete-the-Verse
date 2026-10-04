@@ -201,7 +201,7 @@ function findAnswerRun(echoToks, answerToks, preferredStart) {
    the NKJV inserts an article or a possessive, walking inwards until the
    word maps back to real KJV context keeps the blank the same size as the
    one the player is being asked to recall. */
-function trimSpan(nkjvToks, lo, hi, kjvContextCanon) {
+function _trimSpan(nkjvToks, lo, hi, kjvContextCanon) {
   let a = lo, b = hi;                                  // inclusive
   while (a < b && kjvContextCanon.has(canon(nkjvToks[a]))) a++;
   while (b > a && kjvContextCanon.has(canon(nkjvToks[b]))) b--;

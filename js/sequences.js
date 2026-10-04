@@ -376,3 +376,9 @@ function finishSequence(o){
     loseLife();
   }
 }
+
+if (typeof window !== "undefined") {
+  window.clearSequence = clearSequence;
+  window.startPassage = startPassage;
+  window.startReconstruct = startReconstruct;
+}

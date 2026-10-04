@@ -4,13 +4,8 @@
  * Run: node coffee-pilgrimage.test.js
  */
 
-const fs = require("fs");
-const path = require("path");
 const S = require("../js/sites");
 const P = require("../js/pilgrimage");
-const SRS = require("../js/srs");
-const Recall = require("../js/recall");
-const Polish = require("../js/polish");
 const Cinematic = require("../js/cinematic");
 const { loadBank } = require("../scripts/load-bank");
 const { readEngine } = require("../scripts/engine-source");
@@ -62,7 +57,6 @@ const engineSrc = readEngine(ROOT);
    2. THE COFFEE UNIT (8 VERSES, 8-12 MINUTES)
    ================================================================== */
 {
-  const urSite = P.site("ur");
   const urDraw = P.drawSite("ur");
   eq("Ur draw contains exactly 8 verses", urDraw.verses.length, 8);
 

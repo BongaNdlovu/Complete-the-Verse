@@ -322,3 +322,8 @@ const Director = (function(){
   }
   return {speak,caption,callout,setAct,pressure,momentum,beat,impact,syncFx,ending};
 })();
+
+if (typeof window !== "undefined") {
+  window.Backdrop = Backdrop;
+  window.Director = Director;
+}

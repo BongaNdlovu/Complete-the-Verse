@@ -115,3 +115,7 @@ var Defer = (function () {
   if (typeof module !== "undefined" && module.exports) module.exports = { Defer: api };
   return api;
 })();
+
+if (typeof window !== "undefined") {
+  window.Defer = Defer;
+}

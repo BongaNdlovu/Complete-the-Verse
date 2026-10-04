@@ -273,7 +273,6 @@ function commitSiteVerse(v){
 }
 
 /* ------------------------- PROGRESSION ------------------------- */
-function xpNeeded(l){ return Meta.xpNeeded(l); }
 function levelInfo(xp){ return Meta.levelInfo(xp); }
 function rankFor(level){ return Meta.rankFor(level); }
 function trialActs(){
@@ -1337,8 +1336,6 @@ function fitVerseSize(len){
   else if(len>=160) el.classList.add("vlen-lg");
   else if(len>=100) el.classList.add("vlen-md");
 }
-const HEART_SVG = '<svg viewBox="0 0 24 24"><path d="M12 21.6l-1.5-1.4C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.7L12 21.6z" fill="url(#hg)"/></svg>';
-const HEART_BROKEN = '<svg viewBox="0 0 24 24"><path d="M12 21.6l-1.5-1.4C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.7L12 21.6z" fill="url(#hg)"/><path d="M12.6 4.6l-2.5 4.9 3 1.9-2.4 4.6" fill="none" stroke="#07070a" stroke-width="1.7" stroke-linejoin="round"/></svg>';
 const LAMP_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 14.2c0 2.6 1.8 4.6 4 4.6s4-2 4-4.6c0-2.2-1.5-3.3-2.8-4.2V8.2h1.8V6.6H9v1.6h1.8v1.8C9.5 10.9 8 12 8 14.2z" fill="url(#hg)"/><path class="lamp-flame" d="M12 3.2c.7 1.1 1.1 1.8.7 2.7-.5.2-1.2-.4-1.6-1.1.5-.2 1-.8.9-1.6z" fill="#ffe3a6"/></svg>';
 
 
@@ -1418,11 +1415,9 @@ function quickRewardPayout(g){
 
 function updateQuickRewards(){
   if(typeof QuickRewards === "undefined" || !R.quickRewards) return;
-  let changed = false;
   R.quickRewards.forEach(g=>{
     if(QuickRewards.progress(g, R).complete && !R.quickRewardAnnounced.has(g.id)){
       R.quickRewardAnnounced.add(g.id);
-      changed = true;
       if(typeof Snd !== "undefined" && Snd.power) Snd.power();
       if(typeof toast === "function") toast("Quick reward ready — "+g.name+" banks at run end");
     }
@@ -2062,7 +2057,7 @@ function shareDailyResult(total){
 }
 
 /* ------------------------- INPUT ------------------------- */
-function handleStatePanelKeys(e, k, stEl){
+function handleStatePanelKeys(e, k){
   if(k==="enter" || k===" "){ e.preventDefault(); const b=$("state-primary"); if(b) b.click(); return true; }
   if(k==="escape"){ e.preventDefault(); const b=$("state-secondary"); if(b && b.style.display!=="none") b.click(); else { const p=$("state-primary"); if(p) p.click(); } return true; }
   return true;
@@ -2479,3 +2474,32 @@ function startCtvBoot(){
   }
 }
 startCtvBoot();
+
+if (typeof window !== "undefined") {
+  window.dueToday = dueToday;
+  window.commitSiteVerse = commitSiteVerse;
+  window.rankFor = rankFor;
+  window.runTitle = runTitle;
+  window.drawVerse = drawVerse;
+  window.drawEndlessVerse = drawEndlessVerse;
+  window.drawReviewVerse = drawReviewVerse;
+  window.showSiteQuote = showSiteQuote;
+  window.witnessLook = witnessLook;
+  window.updateChips = updateChips;
+  window.LETTERS = LETTERS;
+  window.highlightVerse = highlightVerse;
+  window.fitVerseSize = fitVerseSize;
+  window.updateQuickRewards = updateQuickRewards;
+  window.inOverdrive = inOverdrive;
+  window.correctAdvance = correctAdvance;
+  window.offerOverdriveChoice = offerOverdriveChoice;
+  window.recordVerse = recordVerse;
+  window.scheduleReview = scheduleReview;
+  window.shakeUI = shakeUI;
+  window.spillOil = spillOil;
+  window.payCorrect = payCorrect;
+  window.presentRunEnd = presentRunEnd;
+  window.animateScore = animateScore;
+  window.checkMetaSeals = checkMetaSeals;
+  window.shareDailyResult = shareDailyResult;
+}

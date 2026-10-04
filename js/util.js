@@ -70,3 +70,22 @@ function revealStandaloneChrome(){
   if (!btn) return;
   if (runningInStandaloneApp() || standaloneAppBridge()) btn.hidden = false;
 }
+
+if (typeof window !== "undefined") {
+  window.$ = $;
+  window.esc = esc;
+  window.sep = sep;
+  window.fullVerse = fullVerse;
+  window.shuffle = shuffle;
+  window.mulberry32 = mulberry32;
+  window.todayKey = todayKey;
+  window.offsetDateKey = offsetDateKey;
+  window.seedFromString = seedFromString;
+  window.fmt = fmt;
+  window.refKey = refKey;
+  window.poolSansRepeatRefs = poolSansRepeatRefs;
+  window.runningInStandaloneApp = runningInStandaloneApp;
+  window.jsDialogsWork = jsDialogsWork;
+  window.quitStandaloneApp = quitStandaloneApp;
+  window.revealStandaloneChrome = revealStandaloneChrome;
+}

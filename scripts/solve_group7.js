@@ -1,7 +1,6 @@
 const fs = require('fs');
 const { validateVerse } = require('./test_validator');
-const QA = require('./verse-qa');
-const { kjvMap, usedRefs, normalizeText } = require('./solve_util');
+const { kjvMap, normalizeText } = require('./solve_util');
 
 const CANDIDATES = [
   // Romans (10)

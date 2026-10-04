@@ -107,3 +107,8 @@ function playerReviewAverage() {
   for (var i = 0; i < PLAYER_REVIEWS.length; i++) sum += Number(PLAYER_REVIEWS[i].rating) || 0;
   return Math.round((sum / PLAYER_REVIEWS.length) * 10) / 10;
 }
+
+if (typeof window !== "undefined") {
+  window.mountPlayerReviews = mountPlayerReviews;
+  window.playerReviewAverage = playerReviewAverage;
+}

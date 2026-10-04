@@ -1251,3 +1251,7 @@ $("res-again").addEventListener("click", ()=>{
   if(R.mode==="tablets"){ tabletsRetryRun(); return; }
   startRun(R.mode, R.diff.key);
 });
+
+if (typeof window !== "undefined") {
+  window.endRun = endRun;
+}

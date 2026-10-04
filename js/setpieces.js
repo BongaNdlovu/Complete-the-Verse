@@ -176,3 +176,7 @@ const SetPieces=(function(){
           draw,duration,bonus,noPowers,autoLock,label};
 })();
 
+if (typeof window !== "undefined") {
+  window.SetPieces = SetPieces;
+}
+

@@ -312,7 +312,7 @@ var Cloud = (function () {
     return mergeDailyEntry(ld, rd);
   }
 
-  function mergeDailyByEdition(local, remote) {
+  function _mergeDailyByEdition(local, remote) {
     var lde = local.dailyByEdition || {}, rde = remote.dailyByEdition || {};
     return {
       kjv: mergeDailyEntry(lde.kjv || local.daily, rde.kjv || remote.daily),

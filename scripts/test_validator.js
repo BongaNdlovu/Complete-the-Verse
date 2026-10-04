@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 const QA = require('./verse-qa');
 const A = require('./nkjv-align');
 const D = require('./nkjv-distractors');

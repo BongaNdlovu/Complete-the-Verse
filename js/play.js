@@ -29,7 +29,6 @@ function playClockMs(ms){
 
 const FADE_MEMORY_MS = 60000;
 const FADE_PICK_MS = 45000;
-const FADE_RECALL_MIN_MS = FADE_PICK_MS;
 const WALL_PICK_MS = 30000;
 const WALL_TYPED_MS = 45000;
 const WALL_FADE_MS = 60000;
@@ -1541,7 +1540,8 @@ function illuminateDuel(){
   const marker = document.createElement("div");
   marker.className = "duel-illumination";
   marker.textContent = "Illuminate · " + (typeof translationTag === "function" ? translationTag() : "KJV") + " cue";
-  correct.insertAdjacentElement ? correct.insertAdjacentElement("afterbegin", marker) : correct.appendChild(marker);
+  if(correct.insertAdjacentElement) correct.insertAdjacentElement("afterbegin", marker);
+  else correct.appendChild(marker);
   if(typeof toast === "function") toast("Illuminate — the genuine " + (typeof translationTag === "function" ? translationTag() : "KJV") + " reading is marked");
   return true;
 }
@@ -2528,4 +2528,17 @@ function loseLife(count){
     afterRun(answerHoldMs(), ()=>presentRunEnd("fallen")); return;
   }
   afterRun(answerHoldMs(), queueAdvance);
+}
+
+if (typeof window !== "undefined") {
+  window.startTutorialRun = startTutorialRun;
+  window.teamWinner = teamWinner;
+  window.updateSiteVideoVolume = updateSiteVideoVolume;
+  window.illuminateCloze = illuminateCloze;
+  window.illuminateDuel = illuminateDuel;
+  window.illuminateTrueFalse = illuminateTrueFalse;
+  window.illuminateFadePick = illuminateFadePick;
+  window.confirmAnswer = confirmAnswer;
+  window.tickTimer = tickTimer;
+  window.paintGhostMarker = paintGhostMarker;
 }

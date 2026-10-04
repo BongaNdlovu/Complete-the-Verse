@@ -45,7 +45,7 @@ function note(ref, reason, detail) {
   unresolved[ref].push(detail ? { reason, detail } : { reason });
 }
 
-function readJson(file, fallback) {
+function _readJson(file, fallback) {
   try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch (e) { return fallback; }
 }
 
@@ -87,7 +87,7 @@ function sameBlank(override, kjv) {
   return hit >= Math.max(1, Math.ceil(want.length * 0.5));
 }
 
-function overrideFor(ref, kjv) {
+function _overrideFor(ref, kjv) {
   const explicit = EXPLICIT[ref];
   if (explicit && sameBlank(explicit, kjv)) return { cut: explicit, from: "curated" };
   const hand = HAND[ref];
@@ -350,8 +350,8 @@ function planVerse(v, index, stats) {
    both sides of the gap it came from. */
 const LEAD_PUNCT = /^[\s.,;:!?\u201c\u201d"']+/;
 const TRAIL_PUNCT = /[\s.,;:!?\u201c\u201d"']+$/;
-const trimLead = s => String(s).replace(LEAD_PUNCT, "");
-const trimTrail = s => String(s).replace(TRAIL_PUNCT, "");
+const _trimLead = s => String(s).replace(LEAD_PUNCT, "");
+const _trimTrail = s => String(s).replace(TRAIL_PUNCT, "");
 
 /* A passage is one context with several blanks. The passage's whole KJV
    text is the echo, and each blank is located inside the NKJV run, which
@@ -401,7 +401,7 @@ function kjvPassageWaivers(bank) {
   return out;
 }
 
-function passageAuditItem(p, bl) {
+function _passageAuditItem(p, bl) {
   const text = p.parts.map(x => typeof x === "string" ? x : x.a).join("");
   return {
     b: p.b, r: p.r, t: p.t, p: text.split(bl.a)[0] || text, a: bl.a, s: "", d: bl.d, qaOk: bl.qaOk
@@ -782,7 +782,7 @@ function buildBeat(index, stats) {
    between editions; the quoted wording does. Rather than rewrite sentences
    we cannot verify, the quoted spans are re-cut from the dump when the
    claim names a reference, and the item is reported when it does not. */
-function refInWhy(why) {
+function _refInWhy(why) {
   const m = String(why || "").match(/\(([^()]+)\)[^()]*$/);
   return m ? m[1] : null;
 }
@@ -797,7 +797,6 @@ function buildTf(verses, index, stats) {
       if (!text) note(copy.r, "missing-source", "tf");
       else stats.tfRefs++;
     }
-    if (copy.t) copy.t = copy.t;
     if (copy.s) copy.s = modernise(copy.s);
     if (copy.why) copy.why = modernise(copy.why);
     return copy;
@@ -881,7 +880,7 @@ function parity(kjv, nkjv, tablets, nkjvTablets, kjvBeat, nkjvBeat) {
   return problems;
 }
 
-function countQuotes(sites) {
+function _countQuotes(sites) {
   return (sites.SITES || []).filter(s => s.quoteRef).length;
 }
 

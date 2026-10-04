@@ -26,7 +26,7 @@ jobs:
       - name: Check shared content JSON
         run: npm run content:check
 
-      - name: Lint complexity
+      - name: Lint
         run: npm run lint
 
       - name: Run Complete Test Suite

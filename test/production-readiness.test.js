@@ -14,7 +14,6 @@ const panels = read("js/panels.js");
 const audio = read("js/audio.js");
 const gameCss = read("css/game.css");
 const playCss = read("css/play.css");
-const atlasCss = read("css/atlas.css");
 const edge = read("supabase/functions/submit-score/index.ts");
 const migration = read("supabase/migrations/004_leaderboard_moderation.sql");
 const ops = read("docs/LEADERBOARD-OPERATIONS.md");

@@ -279,12 +279,13 @@ async function testGating() {
     showState: function (name, opts) {
       shown = { name: name, opts: opts };
     },
-    go: function (view) { goCalls.push(view); },
+    go: function (view) {
+      if (ctx.__order) ctx.__order.push(view);
+    },
     hideState: function () {
       shown = null;
     },
-    persist: function () {},
-    go: function (view) { if (ctx.__order) ctx.__order.push(view); }
+    persist: function () {}
   };
   vm.runInNewContext(notice, ctx);
 

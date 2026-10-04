@@ -9,7 +9,6 @@ const A = require("./nkjv-align");
 const QA = require("./verse-qa");
 const { EXPLICIT } = require("./nkjv-alignments");
 const { VERSES: HAND } = require("./nkjv-hand");
-const D = require("./nkjv-distractors");
 
 const index = buildIndex(loadSourceDump().verses);
 const bank = loadBank();

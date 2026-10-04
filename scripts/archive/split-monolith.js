@@ -40,7 +40,7 @@ css = css
   .replace(/body\.reduced \.ai-scan,body\.reduced \.ai-orbit,body\.reduced \.ai-live,body\.reduced \.verse-stage:after,\s*\nbody\.reduced \.ai-analysis i,body\.reduced #neural-bg\{animation:none\}\n/g, "")
   .replace(/,\.iconbtn/g, "");
 
-const headEnd = html.indexOf("</head>");
+const _headEnd = html.indexOf("</head>");
 const bodyStart = html.indexOf("<body");
 const bodyOpenEnd = html.indexOf(">", bodyStart) + 1;
 const appScript = html.indexOf("<script>");
@@ -71,7 +71,7 @@ fs.writeFileSync(path.join(ROOT, "js", "verses.js"), versesJs + "\n");
 fs.writeFileSync(path.join(ROOT, "js", "passages.js"), passagesBlock + "\n");
 fs.writeFileSync(path.join(ROOT, "js", "game.js"), gameBlock + "\n");
 
-const bodyClass = (html.match(/<body([^>]*)>/) || [, ""])[1];
+const bodyClass = (html.match(/<body([^>]*)>/) || ["", ""])[1];
 
 const index = `<!DOCTYPE html>
 <html lang="en">

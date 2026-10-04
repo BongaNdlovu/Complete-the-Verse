@@ -33,11 +33,6 @@ const VERSES = {
     a: "no purpose of Yours can be withheld",
     s: "from You."
   },
-  "Ezekiel 36:26": {
-    p: "I will give you a new heart and put a new spirit within you; I will take the heart of stone out of your flesh and give you a",
-    a: "heart of flesh",
-    s: "."
-  },
   "2 Chronicles 16:9": {
     p: "For the eyes of the Lord run to and fro throughout the whole earth, to show Himself strong on behalf of those whose heart is",
     a: "loyal to Him",
