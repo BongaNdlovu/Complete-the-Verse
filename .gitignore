@@ -22,6 +22,8 @@ skills-lock.json
 test-artifacts/
 test-results/
 playwright-report/
+/screenshots/
+/artifacts/
 
 # Promo video workspace (sources, renders, deps stay local)
 remotion-video/
