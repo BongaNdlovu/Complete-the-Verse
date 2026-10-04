@@ -92,6 +92,8 @@ const PRECACHE_ASSETS = [
   "js/results.js",
   "js/diag.js",
   "js/briefs.js",
+  "js/save.js",
+  "js/clocks.js",
   "js/play.js",
   "js/tablets.js",
   "js/tablets-canon.js",

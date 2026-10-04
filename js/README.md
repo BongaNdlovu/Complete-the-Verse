@@ -6,9 +6,11 @@ Loaded as classic `<script>` tags from `index.html`. Globals are intentional (`f
 
 | If you need… | Open |
 |---|---|
-| Save, modes, `go()`, `startRun` | `game.js` |
+| Save schema, persistence, migrations | `save.js` |
+| Modes, router `go()`, `startRun` | `game.js` |
 | Valley Beat (Goliath) | `beat.js` + [`docs/BEAT.md`](../docs/BEAT.md) |
-| Timer, next question, answering, life loss | `play.js` (`runPhase`, `applyCorrect` / `applyMiss`) |
+| Stage clocks, live timer, cadence | `clocks.js` |
+| Question advance, answering, life loss | `play.js` (`runPhase`, `applyCorrect` / `applyMiss`) |
 | End-of-run score, XP, results view | `results.js` |
 | Settings, player card, study, relics | `panels.js` |
 | Boot, menu, site brief, tutorial | `briefs.js` |
@@ -24,7 +26,7 @@ Loaded as classic `<script>` tags from `index.html`. Globals are intentional (`f
 - **Data:** `verses.js`, `verses-extra.js`, `verses-more.js`, `verses-ascent.js`, `verses-tf.js`, `verses-notes.js`, `passages.js`, `legacy-ids.js`, `sites.js`, `empires.js`, `characters.js`, `beat.js`, `tablets.js`
 - **Pure rules:** `bank.js`, `srs.js`, `recall.js`, `assemble.js`, `meta.js`, `flow.js`, `geo.js`, `pilgrimage.js`, `polish.js`, `artifacts.js`, `live.js`
 - **View:** `atlas.js`
-- **Engine (also listed in `scripts/engine-source.js`):** `util.js` → `audio.js` → `director.js` → `setpieces.js` → `viz.js` → `typed.js` → `rewards.js` → `sequences.js` → `panels.js` → `cinematic.js` → `results.js` → `diag.js` → `briefs.js` → `play.js` → `game.js`
+- **Engine (also listed in `scripts/engine-source.js`):** `util.js` → `audio.js` → `director.js` → `setpieces.js` → `viz.js` → `typed.js` → `rewards.js` → `sequences.js` → `panels.js` → `cinematic.js` → `results.js` → `diag.js` → `briefs.js` → `save.js` → `clocks.js` → `play.js` → `game.js`
 
 `js/tablets-run.js` loads after `play.js` and is not an engine module. Load order is pinned by `index.html` and `engine-modules.test.js`. Adding an engine file means adding it to **both** `index.html` and `scripts/engine-source.js`.
 

@@ -34,6 +34,8 @@ const ENGINE_FILES = [
   "js/results.js",
   "js/diag.js",
   "js/briefs.js",
+  "js/save.js",
+  "js/clocks.js",
   "js/play.js",
   "js/game.js"
 ];

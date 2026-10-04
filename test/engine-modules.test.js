@@ -78,8 +78,11 @@ const index = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
     ok("briefs defines the tutorial", t("showTutorialIfNeeded") === "function");
     ok("briefs defines the session gate", t("holdForSignIn") === "function");
     ok("briefs defines the sign-in door", t("bindSignInView") === "function");
+    ok("save defines DEFAULT_SAVE", t("DEFAULT_SAVE") === "object");
+    ok("save defines load", t("load") === "function");
+    ok("save defines persist", t("persist") === "function");
+    ok("clocks defines timer logic", t("startTimer") === "function");
     ok("play defines question advance", t("nextQuestion") === "function");
-    ok("play defines timer logic", t("startTimer") === "function");
     ok("play defines answer resolver", t("resolveAnswer") === "function");
   }
 }

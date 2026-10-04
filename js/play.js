@@ -5,33 +5,11 @@
    Parse contract: defines functions only; touches R/SAVE/DOM at runtime.
    ================================================================== */
 
-/* ------------------------- CLOCKS & DURATION ------------------------- */
-function pickPadMs(){
-  return (typeof Pilgrimage !== "undefined" && Pilgrimage.PICK_PAD_MS) || 1500;
-}
-
-function pickClockMs(ms){
-  if(!ms || (typeof R !== "undefined" && (R.typed || R.mode==="blitz" || R.mode==="recall" || R.mode==="pilgrim-recall"))) return ms;
-  return ms + pickPadMs();
-}
-
-function momentumClockMs(ms){
-  if(!ms || (typeof R !== "undefined" && (R.typed || R.mode==="blitz"))) return ms;
-  if(typeof R !== "undefined" && (R.streak||0) >= (typeof MOMENTUM_STEPS !== "undefined" ? MOMENTUM_STEPS[0] : 3)){
-    return Math.round(ms * 1.2);
-  }
-  return ms;
-}
-
-function playClockMs(ms){
-  return Math.round(momentumClockMs(pickClockMs(ms)) * PACE + FLAT_ADD_MS);
-}
-
+/* ------------------------- ROAD & SCENE CONSTANTS -------------------------
+   Stage clocks and timers are owned by js/clocks.js.
+   -------------------------------------------------------------------------- */
 const FADE_MEMORY_MS = 60000;
 const FADE_PICK_MS = 45000;
-const WALL_PICK_MS = 30000;
-const WALL_TYPED_MS = 45000;
-const WALL_FADE_MS = 60000;
 const ROAD_QUESTION_BEDS = [
   "heroes","pointOfImpact","primarySuspect",
   "theTrace","theUncovering","awakeningMachine","machineAwakening"
@@ -85,18 +63,6 @@ const SITE_AMBIENT = {
   patmos:"assets/journey/patmos.mp4"
 };
 
-function usesWallClock(){
-  return R.mode==="pilgrimage" || R.mode==="pilgrim-recall" || R.mode==="relay"
-    || R.mode==="daily" || R.mode==="practice" || R.mode==="recall" || R.mode==="team" || R.mode==="tutorial";
-}
-
-function answerHoldMs(){
-  /* The universal post-answer hold (Flow.JUDGE_MS) in EVERY mode. The
-     wrong-answer teach pause is where the verdict and word diff get
-     read; it must never collapse to 0. Correct answers chain faster via
-     correctAdvance(), which is a separate path. */
-  return (typeof Flow !== "undefined" && Flow.JUDGE_MS) || 2500;
-}
 
 function fullVerseText(q){
   const prefix = String(q && q.p || "").trim();
@@ -2156,79 +2122,7 @@ function confirmAnswer(){
   answer(R.selected.val, R.selected.btn);
 }
 
-/* ------------------------- TIMER ------------------------- */
-function paintClockBar(frac){
-  const fill = $("ring-arc");
-  if(!fill) return;
-  fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, frac)) + ")";
-}
-
-function armTimer(dur){
-  R.tTotal = dur; R.tEnd = 0; R.qStart = 0;
-  R.running = false; R.paused = false; R.lastTickSec = -1; R.lastHeart = 0; R.lastHeartSec = -1;
-  if(typeof Snd!=="undefined" && Snd.stopPressure) Snd.stopPressure();
-  const sec = Math.ceil(dur/1000);
-  $("clock").textContent = "00:" + String(sec).padStart(2,"0");
-  $("warn-1").textContent = sec + (sec===1 ? " second remaining" : " seconds remaining");
-  $("ring").classList.remove("crit");
-  paintClockBar(1);
-}
-
-function startTimer(dur){
-  const extra = R.pendingSelah||0;
-  R.pendingSelah = 0;
-  R.tTotal = dur + extra; R.tEnd = performance.now()+dur+extra; R.qStart = performance.now();
-  R.running = true; R.paused = false; R.lastTickSec = -1; R.lastHeart = 0; R.lastHeartSec = -1;
-  if(document.hidden){pauseStamp=performance.now();setPaused(true);}
-  else ensureLoop();
-}
-
-function paintBlitzTimer(now){
-  const bLeft = R.blitzEnd - now;
-  document.body.classList.remove("blitz-edge","blitz-edge-2","blitz-edge-3");
-  const pr = typeof Polish!=="undefined" ? Polish.blitzPressure(bLeft) : 0;
-  if(pr) document.body.classList.add(pr===3?"blitz-edge-3":pr===2?"blitz-edge-2":"blitz-edge");
-  if(bLeft<=0){ timeUp(); return true; }
-  R.tEnd = R.blitzEnd;
-  return false;
-}
-function tickCountdownSfx(sec, left){
-  if(!(left>0 && R.mode!=="blitz")) return;
-  if(sec===4 || sec===5) Snd.tick(true);
-  else if(sec>=6 && sec<=10) Snd.tick(false);
-}
-function tickTimer(now){
-  if(!R.running || R.paused) return;
-  if(R.mode==="blitz" && R.blitzEnd && paintBlitzTimer(now)) return;
-  const left = Math.max(0, R.tEnd - now);
-  const frac = R.tTotal>0 ? Math.max(0, Math.min(1, left / R.tTotal)) : 0;
-  paintClockBar(frac);
-  const sec = Math.ceil(left/1000);
-  if(sec !== R.lastTickSec){
-    R.lastTickSec = sec;
-    $("clock").textContent = "00:" + String(sec).padStart(2,"0");
-    $("ring").classList.toggle("crit", sec<=5);
-    const w1 = $("warn-1");
-    w1.textContent = sec + (sec===1 ? " second remaining" : " seconds remaining");
-    w1.classList.toggle("hot", sec<=5);
-    Director.pressure(sec);
-    tickCountdownSfx(sec, left);
-  }
-  if(R.running && !R.locked && !R.paused && R.mode!=="blitz" &&
-     sec>=1 && sec<=3 && left>0 && sec!==R.lastHeartSec){
-    R.lastHeartSec = sec;
-    R.lastHeart = now;
-    Snd.heart();
-    doFlash("heart");
-  }
-  if(left<=0) timeUp();
-}
-
-function stopTimer(){
-  R.running=false;
-  if(typeof Snd!=="undefined" && Snd.stopPressure) Snd.stopPressure();
-  if(typeof Director!=="undefined" && Director.pressure) Director.pressure(0);
-}
+/* Timer logic (armTimer, startTimer, tickTimer, stopTimer) is owned by js/clocks.js */
 
 /* ------------------------- ANSWERING & RESOLUTION ------------------------- */
 function answer(choice, btn){
@@ -2539,6 +2433,7 @@ if (typeof window !== "undefined") {
   window.illuminateTrueFalse = illuminateTrueFalse;
   window.illuminateFadePick = illuminateFadePick;
   window.confirmAnswer = confirmAnswer;
+  window.timeUp = timeUp;
   window.tickTimer = tickTimer;
   window.paintGhostMarker = paintGhostMarker;
 }

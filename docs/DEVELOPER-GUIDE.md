@@ -107,8 +107,10 @@ js/game.js          → the engine orchestrator (everything above is in scope)
 
 | File | Lines (measured 2026-10-04) | Kind | Owns |
 |---|---|---|---|
-| `js/game.js` | 2,480 | engine | save layer, modes, router `go(view)`, run state `R` + `startRun*` |
-| `js/play.js` | 2,530 | engine | stage clocks, `questionDuration`, `nextQuestion`, answering, life loss |
+| `js/game.js` | 2,220 | engine | modes, router `go(view)`, run state `R` + `startRun*` |
+| `js/play.js` | 2,330 | engine | question advance, answering, life loss |
+| `js/save.js` | 250 | engine | save layer, DEFAULT_SAVE, load, persist, migrations |
+| `js/clocks.js` | 140 | engine | stage clocks, live question timer, tick cadence, blitz timer |
 | `js/diag.js` | 100 | engine | session diagnostics ring buffer, error listener, dump export |
 | `js/briefs.js` | 1,440 | engine | boot sequence, mode briefs, cold launch |
 | `js/results.js` | 1,250 | engine | end of run, scoring, habit streak, results view |
@@ -154,12 +156,15 @@ The engine is loaded via `ENGINE_FILES` in strict dependency order:
 10. **`js/results.js`** — end of run, scoring bonuses, habit streak tracker, XP.
 11. **`js/diag.js`** (`Diag`) — session diagnostics ring buffer, error logging, telemetry dump.
 12. **`js/briefs.js`** — boot sequence, mode briefs, cold launch into Ur.
-13. **`js/play.js`** — stage clocks, live question timer, answering, life loss.
-14. **`js/game.js`** — save layer, modes, router `go(view)`, run orchestration.
+13. **`js/save.js`** — save layer, DEFAULT_SAVE, load, persist, migrations.
+14. **`js/clocks.js`** — stage clocks, live question timer, tick cadence, blitz timer.
+15. **`js/play.js`** — live question advance, answering, life loss.
+16. **`js/game.js`** — modes, router `go(view)`, run orchestration.
 
 Where the run loop lives today: run state `R`, `startRun` and its
 `startRun*` helpers, `go(view)` and `endRun` are in `game.js`;
-`questionDuration`, `nextQuestion`, answering and the timer are in
+`save.js` owns persistence and migrations; `clocks.js` owns the
+timers; `nextQuestion`, answering and question mechanics are in
 `play.js`. Menu/briefs are in `briefs.js`; results rendering is in
 `results.js`.
 
