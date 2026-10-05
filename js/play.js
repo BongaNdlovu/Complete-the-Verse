@@ -1674,6 +1674,9 @@ function rallySpeak(lines){
   Director.speak(lines[rallyCursor % lines.length], true);
   rallyCursor++;
 }
+function rallyPass(offered){
+  if(!offered) rallySpeak(RALLY_PASS);
+}
 function markLastLamp(){
   if(R.oneLifeCalled) return;
   R.oneLifeCalled = true;
@@ -1735,7 +1738,7 @@ function applyCorrect(opts){
   if(!offered) afterRun(answerHoldMs(), queueAdvance);
   Director.impact("correct"); Snd.correct(); animateScore(); setMult(true); Director.momentum(true);
   celebrateCorrectStreak();
-  if(!offered) rallySpeak(RALLY_PASS);
+  rallyPass(offered);
   if(offered && typeof Cinematic !== "undefined") Cinematic.event("overdrive");
   return offered;
 }
