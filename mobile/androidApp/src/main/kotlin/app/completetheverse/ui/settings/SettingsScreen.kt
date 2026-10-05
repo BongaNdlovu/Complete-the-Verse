@@ -101,7 +101,7 @@ fun SettingsScreen(
                 }
                 SetRow(
                     label = "Translation",
-                    hint = "Verse memory and Daily are kept per edition. The road, relics, and seals are shared.",
+                    hint = "Scores, rank, relics, and the road stay with this edition. The other edition starts fresh.",
                 ) {
                     SegControl(
                         options = listOf("kjv" to "KJV", "nkjv" to "NKJV"),

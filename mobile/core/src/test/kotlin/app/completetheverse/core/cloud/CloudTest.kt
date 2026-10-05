@@ -369,7 +369,7 @@ class CloudTest {
         assertEquals(4, loaded.obj("best").int("blitz"))
         assertEquals(0, loaded.obj("best").int("pilgrimage"))
         assertEquals(0.45, loaded.obj("set").double("music"), 1e-9)
-        assertEquals("disciple", loaded.obj("set")["diff"]?.jsonPrimitive?.content)
+        assertEquals("watchman", loaded.obj("set")["diff"]?.jsonPrimitive?.content)
     }
 
     @Test

@@ -148,12 +148,15 @@ const MODES = {
 };
 const DIFFS = {
   disciple:{ key:"disciple", name:"Disciple", lives:3, time:1.0, score:0.85,
-    desc:"Three lamps. The clock as it is written." },
+    desc:"Three lamps. The clock as it is written.", buried:true },
   watchman:{ key:"watchman", name:"Watchman", lives:2, time:0.85, score:1.0,
     desc:"Two lamps. The clock as the ordeal writes it." }
 };
 function resolveDiff(key){
   return DIFFS[key] || DIFFS.watchman;
+}
+function selectableDiffs(){
+  return Object.keys(DIFFS).filter(function(k){ return !DIFFS[k].buried; });
 }
 function markFunnel(step){
   if(!SAVE.life) return;

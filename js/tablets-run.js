@@ -874,7 +874,7 @@ function tabletsSurge(){
   R.surgeLeft = 9;
   tabletsPlayGoldChime();
   spawnTabletsSparks(0, 0, 24);
-  if((R.powers && R.powers.winnow) || 0) tabletsWinnow();
+  if(typeof Director !== "undefined" && Director.speak) Director.speak("Surge. The clock holds.", true);
   paintTabletsSurge();
   paintTabletsHud();
 }

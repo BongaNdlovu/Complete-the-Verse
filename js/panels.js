@@ -778,12 +778,12 @@ function renderSettings(){
     ownerBlock +
     accountBlock +
     profileBlock +
-    setRow("Translation","Locked for this game. It cannot be changed during a run or in Settings. Start over at the top of the hall to choose again. The road, relics, and verse memory stay.",
+    setRow("Translation","Locked until you start over at the top of the hall. KJV and NKJV keep separate scores, rank, relics, and pilgrimage. A first start on an edition begins fresh.",
       '<span class="edition-locked">'+(s.translation==="nkjv" ? "New King James Version" : "King James Version")+'</span>') +
     setRow("Translation license","Scripture taken from the New King James Version®. Copyright © 1982 by Thomas Nelson. Used by permission. All rights reserved.",
       '<div class="hint" style="text-align:right;">NKJV © 1982 Thomas Nelson</div>') +
-    setRow("Ordeal","Disciple is the learning path. Watchman is the full clock.",
-      seg("diff",[["disciple","Disciple"],["watchman","Watchman"]],s.diff||"disciple")) +
+    setRow("Ordeal","Watchman. Two lamps, the full clock.",
+      seg("diff",(typeof selectableDiffs==="function"?selectableDiffs():["watchman"]).map(function(k){ return [k, DIFFS[k].name]; }),s.diff||"watchman")) +
     setRow("Music","Ambient drone beneath the cathedral.",
       '<input type="range" id="set-music" min="0" max="1" step="0.05" value="'+s.music+'">') +
     setRow("Sound effects","Ticks, heartbeat, the hit when you are wrong.",

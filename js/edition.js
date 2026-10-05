@@ -1,7 +1,7 @@
 /* ==================================================================
    EDITION — manages KJV and NKJV editions of Complete the Verse.
-   Shares engine, map progress, and mechanics.
-   Isolates verse memory, Daily records, and Word Tablets holds.
+   Shares the engine. Scores, rank, verse memory, Daily, tablets,
+   relics, and the road each live in their own edition.
    ================================================================== */
 var Edition = (function(){
   var currentEdition = "kjv";
@@ -210,8 +210,9 @@ var Edition = (function(){
   function activateEdition(key){
     initStores();
     key = (key === "nkjv") ? "nkjv" : "kjv";
+    if(typeof snapshotEdition === "function" && typeof SAVE !== "undefined") snapshotEdition(SAVE);
     currentEdition = key;
-    if(typeof SAVE !== "undefined" && SAVE.set) {
+    if(typeof SAVE !== "undefined" && SAVE.set && typeof applyEdition !== "function") {
       SAVE.set.translation = key;
     }
 
@@ -233,6 +234,7 @@ var Edition = (function(){
     if(typeof TUTORIAL_QUESTIONS !== "undefined" && store.tutorial && store.tutorial.length) {
       replaceArray(TUTORIAL_QUESTIONS, store.tutorial);
     }
+    if(typeof applyEdition === "function" && typeof SAVE !== "undefined") applyEdition(SAVE, key);
     syncDaily(key);
     updateDomLabels();
     return key;
@@ -292,11 +294,10 @@ var Edition = (function(){
     key = (key === "nkjv") ? "nkjv" : "kjv";
     if(typeof SAVE !== "undefined") {
       if(!SAVE.set) SAVE.set = {};
-      SAVE.set.translation = key;
       SAVE.set.translationChosen = true;
-      if(typeof persist === "function") persist();
     }
     activateEdition(key);
+    if(typeof SAVE !== "undefined" && typeof persist === "function") persist();
     if(typeof hideEditionGate === "function") hideEditionGate();
     if(typeof enterCoffeePath === "function") {
       enterCoffeePath();

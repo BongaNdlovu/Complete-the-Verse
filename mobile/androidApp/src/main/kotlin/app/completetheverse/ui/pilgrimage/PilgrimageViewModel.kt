@@ -44,7 +44,7 @@ class PilgrimageViewModel : ViewModel() {
         private set
     var engine by mutableStateOf<Pilgrimage?>(null)
         private set
-    var diff by mutableStateOf(Diffs.disciple)
+    var diff by mutableStateOf(Diffs.watchman)
         private set
 
     fun hydrate(sites: List<Site>, arcs: List<Arc>, verses: List<Verse>, save: SaveBlob) {

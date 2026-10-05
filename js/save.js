@@ -34,7 +34,7 @@ const DEFAULT_SAVE = {
   pilgrim:{sites:{}, lastPlayed:"", started:0, usedIds:[]},
   /* Relics unlocked by first site clear. Shape owned by artifacts.js. */
   artifacts:{unlocked:{}, seen:{}},
-  set:{music:0.45, sfx:0.7, musicMute:false, sfxMute:false, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"disciple",
+  set:{music:0.45, sfx:0.7, musicMute:false, sfxMute:false, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"watchman",
        tutorialDone:false, tutorialSeen:false, tabletsTutorialDone:false, introPlayed:false, liveWeather:true, coldOpenDone:false, urPrologueDone:false, quiet:false, contrast:false, haptics:true,
        singleTap:true,
        translation:"kjv", translationChosen:false,
@@ -140,20 +140,99 @@ function recoverCorruptSave(e){
   return JSON.parse(JSON.stringify(DEFAULT_SAVE));
 }
 
+const EDITION_KEYS = ["xp","oil","illumReserve","runs","best","seals","life","tablets","books","verse","srs","board","journal","ghosts","daily","dailyByEdition","dailyStreak","pendingDaily","habit","pilgrim","artifacts"];
+const EDITION_FLAGS = ["tutorialDone","tutorialSeen","tabletsTutorialDone","introPlayed","coldOpenDone","urPrologueDone"];
+function editionKeyOf(save){
+  return (save && save.set && save.set.translation === "nkjv") ? "nkjv" : "kjv";
+}
+function freshEdition(){
+  const d = JSON.parse(JSON.stringify(DEFAULT_SAVE));
+  const snap = {};
+  EDITION_KEYS.forEach(function(k){ snap[k] = d[k]; });
+  snap.flags = {};
+  EDITION_FLAGS.forEach(function(k){ snap.flags[k] = false; });
+  return snap;
+}
+function snapshotEdition(save){
+  if(!save) return;
+  const key = editionKeyOf(save);
+  save.editions = save.editions || {};
+  const snap = {};
+  EDITION_KEYS.forEach(function(k){ snap[k] = save[k]; });
+  snap.flags = {};
+  EDITION_FLAGS.forEach(function(k){ snap.flags[k] = !!(save.set && save.set[k]); });
+  save.editions[key] = snap;
+}
+function applyEdition(save, key){
+  if(!save) return;
+  key = key === "nkjv" ? "nkjv" : "kjv";
+  save.editions = save.editions || {};
+  if(!save.editions[key]) save.editions[key] = freshEdition();
+  const snap = save.editions[key];
+  EDITION_KEYS.forEach(function(k){
+    if(snap[k] !== undefined) save[k] = snap[k];
+  });
+  if(!save.set) save.set = {};
+  if(snap.flags){
+    EDITION_FLAGS.forEach(function(k){
+      if(snap.flags[k] !== undefined) save.set[k] = snap.flags[k];
+    });
+  }
+  save.set.translation = key;
+}
+function ensureEditions(save){
+  if(!save) return;
+  if(save.editions && save.editions.kjv && save.editions.nkjv){
+    snapshotEdition(save);
+    return;
+  }
+  if(!save.set) save.set = {};
+  const active = editionKeyOf(save);
+  save.set.translation = "kjv";
+  snapshotEdition(save);
+  const nkjv = freshEdition();
+  const tabs = (save.editions.kjv && save.editions.kjv.tablets) || {};
+  Object.keys(tabs).forEach(function(id){
+    if(id.indexOf("nkjv~") !== 0) return;
+    nkjv.tablets[id] = tabs[id];
+    delete tabs[id];
+  });
+  const nd = save.editions.kjv.dailyByEdition && save.editions.kjv.dailyByEdition.nkjv;
+  if(nd && (nd.date || nd.score)) nkjv.daily = nd;
+  const nb = save.editions.kjv.best && save.editions.kjv.best.dailyByEdition && save.editions.kjv.best.dailyByEdition.nkjv;
+  if(nb){
+    nkjv.best.daily = nb;
+    if(nkjv.best.dailyByEdition) nkjv.best.dailyByEdition.nkjv = nb;
+  }
+  save.editions.nkjv = nkjv;
+  save.set.translation = active;
+  applyEdition(save, active);
+}
 function load(){
   try{
-    if(typeof localStorage === "undefined") return JSON.parse(JSON.stringify(DEFAULT_SAVE));
+    if(typeof localStorage === "undefined"){
+      const mem = JSON.parse(JSON.stringify(DEFAULT_SAVE));
+      ensureEditions(mem);
+      return mem;
+    }
     let raw = localStorage.getItem(SAVE_KEY), migrating = false;
     if(!raw){ raw = localStorage.getItem(LEGACY_SAVE_KEY); migrating = !!raw; }
-    if(!raw) return JSON.parse(JSON.stringify(DEFAULT_SAVE));
+    if(!raw){
+      const fresh = JSON.parse(JSON.stringify(DEFAULT_SAVE));
+      ensureEditions(fresh);
+      return fresh;
+    }
     const s = JSON.parse(raw);
     const out = mergeLoadedSave(s);
     if(migrating) migrateV2(out, s);
     migrateProfile(out);
     migrateBlitzUnits(out);
+    ensureEditions(out);
     return out;
   }catch(e){
-    return recoverCorruptSave(e);
+    const recovered = recoverCorruptSave(e);
+    ensureEditions(recovered);
+    return recovered;
   }
 }
 
@@ -193,7 +272,7 @@ function migrateProfile(out){
   if(!out || !out.set) return;
   if(out.set.characterDone && !out.set.profileDone) out.set.profileDone = true;
   if(out.set.playerName == null) out.set.playerName = "";
-  if(out.set.diff !== "disciple" && out.set.diff !== "watchman") out.set.diff = "disciple";
+  out.set.diff = "watchman";
   const id = out.set.character;
   const known = typeof Characters !== "undefined" && Characters.byId(id);
   if(!known){
@@ -228,6 +307,7 @@ function migrateBlitzUnits(out){
 
 let _persistWarned = false;
 function persist(){
+  snapshotEdition(SAVE);
   try{ localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){
     console.error("Save persist failure:", e);
     if(typeof Diag !== "undefined" && Diag.record){
@@ -272,6 +352,7 @@ if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     SAVE_KEY, LEGACY_SAVE_KEY, DEFAULT_SAVE, load, persist,
     mergeLoadedSave, mergeNoticeBoxSave, mergeTabletsSave, mergeBestSave,
-    recoverCorruptSave, migrateV2, migrateProfile, migrateBlitzUnits
+    recoverCorruptSave, migrateV2, migrateProfile, migrateBlitzUnits,
+    snapshotEdition, applyEdition, ensureEditions, editionKeyOf
   };
 }

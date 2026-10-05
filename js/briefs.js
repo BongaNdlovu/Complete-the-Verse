@@ -986,9 +986,9 @@ function openSiteBrief(siteId, mode){
 function renderSiteDiffs(){
   const host = $("sb-diffs");
   if(!host) return;
-  host.innerHTML = Object.keys(DIFFS).map(function(k, di){
+  host.innerHTML = (typeof selectableDiffs === "function" ? selectableDiffs() : Object.keys(DIFFS)).map(function(k, di){
     const d = DIFFS[k];
-    const on = (SAVE.set.diff || "disciple") === k;
+    const on = (SAVE.set.diff || "watchman") === k;
     return '<button type="button" class="diff'+(on?" sel":"")+'" data-diff="'+esc(k)+'" title="Shortcut: '+(di+1)+'"><b>'+esc(d.name)+'</b><span>'+esc(d.desc)+'</span></button>';
   }).join("");
   host.querySelectorAll("[data-diff]").forEach(function(b){

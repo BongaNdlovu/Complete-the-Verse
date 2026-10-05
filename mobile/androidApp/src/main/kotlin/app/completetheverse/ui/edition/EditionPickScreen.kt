@@ -45,7 +45,7 @@ fun EditionPickScreen(
             GoldHeadline("Choose your translation")
             Spacer(Modifier.height(12.dp))
             Text(
-                text = "One hall, two editions. Verse memory and Daily records stay with the edition you pick. The road, relics, and seals are shared.",
+                text = "KJV and NKJV are separate games. Scores, rank, relics, and the road stay with the edition you pick. Starting the other one begins fresh.",
                 color = CtvColors.parchDim,
                 fontFamily = CtvFonts.body,
                 fontSize = 16.sp,

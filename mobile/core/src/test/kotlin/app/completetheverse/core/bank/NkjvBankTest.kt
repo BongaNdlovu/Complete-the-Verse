@@ -2,6 +2,7 @@ package app.completetheverse.core.bank
 
 import app.completetheverse.core.save.Save
 import app.completetheverse.core.tablets.Tablets
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -46,5 +47,15 @@ class NkjvBankTest {
         val back = Save.chooseTranslation(chosen, "kjv")
         assertEquals("kjv", Save.translation(back))
         assertEquals("KJV", Save.translationTag(back))
+    }
+
+    @Test
+    fun nkjvStartsFreshAndKjvReturns() {
+        val started = Save.DEFAULT.toMutableMap()
+        started["xp"] = JsonPrimitive(40)
+        val nkjv = Save.chooseTranslation(JsonObject(started), "nkjv")
+        assertEquals("0", (nkjv["xp"] as JsonPrimitive).content)
+        val back = Save.chooseTranslation(nkjv, "kjv")
+        assertEquals("40", (back["xp"] as JsonPrimitive).content)
     }
 }

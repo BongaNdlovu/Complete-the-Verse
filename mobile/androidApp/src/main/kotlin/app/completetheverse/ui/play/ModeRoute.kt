@@ -62,7 +62,7 @@ fun ModeRoute(
     viewModel: ModeRunViewModel = viewModel(key = "mode-$modeKey"),
 ) {
     val hall = MODES[modeKey] ?: return
-    var diffKey by rememberSaveable(modeKey) { mutableStateOf(Diffs.disciple.key) }
+    var diffKey by rememberSaveable(modeKey) { mutableStateOf(Diffs.watchman.key) }
     val diff = Diffs.resolve(diffKey)
     val save = saves.snapshot().also { saveGeneration }
     val run = viewModel.run

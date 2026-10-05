@@ -301,7 +301,7 @@ object Save {
             put("reduced", false)
             put("shake", true)
             put("voice", true)
-            put("diff", "disciple")
+            put("diff", "watchman")
             put("translation", "kjv")
             put("translationChosen", false)
             put("tutorialDone", false)
@@ -338,11 +338,91 @@ object Save {
     fun translationName(save: SaveBlob): String =
         if (translation(save) == "nkjv") "New King James Version" else "King James Version"
 
+    private val editionKeys = listOf(
+        "xp", "oil", "illumReserve", "runs", "best", "seals", "life", "tablets",
+        "books", "verse", "srs", "board", "journal", "ghosts", "daily", "dailyByEdition",
+        "dailyStreak", "pendingDaily", "habit", "pilgrim", "artifacts",
+    )
+    private val editionFlags = listOf(
+        "tutorialDone", "tutorialSeen", "tabletsTutorialDone", "introPlayed",
+        "coldOpenDone", "urPrologueDone",
+    )
+
+    private fun freshEdition(): JsonObject {
+        val snap = mutableMapOf<String, JsonElement>()
+        for (k in editionKeys) DEFAULT[k]?.let { snap[k] = it }
+        snap["flags"] = buildJsonObject {
+            for (k in editionFlags) put(k, false)
+        }
+        return JsonObject(snap)
+    }
+
+    private fun snapshotInto(save: SaveBlob, key: String): SaveBlob {
+        val editions = ((save["editions"] as? JsonObject)?.toMutableMap()) ?: mutableMapOf()
+        val snap = mutableMapOf<String, JsonElement>()
+        for (k in editionKeys) save[k]?.let { snap[k] = it }
+        snap["flags"] = buildJsonObject {
+            for (k in editionFlags) put(k, boolSet(save, k))
+        }
+        editions[key] = JsonObject(snap)
+        val out = save.toMutableMap()
+        out["editions"] = JsonObject(editions)
+        return JsonObject(out)
+    }
+
+    private fun applyEditionBlob(save: SaveBlob, key: String): SaveBlob {
+        val editions = save["editions"] as? JsonObject ?: return save
+        val snap = (editions[key] as? JsonObject) ?: freshEdition()
+        val out = save.toMutableMap()
+        for (k in editionKeys) {
+            out[k] = snap[k] ?: DEFAULT[k] ?: when (k) {
+                "pendingDaily" -> JsonNull
+                "dailyStreak" -> buildJsonObject {
+                    put("count", 0)
+                    put("lastDate", "")
+                    put("best", 0)
+                    put("celebrated", 0)
+                }
+                "seals", "board", "journal" -> JsonArray(emptyList())
+                else -> JsonObject(emptyMap())
+            }
+        }
+        val flags = snap["flags"] as? JsonObject
+        val set = ((out["set"] as? JsonObject)?.toMutableMap()) ?: mutableMapOf()
+        if (flags != null) {
+            for (k in editionFlags) flags[k]?.let { set[k] = it }
+        }
+        set["translation"] = JsonPrimitive(key)
+        out["set"] = JsonObject(set)
+        return JsonObject(out)
+    }
+
+    private fun parkLegacyEditions(save: SaveBlob): SaveBlob {
+        if (save["editions"] != null) return save
+        val active = translation(save)
+        val asKjv = patchSet(save, "translation" to JsonPrimitive("kjv"))
+        val parked = snapshotInto(asKjv, "kjv")
+        val editions = ((parked["editions"] as? JsonObject)?.toMutableMap()) ?: mutableMapOf()
+        editions["nkjv"] = freshEdition()
+        val out = parked.toMutableMap()
+        out["editions"] = JsonObject(editions)
+        out["set"] = JsonObject(
+            ((out["set"] as? JsonObject)?.toMutableMap() ?: mutableMapOf()).also {
+                it["translation"] = JsonPrimitive(active)
+            },
+        )
+        return applyEditionBlob(JsonObject(out), active)
+    }
+
     fun chooseTranslation(save: SaveBlob, key: String): SaveBlob {
-        val edition = if (key == "nkjv") "nkjv" else "kjv"
+        val next = if (key == "nkjv") "nkjv" else "kjv"
+        val parked = parkLegacyEditions(save)
+        val current = translation(parked)
+        val snapped = snapshotInto(parked, current)
+        val applied = if (current == next) snapped else applyEditionBlob(snapped, next)
         return patchSet(
-            save,
-            "translation" to JsonPrimitive(edition),
+            applied,
+            "translation" to JsonPrimitive(next),
             "translationChosen" to JsonPrimitive(true),
         )
     }

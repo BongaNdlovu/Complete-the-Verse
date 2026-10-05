@@ -134,7 +134,7 @@ fun ModeBriefScreen(
                 modifier = Modifier.widthIn(max = 520.dp).fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                listOf(Diffs.disciple, Diffs.watchman).forEach { option ->
+                listOf(Diffs.watchman).forEach { option ->
                     DiffCard(option, selected = option.key == diff.key, onClick = { onDiff(option) })
                 }
             }

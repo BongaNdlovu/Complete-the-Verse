@@ -48,10 +48,10 @@ ok("the dossier reads the player's difficulty",
 
 function eq(name, got, want) { ok(name, got === want, { got, want }); }
 
-ok("a fresh save defaults to Disciple",
-   /diff:"disciple"/.test(game));
-ok("Disciple and Watchman are playable diffs",
-   /disciple:\{ key:"disciple"/.test(game) && /watchman:\{ key:"watchman"/.test(game));
+ok("a fresh save defaults to Watchman",
+   /diff:"watchman"/.test(game));
+ok("Disciple stays defined but buried",
+   /disciple:\{ key:"disciple"/.test(game) && /buried:true/.test(game));
 ok("unknown difficulty keys fall back to Watchman",
    /function resolveDiff/.test(game) && /DIFFS\[key\] \|\| DIFFS\.watchman/.test(game));
 ok("the site brief offers a difficulty picker",

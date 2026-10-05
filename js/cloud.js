@@ -388,6 +388,31 @@ var Cloud = (function () {
     if (nb) out.set.noticeBox = nb;
     out.board = (local.board && local.board.length) ? local.board
       : (remote.board || []).slice(0, 10);
+    if (local.editions || remote.editions) {
+      function editionBucket(src, key) {
+        if (src.editions && src.editions[key]) return src.editions[key];
+        if (src.editions) return {};
+        var cur = (src.set && src.set.translation === "nkjv") ? "nkjv" : "kjv";
+        return cur === key ? src : {};
+      }
+      function mergeBucket(a, b) {
+        var merged = mergeSave(Object.assign({ v: 3, set: {} }, a || {}), Object.assign({ v: 3, set: {} }, b || {}));
+        delete merged.editions;
+        var flags = {};
+        ["tutorialDone","tutorialSeen","tabletsTutorialDone","introPlayed","coldOpenDone","urPrologueDone"].forEach(function (k) {
+          flags[k] = !!((a && a.flags && a.flags[k]) || (b && b.flags && b.flags[k]));
+        });
+        merged.flags = flags;
+        return merged;
+      }
+      out.editions = {
+        kjv: mergeBucket(editionBucket(local, "kjv"), editionBucket(remote, "kjv")),
+        nkjv: mergeBucket(editionBucket(local, "nkjv"), editionBucket(remote, "nkjv"))
+      };
+      if (typeof applyEdition === "function") {
+        applyEdition(out, (out.set && out.set.translation === "nkjv") ? "nkjv" : "kjv");
+      }
+    }
     return migrateBlitzUnits(out);
   }
 

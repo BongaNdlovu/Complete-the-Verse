@@ -61,7 +61,7 @@ eq("Recall is available to the game", read(sb, "typeof Recall.grade"), "function
 eq("a fresh save has no schedule", read(sb, "Object.keys(SAVE.srs).length"), 0);
 eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
 /* One ordeal. A new player meets Watchman: two lamps, clock ×0.85. */
-eq("a fresh save plays Disciple", read(sb, "SAVE.set.diff"), "disciple");
+eq("a fresh save plays Watchman", read(sb, "SAVE.set.diff"), "watchman");
 eq("the printed clock matches the pure helper",
    read(sb, "pacedClockMs(14000, 1, 1500)"), read(sb, "Math.round((14000 * 1 + 1500) * PACE + FLAT_ADD_MS)"));
 eq("the Disciple-era helper still prints 23.6s at ×1", read(sb, "pacedClockMs(14000, 1, 1500)"), 23600);
@@ -82,7 +82,7 @@ read(sb, "invalidateRun();");
     best:{}, life:{}, books:{}, verse:{}, srs:{}, board:[],
     daily:{date:"", score:0}, set:{diff:"disciple"}
   }});
-  eq("an old Disciple save stays Disciple", read(migrated, "SAVE.set.diff"), "disciple");
+  eq("an old Disciple save migrates to Watchman", read(migrated, "SAVE.set.diff"), "watchman");
 }
 
 /* ---------- a Drill run schedules what it asks ---------- */

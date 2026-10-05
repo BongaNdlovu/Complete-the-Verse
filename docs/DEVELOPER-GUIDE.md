@@ -111,7 +111,7 @@ js/game.js          → the engine orchestrator (everything above is in scope)
 |---|---|---|---|
 | `js/game.js` | 2,220 | engine | modes, router `go(view)`, run state `R` + `startRun*` |
 | `js/play.js` | 2,330 | engine | question advance, answering, life loss |
-| `js/save.js` | 250 | engine | save layer, DEFAULT_SAVE, load, persist, migrations |
+| `js/save.js` | 359 | engine | save layer, DEFAULT_SAVE, load, persist, migrations |
 | `js/clocks.js` | 140 | engine | stage clocks, live question timer, tick cadence, blitz timer |
 | `js/diag.js` | 100 | engine | session diagnostics ring buffer, error listener, dump export |
 | `js/briefs.js` | 1,440 | engine | boot sequence, mode briefs, cold launch |

@@ -378,8 +378,9 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   eq("streak 3 is ANOINTED", read(sb, "tabletsTier(R.streak).name"), "ANOINTED");
   eq("streak 3 multiplies by 2", read(sb, "tabletsTier(R.streak).mult"), 2);
-  exec(sb, "R.surge = 100; var c = R.tabletClock; tabletsSurge(); tabletsBurnSand(1); window._surgeClock = R.tabletClock === c");
+  exec(sb, "R.surge = 100; R.powers.winnow = 2; var c = R.tabletClock; tabletsSurge(); tabletsBurnSand(1); window._surgeClock = R.tabletClock === c");
   eq("surge freezes the sand", read(sb, "!!R.surgeOn"), true);
+  eq("surge does not spend winnow", read(sb, "R.powers.winnow"), 2);
   eq("surge burn leaves the clock", read(sb, "window._surgeClock"), true);
 }
 
