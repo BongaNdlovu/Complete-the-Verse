@@ -158,6 +158,7 @@ function resolveDiff(key){
 function selectableDiffs(){
   return Object.keys(DIFFS).filter(function(k){ return !DIFFS[k].buried; });
 }
+window.selectableDiffs = selectableDiffs;
 function markFunnel(step){
   if(!SAVE.life) return;
   SAVE.life.funnel = SAVE.life.funnel || {};
