@@ -1468,6 +1468,7 @@ if (typeof window !== "undefined") {
   window.introAllowed = introAllowed;
   window.hideEditionGate = hideEditionGate;
   window.armIntro = armIntro;
+  window.cellularConnection = cellularConnection;
   window.pendingSiteId = pendingSiteId;
   window.signinLeaveTimer = signinLeaveTimer;
 }

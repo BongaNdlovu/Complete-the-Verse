@@ -245,6 +245,7 @@
     "paintAudioDock": "readonly",
     "playerDisplayName": "readonly",
     "dataSaverOn": "readonly",
+    "cellularConnection": "readonly",
     "fullVerse": "readonly",
     "hideNotice": "readonly",
     "openSkinPicker": "readonly",
