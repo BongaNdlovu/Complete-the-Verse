@@ -37,7 +37,7 @@ var Atlas = (function () {
   var OSM_URL    = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
   var map = null, satLayer = null, borderLayer = null, osmLayer = null;
-  var built = false, tileErrors = 0, osmAdded = false;
+  var built = false, tileErrors = 0, osmAdded = false, mountedKey = null;
   var markers = {};            // siteId -> L.Marker
   var routeLayers = [];
   var empireLayer = null, terminatorLayer = null;
@@ -77,6 +77,17 @@ var Atlas = (function () {
   /* ------------------------------ state ------------------------------ */
 
   function setProgress(p) { progress = p || Pilgrimage.blankProgress(); }
+  function progressKey() {
+    var sites = (progress && progress.sites) || {};
+    var ids = Object.keys(sites);
+    var bits = "";
+    for (var i = 0; i < ids.length; i++) {
+      var r = sites[ids[i]] || {};
+      bits += ids[i] + (r.cleared ? 1 : 0) + (r.perfect ? 1 : 0) + (r.attempts || 0) + ":" + (r.best || 0) + ";";
+    }
+    var cur = Pilgrimage.currentSite(progress);
+    return bits + "@" + (cur && cur.id);
+  }
   function on(evt, fn) { if (evt in hooks) hooks[evt] = fn; }
 
   function stateOf(site) {
@@ -137,32 +148,40 @@ var Atlas = (function () {
 
   /* Called every time the view is entered: Leaflet has to re-measure
      because the container was display:none until a moment ago. */
+  function settleMap() {
+    if (!map) return;
+    map.invalidateSize();
+    if (!coldOpenDone) coldOpen();
+    else {
+      var card = $("atlas-open");
+      if (card) card.classList.add("gone");
+      var c = Pilgrimage.currentSite(progress);
+      if (c) focus(c.id, { fly: false });
+    }
+  }
   function mount(p) {
     if (p) setProgress(p);
     if (!progress) setProgress(null);
+    var key = progressKey();
+    var wasBuilt = built;
+    var same = wasBuilt && key === mountedKey;
     buildMap();
-    renderRail();
-    if (hasMap()) {
-      // A frame's delay so the browser has actually laid the view out.
-      requestAnimationFrame(function () {
-        map.invalidateSize();
-        refresh();
-        if (!coldOpenDone) coldOpen();
-        else {
-          /* Skipping the flight still has to dismiss the title card —
-             otherwise it stays full opacity over the map forever. */
-          var card = $("atlas-open");
-          if (card) card.classList.add("gone");
-          var c = Pilgrimage.currentSite(progress);
-          if (c) focus(c.id, { fly: false });
-        }
-      });
-    } else {
-      // No Leaflet: still a working level select.
+    if (!hasMap()) {
+      renderRail();
       var c = Pilgrimage.currentSite(progress);
       if (c && c.kind === "tablets") showTabletDossier(c);
       else showDossier(c || Pilgrimage.siteAt(0));
       note("Map library unavailable — the journey list on the left still works", 6000);
+    } else if (!same) {
+      if (wasBuilt) refresh();
+      else {
+        renderRail();
+        revealCurrent();
+        mountedKey = key;
+      }
+      requestAnimationFrame(settleMap);
+    } else {
+      requestAnimationFrame(settleMap);
     }
     startTerminatorClock();
     bindDossierSheet();
@@ -1329,11 +1348,7 @@ var Atlas = (function () {
   /* ------------------------------ refresh ------------------------------ */
 
   /* Called after a level is played, when progress has changed. */
-  function refresh(p) {
-    if (p) setProgress(p);
-    drawRoutes();
-    refreshMarkers();
-    renderRail();
+  function revealCurrent() {
     renderTools();
     var s = (typeof Pilgrimage.place === "function" ? Pilgrimage.place(activeId) : Pilgrimage.site(activeId))
       || Pilgrimage.currentSite(progress);
@@ -1342,6 +1357,14 @@ var Atlas = (function () {
       var parent = Pilgrimage.site(s.parent);
       if (parent) { drawEmpire(parent); applyLight(parent); }
     } else if (s) { showDossier(s); drawEmpire(s); applyLight(s); }
+  }
+  function refresh(p) {
+    if (p) setProgress(p);
+    drawRoutes();
+    refreshMarkers();
+    renderRail();
+    revealCurrent();
+    mountedKey = progressKey();
   }
 
   function loadWeather() {
