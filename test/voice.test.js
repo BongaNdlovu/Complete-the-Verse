@@ -49,7 +49,19 @@ const LINES = [
   { key: "learn the hold choose the missing word", file: "tablets-learn.mp3" },
   { key: "a tablet waits", file: "tablets-waits.mp3" },
   { key: "the hold stands the next chapter is open", file: "tablets-held.mp3" },
-  { key: "the tablet shattered the word remains to be learned", file: "tablets-shatter.mp3" }
+  { key: "the tablet shattered the word remains to be learned", file: "tablets-shatter.mp3" },
+  { key: "that s it you held the line", file: "pass-held.mp3" },
+  { key: "clean don t slow down now", file: "pass-clean.mp3" },
+  { key: "you re cooking", file: "pass-cooking.mp3" },
+  { key: "let s go bro", file: "pass-lets-go.mp3" },
+  { key: "you really locked in", file: "pass-locked.mp3" },
+  { key: "that s sensational", file: "pass-sensational.mp3" },
+  { key: "lamps out you ve still got this", file: "miss-lamps-out.mp3" },
+  { key: "that one got you shake it off", file: "miss-shake.mp3" },
+  { key: "one lamp down eyes up", file: "miss-eyes-up.mp3" },
+  { key: "miss the clock is still running", file: "miss-clock.mp3" },
+  { key: "last lamp make it count", file: "miss-last-lamp.mp3" },
+  { key: "come on man you got this", file: "miss-come-on.mp3" }
 ];
 
 assert(/const VOICE_FILES\s*=/.test(game), "VOICE_FILES map present");

@@ -13,7 +13,7 @@
       stale cache eviction. The page reloads when a new worker takes over.
    ================================================================== */
 
-const CACHE_VERSION = "ctv-v1.10.1";
+const CACHE_VERSION = "ctv-v1.10.2";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
 const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
 const MEDIA_CACHE = "ctv-media-" + CACHE_VERSION;

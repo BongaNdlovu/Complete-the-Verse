@@ -142,7 +142,19 @@ const Director = (function(){
     "learn the hold choose the missing word":"audio/voice/tablets-learn.mp3",
     "a tablet waits":"audio/voice/tablets-waits.mp3",
     "the hold stands the next chapter is open":"audio/voice/tablets-held.mp3",
-    "the tablet shattered the word remains to be learned":"audio/voice/tablets-shatter.mp3"
+    "the tablet shattered the word remains to be learned":"audio/voice/tablets-shatter.mp3",
+    "that s it you held the line":"audio/voice/pass-held.mp3",
+    "clean don t slow down now":"audio/voice/pass-clean.mp3",
+    "you re cooking":"audio/voice/pass-cooking.mp3",
+    "let s go bro":"audio/voice/pass-lets-go.mp3",
+    "you really locked in":"audio/voice/pass-locked.mp3",
+    "that s sensational":"audio/voice/pass-sensational.mp3",
+    "lamps out you ve still got this":"audio/voice/miss-lamps-out.mp3",
+    "that one got you shake it off":"audio/voice/miss-shake.mp3",
+    "one lamp down eyes up":"audio/voice/miss-eyes-up.mp3",
+    "miss the clock is still running":"audio/voice/miss-clock.mp3",
+    "last lamp make it count":"audio/voice/miss-last-lamp.mp3",
+    "come on man you got this":"audio/voice/miss-come-on.mp3"
   };
   function voiceKey(text){
     return String(text||"").toLowerCase().replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();

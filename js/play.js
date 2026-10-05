@@ -1650,6 +1650,35 @@ function tfShowWhy(claim){
   why.hidden = false;
   why.innerHTML = '<b>' + (claim.v ? "TRUE" : "FALSE") + '</b> — ' + esc(claim.why);
 }
+const RALLY_PASS = [
+  "That's it. You held the line.",
+  "Clean. Don't slow down now.",
+  "You're cooking.",
+  "Let's go, bro!",
+  "You really locked in!",
+  "That's sensational."
+];
+const RALLY_MISS = [
+  "Lamps out. You've still got this.",
+  "That one got you. Shake it off.",
+  "One lamp down. Eyes up.",
+  "Miss. The clock is still running."
+];
+const RALLY_LAST = [
+  "Last lamp. Make it count.",
+  "Come on, man. You got this."
+];
+let rallyCursor = 0;
+function rallySpeak(lines){
+  if(typeof Director === "undefined" || !Director.speak || !lines || !lines.length) return;
+  Director.speak(lines[rallyCursor % lines.length], true);
+  rallyCursor++;
+}
+function markLastLamp(){
+  if(R.oneLifeCalled) return;
+  R.oneLifeCalled = true;
+  rallySpeak(RALLY_LAST);
+}
 function applyMiss(opts){
   opts = opts || {};
   const wasRiding = R.overdriveRide && inOverdrive();
@@ -1672,6 +1701,7 @@ function applyMiss(opts){
   witnessLook(true);
   if(opts.why) opts.why();
   if(opts.blitzClock && R.mode==="blitz"){
+    rallySpeak(RALLY_MISS);
     afterRun(answerHoldMs(), function(){
       if(R.blitzEnd && performance.now()>=R.blitzEnd) presentRunEnd("timeout-death");
       else queueAdvance();
@@ -1705,6 +1735,7 @@ function applyCorrect(opts){
   if(!offered) afterRun(answerHoldMs(), queueAdvance);
   Director.impact("correct"); Snd.correct(); animateScore(); setMult(true); Director.momentum(true);
   celebrateCorrectStreak();
+  if(!offered) rallySpeak(RALLY_PASS);
   if(offered && typeof Cinematic !== "undefined") Cinematic.event("overdrive");
   return offered;
 }
@@ -2389,10 +2420,12 @@ function loseLife(count){
   count = count || 1;
   if(R.mode==="beat"){
     R.beatMiss = (R.beatMiss||0) + 1;
+    rallySpeak(RALLY_MISS);
     afterRun(answerHoldMs(), queueAdvance);
     return;
   }
   if(R.mode==="team"){
+    rallySpeak(RALLY_MISS);
     afterRun(answerHoldMs(), queueAdvance);
     return;
   }
@@ -2410,12 +2443,14 @@ function loseLife(count){
   }
   Snd.lampThud(); Snd.lampCrackle();
   renderLives(count);
-  if(R.lives===1 && !R.oneLifeCalled){ R.oneLifeCalled=true; Director.speak("One life remains.",true); }
+  if(R.lives===1) markLastLamp();
+  else if(R.lives>1) rallySpeak(RALLY_MISS);
   if(R.lives<=0){
     const finalAct = R.mode==="trial" && R.actIdx===trialActs().length-1;
     const canUseWind = !finalAct && !SetPieces.noPowers() && R.powers.wind>0;
     if(canUseWind){
       R.powers.wind--; R.usedPower=true; R.powersSpent++; R.lives=1; renderLives(); renderPowers();
+      markLastLamp();
       toast("Second Wind — one life restored");
       Snd.power(); afterRun(1900, queueAdvance); return;
     }
