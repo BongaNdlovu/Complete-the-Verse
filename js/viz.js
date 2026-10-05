@@ -14,7 +14,8 @@ const Viz = (function(){
   function size(){
     c = $("viz"); if(!c || !c.getContext) return false;
     const profile=SAVE.set.quality||"high";
-    dpr = Math.min(window.devicePixelRatio||1, profile==="high"?2:1.35);
+    const phone = typeof matchMedia === "function" && matchMedia("(max-width:720px), (pointer:coarse)").matches;
+    dpr = Math.min(window.devicePixelRatio||1, phone ? 1 : (profile==="high"?2:1.35));
     w = c.clientWidth || 900; h = c.clientHeight || 60;
     if(!w || !h) return false;
     c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);

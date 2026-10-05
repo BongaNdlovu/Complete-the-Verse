@@ -118,6 +118,15 @@ frames.forEach((kf) => {
 });
 
 assert(/@keyframes candleFlicker/.test(css), "the play candle flame flickers");
+const grainPng = gameCss.match(/#grain\{[^}]*data:image\/png;base64,([A-Za-z0-9+/=]+)/);
+assert(grainPng && !/#grain\{[^}]*feTurbulence/.test(gameCss), "film grain is a bitmap tile");
+if (grainPng) {
+  const tile = Buffer.from(grainPng[1], "base64");
+  assert(tile[0] === 137 && tile.toString("ascii", 1, 4) === "PNG", "grain tile decodes as a PNG");
+  assert(tile.length > 1000 && tile.length < 20000, "grain tile stays a small blit");
+}
+assert(/phone \? 1 : \(profile==="high"\?2:1\.35\)/.test(fs.readFileSync(path.join(ROOT, "js", "viz.js"), "utf8")),
+  "answer bars paint at 1x on a phone");
 assert(!/@keyframes emberFall/.test(css) && !/@keyframes emberRise/.test(css),
   "play no longer runs a falling-ember cycle");
 assert(/function updateCandle/.test(game) && /function quitPlay/.test(game),
