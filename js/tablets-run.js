@@ -475,8 +475,9 @@ function tabletsIlluminate(){
     if(typeof toast === "function") toast("No Illuminate left");
     return;
   }
+  const blank = tabletsGapBlank();
   const target = tabletsTrueStone();
-  if(!target) return;
+  if(!target || !blank) return;
   R.tabletHintedIdx = tabletsGapKey();
   R.powers.illum--;
   R.usedPower = true;
@@ -487,6 +488,10 @@ function tabletsIlluminate(){
   paintTabletsIllumBtn();
   if(typeof toast === "function") toast("Illuminate — the true stone glows");
   if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
+  /* O4: the power carves the true word at the Carved grade. It counts for the
+     streak and the Favor, and it earns no typed bonus. */
+  R.tabletGrade = "carved";
+  tabletsPick(String(blank.a || ""));
 }
 function tabletsGreyWords(){
   if(R.tabletWinnowIdx === tabletsGapKey() && R.tabletWinnow) return R.tabletWinnow.slice();
@@ -509,11 +514,12 @@ function tabletsWinnow(){
   const decoys = opts.filter(function(w){
     return String(w).toLowerCase() !== String(blank.a).toLowerCase() && grey.indexOf(w) < 0;
   });
-  if(decoys.length < 1){
+  const take = Tablets.rules.winnowCount(decoys.length);
+  if(take < 1){
     if(typeof toast === "function") toast("Nothing left to winnow");
     return;
   }
-  R.tabletWinnow = decoys.slice(0, 2);
+  R.tabletWinnow = decoys.slice(0, take);
   R.tabletWinnowIdx = tabletsGapKey();
   R.powers.winnow--;
   R.usedPower = true;
@@ -630,7 +636,8 @@ function tabletsCarve(){
     progress: Tablets.rules.progressOf(R.tabletClock, max),
     streak: R.streak || 0,
     surge: !!R.surgeOn,
-    typed: !!R.tabletTypedHit
+    typed: !!R.tabletTypedHit,
+    grade: R.tabletGrade || null
   });
 }
 /* O2: the carve's points are the Favor. Trial stays an outer 2.5x. */
@@ -641,6 +648,33 @@ function tabletsHitFavor(carve){
 function tabletsScoreText(carve, favor){
   if(R.tabletTutorial) return "+" + favor + " FAVOR";
   return tabletsGradeName(carve.grade) + " · +" + favor + " FAVOR";
+}
+/* D4: the three milestones wear the game's names. */
+function tabletsMilestoneName(streak){
+  if(streak >= 50) return "Jubilee";
+  if(streak >= 25) return "Double portion";
+  return "Tithe";
+}
+function tabletsMilestoneBanner(reached){
+  if(!reached) return;
+  const banner = $("tablets-blessing");
+  const icon = $("tablets-blessing-icon");
+  const text = $("tablets-blessing-text");
+  if(icon) icon.textContent = "🏛️";
+  if(text) text.textContent = tabletsMilestoneName(reached.streak) + " · +" + reached.bonus + " FAVOR";
+  if(banner){
+    banner.classList.add("active");
+    setTimeout(function(){ try{ banner.classList.remove("active"); }catch(e){} }, 2800);
+  }
+}
+/* D2: the streak gives the charges back, and the rules decide how. */
+function tabletsRecharge(carve){
+  const award = Tablets.rules.recharge({ winnow:R.powers.winnow || 0, illuminate:R.powers.illum || 0 }, R.streak, carve.milestone);
+  R.powers.winnow = award.charges.winnow;
+  R.powers.illum = award.charges.illuminate;
+  if(!award.gained.length) return;
+  paintTabletsPowers();
+  if(typeof toast === "function") toast("Restored · " + award.gained.join(" · "));
 }
 function tabletsResolveHit(){
   R.correct = (R.correct || 0) + 1;
@@ -665,7 +699,11 @@ function tabletsResolveHit(){
     tabletsPulseSpeech();
     tabletsPlayGoldChime();
   });
-  if(!R.tabletTutorial) tabletsRollBlessing();
+  if(!R.tabletTutorial){
+    tabletsRollBlessing();
+    tabletsMilestoneBanner(carve.milestone);
+    tabletsRecharge(carve);
+  }
 }
 function tabletsResolve(ok){
   if(!R || R.ended || R.paused || R.mode !== "tablets" || R.tabletResolving) return;
@@ -685,6 +723,7 @@ function tabletsResetBlankAids(){
   R.tabletWinnow = [];
   R.tabletTyped = "";
   R.tabletTypedHit = false;
+  R.tabletGrade = null;
   R.tabletHintedIdx = -1;
   R.tabletWinnowIdx = -1;
   R.tabletBlankStart = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();

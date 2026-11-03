@@ -176,14 +176,14 @@ ok("short run is not Held", !Tablets.held({ tabletMiss:0, tabletIdx:4, tabletTot
   eq("under three quarters is C", TR.rank(5, 11, 1, 0), "C");
   eq("an empty chapter is C", TR.rank(0, 0, 0, 2), "C");
 
-  const none = { illuminate:0, stasis:0, chisel:0 };
+  const none = { winnow:0, illuminate:0 };
   eq("streak 4 recharges nothing", TR.recharge(none, 4, null).gained.join(","), "");
-  eq("streak 5 recharges illuminate and stasis", TR.recharge(none, 5, null).gained.join(","), "illuminate,stasis");
-  eq("streak 10 adds the chisel", TR.recharge(none, 10, null).gained.join(","), "illuminate,stasis,chisel");
-  eq("a milestone adds the chisel", TR.recharge(none, 15, { streak:15 }).gained.join(","), "illuminate,stasis,chisel");
-  eq("full primaries give the chisel", TR.recharge({ illuminate:3, stasis:3, chisel:0 }, 5, null).gained.join(","), "chisel");
-  eq("charges cap at 3", TR.recharge({ illuminate:3, stasis:3, chisel:3 }, 10, null).charges.chisel, 3);
-  eq("recharge leaves its input alone", none.illuminate, 0);
+  eq("streak 5 recharges Winnow", TR.recharge(none, 5, null).gained.join(","), "winnow");
+  eq("streak 10 recharges Winnow and Illuminate", TR.recharge(none, 10, null).gained.join(","), "winnow,illuminate");
+  eq("a milestone adds Illuminate", TR.recharge({ winnow:3, illuminate:0 }, 15, { streak:15 }).gained.join(","), "illuminate");
+  eq("a capped Winnow is not granted", TR.recharge({ winnow:3, illuminate:0 }, 5, null).gained.join(","), "");
+  eq("charges cap at 3", TR.recharge({ winnow:3, illuminate:2 }, 10, null).charges.illuminate, 3);
+  eq("recharge leaves its input alone", none.winnow, 0);
 }
 
 const src = fs.readFileSync(path.join(ROOT, "js", "tablets.js"), "utf8")
@@ -660,6 +660,54 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("the slot forgets the letter", read(sb, "$('tablets-slot').textContent"), "w");
   type("Backspace");
   eq("an empty prefix shows the empty slot", read(sb, "$('tablets-slot').textContent"), "— — —");
+}
+
+{
+  // O3: Winnow takes min(3, decoys - 1), so it never clears the tray.
+  eq("three decoys leave two for Winnow", Tablets.rules.winnowCount(3), 2);
+  eq("five decoys take at most three", Tablets.rules.winnowCount(5), 3);
+  eq("a lone decoy is left alone", Tablets.rules.winnowCount(1), 0);
+}
+
+{
+  // O4: Illuminate carves the true word, graded Carved.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "tabletsIlluminate()");
+  eq("Illuminate carves the gap", read(sb, "R.favor"), 100);
+  eq("the Illuminate carve is graded Carved",
+    read(sb, "$('tablets-ms').children[$('tablets-ms').children.length - 1].textContent"), "Carved · +100 FAVOR");
+  eq("the Illuminate carve counts the streak", read(sb, "R.streak"), 1);
+  eq("Illuminate still spends its charge", read(sb, "R.powers.illum"), 0);
+  exec(sb, "tabletsFinishResolve(true)");
+  eq("the carved gap advances", read(sb, "R.gapIdx"), 1);
+}
+
+{
+  // D4: the milestones wear the game's names and pay on the carve.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  eq("streak 10 is the Tithe", read(sb, "tabletsMilestoneName(10)"), "Tithe");
+  eq("streak 25 is the Double portion", read(sb, "tabletsMilestoneName(25)"), "Double portion");
+  eq("streak 75 is still Jubilee", read(sb, "tabletsMilestoneName(75)"), "Jubilee");
+  exec(sb, "R.streak = 9");
+  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("the Tithe names itself and its Favor", read(sb, "$('tablets-blessing-text').textContent"), "Tithe · +500 FAVOR");
+  eq("the Tithe rides on the carve", read(sb, "R.favor"), 1025);
+  eq("the tenth streak recharges Illuminate", read(sb, "R.powers.illum"), 2);
+}
+
+{
+  // D2: the streak gives the charges back, Winnow first.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "R.streak = 4");
+  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("streak 5 restores Winnow", read(sb, "R.powers.winnow"), 3);
+  eq("streak 5 leaves Illuminate alone", read(sb, "R.powers.illum"), 1);
 }
 
 {

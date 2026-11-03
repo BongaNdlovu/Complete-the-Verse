@@ -348,8 +348,7 @@ Tablets.rules = (function(){
   const RAMP_PER_BLANK = 0.014, RAMP_PER_STREAK = 0.011, RAMP_CAP = 0.3;
   const GOLDEN_PACE = 0.9, MIN_BLANK_S = 1.55;
   const PUSHBACK = 0.45, PUSHBACK_FLOOR = 0.12;
-  const RELICS = ["illuminate", "stasis", "chisel"];
-  const RELIC_MAX = 3, RELIC_EVERY = 5, CHISEL_EVERY = 10;
+  const CHARGE_MAX = 3, WINNOW_EVERY = 5, ILLUM_EVERY = 10;
 
   function clamp01(n){ return Math.max(0, Math.min(1, n)); }
   function progressOf(left, max){
@@ -376,10 +375,15 @@ Tablets.rules = (function(){
   function comboOf(streak){
     return Math.min(1 + Math.floor(Math.max(0, streak) / 2) * COMBO_STEP, COMBO_CAP);
   }
+  function gradeOf(id){
+    for(let i = 0; i < GRADES.length; i++) if(GRADES[i].id === id) return GRADES[i];
+    return null;
+  }
   function carve(input){
     const streak = (input.streak || 0) + 1;
     const combo = comboOf(streak);
-    const g = grade(input.progress);
+    /* O4: a power may name the grade it carves at. */
+    const g = (input.grade ? gradeOf(input.grade) : null) || grade(input.progress);
     const reached = milestone(streak);
     const mult = combo * g.mult
       * (input.surge ? SURGE_MULT : 1)
@@ -399,6 +403,10 @@ Tablets.rules = (function(){
     const ramp = Math.min(RAMP_CAP, blankIdx * RAMP_PER_BLANK + streak * RAMP_PER_STREAK);
     return Math.max(MIN_BLANK_S, base * (1 - ramp) * (golden ? GOLDEN_PACE : 1));
   }
+  /* O3: Winnow banishes min(3, decoys - 1), so it never clears the tray. */
+  function winnowCount(decoys){
+    return Math.max(0, Math.min(3, (decoys | 0) - 1));
+  }
   /* A miss spends a lamp and pushes the sand back; judgment allows none. */
   function miss(lit, judgment, progress){
     const next = Math.max(0, lit - 1);
@@ -414,20 +422,19 @@ Tablets.rules = (function(){
     if(misses === 1) return "S";
     return "A";
   }
+  /* D2: Winnow and Illuminate come back on streaks — Winnow every 5,
+     Illuminate on every 10 and on a milestone — and never above the cap. */
   function recharge(charges, streak, reachedMilestone){
-    const next = { illuminate:charges.illuminate || 0, stasis:charges.stasis || 0, chisel:charges.chisel || 0 };
+    const next = { winnow:charges.winnow || 0, illuminate:charges.illuminate || 0 };
     const gained = [];
-    const isRechargeStreak = streak > 0 && streak % RELIC_EVERY === 0;
-    if(!isRechargeStreak) return { charges:next, gained:gained };
-    const primariesFull = next.illuminate >= RELIC_MAX && next.stasis >= RELIC_MAX;
-    const awardsChisel = !!reachedMilestone || streak % CHISEL_EVERY === 0 || primariesFull;
-    const award = { illuminate:true, stasis:true, chisel:awardsChisel };
-    for(let i = 0; i < RELICS.length; i++){
-      const id = RELICS[i];
-      if(!award[id]) continue;
-      if(next[id] >= RELIC_MAX) continue;
-      next[id]++;
-      gained.push(id);
+    if(streak > 0 && streak % WINNOW_EVERY === 0 && next.winnow < CHARGE_MAX){
+      next.winnow++;
+      gained.push("winnow");
+    }
+    const illumUp = !!reachedMilestone || (streak > 0 && streak % ILLUM_EVERY === 0);
+    if(illumUp && next.illuminate < CHARGE_MAX){
+      next.illuminate++;
+      gained.push("illuminate");
     }
     return { charges:next, gained:gained };
   }
@@ -439,6 +446,7 @@ Tablets.rules = (function(){
     milestone: milestone,
     carve: carve,
     blankSeconds: blankSeconds,
+    winnowCount: winnowCount,
     miss: miss,
     rank: rank,
     recharge: recharge
