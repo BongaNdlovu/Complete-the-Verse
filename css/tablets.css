@@ -73,7 +73,7 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-mult{color:#fff;background:#966418;padding:1px 5px;border-radius:10px;font-size:.58rem}
 .tablets-stats{display:flex;gap:clamp(10px,2vw,24px);align-items:center;flex:0 0 auto}
 .tablets-stat{text-align:center;min-width:3.2em}
-.tablets-stat b{display:block;font-family:var(--disp);font-size:clamp(.9rem,2vw,1.25rem);color:var(--gold-hot)}
+.tablets-stat b{display:block;font-family:var(--disp);font-size:clamp(1rem,2.2vw,1.4rem);color:var(--gold-hot);text-shadow:0 0 14px rgba(245,176,39,.45)}
 .tablets-stat span{font-family:var(--ui);font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:#8a7a62}
 .tablets-actions{display:flex;gap:8px;flex:0 0 auto}
 .tablets-iconbtn{
@@ -82,6 +82,21 @@ body.view-tablets .voice-caption{display:none!important}
   box-shadow:0 0 0 1px rgba(213,173,98,.28) inset}
 .tablets-iconbtn:hover,.tablets-iconbtn:focus-visible{color:var(--gold-hot)}
 .tablets-iconbtn.on{color:var(--gold-hot);border-color:var(--gold-hot)}
+/* D: the header's seals — three diamonds, cracked as they spend. */
+.tablets-seals{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.tablets-seal{
+  display:block;width:13px;height:13px;transform:rotate(45deg);
+  background:linear-gradient(135deg,#4a2d0c 0%,#241408 100%);
+  border:1.5px solid #caa04c;box-shadow:inset 0 0 0 2px rgba(255,224,130,.28),0 0 10px rgba(255,215,90,.4)}
+.tablets-seal.cracked{
+  background:linear-gradient(135deg,#2a2016 0%,#171008 100%);
+  border-color:#5a4526;box-shadow:none;opacity:.72}
+.tablets-seals.low .tablets-seal{border-color:#ff8a8a;box-shadow:0 0 8px rgba(255,90,80,.5)}
+/* D: the compact pace tag (decision J3). */
+.tablets-pace-tag{
+  display:flex;align-items:center;align-self:center;padding:4px 10px;border-radius:20px;
+  background:rgba(20,12,6,.85);border:1px solid #5a4526;
+  font-family:var(--ui);font-size:.6rem;font-weight:700;letter-spacing:.14em;color:#c9b088;text-transform:uppercase}
 .tablets-stage{
   position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:stretch;justify-content:center;
   gap:clamp(8px,2vw,24px);padding:12px clamp(10px,2vw,20px);width:100%;max-width:1440px;margin:0 auto}
@@ -90,6 +105,22 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-stage::before{
   content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
   background:radial-gradient(ellipse at 50% 36%,rgba(150,26,10,.12) 0%,rgba(84,12,5,.28) 70%,rgba(30,5,2,.48) 100%)}
+/* D: the timing ladder — fresh sand at the entry, last grain at The Mark. */
+.tablets-ladder{
+  position:absolute;top:12px;bottom:12px;right:6px;width:118px;z-index:5;pointer-events:none;
+  display:none}
+@media (min-width:900px){.tablets-ladder{display:block}}
+.tablets-ladder::before{
+  content:"";position:absolute;top:0;bottom:0;left:50%;width:1.5px;
+  background:linear-gradient(180deg,rgba(224,68,46,.55),rgba(217,182,103,.25) 55%,rgba(57,217,138,.45))}
+.tablets-ladder span{
+  position:absolute;right:0;transform:translateY(-50%);
+  font-family:var(--ui);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:#c9b088;
+  background:rgba(10,6,3,.72);border:1px solid rgba(217,182,103,.25);border-radius:999px;padding:2px 7px;white-space:nowrap}
+.tablets-ladder span b{color:var(--gold-hot);font-weight:700;margin-left:4px}
+.tablets-ladder-marker{
+  position:absolute;left:50%;width:9px;height:9px;transform:translate(-50%,-50%) rotate(45deg);
+  background:linear-gradient(135deg,#fff2c6,#dfa544);box-shadow:0 0 10px rgba(255,224,130,.9);border:1px solid #fff}
 .tablets-ground{
   display:none;position:relative;width:215px;flex:0 0 auto;z-index:5;padding:10px;text-align:center;border-radius:12px;
   background:linear-gradient(180deg,#24170b 0%,#120b05 100%);border:1.5px solid #573e1c;

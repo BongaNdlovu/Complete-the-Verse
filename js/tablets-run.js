@@ -438,6 +438,8 @@ function paintTabletsHud(){
   paintTabletsSurge();
   paintTabletsIllumBtn();
   paintTabletsTutorialCallout();
+  const paceEl = $("tablets-pace-tag");
+  if(paceEl) paceEl.textContent = tabletsPaceLabel(Tablets.paceOf ? Tablets.paceOf(tabletsChapter()) : 1);
 }
 function tabletsOptsForBlank(){
   const blank = tabletsGapBlank();
@@ -447,6 +449,21 @@ function tabletsOptsForBlank(){
   R.tabletOpts = Tablets.options(blank);
   R.tabletOptsIdx = key;
   return R.tabletOpts;
+}
+/* D: the lamps wear the arcade's seals — three diamonds that crack as they spend. */
+function tabletsSealsMarkup(left){
+  let out = "";
+  for(let i = 0; i < 3; i++){
+    out += '<i class="tablets-seal' + (i < left ? "" : " cracked") + '"></i>';
+  }
+  return out;
+}
+function tabletsPaceLabel(pace){
+  return ["Pace I", "Pace II", "Pace III"][Math.min(3, Math.max(1, Math.round(pace) || 1)) - 1];
+}
+/* D: the ladder marker reads the same rise as the roll — 0 at the entry line, 100 at The Mark. */
+function tabletsLadderTop(rise){
+  return (1 - rise) * 100;
 }
 function paintTabletsPowers(){
   const illum = $("tablets-illum");
@@ -470,9 +487,8 @@ function paintTabletsPowers(){
   const lamps = $("tablets-lamps");
   if(lamps){
     const left = Math.max(0, (R.tabletLives || 1) - (R.tabletMiss || 0));
-    const lab = $("tablets-lamps-n");
-    if(lab && lamps.children && lamps.children.indexOf && lamps.children.indexOf(lab) >= 0) lab.textContent = String(left);
-    else lamps.textContent = "Lamps ×" + left;
+    lamps.dataset.lampsLeft = String(left);
+    lamps.innerHTML = tabletsSealsMarkup(left);
     lamps.classList.toggle("low", left <= 1);
   }
 }
@@ -902,6 +918,8 @@ function tabletsTick(now){
   tabletsTickTrauma(dt);
   drawTabletsFx(dt);
   paintTabletsClock();
+  const ladderMarker = $("tablets-ladder-marker");
+  if(ladderMarker) ladderMarker.style.top = tabletsLadderTop(tabletsRiseOf()).toFixed(2) + "%";
   paintTabletsSurge();
   R.tabletRaf = requestAnimationFrame(tabletsTick);
 }

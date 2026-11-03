@@ -275,11 +275,11 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   eq("a miss on a fresh clock settles the sand at 12% gone",
     read(sb, "Math.abs((1 - R.tabletClock / R.tabletClockMax) - 0.12) < 1e-9"), true);
   eq("the clock keeps racing after the crack", read(sb, "R.tabletRacing"), true);
-  eq("lamps read two", read(sb, "$('tablets-lamps').textContent"), "Lamps ×2");
+  eq("two lamps stay lit after one miss", read(sb, "$('tablets-lamps').dataset.lampsLeft"), "2");
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
   eq("the second miss takes the second lamp", read(sb, "R.tabletMiss"), 2);
   eq("the second miss is not the end", read(sb, "R.ended"), false);
-  eq("lamps read one", read(sb, "$('tablets-lamps').textContent"), "Lamps ×1");
+  eq("one lamp stays lit after two misses", read(sb, "$('tablets-lamps').dataset.lampsLeft"), "1");
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
   eq("the third miss ends the run", read(sb, "R.ended"), true);
   eq("not Held", read(sb, "Tablets.held(R)"), false);
@@ -326,7 +326,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   exec(sb, "startRun('tablets','watchman')");
   eq("Illuminate starts at 1", read(sb, "R.powers.illum"), 1);
   eq("Winnow starts at 2", read(sb, "R.powers.winnow"), 2);
-  eq("three lamps shown", read(sb, "$('tablets-lamps').textContent"), "Lamps ×3");
+  eq("three lamps shown", read(sb, "$('tablets-lamps').dataset.lampsLeft"), "3");
   exec(sb, "tabletsIlluminate()");
   eq("hint spends Illuminate", read(sb, "R.powers.illum"), 0);
   eq("illuminate leaves six stones live", read(sb, "$('tablets-grid').children.filter(function(c){ return !c.disabled; }).length"), 6);
@@ -635,7 +635,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   exec(sb, "startRun('tablets','watchman')");
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
-  eq("two misses leave one lamp", read(sb, "$('tablets-lamps').textContent"), "Lamps ×1");
+  eq("two misses leave one lamp", read(sb, "$('tablets-lamps').dataset.lampsLeft"), "1");
   stubRandom(sb, 0.9);
   holdAll(sb);
   eq("a run that ends on one lamp is still Held", read(sb, "Tablets.held(R)"), true);
@@ -1191,6 +1191,22 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("the embers rest at their cool light", read(sb, "tabletsEmberAlpha(false)"), 0.65);
   eq("Surge burns the embers brighter", read(sb, "tabletsEmberAlpha(true)"), 0.85);
   ok("the hall wears its red ambience", /\.tablets-stage::before\{[^}]*rgba\(150,26,10/.test(src));
+}
+{
+  // D: the header wears the arcade's seals, pace tag and timing ladder (roadmap phase D).
+  const sb = boot();
+  eq("three intact seals on a fresh run", read(sb, "(tabletsSealsMarkup(3).match(/cracked/g) || []).length"), 0);
+  eq("one seal cracks when a lamp burns", read(sb, "(tabletsSealsMarkup(2).match(/cracked/g) || []).length"), 1);
+  eq("every seal cracks when the lamps are gone", read(sb, "(tabletsSealsMarkup(0).match(/cracked/g) || []).length"), 3);
+  eq("the pace tag reads Pace II at pace 2", read(sb, "tabletsPaceLabel(2)"), "Pace II");
+  eq("a pace past III clamps to Pace III", read(sb, "tabletsPaceLabel(9)"), "Pace III");
+  ok("the marker tops out at The Mark", Math.abs(read(sb, "tabletsLadderTop(1)")) < 1e-9, read(sb, "tabletsLadderTop(1)"));
+  ok("the marker sits at the entry on fresh sand", Math.abs(read(sb, "tabletsLadderTop(0)") - 100) < 1e-9, read(sb, "tabletsLadderTop(0)"));
+  ok("the seals live in the header", /tablets-seals" id="tablets-lamps"/.test(html) && html.indexOf("tablets-top") < html.indexOf('id="tablets-lamps"'));
+  ok("the dock no longer repeats the lamp count", html.indexOf("tablets-lamps-n") < 0);
+  ok("the ladder rides the stage's right edge", /\.tablets-ladder\{[^}]*right:6px/.test(src));
+  ok("the marker diamond is cut", /\.tablets-ladder-marker\{[^}]*rotate\(45deg\)/.test(src));
+  ok("the pace tag sits in the actions", html.indexOf('id="tablets-pace-tag"') > html.indexOf('class="tablets-actions"') && html.indexOf('id="tablets-pace-tag"') < html.indexOf('id="tablets-trial"'));
 }
 unstubRandom();
 if (fail) {
