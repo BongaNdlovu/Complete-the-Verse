@@ -266,17 +266,21 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
-  eq("two lamps start the Hold", read(sb, "R.tabletLives"), 2);
-  const clock = read(sb, "R.tabletClock");
+  eq("three lamps start the Hold", read(sb, "R.tabletLives"), 3);
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
   eq("the first miss spends a lamp, not the run", read(sb, "R.ended"), false);
   eq("one lamp is gone", read(sb, "R.tabletMiss"), 1);
   eq("the same blank re-arms", read(sb, "R.tabletIdx"), 0);
-  eq("the clock does not reset after a miss", read(sb, "R.tabletClock"), clock);
+  eq("a miss on a fresh clock settles the sand at 12% gone",
+    read(sb, "Math.abs((1 - R.tabletClock / R.tabletClockMax) - 0.12) < 1e-9"), true);
   eq("the clock keeps racing after the crack", read(sb, "R.tabletRacing"), true);
+  eq("lamps read two", read(sb, "$('tablets-lamps').textContent"), "Lamps ×2");
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  eq("the second miss takes the second lamp", read(sb, "R.tabletMiss"), 2);
+  eq("the second miss is not the end", read(sb, "R.ended"), false);
   eq("lamps read one", read(sb, "$('tablets-lamps').textContent"), "Lamps ×1");
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
-  eq("the second miss ends the run", read(sb, "R.ended"), true);
+  eq("the third miss ends the run", read(sb, "R.ended"), true);
   eq("not Held", read(sb, "Tablets.held(R)"), false);
   eq("91 stays locked", read(sb, "SAVE.tablets.psalm23.held"), false);
   eq("kick is shatter", read(sb, "$('res-kick').textContent"), "The tablet shattered");
@@ -321,7 +325,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   exec(sb, "startRun('tablets','watchman')");
   eq("Illuminate starts at 1", read(sb, "R.powers.illum"), 1);
   eq("Winnow starts at 2", read(sb, "R.powers.winnow"), 2);
-  eq("two lamps shown", read(sb, "$('tablets-lamps').textContent"), "Lamps ×2");
+  eq("three lamps shown", read(sb, "$('tablets-lamps').textContent"), "Lamps ×3");
   exec(sb, "tabletsIlluminate()");
   eq("hint spends Illuminate", read(sb, "R.powers.illum"), 0);
   eq("illuminate leaves four stones live", read(sb, "$('tablets-grid').children.filter(function(c){ return !c.disabled; }).length"), 4);
@@ -473,7 +477,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   stubRandom(sb, 0.9);
   exec(sb, "R.tabletClock = 10; tabletsRollBlessing()");
   eq("no blessing at 0.9 clock", read(sb, "R.tabletClock"), 10);
-  eq("no blessing at 0.9 lives", read(sb, "R.tabletLives"), 2);
+  eq("no blessing at 0.9 lives", read(sb, "R.tabletLives"), 3);
   eq("no blessing at 0.9 surge", read(sb, "R.surge"), 0);
 }
 
@@ -562,6 +566,34 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("a tutorial hit carries no grade",
     read(sb, "$('tablets-ms').children[$('tablets-ms').children.length - 1].textContent"), "+150 FAVOR");
   eq("the tutorial never fills the surge", read(sb, "R.surge"), 0);
+}
+
+{
+  // Phase 3: a miss pushes the sand back, and the floor holds.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "R.tabletClock = 2.5");
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  eq("a miss at 90% gone leaves 45% gone",
+    read(sb, "Math.abs((1 - R.tabletClock / R.tabletClockMax) - 0.45) < 1e-9"), true);
+  ok("a late miss gives sand back", read(sb, "R.tabletClock") > 2.5);
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  eq("the pushback floor holds at 12% gone",
+    read(sb, "Math.abs((1 - R.tabletClock / R.tabletClockMax) - 0.12) < 1e-9"), true);
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  eq("three misses shatter the tablet", read(sb, "R.ended"), true);
+}
+
+{
+  // D1: a finished run with one lamp still lit is Held.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  eq("two misses leave one lamp", read(sb, "$('tablets-lamps').textContent"), "Lamps ×1");
+  stubRandom(sb, 0.9);
+  holdAll(sb);
+  eq("a run that ends on one lamp is still Held", read(sb, "Tablets.held(R)"), true);
 }
 
 {

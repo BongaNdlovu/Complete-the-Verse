@@ -125,7 +125,7 @@ function paintTabletsTutorialCallout(){
     "In the true Hold the sand runs; here it stands still",
     "Illuminate glows the true stone for a breath",
     "Winnow casts two false stones into shadow",
-    "Two lamps guard a wrong word. The sand is the Hold",
+    "Three lamps guard a wrong word. The sand is the Hold",
     "Almost complete · Let no word be lost",
     "Final word · Engrave it to seal your first Hold and open the Hall!"
   ];
@@ -594,7 +594,15 @@ function finishTabletsTutorial(){
 }
 function tabletsResolveMiss(){
   if(!R.tabletTutorial){
-    R.tabletMiss = (R.tabletMiss || 0) + 1;
+    /* D1: a miss spends a lamp and pushes the sand back. The rules decide
+       both; the run applies the verdict and keeps the lamp count. */
+    const lives = R.tabletLives || 1;
+    const lit = Math.max(0, lives - (R.tabletMiss || 0));
+    const max = R.tabletClockMax || tabletsClockMax() || 1;
+    const cracked = Tablets.rules.miss(lit, false, Tablets.rules.progressOf(R.tabletClock, max));
+    R.tabletMiss = lives - cracked.lit;
+    R.tabletLampOut = !!cracked.ended;
+    R.tabletClock = max * (1 - cracked.progress);
     R.streak = 0;
     R.surge = Math.max(0, (R.surge || 0) - 25);
   }
@@ -681,7 +689,7 @@ function tabletsFinishResolve(ok){
   if(!R || R.ended || R.mode !== "tablets" || !R.tabletResolving) return;
   R.tabletResolving = false;
   if(!ok){
-    if(R.tabletTutorial || (R.tabletMiss || 0) < (R.tabletLives || 1)){
+    if(R.tabletTutorial || !R.tabletLampOut){
       tabletsResetBlankAids();
       tabletsUnlockGrid();
       paintTabletsHud();
@@ -760,7 +768,8 @@ function startTabletsLoop(){
   R.tabletTimeout = false;
   R.tabletLastWarnSec = -1;
   R.tabletMiss = 0;
-  R.tabletLives = 2;
+  R.tabletLives = 3;
+  R.tabletLampOut = false;
   R.tabletResolving = false;
   R.favor = 0;
   R.surge = 0;
@@ -902,7 +911,7 @@ function tabletsRollBlessing(){
       const cap = R.tabletClockMax || tabletsClockMax();
       R.tabletClock = Math.min(cap, (R.tabletClock || 0) + 15);
     } },
-    { icon:"🕯️", text:"Golden Censer (+1 Lamp Restored)", apply:function(){ R.tabletLives = (R.tabletLives || 2) + 1; } },
+    { icon:"🕯️", text:"Golden Censer (+1 Lamp Restored)", apply:function(){ R.tabletLives = (R.tabletLives || 3) + 1; } },
     { icon:"✨", text:"Shekinah Glory (+35% Surge Charge)", apply:function(){ R.surge = Math.min(100, (R.surge || 0) + 35); } }
   ];
   const b = picks[Math.floor(Math.random() * picks.length)];
