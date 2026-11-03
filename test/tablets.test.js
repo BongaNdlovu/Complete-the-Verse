@@ -498,7 +498,7 @@ Tablets.chapters.forEach(function(ch){
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   eq("streak 3 is ANOINTED", read(sb, "tabletsTier(R.streak).name"), "ANOINTED");
-  eq("streak 3 multiplies the carve by 1.5", read(sb, "tabletsTier(R.streak).mult"), 1.5);
+  eq("streak 3 shows the 2x the next carve pays (comboOf(4))", read(sb, "tabletsTier(R.streak).mult"), 2);
   exec(sb, "R.surge = 100; R.powers.winnow = 2; var c = R.tabletClock; tabletsSurge(); tabletsBurnSand(1); window._surgeClock = R.tabletClock === c");
   eq("surge freezes the sand", read(sb, "!!R.surgeOn"), true);
   eq("surge does not spend winnow", read(sb, "R.powers.winnow"), 2);
@@ -510,10 +510,10 @@ Tablets.chapters.forEach(function(ch){
   exec(sb, "startRun('tablets','watchman')");
   stubRandom(sb, 0.1);
   exec(sb, "R.tabletClock = 10");
-  const before = read(sb, "({clock:R.tabletClock,lives:R.tabletLives,surge:R.surge})");
+  const before = read(sb, "({clock:R.tabletClock,lives:R.tabletLives,surge:R.surge,bank:R.tabletBankSand})");
   exec(sb, "tabletsRollBlessing()");
-  const after = read(sb, "({clock:R.tabletClock,lives:R.tabletLives,surge:R.surge})");
-  ok("a blessing changes clock, lives, or surge", after.clock !== before.clock || after.lives !== before.lives || after.surge !== before.surge);
+  const after = read(sb, "({clock:R.tabletClock,lives:R.tabletLives,surge:R.surge,bank:R.tabletBankSand})");
+  ok("a blessing changes clock, lives, surge, or the banked sand", after.clock !== before.clock || after.lives !== before.lives || after.surge !== before.surge || after.bank !== before.bank);
 }
 
 {
@@ -977,7 +977,8 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   exec(sb, "startRun('tablets','watchman')");
   exec(sb, "var __rolls = 0; Math.random = function(){ __rolls++; return __rolls === 1 ? 0.1 : 0.5; }");
   exec(sb, "tabletsRollBlessing()");
-  eq("a Hold Golden Censer adds a lamp", read(sb, "R.tabletLives"), 4);
+  eq("at full lamps the Censer leaves the pool: the same roll gives Shekinah Glory", read(sb, "R.surge"), 35);
+  eq("full lamps stay at three", read(sb, "R.tabletLives"), 3);
   unstubRandom();
 }
 {
@@ -1152,7 +1153,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
 {
   // A: the dock wears relic cards; the celebration sleeps under reduced motion.
   ok("the powers wear relic cards", html.indexOf("tablets-relic-name") >= 0 && html.indexOf("tablets-relic-effect") >= 0 && html.indexOf("tablets-relic-count") >= 0);
-  ok("Winnow's card says it banishes three", html.indexOf("Banish three decoys") >= 0);
+  ok("Winnow's card says it banishes up to three", html.indexOf("Banish up to three") >= 0);
   ok("Illuminate's card says it carves", html.indexOf("Carve the true word") >= 0);
   ok("Surge's card says it stops the sand", html.indexOf("Stops the sand") >= 0);
   ok("the relic hop sleeps under reduced motion", /body\.reduced \.tablets-relic\.recharging/.test(src));
@@ -1195,9 +1196,9 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
 {
   // D: the header wears the arcade's seals, pace tag and timing ladder (roadmap phase D).
   const sb = boot();
-  eq("three intact seals on a fresh run", read(sb, "(tabletsSealsMarkup(3).match(/cracked/g) || []).length"), 0);
-  eq("one seal cracks when a lamp burns", read(sb, "(tabletsSealsMarkup(2).match(/cracked/g) || []).length"), 1);
-  eq("every seal cracks when the lamps are gone", read(sb, "(tabletsSealsMarkup(0).match(/cracked/g) || []).length"), 3);
+  eq("three intact seals on a fresh run", read(sb, "(tabletsSealsMarkup(3, 3).match(/cracked/g) || []).length"), 0);
+  eq("one seal cracks when a lamp burns", read(sb, "(tabletsSealsMarkup(2, 3).match(/cracked/g) || []).length"), 1);
+  eq("every seal cracks when the lamps are gone", read(sb, "(tabletsSealsMarkup(0, 3).match(/cracked/g) || []).length"), 3);
   eq("the pace tag reads Pace II at pace 2", read(sb, "tabletsPaceLabel(2)"), "Pace II");
   eq("a pace past III clamps to Pace III", read(sb, "tabletsPaceLabel(9)"), "Pace III");
   ok("the marker tops out at The Mark", Math.abs(read(sb, "tabletsLadderTop(1)")) < 1e-9, read(sb, "tabletsLadderTop(1)"));
@@ -1254,6 +1255,190 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   ok("the stage washes exist", /\.tablets-flash\.miss\{/.test(src) && /\.tablets-flash\.gold\{/.test(src));
   ok("the urgent slot pulses", /\.tablets-slot\.urgent\{[^}]*animation:tabletsSlotUrgent/.test(src));
   ok("the juice sleeps under reduced motion", /body\.reduced \.tablets-stat b\.kick,/.test(src) && /body\.reduced \.tablets-flash,/.test(src));
+}
+{
+  // FX1: the sand waits out a resolve window; a Last grain on the last word is not lost to the hit's hold.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "for(var i = 0; i < 400 && !R.ended && !(R.tabletIdx === R.tabletTotal - 1 && R.gapIdx === tabletsStepBlanks().length - 1); i++){ tabletsResolve(true); tabletsFinishResolve(true); }");
+  exec(sb, "R.tabletClock = 0.5; tabletsResolve(true); R.tabletHitstop = 0");
+  for (let i = 0; i < 6; i++) exec(sb, "tabletsTick(R.tabletLast + 100)");
+  exec(sb, "tabletsFinishResolve(true)");
+  eq("the last grain is not burned away in the resolve window", read(sb, "R.tabletTimeout"), false);
+  ok("the Last grain on the last word completes the Hold", read(sb, "R.ended") === true && read(sb, "Tablets.held(R)") === true, read(sb, "R.tabletClock"));
+  unstubRandom();
+}
+{
+  // FX2: pause and resume inside a resolve window restart the sand loop; the sand burns again after the window.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "tabletsPick(tabletsGapBlank().a)");
+  exec(sb, "setTabletsPaused(true); setTabletsPaused(false)");
+  exec(sb, "tabletsFinishResolve(true); R.tabletHitstop = 0");
+  const before = read(sb, "R.tabletClock");
+  exec(sb, "tabletsTick(R.tabletLast + 100)");
+  ok("the resumed loop is racing", read(sb, "R.tabletRacing") === true, read(sb, "R.tabletRacing"));
+  ok("after the window the sand burns again", read(sb, "R.tabletClock") < before, read(sb, "R.tabletClock"));
+  unstubRandom();
+}
+{
+  // FX3: Illuminate and Winnow spend no charge and do not unlock the grid during a resolve window.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "R.powers.illum = 2; R.powers.winnow = 2; var __w = tabletsStoneButtons().filter(function(b){ return b.dataset.word.toLowerCase() !== tabletsGapBlank().a.toLowerCase(); })[0].dataset.word; tabletsPick(__w)");
+  exec(sb, "tabletsIlluminate(); tabletsWinnow()");
+  eq("Illuminate spends no charge in a miss window", read(sb, "R.powers.illum"), 2);
+  eq("Winnow spends no charge in a miss window", read(sb, "R.powers.winnow"), 2);
+  ok("the grid stays locked in a miss window", read(sb, "$('tablets-grid').classList.contains('locked')"), true);
+  exec(sb, "tabletsFinishResolve(false); tabletsPick(tabletsGapBlank().a); tabletsWinnow(); tabletsIlluminate()");
+  eq("Winnow spends no charge in a carve window", read(sb, "R.powers.winnow"), 2);
+  eq("Illuminate spends no charge in a carve window", read(sb, "R.powers.illum"), 2);
+  ok("the grid stays locked in a carve window", read(sb, "$('tablets-grid').classList.contains('locked')"), true);
+  unstubRandom();
+}
+{
+  // FX4: chords, held letters and typing fields do nothing to the run.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "var __pd = 0; var __pdFn = function(){ __pd++; }; R.powers.winnow = 2; tabletsOnKey({ key: 'w', ctrlKey: true, preventDefault: __pdFn })");
+  eq("Ctrl+W does not winnow", read(sb, "R.powers.winnow"), 2);
+  eq("Ctrl+W takes no key", read(sb, "__pd"), 0);
+  eq("Ctrl+W types nothing", read(sb, "R.tabletTyped"), "");
+  exec(sb, "R.powers.illum = 3; tabletsOnKey({ key: 'i', preventDefault: __pdFn }); tabletsFinishResolve(true); for (var j = 0; j < 5; j++) tabletsOnKey({ key: 'i', repeat: true, preventDefault: __pdFn })");
+  eq("a held i fires Illuminate once", read(sb, "R.powers.illum"), 2);
+  exec(sb, "R.powers.winnow = 2; tabletsOnKey({ key: 'w', target: { tagName: 'INPUT' }, preventDefault: __pdFn }); tabletsOnKey({ key: 'a', target: { tagName: 'INPUT' }, preventDefault: __pdFn })");
+  eq("a key with an INPUT target does not winnow", read(sb, "R.powers.winnow"), 2);
+  eq("a key with an INPUT target types nothing", read(sb, "R.tabletTyped"), "");
+  unstubRandom();
+}
+{
+  // FX4: a key the pause already took (defaultPrevented) resumes the run and types nothing.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "var __k = tabletsNeedWord().charAt(0); setTabletsPaused(true); setTabletsPaused(false); tabletsOnKey({ key: __k, defaultPrevented: true, preventDefault: function(){} })");
+  eq("a key the pause already took types nothing", read(sb, "R.tabletTyped"), "");
+  unstubRandom();
+}
+{
+  // FX5: in the last 5 s the danger wash still draws, and the sparks still age.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "var __calls = []; var _ctx = new Proxy({}, { get: function(t, k){ if(k === 'createRadialGradient') return function(){ __calls.push('gradient'); return { addColorStop: function(){} }; }; return function(){ __calls.push(String(k)); }; }, set: function(){ return true; } }); $('tablets-fx').getContext = function(){ return _ctx; }; tabletsFxInit()");
+  exec(sb, "R.tabletClock = 2; __calls = []; drawTabletsFx(0.016)");
+  ok("the danger wash draws in the last 5 s", read(sb, "__calls.indexOf('gradient') >= 0"), read(sb, "__calls.join(',')"));
+  exec(sb, "spawnTabletsSparks(100, 100, 10); for (var i = 0; i < 60; i++) drawTabletsFx(0.1)");
+  eq("the sparks burn out in the last 5 s", read(sb, "tabletsFx.sparks.length"), 0);
+}
+{
+  // FX6: a finish timer left by an earlier run does not advance the run that replaced it.
+  const sb = boot();
+  exec(sb, "var __timers = []; setTimeout = function(fn, ms){ __timers.push({ fn: fn, ms: ms }); return 0; }");
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "var __n = __timers.length; tabletsResolve(true); var __stale = __timers[__n]; endRun('abandon'); startRun('tablets','watchman'); Math.random = function(){ return 0.9; }; tabletsPick(tabletsStoneButtons().filter(function(b){ return b.dataset.word.toLowerCase() !== tabletsGapBlank().a.toLowerCase(); })[0].dataset.word)");
+  exec(sb, "var __pos = R.tabletIdx + ':' + R.gapIdx; __stale.fn()");
+  eq("a stale finish timer leaves the new miss window alone", read(sb, "R.tabletResolving"), true);
+  eq("a stale finish timer does not move the new run", read(sb, "R.tabletIdx + ':' + R.gapIdx"), read(sb, "__pos"));
+  unstubRandom();
+}
+{
+  // FX7: a Manna Jar banks its 15 s for the next step instead of being wiped by the re-arm.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "var __r = [0.1, 0.1]; Math.random = function(){ return __r.length ? __r.shift() : 0.9; }; tabletsRollBlessing()");
+  eq("the Manna Jar banks 15 s", read(sb, "R.tabletBankSand"), 15);
+  stubRandom(sb, 0.9);
+  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("the next step starts with 40 s", read(sb, "R.tabletClock"), 40);
+  unstubRandom();
+}
+{
+  // FX8: after a miss a Golden Censer relights the lost lamp; lamps never exceed the mode's count.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "tabletsPick(tabletsStoneButtons().filter(function(b){ return b.dataset.word.toLowerCase() !== tabletsGapBlank().a.toLowerCase(); })[0].dataset.word)");
+  exec(sb, "tabletsFinishResolve(false)");
+  eq("one lamp is out after a miss", read(sb, "R.tabletMiss"), 1);
+  exec(sb, "var __r = [0.1, 0.5]; Math.random = function(){ return __r.length ? __r.shift() : 0.9; }; tabletsRollBlessing()");
+  eq("the Censer relights the lost lamp", read(sb, "R.tabletMiss"), 0);
+  eq("the Censer leaves R.tabletLives unchanged", read(sb, "R.tabletLives"), 3);
+  eq("the seals show three lamps lit again", read(sb, "$('tablets-lamps').dataset.lampsLeft"), "3");
+  unstubRandom();
+}
+{
+  // FX8: at full lamps no roll gives the Golden Censer.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "var __seen = []; [0, 0.1, 0.5, 0.99].forEach(function(v){ Math.random = function(){ return v; }; tabletsRollBlessing(); __seen.push($('tablets-blessing-text').textContent); })");
+  ok("at full lamps no roll gives the Golden Censer", read(sb, "__seen.join('|').indexOf('Censer') < 0"), read(sb, "__seen.join('|')"));
+  eq("at full lamps the lamps stay at three", read(sb, "R.tabletLives"), 3);
+  unstubRandom();
+}
+{
+  // FX9: Judgment wears one seal and the lamps read aloud as a count.
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletMode = 'judgment'; startRun('tablets','watchman')");
+  eq("Judgment draws one seal", read(sb, "(tabletsSealsMarkup(1, 1).match(/tablets-seal/g) || []).length"), 1);
+  ok("the one Judgment seal is not cracked", read(sb, "tabletsSealsMarkup(1, 1).indexOf('cracked') < 0"), true);
+  exec(sb, "var __aria = {}; $('tablets-lamps').setAttribute = function(k, v){ __aria[k] = v; }; paintTabletsPowers()");
+  eq("the lamps read Lamps: 1 lit", read(sb, "__aria['aria-label']"), "Lamps: 1 lit");
+}
+{
+  // FX10: the HUD shows the multiplier the next carve pays: at streak 1 that is comboOf(2) = 1.5.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "R.streak = 1");
+  eq("at streak 1 the HUD reads the 1.5 the next carve pays", read(sb, "tabletsTier(R.streak).mult"), 1.5);
+}
+{
+  // FX11: a new run starts with no hitstop, no banked Manna sand, no milestone banner; the sand burns.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "R.tabletHitstop = 85; R.tabletBankSand = 15; $('tablets-milestone').classList.add('active'); endRun('abandon'); startRun('tablets','watchman')");
+  eq("a new run has no hitstop", read(sb, "R.tabletHitstop"), 0);
+  eq("a new run banks no Manna sand", read(sb, "R.tabletBankSand"), 0);
+  eq("the milestone banner is down in a new run", read(sb, "$('tablets-milestone').classList.contains('active')"), false);
+  stubRandom(sb, 0.9);
+  exec(sb, "tabletsTick(R.tabletLast + 100)");
+  ok("the sand burns in a new run", read(sb, "R.tabletClock") < 25, read(sb, "R.tabletClock"));
+  unstubRandom();
+}
+{
+  // FX12: a normal miss buzzes exactly once (no trauma double).
+  const sb = boot();
+  exec(sb, "var __vib = []; navigator.vibrate = function(p){ __vib.push(p); }; SAVE.set.haptics = true; startRun('tablets','watchman')");
+  exec(sb, "tabletsPick(tabletsStoneButtons().filter(function(b){ return b.dataset.word.toLowerCase() !== tabletsGapBlank().a.toLowerCase(); })[0].dataset.word)");
+  eq("a normal miss buzzes once", read(sb, "__vib.length"), 1);
+}
+{
+  // FX12: under reduced motion neither a carve nor a miss buzzes.
+  const sb = boot();
+  exec(sb, "var __vib = []; navigator.vibrate = function(p){ __vib.push(p); }; SAVE.set.haptics = true; document.body.classList.add('reduced'); startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  exec(sb, "tabletsPick(tabletsStoneButtons().filter(function(b){ return b.dataset.word.toLowerCase() !== tabletsGapBlank().a.toLowerCase(); })[0].dataset.word)");
+  eq("reduced motion buzzes for neither carve nor miss", read(sb, "__vib.length"), 0);
+  unstubRandom();
+}
+{
+  // FX13: the carve glow beats the urgent pulse (CSS source).
+  ok("the success glow beats the urgent pulse", /\.tablets-slot\.glow\.urgent\{animation:none\}/.test(src));
+}
+{
+  // FX14: --tablets-rise has no consumer and is not written.
+  ok("--tablets-rise is not written any more", src.indexOf('setProperty("--tablets-rise"') < 0);
+}
+{
+  // FX15: the roll targets the active gap line's offset, not the step top.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "$('tablets-verse').offsetTop = 200; $('tablets-verse').children[0].offsetTop = 60; $('tablets-roll').clientHeight = 400; R.gapIdx = 0; R.tabletRollSnap = true; paintTabletsClock()");
+  ok("the roll snaps to the active line's top", Math.abs(read(sb, "R.tabletRollY") + 12) < 1e-9, read(sb, "R.tabletRollY"));
 }
 unstubRandom();
 if (fail) {

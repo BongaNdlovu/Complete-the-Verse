@@ -136,7 +136,7 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
     fun gapKey(): String = "$tabletIdx:$gapIdx"
 
     fun pick(word: String) {
-        if (ended || phase != TabletsPhase.Playing || resolving || confirmAbandon) return
+        if (ended || phase != TabletsPhase.Playing || resolving || confirmAbandon || word in grey) return
         val blank = currentBlank ?: return
         selected = word
         resolve(Tablets.choiceMatches(word, blank.a))
@@ -180,7 +180,7 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
     }
 
     fun tick(dt: Double) {
-        if (ended || phase != TabletsPhase.Playing || untimed) return
+        if (ended || phase != TabletsPhase.Playing || resolving || untimed) return
         tabletClock = (tabletClock - dt).coerceAtLeast(0.0)
         if (tabletClock > 0.0) return
         tabletTimeout = true

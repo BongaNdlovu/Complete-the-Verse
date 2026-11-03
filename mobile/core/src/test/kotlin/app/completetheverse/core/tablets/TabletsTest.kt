@@ -251,12 +251,12 @@ class TabletsTest {
     }
 
     @Test
-    fun clockKeepsRacingAfterAHit() {
+    fun clockFreezesWhileAHitResolves() {
         val session = start("psalm23")
         session.pick("want")
         assertTrue(session.resolving)
         session.tick(1.0)
-        assertEquals(24.0, session.tabletClock, 0.001)
+        assertEquals(25.0, session.tabletClock, 0.001)
         session.finishResolve()
         assertEquals(25.0, session.tabletClock, 0.001)
         assertEquals(1, session.gapIdx)
@@ -435,6 +435,25 @@ class TabletsTest {
     }
 
     @Test
+    fun carveDuringAHitResolveHoldsWhenTheSandRunsLow() {
+        val session = start("psalm23")
+        while (session.tabletIdx < session.steps.size - 1) {
+            session.pick(session.currentBlank!!.a)
+            session.finishResolve()
+        }
+        session.tick(24.7)
+        assertEquals(0.3, session.tabletClock, 0.001)
+        session.pick(session.currentBlank!!.a)
+        assertTrue(session.resolving)
+        session.tick(1.0)
+        assertFalse(session.ended)
+        session.finishResolve()
+        assertTrue(session.ended)
+        assertTrue(session.result!!.held)
+        assertFalse(session.result!!.timeout)
+    }
+
+    @Test
     fun winnowGreysThreeAndIlluminateCarvesTheTrueWord() {
         val session = start("psalm23")
         assertTrue(session.winnow())
@@ -446,5 +465,17 @@ class TabletsTest {
         assertEquals("carved", lit.lastGrade)
         assertEquals(100, lit.favor)
         assertEquals(0, lit.illum)
+    }
+
+    @Test
+    fun aGreyDecoyCannotBePicked() {
+        val session = start("psalm23")
+        assertTrue(session.winnow())
+        val attemptsBefore = session.attempts
+        val lampsBefore = session.lampsLeft
+        session.pick(session.grey.first())
+        assertFalse(session.resolving)
+        assertEquals(attemptsBefore, session.attempts)
+        assertEquals(lampsBefore, session.lampsLeft)
     }
 }

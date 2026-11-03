@@ -28,7 +28,8 @@ function tabletsClockMax(){
    the carve's combo, because that is what the Favor is really multiplied by. */
 function tabletsTier(streak){
   const n = streak || 0;
-  const mult = Tablets.rules.comboOf(n);
+  /* FX10: the HUD shows the multiplier the next carve pays: the combo one streak on. */
+  const mult = Tablets.rules.comboOf(n + 1);
   if(n >= 8) return { name:"DIVINE PRESENCE", mult:mult };
   if(n >= 5) return { name:"EXALTED", mult:mult };
   if(n >= 3) return { name:"ANOINTED", mult:mult };
@@ -90,16 +91,20 @@ function tabletsRollEase(current, target, snap){
   return current + (target - current) * TABLET_ROLL_EASE;
 }
 function tabletsPaintRise(){
-  const ms = $("tablets-ms");
-  if(ms && ms.style && ms.style.setProperty) ms.style.setProperty("--tablets-rise", String(Math.round(tabletsRiseOf() * 1000) / 1000));
+  /* FX14: --tablets-rise had no consumer and was rewritten every frame; the roll reads the rise directly. */
   tabletsRollFrame();
+}
+/* FX15: the roll follows the line being carved (the active gap's own line), not the top of the step. */
+function tabletsActiveLineTop(verse){
+  const line = verse.children ? verse.children[R.gapIdx || 0] : null;
+  return (verse.offsetTop || 0) + ((line && line.offsetTop) || 0);
 }
 /* R1: untimed (tutorial, reduced motion) and a freshly painted step jump; otherwise the sheet eases toward its target. */
 function tabletsRollFrame(){
   const win = $("tablets-roll"), sheet = $("tablets-sheet"), verse = $("tablets-verse");
   if(!win || !sheet || !verse) return;
   const snap = !!R.tabletRollSnap || tabletsUntimed();
-  const target = tabletsRollTarget(win.clientHeight || 0, verse.offsetTop || 0, tabletsRiseOf());
+  const target = tabletsRollTarget(win.clientHeight || 0, tabletsActiveLineTop(verse), tabletsRiseOf());
   R.tabletRollY = tabletsRollEase(R.tabletRollY || 0, target, snap);
   R.tabletRollSnap = false;
   if(sheet.style) sheet.style.transform = "translateY(" + R.tabletRollY.toFixed(1) + "px)";
@@ -129,12 +134,12 @@ function tabletsHitstopMs(carve){
 }
 /* E: the carve speaks through the hand — per grade, louder at milestones. */
 function tabletsCarveHaptic(carve){
-  if(typeof navigator === "undefined" || !navigator.vibrate || !SAVE.set.haptics || R.tabletTutorial) return;
+  if(typeof navigator === "undefined" || !navigator.vibrate || !SAVE.set.haptics || R.tabletTutorial || tabletsReduced()) return;
   navigator.vibrate(carve.milestone ? [35, 30, 55, 30, 90] : (carve.grade === "divine" || carve.grade === "clutch") ? [24, 22, 42] : 22);
 }
 /* E: a miss cracks through the hand — the long pattern when the last lamp dies. */
 function tabletsMissHaptic(){
-  if(typeof navigator === "undefined" || !navigator.vibrate || !SAVE.set.haptics || R.tabletTutorial) return;
+  if(typeof navigator === "undefined" || !navigator.vibrate || !SAVE.set.haptics || R.tabletTutorial || tabletsReduced()) return;
   navigator.vibrate(R.tabletLampOut ? [90, 45, 120, 45, 180] : [65, 35, 95]);
 }
 /* E: the HUD numerals kick on a change; asleep under reduced motion. */
@@ -520,9 +525,10 @@ function tabletsOptsForBlank(){
   return R.tabletOpts;
 }
 /* D: the lamps wear the arcade's seals — three diamonds that crack as they spend. */
-function tabletsSealsMarkup(left){
+function tabletsSealsMarkup(left, total){
   let out = "";
-  for(let i = 0; i < 3; i++){
+  /* FX9: one seal per lamp the mode starts with (Judgment wears one). */
+  for(let i = 0; i < (total || 1); i++){
     out += '<i class="tablets-seal' + (i < left ? "" : " cracked") + '"></i>';
   }
   return out;
@@ -557,7 +563,9 @@ function paintTabletsPowers(){
   if(lamps){
     const left = Math.max(0, (R.tabletLives || 1) - (R.tabletMiss || 0));
     lamps.dataset.lampsLeft = String(left);
-    lamps.innerHTML = tabletsSealsMarkup(left);
+    lamps.innerHTML = tabletsSealsMarkup(left, R.tabletLives || 1);
+    /* FX9: screen readers hear the lamp count, not the seal glyphs. */
+    lamps.setAttribute("aria-label", "Lamps: " + left + " lit");
     lamps.classList.toggle("low", left <= 1);
   }
 }
@@ -625,8 +633,12 @@ function tabletsTrueStone(){
   }
   return null;
 }
+/* FX3: the powers answer only while the run is live and no carve or miss is resolving. */
+function tabletsPowerReady(){
+  return !!R && !R.ended && !R.paused && R.mode === "tablets" && !R.tabletResolving;
+}
 function tabletsIlluminate(){
-  if(!R || R.ended || R.paused || R.mode !== "tablets") return;
+  if(!tabletsPowerReady()) return;
   if(R.tabletHintedIdx === tabletsGapKey()){
     if(typeof toast === "function") toast("This blank is already lit");
     return;
@@ -658,7 +670,7 @@ function tabletsGreyWords(){
   return [];
 }
 function tabletsWinnow(){
-  if(!R || R.ended || R.paused || R.mode !== "tablets") return;
+  if(!tabletsPowerReady()) return;
   if(R.tabletWinnowIdx === tabletsGapKey()){
     if(typeof toast === "function") toast("This blank is already winnowed");
     return;
@@ -699,7 +711,8 @@ function setTabletsPaused(on){
   }
   if(R.paused){
     stopTabletsLoop();
-  } else if(!R.tabletResolving){
+  } else {
+    stopTabletsLoop(); // FX2: resume restarts the loop, inside a resolve window too (one loop: stop first)
     R.tabletLast = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
     R.tabletRacing = true;
     if(typeof requestAnimationFrame === "function") R.tabletRaf = requestAnimationFrame(tabletsTick);
@@ -729,9 +742,7 @@ function tabletsPick(word){
 function tabletsApplyTrauma(amount){
   if(tabletsReduced()) return;
   R.trauma = Math.min(1, (R.trauma || 0) + (amount || 0.9));
-  if(typeof SAVE !== "undefined" && SAVE.set && SAVE.set.haptics && typeof navigator !== "undefined" && navigator.vibrate){
-    try{ navigator.vibrate([100, 50, 100]); }catch(e){}
-  }
+  /* FX12: the miss haptic is the miss's one pattern; the trauma only shakes the stage. */
 }
 function tabletsTickTrauma(dt){
   if(!(R.trauma > 0)){
@@ -910,7 +921,8 @@ function tabletsResolve(ok){
   if(!R || R.ended || R.paused || R.mode !== "tablets" || R.tabletResolving) return;
   R.tabletResolving = true;
   R.attempts = (R.attempts || 0) + 1;
-  setTimeout(function(){ tabletsFinishResolve(ok); }, ok ? 1000 : 800);
+  const token = R.tabletRunToken;
+  setTimeout(function(){ if(R.tabletRunToken === token) tabletsFinishResolve(ok); }, ok ? 1000 : 800);
   if(!ok){ tabletsResolveMiss(); return; }
   tabletsResolveHit();
 }
@@ -962,8 +974,10 @@ function tabletsFinishResolve(ok){
   tabletsResetBlankAids();
   if(R.tabletIdx >= ((R && R.tabletSteps) || []).length && tabletsChapterDone()) return;
   if(!R.tabletTutorial){
-    R.tabletClock = tabletsStepSeconds();
-    R.tabletClockMax = R.tabletClock;
+    /* FX7: a banked Manna Jar adds its 15 s to the fresh sand, then the bank is spent. */
+    R.tabletClockMax = tabletsStepSeconds();
+    R.tabletClock = R.tabletClockMax + (R.tabletBankSand || 0);
+    R.tabletBankSand = 0;
     R.tabletLastWarnSec = -1;
   }
   tabletsUnlockGrid();
@@ -972,7 +986,8 @@ function tabletsFinishResolve(ok){
   paintTabletsTray();
 }
 function tabletsBurnSand(dt){
-  if(!R || R.ended || R.surgeOn || tabletsUntimed()) return;
+  /* FX1: the sand waits out a resolve window, so a Last grain is not lost to the hit's 1 s hold. */
+  if(!R || R.ended || R.surgeOn || R.tabletResolving || tabletsUntimed()) return;
   const rate = R.tabletTrial ? 1.35 : 1;
   R.tabletClock = Math.max(0, (R.tabletClock || 0) - dt * rate);
   const sec = Math.floor(R.tabletClock);
@@ -1047,6 +1062,8 @@ function tabletsPaintModeNote(){
 }
 function startTabletsLoop(){
   stopTabletsLoop();
+  /* FX6: each run takes a new token; a finish timer from an earlier run sees the change and stands down. */
+  R.tabletRunToken = (R.tabletRunToken || 0) + 1;
   const ch = tabletsChapter();
   R.tabletIdx = 0;
   R.gapIdx = 0;
@@ -1064,6 +1081,12 @@ function startTabletsLoop(){
   R.tabletLives = Tablets.rules.lampsFor(R.tabletMode);
   R.tabletLampOut = false;
   R.tabletResolving = false;
+  /* FX11: a new run starts with no hitstop, no milestone banner and no banked Manna sand. */
+  R.tabletHitstop = 0;
+  R.tabletBankSand = 0;
+  clearTimeout(R.tabletMilestoneTimer);
+  const banner = $("tablets-milestone");
+  if(banner) banner.classList.remove("active");
   R.favor = 0;
   R.surge = 0;
   R.surgeOn = false;
@@ -1179,10 +1202,18 @@ function tabletsTypeKey(k){
   }
   return true;
 }
+/* FX4: chords, keys a field or an overlay already took, and held letters or digits are not ours. */
+function tabletsKeyIgnored(e, k){
+  if(e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return true;
+  if(e.repeat && /^[a-z0-9]$/.test(k)) return true;
+  const el = (e.target && e.target.tagName) ? e.target : document.activeElement;
+  return !!(el && (/input|select|textarea/i.test(el.tagName) || el.isContentEditable));
+}
 function tabletsOnKey(e){
   if(typeof currentView === "undefined" || currentView !== "tablets") return;
   if(!R || R.ended || R.mode !== "tablets") return;
   const k = (e.key || "").toLowerCase();
+  if(tabletsKeyIgnored(e, k)) return;
   if(R.paused){
     if(k === "enter" || k === " "){ e.preventDefault(); setTabletsPaused(false); }
     return;
@@ -1240,14 +1271,16 @@ function tabletsRollBlessing(){
   if(Math.random() >= 0.22) return;
   const picks = [
     { icon:"🏺", text:"Manna Jar Discovered (+15s Sand)", apply:function(){
-      const cap = R.tabletClockMax || tabletsClockMax();
-      R.tabletClock = Math.min(cap, (R.tabletClock || 0) + 15);
+      /* FX7: the jar banks its 15 s for the next step; the re-arm adds it to the fresh sand. */
+      R.tabletBankSand = 15;
     } },
-    { icon:"🕯️", text:"Golden Censer (+1 Lamp Restored)", apply:function(){ R.tabletLives = (R.tabletLives || 3) + 1; } },
+    { icon:"🕯️", text:"Golden Censer (+1 Lamp Restored)", apply:function(){ if((R.tabletMiss || 0) > 0) R.tabletMiss -= 1; } },
     { icon:"✨", text:"Shekinah Glory (+35% Surge Charge)", apply:function(){ R.surge = Math.min(100, (R.surge || 0) + 35); } }
   ];
-  /* P2: in Judgment the Censer leaves the pool, so the HUD never shows a lamp the run cannot use. */
-  const pool = R.tabletMode === "judgment" ? picks.filter(function(p){ return p.text.indexOf("Golden Censer") < 0; }) : picks;
+  /* P2: in Judgment the Censer leaves the pool, so the HUD never shows a lamp the run cannot use. FX8: with every lamp
+     lit the Censer has nothing to relight, so it leaves the pool too. */
+  const lampOut = (R.tabletMiss || 0) > 0;
+  const pool = picks.filter(function(p){ return p.text.indexOf("Golden Censer") < 0 || (lampOut && R.tabletMode !== "judgment"); });
   const b = pool[Math.floor(Math.random() * pool.length)];
   b.apply();
   const el = $("tablets-blessing");
@@ -1440,12 +1473,11 @@ function drawTabletsFx(dt){
   const w = tabletsFx.w;
   const h = tabletsFx.h;
   ctx.clearRect(0, 0, w, h);
-  if(typeof R !== "undefined" && R && typeof R.tabletClock === "number" && R.tabletClock <= 5 && !tabletsUntimed()){
-    return;
-  }
-  drawTabletsGlyphs(dt);
+  /* FX5: in the last 5 s the glyphs and embers rest; the danger wash and the sparks still draw and age. */
+  const late = typeof R !== "undefined" && R && typeof R.tabletClock === "number" && R.tabletClock <= 5 && !tabletsUntimed();
+  if(!late) drawTabletsGlyphs(dt);
   drawTabletsDanger(ctx, w, h);
-  tabletsFx.embers.forEach(function(p){
+  (late ? [] : tabletsFx.embers).forEach(function(p){
     p.x += p.vx * (dt * 60);
     p.y += p.vy * (dt * 60);
     p.life += dt * 60;

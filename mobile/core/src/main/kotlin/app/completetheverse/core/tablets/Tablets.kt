@@ -476,7 +476,7 @@ object Tablets {
             "Tap FATHER below",
             "The word flies into the carved slot",
             "In the true Hold the sand runs; here it stands still",
-            "Illuminate glows the true stone for a breath",
+            "Illuminate carves the true word for you",
             "Winnow casts three false stones into shadow",
             "Three lamps guard a wrong word. The sand is the Hold",
             "Almost complete · Let no word be lost",
