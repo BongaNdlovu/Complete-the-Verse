@@ -581,13 +581,24 @@
         <div class="tablets-grid" id="tablets-grid"></div>
         <div class="tablets-tray-tools">
           <span class="tablets-lamps" id="tablets-lamps">Lamps ×<b id="tablets-lamps-n">3</b></span>
-          <button type="button" class="tablets-power" id="tablets-illum">Illuminate ×<b id="tablets-illum-n">1</b><i class="tablets-hotkey">I</i></button>
-          <button type="button" class="tablets-power" id="tablets-winnow">Winnow ×<b id="tablets-winnow-n">2</b><i class="tablets-hotkey">W</i></button>
-          <button type="button" class="tablets-surge" id="tablets-surge">
-            <span>Surge</span>
+          <button type="button" class="tablets-power tablets-relic" id="tablets-illum" data-relic="illuminate">
+            <i class="tablets-hotkey">I</i>
+            <span class="tablets-relic-name">Illuminate</span>
+            <span class="tablets-relic-effect">Carve the true word</span>
+            <b class="tablets-relic-count" id="tablets-illum-n">1</b>
+          </button>
+          <button type="button" class="tablets-power tablets-relic" id="tablets-winnow" data-relic="winnow">
+            <i class="tablets-hotkey">W</i>
+            <span class="tablets-relic-name">Winnow</span>
+            <span class="tablets-relic-effect">Banish three decoys</span>
+            <b class="tablets-relic-count" id="tablets-winnow-n">2</b>
+          </button>
+          <button type="button" class="tablets-surge tablets-relic" id="tablets-surge" data-relic="surge">
+            <i class="tablets-hotkey">S</i>
+            <span class="tablets-relic-name">Surge</span>
+            <span class="tablets-relic-effect">Stops the sand · ×2 Favor</span>
             <i class="tablets-surge-track"><b class="tablets-surge-fill" id="tablets-surge-fill"></b></i>
             <em id="tablets-surge-status">0%</em>
-            <i class="tablets-hotkey">S</i>
           </button>
           <span class="tablets-keys-hint">1–6 · I · W · S</span>
         </div>

@@ -333,6 +333,44 @@ body.view-tablets .voice-caption{display:none!important}
   display:block;height:100%;width:0;background:linear-gradient(90deg,#964910,#e69622 60%,#fff2a1)}
 .tablets-surge em{font-style:normal;font-size:.58rem;color:#ffe291;font-weight:700}
 .tablets-keys-hint{font-family:var(--ui);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#8a7a62}
+/* A: the powers wear relic cards — key chip, name, effect, count, per-card accent. */
+.tablets-tray-tools .tablets-relic{
+  position:relative;display:flex;align-items:center;gap:7px;min-width:172px;text-align:left;cursor:pointer}
+.tablets-relic .tablets-relic-name{font-weight:700;color:#f2d9a0;font-size:.66rem;letter-spacing:.12em}
+.tablets-relic .tablets-relic-effect{
+  display:block;font-size:.54rem;letter-spacing:.06em;color:#8a7a62;text-transform:none;white-space:nowrap}
+.tablets-relic .tablets-relic-count{
+  margin-left:auto;font-family:var(--disp);font-size:.95rem;font-weight:700;color:var(--relic,#ffe082);
+  text-shadow:0 0 12px var(--relic,#ffe082)}
+.tablets-relic[data-relic="illuminate"]{--relic:#ffe082}
+.tablets-relic[data-relic="winnow"]{--relic:#c9e08a}
+.tablets-relic[data-relic="surge"]{--relic:#ffb054}
+.tablets-relic.spent{--relic:#6b5c44;text-shadow:none}
+.tablets-surge.tablets-relic{min-width:210px;flex-wrap:wrap}
+.tablets-surge.tablets-relic .tablets-surge-track{flex:1 1 100%}
+/* A: the recharge celebration — the sheen is a moving background so it never
+   leaves the card, and the pill floats above the top edge. */
+.tablets-relic::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,244,200,.7) 50%,transparent 70%);
+  background-size:250% 100%;background-position:120% 0}
+.tablets-relic.recharging{animation:tabletsRelicHop .95s cubic-bezier(.2,.9,.3,1.2)}
+.tablets-relic.recharging::after{animation:tabletsSheenSweep .95s ease-out}
+.tablets-relic.recharging .tablets-relic-count{animation:tabletsCountPop .5s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes tabletsRelicHop{
+  0%{transform:translateY(0) scale(1)}
+  35%{transform:translateY(-6px) scale(1.05);box-shadow:0 0 24px var(--relic,#ffe082);border-color:var(--relic,#ffe082)}
+  100%{transform:translateY(0) scale(1)}
+}
+@keyframes tabletsSheenSweep{0%{background-position:120% 0;opacity:0}25%{opacity:1}100%{background-position:-20% 0;opacity:0}}
+@keyframes tabletsCountPop{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+.tablets-relic-pill{
+  position:absolute;left:50%;top:-8px;z-index:7;pointer-events:none;
+  font-family:var(--ui);font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#1c1206;background:linear-gradient(180deg,#ffe9a8,#dfa544);border-radius:999px;padding:2px 8px;
+  box-shadow:0 4px 14px rgba(0,0,0,.6);white-space:nowrap;
+  animation:tabletsPillFloat 1.15s ease-out forwards}
+@keyframes tabletsPillFloat{0%{opacity:0;transform:translate(-50%,6px)}18%{opacity:1}100%{opacity:0;transform:translate(-50%,-26px)}}
 .tablets-foot{
   flex:0 0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   padding:8px clamp(14px,3vw,28px) max(10px,env(safe-area-inset-bottom));
@@ -397,7 +435,11 @@ body.motion-calm .tablets-speech i,
 body.reduced .tablets-companion.success img,
 body.motion-calm .tablets-companion.success img,
 body.reduced .tablets-companion.failure img,
-body.motion-calm .tablets-companion.failure img{animation:none;transition:none}
+body.motion-calm .tablets-companion.failure img,
+body.reduced .tablets-relic.recharging,
+body.motion-calm .tablets-relic.recharging,
+body.reduced .tablets-relic-pill,
+body.motion-calm .tablets-relic-pill{animation:none;transition:none}
 body.reduced #tablets-fx,body.motion-calm #tablets-fx{display:none}
 body.reduced .tablets-sheet,body.reduced .tablets-verse,body.motion-calm .tablets-sheet,body.motion-calm .tablets-verse{transition:none}
 @media (hover:hover){
@@ -491,6 +533,8 @@ body.reduced .tablets-sheet,body.reduced .tablets-verse,body.motion-calm .tablet
   .tablets-tray-tools button,.tablets-lamps,.tablets-surge{
     min-height:40px;padding:6px 8px;font-size:.58rem}
   .tablets-surge{width:auto;min-width:0;flex:1 1 120px}
+  .tablets-relic{min-width:0;flex:1 1 auto}
+  .tablets-relic .tablets-relic-effect{display:none}
   .tablets-foot{padding:6px 10px max(8px,env(safe-area-inset-bottom));gap:8px}
   .tablets-hold{display:none}
   .tablets-pct{font-size:.82rem;min-width:2.6em}

@@ -1112,6 +1112,52 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   exec(sb, "$('tablets-verse').offsetTop = 200; $('tablets-roll').clientHeight = 400; R.tabletRollSnap = false; R.tabletRollY = 0; paintTabletsClock()");
   ok("an ordinary frame eases 16% of the way to the target", Math.abs(read(sb, "R.tabletRollY") - 48 * 0.16) < 1e-9, read(sb, "R.tabletRollY"));
 }
+{
+  // A: the relic cards celebrate a recharge (roadmap phase A).
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "R.streak = 9; tabletsResolve(true); tabletsFinishResolve(true)");
+  ok("the tenth streak marks Winnow's card as recharging", read(sb, "$('tablets-winnow').classList.contains('recharging')"), true);
+  ok("the tenth streak marks Illuminate's card too", read(sb, "$('tablets-illum').classList.contains('recharging')"), true);
+  eq("a pill with the relic class floats over the recharged card",
+    read(sb, "$('tablets-winnow').children[$('tablets-winnow').children.length - 1].className"), "tablets-relic-pill");
+  ok("the pill names the power", read(sb, "$('tablets-winnow').children[$('tablets-winnow').children.length - 1].textContent").indexOf("+1 Winnow") >= 0,
+    read(sb, "$('tablets-winnow').children[$('tablets-winnow').children.length - 1].textContent"));
+}
+{
+  // A: the conduit beam queues, burns out, and respects reduced motion.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "var _ctx = { beginPath:function(){}, moveTo:function(){}, lineTo:function(){}, quadraticCurveTo:function(){}, closePath:function(){}, stroke:function(){}, fill:function(){}, arc:function(){}, clearRect:function(){} }; $('tablets-fx').getContext = function(){ return _ctx; }; tabletsFxInit()");
+  eq("the beam list starts empty", read(sb, "tabletsFx.beams.length"), 0);
+  exec(sb, "spawnTabletsBeam(10, 10, 300, 400)");
+  eq("a beam is queued", read(sb, "tabletsFx.beams.length"), 1);
+  ok("the beam dies at the stage edge, not past it", read(sb, "tabletsFx.beams[0].y2") <= read(sb, "tabletsFx.h - 8"), read(sb, "tabletsFx.beams[0].y2"));
+  exec(sb, "for(var i = 0; i < 30; i++) drawTabletsFx(0.1)");
+  eq("a beam burns out", read(sb, "tabletsFx.beams.length"), 0);
+  exec(sb, "document.body.classList.add('reduced'); spawnTabletsBeam(0, 0, 1, 1)");
+  eq("reduced motion queues no beam", read(sb, "tabletsFx.beams.length"), 0);
+}
+{
+  // A: reduced motion skips the celebration; the charges still come back.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "document.body.classList.add('reduced')");
+  exec(sb, "R.streak = 9; tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("reduced motion skips the hop", read(sb, "$('tablets-winnow').classList.contains('recharging')"), false);
+  eq("reduced motion still restores the charges", read(sb, "R.powers.winnow"), 3);
+}
+{
+  // A: the dock wears relic cards; the celebration sleeps under reduced motion.
+  ok("the powers wear relic cards", html.indexOf("tablets-relic-name") >= 0 && html.indexOf("tablets-relic-effect") >= 0 && html.indexOf("tablets-relic-count") >= 0);
+  ok("Winnow's card says it banishes three", html.indexOf("Banish three decoys") >= 0);
+  ok("Illuminate's card says it carves", html.indexOf("Carve the true word") >= 0);
+  ok("Surge's card says it stops the sand", html.indexOf("Stops the sand") >= 0);
+  ok("the relic hop sleeps under reduced motion", /body\.reduced \.tablets-relic\.recharging/.test(src));
+  ok("the floating pill sleeps under reduced motion", /body\.reduced \.tablets-relic-pill/.test(src));
+}
 unstubRandom();
 if (fail) {
   console.log("FAIL — tablets · " + pass + " passed · " + fail + " failed");

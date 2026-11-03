@@ -719,6 +719,35 @@ const TABLET_POWER_NAMES = { winnow:"Winnow", illuminate:"Illuminate" };
 function tabletsPowerName(id){
   return TABLET_POWER_NAMES[id] || id;
 }
+/* A: the relic cards celebrate a recharge — a hop, a sheen sweep, a floating
+   "+1" pill, a count pop, sparks, and a beam from the engraved slot toward the
+   card. Reduced motion skips all of it; the toast always speaks. */
+function tabletsRelicEl(id){
+  return $(id === "winnow" ? "tablets-winnow" : "tablets-illum");
+}
+function tabletsCelebrateRecharge(gained){
+  if(tabletsReduced()) return;
+  const slot = $("tablets-slot");
+  gained.forEach(function(id){
+    const btn = tabletsRelicEl(id);
+    if(!btn) return;
+    btn.classList.remove("recharging");
+    if(btn.offsetWidth !== undefined) void btn.offsetWidth;
+    btn.classList.add("recharging");
+    const pill = document.createElement("span");
+    pill.className = "tablets-relic-pill";
+    pill.textContent = "✦ +1 " + tabletsPowerName(id);
+    btn.appendChild(pill);
+    setTimeout(function(){ try{ pill.remove(); }catch(e){} }, 1150);
+    setTimeout(function(){ btn.classList.remove("recharging"); }, 950);
+    if(slot && btn.getBoundingClientRect){
+      const s = slot.getBoundingClientRect();
+      const b = btn.getBoundingClientRect();
+      spawnTabletsBeam(s.left + s.width / 2, s.top + s.height / 2, b.left + b.width / 2, b.top + b.height / 2);
+      spawnTabletsSparks(b.left + b.width / 2, b.top + b.height / 2, 12);
+    }
+  });
+}
 /* D2: the streak gives the charges back, and the rules decide how. */
 function tabletsRecharge(carve){
   const award = Tablets.rules.recharge({ winnow:R.powers.winnow || 0, illuminate:R.powers.illum || 0 }, R.streak, carve.milestone);
@@ -726,6 +755,7 @@ function tabletsRecharge(carve){
   R.powers.illum = award.charges.illuminate;
   if(!award.gained.length) return;
   paintTabletsPowers();
+  tabletsCelebrateRecharge(award.gained);
   if(typeof toast === "function") toast("Restored · " + award.gained.map(tabletsPowerName).join(" · "));
 }
 function tabletsResolveHit(){
@@ -1128,7 +1158,7 @@ function tabletsCycleStone(){
   tabletsApplyStone(next);
   if(typeof toast === "function") toast("Stone · " + (TABLET_STONE_NAMES[next] || next));
 }
-var tabletsFx = { ctx:null, canvas:null, embers:[], sparks:[], glyphs:[], w:0, h:0 };
+var tabletsFx = { ctx:null, canvas:null, embers:[], sparks:[], glyphs:[], beams:[], w:0, h:0 };
 function tabletsFxSize(){
   const canvas = tabletsFx.canvas || $("tablets-fx");
   const stage = $("tablets-stage");
@@ -1142,6 +1172,7 @@ function tabletsFxInit(){
   tabletsFx.embers = [];
   tabletsFx.sparks = [];
   tabletsFx.glyphs = [];
+  tabletsFx.beams = [];
   if(tabletsReduced()) return;
   const canvas = $("tablets-fx");
   if(!canvas || typeof canvas.getContext !== "function") return;
@@ -1180,6 +1211,17 @@ function spawnTabletsSparks(x, y, count){
       size: 1.5 + Math.random() * 2.5, life: 1, decay: 0.03
     });
   }
+}
+/* A: a one-shot conduit beam — energy flowing from the engraved slot toward a
+   relic card. The end point is clamped to the stage, which is where the canvas
+   ends; the beam dissolves before the tray. */
+function spawnTabletsBeam(x1, y1, x2, y2){
+  if(!tabletsFx.ctx || tabletsReduced()) return;
+  tabletsFx.beams.push({
+    x1:x1, y1:y1,
+    x2:x2, y2:Math.min(y2, (tabletsFx.h || 450) - 8),
+    life:1, decay:0.05
+  });
 }
 /* V2: faint cuneiform signs in three depth layers, behind the embers. */
 const TABLET_GLYPH_SPEED = [18, 28, 46];
@@ -1286,6 +1328,21 @@ function drawTabletsFx(dt){
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
     ctx.fill();
   });
+  for(let i = tabletsFx.beams.length - 1; i >= 0; i--){
+    const b = tabletsFx.beams[i];
+    b.life -= b.decay * (dt * 60);
+    if(b.life <= 0){ tabletsFx.beams.splice(i, 1); continue; }
+    const mx = (b.x1 + b.x2) / 2, my = (b.y1 + b.y2) / 2 - 40;
+    ctx.strokeStyle = "rgba(255,236,170," + (b.life * 0.85).toFixed(3) + ")";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(b.x1, b.y1);
+    ctx.quadraticCurveTo(mx, my, b.x2, b.y2);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(255,255,255," + (b.life * 0.9).toFixed(3) + ")";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
   for(let i = tabletsFx.sparks.length - 1; i >= 0; i--){
     const s = tabletsFx.sparks[i];
     s.x += s.vx * (dt * 60);
