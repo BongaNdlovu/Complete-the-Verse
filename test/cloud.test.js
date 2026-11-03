@@ -148,6 +148,18 @@ function eq(name, got, want) { ok(name, got === want, { got, want }); }
   eq("checkUrlAuthError exists", typeof Cloud.checkUrlAuthError, "function");
 }
 
+{
+  const row = function(t){ return { v:3, xp:0, seals:[], best:{}, life:{}, books:{}, verse:{}, srs:{}, pilgrim:{ sites:{}, usedIds:[] }, set:{}, daily:{}, board:[], tablets:t }; };
+  const m = Cloud.mergeSave(
+    row({ psalm23: { best: 100, held: true, judgment: true, endlessBest: 37 } }),
+    row({ psalm23: { best: 60, held: false, endlessBest: 40 } })
+  );
+  ok("the Judgment mark survives a sync", m.tablets.psalm23.judgment === true, m.tablets.psalm23);
+  eq("the Endless best takes the max", m.tablets.psalm23.endlessBest, 40);
+  const plain = Cloud.mergeSave(row({ exodus20: { best: 10, held: false } }), row({ exodus20: { best: 5, held: false } }));
+  ok("no Judgment key without the mark", !("judgment" in plain.tablets.exodus20));
+  ok("no Endless key without the record", !("endlessBest" in plain.tablets.exodus20));
+}
 console.log((fail ? "FAIL" : "PASS") + " — cloud · " + pass + " assertions passed" + (fail ? " · " + fail + " FAILED" : ""));
 process.exit(fail ? 1 : 0);
 

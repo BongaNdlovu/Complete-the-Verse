@@ -271,6 +271,10 @@ function persistTabletsChapter(id, pct, nowHeld){
   const firstHold = nowHeld && !rec.held;
   if(firstHold) SAVE.life.tabletHolds = (SAVE.life.tabletHolds || 0) + 1;
   if(nowHeld) rec.held = true;
+  /* P2: a Judgment Hold keeps its mark on the chapter record, shown in the library. */
+  if(nowHeld && R.tabletMode === "judgment") rec.judgment = true;
+  /* P3: Endless keeps the most words carved, whatever the run ends on. */
+  if(R.tabletMode === "endless") rec.endlessBest = Math.max(rec.endlessBest || 0, R.correct || 0);
   SAVE.tablets[key] = rec;
   if(nowHeld) recordRoadTabletHold(id, pct);
 }
@@ -282,7 +286,7 @@ function persistTabletsOil(){
 }
 function persistTabletsRecord(){
   if(R.tabletTutorial) return { road: null, isRecord: false, prevBest: 0, dailyRecorded: false };
-  const pct = Math.round(((R.tabletIdx || 0) / (R.tabletTotal || 1)) * 100);
+  const pct = R.tabletEndlessHeld ? 100 : Math.round(((R.tabletIdx || 0) / (R.tabletTotal || 1)) * 100);
   const prevBest = SAVE.best.tablets || 0;
   const isRecord = pct > prevBest;
   if(isRecord) SAVE.best.tablets = pct;
@@ -518,9 +522,14 @@ function teamResultsBreakdownHtml(row){
       row("Result", win==="draw" ? "Draw" : (win==="white"?"White":"Blue")+" by keeps, then time");
 }
 function tabletsHeld(){ return typeof Tablets!=="undefined" && Tablets.held(R); }
+/* P3: an Endless run that read on shows its words over its readings. */
+function tabletsWordsCarvedText(){
+  if(R.tabletMode === "endless" && (R.tabletPass || 1) > 1) return R.correct + " over " + R.tabletPass + " readings";
+  return R.correct + " / " + R.qTotal;
+}
 function tabletsResultsBreakdownHtml(o, row){
   const chKey = (typeof Tablets !== "undefined" && Tablets.editionKey) ? Tablets.editionKey(R.tabletChapter) : R.tabletChapter;
-  return row("Words carved", R.correct+" / "+R.qTotal) +
+  return row("Words carved", tabletsWordsCarvedText()) +
     row("Hold", tabletsHeld() ? "Held" : "Shattered") +
     row("Chapter best", ((SAVE.tablets && SAVE.tablets[chKey] && SAVE.tablets[chKey].best) || 0)+"%") +
     '<div class="brow tot"><span>Final</span><b>'+fmt(o.total)+'</b></div>';

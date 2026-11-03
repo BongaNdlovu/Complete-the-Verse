@@ -837,6 +837,138 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
     read(sb, "(function(){ paintTabletsTablet(); var ls = $('tablets-verse').children; return ls.length > 0 && ls.filter(function(l){ return l.children[0].textContent.indexOf('Psalm 23:') === 0; }).length === ls.length; })()"));
 }
 
+{
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletMode = 'judgment'; startRun('tablets','watchman')");
+  eq("Judgment starts with one lamp", read(sb, "R.tabletLives"), 1);
+  eq("Judgment runs as Judgment", read(sb, "R.tabletMode"), "judgment");
+  eq("the footer names one lamp", read(sb, "$('tablets-hold-note').textContent"), "One lamp guards the Hold");
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  eq("one miss ends a Judgment run", read(sb, "R.ended"), true);
+  eq("a Judgment miss is not Held", read(sb, "Tablets.held(R)"), false);
+}
+{
+  const sb = boot();
+  stubRandom(sb, 0.9);
+  exec(sb, "SAVE.set.tabletMode = 'judgment'; startRun('tablets','watchman')");
+  holdAll(sb);
+  eq("a Judgment finish is Held", read(sb, "Tablets.held(R)"), true);
+  eq("a Judgment Hold keeps the mark", read(sb, "SAVE.tablets.psalm23.judgment"), true);
+  unstubRandom();
+}
+{
+  const sb = boot();
+  stubRandom(sb, 0.9);
+  exec(sb, "startRun('tablets','watchman')");
+  holdAll(sb);
+  eq("a Hold finish is Held", read(sb, "Tablets.held(R)"), true);
+  ok("a Hold finish leaves no Judgment mark", read(sb, "!SAVE.tablets.psalm23.judgment"));
+  unstubRandom();
+}
+{
+  const sb = boot();
+  stubRandom(sb, 0.9);
+  exec(sb, "SAVE.set.tabletMode = 'endless'; startRun('tablets','watchman')");
+  for (let i = 0; i < 200 && read(sb, "R.tabletPass") < 2; i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("the first reading gives a second", read(sb, "R.tabletPass"), 2);
+  eq("the second reading starts at the first blank", read(sb, "R.tabletIdx"), 0);
+  eq("an Endless run does not end at the chapter end", read(sb, "R.ended"), false);
+  eq("finishing the first reading Holds", read(sb, "Tablets.held(R)"), true);
+  eq("the reading is announced", read(sb, "(function(){ var ms = $('tablets-ms').children; return ms[ms.length - 1].textContent; })()"), "Second reading");
+  ok("the second reading runs on shorter sand", read(sb, "R.tabletClockMax") < 25);
+  const carved = read(sb, "R.correct");
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
+  eq("three lamps end the Endless run", read(sb, "R.ended"), true);
+  eq("the Hold is kept", read(sb, "SAVE.tablets.psalm23.held"), true);
+  eq("the record keeps the words carved", read(sb, "SAVE.tablets.psalm23.endlessBest"), carved);
+  eq("the record reads 100%", read(sb, "SAVE.tablets.psalm23.best"), 100);
+  unstubRandom();
+}
+{
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletMode = 'endless'; startRun('tablets','watchman')");
+  eq("a fresh Endless step has the full sand", read(sb, "tabletsStepSeconds()"), 25);
+  exec(sb, "R.correct = 100; R.streak = 100");
+  ok("the Endless sand ramps to the 30% cap", Math.abs(read(sb, "tabletsStepSeconds()") - 17.5) < 1e-9);
+}
+{
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletMode = 'endless'; startRun('tablets','watchman',{fromRoad:true})");
+  eq("a road run is a Hold", read(sb, "R.tabletMode"), "hold");
+  eq("a road run has three lamps", read(sb, "R.tabletLives"), 3);
+}
+{
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletMode = 'judgment'; startRun('tablets','watchman',{tabletChapter:'prayer',tabletTutorial:true})");
+  eq("the tutorial is a Hold even when Judgment is saved", read(sb, "R.tabletMode"), "hold");
+}
+{
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletMode = 'judgment'; SAVE.set.tabletTrial = true; startRun('tablets','watchman')");
+  eq("Trial stacks with Judgment: one lamp", read(sb, "R.tabletLives"), 1);
+  eq("Trial is on in Judgment", read(sb, "!!R.tabletTrial"), true);
+}
+{
+  const sb = boot();
+  eq("the second reading is named", read(sb, "tabletsReadingName(2)"), "Second reading");
+  eq("past ten readings count", read(sb, "tabletsReadingName(11)"), "Reading 11");
+}
+{
+  const sb = boot();
+  exec(sb, "paintTabletsBrief(true)");
+  const picks = "$('brief-tablets-modes').children[0].children";
+  eq("the mode row holds three buttons", read(sb, picks + ".filter(function(c){ return !!(c.dataset && c.dataset.tabletMode); }).length"), 3);
+  eq("Hold is picked by default", read(sb, picks + "[0].className"), "tablets-mode-btn on");
+  eq("the Hold note shows", read(sb, picks + "[3].textContent"), "Three lamps · finish with one still lit to Hold");
+  exec(sb, "$('brief-tablets-modes').dispatch('click', { target:{ closest:function(sel){ return sel === '[data-tablet-mode]' ? { dataset:{ tabletMode:'judgment' } } : null; } } })");
+  eq("picking Judgment saves the mode", read(sb, "SAVE.set.tabletMode"), "judgment");
+  eq("the picker repaints with Judgment", read(sb, picks + "[1].className"), "tablets-mode-btn on");
+  eq("the Judgment note shows", read(sb, picks + "[3].textContent"), "One lamp · the first wrong word ends the Hold");
+}
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "var __rolls = 0; Math.random = function(){ __rolls++; return __rolls === 1 ? 0.1 : 0.5; }");
+  exec(sb, "tabletsRollBlessing()");
+  eq("a Hold Golden Censer adds a lamp", read(sb, "R.tabletLives"), 4);
+  unstubRandom();
+}
+{
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletMode = 'judgment'; startRun('tablets','watchman')");
+  exec(sb, "var __rolls = 0; Math.random = function(){ __rolls++; return __rolls === 1 ? 0.1 : 0.5; }");
+  exec(sb, "tabletsRollBlessing()");
+  eq("Judgment never gets a Golden Censer lamp", read(sb, "R.tabletLives"), 1);
+  unstubRandom();
+}
+{
+  const sb = boot();
+  stubRandom(sb, 0.9);
+  exec(sb, "SAVE.set.tabletMode = 'endless'; startRun('tablets','watchman')");
+  for (let i = 0; i < 200 && read(sb, "R.tabletPass") < 2; i++) exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  exec(sb, "R.tabletTimeout = true; Director.ending({reason:'death'})");
+  eq("an Endless Hold that runs out of sand still stands", read(sb, "$('ending-title').textContent"), "The Hold Stands");
+  unstubRandom();
+}
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "R.tabletTimeout = true; Director.ending({reason:'death'})");
+  eq("a Hold that runs out of sand shatters", read(sb, "$('ending-title').textContent"), "The Tablet Shattered");
+}
+{
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletMode = 'endless'; startRun('tablets','watchman')");
+  exec(sb, "R.correct = 37; R.tabletPass = 2");
+  eq("Endless shows words over its readings", read(sb, "tabletsWordsCarvedText()"), "37 over 2 readings");
+}
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  eq("Hold shows words over the chapter", read(sb, "tabletsWordsCarvedText()"), "0 / 11");
+}
 unstubRandom();
 if (fail) {
   console.log("FAIL — tablets · " + pass + " passed · " + fail + " failed");

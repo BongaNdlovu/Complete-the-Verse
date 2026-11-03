@@ -609,11 +609,50 @@ function tabletsBriefChapter(ch){
   const best = document.createElement("i");
   best.className = "tablets-ch-best";
   best.textContent = locked ? "·" : (rec.best || 0) + "%";
+  /* P2/P3: the library keeps the Judgment mark and the Endless record. */
+  if(!locked && rec.judgment) sub.textContent += " · Judgment kept";
+  if(!locked && rec.endlessBest) sub.textContent += " · Endless best " + rec.endlessBest;
   b.appendChild(best);
   b.disabled = locked;
   return b;
 }
+/* P1: Hold, Judgment and Endless above the chapter list. The note says what the picked mode asks. */
+const TABLET_MODES = [
+  { id:"hold", name:"Hold", note:"Three lamps · finish with one still lit to Hold" },
+  { id:"judgment", name:"Judgment", note:"One lamp · the first wrong word ends the Hold" },
+  { id:"endless", name:"Endless", note:"The chapter reads again and the sand runs shorter · the first reading Holds" }
+];
+function tabletsBriefModes(){
+  const current = (typeof Tablets !== "undefined" && Tablets.modeOf) ? Tablets.modeOf(SAVE, false, false) : "hold";
+  const row = document.createElement("div");
+  row.className = "tablets-mode-row";
+  let picked = TABLET_MODES[0];
+  TABLET_MODES.forEach(function(m){
+    const on = m.id === current;
+    if(on) picked = m;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "tablets-mode-btn" + (on ? " on" : "");
+    b.dataset.tabletMode = m.id;
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.textContent = m.name;
+    row.appendChild(b);
+  });
+  const note = document.createElement("p");
+  note.className = "tablets-mode-note";
+  note.textContent = picked.note;
+  row.appendChild(note);
+  return row;
+}
+function paintTabletsBriefModes(on){
+  const modes = $("brief-tablets-modes");
+  if(!modes) return;
+  modes.hidden = !on;
+  modes.innerHTML = "";
+  if(on) modes.appendChild(tabletsBriefModes());
+}
 function paintTabletsBrief(on){
+  paintTabletsBriefModes(on);
   const host = $("brief-tablets-pick");
   if(!host) return;
   host.hidden = !on;
@@ -768,6 +807,26 @@ if(teamPick) teamPick.addEventListener("click", function(e){
   startRun("team", SAVE.set.diff, { teamSide: btn.dataset.team });
 });
 const tabletsPickHost = $("brief-tablets-pick");
+/* R5: after a repaint the picked mode keeps keyboard focus. */
+function tabletsFocusModeBtn(id){
+  const host = $("brief-tablets-modes");
+  const row = host && host.children[0];
+  /* children is an HTMLCollection in a browser, so copy it before filtering. */
+  const kids = row ? Array.prototype.slice.call(row.children) : [];
+  const pick = kids.filter(function(c){ return c.dataset && c.dataset.tabletMode === id; })[0];
+  if(pick && pick.focus) pick.focus();
+}
+const tabletsModesHost = $("brief-tablets-modes");
+if(tabletsModesHost) tabletsModesHost.addEventListener("click", function(e){
+  const modeBtn = e.target.closest("[data-tablet-mode]");
+  if(!modeBtn) return;
+  /* P1: the picked mode is saved; the next run reads it and keeps it. */
+  SAVE.set.tabletMode = modeBtn.dataset.tabletMode;
+  if(typeof persist === "function") persist();
+  if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
+  paintTabletsBrief(true);
+  tabletsFocusModeBtn(modeBtn.dataset.tabletMode);
+});
 if(tabletsPickHost) tabletsPickHost.addEventListener("click", function(e){
   const btn = e.target.closest("[data-chapter]");
   if(!btn || btn.disabled) return;

@@ -134,10 +134,19 @@ const Tablets = (function(){
      spends a lamp; it no longer breaks the Hold on its own. */
   function held(run){
     if(!run) return false;
+    /* P3: an Endless run that finished its first reading is Held, however it ends. */
+    if(run.tabletEndlessHeld) return true;
     const total = run.tabletTotal || 0;
     const isFinished = total > 0 && run.tabletIdx >= total;
     const lampsLit = (run.tabletLives || 1) - (run.tabletMiss || 0);
     return isFinished && lampsLit >= 1;
+  }
+  /* P1: the library picks the mode and the run keeps it. Road runs and the tutorial are always a Hold. */
+  const MODES = ["hold", "judgment", "endless"];
+  function modeOf(save, tutorial, fromRoad){
+    if(tutorial || fromRoad) return "hold";
+    const saved = save && save.set && save.set.tabletMode;
+    return MODES.indexOf(saved) >= 0 ? saved : "hold";
   }
   function editionKey(id){
     const ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
@@ -291,6 +300,7 @@ const Tablets = (function(){
     chapter: chapter,
     options: options,
     held: held,
+    modeOf: modeOf,
     unlocked: unlocked,
     unlockLabel: unlockLabel,
     recordOf: recordOf,
@@ -403,6 +413,11 @@ Tablets.rules = (function(){
     const ramp = Math.min(RAMP_CAP, blankIdx * RAMP_PER_BLANK + streak * RAMP_PER_STREAK);
     return Math.max(MIN_BLANK_S, base * (1 - ramp) * (golden ? GOLDEN_PACE : 1));
   }
+  /* P2: Judgment starts with one lamp; the other modes keep three. */
+  const LAMPS = 3;
+  function lampsFor(mode){
+    return mode === "judgment" ? 1 : LAMPS;
+  }
   /* O3: Winnow banishes min(3, decoys - 1), so it never clears the tray. */
   function winnowCount(decoys){
     return Math.max(0, Math.min(3, (decoys | 0) - 1));
@@ -446,6 +461,7 @@ Tablets.rules = (function(){
     milestone: milestone,
     carve: carve,
     blankSeconds: blankSeconds,
+    lampsFor: lampsFor,
     winnowCount: winnowCount,
     miss: miss,
     rank: rank,
