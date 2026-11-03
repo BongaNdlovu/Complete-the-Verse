@@ -1208,6 +1208,53 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   ok("the marker diamond is cut", /\.tablets-ladder-marker\{[^}]*rotate\(45deg\)/.test(src));
   ok("the pace tag sits in the actions", html.indexOf('id="tablets-pace-tag"') > html.indexOf('class="tablets-actions"') && html.indexOf('id="tablets-pace-tag"') < html.indexOf('id="tablets-trial"'));
 }
+{
+  // E: the juice (roadmap phase E).
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "R.tabletClock = R.tabletClockMax * 0.5");
+  exec(sb, "R.streak = 4; tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("an ordinary carve holds its breath 30 ms", read(sb, "R.tabletHitstop"), 30);
+  exec(sb, "R.streak = 9; R.tabletClock = R.tabletClockMax * 0.2; tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("a milestone carve holds 85 ms", read(sb, "R.tabletHitstop"), 85);
+  exec(sb, "R.tabletClock = R.tabletClockMax * 0.1; paintTabletsClock()");
+  ok("the slot pulses red in danger", read(sb, "$('tablets-slot').classList.contains('urgent')"), true);
+  ok("the milestone banner rises in the game's words",
+    read(sb, "$('tablets-milestone-name').textContent") === "Tithe" && read(sb, "$('tablets-milestone').classList.contains('active')"), read(sb, "$('tablets-milestone-name').textContent"));
+  ok("the gold flash is on the stage", read(sb, "$('tablets-flash').classList.contains('gold')"), true);
+  ok("the HUD numerals kick", read(sb, "$('tablets-favor').classList.contains('kick')"), true);
+}
+{
+  // E: colored sparks pool with their color and burn out clean.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "var _ctx = { beginPath:function(){}, moveTo:function(){}, lineTo:function(){}, quadraticCurveTo:function(){}, closePath:function(){}, stroke:function(){}, fill:function(){}, arc:function(){}, clearRect:function(){} }; $('tablets-fx').getContext = function(){ return _ctx; }; tabletsFxInit()");
+  exec(sb, "spawnTabletsSparks(10, 10, 3, '255,77,61')");
+  eq("a red burst pools three sparks", read(sb, "tabletsFx.sparks.length"), 3);
+  eq("the sparks carry their color", read(sb, "tabletsFx.sparks[0].color"), "255,77,61");
+  exec(sb, "for(var i = 0; i < 60; i++) drawTabletsFx(0.1)");
+  eq("the burst burns out", read(sb, "tabletsFx.sparks.length"), 0);
+}
+{
+  // E: reduced motion sleeps through the juice.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "document.body.classList.add('reduced')");
+  exec(sb, "R.streak = 9; tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("reduced motion skips the kick", read(sb, "$('tablets-favor').classList.contains('kick')"), false);
+  eq("reduced motion skips the banner", read(sb, "$('tablets-milestone').classList.contains('active')"), false);
+  eq("reduced motion skips the flash", read(sb, "$('tablets-flash').classList.contains('gold')"), false);
+}
+{
+  // E: the juice styles exist and sleep under reduced motion.
+  ok("the numerals kick", /\.tablets-stat b\.kick\{[^}]*animation:tabletsKick/.test(src));
+  ok("the milestone banner is dressed", /\.tablets-milestone\.active\{[^}]*opacity:1/.test(src));
+  ok("the stage washes exist", /\.tablets-flash\.miss\{/.test(src) && /\.tablets-flash\.gold\{/.test(src));
+  ok("the urgent slot pulses", /\.tablets-slot\.urgent\{[^}]*animation:tabletsSlotUrgent/.test(src));
+  ok("the juice sleeps under reduced motion", /body\.reduced \.tablets-stat b\.kick,/.test(src) && /body\.reduced \.tablets-flash,/.test(src));
+}
 unstubRandom();
 if (fail) {
   console.log("FAIL — tablets · " + pass + " passed · " + fail + " failed");

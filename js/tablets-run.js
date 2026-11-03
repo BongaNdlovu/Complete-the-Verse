@@ -50,6 +50,8 @@ function paintTabletsClock(){
     else lab.textContent = (Math.max(0, R.tabletClock || 0)).toFixed(1) + "s";
   }
   tabletsPaintRise();
+  const slotEl = $("tablets-slot");
+  if(slotEl) slotEl.classList.toggle("urgent", tabletsDangerLevel() > 0.5 && !tabletsUntimed());
 }
 /* V1: the verse card rises as the sand runs; untimed (tutorial, reduced motion) pins it at The Mark. */
 function tabletsRiseOf(){
@@ -119,6 +121,73 @@ function spawnTabletsScorePopup(text, slotEl){
   }
   ms.appendChild(popup);
   setTimeout(function(){ try{ popup.remove(); }catch(e){} }, 900);
+}
+/* E: how long the world holds its breath — top grades and milestones longest. */
+function tabletsHitstopMs(carve){
+  if(carve.milestone) return 85;
+  return (carve.grade === "divine" || carve.grade === "clutch") ? 55 : 30;
+}
+/* E: the carve speaks through the hand — per grade, louder at milestones. */
+function tabletsCarveHaptic(carve){
+  if(typeof navigator === "undefined" || !navigator.vibrate || !SAVE.set.haptics || R.tabletTutorial) return;
+  navigator.vibrate(carve.milestone ? [35, 30, 55, 30, 90] : (carve.grade === "divine" || carve.grade === "clutch") ? [24, 22, 42] : 22);
+}
+/* E: a miss cracks through the hand — the long pattern when the last lamp dies. */
+function tabletsMissHaptic(){
+  if(typeof navigator === "undefined" || !navigator.vibrate || !SAVE.set.haptics || R.tabletTutorial) return;
+  navigator.vibrate(R.tabletLampOut ? [90, 45, 120, 45, 180] : [65, 35, 95]);
+}
+/* E: the HUD numerals kick on a change; asleep under reduced motion. */
+function tabletsKick(id){
+  const el = $(id);
+  if(!el || tabletsReduced()) return;
+  el.classList.remove("kick");
+  if(el.offsetWidth !== undefined) void el.offsetWidth;
+  el.classList.add("kick");
+  setTimeout(function(){ el.classList.remove("kick"); }, 360);
+}
+/* E: the milestone banner — Tithe / Double portion / Jubilee, in the game's words. */
+function tabletsMilestoneBanner(streak, favor){
+  const banner = $("tablets-milestone");
+  if(!banner || tabletsReduced()) return;
+  const nameEl = $("tablets-milestone-name");
+  const favorEl = $("tablets-milestone-favor");
+  if(nameEl) nameEl.textContent = tabletsMilestoneName(streak);
+  if(favorEl) favorEl.textContent = "+" + favor + " FAVOR";
+  banner.classList.remove("active");
+  if(banner.offsetWidth !== undefined) void banner.offsetWidth;
+  banner.classList.add("active");
+  clearTimeout(R.tabletMilestoneTimer);
+  R.tabletMilestoneTimer = setTimeout(function(){ banner.classList.remove("active"); }, 2400);
+}
+/* E: a one-shot wash over the stage — gold for milestones, red for misses. */
+function tabletsFlash(kind, strong){
+  const flashEl = $("tablets-flash");
+  if(!flashEl || tabletsReduced()) return;
+  flashEl.classList.remove("miss", "gold", "strong");
+  if(flashEl.offsetWidth !== undefined) void flashEl.offsetWidth;
+  flashEl.classList.add(kind);
+  if(strong) flashEl.classList.add("strong");
+  setTimeout(function(){ flashEl.classList.remove(kind, "strong"); }, 700);
+}
+/* E: the scribe's chisel ticks upward as the word fills. */
+function tabletsPlayScribeTick(progress){
+  if(!(typeof Snd !== "undefined" && Snd.ctx)) return;
+  try{
+    const ctx = Snd.ctx;
+    if(ctx.state === "suspended") ctx.resume();
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "triangle";
+    o.frequency.setValueAtTime(392 + Math.min(1, Math.max(0, progress)) * 392, t);
+    g.gain.setValueAtTime(0.05, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start(t);
+    o.stop(t + 0.09);
+  }catch(e){}
 }
 function tabletsPlayGoldChime(){
   if(!(typeof Snd !== "undefined" && Snd.ctx)) return;
@@ -710,6 +779,14 @@ function tabletsResolveMiss(){
   const failedGrid = $("tablets-grid");
   if(failedGrid) failedGrid.classList.add("locked");
   tabletsApplyTrauma(0.9);
+  /* E: the miss speaks in red. */
+  tabletsFlash("miss", false);
+  const missedSlot = $("tablets-slot");
+  if(missedSlot && missedSlot.getBoundingClientRect){
+    const r = missedSlot.getBoundingClientRect();
+    spawnTabletsSparks(r.left + r.width / 2, r.top + r.height / 2, 26, "255,77,61");
+  }
+  tabletsMissHaptic();
   const picked = tabletsStoneButtons().filter(function(b){ return b.classList && b.classList.contains("selected"); })[0];
   if(picked) picked.classList.add("shatter");
   paintTabletsHud();
@@ -807,6 +884,13 @@ function tabletsResolveHit(){
   const slot = $("tablets-slot");
   spawnTabletsScorePopup(tabletsScoreText(carve, favor), slot);
   if(typeof Snd !== "undefined" && Snd.carve) Snd.carve();
+  /* E: the juice — hold, flash, kick, speak. */
+  R.tabletHitstop = tabletsHitstopMs(carve);
+  tabletsFlash("gold", !!carve.milestone);
+  tabletsKick("tablets-favor");
+  tabletsKick("tablets-streak");
+  tabletsCarveHaptic(carve);
+  if(carve.milestone) tabletsMilestoneBanner(carve.milestone.streak, favor);
   tabletsReact(true);
   const grid = $("tablets-grid");
   if(grid) grid.classList.add("locked");
@@ -912,6 +996,12 @@ function tabletsTick(now){
   if(!R || R.ended || R.paused || R.mode !== "tablets" || !R.tabletRacing) return;
   const dt = Math.min((now - (R.tabletLast || now)) / 1000, 0.1);
   R.tabletLast = now;
+  /* E: the world holds its breath after a carve (30/55/85 ms). */
+  if(R.tabletHitstop > 0){
+    R.tabletHitstop = Math.max(0, R.tabletHitstop - dt * 1000);
+    R.tabletRaf = requestAnimationFrame(tabletsTick);
+    return;
+  }
   if(R.surgeOn) tabletsTickSurge(dt);
   if(!tabletsUntimed() && !R.surgeOn) tabletsBurnSand(dt);
   if(R.ended) return;
@@ -1081,6 +1171,7 @@ function tabletsTypeKey(k){
   if(k.length !== 1 || k < "a" || k > "z") return false;
   if(need.indexOf(typed + k) !== 0) return true;
   R.tabletTyped = typed + k;
+  tabletsPlayScribeTick(typed.length / Math.max(1, need.length));
   paintTabletsSlot(blank, "");
   if(R.tabletTyped === need && !R.tabletResolving){
     R.tabletTypedHit = true;
@@ -1236,7 +1327,7 @@ function tabletsFxMakeEmber(randomY){
     max: 180 + Math.random() * 140
   };
 }
-function spawnTabletsSparks(x, y, count){
+function spawnTabletsSparks(x, y, count, color){
   if(!tabletsFx.ctx || tabletsReduced()) return;
   const n = count || 16;
   let i = 0;
@@ -1246,7 +1337,8 @@ function spawnTabletsSparks(x, y, count){
     tabletsFx.sparks.push({
       x: x || tabletsFx.w / 2, y: y || tabletsFx.h * 0.45,
       vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.5,
-      size: 1.5 + Math.random() * 2.5, life: 1, decay: 0.03
+      size: 1.5 + Math.random() * 2.5, life: 1, decay: 0.03,
+      color: color || "255,225,130"
     });
   }
 }
@@ -1389,7 +1481,7 @@ function drawTabletsFx(dt){
     s.vy += 0.15;
     s.life -= s.decay * (dt * 60);
     if(s.life <= 0){ tabletsFx.sparks.splice(i, 1); continue; }
-    ctx.fillStyle = "rgba(255,225,130," + s.life + ")";
+    ctx.fillStyle = "rgba(" + (s.color || "255,225,130") + "," + s.life + ")";
     ctx.beginPath();
     ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
     ctx.fill();
