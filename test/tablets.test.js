@@ -694,7 +694,8 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("streak 75 is still Jubilee", read(sb, "tabletsMilestoneName(75)"), "Jubilee");
   exec(sb, "R.streak = 9");
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("the Tithe names itself and its Favor", read(sb, "$('tablets-blessing-text').textContent"), "Tithe · +500 FAVOR");
+  eq("the Tithe names itself on the Favor popup",
+    read(sb, "$('tablets-ms').children[$('tablets-ms').children.length - 1].textContent"), "Fresh sand · Tithe · +1025 FAVOR");
   eq("the Tithe rides on the carve", read(sb, "R.favor"), 1025);
   eq("the tenth streak recharges Illuminate", read(sb, "R.powers.illum"), 2);
 }
@@ -708,6 +709,52 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   eq("streak 5 restores Winnow", read(sb, "R.powers.winnow"), 3);
   eq("streak 5 leaves Illuminate alone", read(sb, "R.powers.illum"), 1);
+}
+
+{
+  // F1: an answer with a space is typed by its letters alone.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman',{tabletChapter:'matthew28'})");
+  stubRandom(sb, 0.9);
+  const type = function(ch){ exec(sb, "tabletsOnKey({ key: " + JSON.stringify(ch) + ", preventDefault: function(){} })"); };
+  eq("the All hail gap is found", read(sb, "(function(){ for(var s = 0; s < R.tabletSteps.length; s++){ for(var g = 0; g < R.tabletSteps[s].length; g++){ R.tabletIdx = s; R.gapIdx = g; R.tabletTyped = ''; if(tabletsGapBlank() && tabletsGapBlank().a === 'All hail'){ paintTabletsTray(); return true; } } } return false; })()"), true);
+  "allhail".split("").forEach(type);
+  eq("typing allhail carves All hail", read(sb, "R.correct"), 1);
+  eq("the letters-only carve is a typed carve", read(sb, "!!R.tabletTypedHit"), true);
+}
+
+{
+  // F2: the recharge toast names the powers in the game's words.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "var _toasts = []; toast = function(m){ _toasts.push(m); }");
+  exec(sb, "R.streak = 9; tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("the tenth streak names both powers", read(sb, "_toasts.indexOf('Restored · Winnow · Illuminate') >= 0"), true);
+}
+
+{
+  // F3: a milestone rides on the Favor popup; the blessing keeps its banner.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.1);
+  exec(sb, "R.streak = 9; tabletsResolve(true)");
+  eq("the Tithe is on the Favor popup",
+    read(sb, "$('tablets-ms').children[$('tablets-ms').children.length - 1].textContent"), "Fresh sand · Tithe · +1025 FAVOR");
+  eq("the blessing keeps its banner", read(sb, "$('tablets-blessing-text').textContent"), "Manna Jar Discovered (+15s Sand)");
+}
+
+{
+  // F4: Illuminate's copy says it carves.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "var _toasts = []; toast = function(m){ _toasts.push(m); }");
+  exec(sb, "tabletsIlluminate()");
+  eq("the Illuminate toast says it carves", read(sb, "_toasts[0]"), "Illuminate — the true word is carved");
+  const runSrc = fs.readFileSync(path.join(ROOT, "js/tablets-run.js"), "utf8");
+  ok("the tutorial says Illuminate carves", runSrc.indexOf('"Illuminate carves the true word for you"') >= 0);
+  ok("no Illuminate copy says it only glows", !/glows the true stone|true stone glows/.test(runSrc));
 }
 
 {

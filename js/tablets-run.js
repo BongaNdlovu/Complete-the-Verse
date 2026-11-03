@@ -123,7 +123,7 @@ function paintTabletsTutorialCallout(){
       : "Tap FATHER below, or type the word (1–4 picks)",
     "The word flies into the carved slot",
     "In the true Hold the sand runs; here it stands still",
-    "Illuminate glows the true stone for a breath",
+    "Illuminate carves the true word for you",
     "Winnow casts two false stones into shadow",
     "Three lamps guard a wrong word. The sand is the Hold",
     "Almost complete · Let no word be lost",
@@ -486,7 +486,7 @@ function tabletsIlluminate(){
   target.classList.add("revealed");
   setTimeout(function(){ try{ target.classList.remove("revealed"); }catch(e){} }, 2000);
   paintTabletsIllumBtn();
-  if(typeof toast === "function") toast("Illuminate — the true stone glows");
+  if(typeof toast === "function") toast("Illuminate — the true word is carved");
   if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
   /* O4: the power carves the true word at the Carved grade. It counts for the
      streak and the Favor, and it earns no typed bonus. */
@@ -644,10 +644,14 @@ function tabletsCarve(){
 function tabletsHitFavor(carve){
   return Math.round((carve.points || 0) * (R.tabletTrial ? 2.5 : 1));
 }
-/* The popup names the grade; the tutorial stays ungraded. */
+/* The popup names the grade, and the milestone when the carve reaches one
+   (D4: a Favor popup, so the blessing banner stays the blessing's). The
+   tutorial stays ungraded. */
 function tabletsScoreText(carve, favor){
   if(R.tabletTutorial) return "+" + favor + " FAVOR";
-  return tabletsGradeName(carve.grade) + " · +" + favor + " FAVOR";
+  const grade = tabletsGradeName(carve.grade);
+  if(carve.milestone) return grade + " · " + tabletsMilestoneName(carve.milestone.streak) + " · +" + favor + " FAVOR";
+  return grade + " · +" + favor + " FAVOR";
 }
 /* D4: the three milestones wear the game's names. */
 function tabletsMilestoneName(streak){
@@ -655,17 +659,10 @@ function tabletsMilestoneName(streak){
   if(streak >= 25) return "Double portion";
   return "Tithe";
 }
-function tabletsMilestoneBanner(reached){
-  if(!reached) return;
-  const banner = $("tablets-blessing");
-  const icon = $("tablets-blessing-icon");
-  const text = $("tablets-blessing-text");
-  if(icon) icon.textContent = "🏛️";
-  if(text) text.textContent = tabletsMilestoneName(reached.streak) + " · +" + reached.bonus + " FAVOR";
-  if(banner){
-    banner.classList.add("active");
-    setTimeout(function(){ try{ banner.classList.remove("active"); }catch(e){} }, 2800);
-  }
+/* The rules' charge ids, in the words on the power buttons. */
+const TABLET_POWER_NAMES = { winnow:"Winnow", illuminate:"Illuminate" };
+function tabletsPowerName(id){
+  return TABLET_POWER_NAMES[id] || id;
 }
 /* D2: the streak gives the charges back, and the rules decide how. */
 function tabletsRecharge(carve){
@@ -674,7 +671,7 @@ function tabletsRecharge(carve){
   R.powers.illum = award.charges.illuminate;
   if(!award.gained.length) return;
   paintTabletsPowers();
-  if(typeof toast === "function") toast("Restored · " + award.gained.join(" · "));
+  if(typeof toast === "function") toast("Restored · " + award.gained.map(tabletsPowerName).join(" · "));
 }
 function tabletsResolveHit(){
   R.correct = (R.correct || 0) + 1;
@@ -701,7 +698,6 @@ function tabletsResolveHit(){
   });
   if(!R.tabletTutorial){
     tabletsRollBlessing();
-    tabletsMilestoneBanner(carve.milestone);
     tabletsRecharge(carve);
   }
 }
@@ -889,10 +885,11 @@ function bindTabletsChrome(){
     window.addEventListener("resize", tabletsOnResize);
   }
 }
-/* The word being carved, lower-cased, and what has been typed of it. */
+/* The word being carved, lower-cased, letters only: a space or an
+   apostrophe ("All hail", "eagle's") is not typed. */
 function tabletsNeedWord(){
   const blank = tabletsGapBlank();
-  return blank ? String(blank.a || "").toLowerCase().trim() : "";
+  return blank ? String(blank.a || "").toLowerCase().replace(/[^a-z]/g, "") : "";
 }
 /* A power key fires only while nothing is typed and the word cannot start
    with that letter; otherwise the letter is typing. */
