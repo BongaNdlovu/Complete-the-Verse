@@ -399,6 +399,14 @@ body.reduced #tablets-fx,body.motion-calm #tablets-fx{display:none}
   max-height:min(58vh,620px);overflow:auto;padding:0 6px 0 2px}
 #brief-tablets-pick[hidden]{display:none}
 .tablets-ch-group{margin:0 0 1.5em}
+.tablets-mode-row{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 1.1em}
+.tablets-mode-btn{flex:1;min-height:44px;padding:.5em .9em;
+  background:linear-gradient(180deg,rgba(92,61,22,.9),rgba(27,17,7,.96));border:1px solid rgba(225,183,99,.72);
+  color:#ffe7b5;font-family:var(--disp);letter-spacing:.08em;text-transform:uppercase;font-size:.85rem}
+.tablets-mode-btn.on{border-color:var(--gold-hot);box-shadow:0 0 14px rgba(217,182,103,.28)}
+.tablets-mode-note{flex-basis:100%;margin:.5em 0 0;font-family:var(--body);font-style:italic;font-size:.82rem;color:#c9b088}
+#brief-tablets-modes{display:block;width:min(640px,94vw);margin:2vh auto 0;padding:0 6px 0 2px}
+#brief-tablets-modes[hidden]{display:none}
 .tablets-ch-lab{margin:1.1em 0 .6em;text-align:left;font-family:var(--ui);font-size:.66rem;
   letter-spacing:.22em;text-transform:uppercase;color:#b79a58;
   border-bottom:1px solid rgba(217,182,103,.24);padding-bottom:.5em}

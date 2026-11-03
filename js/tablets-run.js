@@ -606,7 +606,7 @@ function tabletsResolveMiss(){
     const lives = R.tabletLives || 1;
     const lit = Math.max(0, lives - (R.tabletMiss || 0));
     const max = R.tabletClockMax || tabletsClockMax() || 1;
-    const cracked = Tablets.rules.miss(lit, false, Tablets.rules.progressOf(R.tabletClock, max));
+    const cracked = Tablets.rules.miss(lit, R.tabletMode === "judgment", Tablets.rules.progressOf(R.tabletClock, max));
     R.tabletMiss = lives - cracked.lit;
     R.tabletLampOut = !!cracked.ended;
     R.tabletClock = max * (1 - cracked.progress);
@@ -724,6 +724,13 @@ function tabletsResetBlankAids(){
   R.tabletWinnowIdx = -1;
   R.tabletBlankStart = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
 }
+/* P3: the chapter's last step. Returns true when the run is over; an Endless run reads on instead. */
+function tabletsChapterDone(){
+  if(R.tabletTutorial){ finishTabletsTutorial(); return true; }
+  if(R.tabletMode === "endless"){ tabletsNextReading(); return false; }
+  if(typeof endRun === "function") endRun("complete");
+  return true;
+}
 function tabletsFinishResolve(ok){
   if(!R || R.ended || R.mode !== "tablets" || !R.tabletResolving) return;
   R.tabletResolving = false;
@@ -748,13 +755,10 @@ function tabletsFinishResolve(ok){
     R.gapIdx = 0;
   }
   tabletsResetBlankAids();
-  if(R.tabletIdx >= ((R && R.tabletSteps) || []).length){
-    if(R.tabletTutorial) finishTabletsTutorial();
-    else if(typeof endRun === "function") endRun("complete");
-    return;
-  }
+  if(R.tabletIdx >= ((R && R.tabletSteps) || []).length && tabletsChapterDone()) return;
   if(!R.tabletTutorial){
-    R.tabletClock = tabletsClockMax();
+    R.tabletClock = tabletsStepSeconds();
+    R.tabletClockMax = R.tabletClock;
     R.tabletLastWarnSec = -1;
   }
   tabletsUnlockGrid();
@@ -796,18 +800,52 @@ function tabletsTick(now){
   paintTabletsSurge();
   R.tabletRaf = requestAnimationFrame(tabletsTick);
 }
+/* P3: an Endless run reads the chapter again; the reading names count the passes. */
+const TABLET_READINGS = ["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth"];
+function tabletsReadingName(n){
+  const word = TABLET_READINGS[n - 1];
+  return word ? word + " reading" : "Reading " + n;
+}
+/* P3: an Endless step's sand is ramped by the words carved so far (the rules' blankSeconds). */
+function tabletsStepSeconds(){
+  const base = tabletsClockMax();
+  if(R.tabletMode !== "endless") return base;
+  return Tablets.rules.blankSeconds(base, R.correct || 0, R.streak || 0, false);
+}
+/* P3: finishing a reading Holds the chapter; the same words come round again on shorter sand. */
+function tabletsNextReading(){
+  R.tabletEndlessHeld = true;
+  R.tabletPass = (R.tabletPass || 1) + 1;
+  R.tabletIdx = 0;
+  R.gapIdx = 0;
+  spawnTabletsScorePopup(tabletsReadingName(R.tabletPass), $("tablets-slot"));
+}
+/* P2: the footer names the lamps this run really has. */
+const TABLET_MODE_NOTES = {
+  hold: "Three lamps guard the Hold",
+  judgment: "One lamp guards the Hold",
+  endless: "Three lamps · the chapter reads again"
+};
+function tabletsPaintModeNote(){
+  const el = $("tablets-hold-note");
+  if(!el) return;
+  const mode = R.tabletTutorial ? "hold" : R.tabletMode;
+  el.textContent = TABLET_MODE_NOTES[mode] || TABLET_MODE_NOTES.hold;
+}
 function startTabletsLoop(){
   stopTabletsLoop();
   const ch = tabletsChapter();
   R.tabletIdx = 0;
   R.gapIdx = 0;
   R.tabletSteps = tabletsBuildSteps(ch, tabletsGapCount());
-  R.tabletClock = tabletsClockMax();
+  R.tabletClock = tabletsStepSeconds();
   R.tabletClockMax = R.tabletClock;
+  R.tabletPass = 1;
+  R.tabletEndlessHeld = false;
   R.tabletTimeout = false;
   R.tabletLastWarnSec = -1;
   R.tabletMiss = 0;
-  R.tabletLives = 3;
+  R.tabletLives = Tablets.rules.lampsFor(R.tabletMode);
   R.tabletLampOut = false;
   R.tabletResolving = false;
   R.favor = 0;
@@ -826,6 +864,7 @@ function startTabletsLoop(){
   paintTabletsHud();
   paintTabletsTablet();
   paintTabletsTray();
+  tabletsPaintModeNote();
   R.tabletLast = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
   if(typeof requestAnimationFrame === "function") R.tabletRaf = requestAnimationFrame(tabletsTick);
 }
@@ -990,7 +1029,9 @@ function tabletsRollBlessing(){
     { icon:"🕯️", text:"Golden Censer (+1 Lamp Restored)", apply:function(){ R.tabletLives = (R.tabletLives || 3) + 1; } },
     { icon:"✨", text:"Shekinah Glory (+35% Surge Charge)", apply:function(){ R.surge = Math.min(100, (R.surge || 0) + 35); } }
   ];
-  const b = picks[Math.floor(Math.random() * picks.length)];
+  /* P2: in Judgment the Censer leaves the pool, so the HUD never shows a lamp the run cannot use. */
+  const pool = R.tabletMode === "judgment" ? picks.filter(function(p){ return p.text.indexOf("Golden Censer") < 0; }) : picks;
+  const b = pool[Math.floor(Math.random() * pool.length)];
   b.apply();
   const el = $("tablets-blessing");
   const icon = $("tablets-blessing-icon");

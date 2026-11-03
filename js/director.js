@@ -296,7 +296,8 @@ const Director = (function(){
   }
   function tabletEnding(){
     const held = typeof Tablets!=="undefined" && Tablets.held(R);
-    if(R && R.tabletTimeout){
+    /* P3: an Endless run that is Held keeps the Hold even when its sand runs out. */
+    if(R && R.tabletTimeout && !held){
       return {key:"defeated",title:"The Tablet Shattered",copy:"The sand ran out. The blank stayed empty when the Hold closed.",voice:"The tablet shattered. The word remains to be learned."};
     }
     return held

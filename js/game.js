@@ -600,7 +600,10 @@ function startRunTabletState(mode, options){
     : (mode==="tablets" && typeof Tablets !== "undefined" && Tablets.pickLevel)
       ? Tablets.pickLevel(chapter, SAVE, options && options.tabletLevel)
       : 1;
-  return { chapter: chapter, tutorial: tutorial, level: level, fromRoad: !!(options && options.fromRoad) };
+  const fromRoad = !!(options && options.fromRoad);
+  /* P1: the saved mode is read here and fixed for the run; a road run or the tutorial is a Hold. */
+  const runMode = (typeof Tablets !== "undefined" && Tablets.modeOf) ? Tablets.modeOf(SAVE, tutorial, fromRoad) : "hold";
+  return { chapter: chapter, tutorial: tutorial, level: level, fromRoad: fromRoad, mode: runMode };
 }
 function startRunTeamState(mode, options){
   if(mode!=="team") return { teamSide: null, teams: null };
@@ -655,6 +658,7 @@ function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDra
     tabletChapter: tab.chapter,
     tabletLevel: tab.level,
     tabletTutorial: tab.tutorial,
+    tabletMode: tab.mode,
     fromRoad: tab.fromRoad
   });
 }
