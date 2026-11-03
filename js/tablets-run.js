@@ -120,7 +120,7 @@ function paintTabletsTutorialCallout(){
   const prompts = [
     (window.matchMedia && matchMedia("(pointer:coarse)").matches)
       ? "Tap FATHER below"
-      : "Tap FATHER below (or press 1–4)",
+      : "Tap FATHER below, or type the word (1–4 picks)",
     "The word flies into the carved slot",
     "In the true Hold the sand runs; here it stands still",
     "Illuminate glows the true stone for a breath",
@@ -197,9 +197,10 @@ function paintTabletsSlot(blank, kind){
   if(kind === "hit" && blank){
     slot.textContent = blank.a;
     slot.classList.add("glow");
-  } else {
-    slot.textContent = "— — —";
+    return;
   }
+  /* The letters of the word being typed stand in the slot until it lands. */
+  slot.textContent = (R && R.tabletTyped) ? R.tabletTyped : "— — —";
 }
 function tabletsShowFracture(){
   const f = $("tablets-fracture");
@@ -415,7 +416,7 @@ function paintTabletsTray(){
   const blank = tabletsGapBlank();
   if(!blank) return;
   const grey = tabletsGreyWords();
-  const badges = ["A", "B", "C", "D"];
+  const badges = ["1", "2", "3", "4"];
   tabletsOptsForBlank().forEach(function(word, i){
     const b = document.createElement("button");
     b.type = "button";
@@ -628,7 +629,8 @@ function tabletsCarve(){
   return Tablets.rules.carve({
     progress: Tablets.rules.progressOf(R.tabletClock, max),
     streak: R.streak || 0,
-    surge: !!R.surgeOn
+    surge: !!R.surgeOn,
+    typed: !!R.tabletTypedHit
   });
 }
 /* O2: the carve's points are the Favor. Trial stays an outer 2.5x. */
@@ -681,6 +683,8 @@ function tabletsResetBlankAids(){
   R.tabletOpts = null;
   R.tabletGrey = [];
   R.tabletWinnow = [];
+  R.tabletTyped = "";
+  R.tabletTypedHit = false;
   R.tabletHintedIdx = -1;
   R.tabletWinnowIdx = -1;
   R.tabletBlankStart = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
@@ -846,6 +850,43 @@ function bindTabletsChrome(){
     window.addEventListener("resize", tabletsOnResize);
   }
 }
+/* The word being carved, lower-cased, and what has been typed of it. */
+function tabletsNeedWord(){
+  const blank = tabletsGapBlank();
+  return blank ? String(blank.a || "").toLowerCase().trim() : "";
+}
+/* A power key fires only while nothing is typed and the word cannot start
+   with that letter; otherwise the letter is typing. */
+function tabletsPowerKey(k){
+  if((R && R.tabletTyped) || (k !== "i" && k !== "w" && k !== "s")) return false;
+  const need = tabletsNeedWord();
+  if(k === need.charAt(0)) return false;
+  if(k === "i") tabletsIlluminate();
+  else if(k === "w") tabletsWinnow();
+  else tabletsSurge();
+  return true;
+}
+/* A wrong letter is ignored. It is not a miss. 1-4 pick a tablet; letters
+   type the word; Backspace takes the last letter back. */
+function tabletsTypeKey(k){
+  const blank = tabletsGapBlank();
+  const need = tabletsNeedWord();
+  const typed = (R && R.tabletTyped) || "";
+  if(k === "backspace"){
+    R.tabletTyped = typed.slice(0, -1);
+    paintTabletsSlot(blank, "");
+    return true;
+  }
+  if(k.length !== 1 || k < "a" || k > "z") return false;
+  if(need.indexOf(typed + k) !== 0) return true;
+  R.tabletTyped = typed + k;
+  paintTabletsSlot(blank, "");
+  if(R.tabletTyped === need && !R.tabletResolving){
+    R.tabletTypedHit = true;
+    tabletsResolve(true);
+  }
+  return true;
+}
 function tabletsOnKey(e){
   if(typeof currentView === "undefined" || currentView !== "tablets") return;
   if(!R || R.ended || R.mode !== "tablets") return;
@@ -854,15 +895,14 @@ function tabletsOnKey(e){
     if(k === "enter" || k === " "){ e.preventDefault(); setTabletsPaused(false); }
     return;
   }
-  if(k === "i"){ e.preventDefault(); tabletsIlluminate(); return; }
-  if(k === "w"){ e.preventDefault(); tabletsWinnow(); return; }
-  if(k === "s"){ e.preventDefault(); tabletsSurge(); return; }
-  const letters = { a:0, b:1, c:2, d:3 };
-  let n = parseInt(e.key, 10);
-  if(k in letters) n = letters[k] + 1;
-  if(!(n >= 1 && n <= 4)) return;
-  const btn = tabletsStoneButtons()[n - 1];
-  if(btn && !btn.disabled) tabletsPick(btn.dataset.word);
+  if(tabletsPowerKey(k)){ e.preventDefault(); return; }
+  const n = parseInt(e.key, 10);
+  if(n >= 1 && n <= 4){
+    const btn = tabletsStoneButtons()[n - 1];
+    if(btn && !btn.disabled) tabletsPick(btn.dataset.word);
+    return;
+  }
+  if(tabletsTypeKey(k)) e.preventDefault();
 }
 function tabletsOnResize(){
   if(typeof currentView !== "undefined" && currentView === "tablets") tabletsFxSize();

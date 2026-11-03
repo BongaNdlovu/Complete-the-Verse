@@ -597,6 +597,72 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
 }
 
 {
+  // Phase 4: typing the word letter by letter carves it.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  const type = function(ch){ exec(sb, "tabletsOnKey({ key: " + JSON.stringify(ch) + ", preventDefault: function(){} })"); };
+  type("w");
+  type("a");
+  eq("the slot shows the letters typed", read(sb, "$('tablets-slot').textContent"), "wa");
+  type("n");
+  type("t");
+  eq("the typed popup pays the +50", read(sb, "$('tablets-ms').children[$('tablets-ms').children.length - 1].textContent"), "Fresh sand · +200 FAVOR");
+  eq("the typed carve pays 200 Favor", read(sb, "R.favor"), 200);
+  eq("the typed carve fills 36", read(sb, "R.surge"), 36);
+  eq("the slot takes the carved word", read(sb, "$('tablets-slot').textContent"), "want");
+  exec(sb, "tabletsFinishResolve(true)");
+  eq("typing want carves Psalm 23:1", read(sb, "R.gapIdx"), 1);
+  eq("the next gap starts with nothing typed", read(sb, "R.tabletTyped"), "");
+}
+
+{
+  // A wrong letter is ignored, and a letter never picks a tablet.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  const type = function(ch){ exec(sb, "tabletsOnKey({ key: " + JSON.stringify(ch) + ", preventDefault: function(){} })"); };
+  type("w");
+  type("x");
+  eq("a wrong letter is ignored", read(sb, "R.tabletTyped"), "w");
+  eq("a wrong letter is not a miss", read(sb, "R.tabletMiss"), 0);
+  eq("a wrong letter resolves nothing", read(sb, "(R.attempts || 0)"), 0);
+  type("a");
+  type("a");
+  eq("a does not pick a tablet", read(sb, "(R.attempts || 0)"), 0);
+  eq("a is not a miss either", read(sb, "R.tabletMiss"), 0);
+}
+
+{
+  // w types for "waters" but fires Winnow for "soul".
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  const type = function(ch){ exec(sb, "tabletsOnKey({ key: " + JSON.stringify(ch) + ", preventDefault: function(){} })"); };
+  exec(sb, "R.tabletIdx = 1; R.gapIdx = 0; R.tabletTyped = ''; paintTabletsTray()");
+  eq("the third gap is waters", read(sb, "tabletsGapBlank().a"), "waters");
+  type("w");
+  eq("w types a letter for waters", read(sb, "R.tabletTyped"), "w");
+  exec(sb, "R.gapIdx = 1; R.tabletTyped = ''; paintTabletsTray()");
+  eq("the fourth gap is soul", read(sb, "tabletsGapBlank().a"), "soul");
+  type("w");
+  eq("w fires Winnow for soul", read(sb, "R.powers.winnow"), 1);
+  eq("w typed nothing for soul", read(sb, "R.tabletTyped"), "");
+}
+
+{
+  // Backspace takes the last letter back.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  const type = function(ch){ exec(sb, "tabletsOnKey({ key: " + JSON.stringify(ch) + ", preventDefault: function(){} })"); };
+  type("w");
+  type("a");
+  type("Backspace");
+  eq("Backspace removes a letter", read(sb, "R.tabletTyped"), "w");
+  eq("the slot forgets the letter", read(sb, "$('tablets-slot').textContent"), "w");
+  type("Backspace");
+  eq("an empty prefix shows the empty slot", read(sb, "$('tablets-slot').textContent"), "— — —");
+}
+
+{
   // Multi-gap steps: Pace I carves 2 words, II carves 3, III carves 4.
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
