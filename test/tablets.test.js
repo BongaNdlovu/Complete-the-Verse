@@ -1158,6 +1158,26 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   ok("the relic hop sleeps under reduced motion", /body\.reduced \.tablets-relic\.recharging/.test(src));
   ok("the floating pill sleeps under reduced motion", /body\.reduced \.tablets-relic-pill/.test(src));
 }
+{
+  // B: the stage reads like the arcade column (roadmap phase B, decision J4).
+  ok("the entry line rides inside the roll window", html.indexOf('class="tablets-entry-line"') >= 0);
+  ok("the entry line sits at the roll's entry fraction", /\.tablets-entry-line\{[^}]*top:62%/.test(src));
+  ok("The Mark wears the judgment red", /\.tablets-mark-line\{[^}]*#e0442e/.test(src));
+  ok("the parchment card stands down for the open column", /\.tablets-ms\{[^}]*rgba\(10,6,3/.test(src));
+  ok("the candle and companion step aside on the run", /#v-tablets \.tablets-ground,#v-tablets \.tablets-companion\{display:none!important\}/.test(src));
+  ok("blanks are stone pills", /\.tablets-blank-word\{[^}]*border-radius/.test(src));
+  ok("coming blanks read as empty pills", /\.tablets-blank-word\{[^}]*color:transparent/.test(src));
+  ok("carved words glow on dark chips", /\.tablets-blank-word\.in\{[^}]*background/.test(src));
+  ok("the roll fills the stage between the marks", /\.tablets-roll\{[^}]*flex:1 1 auto/.test(src));
+  ok("the stones wear the arcade cream", /\.tablets-stone\{[^}]*#f3e6c8/.test(src));
+  ok("the dock sits on slim pills", /\.tablets-tray-tools button,\.tablets-lamps,\.tablets-surge\{[^}]*border-radius:999px/.test(src));
+  ok("the entry line sits inside the roll window, before its close", /id="tablets-roll">[\s\S]*?class="tablets-entry-line"[\s\S]*?<\/i>\s*<\/div>\s*<div class="tablets-speech"/.test(html));
+}
+{
+  // BF: the open column's text is light (phase B follow-up).
+  ok("the scripture reads light on the dark column", /\.tablets-verse\{[^}]*color:#f3e6c8/.test(src));
+  ok("the reference pill reads light too", /\.tablets-ref-pill\{[^}]*color:#f7ecd2/.test(src));
+}
 unstubRandom();
 if (fail) {
   console.log("FAIL — tablets · " + pass + " passed · " + fail + " failed");

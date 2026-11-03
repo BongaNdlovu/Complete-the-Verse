@@ -83,7 +83,7 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-iconbtn:hover,.tablets-iconbtn:focus-visible{color:var(--gold-hot)}
 .tablets-iconbtn.on{color:var(--gold-hot);border-color:var(--gold-hot)}
 .tablets-stage{
-  position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;
+  position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:stretch;justify-content:center;
   gap:clamp(8px,2vw,24px);padding:12px clamp(10px,2vw,20px);width:100%;max-width:1440px;margin:0 auto}
 #tablets-fx{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
 .tablets-ground{
@@ -123,25 +123,23 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-companion figcaption{
   position:relative;z-index:1;margin-top:.2em;text-align:center;
   font-family:var(--ui);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:#c4a070}
+/* B: the arcade column stands alone — the ground scene and companion step aside
+   (their markup stays; the results screens and hall still use them). */
+#v-tablets .tablets-ground,#v-tablets .tablets-companion{display:none!important}
 .tablets-companion.success img{animation:tabletsCastOk 1.05s cubic-bezier(.16,.84,.28,1) both}
 .tablets-companion.failure img{animation:tabletsCastMiss .78s cubic-bezier(.2,.7,.2,1) both}
 @keyframes tabletsCastOk{0%{filter:brightness(1)}40%{filter:brightness(1.18)}100%{filter:brightness(1)}}
 @keyframes tabletsCastMiss{0%{transform:translateX(0)}30%{transform:translateX(-6px)}60%{transform:translateX(5px)}100%{transform:translateX(0)}}
 .tablets-ms{
-  position:relative;z-index:4;width:min(610px,100%);text-align:center;border-radius:18px;
-  padding:24px 34px 16px;overflow:hidden;
-  background:
-    radial-gradient(circle at 50% 20%,rgba(215,185,145,.2) 0%,rgba(70,50,32,.65) 85%),
-    linear-gradient(175deg,var(--tab-bg-1) 0%,var(--tab-bg-2) 40%,var(--tab-bg-3) 100%);
-  border:2px solid var(--tab-border);border-bottom:3.5px solid var(--tab-border-bot);
-  box-shadow:
-    0 35px 85px rgba(0,0,0,.96),0 8px 24px rgba(0,0,0,.75),
-    inset 0 3px 5px rgba(255,255,255,.26),inset 0 -12px 28px rgba(0,0,0,.68),
-    inset 4px 0 10px rgba(255,255,255,.07),inset -4px 0 10px rgba(0,0,0,.5)}
+  position:relative;z-index:4;width:min(1200px,100%);text-align:center;border-radius:14px;
+  padding:10px 24px 14px;overflow:hidden;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,rgba(10,6,3,.58) 0%,rgba(10,6,3,.30) 42%,rgba(10,6,3,.44) 100%);
+  border:1px solid rgba(217,182,103,.18);
+  box-shadow:0 20px 60px rgba(0,0,0,.75)}
 .tablets-ms:before{
   content:"";position:absolute;inset:0;border-radius:16px;pointer-events:none;z-index:1;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='roughStone'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='4' result='noise'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23eedbbd' surfaceScale='2.2'%3E%3CfeDistantLight azimuth='65' elevation='55'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23roughStone)' opacity='0.36'/%3E%3C/svg%3E");
-  background-size:240px;mix-blend-mode:overlay;opacity:.9}
+  background-size:240px;mix-blend-mode:overlay;opacity:.16}
 .tablets-fracture{
   position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;transition:opacity .2s;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 400'%3E%3Cpath d='M250,0 L240,60 L270,120 L230,190 L260,280 L220,340 L250,400 M270,120 L340,160 L390,140 M230,190 L160,230 L110,210 M260,280 L330,320' stroke='%23ff5533' stroke-width='2.5' fill='none'/%3E%3C/svg%3E");
@@ -151,17 +149,23 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-ref-pill,.tablets-mark-row,.tablets-slot,.tablets-verse,.tablets-sand,.tablets-tut-callout,.tablets-speech{position:relative;z-index:3}
 .tablets-ref-pill{
   display:inline-block;margin:0 0 8px;font-family:var(--disp-orn);font-size:clamp(1.05rem,2.2vw,1.5rem);
-  font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--tab-text);
-  text-shadow:0 1px 1px rgba(255,255,255,.32),0 -1.5px 2px rgba(0,0,0,.9);background:none;padding:0;box-shadow:none}
+  font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#f7ecd2;
+  text-shadow:0 1px 1px rgba(0,0,0,.55),0 -1.5px 2px rgba(0,0,0,.9);background:none;padding:0;box-shadow:none}
 .tablets-mark-row{display:flex;align-items:center;gap:12px;margin:8px 0 12px}
 /* R1: the phase 7 card rise (translate) is retired; the roll moves .tablets-sheet from tabletsPaintRise. */
 .tablets-mark-line{
   flex:1;height:2px;position:relative;
-  background:linear-gradient(90deg,transparent,#e5b558 20%,#e5b558 80%,transparent);
-  box-shadow:0 0 10px rgba(229,181,88,.85)}
+  background:linear-gradient(90deg,transparent,#e0442e 20%,#ff6b4a 50%,#e0442e 80%,transparent);
+  box-shadow:0 0 12px rgba(224,68,46,.85)}
 .tablets-mark{
-  font-family:var(--disp-orn);color:var(--gold-hot);font-size:.78rem;letter-spacing:.32em;text-transform:uppercase;
-  text-shadow:0 0 12px rgba(245,190,82,.85);font-weight:700}
+  font-family:var(--disp-orn);color:#ff9a80;font-size:.78rem;letter-spacing:.32em;text-transform:uppercase;
+  text-shadow:0 0 12px rgba(255,80,50,.85);font-weight:700}
+/* B: the entry line — the green line the active blank rises from. Its 62% is
+   TABLET_ROLL_ENTRY (js/tablets-run.js), which the roll target also reads. */
+.tablets-entry-line{
+  position:absolute;left:0;right:0;top:62%;height:2px;z-index:2;pointer-events:none;
+  background:linear-gradient(90deg,transparent,#39d98a 18%,#7dffc0 50%,#39d98a 82%,transparent);
+  box-shadow:0 0 12px rgba(57,217,138,.7)}
 .tablets-slot{
   min-width:200px;max-width:280px;height:48px;margin:0 auto 14px;border-radius:10px;border:2px solid #dfa544;
   background:radial-gradient(circle at 50% 30%,rgba(20,13,7,.7),rgba(8,5,2,.96));
@@ -173,18 +177,26 @@ body.view-tablets .voice-caption{display:none!important}
   box-shadow:inset 0 4px 12px rgba(0,0,0,.95),0 0 32px rgba(255,224,130,.85);transform:scale(1.04)}
 .tablets-verse{
   font-family:var(--body);font-weight:600;font-size:clamp(1.15rem,2.4vw,1.7rem);line-height:1.35;
-  color:var(--tab-text);margin:0 0 14px;min-height:4.2em;display:flex;flex-direction:column;
+  color:#f3e6c8;margin:0 0 14px;min-height:4.2em;display:flex;flex-direction:column;
   justify-content:center;align-items:center;
-  text-shadow:0 1px 1px rgba(255,255,255,.32),0 -1px 2px rgba(0,0,0,.95)}
-.tablets-blank-word{color:#c7943f;text-shadow:0 0 12px rgba(229,181,88,.7);font-weight:700;letter-spacing:.04em}
+  text-shadow:0 1px 1px rgba(0,0,0,.6),0 -1px 2px rgba(0,0,0,.95)}
+.tablets-blank-word{
+  display:inline-block;min-width:96px;padding:2px 16px;margin:0 2px;border-radius:9px;text-align:center;
+  color:transparent;text-shadow:none;font-weight:700;letter-spacing:.06em;
+  background:linear-gradient(180deg,rgba(214,183,138,.88),rgba(122,99,71,.88));
+  border:1px solid rgba(20,13,7,.55);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.3),inset 0 -3px 6px rgba(0,0,0,.35)}
 /* R1: the rolling chapter sheet. The window clips the carved steps above and the coming steps below. */
-.tablets-roll{position:relative;height:clamp(120px,calc(100vh - 640px),380px);overflow:hidden;margin:0 0 12px;-webkit-mask-image:linear-gradient(180deg,#000 0,#000 78%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 78%,transparent 100%)}
+.tablets-roll{position:relative;flex:1 1 auto;min-height:260px;overflow:hidden;margin:0 0 10px;-webkit-mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%)}
 .tablets-sheet{will-change:transform}
 .tablets-sheet .tablets-verse{margin:0 0 10px;min-height:0}
 .tablets-sheet-step{opacity:.42;margin:0 0 10px}
 .tablets-sheet-past .tablets-sheet-step{opacity:.55}
-@media (max-width:640px){.tablets-roll{height:clamp(170px,34vh,320px)}}
-.tablets-blank-word.in{color:#ffe38d;text-shadow:0 0 18px var(--gold-hot)}
+@media (max-width:640px){.tablets-roll{min-height:220px}}
+.tablets-blank-word.in{
+  color:#ffe38d;text-shadow:0 0 14px rgba(229,181,88,.8);
+  background:linear-gradient(180deg,rgba(62,43,20,.92),rgba(34,22,10,.92));
+  border-color:rgba(229,181,88,.55);box-shadow:0 0 12px rgba(229,181,88,.35),inset 0 1px 2px rgba(255,255,255,.15)}
 .tablets-gap-line{display:block;text-align:center;margin:2px 0}
 .tablets-gap-ref{display:inline-block;font-size:.62em;letter-spacing:.14em;color:var(--gold-dim);
   border:1px solid rgba(217,182,103,.35);border-radius:999px;padding:1px 10px;margin-right:10px;
@@ -268,13 +280,11 @@ body.view-tablets .voice-caption{display:none!important}
 @media (min-width:720px){.tablets-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (min-width:1150px){.tablets-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .tablets-stone{
-  position:relative;height:94px;border:none;cursor:pointer;border-radius:12px;
+  position:relative;height:64px;border:none;cursor:pointer;border-radius:10px;
   font-family:var(--disp);display:flex;align-items:center;justify-content:center;
-  background:
-    radial-gradient(circle at 50% 30%,rgba(200,165,120,.2) 0%,rgba(35,22,12,.65) 85%),
-    linear-gradient(175deg,var(--tab-bg-1) 0%,var(--tab-bg-2) 50%,var(--tab-bg-3) 100%);
-  border:2px solid var(--tab-border);border-bottom:3.5px solid var(--tab-border-bot);
-  box-shadow:0 10px 24px rgba(0,0,0,.85),inset 0 2px 3px rgba(255,255,255,.2),inset 0 -8px 16px rgba(0,0,0,.65);
+  background:linear-gradient(180deg,#f3e6c8 0%,#e2cfa4 55%,#c9b183 100%);
+  border:1.5px solid #8a6f47;border-bottom:3px solid #5d4a2c;
+  box-shadow:0 8px 18px rgba(0,0,0,.8),inset 0 1px 2px rgba(255,255,255,.7),inset 0 -6px 12px rgba(93,74,44,.4);
   transition:transform .15s,box-shadow .2s,filter .3s,border-color .2s;overflow:hidden}
 .tablets-stone:before{
   content:"";position:absolute;inset:0;pointer-events:none;
@@ -285,8 +295,8 @@ body.view-tablets .voice-caption{display:none!important}
   box-shadow:0 16px 30px rgba(0,0,0,.92),0 0 20px rgba(229,181,88,.38),inset 0 2px 4px rgba(255,255,255,.28)}
 .tablets-stone:active:not(.dim){transform:translateY(1px)}
 .tablets-word{
-  font-size:clamp(1rem,2vw,1.4rem);font-weight:700;letter-spacing:.12em;color:var(--tab-text);
-  text-shadow:0 1px 1px rgba(255,255,255,.28),0 -1px 2px rgba(0,0,0,.95);z-index:2;text-transform:uppercase}
+  font-size:clamp(.95rem,1.8vw,1.25rem);font-weight:700;letter-spacing:.12em;color:#2a1d10;
+  text-shadow:0 1px 0 rgba(255,255,255,.35);z-index:2;text-transform:uppercase}
 .tablets-stone.long .tablets-word{font-size:.9em;letter-spacing:.06em}
 .tablets-key{
   position:absolute;top:7px;left:8px;width:28px;height:28px;border-radius:50%;
@@ -311,9 +321,9 @@ body.view-tablets .voice-caption{display:none!important}
 }
 .tablets-tray-tools{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;flex-wrap:wrap}
 .tablets-tray-tools button,.tablets-lamps,.tablets-surge{
-  min-height:44px;padding:7px 12px;font-family:var(--ui);letter-spacing:.1em;text-transform:uppercase;
-  font-size:.64rem;color:#deb86f;background:linear-gradient(180deg,#22160a 0%,#130c05 100%);
-  border:1px solid #4a371a;border-radius:6px}
+  min-height:36px;padding:4px 12px;font-family:var(--ui);letter-spacing:.1em;text-transform:uppercase;
+  font-size:.6rem;color:#deb86f;background:linear-gradient(180deg,#22160a 0%,#130c05 100%);
+  border:1px solid #4a371a;border-radius:999px}
 .tablets-tray-tools button:hover:not(:disabled):not(.spent){
   border-color:var(--gold-hot);color:var(--gold-hot);transform:translateY(-2px)}
 .tablets-tray-tools button:disabled,.tablets-tray-tools button.spent{opacity:.35;cursor:not-allowed}
@@ -479,7 +489,7 @@ body.reduced .tablets-sheet,body.reduced .tablets-verse,body.motion-calm .tablet
   .tablets-tier{display:none}
   .tablets-ms{padding:18px 20px 14px}
   .tablets-verse{font-size:1.2rem;min-height:3.6em}
-  .tablets-stone{height:82px}
+  .tablets-stone{height:58px}
   .tablets-surge{width:100%;min-width:0}
 }
 @media (max-width:640px){
