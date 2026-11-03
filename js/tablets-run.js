@@ -135,7 +135,7 @@ function paintTabletsTutorialCallout(){
     "The word flies into the carved slot",
     "In the true Hold the sand runs; here it stands still",
     "Illuminate carves the true word for you",
-    "Winnow casts two false stones into shadow",
+    "Winnow casts three false stones into shadow",
     "Three lamps guard a wrong word. The sand is the Hold",
     "Almost complete · Let no word be lost",
     "Final word · Engrave it to seal your first Hold and open the Hall!"

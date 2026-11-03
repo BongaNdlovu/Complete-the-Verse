@@ -47,7 +47,7 @@ val MODES = listOf(
         key = "tablets",
         name = "Word Tablets",
         kick = "Fill the Word",
-        desc = "Carve the missing KJV word before the clock runs out. Two lamps guard the tablet: finish with a lamp still lit to Hold; a second miss or empty sand shatters. Learn the prayer, then Hold Psalm 23 to open Psalm 91, then John 1.",
+        desc = "Carve the missing KJV word before the clock runs out. Three lamps guard the tablet: finish with a lamp still lit to Hold; a third miss or empty sand shatters. Learn the prayer, then Hold Psalm 23 to open Psalm 91, then John 1.",
         tagline = "Pace I–III · the hall",
     ),
     HallMode(

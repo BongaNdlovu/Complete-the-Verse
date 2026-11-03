@@ -88,6 +88,16 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
         private set
     var confirmAbandon: Boolean = false
         private set
+    var lastGrade: String? = null
+        private set
+    var lastMilestone: TabletsRules.Milestone? = null
+        private set
+    var lastPoints: Int = 0
+        private set
+    var lastGained: List<String> = emptyList()
+        private set
+    private var forcedGrade: String? = null
+    private var lampOut: Boolean = false
 
     val chapter: TabletChapter = Tablets.chapter(config.bank, config.chapterId)
     val tutorial: Boolean = config.tutorial ?: (chapter.tutorial || chapter.id == "prayer")
@@ -144,7 +154,7 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
         if (ended || !resolving) return
         resolving = false
         if (lastCorrect != true) {
-            if (tutorial || tabletMiss < tabletLives) {
+            if (tutorial || !lampOut) {
                 resetAids()
                 selected = null
                 lastCorrect = null
@@ -226,9 +236,12 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
         val key = gapKey()
         if (hintedKey == key) return false
         if (illum < 1) return false
+        val blank = currentBlank ?: return false
         hintedKey = key
         hinted = true
         illum -= 1
+        forcedGrade = "carved"
+        pick(blank.a)
         return true
     }
 
@@ -240,7 +253,9 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
         val blank = currentBlank ?: return false
         val decoys = choices.filter { !Tablets.choiceMatches(it, blank.a) && it !in grey }
         if (decoys.isEmpty()) return false
-        grey = decoys.take(2)
+        val take = TabletsRules.winnowCount(decoys.size)
+        if (take < 1) return false
+        grey = decoys.take(take)
         winnowKey = key
         winnow -= 1
         return true
@@ -251,6 +266,7 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
         gapIdx = 0
         tabletMiss = 0
         tabletLives = Tablets.LIVES
+        lampOut = false
         tabletClockMax = Tablets.clockS(config.bank).toDouble()
         tabletClock = tabletClockMax
         tabletTimeout = false
@@ -270,6 +286,7 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
 
     private fun resetAids() {
         optsKey = ""
+        forcedGrade = null
         grey = emptyList()
         hinted = false
         hintedKey = ""
@@ -289,27 +306,30 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
 
     private fun resolveHit() {
         correct += 1
-        streak += 1
+        val carve = TabletsRules.carve(TabletsRules.progressOf(tabletClock, tabletClockMax), streak, forcedGrade)
+        streak = carve.streak
         if (streak > bestStreak) bestStreak = streak
-        val mult = tierMult(streak)
-        favor += kotlin.math.round((120 + tabletClock * 8) * mult).toInt()
+        favor += carve.points
+        lastGrade = carve.grade
+        lastMilestone = carve.milestone
+        lastPoints = carve.points
+        if (tutorial) return
+        val r = TabletsRules.recharge(winnow, illum, streak, carve.milestone)
+        winnow = r.winnow
+        illum = r.illum
+        lastGained = r.gained
     }
 
     private fun resolveMiss() {
-        if (!tutorial) {
-            tabletMiss += 1
-            streak = 0
-        }
+        if (tutorial) return
+        val m = TabletsRules.miss(lampsLeft, TabletsRules.progressOf(tabletClock, tabletClockMax))
+        tabletMiss = tabletLives - m.lit
+        lampOut = m.ended
+        if (!untimed) tabletClock = tabletClockMax * (1 - m.progress)
+        streak = 0
     }
 
-    private fun tierMult(streak: Int): Double = when {
-        streak >= 8 -> 4.0
-        streak >= 5 -> 3.0
-        streak >= 3 -> 2.0
-        streak >= 1 -> 1.5
-        else -> 1.0
-    }
-
+    /* O2: the carve combo (TabletsRules.comboOf) replaced the old 1x-4x tier multiplier. */
     private fun pct(): Int {
         val total = tabletTotal.coerceAtLeast(1)
         return ((tabletIdx.toDouble() / total) * 100).roundToPct()

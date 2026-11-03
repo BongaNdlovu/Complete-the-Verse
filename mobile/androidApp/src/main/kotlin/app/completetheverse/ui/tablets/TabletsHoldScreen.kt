@@ -61,7 +61,7 @@ import app.completetheverse.ui.components.Kick
 import app.completetheverse.ui.theme.CtvColors
 import app.completetheverse.ui.theme.CtvFonts
 
-private val LETTERS = listOf("A", "B", "C", "D")
+private val LETTERS = listOf("A", "B", "C", "D", "E", "F")
 
 @Composable
 fun TabletsHoldScreen(
@@ -87,6 +87,7 @@ fun TabletsHoldScreen(
     tutorialPrompt: String,
     favor: Int,
     streak: Int,
+    hitLine: String = "",
     paused: Boolean,
     confirmAbandon: Boolean,
     showPauseOverlay: Boolean = paused || confirmAbandon,
@@ -164,6 +165,13 @@ fun TabletsHoldScreen(
                 favor = favor,
                 streak = streak,
                 onPause = onPause,
+            )
+            Text(
+                text = hitLine.ifEmpty { " " },
+                color = CtvColors.gold,
+                fontFamily = CtvFonts.ui,
+                fontSize = 13.sp,
+                letterSpacing = 0.12.em,
             )
             Column(
                 modifier = Modifier

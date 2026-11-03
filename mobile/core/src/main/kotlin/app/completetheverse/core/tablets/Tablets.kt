@@ -74,10 +74,115 @@ private data class TabletsFile(
     val chapters: List<TabletChapter> = emptyList(),
 )
 
+/* Arcade rules, ported from js/tablets.js Tablets.rules. Numbers only: the grade bands, the carve combo and Favor,
+   the three lamps with pushback, Winnow, the streak recharge and the Tithe / Double portion / Jubilee milestones. */
+object TabletsRules {
+    data class Grade(val id: String, val upTo: Double, val mult: Double, val fill: Int)
+    data class Milestone(val streak: Int, val bonus: Int)
+    data class Carve(val points: Int, val streak: Int, val grade: String, val milestone: Milestone?)
+    data class Miss(val lit: Int, val ended: Boolean, val progress: Double)
+    data class Recharge(val winnow: Int, val illum: Int, val gained: List<String>)
+
+    private const val COMBO_STEP = 0.5
+    private const val COMBO_CAP = 5.0
+    private const val BASE_POINTS = 100.0
+    private const val ROUND_TO = 5.0
+    private const val PUSHBACK = 0.45
+    private const val PUSHBACK_FLOOR = 0.12
+    private const val CHARGE_MAX = 3
+    private const val WINNOW_EVERY = 5
+    private const val ILLUM_EVERY = 10
+
+    val GRADES = listOf(
+        Grade("divine", 0.3, 1.5, 28),
+        Grade("sacred", 0.65, 1.2, 20),
+        Grade("carved", 0.82, 1.0, 14),
+        Grade("clutch", 1.0, 1.75, 35),
+    )
+    private val MILESTONES = listOf(Milestone(10, 500), Milestone(25, 1500))
+
+    private fun clamp01(n: Double): Double = n.coerceIn(0.0, 1.0)
+
+    /* 0 is fresh sand, 1 is sand gone. A missing max reads as spent. */
+    fun progressOf(left: Double, max: Double): Double {
+        if (!(max > 0.0)) return 1.0
+        return clamp01(1.0 - left / max)
+    }
+
+    fun grade(progress: Double): Grade {
+        val p = clamp01(progress)
+        return GRADES.firstOrNull { p <= it.upTo } ?: GRADES.last()
+    }
+
+    fun gradeOf(id: String): Grade? = GRADES.firstOrNull { it.id == id }
+
+    fun gradeName(id: String): String = when (id) {
+        "divine" -> "Fresh sand"
+        "sacred" -> "Sure"
+        "carved" -> "Carved"
+        "clutch" -> "Last grain"
+        else -> "Sure"
+    }
+
+    /* The streak combo multiplies every carve and tops out at COMBO_CAP. */
+    fun comboOf(streak: Int): Double = minOf(1.0 + (maxOf(0, streak) / 2) * COMBO_STEP, COMBO_CAP)
+
+    fun milestone(streak: Int): Milestone? {
+        MILESTONES.firstOrNull { it.streak == streak }?.let { return it }
+        val late = streak >= 50 && streak % 25 == 0
+        return if (late) Milestone(streak, 3500) else null
+    }
+
+    fun milestoneName(streak: Int): String = when {
+        streak >= 50 -> "Jubilee"
+        streak >= 25 -> "Double portion"
+        else -> "Tithe"
+    }
+
+    /* A carve pays base x combo x grade, rounded to 5, plus any milestone bonus. The grade is the sand band unless
+       a power names one (Illuminate carves at "carved"). Halves round up, as JS Math.round does. */
+    fun carve(progress: Double, streak: Int, gradeId: String? = null): Carve {
+        val next = streak + 1
+        val forced = if (gradeId == null) null else gradeOf(gradeId)
+        val g = forced ?: grade(progress)
+        val reached = milestone(next)
+        val raw = BASE_POINTS * comboOf(next) * g.mult + (reached?.bonus ?: 0)
+        val points = (kotlin.math.floor(raw / ROUND_TO + 0.5) * ROUND_TO).toInt()
+        return Carve(points, next, g.id, reached)
+    }
+
+    /* Winnow banishes up to three false stones and never clears the tray: at least one decoy stays. */
+    fun winnowCount(decoys: Int): Int = (decoys - 1).coerceIn(0, 3)
+
+    /* A miss spends a lamp and pushes the sand back. The last lamp ends the run. */
+    fun miss(lit: Int, progress: Double): Miss {
+        val next = maxOf(0, lit - 1)
+        if (next <= 0) return Miss(0, true, progress)
+        return Miss(next, false, maxOf(PUSHBACK_FLOOR, progress - PUSHBACK))
+    }
+
+    /* Winnow comes back every WINNOW_EVERY streak, Illuminate every ILLUM_EVERY and on a milestone, never above CHARGE_MAX. */
+    fun recharge(winnow: Int, illum: Int, streak: Int, milestone: Milestone?): Recharge {
+        var w = winnow
+        var i = illum
+        val gained = mutableListOf<String>()
+        if (streak > 0 && streak % WINNOW_EVERY == 0 && w < CHARGE_MAX) {
+            w++
+            gained.add("winnow")
+        }
+        val illumUp = milestone != null || (streak > 0 && streak % ILLUM_EVERY == 0)
+        if (illumUp && i < CHARGE_MAX) {
+            i++
+            gained.add("illuminate")
+        }
+        return Recharge(w, i, gained)
+    }
+}
+
 object Tablets {
     const val BLANK_S = 25
     const val HOLDS_TO_OPEN = 3
-    const val LIVES = 2
+    const val LIVES = 3
     const val HIT_HOLD_MS = 1_000L
     const val MISS_HOLD_MS = 800L
 
@@ -149,7 +254,7 @@ object Tablets {
             if (s.isEmpty() || norm(s) in ban) continue
             ban.add(norm(s))
             picked.add(s)
-            if (picked.size >= 3) break
+            if (picked.size >= 5) break
         }
         return Assemble.shuffle(listOf(blank.a) + picked, rng)
     }
@@ -372,8 +477,8 @@ object Tablets {
             "The word flies into the carved slot",
             "In the true Hold the sand runs; here it stands still",
             "Illuminate glows the true stone for a breath",
-            "Winnow casts two false stones into shadow",
-            "Two lamps guard a wrong word. The sand is the Hold",
+            "Winnow casts three false stones into shadow",
+            "Three lamps guard a wrong word. The sand is the Hold",
             "Almost complete · Let no word be lost",
             "Final word · Engrave it to seal your first Hold and open the Hall!",
         )
