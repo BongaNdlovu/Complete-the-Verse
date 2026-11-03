@@ -371,9 +371,14 @@ Tablets.rules = (function(){
     if(!isLate) return null;
     return { streak:streak, bonus:LATE_MILESTONE.bonus, sec:LATE_MILESTONE.sec };
   }
+  /* The streak combo multiplies every carve; the tier names are only a label.
+     Exported so the HUD shows the multiplier that is really paid. */
+  function comboOf(streak){
+    return Math.min(1 + Math.floor(Math.max(0, streak) / 2) * COMBO_STEP, COMBO_CAP);
+  }
   function carve(input){
     const streak = (input.streak || 0) + 1;
-    const combo = Math.min(1 + Math.floor(streak / 2) * COMBO_STEP, COMBO_CAP);
+    const combo = comboOf(streak);
     const g = grade(input.progress);
     const reached = milestone(streak);
     const mult = combo * g.mult
@@ -428,6 +433,7 @@ Tablets.rules = (function(){
   }
   return {
     GRADES: GRADES,
+    comboOf: comboOf,
     progressOf: progressOf,
     grade: grade,
     milestone: milestone,

@@ -444,12 +444,12 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   exec(sb, "startRun('tablets','watchman')");
   stubRandom(sb, 0.9);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("first carve Favor is 480", read(sb, "R.favor"), 480);
-  eq("fast hit charges surge 17", read(sb, "R.surge"), 17);
+  eq("a fresh sand carve pays 150 Favor", read(sb, "R.favor"), 150);
+  eq("fresh sand fills the surge 28", read(sb, "R.surge"), 28);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   eq("streak 3 is ANOINTED", read(sb, "tabletsTier(R.streak).name"), "ANOINTED");
-  eq("streak 3 multiplies by 2", read(sb, "tabletsTier(R.streak).mult"), 2);
+  eq("streak 3 multiplies the carve by 1.5", read(sb, "tabletsTier(R.streak).mult"), 1.5);
   exec(sb, "R.surge = 100; R.powers.winnow = 2; var c = R.tabletClock; tabletsSurge(); tabletsBurnSand(1); window._surgeClock = R.tabletClock === c");
   eq("surge freezes the sand", read(sb, "!!R.surgeOn"), true);
   eq("surge does not spend winnow", read(sb, "R.powers.winnow"), 2);
@@ -525,7 +525,43 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("trial drains 1.35s", Math.abs(read(sb, "R.tabletClock") - 8.65) < 0.001, true);
   stubRandom(sb, 0.9);
   exec(sb, "R.tabletClock = 25; R.streak = 0; R.favor = 0; tabletsResolve(true)");
-  eq("trial Favor is 2.5×", read(sb, "R.favor"), 1200);
+  eq("trial Favor is 2.5×", read(sb, "R.favor"), 375);
+}
+
+{
+  // Phase 2: the sand that is left grades the carve.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "R.tabletClock = 10; R.streak = 1; tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("a hit with 15s gone is Sure", read(sb, "tabletsGradeName('sacred')"), "Sure");
+  eq("the popup names the grade and the Favor",
+    read(sb, "$('tablets-ms').children[$('tablets-ms').children.length - 1].textContent"), "Sure · +180 FAVOR");
+  eq("the Sure grade pays 180 Favor", read(sb, "R.favor"), 180);
+  eq("the Sure grade fills the surge 20", read(sb, "R.surge"), 20);
+  eq("the four grades wear the game's words",
+    read(sb, "['divine','sacred','carved','clutch'].map(tabletsGradeName).join('|')"),
+    "Fresh sand|Sure|Carved|Last grain");
+}
+
+{
+  // D2: Surge doubles the carve.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "R.tabletClock = 10; R.streak = 1; R.surgeOn = true; tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("Surge doubles the Sure carve", read(sb, "R.favor"), 360);
+  ok("Surge is not the old x3", read(sb, "R.favor !== 540"));
+}
+
+{
+  // The tutorial stays ungraded and never fills the Surge.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman',{tabletChapter:'prayer',tabletTutorial:true})");
+  exec(sb, "tabletsPick('Father')");
+  eq("a tutorial hit carries no grade",
+    read(sb, "$('tablets-ms').children[$('tablets-ms').children.length - 1].textContent"), "+150 FAVOR");
+  eq("the tutorial never fills the surge", read(sb, "R.surge"), 0);
 }
 
 {

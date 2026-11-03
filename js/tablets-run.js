@@ -24,12 +24,16 @@ function tabletsClockMax(){
   if(typeof Tablets !== "undefined" && Tablets.clockS) return Tablets.clockS();
   return 25;
 }
+/* O2: the tier names stay as the streak label; the multiplier beside them is
+   the carve's combo, because that is what the Favor is really multiplied by. */
 function tabletsTier(streak){
-  if(streak >= 8) return { name:"DIVINE PRESENCE", mult:4 };
-  if(streak >= 5) return { name:"EXALTED", mult:3 };
-  if(streak >= 3) return { name:"ANOINTED", mult:2 };
-  if(streak >= 1) return { name:"SANCTIFIED", mult:1.5 };
-  return { name:"DEVOTED", mult:1 };
+  const n = streak || 0;
+  const mult = Tablets.rules.comboOf(n);
+  if(n >= 8) return { name:"DIVINE PRESENCE", mult:mult };
+  if(n >= 5) return { name:"EXALTED", mult:mult };
+  if(n >= 3) return { name:"ANOINTED", mult:mult };
+  if(n >= 1) return { name:"SANCTIFIED", mult:mult };
+  return { name:"DEVOTED", mult:mult };
 }
 function paintTabletsClock(){
   const fill = $("tablets-clock-fill");
@@ -604,29 +608,42 @@ function tabletsResolveMiss(){
   if(picked) picked.classList.add("shatter");
   paintTabletsHud();
 }
-function tabletsHitFavor(){
-  const t = tabletsTier(R.streak || 0);
-  const mult = t.mult * (R.surgeOn ? 3 : 1) * (R.tabletTrial ? 2.5 : 1);
-  return Math.round((120 + (R.tabletClock || 0) * 8) * mult);
+/* D4/O1: the arcade grade ids wear the game's words. */
+const TABLET_GRADE_NAMES = { divine:"Fresh sand", sacred:"Sure", carved:"Carved", clutch:"Last grain" };
+function tabletsGradeName(id){
+  return TABLET_GRADE_NAMES[id] || "Sure";
 }
-function tabletsChargeSurge(elapsed){
-  if(R.tabletTutorial) return;
-  /* Steps now carve 2–4 gaps each, so each gap charges roughly half the
-     old per-blank rate — Surge stays earned, not ambient. */
-  const add = elapsed < 4 ? 17 : 9;
-  R.surge = Math.min(100, (R.surge || 0) + add);
+/* The live run grades every carve from the sand that is left. The rules own
+   the numbers (grade band, combo, Surge x2); the run only reads them. */
+function tabletsCarve(){
+  const max = R.tabletClockMax || tabletsClockMax() || 1;
+  return Tablets.rules.carve({
+    progress: Tablets.rules.progressOf(R.tabletClock, max),
+    streak: R.streak || 0,
+    surge: !!R.surgeOn
+  });
+}
+/* O2: the carve's points are the Favor. Trial stays an outer 2.5x. */
+function tabletsHitFavor(carve){
+  return Math.round((carve.points || 0) * (R.tabletTrial ? 2.5 : 1));
+}
+/* The popup names the grade; the tutorial stays ungraded. */
+function tabletsScoreText(carve, favor){
+  if(R.tabletTutorial) return "+" + favor + " FAVOR";
+  return tabletsGradeName(carve.grade) + " · +" + favor + " FAVOR";
 }
 function tabletsResolveHit(){
   R.correct = (R.correct || 0) + 1;
   R.score = (R.score || 0) + 1;
-  R.streak = (R.streak || 0) + 1;
+  /* The carve reads the streak before this hit and returns the next one. */
+  const carve = tabletsCarve();
+  R.streak = carve.streak;
   R.best = Math.max(R.best || 0, R.streak);
-  const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
-  tabletsChargeSurge((now - (R.tabletBlankStart || now)) / 1000);
-  const favor = tabletsHitFavor();
+  if(!R.tabletTutorial) R.surge = Math.min(100, (R.surge || 0) + carve.fill);
+  const favor = tabletsHitFavor(carve);
   R.favor = (R.favor || 0) + favor;
   const slot = $("tablets-slot");
-  spawnTabletsScorePopup("+" + favor + " FAVOR", slot);
+  spawnTabletsScorePopup(tabletsScoreText(carve, favor), slot);
   if(typeof Snd !== "undefined" && Snd.carve) Snd.carve();
   tabletsReact(true);
   const grid = $("tablets-grid");
