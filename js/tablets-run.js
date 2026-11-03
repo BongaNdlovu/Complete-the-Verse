@@ -49,6 +49,17 @@ function paintTabletsClock(){
     if(tabletsUntimed()) lab.textContent = "Untimed Hold";
     else lab.textContent = (Math.max(0, R.tabletClock || 0)).toFixed(1) + "s";
   }
+  tabletsPaintRise();
+}
+/* V1: the verse card rises as the sand runs; untimed (tutorial, reduced motion) pins it at The Mark. */
+function tabletsRiseOf(){
+  if(tabletsUntimed()) return 1;
+  return Tablets.rules.progressOf(R.tabletClock, R.tabletClockMax || tabletsClockMax() || 1);
+}
+function tabletsPaintRise(){
+  const ms = $("tablets-ms");
+  if(!ms || !ms.style || !ms.style.setProperty) return;
+  ms.style.setProperty("--tablets-rise", String(Math.round(tabletsRiseOf() * 1000) / 1000));
 }
 function spawnTabletsScorePopup(text, slotEl){
   const ms = $("tablets-ms");
@@ -1070,7 +1081,7 @@ function tabletsCycleStone(){
   tabletsApplyStone(next);
   if(typeof toast === "function") toast("Stone · " + (TABLET_STONE_NAMES[next] || next));
 }
-var tabletsFx = { ctx:null, canvas:null, embers:[], sparks:[], w:0, h:0 };
+var tabletsFx = { ctx:null, canvas:null, embers:[], sparks:[], glyphs:[], w:0, h:0 };
 function tabletsFxSize(){
   const canvas = tabletsFx.canvas || $("tablets-fx");
   const stage = $("tablets-stage");
@@ -1083,6 +1094,7 @@ function tabletsFxInit(){
   tabletsFx.ctx = null;
   tabletsFx.embers = [];
   tabletsFx.sparks = [];
+  tabletsFx.glyphs = [];
   if(tabletsReduced()) return;
   const canvas = $("tablets-fx");
   if(!canvas || typeof canvas.getContext !== "function") return;
@@ -1094,6 +1106,8 @@ function tabletsFxInit(){
   tabletsFxSize();
   let i = 0;
   for(; i < 8; i++) tabletsFx.embers.push(tabletsFxMakeEmber(true));
+  /* V2: twelve signs across the three depth layers; none in reduced motion (the early return above). */
+  for(i = 0; i < 12; i++) tabletsFx.glyphs.push(tabletsMakeGlyph(i % 3, tabletsFx.w || 800, tabletsFx.h || 450, true));
 }
 function tabletsFxMakeEmber(randomY){
   return {
@@ -1120,6 +1134,87 @@ function spawnTabletsSparks(x, y, count){
     });
   }
 }
+/* V2: faint cuneiform signs in three depth layers, behind the embers. */
+const TABLET_GLYPH_SPEED = [18, 28, 46];
+const TABLET_GLYPH_DEPTH = [0.35, 0.68, 1.18];
+const TABLET_GLYPH_ALPHA = [0.07, 0.11, 0.16];
+const TABLET_GLYPH_SURGE = 1.35;
+/* Each sign is a list of strokes [x1, y1, x2, y2, headSize, chevron] in a -1..1 box.
+   Order: DINGIR, DUB_TABLET, KA_WORD, ZI_SOUL, LUGAL_KING, PA_SCEPTER. */
+const TABLET_GLYPHS = [
+  [[-0.75,0,0.75,0,0.28,0],[0,-0.78,0,0.78,0.28,0],[-0.55,-0.55,0.55,0.55,0.24,0],[0.55,-0.55,-0.55,0.55,0.24,0]],
+  [[-0.72,-0.52,0.68,-0.52,0.26,0],[-0.72,0,0.58,0,0.24,0],[-0.72,0.52,0.68,0.52,0.26,0],[-0.45,-0.72,-0.45,0.72,0.25,0],[0.38,-0.72,0.38,0.72,0.25,0]],
+  [[-0.75,-0.4,0.45,-0.4,0.26,0],[-0.75,0.4,0.45,0.4,0.26,0],[-0.52,-0.68,-0.52,0.68,0.26,0],[0.1,-0.1,0.4,-0.1,0.28,1],[0.55,-0.68,0.55,0.68,0.28,0]],
+  [[-0.7,-0.32,0.65,-0.32,0.25,0],[-0.7,0.32,0.65,0.32,0.25,0],[-0.25,-0.7,-0.25,0.7,0.25,0],[0.25,-0.7,0.25,0.7,0.25,0],[0.52,0,0.78,0,0.28,1]],
+  [[-0.78,-0.48,0.72,-0.48,0.26,0],[-0.78,0,0.72,0,0.26,0],[-0.78,0.48,0.72,0.48,0.26,0],[-0.45,-0.22,-0.15,-0.22,0.26,1],[0.48,-0.72,0.48,0.72,0.28,0]],
+  [[-0.72,-0.28,0.72,-0.28,0.26,0],[-0.72,0.28,0.72,0.28,0.26,0],[0,-0.75,0,0.75,0.28,0]]
+];
+/* V2: Pace I/II/III speed; Surge speeds the signs up. */
+function tabletsGlyphSpeed(pace, surge){
+  const p = Math.min(3, Math.max(1, Math.round(pace) || 1));
+  return TABLET_GLYPH_SPEED[p - 1] * (surge ? TABLET_GLYPH_SURGE : 1);
+}
+function tabletsMakeGlyph(layer, w, h, randomY){
+  const size = 16 + layer * 12;
+  return {
+    layer: layer, x: Math.random() * w, y: randomY ? Math.random() * h : h + size,
+    size: size, sign: Math.floor(Math.random() * TABLET_GLYPHS.length)
+  };
+}
+/* V2: a sign drifts up at its depth; one that leaves the top comes back below the stage. */
+function tabletsGlyphStep(g, dt, speed, w, h){
+  g.y -= speed * TABLET_GLYPH_DEPTH[g.layer] * dt;
+  if(g.y < -g.size){
+    g.y = h + g.size;
+    g.x = Math.random() * w;
+    g.sign = Math.floor(Math.random() * TABLET_GLYPHS.length);
+  }
+  return g;
+}
+function tabletsGlyphHead(ctx, x, y, dx, dy, size){
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len, uy = dy / len;
+  const px = -uy * size * 0.5, py = ux * size * 0.5;
+  ctx.beginPath();
+  ctx.moveTo(x + ux * size, y + uy * size);
+  ctx.lineTo(x + px, y + py);
+  ctx.lineTo(x - px, y - py);
+  ctx.closePath();
+  ctx.fill();
+}
+function tabletsDrawGlyphStroke(ctx, g, s){
+  const half = g.size / 2;
+  const x1 = g.x + s[0] * half, y1 = g.y + s[1] * half;
+  const x2 = g.x + s[2] * half, y2 = g.y + s[3] * half;
+  const hs = s[4] * half;
+  ctx.beginPath();
+  if(s[5]){
+    ctx.moveTo(x1 + hs, y1 - hs);
+    ctx.lineTo(x1, y1);
+    ctx.lineTo(x1 + hs, y1 + hs);
+    ctx.stroke();
+    return;
+  }
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  tabletsGlyphHead(ctx, x1, y1, x1 - x2, y1 - y2, hs);
+}
+function drawTabletsGlyph(ctx, g){
+  ctx.strokeStyle = "rgba(229,181,88," + TABLET_GLYPH_ALPHA[g.layer] + ")";
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.lineWidth = Math.max(1, g.size * 0.07);
+  (TABLET_GLYPHS[g.sign] || []).forEach(function(s){ tabletsDrawGlyphStroke(ctx, g, s); });
+}
+function drawTabletsGlyphs(dt){
+  const ctx = tabletsFx.ctx;
+  const pace = Tablets.paceOf ? Tablets.paceOf(tabletsChapter()) : 1;
+  const speed = tabletsGlyphSpeed(pace, !!R.surgeOn);
+  tabletsFx.glyphs.forEach(function(g){
+    tabletsGlyphStep(g, dt, speed, tabletsFx.w, tabletsFx.h);
+    drawTabletsGlyph(ctx, g);
+  });
+}
 function drawTabletsFx(dt){
   const ctx = tabletsFx.ctx;
   if(!ctx) return;
@@ -1129,6 +1224,7 @@ function drawTabletsFx(dt){
   if(typeof R !== "undefined" && R && typeof R.tabletClock === "number" && R.tabletClock <= 5 && !tabletsUntimed()){
     return;
   }
+  drawTabletsGlyphs(dt);
   tabletsFx.embers.forEach(function(p){
     p.x += p.vx * (dt * 60);
     p.y += p.vy * (dt * 60);

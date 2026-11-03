@@ -969,6 +969,65 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   exec(sb, "startRun('tablets','watchman')");
   eq("Hold shows words over the chapter", read(sb, "tabletsWordsCarvedText()"), "0 / 11");
 }
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  eq("the card sits low on a fresh step", read(sb, "tabletsRiseOf()"), 0);
+  exec(sb, "R.tabletClock = R.tabletClockMax / 2");
+  eq("the card is halfway up at half the sand", read(sb, "tabletsRiseOf()"), 0.5);
+  exec(sb, "R.tabletClock = 0.25 * R.tabletClockMax");
+  eq("the card is three-quarters up at a quarter of the sand", read(sb, "tabletsRiseOf()"), 0.75);
+  exec(sb, "R.tabletClock = R.tabletClockMax * 0.1; tabletsResolve(false); tabletsFinishResolve(false)");
+  ok("a miss at 90% gone pushes the card back to 0.45", Math.abs(read(sb, "tabletsRiseOf()") - 0.45) < 1e-9, read(sb, "tabletsRiseOf()"));
+  ok("painting the clock with the rise does not throw", (function(){ try { exec(sb, "paintTabletsClock()"); return true; } catch (e) { return false; } })());
+}
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman',{tabletChapter:'prayer',tabletTutorial:true})");
+  eq("the tutorial pins the card at The Mark", read(sb, "tabletsRiseOf()"), 1);
+}
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "document.body.classList.add('reduced')");
+  eq("reduced motion pins the card at The Mark", read(sb, "tabletsRiseOf()"), 1);
+}
+{
+  const sb = boot();
+  eq("Pace I drifts at 18 px/s", read(sb, "tabletsGlyphSpeed(1,false)"), 18);
+  eq("Pace III drifts at 46 px/s", read(sb, "tabletsGlyphSpeed(3,false)"), 46);
+  ok("Surge speeds Pace II by 1.35", Math.abs(read(sb, "tabletsGlyphSpeed(2,true)") - 37.8) < 1e-9, read(sb, "tabletsGlyphSpeed(2,true)"));
+  eq("a pace past III clamps to 46", read(sb, "tabletsGlyphSpeed(9,false)"), 46);
+  exec(sb, "var TG = tabletsGlyphStep({layer:2,x:5,y:100,size:40,sign:0}, 0.5, 20, 800, 450)");
+  ok("a near glyph drifts up at its depth", Math.abs(read(sb, "TG.y") - (100 - 20 * 1.18 * 0.5)) < 1e-9, read(sb, "TG.y"));
+  exec(sb, "var TW = tabletsGlyphStep({layer:2,x:5,y:-50,size:40,sign:0}, 0, 20, 800, 450)");
+  eq("a glyph above the stage comes back below it", read(sb, "TW.y"), 490);
+}
+{
+  const sb = boot();
+  const signs = JSON.parse(read(sb, "JSON.stringify(TABLET_GLYPHS)"));
+  eq("six cuneiform signs are ported", signs.length, 6);
+  ok("every sign has at least three strokes", signs.every(function(s){ return s.length >= 3; }));
+  ok("every stroke coordinate sits in the -1..1 box", signs.every(function(s){
+    return s.every(function(st){ return st.slice(0, 4).every(function(v){ return Math.abs(v) <= 1; }); });
+  }));
+}
+{
+  const sb = boot();
+  exec(sb, "$('tablets-fx').getContext = function(){ return {}; }; tabletsFxInit()");
+  eq("the field seeds twelve glyphs beside the eight embers", read(sb, "tabletsFx.glyphs.length"), 12);
+  eq("the field still seeds eight embers", read(sb, "tabletsFx.embers.length"), 8);
+}
+{
+  const sb = boot();
+  exec(sb, "document.body.classList.add('reduced'); $('tablets-fx').getContext = function(){ return {}; }; tabletsFxInit()");
+  eq("reduced motion makes no glyphs", read(sb, "tabletsFx.glyphs.length"), 0);
+}
+{
+  const riseCss = fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8");
+  ok("the card rises with translate, so the glow scale still composes", /\.tablets-slot,\.tablets-verse\{translate:0 calc\(/.test(riseCss));
+  ok("reduced motion sets translate:none on the rising card", /body\.reduced[^{]*\{translate:none/.test(riseCss));
+}
 unstubRandom();
 if (fail) {
   console.log("FAIL — tablets · " + pass + " passed · " + fail + " failed");
