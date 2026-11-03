@@ -131,7 +131,7 @@ function paintTabletsTutorialCallout(){
   const prompts = [
     (window.matchMedia && matchMedia("(pointer:coarse)").matches)
       ? "Tap FATHER below"
-      : "Tap FATHER below, or type the word (1–4 picks)",
+      : "Tap FATHER below, or type the word (1–6 picks)",
     "The word flies into the carved slot",
     "In the true Hold the sand runs; here it stands still",
     "Illuminate carves the true word for you",
@@ -427,7 +427,7 @@ function paintTabletsTray(){
   const blank = tabletsGapBlank();
   if(!blank) return;
   const grey = tabletsGreyWords();
-  const badges = ["1", "2", "3", "4"];
+  const badges = ["1", "2", "3", "4", "5", "6"];
   tabletsOptsForBlank().forEach(function(word, i){
     const b = document.createElement("button");
     b.type = "button";
@@ -952,7 +952,7 @@ function tabletsPowerKey(k){
   else tabletsSurge();
   return true;
 }
-/* A wrong letter is ignored. It is not a miss. 1-4 pick a tablet; letters
+/* A wrong letter is ignored. It is not a miss. 1-6 pick a tablet; letters
    type the word; Backspace takes the last letter back. */
 function tabletsTypeKey(k){
   const blank = tabletsGapBlank();
@@ -983,7 +983,7 @@ function tabletsOnKey(e){
   }
   if(tabletsPowerKey(k)){ e.preventDefault(); return; }
   const n = parseInt(e.key, 10);
-  if(n >= 1 && n <= 4){
+  if(n >= 1 && n <= 6){
     const btn = tabletsStoneButtons()[n - 1];
     if(btn && !btn.disabled) tabletsPick(btn.dataset.word);
     return;

@@ -260,7 +260,8 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-orn:last-child{background:linear-gradient(90deg,#805a23,transparent)}
 .tablets-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:1120px;margin:0 auto}
 .tablets-grid.locked{pointer-events:none;opacity:.72}
-@media (min-width:720px){.tablets-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:720px){.tablets-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1150px){.tablets-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .tablets-stone{
   position:relative;height:94px;border:none;cursor:pointer;border-radius:12px;
   font-family:var(--disp);display:flex;align-items:center;justify-content:center;

@@ -68,9 +68,9 @@ eq("23 last answer is ever", p23.blanks[10].a, "ever");
 
 p23.blanks.concat(p91.blanks).forEach(function(blank){
   const opts = Tablets.options(blank);
-  eq(blank.r + " has 4 options", opts.length, 4);
+  eq(blank.r + " has 6 options", opts.length, 6);
   ok(blank.r + " includes the KJV word", opts.indexOf(blank.a) >= 0);
-  ok(blank.r + " has 3 decoys", blank.d.length >= 3);
+  ok(blank.r + " has 5 decoys", blank.d.length >= 5);
 });
 
 ok("Psalm 23 is unlocked", Tablets.unlocked("psalm23", {}));
@@ -101,12 +101,12 @@ Tablets.chapters.forEach(function(ch){
   ok(ch.id + " has valid blanks", ch.blanks && ch.blanks.length >= 8);
   ch.blanks.forEach(function(blank){
     const opts = Tablets.options(blank);
-    eq(ch.id + " " + blank.r + " has 4 options", opts.length, 4);
+    eq(ch.id + " " + blank.r + " has 6 options", opts.length, 6);
     ok(ch.id + " " + blank.r + " includes the KJV word", opts.indexOf(blank.a) >= 0);
-    ok(ch.id + " " + blank.r + " has 3 decoys", blank.d.length >= 3);
+    ok(ch.id + " " + blank.r + " has 5 decoys", blank.d.length >= 5);
     const uniq = {};
-    [blank.a].concat(blank.d.slice(0, 3)).forEach(function(w){ uniq[String(w).toLowerCase()] = 1; });
-    eq(ch.id + " " + blank.r + " stones are unique", Object.keys(uniq).length, 4);
+    [blank.a].concat(blank.d.slice(0, 5)).forEach(function(w){ uniq[String(w).toLowerCase()] = 1; });
+    eq(ch.id + " " + blank.r + " stones are unique", Object.keys(uniq).length, 6);
   });
 });
 
@@ -328,7 +328,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   eq("three lamps shown", read(sb, "$('tablets-lamps').textContent"), "Lamps ×3");
   exec(sb, "tabletsIlluminate()");
   eq("hint spends Illuminate", read(sb, "R.powers.illum"), 0);
-  eq("illuminate leaves four stones live", read(sb, "$('tablets-grid').children.filter(function(c){ return !c.disabled; }).length"), 4);
+  eq("illuminate leaves six stones live", read(sb, "$('tablets-grid').children.filter(function(c){ return !c.disabled; }).length"), 6);
   eq("one stone is revealed", read(sb, "$('tablets-grid').children.filter(function(c){ return c.classList.contains('revealed'); }).length"), 1);
   exec(sb, "tabletsIlluminate()");
   eq("already hinted does not spend", read(sb, "R.powers.illum"), 0);
@@ -342,8 +342,8 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   exec(sb, "startRun('tablets','watchman')");
   exec(sb, "tabletsWinnow()");
   eq("winnow spends one charge", read(sb, "R.powers.winnow"), 1);
-  eq("winnow dims two decoys", read(sb, "tabletsGreyWords().length"), 2);
-  eq("two stones stay live", read(sb, "$('tablets-grid').children.filter(function(c){ return !c.classList.contains('dim'); }).length"), 2);
+  eq("winnow dims three decoys", read(sb, "tabletsGreyWords().length"), 3);
+  eq("three stones stay live", read(sb, "$('tablets-grid').children.filter(function(c){ return !c.classList.contains('dim'); }).length"), 3);
   exec(sb, "tabletsWinnow()");
   eq("a second Winnow on the same blank does not spend", read(sb, "R.powers.winnow"), 1);
   stubRandom(sb, 0.9);
@@ -351,6 +351,50 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   exec(sb, "tabletsWinnow()");
   eq("winnow re-arms on the next gap", read(sb, "R.tabletWinnowIdx"), "0:1");
   eq("charges carry across blanks", read(sb, "R.powers.winnow"), 0);
+}
+
+// Six tablets per blank (decision 2026-11-03): every KJV blank carries exactly five distinct decoys, none the answer.
+Tablets.chapters.forEach(function(ch){
+  ch.blanks.forEach(function(blank){
+    const low = blank.d.map(function(w){ return String(w).toLowerCase(); });
+    eq(ch.id + " " + blank.r + " has exactly 5 decoys", blank.d.length, 5);
+    ok(ch.id + " " + blank.r + " decoys are distinct", low.filter(function(w, i){ return low.indexOf(w) === i; }).length === low.length);
+    ok(ch.id + " " + blank.r + " no decoy is the answer", low.indexOf(String(blank.a).toLowerCase()) < 0);
+  });
+});
+
+// N1: a blank with only three decoys (NKJV) still shows four tablets.
+{
+  const threeDecoys = Tablets.options({ a: "want", d: ["fear", "fall", "fail"] });
+  eq("a blank with three decoys shows four tablets", threeDecoys.length, 4);
+  ok("the three-decoy blank keeps the answer", threeDecoys.indexOf("want") >= 0);
+}
+
+// Keys 5 and 6 pick the fifth and sixth stones.
+[["5", 4], ["6", 5]].forEach(function(pair){
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  const want = read(sb, "tabletsOptsForBlank()[" + pair[1] + "]");
+  exec(sb, "window._picked = []; var _tp = tabletsPick; tabletsPick = function(w){ window._picked.push(w); _tp(w); }");
+  exec(sb, "tabletsOnKey({ key: " + JSON.stringify(pair[0]) + ", preventDefault: function(){} })");
+  eq("key " + pair[0] + " picks stone " + (pair[1] + 1), read(sb, "window._picked[0]"), want);
+});
+
+// The tray paints six stones labelled 1 to 6.
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  eq("the tray shows six stones", read(sb, "$('tablets-grid').children.length"), 6);
+  eq("the stones carry badges 1 to 6", read(sb, "$('tablets-grid').children.map(function(c){ return c.children[0].textContent; }).join(',')"), "1,2,3,4,5,6");
+}
+
+// Winnow on a six-stone tray greys three of the five decoys.
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "tabletsWinnow()");
+  eq("winnow greys three of five decoys on six stones", read(sb, "tabletsGreyWords().length"), 3);
+  eq("the six-stone tray keeps three live", read(sb, "$('tablets-grid').children.filter(function(c){ return !c.disabled; }).length"), 3);
 }
 
 {
@@ -1027,6 +1071,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   const riseCss = fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8");
   ok("the card rises with translate, so the glow scale still composes", /\.tablets-slot,\.tablets-verse\{translate:0 calc\(/.test(riseCss));
   ok("reduced motion sets translate:none on the rising card", /body\.reduced[^{]*\{translate:none/.test(riseCss));
+  ok("six tablets lay out three to a row at 720px, then six at 1150px", /@media \(min-width:720px\)\{\.tablets-grid\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\}\}\s*@media \(min-width:1150px\)\{\.tablets-grid\{grid-template-columns:repeat\(6,minmax\(0,1fr\)\)\}\}/.test(riseCss));
 }
 unstubRandom();
 if (fail) {
