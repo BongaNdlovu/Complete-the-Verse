@@ -56,6 +56,26 @@ function tabletsRiseOf(){
   if(tabletsUntimed()) return 1;
   return Tablets.rules.progressOf(R.tabletClock, R.tabletClockMax || tabletsClockMax() || 1);
 }
+/* C: the room reddens as the active blank nears The Mark — 0 on fresh sand,
+   1 at the mark; the tutorial and reduced motion never redden. */
+function tabletsDangerLevel(){
+  if(tabletsUntimed()) return 0;
+  const rise = tabletsRiseOf();
+  return Math.max(0, Math.min(1, (rise - 0.7) / 0.3));
+}
+function drawTabletsDanger(ctx, w, h){
+  const danger = tabletsDangerLevel();
+  if(danger <= 0 || typeof ctx.createRadialGradient !== "function") return;
+  const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.42, w / 2, h / 2, Math.max(w, h) * 0.72);
+  g.addColorStop(0, "rgba(160,20,8,0)");
+  g.addColorStop(1, "rgba(160,20,8," + (danger * 0.36).toFixed(3) + ")");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+}
+/* C: Surge feeds the fire — the ambient embers carry more light while it runs. */
+function tabletsEmberAlpha(surgeOn){
+  return surgeOn ? 0.85 : 0.65;
+}
 /* R1: the rolling chapter sheet. The current step's top sits at 62% of the roll window on fresh sand and at The
    Mark (the window's top) when the sand is gone; each frame eases 16% of the way to that spot. */
 const TABLET_ROLL_ENTRY = 0.62;
@@ -1314,6 +1334,7 @@ function drawTabletsFx(dt){
     return;
   }
   drawTabletsGlyphs(dt);
+  drawTabletsDanger(ctx, w, h);
   tabletsFx.embers.forEach(function(p){
     p.x += p.vx * (dt * 60);
     p.y += p.vy * (dt * 60);
@@ -1322,7 +1343,7 @@ function drawTabletsFx(dt){
       const n = tabletsFxMakeEmber(false);
       p.x = n.x; p.y = n.y; p.vx = n.vx; p.vy = n.vy; p.size = n.size; p.life = 0; p.max = n.max;
     }
-    const a = Math.sin((p.life / p.max) * Math.PI) * 0.65;
+    const a = Math.sin((p.life / p.max) * Math.PI) * tabletsEmberAlpha(!!R.surgeOn);
     ctx.fillStyle = "hsla(42,95%,65%," + a + ")";
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);

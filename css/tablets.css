@@ -47,7 +47,7 @@ body.view-tablets .voice-caption{display:none!important}
 }
 .tablets-wrap{
   position:absolute;inset:0;display:flex;flex-direction:column;
-  background:linear-gradient(180deg,#0c0805 0%,#080503 100%)}
+  background:linear-gradient(180deg,#150605 0%,#0a0403 100%)}
 .tablets-top{
   flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:max(12px,env(safe-area-inset-top)) clamp(14px,3vw,28px) 12px;
@@ -86,6 +86,10 @@ body.view-tablets .voice-caption{display:none!important}
   position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:stretch;justify-content:center;
   gap:clamp(8px,2vw,24px);padding:12px clamp(10px,2vw,20px);width:100%;max-width:1440px;margin:0 auto}
 #tablets-fx{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+/* C: the hall's red ambience over the stage, under the column. */
+.tablets-stage::before{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 36%,rgba(150,26,10,.12) 0%,rgba(84,12,5,.28) 70%,rgba(30,5,2,.48) 100%)}
 .tablets-ground{
   display:none;position:relative;width:215px;flex:0 0 auto;z-index:5;padding:10px;text-align:center;border-radius:12px;
   background:linear-gradient(180deg,#24170b 0%,#120b05 100%);border:1.5px solid #573e1c;

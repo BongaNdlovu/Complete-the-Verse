@@ -1178,6 +1178,20 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   ok("the scripture reads light on the dark column", /\.tablets-verse\{[^}]*color:#f3e6c8/.test(src));
   ok("the reference pill reads light too", /\.tablets-ref-pill\{[^}]*color:#f7ecd2/.test(src));
 }
+{
+  // C: the room reddens as the blank nears The Mark (roadmap phase C).
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "R.tabletClock = R.tabletClockMax");
+  eq("fresh sand carries no danger", read(sb, "tabletsDangerLevel()"), 0);
+  exec(sb, "R.tabletClock = R.tabletClockMax * 0.2");
+  ok("80% of the sand burned is danger 1/3", Math.abs(read(sb, "tabletsDangerLevel()") - 1 / 3) < 1e-9, read(sb, "tabletsDangerLevel()"));
+  exec(sb, "R.tabletClock = 0.2");
+  ok("the last sand is nearly full danger", read(sb, "tabletsDangerLevel()") > 0.95, read(sb, "tabletsDangerLevel()"));
+  eq("the embers rest at their cool light", read(sb, "tabletsEmberAlpha(false)"), 0.65);
+  eq("Surge burns the embers brighter", read(sb, "tabletsEmberAlpha(true)"), 0.85);
+  ok("the hall wears its red ambience", /\.tablets-stage::before\{[^}]*rgba\(150,26,10/.test(src));
+}
 unstubRandom();
 if (fail) {
   console.log("FAIL — tablets · " + pass + " passed · " + fail + " failed");
