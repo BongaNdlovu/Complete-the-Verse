@@ -341,7 +341,7 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
         if (ended) return
         ended = true
         resolving = false
-        val nowHeld = Tablets.held(tabletMiss, tabletIdx, tabletTotal)
+        val nowHeld = Tablets.held(tabletMiss, tabletLives, tabletIdx, tabletTotal)
         val finished = nowHeld || (tabletIdx >= tabletTotal && tabletTotal > 0)
         save = Tablets.persistRun(
             save = save,

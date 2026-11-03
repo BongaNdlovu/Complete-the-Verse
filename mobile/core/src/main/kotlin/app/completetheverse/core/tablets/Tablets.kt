@@ -160,8 +160,11 @@ object Tablets {
         return got.isNotEmpty() && got == need
     }
 
-    fun held(miss: Int, idx: Int, total: Int): Boolean =
-        miss == 0 && idx >= total && total > 0
+    /* A Hold is a finished chapter with at least one lamp still lit. A miss
+       spends a lamp; it no longer breaks the Hold on its own. Web parity:
+       js/tablets.js held() after fix-plan phase 1 (2026-11-03). */
+    fun held(miss: Int, lives: Int, idx: Int, total: Int): Boolean =
+        idx >= total && total > 0 && lives - miss >= 1
 
     fun editionKey(chapterId: String, translation: String = "kjv"): String =
         if (translation == "nkjv") "nkjv~$chapterId" else chapterId

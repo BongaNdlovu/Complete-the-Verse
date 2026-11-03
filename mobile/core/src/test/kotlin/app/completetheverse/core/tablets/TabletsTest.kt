@@ -165,11 +165,12 @@ class TabletsTest {
     }
 
     @Test
-    fun heldFlagRequiresCleanFullRun() {
-        assertTrue(Tablets.held(0, 11, 11))
-        assertFalse(Tablets.held(1, 11, 11))
-        assertFalse(Tablets.held(0, 4, 11))
-        assertFalse(Tablets.held(0, 0, 0))
+    fun heldFlagFollowsTheLamps() {
+        assertTrue(Tablets.held(0, 2, 11, 11))
+        assertTrue(Tablets.held(1, 2, 11, 11))
+        assertFalse(Tablets.held(2, 2, 11, 11))
+        assertFalse(Tablets.held(0, 2, 4, 11))
+        assertFalse(Tablets.held(0, 2, 0, 0))
     }
 
     @Test
@@ -184,7 +185,7 @@ class TabletsTest {
         assertEquals(2, session.tabletLives)
         holdAll(session)
         assertTrue(session.ended)
-        assertTrue(Tablets.held(session.tabletMiss, session.tabletIdx, session.tabletTotal))
+        assertTrue(Tablets.held(session.tabletMiss, session.tabletLives, session.tabletIdx, session.tabletTotal))
         val rec = Tablets.recordOf(session.save, "psalm23")
         assertTrue(rec.held)
         assertEquals(100, rec.best)
@@ -198,7 +199,7 @@ class TabletsTest {
     }
 
     @Test
-    fun oneMissIsNotHeldAndSecondMissShatters() {
+    fun firstMissContinuesAndSecondMissShatters() {
         val session = start("psalm23")
         val clock = session.tabletClock
         session.pick("fear")
@@ -211,7 +212,7 @@ class TabletsTest {
         session.pick("fear")
         session.finishResolve()
         assertTrue(session.ended)
-        assertFalse(Tablets.held(session.tabletMiss, session.tabletIdx, session.tabletTotal))
+        assertFalse(Tablets.held(session.tabletMiss, session.tabletLives, session.tabletIdx, session.tabletTotal))
         assertFalse(Tablets.recordOf(session.save, "psalm23").held)
         assertEquals("The tablet shattered", session.result?.kick)
         assertTrue(session.result!!.shattered)
@@ -322,7 +323,7 @@ class TabletsTest {
         assertEquals(0, session.illum)
         assertFalse(session.illuminate())
         holdAll(session)
-        assertTrue(Tablets.held(session.tabletMiss, session.tabletIdx, session.tabletTotal))
+        assertTrue(Tablets.held(session.tabletMiss, session.tabletLives, session.tabletIdx, session.tabletTotal))
     }
 
     @Test
