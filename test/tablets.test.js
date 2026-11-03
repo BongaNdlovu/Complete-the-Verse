@@ -111,8 +111,80 @@ Tablets.chapters.forEach(function(ch){
 });
 
 ok("clean 23 is Held", Tablets.held({ tabletMiss:0, tabletIdx:11, tabletTotal:11 }));
-ok("a miss is not Held", !Tablets.held({ tabletMiss:1, tabletIdx:11, tabletTotal:11 }));
+ok("a miss with a lamp lit still Holds", Tablets.held({ tabletMiss:1, tabletLives:2, tabletIdx:11, tabletTotal:11 }));
+ok("no lamp lit is not Held", !Tablets.held({ tabletMiss:2, tabletLives:2, tabletIdx:11, tabletTotal:11 }));
 ok("short run is not Held", !Tablets.held({ tabletMiss:0, tabletIdx:4, tabletTotal:11 }));
+
+{
+  const TR = Tablets.rules;
+  const near = function(a, b){ return Math.abs(a - b) < 1e-9; };
+  eq("progress 0.3 is divine", TR.grade(0.3).id, "divine");
+  eq("progress 0.31 is sacred", TR.grade(0.31).id, "sacred");
+  eq("progress 0.65 is sacred", TR.grade(0.65).id, "sacred");
+  eq("progress 0.66 is carved", TR.grade(0.66).id, "carved");
+  eq("progress 0.82 is carved", TR.grade(0.82).id, "carved");
+  eq("progress 0.83 is clutch", TR.grade(0.83).id, "clutch");
+  eq("progress below 0 clamps to divine", TR.grade(-1).id, "divine");
+  eq("progress above 1 clamps to clutch", TR.grade(2).id, "clutch");
+  eq("full sand is progress 0", TR.progressOf(25, 25), 0);
+  eq("empty sand is progress 1", TR.progressOf(0, 25), 1);
+  eq("half sand is progress 0.5", TR.progressOf(12.5, 25), 0.5);
+  eq("extra sand clamps to 0", TR.progressOf(30, 25), 0);
+  eq("no clock reads as spent", TR.progressOf(5, 0), 1);
+
+  const first = TR.carve({ progress:0.1, streak:0 });
+  eq("first divine carve is 150", first.points, 150);
+  eq("first carve starts the streak", first.streak, 1);
+  eq("first carve is divine", first.grade, "divine");
+  eq("divine fills 28", first.fill, 28);
+  eq("second carve at 1.5x carved is 150", TR.carve({ progress:0.7, streak:1 }).points, 150);
+  const stacked = TR.carve({ progress:0.9, streak:3, surge:true, golden:true, glory:true, typed:true });
+  eq("every multiplier stacks to 2150", stacked.points, 2150);
+  eq("typed clutch fills 43", stacked.fill, 43);
+  eq("pace multiplier rounds to 5", TR.carve({ progress:0.5, streak:0, paceMult:1.35 }).points, 160);
+  eq("tenth carve adds 500", TR.carve({ progress:0.5, streak:9 }).points, 920);
+  eq("combo caps at 5x", TR.carve({ progress:0.5, streak:40 }).points, 600);
+
+  eq("streak 9 is no milestone", TR.milestone(9), null);
+  eq("streak 10 bonus is 500", TR.milestone(10).bonus, 500);
+  eq("streak 25 bonus is 1500", TR.milestone(25).bonus, 1500);
+  eq("streak 50 bonus is 3500", TR.milestone(50).bonus, 3500);
+  eq("streak 60 is no milestone", TR.milestone(60), null);
+  eq("streak 75 bonus is 3500", TR.milestone(75).bonus, 3500);
+  eq("the milestone rides on the carve", TR.carve({ progress:0.5, streak:24 }).milestone.streak, 25);
+
+  eq("a fresh blank keeps base seconds", TR.blankSeconds(6.5, 0, 0, false), 6.5);
+  ok("a golden blank runs at 0.9", near(TR.blankSeconds(6.5, 0, 0, true), 5.85));
+  ok("the ramp caps at 30 percent", near(TR.blankSeconds(6.5, 100, 100, false), 4.55));
+  eq("a blank never drops below 1.55s", TR.blankSeconds(2, 100, 100, false), 1.55);
+
+  const crack = TR.miss(3, false, 0.9);
+  eq("a miss spends one lamp", crack.lit, 2);
+  eq("a miss with lamps left goes on", crack.ended, false);
+  ok("a miss pushes the sand back 0.45", near(crack.progress, 0.45));
+  eq("pushback stops at 0.12", TR.miss(3, false, 0.3).progress, 0.12);
+  eq("the last lamp ends the run", TR.miss(1, false, 0.5).ended, true);
+  const judged = TR.miss(3, true, 0.2);
+  eq("judgment ends on the first miss", judged.ended, true);
+  eq("judgment leaves no lamp", judged.lit, 0);
+
+  eq("flawless is S+", TR.rank(11, 11, 0, 2), "S+");
+  eq("one miss is S", TR.rank(11, 11, 1, 1), "S");
+  eq("two misses is A", TR.rank(11, 11, 2, 1), "A");
+  eq("finished dark is B", TR.rank(11, 11, 2, 0), "B");
+  eq("three quarters unfinished is B", TR.rank(9, 11, 1, 0), "B");
+  eq("under three quarters is C", TR.rank(5, 11, 1, 0), "C");
+  eq("an empty chapter is C", TR.rank(0, 0, 0, 2), "C");
+
+  const none = { illuminate:0, stasis:0, chisel:0 };
+  eq("streak 4 recharges nothing", TR.recharge(none, 4, null).gained.join(","), "");
+  eq("streak 5 recharges illuminate and stasis", TR.recharge(none, 5, null).gained.join(","), "illuminate,stasis");
+  eq("streak 10 adds the chisel", TR.recharge(none, 10, null).gained.join(","), "illuminate,stasis,chisel");
+  eq("a milestone adds the chisel", TR.recharge(none, 15, { streak:15 }).gained.join(","), "illuminate,stasis,chisel");
+  eq("full primaries give the chisel", TR.recharge({ illuminate:3, stasis:3, chisel:0 }, 5, null).gained.join(","), "chisel");
+  eq("charges cap at 3", TR.recharge({ illuminate:3, stasis:3, chisel:3 }, 10, null).charges.chisel, 3);
+  eq("recharge leaves its input alone", none.illuminate, 0);
+}
 
 const src = fs.readFileSync(path.join(ROOT, "js", "tablets.js"), "utf8")
   + fs.readFileSync(path.join(ROOT, "js", "tablets-run.js"), "utf8")

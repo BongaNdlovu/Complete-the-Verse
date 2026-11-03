@@ -130,8 +130,14 @@ const Tablets = (function(){
     if(!blank) return [];
     return shuffle([blank.a].concat((blank.d || []).slice(0, 3)));
   }
+  /* A Hold is a finished chapter with at least one lamp still lit. A miss
+     spends a lamp; it no longer breaks the Hold on its own. */
   function held(run){
-    return !!(run && !run.tabletMiss && run.tabletIdx >= (run.tabletTotal || 0) && (run.tabletTotal || 0) > 0);
+    if(!run) return false;
+    const total = run.tabletTotal || 0;
+    const isFinished = total > 0 && run.tabletIdx >= total;
+    const lampsLit = (run.tabletLives || 1) - (run.tabletMiss || 0);
+    return isFinished && lampsLit >= 1;
   }
   function editionKey(id){
     const ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
@@ -321,4 +327,115 @@ Tablets.applyShared = function(data){
   if(typeof data.holdsToOpen === "number") Tablets.HOLDS_TO_OPEN = data.holdsToOpen;
   return true;
 };
+/* Arcade rules, ported from the Sacred Word Tablets prototype. Numbers only:
+   no copy, no DOM. Progress runs from 0 (fresh sand) to 1 (sand gone). Not
+   wired into the run yet; later phases read from here. */
+Tablets.rules = (function(){
+  const GRADES = [
+    { id:"divine", upTo:0.3, mult:1.5, fill:28 },
+    { id:"sacred", upTo:0.65, mult:1.2, fill:20 },
+    { id:"carved", upTo:0.82, mult:1, fill:14 },
+    { id:"clutch", upTo:1, mult:1.75, fill:35 }
+  ];
+  const MILESTONES = [
+    { streak:10, bonus:500, sec:6.5 },
+    { streak:25, bonus:1500, sec:8 }
+  ];
+  const LATE_MILESTONE = { from:50, every:25, bonus:3500, sec:10 };
+  const COMBO_STEP = 0.5, COMBO_CAP = 5;
+  const BASE_POINTS = 100, TYPED_BONUS = 50, TYPED_FILL = 8, ROUND_TO = 5;
+  const SURGE_MULT = 2, GOLDEN_MULT = 2, GLORY_MULT = 1.5;
+  const RAMP_PER_BLANK = 0.014, RAMP_PER_STREAK = 0.011, RAMP_CAP = 0.3;
+  const GOLDEN_PACE = 0.9, MIN_BLANK_S = 1.55;
+  const PUSHBACK = 0.45, PUSHBACK_FLOOR = 0.12;
+  const RELICS = ["illuminate", "stasis", "chisel"];
+  const RELIC_MAX = 3, RELIC_EVERY = 5, CHISEL_EVERY = 10;
+
+  function clamp01(n){ return Math.max(0, Math.min(1, n)); }
+  function progressOf(left, max){
+    if(!(max > 0)) return 1;
+    return clamp01(1 - left / max);
+  }
+  function grade(progress){
+    const p = clamp01(progress);
+    for(let i = 0; i < GRADES.length; i++){
+      if(p <= GRADES[i].upTo) return GRADES[i];
+    }
+    return GRADES[GRADES.length - 1];
+  }
+  function milestone(streak){
+    for(let i = 0; i < MILESTONES.length; i++){
+      if(MILESTONES[i].streak === streak) return MILESTONES[i];
+    }
+    const isLate = streak >= LATE_MILESTONE.from && streak % LATE_MILESTONE.every === 0;
+    if(!isLate) return null;
+    return { streak:streak, bonus:LATE_MILESTONE.bonus, sec:LATE_MILESTONE.sec };
+  }
+  function carve(input){
+    const streak = (input.streak || 0) + 1;
+    const combo = Math.min(1 + Math.floor(streak / 2) * COMBO_STEP, COMBO_CAP);
+    const g = grade(input.progress);
+    const reached = milestone(streak);
+    const mult = combo * g.mult
+      * (input.surge ? SURGE_MULT : 1)
+      * (input.golden ? GOLDEN_MULT : 1)
+      * (input.glory ? GLORY_MULT : 1)
+      * (input.paceMult || 1);
+    const raw = BASE_POINTS * mult + (input.typed ? TYPED_BONUS : 0) + (reached ? reached.bonus : 0);
+    return {
+      points: Math.round(raw / ROUND_TO) * ROUND_TO,
+      streak: streak,
+      grade: g.id,
+      fill: g.fill + (input.typed ? TYPED_FILL : 0),
+      milestone: reached
+    };
+  }
+  function blankSeconds(base, blankIdx, streak, golden){
+    const ramp = Math.min(RAMP_CAP, blankIdx * RAMP_PER_BLANK + streak * RAMP_PER_STREAK);
+    return Math.max(MIN_BLANK_S, base * (1 - ramp) * (golden ? GOLDEN_PACE : 1));
+  }
+  /* A miss spends a lamp and pushes the sand back; judgment allows none. */
+  function miss(lit, judgment, progress){
+    const next = Math.max(0, lit - 1);
+    if(judgment || next <= 0) return { lit:0, ended:true, progress:progress };
+    return { lit:next, ended:false, progress:Math.max(PUSHBACK_FLOOR, progress - PUSHBACK) };
+  }
+  /* Counts misses rather than seals, so it holds for any number of lamps. */
+  function rank(carved, total, misses, lit){
+    if(total <= 0) return "C";
+    if(carved < total) return carved / total >= 0.75 ? "B" : "C";
+    if(lit < 1) return "B";
+    if(misses === 0) return "S+";
+    if(misses === 1) return "S";
+    return "A";
+  }
+  function recharge(charges, streak, reachedMilestone){
+    const next = { illuminate:charges.illuminate || 0, stasis:charges.stasis || 0, chisel:charges.chisel || 0 };
+    const gained = [];
+    const isRechargeStreak = streak > 0 && streak % RELIC_EVERY === 0;
+    if(!isRechargeStreak) return { charges:next, gained:gained };
+    const primariesFull = next.illuminate >= RELIC_MAX && next.stasis >= RELIC_MAX;
+    const awardsChisel = !!reachedMilestone || streak % CHISEL_EVERY === 0 || primariesFull;
+    const award = { illuminate:true, stasis:true, chisel:awardsChisel };
+    for(let i = 0; i < RELICS.length; i++){
+      const id = RELICS[i];
+      if(!award[id]) continue;
+      if(next[id] >= RELIC_MAX) continue;
+      next[id]++;
+      gained.push(id);
+    }
+    return { charges:next, gained:gained };
+  }
+  return {
+    GRADES: GRADES,
+    progressOf: progressOf,
+    grade: grade,
+    milestone: milestone,
+    carve: carve,
+    blankSeconds: blankSeconds,
+    miss: miss,
+    rank: rank,
+    recharge: recharge
+  };
+})();
 if(typeof module !== "undefined") module.exports = { Tablets: Tablets };
