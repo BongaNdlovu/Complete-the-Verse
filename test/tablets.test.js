@@ -1440,6 +1440,189 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   exec(sb, "$('tablets-verse').offsetTop = 200; $('tablets-verse').children[0].offsetTop = 60; $('tablets-roll').clientHeight = 400; R.gapIdx = 0; R.tabletRollSnap = true; paintTabletsClock()");
   ok("the roll snaps to the active line's top", Math.abs(read(sb, "R.tabletRollY") + 12) < 1e-9, read(sb, "R.tabletRollY"));
 }
+// ---- feel phase: S0 bus, G1 carve impact, G2 combo meter, G3 danger and miss, G4 the Hold's finish ----
+const FAKE_BUS = "var __osc = [], __conn = [], __dest = { name:'dest' }, __out = { name:'out' };" +
+  " var __ctx = { currentTime:0, destination:__dest," +
+  " createOscillator(){ var o = { type:'', freq:[], ramp:[], frequency:{ setValueAtTime(v){ o.freq.push(v); }, linearRampToValueAtTime(v){ o.ramp.push(v); } }," +
+  " connect(){}, start(t){ o.startAt = t; }, stop(t){ o.stopAt = t; } }; __osc.push(o); return o; }," +
+  " createGain(){ return { gain:{ setValueAtTime(){}, exponentialRampToValueAtTime(){}, linearRampToValueAtTime(){} }, connect(t){ __conn.push(t); } }; } };" +
+  " Snd.sfxBus = function(){ return { ctx:__ctx, out:__out }; };";
+const toneCount = function(sb, dur){
+  return read(sb, "__osc.filter(function(o){ return o.stopAt !== undefined && Math.abs(o.stopAt - o.startAt - " + dur + ") < 1e-9; }).length");
+};
+{
+  // G1-G4 helpers: the grades, the carve note, the combo fill, the heartbeat gap and the header meter.
+  const sb = boot();
+  ok("the four grades wear their colours", read(sb, "Object.keys(TABLET_GRADE_COLORS).join(',') === 'divine,sacred,carved,clutch'") === true);
+  eq("the carve note starts at 392 Hz", read(sb, "tabletsCarveNoteHz(0)"), 392);
+  ok("the carve note rises from streak 1 to 4", read(sb, "[1,2,3,4].every(function(n){ return tabletsCarveNoteHz(n) > tabletsCarveNoteHz(n - 1); })") === true);
+  eq("the carve note climbs an octave at streak 5", read(sb, "tabletsCarveNoteHz(5)"), 784);
+  eq("the combo fill is empty at streak 0", read(sb, "tabletsComboFill(0)"), 0);
+  eq("the combo fill is 0.125 at streak 1 (comboOf(2) = 1.5)", read(sb, "tabletsComboFill(1)"), 0.125);
+  eq("the combo fill is 0.625 at streak 9 (comboOf(10) = 3.5)", read(sb, "tabletsComboFill(9)"), 0.625);
+  eq("the combo fill is full from streak 15 (comboOf(16) = 5)", read(sb, "tabletsComboFill(15)"), 1);
+  ok("the heartbeat gap is 0.95 s at danger 0.5", Math.abs(read(sb, "tabletsHeartGapS(0.5)") - 0.95) < 1e-9);
+  ok("the heartbeat gap is 0.45 s at danger 1", Math.abs(read(sb, "tabletsHeartGapS(1)") - 0.45) < 1e-9);
+  ok("the combo meter sits in the header beside the tier", html.indexOf('id="tablets-combo"') > html.indexOf('id="tablets-tier"') && html.indexOf('id="tablets-combo"') < html.indexOf('class="tablets-stats"'));
+  ok("the combo fill is a bar in the stylesheet", /\.tablets-combo-fill\{/.test(src));
+}
+{
+  // S0: the three tones route to the sfx bus; with no bus they stay silent and throw nothing.
+  const sb = boot();
+  exec(sb, FAKE_BUS + "; startRun('tablets','watchman'); R.tabletTutorial = false; R.tabletResolving = false;");
+  exec(sb, "__conn.length = 0; tabletsPlayGoldChime()");
+  eq("the gold chime connects four gains", read(sb, "__conn.length"), 4);
+  ok("the gold chime routes to the sfx bus", read(sb, "__conn.every(function(t){ return t === __out; })") === true);
+  exec(sb, "__conn.length = 0; tabletsPlayScribeTick(0.5); tabletsPlayDangerWarn()");
+  ok("the scribe tick and the danger warn route to the sfx bus", read(sb, "__conn.length === 2 && __conn.every(function(t){ return t === __out; })") === true);
+  ok("nothing routes to the destination", read(sb, "__conn.indexOf(__dest) < 0") === true);
+  exec(sb, "Snd.sfxBus = function(){ return null; }; __conn.length = 0; tabletsPlayGoldChime(); tabletsPlayScribeTick(0.5); tabletsPlayDangerWarn(); tabletsPlayCarveNote(0); tabletsComboBreak(3);");
+  eq("with no bus nothing connects", read(sb, "__conn.length"), 0);
+  ok("with no bus the tones throw nothing", true);
+}
+{
+  // G1: the carve kick, burst and note by grade.
+  const sb = boot();
+  exec(sb, FAKE_BUS + "; startRun('tablets','watchman'); R.tabletTutorial = false; R.trauma = 0; tabletsFx.ctx = {}; tabletsFx.sparks = [];");
+  exec(sb, "tabletsCarveKick({grade:'clutch'})");
+  eq("a clutch carve kicks the camera 0.32", read(sb, "R.trauma"), 0.32);
+  exec(sb, "R.trauma = 0; tabletsCarveKick({grade:'divine'})");
+  eq("a divine carve kicks 0.22", read(sb, "R.trauma"), 0.22);
+  exec(sb, "tabletsCarveBurst({grade:'clutch'})");
+  eq("a clutch burst throws 34 sparks", read(sb, "tabletsFx.sparks.length"), 34);
+  eq("a clutch burst wears the clutch colour", read(sb, "tabletsFx.sparks[0].color"), "255,128,72");
+  exec(sb, "tabletsFx.sparks = []; tabletsCarveBurst({grade:'divine'})");
+  eq("a divine burst throws 26 sparks", read(sb, "tabletsFx.sparks.length"), 26);
+  eq("a divine burst wears the divine colour", read(sb, "tabletsFx.sparks[0].color"), "255,236,170");
+  exec(sb, "__osc.length = 0; tabletsPlayCarveNote(0)");
+  eq("the carve note at streak 0 sounds 392 Hz", read(sb, "__osc[0].freq[0]"), 392);
+  eq("the carve note is a sine and a triangle", toneCount(sb, 0.14), 2);
+}
+{
+  // G2: the meter's fill, warm at streak 9 and blaze at 15.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman'); R.tabletTutorial = false");
+  exec(sb, "R.streak = 0; paintTabletsHud()");
+  eq("streak 0: the meter is empty", read(sb, "$('tablets-combo-fill').style.width"), "0%");
+  ok("streak 0: not warm", read(sb, "$('tablets-combo').classList.contains('warm')") === false);
+  exec(sb, "R.streak = 4; paintTabletsHud()");
+  eq("streak 4: a quarter full", read(sb, "$('tablets-combo-fill').style.width"), "25%");
+  ok("streak 4: not warm", read(sb, "$('tablets-combo').classList.contains('warm')") === false);
+  exec(sb, "R.streak = 9; paintTabletsHud()");
+  eq("streak 9: 62.5% full", read(sb, "$('tablets-combo-fill').style.width"), "62.5%");
+  ok("streak 9: warm", read(sb, "$('tablets-combo').classList.contains('warm')") === true);
+  ok("streak 9: not yet blazing", read(sb, "$('tablets-combo').classList.contains('blaze')") === false);
+  exec(sb, "R.streak = 15; paintTabletsHud()");
+  ok("streak 15: blazing", read(sb, "$('tablets-combo').classList.contains('blaze')") === true);
+}
+{
+  // G2: a climb pops the multiplier; a level combo does not; the first blaze plays ignite; the tutorial pops nothing.
+  const sb = boot();
+  exec(sb, FAKE_BUS + "; var __ig = 0; Snd.ignite = function(){ __ig++; }; startRun('tablets','watchman'); R.tabletTutorial = false; R.tabletResolving = false; R.streak = 0; tabletsResolve(true);");
+  ok("a carve that climbs the combo pops the multiplier", read(sb, "$('tablets-mult').classList.contains('pop')") === true);
+  exec(sb, "$('tablets-mult').classList.remove('pop'); tabletsComboCue(1, 2)");
+  ok("a level combo does not pop", read(sb, "$('tablets-mult').classList.contains('pop')") === false);
+  exec(sb, "tabletsComboCue(13, 14); __ig = 0; tabletsComboCue(14, 15)");
+  eq("the first blaze plays ignite", read(sb, "__ig"), 1);
+  exec(sb, "__ig = 0; tabletsComboCue(15, 16)");
+  eq("a blaze that already burns does not replay", read(sb, "__ig"), 0);
+  exec(sb, "R.tabletTutorial = true; $('tablets-mult').classList.remove('pop'); tabletsComboCue(0, 1)");
+  ok("the tutorial pops nothing", read(sb, "$('tablets-mult').classList.contains('pop')") === false);
+}
+{
+  // G2: a streak-breaking miss cracks the meter and drops the break tone; a miss from streak 1 does not.
+  const sb = boot();
+  exec(sb, FAKE_BUS + "; startRun('tablets','watchman'); R.tabletTutorial = false; R.tabletResolving = false; R.streak = 3; tabletsResolve(false);");
+  ok("a streak-breaking miss cracks the combo meter", read(sb, "$('tablets-combo').classList.contains('broke')") === true);
+  eq("the streak falls to 0", read(sb, "R.streak"), 0);
+  ok("the break tone glides from 110 to 70 Hz", read(sb, "__osc.some(function(o){ return o.freq[0] === 110 && o.ramp[0] === 70; })") === true);
+  exec(sb, "$('tablets-combo').classList.remove('broke'); R.tabletResolving = false; R.streak = 1; tabletsResolve(false);");
+  ok("a miss from streak 1 does not crack it", read(sb, "$('tablets-combo').classList.contains('broke')") === false);
+}
+{
+  // G3: a spent lamp smokes the seal that went dark and crackles; the last lamp thuds.
+  const sb = boot();
+  exec(sb, FAKE_BUS + "; startRun('tablets','watchman'); R.tabletTutorial = false; R.tabletResolving = false; R.tabletLives = 3; R.tabletMiss = 0; R.streak = 0; var __lc = 0, __lt = 0; Snd.lampCrackle = function(){ __lc++; }; Snd.lampThud = function(){ __lt++; }; tabletsResolve(false);");
+  const lampsA = read(sb, "$('tablets-lamps').innerHTML");
+  const seals = lampsA.split('<i class="');
+  eq("one lamp goes out: two lit", read(sb, "R.tabletLives - R.tabletMiss"), 2);
+  ok("the third seal smokes", seals[3] !== undefined && seals[3].indexOf("snuff") >= 0, lampsA);
+  ok("the lit seals do not smoke", seals[1].indexOf("snuff") < 0 && seals[2].indexOf("snuff") < 0);
+  eq("a spent lamp crackles", read(sb, "__lc"), 1);
+  eq("no thud while lamps remain", read(sb, "__lt"), 0);
+  exec(sb, "R.tabletResolving = false; R.tabletMiss = 2; tabletsResolve(false);");
+  eq("the last lamp thuds", read(sb, "__lt"), 1);
+}
+{
+  // G3: the heartbeat beats at danger 0.5 and faster at 1; silent below 0.5, in the tutorial, while resolving and under reduced motion.
+  const beats = function(danger, setup){
+    const sb = boot();
+    exec(sb, "startRun('tablets','watchman'); R.tabletTutorial = false; R.tabletResolving = false; R.tabletRacing = true; R.paused = false; R.tabletLast = 0; R.tabletHeartT = 0; var __hb = 0; Snd.heart = function(){ __hb++; }; tabletsDangerLevel = function(){ return " + danger + "; };" + (setup || ""));
+    exec(sb, "for(var __k = 0; __k < 30; __k++){ tabletsTick(R.tabletLast + 100); }");
+    return read(sb, "__hb");
+  };
+  ok("danger 0.6 plays the heart", beats(0.6) >= 1);
+  ok("danger 1 beats faster than danger 0.6", beats(1) > beats(0.6));
+  eq("danger 0.4 stays silent", beats(0.4), 0);
+  eq("the tutorial stays silent", beats(0.9, "R.tabletTutorial = true;"), 0);
+  eq("a resolving hit stays silent", beats(0.9, "R.tabletResolving = true;"), 0);
+  eq("reduced motion stays silent", beats(0.9, "document.body.classList.add('reduced');"), 0);
+}
+{
+  // G4: the final carve is the last gap of the last step; not the gap before it, not an earlier step, not the tutorial, not a later Endless reading.
+  const sb = boot();
+  exec(sb, FAKE_BUS + "; startRun('tablets','watchman'); R.tabletTutorial = false; R.tabletMode = 'hold'; R.tabletPass = 1; R.tabletResolving = false; R.streak = 0; R.tabletSteps = [[{a:'x'},{a:'y'}],[{a:'z'},{a:'w'}]];");
+  exec(sb, "R.tabletIdx = R.tabletSteps.length - 1; R.gapIdx = tabletsStepBlanks().length - 1");
+  ok("the last gap of the last step is the final carve", read(sb, "tabletsIsFinalCarve()") === true);
+  exec(sb, "R.gapIdx = Math.max(0, tabletsStepBlanks().length - 2)");
+  ok("the gap before the last is not", read(sb, "tabletsStepBlanks().length < 2 || !tabletsIsFinalCarve()") === true);
+  exec(sb, "R.tabletIdx = 0; R.gapIdx = tabletsStepBlanks().length - 1");
+  ok("the last gap of an earlier step is not", read(sb, "R.tabletSteps.length < 2 || !tabletsIsFinalCarve()") === true);
+  exec(sb, "R.tabletMode = 'endless'; R.tabletPass = 2; R.tabletIdx = R.tabletSteps.length - 1; R.gapIdx = tabletsStepBlanks().length - 1");
+  ok("an Endless second reading is not the final carve", read(sb, "tabletsIsFinalCarve()") === false);
+  exec(sb, "R.tabletMode = 'hold'; R.tabletPass = 1; R.tabletTutorial = true");
+  ok("the tutorial has no final carve", read(sb, "tabletsIsFinalCarve()") === false);
+  exec(sb, "R.tabletTutorial = false; R.tabletIdx = R.tabletSteps.length - 1; R.gapIdx = tabletsStepBlanks().length - 1; __osc.length = 0; tabletsResolve(true);");
+  ok("the roll sweeps gold on the final carve", read(sb, "$('tablets-roll').classList.contains('hold-sweep')") === true);
+  const litNow = read(sb, "R.tabletLives - R.tabletMiss");
+  const lampsB = read(sb, "$('tablets-lamps').innerHTML");
+  eq("every lit seal glows on the final carve", (lampsB.match(/glory/g) || []).length, litNow);
+  eq("a four-note chord rings out for 1.4 s", toneCount(sb, 1.4), 4);
+}
+{
+  // Under reduced motion: no sweep, pop, glow, sparks, kick, meter break or smoke; the Hold's chord still sounds.
+  const sb = boot();
+  exec(sb, FAKE_BUS + "; document.body.classList.add('reduced'); startRun('tablets','watchman'); R.tabletTutorial = false; R.tabletResolving = false; R.streak = 14; R.trauma = 0; tabletsFx.ctx = {}; tabletsFx.sparks = []; R.tabletIdx = R.tabletSteps.length - 1; R.gapIdx = tabletsStepBlanks().length - 1; __osc.length = 0; tabletsResolve(true);");
+  ok("no gold sweep under reduced motion", read(sb, "$('tablets-roll').classList.contains('hold-sweep')") === false);
+  ok("no multiplier pop under reduced motion", read(sb, "$('tablets-mult').classList.contains('pop')") === false);
+  ok("no glowing lamp under reduced motion", read(sb, "$('tablets-lamps').innerHTML.indexOf('glory') < 0") === true);
+  eq("no sparks under reduced motion", read(sb, "tabletsFx.sparks.length"), 0);
+  eq("no kick under reduced motion", read(sb, "R.trauma"), 0);
+  ok("the Hold's chord still sounds under reduced motion", toneCount(sb, 1.4) === 4);
+  exec(sb, "R.tabletResolving = false; R.tabletMiss = 0; R.streak = 3; tabletsResolve(false);");
+  ok("no broke meter under reduced motion", read(sb, "$('tablets-combo').classList.contains('broke')") === false);
+  ok("no smoke under reduced motion", read(sb, "$('tablets-lamps').innerHTML.indexOf('snuff') < 0") === true);
+}
+{
+  // The tutorial: its carve sounds the note and shows no effect.
+  const sb = boot();
+  exec(sb, FAKE_BUS + "; startRun('tablets','watchman'); R.tabletTutorial = true; R.tabletResolving = false; R.streak = 0; R.trauma = 0; tabletsFx.ctx = {}; tabletsFx.sparks = []; R.tabletIdx = 0; R.gapIdx = 0; __osc.length = 0; tabletsResolve(true);");
+  ok("the tutorial carve sounds its note", toneCount(sb, 0.14) >= 2);
+  eq("the tutorial throws no sparks", read(sb, "tabletsFx.sparks.length"), 0);
+  eq("the tutorial kicks nothing", read(sb, "R.trauma"), 0);
+  ok("the tutorial shows no hold sweep", read(sb, "$('tablets-roll').classList.contains('hold-sweep')") === false);
+  ok("the tutorial pops nothing", read(sb, "$('tablets-mult').classList.contains('pop')") === false);
+}
+{
+  // G2: the combo meter moves with the carve itself, inside the resolve, not when the step re-arms.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "R.streak = 7; tabletsResolve(true)");
+  eq("the meter fills at the carve, before the step re-arms", read(sb, "$('tablets-combo-fill').style.width"), (Tablets.rules.comboOf(9) - 1) / 4 * 100 + "%");
+  exec(sb, "tabletsFinishResolve(true); tabletsResolve(false)");
+  eq("a miss empties the meter at once", read(sb, "$('tablets-combo-fill').style.width"), "0%");
+}
 unstubRandom();
 if (fail) {
   console.log("FAIL — tablets · " + pass + " passed · " + fail + " failed");

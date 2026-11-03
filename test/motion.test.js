@@ -154,7 +154,12 @@ const reducedHooks = [
   [".tablets-flying-word", "tablets flying word"],
   [".tablets-speech", "tablets speech pulse"],
   [".tablets-candle", "tablets scene candle"],
-  [".tablets-verse", "tablets rolling sheet"]
+  [".tablets-verse", "tablets rolling sheet"],
+  [".tablets-mult.pop", "tablets multiplier pop"],
+  [".tablets-combo.broke", "tablets combo break"],
+  [".tablets-seal.snuff", "tablets lamp smoke"],
+  [".tablets-roll.hold-sweep", "tablets hold sweep"],
+  [".tablets-seal.glory", "tablets seal glory"]
 ];
 const reducedSelectors = [...css.matchAll(/body\.reduced[^{]*\{/g)].map((m) => m[0]);
 reducedHooks.forEach(([hook, name]) => {

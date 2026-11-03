@@ -380,6 +380,12 @@ const Snd = (function(){
     syncLevels(){ applyMusicGain(); applySfxGain(); },
     musicLevel: musicOut,
     sfxLevel: sfxOut,
+    /* S0: the tablets tones ride the sfx bus, so the mute and the sfx level reach them. */
+    sfxBus(){
+      init();
+      if(!ctx||!avail||!mSfx||sfxOut()<=0) return null;
+      return { ctx: ctx, out: mSfx };
+    },
     toggleMute(kind){
       if(!SAVE || !SAVE.set) return;
       if(kind==="sfx") SAVE.set.sfxMute = !SAVE.set.sfxMute;

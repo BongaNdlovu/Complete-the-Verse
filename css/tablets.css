@@ -513,6 +513,31 @@ body.reduced .tablets-relic.recharging,
 body.motion-calm .tablets-relic.recharging,
 body.reduced .tablets-relic-pill,
 body.motion-calm .tablets-relic-pill{animation:none;transition:none}
+body.reduced .tablets-mult.pop,body.motion-calm .tablets-mult.pop,
+body.reduced .tablets-combo.broke,body.motion-calm .tablets-combo.broke,
+body.reduced .tablets-combo-fill,body.motion-calm .tablets-combo-fill{animation:none;transition:none}
+body.reduced .tablets-seal.snuff::after,body.motion-calm .tablets-seal.snuff::after,
+body.reduced .tablets-roll.hold-sweep::after,body.motion-calm .tablets-roll.hold-sweep::after{display:none}
+body.reduced .tablets-combo.blaze,body.motion-calm .tablets-combo.blaze,
+body.reduced .tablets-seal.glory,body.motion-calm .tablets-seal.glory{box-shadow:none}
+/* G2: the combo meter sits beside the tier pill and fills toward x5. */
+.tablets-combo{position:relative;flex:0 0 auto;align-self:center;width:58px;height:6px;border-radius:999px;background:rgba(20,12,6,.85);border:1px solid #735322;overflow:hidden}
+.tablets-combo-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#8a5e1c,#e8c46a);transition:width .25s ease-out}
+.tablets-combo.warm .tablets-combo-fill{background:linear-gradient(90deg,#e8c46a,#fff0b8)}
+.tablets-combo.blaze{box-shadow:0 0 10px rgba(255,214,120,.75)}
+.tablets-combo.broke{animation:tabletsComboBreak .52s ease-out}
+@keyframes tabletsComboBreak{0%{background:rgba(255,90,80,.55)}100%{background:rgba(20,12,6,.85)}}
+.tablets-mult.pop{animation:tabletsMultPop .42s ease-out}
+@keyframes tabletsMultPop{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+/* G3: the lamp that goes out leaves a wisp of smoke from its seal. */
+.tablets-seal.snuff{position:relative}
+.tablets-seal.snuff::after{content:"";position:absolute;left:50%;bottom:100%;width:6px;height:10px;margin-left:-3px;border-radius:50%;background:rgba(210,210,210,.55);filter:blur(2px);pointer-events:none;animation:tabletsSnuffWisp .9s ease-out forwards}
+@keyframes tabletsSnuffWisp{0%{opacity:.7;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-18px) scale(1.6)}}
+/* G4: the Hold's finish sweeps gold under the verse; the lit seals glow. */
+.tablets-roll.hold-sweep{isolation:isolate}
+.tablets-roll.hold-sweep::after{content:"";position:absolute;left:0;right:0;top:0;bottom:0;z-index:-1;pointer-events:none;opacity:.22;background:linear-gradient(180deg,rgba(255,224,130,0),rgba(255,224,130,.9) 50%,rgba(255,224,130,0));transform:translateY(-100%);animation:tabletsHoldSweep .9s ease-in-out forwards}
+@keyframes tabletsHoldSweep{to{transform:translateY(100%)}}
+.tablets-seal.glory{box-shadow:0 0 12px rgba(255,214,120,.9)}
 body.reduced #tablets-fx,body.motion-calm #tablets-fx{display:none}
 body.reduced .tablets-sheet,body.reduced .tablets-verse,body.motion-calm .tablets-sheet,body.motion-calm .tablets-verse{transition:none}
 @media (hover:hover){

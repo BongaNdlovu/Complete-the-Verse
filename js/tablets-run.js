@@ -175,11 +175,16 @@ function tabletsFlash(kind, strong){
   if(strong) flashEl.classList.add("strong");
   setTimeout(function(){ flashEl.classList.remove(kind, "strong"); }, 700);
 }
+/* S0: the tablets tones ride the sfx bus (Snd.sfxBus), so the mute and the sfx level reach them. */
+function tabletsAudio(){
+  return (typeof Snd !== "undefined" && Snd.sfxBus) ? Snd.sfxBus() : null;
+}
 /* E: the scribe's chisel ticks upward as the word fills. */
 function tabletsPlayScribeTick(progress){
-  if(!(typeof Snd !== "undefined" && Snd.ctx)) return;
+  const bus = tabletsAudio();
+  if(!bus) return;
   try{
-    const ctx = Snd.ctx;
+    const ctx = bus.ctx;
     if(ctx.state === "suspended") ctx.resume();
     const t = ctx.currentTime;
     const o = ctx.createOscillator();
@@ -189,15 +194,16 @@ function tabletsPlayScribeTick(progress){
     g.gain.setValueAtTime(0.05, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
     o.connect(g);
-    g.connect(ctx.destination);
+    g.connect(bus.out);
     o.start(t);
     o.stop(t + 0.09);
   }catch(e){}
 }
 function tabletsPlayGoldChime(){
-  if(!(typeof Snd !== "undefined" && Snd.ctx)) return;
+  const bus = tabletsAudio();
+  if(!bus) return;
   try{
-    const ctx = Snd.ctx;
+    const ctx = bus.ctx;
     if(ctx.state === "suspended") ctx.resume();
     const t = ctx.currentTime;
     [523.25, 659.25, 783.99, 1046.5].forEach(function(f, i){
@@ -210,16 +216,17 @@ function tabletsPlayGoldChime(){
       g.gain.setValueAtTime(0.18 / (i + 1), t + d);
       g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.55);
       o.connect(g);
-      g.connect(ctx.destination);
+      g.connect(bus.out);
       o.start(t + d);
       o.stop(t + d + 0.55);
     });
   }catch(e){}
 }
 function tabletsPlayDangerWarn(){
-  if(!(typeof Snd !== "undefined" && Snd.ctx)) return;
+  const bus = tabletsAudio();
+  if(!bus) return;
   try{
-    const ctx = Snd.ctx;
+    const ctx = bus.ctx;
     if(ctx.state === "suspended") ctx.resume();
     const t = ctx.currentTime;
     const o = ctx.createOscillator();
@@ -230,10 +237,162 @@ function tabletsPlayDangerWarn(){
     g.gain.setValueAtTime(0.09, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
     o.connect(g);
-    g.connect(ctx.destination);
+    g.connect(bus.out);
     o.start(t);
     o.stop(t + 0.09);
   }catch(e){}
+}
+/* G1: the grade colours and the impact by grade (the carve's burst and camera kick). */
+const TABLET_GRADE_COLORS = { divine:"255,236,170", sacred:"240,196,96", carved:"214,150,80", clutch:"255,128,72" };
+const TABLET_KICK = { divine:0.22, sacred:0.12, carved:0.08, clutch:0.32 };
+/* G1: the carve note climbs a rising pentatonic; every five streaks lift it an octave. */
+const TABLET_PENTA = [0, 2, 4, 7, 9];
+function tabletsCarveNoteHz(streak){
+  const n = Math.min(streak || 0, 12);
+  return 392 * Math.pow(2, TABLET_PENTA[n % 5] / 12 + Math.floor(n / 5));
+}
+/* S0: one tone through the sfx bus; it may glide to endHz and may start after a delay. */
+function tabletsBlip(bus, type, hz, dur, vol, endHz, delay){
+  const ctx = bus.ctx;
+  const t = ctx.currentTime + (delay || 0);
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(hz, t);
+  if(endHz) o.frequency.linearRampToValueAtTime(endHz, t + dur);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g);
+  g.connect(bus.out);
+  o.start(t);
+  o.stop(t + dur);
+}
+/* S0: a missing bus (no audio, or muted) plays nothing and throws nothing. */
+function tabletsPlayWith(fn){
+  const bus = tabletsAudio();
+  if(!bus) return;
+  try{
+    if(bus.ctx.state === "suspended") bus.ctx.resume();
+    fn(bus);
+  }catch(e){}
+}
+/* G1: the carve note, a sine and a triangle at the streak's pitch; it sounds in the tutorial too. */
+function tabletsPlayCarveNote(streak){
+  tabletsPlayWith(function(bus){
+    const hz = tabletsCarveNoteHz(streak);
+    tabletsBlip(bus, "sine", hz, 0.14, 0.07);
+    tabletsBlip(bus, "triangle", hz, 0.14, 0.05);
+  });
+}
+/* G1: the camera kick by grade; the tutorial stays still. */
+function tabletsCarveKick(carve){
+  if(R.tabletTutorial) return;
+  tabletsApplyTrauma(TABLET_KICK[carve.grade] || 0.08);
+}
+/* G1: the burst at the engraved slot, in the grade's colour; the tutorial and reduced motion stay still. */
+function tabletsCarveBurst(carve){
+  const slot = $("tablets-slot");
+  if(R.tabletTutorial || tabletsReduced() || !slot || !slot.getBoundingClientRect) return;
+  const r = slot.getBoundingClientRect();
+  const n = carve.grade === "divine" ? 26 : (carve.grade === "clutch" ? 34 : 18);
+  spawnTabletsSparks(r.left + r.width / 2, r.top + r.height / 2, n, TABLET_GRADE_COLORS[carve.grade] || TABLET_GRADE_COLORS.carved);
+}
+/* G2: the combo meter shows how far the next carve's combo climbs toward x5 (0 at x1, full at x5). */
+function tabletsComboFill(streak){
+  return Math.min(1, Math.max(0, (Tablets.rules.comboOf(streak + 1) - 1) / 4));
+}
+/* G2: the meter's width always shows; its warm and blaze states are quiet in the tutorial and under reduced motion. */
+function paintTabletsCombo(){
+  const fill = tabletsComboFill(R.streak || 0);
+  const bar = $("tablets-combo");
+  const bit = $("tablets-combo-fill");
+  if(bit) bit.style.width = (fill * 100) + "%";
+  if(!bar) return;
+  const quiet = tabletsUntimed();
+  bar.classList.toggle("warm", !quiet && fill >= 0.5);
+  bar.classList.toggle("blaze", !quiet && fill >= 1);
+}
+/* G2: the multiplier pops for 420 ms when a carve climbs the combo; asleep in the tutorial and under reduced motion. */
+function tabletsPopMult(){
+  const el = $("tablets-mult");
+  if(!el || tabletsUntimed()) return;
+  el.classList.remove("pop");
+  if(el.offsetWidth !== undefined) void el.offsetWidth;
+  el.classList.add("pop");
+  clearTimeout(R.tabletPopTimer);
+  R.tabletPopTimer = setTimeout(function(){ el.classList.remove("pop"); }, 420);
+}
+/* G2: a climb pops the multiplier; the first time the meter blazes this streak, Snd.ignite plays. */
+function tabletsComboCue(oldStreak, newStreak){
+  /* G2: the meter moves with the carve, not a second later when the step re-arms. */
+  paintTabletsCombo();
+  const climbed = Tablets.rules.comboOf(newStreak + 1) > Tablets.rules.comboOf(oldStreak + 1);
+  if(climbed) tabletsPopMult();
+  const blazed = tabletsComboFill(newStreak) >= 1 && tabletsComboFill(oldStreak) < 1;
+  if(blazed && typeof Snd !== "undefined" && Snd.ignite) Snd.ignite();
+}
+/* G2: a miss that breaks a streak of 2 or more drops a low tone and cracks the meter for 520 ms. */
+function tabletsComboBreak(oldStreak){
+  /* G2: a miss empties the meter at once. */
+  paintTabletsCombo();
+  if(R.tabletTutorial || oldStreak < 2) return;
+  tabletsPlayWith(function(bus){ tabletsBlip(bus, "sine", 110, 0.22, 0.09, 70); });
+  const bar = $("tablets-combo");
+  if(!bar || tabletsUntimed()) return;
+  bar.classList.remove("broke");
+  if(bar.offsetWidth !== undefined) void bar.offsetWidth;
+  bar.classList.add("broke");
+  clearTimeout(R.tabletBreakTimer);
+  R.tabletBreakTimer = setTimeout(function(){ bar.classList.remove("broke"); }, 520);
+}
+/* G3: the heartbeat gap: 0.95 s at danger 0.5, easing to 0.45 s at danger 1. */
+function tabletsHeartGapS(d){
+  return 0.95 - 0.5 * Math.min(1, Math.max(0, (d - 0.5) / 0.5));
+}
+/* G3: the heart beats in the timed run, while not paused or resolving, and once the danger reaches half. */
+function tabletsHeartbeatDue(){
+  return !R.tabletTutorial && !tabletsUntimed() && !R.paused && !R.tabletResolving && tabletsDangerLevel() >= 0.5;
+}
+function tabletsHeartbeat(dt){
+  if(!tabletsHeartbeatDue()) return;
+  R.tabletHeartT = (R.tabletHeartT || 0) + dt;
+  if(R.tabletHeartT < tabletsHeartGapS(tabletsDangerLevel())) return;
+  R.tabletHeartT = 0;
+  if(typeof Snd !== "undefined" && Snd.heart) Snd.heart();
+}
+/* G3: a spent lamp crackles; the last lamp thuds. Sounds play under reduced motion too. */
+function tabletsLampFx(spent, litNow){
+  if(!spent || typeof Snd === "undefined") return;
+  if(litNow > 0){
+    if(Snd.lampCrackle) Snd.lampCrackle();
+    return;
+  }
+  if(Snd.lampThud) Snd.lampThud();
+}
+/* G4: the final carve is the last gap of the last step (Endless: of its first reading). The tutorial has none. */
+function tabletsIsFinalCarve(){
+  if(R.tabletTutorial) return false;
+  const lastStep = (R.tabletIdx || 0) >= ((R.tabletSteps || []).length - 1);
+  const lastGap = (R.gapIdx || 0) >= tabletsStepBlanks().length - 1;
+  const firstReading = R.tabletMode !== "endless" || (R.tabletPass || 1) === 1;
+  return lastStep && lastGap && firstReading;
+}
+/* G4: the Hold's finish: a chord rings out; the roll sweeps gold and the lit seals glow (not in the tutorial or under reduced motion). */
+function tabletsHoldFinale(){
+  tabletsPlayWith(function(bus){
+    [523.25, 659.25, 783.99, 1046.5].forEach(function(f, i){ tabletsBlip(bus, "sine", f, 1.4, 0.07, 0, i * 0.06); });
+  });
+  if(tabletsUntimed()) return;
+  R.tabletGlory = true;
+  paintTabletsPowers();
+  clearTimeout(R.tabletGloryTimer);
+  R.tabletGloryTimer = setTimeout(function(){ R.tabletGlory = false; paintTabletsPowers(); }, 1400);
+  const roll = $("tablets-roll");
+  if(!roll) return;
+  roll.classList.remove("hold-sweep");
+  if(roll.offsetWidth !== undefined) void roll.offsetWidth;
+  roll.classList.add("hold-sweep");
+  setTimeout(function(){ roll.classList.remove("hold-sweep"); }, 900);
 }
 function paintTabletsTutorialCallout(){
   const callout = $("tablets-tut-callout");
@@ -510,6 +669,7 @@ function paintTabletsHud(){
   paintTabletsProgressStats(pct, rec);
   paintTabletsTier();
   paintTabletsSurge();
+  paintTabletsCombo();
   paintTabletsIllumBtn();
   paintTabletsTutorialCallout();
   const paceEl = $("tablets-pace-tag");
@@ -526,10 +686,20 @@ function tabletsOptsForBlank(){
 }
 /* D: the lamps wear the arcade's seals — three diamonds that crack as they spend. */
 function tabletsSealsMarkup(left, total){
+  /* G3/G4: the smoke and the glow ride the seals; the tutorial and reduced motion never show them. */
+  const run = (typeof R !== "undefined" && R) || {};
+  const quiet = tabletsUntimed();
+  return tabletsSealMarks(left, total, quiet ? -1 : run.tabletSnuffAt, !quiet && !!run.tabletGlory);
+}
+/* G3/G4: the seals' markup. The seal that just went dark smokes; the lit seals glow at the Hold's finish. */
+function tabletsSealMarks(left, total, snuffAt, glory){
   let out = "";
   /* FX9: one seal per lamp the mode starts with (Judgment wears one). */
   for(let i = 0; i < (total || 1); i++){
-    out += '<i class="tablets-seal' + (i < left ? "" : " cracked") + '"></i>';
+    let cls = i < left ? "" : " cracked";
+    if(i === snuffAt) cls += " snuff";
+    if(glory && i < left) cls += " glory";
+    out += '<i class="tablets-seal' + cls + '"></i>';
   }
   return out;
 }
@@ -771,6 +941,7 @@ function finishTabletsTutorial(){
   if(typeof openBrief === "function") openBrief("tablets");
 }
 function tabletsResolveMiss(){
+  const oldStreak = R.streak || 0;
   if(!R.tabletTutorial){
     /* D1: a miss spends a lamp and pushes the sand back. The rules decide
        both; the run applies the verdict and keeps the lamp count. */
@@ -781,6 +952,11 @@ function tabletsResolveMiss(){
     R.tabletMiss = lives - cracked.lit;
     R.tabletLampOut = !!cracked.ended;
     R.tabletClock = max * (1 - cracked.progress);
+    /* G3: the seal that just went dark is the one at index cracked.lit; it smokes for 900 ms. */
+    const spent = cracked.lit < lit;
+    R.tabletSnuffAt = spent ? cracked.lit : -1;
+    if(spent) setTimeout(function(){ R.tabletSnuffAt = -1; }, 900);
+    tabletsLampFx(spent, cracked.lit);
     R.streak = 0;
     R.surge = Math.max(0, (R.surge || 0) - 25);
   }
@@ -800,6 +976,7 @@ function tabletsResolveMiss(){
   tabletsMissHaptic();
   const picked = tabletsStoneButtons().filter(function(b){ return b.classList && b.classList.contains("selected"); })[0];
   if(picked) picked.classList.add("shatter");
+  tabletsComboBreak(oldStreak);
   paintTabletsHud();
 }
 /* D4/O1: the arcade grade ids wear the game's words. */
@@ -883,6 +1060,9 @@ function tabletsRecharge(carve){
   if(typeof toast === "function") toast("Restored · " + award.gained.map(tabletsPowerName).join(" · "));
 }
 function tabletsResolveHit(){
+  /* G4: the final carve and the streak before this hit are read before the run moves on. */
+  const finalCarve = tabletsIsFinalCarve();
+  const oldStreak = R.streak || 0;
   R.correct = (R.correct || 0) + 1;
   R.score = (R.score || 0) + 1;
   /* The carve reads the streak before this hit and returns the next one. */
@@ -901,6 +1081,12 @@ function tabletsResolveHit(){
   tabletsKick("tablets-favor");
   tabletsKick("tablets-streak");
   tabletsCarveHaptic(carve);
+  /* G1: the carve note, the kick and the burst. */
+  tabletsPlayCarveNote(oldStreak);
+  tabletsCarveKick(carve);
+  tabletsCarveBurst(carve);
+  /* G2: the combo meter pops when the combo climbs and blazes once per streak. */
+  tabletsComboCue(oldStreak, carve.streak);
   if(carve.milestone) tabletsMilestoneBanner(carve.milestone.streak, favor);
   tabletsReact(true);
   const grid = $("tablets-grid");
@@ -912,6 +1098,7 @@ function tabletsResolveHit(){
     tabletsPulseSpeech();
     tabletsPlayGoldChime();
   });
+  if(finalCarve) tabletsHoldFinale();
   if(!R.tabletTutorial){
     tabletsRollBlessing();
     tabletsRecharge(carve);
@@ -939,6 +1126,7 @@ function tabletsResetBlankAids(){
   R.tabletGrade = null;
   R.tabletHintedIdx = -1;
   R.tabletWinnowIdx = -1;
+  R.tabletHeartT = 0;
   R.tabletBlankStart = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
 }
 /* P3: the chapter's last step. Returns true when the run is over; an Endless run reads on instead. */
@@ -1020,6 +1208,7 @@ function tabletsTick(now){
   if(R.surgeOn) tabletsTickSurge(dt);
   if(!tabletsUntimed() && !R.surgeOn) tabletsBurnSand(dt);
   if(R.ended) return;
+  tabletsHeartbeat(dt);
   tabletsTickTrauma(dt);
   drawTabletsFx(dt);
   paintTabletsClock();
