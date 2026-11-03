@@ -154,7 +154,7 @@ const reducedHooks = [
   [".tablets-flying-word", "tablets flying word"],
   [".tablets-speech", "tablets speech pulse"],
   [".tablets-candle", "tablets scene candle"],
-  [".tablets-verse", "tablets rising card"]
+  [".tablets-verse", "tablets rolling sheet"]
 ];
 const reducedSelectors = [...css.matchAll(/body\.reduced[^{]*\{/g)].map((m) => m[0]);
 reducedHooks.forEach(([hook, name]) => {

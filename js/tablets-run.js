@@ -56,10 +56,31 @@ function tabletsRiseOf(){
   if(tabletsUntimed()) return 1;
   return Tablets.rules.progressOf(R.tabletClock, R.tabletClockMax || tabletsClockMax() || 1);
 }
+/* R1: the rolling chapter sheet. The current step's top sits at 62% of the roll window on fresh sand and at The
+   Mark (the window's top) when the sand is gone; each frame eases 16% of the way to that spot. */
+const TABLET_ROLL_ENTRY = 0.62;
+const TABLET_ROLL_EASE = 0.16;
+function tabletsRollTarget(windowH, stepTop, rise){
+  return windowH * TABLET_ROLL_ENTRY * (1 - rise) - stepTop;
+}
+function tabletsRollEase(current, target, snap){
+  if(snap) return target;
+  return current + (target - current) * TABLET_ROLL_EASE;
+}
 function tabletsPaintRise(){
   const ms = $("tablets-ms");
-  if(!ms || !ms.style || !ms.style.setProperty) return;
-  ms.style.setProperty("--tablets-rise", String(Math.round(tabletsRiseOf() * 1000) / 1000));
+  if(ms && ms.style && ms.style.setProperty) ms.style.setProperty("--tablets-rise", String(Math.round(tabletsRiseOf() * 1000) / 1000));
+  tabletsRollFrame();
+}
+/* R1: untimed (tutorial, reduced motion) and a freshly painted step jump; otherwise the sheet eases toward its target. */
+function tabletsRollFrame(){
+  const win = $("tablets-roll"), sheet = $("tablets-sheet"), verse = $("tablets-verse");
+  if(!win || !sheet || !verse) return;
+  const snap = !!R.tabletRollSnap || tabletsUntimed();
+  const target = tabletsRollTarget(win.clientHeight || 0, verse.offsetTop || 0, tabletsRiseOf());
+  R.tabletRollY = tabletsRollEase(R.tabletRollY || 0, target, snap);
+  R.tabletRollSnap = false;
+  if(sheet.style) sheet.style.transform = "translateY(" + R.tabletRollY.toFixed(1) + "px)";
 }
 function spawnTabletsScorePopup(text, slotEl){
   const ms = $("tablets-ms");
@@ -200,6 +221,27 @@ function paintTabletsVerse(stepBlanks, gapIdx, answer){
     const carved = (answer === "hit" || answer === "done") ? gi <= gapIdx : gi < gapIdx;
     paintTabletsVerseLine(verse, blank, carved);
   });
+  paintTabletsSheet();
+}
+/* R1: the carved steps roll above the current one and the coming steps below it. A new step snaps the roll. */
+function paintTabletsSheet(){
+  const past = $("tablets-sheet-past"), next = $("tablets-sheet-next");
+  const steps = (R && R.tabletSteps) || [];
+  if(!past || !next || !steps.length) return;
+  const idx = R.tabletIdx || 0;
+  if(R.tabletRollStep !== idx) R.tabletRollSnap = true;
+  R.tabletRollStep = idx;
+  fillTabletsSheet(past, steps.slice(0, idx), true);
+  fillTabletsSheet(next, steps.slice(idx + 1), false);
+}
+function fillTabletsSheet(host, list, carved){
+  host.innerHTML = "";
+  list.forEach(function(step){
+    const box = document.createElement("div");
+    box.className = "tablets-sheet-step";
+    step.forEach(function(blank){ paintTabletsVerseLine(box, blank, carved); });
+    host.appendChild(box);
+  });
 }
 function paintTabletsSlot(blank, kind){
   const slot = $("tablets-slot");
@@ -236,6 +278,8 @@ function paintTabletsTablet(answer){
    the active gap line visible after every repaint. No-op on desktop
    (nothing overflows) and in tests (shim no-op). */
 function tabletsKeepGapInView(){
+  /* R1: the roll keeps the step in view; scrollIntoView would fight its transform. */
+  if($("tablets-roll")) return;
   try{
     const verse = $("tablets-verse");
     if(!verse || !verse.children || verse.children.length < 2) return;
@@ -852,6 +896,9 @@ function startTabletsLoop(){
   R.tabletClock = tabletsStepSeconds();
   R.tabletClockMax = R.tabletClock;
   R.tabletPass = 1;
+  /* R1: the first paint of a run snaps the roll. */
+  R.tabletRollSnap = true;
+  R.tabletRollY = 0;
   R.tabletEndlessHeld = false;
   R.tabletTimeout = false;
   R.tabletLastWarnSec = -1;

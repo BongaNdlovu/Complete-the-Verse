@@ -198,7 +198,8 @@ ok("the carved slot is in the view", html.indexOf('id="tablets-slot"') >= 0);
 ok("the verse line is in the view", html.indexOf('id="tablets-verse"') >= 0);
 ok("the fracture overlay is in the view", html.indexOf('id="tablets-fracture"') >= 0);
 ok("pause overlay is in the view", html.indexOf('id="tablets-pause"') >= 0);
-ok("the roll is gone", html.indexOf('id="tablets-roll"') < 0);
+ok("the chapter rolls in its own window", html.indexOf('id="tablets-roll"') >= 0);
+ok("the sheet carries the steps above and below", html.indexOf('id="tablets-sheet-past"') >= 0 && html.indexOf('id="tablets-sheet-next"') >= 0);
 ok("the tablet clips instead of scrolling by hand", /\.tablets-ms\{[^}]*overflow:\s*hidden/.test(src));
 ok("reduced motion hides the canvas", /body\.reduced #tablets-fx/.test(src));
 ok("no hear control", html.indexOf('id="tablets-hear"') < 0);
@@ -1069,9 +1070,47 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
 }
 {
   const riseCss = fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8");
-  ok("the card rises with translate, so the glow scale still composes", /\.tablets-slot,\.tablets-verse\{translate:0 calc\(/.test(riseCss));
-  ok("reduced motion sets translate:none on the rising card", /body\.reduced[^{]*\{translate:none/.test(riseCss));
+  ok("the roll window clips the sheet with overflow hidden", /\.tablets-roll\{[^}]*overflow:hidden/.test(riseCss));
+  ok("reduced motion sets transition:none on the rolling sheet", /body\.reduced[^{]*\.tablets-sheet[^{]*\{transition:none\}/.test(riseCss));
+  ok("phase 7's translate rise is gone, the roll moves the sheet instead", !/translate:0 calc\(/.test(riseCss));
   ok("six tablets lay out three to a row at 720px, then six at 1150px", /@media \(min-width:720px\)\{\.tablets-grid\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)\}\}\s*@media \(min-width:1150px\)\{\.tablets-grid\{grid-template-columns:repeat\(6,minmax\(0,1fr\)\)\}\}/.test(riseCss));
+}
+{
+  const sb = boot();
+  ok("the roll target is 62% of the window on fresh sand", Math.abs(read(sb, "tabletsRollTarget(400, 0, 0)") - 248) < 1e-9, read(sb, "tabletsRollTarget(400, 0, 0)"));
+  ok("the roll target is The Mark when the sand is gone", Math.abs(read(sb, "tabletsRollTarget(400, 0, 1)")) < 1e-9, read(sb, "tabletsRollTarget(400, 0, 1)"));
+  ok("the roll target takes the step's top off the entry line", Math.abs(read(sb, "tabletsRollTarget(400, 30, 0.5)") - 94) < 1e-9, read(sb, "tabletsRollTarget(400, 30, 0.5)"));
+  ok("the roll eases 16% of the way each frame", Math.abs(read(sb, "tabletsRollEase(0, 100, false)") - 16) < 1e-9, read(sb, "tabletsRollEase(0, 100, false)"));
+  ok("an untimed roll jumps straight to its target", read(sb, "tabletsRollEase(0, 100, true)") === 100, read(sb, "tabletsRollEase(0, 100, true)"));
+}
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "paintTabletsTablet()");
+  eq("a fresh Psalm 23 run carves no steps above", read(sb, "$('tablets-sheet-past').children.length"), 0);
+  eq("the coming steps sit below the current one", read(sb, "$('tablets-sheet-next').children.length"), read(sb, "R.tabletSteps.length - 1"));
+  eq("a coming line shows its blank", read(sb, "$('tablets-sheet-next').children[0].children[0].children[2].textContent"), "___");
+}
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "for(var i = 0; i < 20 && R.tabletIdx === 0; i++){ tabletsResolve(true); tabletsFinishResolve(true); }");
+  eq("a finished step rolls into the sheet above", read(sb, "$('tablets-sheet-past').children.length"), 1);
+  ok("the carved step above shows its answers", read(sb, "$('tablets-sheet-past').children[0].children.map(function(l){ return l.children.map(function(c){ return c.textContent; }).join(''); }).join(' ')").indexOf("want") >= 0 && read(sb, "$('tablets-sheet-past').children[0].children.map(function(l){ return l.children.map(function(c){ return c.textContent; }).join(''); }).join(' ')").indexOf("pastures") >= 0);
+  eq("the coming steps drop by the one just carved", read(sb, "$('tablets-sheet-next').children.length"), read(sb, "R.tabletSteps.length - 2"));
+}
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "$('tablets-verse').offsetTop = 200; $('tablets-roll').clientHeight = 400; document.body.classList.add('reduced'); paintTabletsClock()");
+  eq("reduced motion snaps the roll to The Mark in one paint", read(sb, "R.tabletRollY"), -200);
+}
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "$('tablets-verse').offsetTop = 200; $('tablets-roll').clientHeight = 400; R.tabletRollSnap = false; R.tabletRollY = 0; paintTabletsClock()");
+  ok("an ordinary frame eases 16% of the way to the target", Math.abs(read(sb, "R.tabletRollY") - 48 * 0.16) < 1e-9, read(sb, "R.tabletRollY"));
 }
 unstubRandom();
 if (fail) {

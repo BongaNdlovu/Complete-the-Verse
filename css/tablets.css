@@ -154,8 +154,7 @@ body.view-tablets .voice-caption{display:none!important}
   font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--tab-text);
   text-shadow:0 1px 1px rgba(255,255,255,.32),0 -1.5px 2px rgba(0,0,0,.9);background:none;padding:0;box-shadow:none}
 .tablets-mark-row{display:flex;align-items:center;gap:12px;margin:8px 0 12px}
-.tablets-ms{--tablets-rise-px:clamp(10px,4vh,40px)}
-.tablets-slot,.tablets-verse{translate:0 calc((1 - var(--tablets-rise, 1)) * var(--tablets-rise-px, 0px));transition:translate .3s ease-out}
+/* R1: the phase 7 card rise (translate) is retired; the roll moves .tablets-sheet from tabletsPaintRise. */
 .tablets-mark-line{
   flex:1;height:2px;position:relative;
   background:linear-gradient(90deg,transparent,#e5b558 20%,#e5b558 80%,transparent);
@@ -178,7 +177,13 @@ body.view-tablets .voice-caption{display:none!important}
   justify-content:center;align-items:center;
   text-shadow:0 1px 1px rgba(255,255,255,.32),0 -1px 2px rgba(0,0,0,.95)}
 .tablets-blank-word{color:#c7943f;text-shadow:0 0 12px rgba(229,181,88,.7);font-weight:700;letter-spacing:.04em}
-.tablets-verse{margin-bottom:calc(14px + var(--tablets-rise-px, 0px))}
+/* R1: the rolling chapter sheet. The window clips the carved steps above and the coming steps below. */
+.tablets-roll{position:relative;height:clamp(120px,calc(100vh - 640px),380px);overflow:hidden;margin:0 0 12px;-webkit-mask-image:linear-gradient(180deg,#000 0,#000 78%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 78%,transparent 100%)}
+.tablets-sheet{will-change:transform}
+.tablets-sheet .tablets-verse{margin:0 0 10px;min-height:0}
+.tablets-sheet-step{opacity:.42;margin:0 0 10px}
+.tablets-sheet-past .tablets-sheet-step{opacity:.55}
+@media (max-width:640px){.tablets-roll{height:clamp(170px,34vh,320px)}}
 .tablets-blank-word.in{color:#ffe38d;text-shadow:0 0 18px var(--gold-hot)}
 .tablets-gap-line{display:block;text-align:center;margin:2px 0}
 .tablets-gap-ref{display:inline-block;font-size:.62em;letter-spacing:.14em;color:var(--gold-dim);
@@ -394,7 +399,7 @@ body.motion-calm .tablets-companion.success img,
 body.reduced .tablets-companion.failure img,
 body.motion-calm .tablets-companion.failure img{animation:none;transition:none}
 body.reduced #tablets-fx,body.motion-calm #tablets-fx{display:none}
-body.reduced .tablets-slot,body.reduced .tablets-verse,body.motion-calm .tablets-slot,body.motion-calm .tablets-verse{translate:none;transition:none}
+body.reduced .tablets-sheet,body.reduced .tablets-verse,body.motion-calm .tablets-sheet,body.motion-calm .tablets-verse{transition:none}
 @media (hover:hover){
   #v-tablets.trial-mode .tablets-stone:not(:hover):not(.selected) .tablets-word{
     filter:blur(3.5px);opacity:.75;letter-spacing:.2em
