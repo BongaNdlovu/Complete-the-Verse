@@ -20,6 +20,7 @@ import app.completetheverse.core.tablets.TabletsConfig
 import app.completetheverse.core.tablets.TabletsLibraryGroup
 import app.completetheverse.core.tablets.TabletsPhase
 import app.completetheverse.core.tablets.TabletsResult
+import app.completetheverse.core.tablets.TabletsRules
 import app.completetheverse.core.tablets.TabletsSession
 import app.completetheverse.save.SaveCoordinator
 import kotlinx.coroutines.Job
@@ -93,6 +94,16 @@ class TabletsViewModel : ViewModel() {
     var shatterTick by mutableIntStateOf(0)
         private set
     var pausedByHide by mutableStateOf(false)
+        private set
+    var lastGrade by mutableStateOf<String?>(null)
+        private set
+    var lastMilestone by mutableStateOf<TabletsRules.Milestone?>(null)
+        private set
+    var lastPoints by mutableIntStateOf(0)
+        private set
+    var lastGained by mutableStateOf<List<String>>(emptyList())
+        private set
+    var hitLine by mutableStateOf("")
         private set
 
     private var session: TabletsSession? = null
@@ -196,8 +207,12 @@ class TabletsViewModel : ViewModel() {
     }
 
     fun illuminate() {
-        session?.illuminate()
+        val s = session ?: return
+        val started = s.illuminate()
         publish()
+        if (!started) return
+        if (s.lastCorrect == true) flyTick++
+        afterResolve(s)
     }
 
     fun winnow() {
@@ -328,6 +343,18 @@ class TabletsViewModel : ViewModel() {
         tutorial = s.tutorial
         tutorialPrompt = if (s.tutorial) Tablets.tutorialPrompt(s.tabletIdx) else ""
         favor = s.favor
+        lastGrade = s.lastGrade
+        lastMilestone = s.lastMilestone
+        lastPoints = s.lastPoints
+        lastGained = s.lastGained
+        val reached = s.lastMilestone
+        val grade = TabletsRules.gradeName(s.lastGrade.orEmpty())
+        hitLine = when {
+            s.lastCorrect != true -> ""
+            s.tutorial -> "+${s.lastPoints} FAVOR"
+            reached != null -> "$grade · ${TabletsRules.milestoneName(reached.streak)} · +${s.lastPoints} FAVOR"
+            else -> "$grade · +${s.lastPoints} FAVOR"
+        }
         streak = s.streak
         paused = s.phase == TabletsPhase.Paused
         confirmAbandon = s.confirmAbandon

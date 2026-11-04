@@ -24,12 +24,17 @@ function tabletsClockMax(){
   if(typeof Tablets !== "undefined" && Tablets.clockS) return Tablets.clockS();
   return 25;
 }
+/* O2: the tier names stay as the streak label; the multiplier beside them is
+   the carve's combo, because that is what the Favor is really multiplied by. */
 function tabletsTier(streak){
-  if(streak >= 8) return { name:"DIVINE PRESENCE", mult:4 };
-  if(streak >= 5) return { name:"EXALTED", mult:3 };
-  if(streak >= 3) return { name:"ANOINTED", mult:2 };
-  if(streak >= 1) return { name:"SANCTIFIED", mult:1.5 };
-  return { name:"DEVOTED", mult:1 };
+  const n = streak || 0;
+  /* FX10: the HUD shows the multiplier the next carve pays: the combo one streak on. */
+  const mult = Tablets.rules.comboOf(n + 1);
+  if(n >= 8) return { name:"DIVINE PRESENCE", mult:mult };
+  if(n >= 5) return { name:"EXALTED", mult:mult };
+  if(n >= 3) return { name:"ANOINTED", mult:mult };
+  if(n >= 1) return { name:"SANCTIFIED", mult:mult };
+  return { name:"DEVOTED", mult:mult };
 }
 function paintTabletsClock(){
   const fill = $("tablets-clock-fill");
@@ -45,6 +50,70 @@ function paintTabletsClock(){
     if(tabletsUntimed()) lab.textContent = "Untimed Hold";
     else lab.textContent = (Math.max(0, R.tabletClock || 0)).toFixed(1) + "s";
   }
+  tabletsPaintRise();
+  const slotEl = $("tablets-slot");
+  if(slotEl) slotEl.classList.toggle("urgent", tabletsDangerLevel() > 0.5 && !tabletsUntimed());
+}
+/* V1: the verse card rises as the sand runs; untimed (tutorial, reduced motion) pins it at The Mark. */
+function tabletsRiseOf(){
+  if(tabletsUntimed()) return 1;
+  return Tablets.rules.progressOf(R.tabletClock, R.tabletClockMax || tabletsClockMax() || 1);
+}
+/* C: the room reddens as the active blank nears The Mark — 0 on fresh sand,
+   1 at the mark; the tutorial and reduced motion never redden. */
+function tabletsDangerLevel(){
+  if(tabletsUntimed()) return 0;
+  const rise = tabletsRiseOf();
+  return Math.max(0, Math.min(1, (rise - 0.7) / 0.3));
+}
+function drawTabletsDanger(ctx, w, h){
+  const danger = tabletsDangerLevel();
+  if(danger <= 0 || typeof ctx.createRadialGradient !== "function") return;
+  const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.42, w / 2, h / 2, Math.max(w, h) * 0.72);
+  g.addColorStop(0, "rgba(160,20,8,0)");
+  g.addColorStop(1, "rgba(160,20,8," + (danger * 0.36).toFixed(3) + ")");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+}
+/* C: Surge feeds the fire — the ambient embers carry more light while it runs. */
+function tabletsEmberAlpha(surgeOn){
+  return surgeOn ? 0.85 : 0.65;
+}
+/* R1: the rolling chapter sheet. The current step's top sits at 62% of the roll window on fresh sand and at The
+   Mark (the window's top) when the sand is gone; each frame eases 16% of the way to that spot. */
+const TABLET_ROLL_ENTRY = 0.62;
+const TABLET_ROLL_EASE = 0.16;
+function tabletsRollTarget(windowH, stepTop, rise){
+  return windowH * TABLET_ROLL_ENTRY * (1 - rise) - stepTop;
+}
+function tabletsRollEase(current, target, snap){
+  if(snap) return target;
+  return current + (target - current) * TABLET_ROLL_EASE;
+}
+function tabletsPaintRise(){
+  /* FX14: --tablets-rise had no consumer and was rewritten every frame; the roll reads the rise directly. */
+  tabletsRollFrame();
+}
+/* FX15: the roll follows the line being carved (the active gap's own line), not the top of the step. */
+function tabletsActiveLineTop(verse){
+  const line = verse.children ? verse.children[R.gapIdx || 0] : null;
+  return (verse.offsetTop || 0) + ((line && line.offsetTop) || 0);
+}
+/* R1: untimed (tutorial, reduced motion) and a freshly painted step jump; otherwise the sheet eases toward its target. */
+function tabletsRollFrame(){
+  const win = $("tablets-roll"), sheet = $("tablets-sheet"), verse = $("tablets-verse");
+  if(!win || !sheet || !verse) return;
+  const snap = !!R.tabletRollSnap || tabletsUntimed();
+  const target = tabletsRollTarget(win.clientHeight || 0, tabletsActiveLineTop(verse), tabletsRiseOf());
+  R.tabletRollY = tabletsRollEase(R.tabletRollY || 0, target, snap);
+  R.tabletRollSnap = false;
+  if(sheet.style) sheet.style.transform = "translateY(" + R.tabletRollY.toFixed(1) + "px)";
+}
+/* L2: where the Favor pops. Right of the slot when the card has 190 px to spare; otherwise below the slot. */
+function tabletsPopupAnchor(msRect, slotRect){
+  const room = msRect.right - slotRect.right;
+  if(room >= 190) return { x: slotRect.right - msRect.left + 16, y: (slotRect.top + slotRect.bottom) / 2 - msRect.top, side: "right" };
+  return { x: (slotRect.left + slotRect.right) / 2 - msRect.left, y: slotRect.bottom - msRect.top + 18, side: "below" };
 }
 function spawnTabletsScorePopup(text, slotEl){
   const ms = $("tablets-ms");
@@ -53,21 +122,97 @@ function spawnTabletsScorePopup(text, slotEl){
   popup.className = "tablets-score-popup";
   popup.textContent = text;
   if(slotEl && slotEl.getBoundingClientRect){
-    const msRect = ms.getBoundingClientRect();
-    const slotRect = slotEl.getBoundingClientRect();
-    popup.style.left = Math.max(50, Math.min((ms.clientWidth || 500) - 50, slotRect.left + (slotRect.width || 0) / 2 - msRect.left)) + "px";
-    popup.style.top = Math.max(30, Math.min((ms.clientHeight || 400) - 30, slotRect.top + (slotRect.height || 0) / 2 - msRect.top)) + "px";
+    /* L2: the Favor pops beside the slot, or below it when the card has no room to its right. */
+    const anchor = tabletsPopupAnchor(ms.getBoundingClientRect(), slotEl.getBoundingClientRect());
+    popup.style.left = anchor.x + "px";
+    popup.style.top = anchor.y + "px";
+    popup.dataset.side = anchor.side;
+    /* L2: with no room beside the slot the Favor joins the feedback lane, clear of the verse. */
+    if(anchor.side === "below" && $("tablets-lane") && typeof ms.getBoundingClientRect().right === "number") popup.dataset.lane = "1";
   } else {
     popup.style.left = "50%";
     popup.style.top = "40%";
   }
-  ms.appendChild(popup);
+  (popup.dataset.lane ? $("tablets-lane") : ms).appendChild(popup);
   setTimeout(function(){ try{ popup.remove(); }catch(e){} }, 900);
 }
-function tabletsPlayGoldChime(){
-  if(!(typeof Snd !== "undefined" && Snd.ctx)) return;
+/* E: how long the world holds its breath — top grades and milestones longest. */
+function tabletsHitstopMs(carve){
+  if(carve.milestone) return 85;
+  return (carve.grade === "divine" || carve.grade === "clutch") ? 55 : 30;
+}
+/* E: the carve speaks through the hand — per grade, louder at milestones. */
+function tabletsCarveHaptic(carve){
+  if(typeof navigator === "undefined" || !navigator.vibrate || !SAVE.set.haptics || R.tabletTutorial || tabletsReduced()) return;
+  navigator.vibrate(carve.milestone ? [35, 30, 55, 30, 90] : (carve.grade === "divine" || carve.grade === "clutch") ? [24, 22, 42] : 22);
+}
+/* E: a miss cracks through the hand — the long pattern when the last lamp dies. */
+function tabletsMissHaptic(){
+  if(typeof navigator === "undefined" || !navigator.vibrate || !SAVE.set.haptics || R.tabletTutorial || tabletsReduced()) return;
+  navigator.vibrate(R.tabletLampOut ? [90, 45, 120, 45, 180] : [65, 35, 95]);
+}
+/* E: the HUD numerals kick on a change; asleep under reduced motion. */
+function tabletsKick(id){
+  const el = $(id);
+  if(!el || tabletsReduced()) return;
+  el.classList.remove("kick");
+  if(el.offsetWidth !== undefined) void el.offsetWidth;
+  el.classList.add("kick");
+  setTimeout(function(){ el.classList.remove("kick"); }, 360);
+}
+/* E: the milestone banner — Tithe / Double portion / Jubilee, in the game's words. */
+function tabletsMilestoneBanner(streak, favor){
+  const banner = $("tablets-milestone");
+  if(!banner || tabletsReduced()) return;
+  const nameEl = $("tablets-milestone-name");
+  const favorEl = $("tablets-milestone-favor");
+  if(nameEl) nameEl.textContent = tabletsMilestoneName(streak);
+  if(favorEl) favorEl.textContent = "+" + favor + " FAVOR";
+  banner.classList.remove("active");
+  if(banner.offsetWidth !== undefined) void banner.offsetWidth;
+  banner.classList.add("active");
+  clearTimeout(R.tabletMilestoneTimer);
+  R.tabletMilestoneTimer = setTimeout(function(){ banner.classList.remove("active"); }, 2400);
+}
+/* E: a one-shot wash over the stage — gold for milestones, red for misses. */
+function tabletsFlash(kind, strong){
+  const flashEl = $("tablets-flash");
+  if(!flashEl || tabletsReduced()) return;
+  flashEl.classList.remove("miss", "gold", "strong");
+  if(flashEl.offsetWidth !== undefined) void flashEl.offsetWidth;
+  flashEl.classList.add(kind);
+  if(strong) flashEl.classList.add("strong");
+  setTimeout(function(){ flashEl.classList.remove(kind, "strong"); }, 700);
+}
+/* S0: the tablets tones ride the sfx bus (Snd.sfxBus), so the mute and the sfx level reach them. */
+function tabletsAudio(){
+  return (typeof Snd !== "undefined" && Snd.sfxBus) ? Snd.sfxBus() : null;
+}
+/* E: the scribe's chisel ticks upward as the word fills. */
+function tabletsPlayScribeTick(progress){
+  const bus = tabletsAudio();
+  if(!bus) return;
   try{
-    const ctx = Snd.ctx;
+    const ctx = bus.ctx;
+    if(ctx.state === "suspended") ctx.resume();
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "triangle";
+    o.frequency.setValueAtTime(392 + Math.min(1, Math.max(0, progress)) * 392, t);
+    g.gain.setValueAtTime(0.05, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+    o.connect(g);
+    g.connect(bus.out);
+    o.start(t);
+    o.stop(t + 0.09);
+  }catch(e){}
+}
+function tabletsPlayGoldChime(){
+  const bus = tabletsAudio();
+  if(!bus) return;
+  try{
+    const ctx = bus.ctx;
     if(ctx.state === "suspended") ctx.resume();
     const t = ctx.currentTime;
     [523.25, 659.25, 783.99, 1046.5].forEach(function(f, i){
@@ -80,16 +225,17 @@ function tabletsPlayGoldChime(){
       g.gain.setValueAtTime(0.18 / (i + 1), t + d);
       g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.55);
       o.connect(g);
-      g.connect(ctx.destination);
+      g.connect(bus.out);
       o.start(t + d);
       o.stop(t + d + 0.55);
     });
   }catch(e){}
 }
 function tabletsPlayDangerWarn(){
-  if(!(typeof Snd !== "undefined" && Snd.ctx)) return;
+  const bus = tabletsAudio();
+  if(!bus) return;
   try{
-    const ctx = Snd.ctx;
+    const ctx = bus.ctx;
     if(ctx.state === "suspended") ctx.resume();
     const t = ctx.currentTime;
     const o = ctx.createOscillator();
@@ -100,10 +246,162 @@ function tabletsPlayDangerWarn(){
     g.gain.setValueAtTime(0.09, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
     o.connect(g);
-    g.connect(ctx.destination);
+    g.connect(bus.out);
     o.start(t);
     o.stop(t + 0.09);
   }catch(e){}
+}
+/* G1: the grade colours and the impact by grade (the carve's burst and camera kick). */
+const TABLET_GRADE_COLORS = { divine:"255,236,170", sacred:"240,196,96", carved:"214,150,80", clutch:"255,128,72" };
+const TABLET_KICK = { divine:0.22, sacred:0.12, carved:0.08, clutch:0.32 };
+/* G1: the carve note climbs a rising pentatonic; every five streaks lift it an octave. */
+const TABLET_PENTA = [0, 2, 4, 7, 9];
+function tabletsCarveNoteHz(streak){
+  const n = Math.min(streak || 0, 12);
+  return 392 * Math.pow(2, TABLET_PENTA[n % 5] / 12 + Math.floor(n / 5));
+}
+/* S0: one tone through the sfx bus; it may glide to endHz and may start after a delay. */
+function tabletsBlip(bus, type, hz, dur, vol, endHz, delay){
+  const ctx = bus.ctx;
+  const t = ctx.currentTime + (delay || 0);
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(hz, t);
+  if(endHz) o.frequency.linearRampToValueAtTime(endHz, t + dur);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g);
+  g.connect(bus.out);
+  o.start(t);
+  o.stop(t + dur);
+}
+/* S0: a missing bus (no audio, or muted) plays nothing and throws nothing. */
+function tabletsPlayWith(fn){
+  const bus = tabletsAudio();
+  if(!bus) return;
+  try{
+    if(bus.ctx.state === "suspended") bus.ctx.resume();
+    fn(bus);
+  }catch(e){}
+}
+/* G1: the carve note, a sine and a triangle at the streak's pitch; it sounds in the tutorial too. */
+function tabletsPlayCarveNote(streak){
+  tabletsPlayWith(function(bus){
+    const hz = tabletsCarveNoteHz(streak);
+    tabletsBlip(bus, "sine", hz, 0.14, 0.07);
+    tabletsBlip(bus, "triangle", hz, 0.14, 0.05);
+  });
+}
+/* G1: the camera kick by grade; the tutorial stays still. */
+function tabletsCarveKick(carve){
+  if(R.tabletTutorial) return;
+  tabletsApplyTrauma(TABLET_KICK[carve.grade] || 0.08);
+}
+/* G1: the burst at the engraved slot, in the grade's colour; the tutorial and reduced motion stay still. */
+function tabletsCarveBurst(carve){
+  const slot = $("tablets-slot");
+  if(R.tabletTutorial || tabletsReduced() || !slot || !slot.getBoundingClientRect) return;
+  const r = slot.getBoundingClientRect();
+  const n = carve.grade === "divine" ? 26 : (carve.grade === "clutch" ? 34 : 18);
+  spawnTabletsSparks(r.left + r.width / 2, r.top + r.height / 2, n, TABLET_GRADE_COLORS[carve.grade] || TABLET_GRADE_COLORS.carved);
+}
+/* G2: the combo meter shows how far the next carve's combo climbs toward x5 (0 at x1, full at x5). */
+function tabletsComboFill(streak){
+  return Math.min(1, Math.max(0, (Tablets.rules.comboOf(streak + 1) - 1) / 4));
+}
+/* G2: the meter's width always shows; its warm and blaze states are quiet in the tutorial and under reduced motion. */
+function paintTabletsCombo(){
+  const fill = tabletsComboFill(R.streak || 0);
+  const bar = $("tablets-combo");
+  const bit = $("tablets-combo-fill");
+  if(bit) bit.style.width = (fill * 100) + "%";
+  if(!bar) return;
+  const quiet = tabletsUntimed();
+  bar.classList.toggle("warm", !quiet && fill >= 0.5);
+  bar.classList.toggle("blaze", !quiet && fill >= 1);
+}
+/* G2: the multiplier pops for 420 ms when a carve climbs the combo; asleep in the tutorial and under reduced motion. */
+function tabletsPopMult(){
+  const el = $("tablets-mult");
+  if(!el || tabletsUntimed()) return;
+  el.classList.remove("pop");
+  if(el.offsetWidth !== undefined) void el.offsetWidth;
+  el.classList.add("pop");
+  clearTimeout(R.tabletPopTimer);
+  R.tabletPopTimer = setTimeout(function(){ el.classList.remove("pop"); }, 420);
+}
+/* G2: a climb pops the multiplier; the first time the meter blazes this streak, Snd.ignite plays. */
+function tabletsComboCue(oldStreak, newStreak){
+  /* G2: the meter moves with the carve, not a second later when the step re-arms. */
+  paintTabletsCombo();
+  const climbed = Tablets.rules.comboOf(newStreak + 1) > Tablets.rules.comboOf(oldStreak + 1);
+  if(climbed) tabletsPopMult();
+  const blazed = tabletsComboFill(newStreak) >= 1 && tabletsComboFill(oldStreak) < 1;
+  if(blazed && typeof Snd !== "undefined" && Snd.ignite) Snd.ignite();
+}
+/* G2: a miss that breaks a streak of 2 or more drops a low tone and cracks the meter for 520 ms. */
+function tabletsComboBreak(oldStreak){
+  /* G2: a miss empties the meter at once. */
+  paintTabletsCombo();
+  if(R.tabletTutorial || oldStreak < 2) return;
+  tabletsPlayWith(function(bus){ tabletsBlip(bus, "sine", 110, 0.22, 0.09, 70); });
+  const bar = $("tablets-combo");
+  if(!bar || tabletsUntimed()) return;
+  bar.classList.remove("broke");
+  if(bar.offsetWidth !== undefined) void bar.offsetWidth;
+  bar.classList.add("broke");
+  clearTimeout(R.tabletBreakTimer);
+  R.tabletBreakTimer = setTimeout(function(){ bar.classList.remove("broke"); }, 520);
+}
+/* G3: the heartbeat gap: 0.95 s at danger 0.5, easing to 0.45 s at danger 1. */
+function tabletsHeartGapS(d){
+  return 0.95 - 0.5 * Math.min(1, Math.max(0, (d - 0.5) / 0.5));
+}
+/* G3: the heart beats in the timed run, while not paused or resolving, and once the danger reaches half. */
+function tabletsHeartbeatDue(){
+  return !R.tabletTutorial && !tabletsUntimed() && !R.paused && !R.tabletResolving && tabletsDangerLevel() >= 0.5;
+}
+function tabletsHeartbeat(dt){
+  if(!tabletsHeartbeatDue()) return;
+  R.tabletHeartT = (R.tabletHeartT || 0) + dt;
+  if(R.tabletHeartT < tabletsHeartGapS(tabletsDangerLevel())) return;
+  R.tabletHeartT = 0;
+  if(typeof Snd !== "undefined" && Snd.heart) Snd.heart();
+}
+/* G3: a spent lamp crackles; the last lamp thuds. Sounds play under reduced motion too. */
+function tabletsLampFx(spent, litNow){
+  if(!spent || typeof Snd === "undefined") return;
+  if(litNow > 0){
+    if(Snd.lampCrackle) Snd.lampCrackle();
+    return;
+  }
+  if(Snd.lampThud) Snd.lampThud();
+}
+/* G4: the final carve is the last gap of the last step (Endless: of its first reading). The tutorial has none. */
+function tabletsIsFinalCarve(){
+  if(R.tabletTutorial) return false;
+  const lastStep = (R.tabletIdx || 0) >= ((R.tabletSteps || []).length - 1);
+  const lastGap = (R.gapIdx || 0) >= tabletsStepBlanks().length - 1;
+  const firstReading = R.tabletMode !== "endless" || (R.tabletPass || 1) === 1;
+  return lastStep && lastGap && firstReading;
+}
+/* G4: the Hold's finish: a chord rings out; the roll sweeps gold and the lit seals glow (not in the tutorial or under reduced motion). */
+function tabletsHoldFinale(){
+  tabletsPlayWith(function(bus){
+    [523.25, 659.25, 783.99, 1046.5].forEach(function(f, i){ tabletsBlip(bus, "sine", f, 1.4, 0.07, 0, i * 0.06); });
+  });
+  if(tabletsUntimed()) return;
+  R.tabletGlory = true;
+  paintTabletsPowers();
+  clearTimeout(R.tabletGloryTimer);
+  R.tabletGloryTimer = setTimeout(function(){ R.tabletGlory = false; paintTabletsPowers(); }, 1400);
+  const roll = $("tablets-roll");
+  if(!roll) return;
+  roll.classList.remove("hold-sweep");
+  if(roll.offsetWidth !== undefined) void roll.offsetWidth;
+  roll.classList.add("hold-sweep");
+  setTimeout(function(){ roll.classList.remove("hold-sweep"); }, 900);
 }
 function paintTabletsTutorialCallout(){
   const callout = $("tablets-tut-callout");
@@ -116,12 +414,12 @@ function paintTabletsTutorialCallout(){
   const prompts = [
     (window.matchMedia && matchMedia("(pointer:coarse)").matches)
       ? "Tap FATHER below"
-      : "Tap FATHER below (or press 1–4)",
+      : "Tap FATHER below, or type the word (1–6 picks)",
     "The word flies into the carved slot",
     "In the true Hold the sand runs; here it stands still",
-    "Illuminate glows the true stone for a breath",
-    "Winnow casts two false stones into shadow",
-    "Two lamps guard a wrong word. The sand is the Hold",
+    "Illuminate carves the true word for you",
+    "Winnow casts three false stones into shadow",
+    "Three lamps guard a wrong word. The sand is the Hold",
     "Almost complete · Let no word be lost",
     "Final word · Engrave it to seal your first Hold and open the Hall!"
   ];
@@ -185,6 +483,27 @@ function paintTabletsVerse(stepBlanks, gapIdx, answer){
     const carved = (answer === "hit" || answer === "done") ? gi <= gapIdx : gi < gapIdx;
     paintTabletsVerseLine(verse, blank, carved);
   });
+  paintTabletsSheet();
+}
+/* R1: the carved steps roll above the current one and the coming steps below it. A new step snaps the roll. */
+function paintTabletsSheet(){
+  const past = $("tablets-sheet-past"), next = $("tablets-sheet-next");
+  const steps = (R && R.tabletSteps) || [];
+  if(!past || !next || !steps.length) return;
+  const idx = R.tabletIdx || 0;
+  if(R.tabletRollStep !== idx) R.tabletRollSnap = true;
+  R.tabletRollStep = idx;
+  fillTabletsSheet(past, steps.slice(0, idx), true);
+  fillTabletsSheet(next, steps.slice(idx + 1), false);
+}
+function fillTabletsSheet(host, list, carved){
+  host.innerHTML = "";
+  list.forEach(function(step){
+    const box = document.createElement("div");
+    box.className = "tablets-sheet-step";
+    step.forEach(function(blank){ paintTabletsVerseLine(box, blank, carved); });
+    host.appendChild(box);
+  });
 }
 function paintTabletsSlot(blank, kind){
   const slot = $("tablets-slot");
@@ -193,9 +512,10 @@ function paintTabletsSlot(blank, kind){
   if(kind === "hit" && blank){
     slot.textContent = blank.a;
     slot.classList.add("glow");
-  } else {
-    slot.textContent = "— — —";
+    return;
   }
+  /* The letters of the word being typed stand in the slot until it lands. */
+  slot.textContent = (R && R.tabletTyped) ? R.tabletTyped : "— — —";
 }
 function tabletsShowFracture(){
   const f = $("tablets-fracture");
@@ -220,6 +540,8 @@ function paintTabletsTablet(answer){
    the active gap line visible after every repaint. No-op on desktop
    (nothing overflows) and in tests (shim no-op). */
 function tabletsKeepGapInView(){
+  /* R1: the roll keeps the step in view; scrollIntoView would fight its transform. */
+  if($("tablets-roll")) return;
   try{
     const verse = $("tablets-verse");
     if(!verse || !verse.children || verse.children.length < 2) return;
@@ -356,8 +678,11 @@ function paintTabletsHud(){
   paintTabletsProgressStats(pct, rec);
   paintTabletsTier();
   paintTabletsSurge();
+  paintTabletsCombo();
   paintTabletsIllumBtn();
   paintTabletsTutorialCallout();
+  const paceEl = $("tablets-pace-tag");
+  if(paceEl) paceEl.textContent = tabletsPaceLabel(Tablets.paceOf ? Tablets.paceOf(tabletsChapter()) : 1);
 }
 function tabletsOptsForBlank(){
   const blank = tabletsGapBlank();
@@ -367,6 +692,32 @@ function tabletsOptsForBlank(){
   R.tabletOpts = Tablets.options(blank);
   R.tabletOptsIdx = key;
   return R.tabletOpts;
+}
+/* D: the lamps wear the arcade's seals — three diamonds that crack as they spend. */
+function tabletsSealsMarkup(left, total){
+  /* G3/G4: the smoke and the glow ride the seals; the tutorial and reduced motion never show them. */
+  const run = (typeof R !== "undefined" && R) || {};
+  const quiet = tabletsUntimed();
+  return tabletsSealMarks(left, total, quiet ? -1 : run.tabletSnuffAt, !quiet && !!run.tabletGlory);
+}
+/* G3/G4: the seals' markup. The seal that just went dark smokes; the lit seals glow at the Hold's finish. */
+function tabletsSealMarks(left, total, snuffAt, glory){
+  let out = "";
+  /* FX9: one seal per lamp the mode starts with (Judgment wears one). */
+  for(let i = 0; i < (total || 1); i++){
+    let cls = i < left ? "" : " cracked";
+    if(i === snuffAt) cls += " snuff";
+    if(glory && i < left) cls += " glory";
+    out += '<i class="tablets-seal' + cls + '"></i>';
+  }
+  return out;
+}
+function tabletsPaceLabel(pace){
+  return ["Pace I", "Pace II", "Pace III"][Math.min(3, Math.max(1, Math.round(pace) || 1)) - 1];
+}
+/* D: the ladder marker reads the same rise as the roll — 0 at the entry line, 100 at The Mark. */
+function tabletsLadderTop(rise){
+  return (1 - rise) * 100;
 }
 function paintTabletsPowers(){
   const illum = $("tablets-illum");
@@ -390,9 +741,10 @@ function paintTabletsPowers(){
   const lamps = $("tablets-lamps");
   if(lamps){
     const left = Math.max(0, (R.tabletLives || 1) - (R.tabletMiss || 0));
-    const lab = $("tablets-lamps-n");
-    if(lab && lamps.children && lamps.children.indexOf && lamps.children.indexOf(lab) >= 0) lab.textContent = String(left);
-    else lamps.textContent = "Lamps ×" + left;
+    lamps.dataset.lampsLeft = String(left);
+    lamps.innerHTML = tabletsSealsMarkup(left, R.tabletLives || 1);
+    /* FX9: screen readers hear the lamp count, not the seal glyphs. */
+    lamps.setAttribute("aria-label", "Lamps: " + left + " lit");
     lamps.classList.toggle("low", left <= 1);
   }
 }
@@ -411,7 +763,7 @@ function paintTabletsTray(){
   const blank = tabletsGapBlank();
   if(!blank) return;
   const grey = tabletsGreyWords();
-  const badges = ["A", "B", "C", "D"];
+  const badges = ["1", "2", "3", "4", "5", "6"];
   tabletsOptsForBlank().forEach(function(word, i){
     const b = document.createElement("button");
     b.type = "button";
@@ -460,8 +812,12 @@ function tabletsTrueStone(){
   }
   return null;
 }
+/* FX3: the powers answer only while the run is live and no carve or miss is resolving. */
+function tabletsPowerReady(){
+  return !!R && !R.ended && !R.paused && R.mode === "tablets" && !R.tabletResolving;
+}
 function tabletsIlluminate(){
-  if(!R || R.ended || R.paused || R.mode !== "tablets") return;
+  if(!tabletsPowerReady()) return;
   if(R.tabletHintedIdx === tabletsGapKey()){
     if(typeof toast === "function") toast("This blank is already lit");
     return;
@@ -470,8 +826,9 @@ function tabletsIlluminate(){
     if(typeof toast === "function") toast("No Illuminate left");
     return;
   }
+  const blank = tabletsGapBlank();
   const target = tabletsTrueStone();
-  if(!target) return;
+  if(!target || !blank) return;
   R.tabletHintedIdx = tabletsGapKey();
   R.powers.illum--;
   R.usedPower = true;
@@ -480,15 +837,19 @@ function tabletsIlluminate(){
   target.classList.add("revealed");
   setTimeout(function(){ try{ target.classList.remove("revealed"); }catch(e){} }, 2000);
   paintTabletsIllumBtn();
-  if(typeof toast === "function") toast("Illuminate — the true stone glows");
+  if(typeof toast === "function") toast("Illuminate — the true word is carved");
   if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
+  /* O4: the power carves the true word at the Carved grade. It counts for the
+     streak and the Favor, and it earns no typed bonus. */
+  R.tabletGrade = "carved";
+  tabletsPick(String(blank.a || ""));
 }
 function tabletsGreyWords(){
   if(R.tabletWinnowIdx === tabletsGapKey() && R.tabletWinnow) return R.tabletWinnow.slice();
   return [];
 }
 function tabletsWinnow(){
-  if(!R || R.ended || R.paused || R.mode !== "tablets") return;
+  if(!tabletsPowerReady()) return;
   if(R.tabletWinnowIdx === tabletsGapKey()){
     if(typeof toast === "function") toast("This blank is already winnowed");
     return;
@@ -504,11 +865,12 @@ function tabletsWinnow(){
   const decoys = opts.filter(function(w){
     return String(w).toLowerCase() !== String(blank.a).toLowerCase() && grey.indexOf(w) < 0;
   });
-  if(decoys.length < 1){
+  const take = Tablets.rules.winnowCount(decoys.length);
+  if(take < 1){
     if(typeof toast === "function") toast("Nothing left to winnow");
     return;
   }
-  R.tabletWinnow = decoys.slice(0, 2);
+  R.tabletWinnow = decoys.slice(0, take);
   R.tabletWinnowIdx = tabletsGapKey();
   R.powers.winnow--;
   R.usedPower = true;
@@ -528,7 +890,8 @@ function setTabletsPaused(on){
   }
   if(R.paused){
     stopTabletsLoop();
-  } else if(!R.tabletResolving){
+  } else {
+    stopTabletsLoop(); // FX2: resume restarts the loop, inside a resolve window too (one loop: stop first)
     R.tabletLast = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
     R.tabletRacing = true;
     if(typeof requestAnimationFrame === "function") R.tabletRaf = requestAnimationFrame(tabletsTick);
@@ -558,9 +921,7 @@ function tabletsPick(word){
 function tabletsApplyTrauma(amount){
   if(tabletsReduced()) return;
   R.trauma = Math.min(1, (R.trauma || 0) + (amount || 0.9));
-  if(typeof SAVE !== "undefined" && SAVE.set && SAVE.set.haptics && typeof navigator !== "undefined" && navigator.vibrate){
-    try{ navigator.vibrate([100, 50, 100]); }catch(e){}
-  }
+  /* FX12: the miss haptic is the miss's one pattern; the trauma only shakes the stage. */
 }
 function tabletsTickTrauma(dt){
   if(!(R.trauma > 0)){
@@ -589,8 +950,22 @@ function finishTabletsTutorial(){
   if(typeof openBrief === "function") openBrief("tablets");
 }
 function tabletsResolveMiss(){
+  const oldStreak = R.streak || 0;
   if(!R.tabletTutorial){
-    R.tabletMiss = (R.tabletMiss || 0) + 1;
+    /* D1: a miss spends a lamp and pushes the sand back. The rules decide
+       both; the run applies the verdict and keeps the lamp count. */
+    const lives = R.tabletLives || 1;
+    const lit = Math.max(0, lives - (R.tabletMiss || 0));
+    const max = R.tabletClockMax || tabletsClockMax() || 1;
+    const cracked = Tablets.rules.miss(lit, R.tabletMode === "judgment", Tablets.rules.progressOf(R.tabletClock, max));
+    R.tabletMiss = lives - cracked.lit;
+    R.tabletLampOut = !!cracked.ended;
+    R.tabletClock = max * (1 - cracked.progress);
+    /* G3: the seal that just went dark is the one at index cracked.lit; it smokes for 900 ms. */
+    const spent = cracked.lit < lit;
+    R.tabletSnuffAt = spent ? cracked.lit : -1;
+    if(spent) setTimeout(function(){ R.tabletSnuffAt = -1; }, 900);
+    tabletsLampFx(spent, cracked.lit);
     R.streak = 0;
     R.surge = Math.max(0, (R.surge || 0) - 25);
   }
@@ -600,34 +975,128 @@ function tabletsResolveMiss(){
   const failedGrid = $("tablets-grid");
   if(failedGrid) failedGrid.classList.add("locked");
   tabletsApplyTrauma(0.9);
+  /* E: the miss speaks in red. */
+  tabletsFlash("miss", false);
+  const missedSlot = $("tablets-slot");
+  if(missedSlot && missedSlot.getBoundingClientRect){
+    const r = missedSlot.getBoundingClientRect();
+    spawnTabletsSparks(r.left + r.width / 2, r.top + r.height / 2, 26, "255,77,61");
+  }
+  tabletsMissHaptic();
   const picked = tabletsStoneButtons().filter(function(b){ return b.classList && b.classList.contains("selected"); })[0];
   if(picked) picked.classList.add("shatter");
+  tabletsComboBreak(oldStreak);
   paintTabletsHud();
 }
-function tabletsHitFavor(){
-  const t = tabletsTier(R.streak || 0);
-  const mult = t.mult * (R.surgeOn ? 3 : 1) * (R.tabletTrial ? 2.5 : 1);
-  return Math.round((120 + (R.tabletClock || 0) * 8) * mult);
+/* D4/O1: the arcade grade ids wear the game's words. */
+const TABLET_GRADE_NAMES = { divine:"Fresh sand", sacred:"Sure", carved:"Carved", clutch:"Last grain" };
+function tabletsGradeName(id){
+  return TABLET_GRADE_NAMES[id] || "Sure";
 }
-function tabletsChargeSurge(elapsed){
-  if(R.tabletTutorial) return;
-  /* Steps now carve 2–4 gaps each, so each gap charges roughly half the
-     old per-blank rate — Surge stays earned, not ambient. */
-  const add = elapsed < 4 ? 17 : 9;
-  R.surge = Math.min(100, (R.surge || 0) + add);
+/* The live run grades every carve from the sand that is left. The rules own
+   the numbers (grade band, combo, Surge x2); the run only reads them. */
+function tabletsCarve(){
+  const max = R.tabletClockMax || tabletsClockMax() || 1;
+  return Tablets.rules.carve({
+    progress: Tablets.rules.progressOf(R.tabletClock, max),
+    streak: R.streak || 0,
+    surge: !!R.surgeOn,
+    typed: !!R.tabletTypedHit,
+    grade: R.tabletGrade || null
+  });
+}
+/* O2: the carve's points are the Favor. Trial stays an outer 2.5x. */
+function tabletsHitFavor(carve){
+  return Math.round((carve.points || 0) * (R.tabletTrial ? 2.5 : 1));
+}
+/* The popup names the grade, and the milestone when the carve reaches one
+   (D4: a Favor popup, so the blessing banner stays the blessing's). The
+   tutorial stays ungraded. */
+function tabletsScoreText(carve, favor){
+  if(R.tabletTutorial) return "+" + favor + " FAVOR";
+  const grade = tabletsGradeName(carve.grade);
+  if(carve.milestone) return grade + " · " + tabletsMilestoneName(carve.milestone.streak) + " · +" + favor + " FAVOR";
+  return grade + " · +" + favor + " FAVOR";
+}
+/* D4: the three milestones wear the game's names. */
+function tabletsMilestoneName(streak){
+  if(streak >= 50) return "Jubilee";
+  if(streak >= 25) return "Double portion";
+  return "Tithe";
+}
+/* The rules' charge ids, in the words on the power buttons. */
+const TABLET_POWER_NAMES = { winnow:"Winnow", illuminate:"Illuminate" };
+function tabletsPowerName(id){
+  return TABLET_POWER_NAMES[id] || id;
+}
+/* A: the relic cards celebrate a recharge — a hop, a sheen sweep, a floating
+   "+1" pill, a count pop, sparks, and a beam from the engraved slot toward the
+   card. Reduced motion skips all of it; the toast always speaks. */
+function tabletsRelicEl(id){
+  return $(id === "winnow" ? "tablets-winnow" : "tablets-illum");
+}
+function tabletsCelebrateRecharge(gained){
+  if(tabletsReduced()) return;
+  const slot = $("tablets-slot");
+  gained.forEach(function(id){
+    const btn = tabletsRelicEl(id);
+    if(!btn) return;
+    btn.classList.remove("recharging");
+    if(btn.offsetWidth !== undefined) void btn.offsetWidth;
+    btn.classList.add("recharging");
+    const pill = document.createElement("span");
+    pill.className = "tablets-relic-pill";
+    pill.textContent = "✦ +1 " + tabletsPowerName(id);
+    btn.appendChild(pill);
+    setTimeout(function(){ try{ pill.remove(); }catch(e){} }, 1150);
+    setTimeout(function(){ btn.classList.remove("recharging"); }, 950);
+    if(slot && btn.getBoundingClientRect){
+      const s = slot.getBoundingClientRect();
+      const b = btn.getBoundingClientRect();
+      spawnTabletsBeam(s.left + s.width / 2, s.top + s.height / 2, b.left + b.width / 2, b.top + b.height / 2);
+      spawnTabletsSparks(b.left + b.width / 2, b.top + b.height / 2, 12);
+    }
+  });
+}
+/* D2: the streak gives the charges back, and the rules decide how. */
+function tabletsRecharge(carve){
+  const award = Tablets.rules.recharge({ winnow:R.powers.winnow || 0, illuminate:R.powers.illum || 0 }, R.streak, carve.milestone);
+  R.powers.winnow = award.charges.winnow;
+  R.powers.illum = award.charges.illuminate;
+  if(!award.gained.length) return;
+  paintTabletsPowers();
+  tabletsCelebrateRecharge(award.gained);
+  if(typeof toast === "function") toast("Restored · " + award.gained.map(tabletsPowerName).join(" · "));
 }
 function tabletsResolveHit(){
+  /* G4: the final carve and the streak before this hit are read before the run moves on. */
+  const finalCarve = tabletsIsFinalCarve();
+  const oldStreak = R.streak || 0;
   R.correct = (R.correct || 0) + 1;
   R.score = (R.score || 0) + 1;
-  R.streak = (R.streak || 0) + 1;
+  /* The carve reads the streak before this hit and returns the next one. */
+  const carve = tabletsCarve();
+  R.streak = carve.streak;
   R.best = Math.max(R.best || 0, R.streak);
-  const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
-  tabletsChargeSurge((now - (R.tabletBlankStart || now)) / 1000);
-  const favor = tabletsHitFavor();
+  if(!R.tabletTutorial) R.surge = Math.min(100, (R.surge || 0) + carve.fill);
+  const favor = tabletsHitFavor(carve);
   R.favor = (R.favor || 0) + favor;
   const slot = $("tablets-slot");
-  spawnTabletsScorePopup("+" + favor + " FAVOR", slot);
+  spawnTabletsScorePopup(tabletsScoreText(carve, favor), slot);
   if(typeof Snd !== "undefined" && Snd.carve) Snd.carve();
+  /* E: the juice — hold, flash, kick, speak. */
+  R.tabletHitstop = tabletsHitstopMs(carve);
+  tabletsFlash("gold", !!carve.milestone);
+  tabletsKick("tablets-favor");
+  tabletsKick("tablets-streak");
+  tabletsCarveHaptic(carve);
+  /* G1: the carve note, the kick and the burst. */
+  tabletsPlayCarveNote(oldStreak);
+  tabletsCarveKick(carve);
+  tabletsCarveBurst(carve);
+  /* G2: the combo meter pops when the combo climbs and blazes once per streak. */
+  tabletsComboCue(oldStreak, carve.streak);
+  if(carve.milestone) tabletsMilestoneBanner(carve.milestone.streak, favor);
   tabletsReact(true);
   const grid = $("tablets-grid");
   if(grid) grid.classList.add("locked");
@@ -638,13 +1107,18 @@ function tabletsResolveHit(){
     tabletsPulseSpeech();
     tabletsPlayGoldChime();
   });
-  if(!R.tabletTutorial) tabletsRollBlessing();
+  if(finalCarve) tabletsHoldFinale();
+  if(!R.tabletTutorial){
+    tabletsRollBlessing();
+    tabletsRecharge(carve);
+  }
 }
 function tabletsResolve(ok){
   if(!R || R.ended || R.paused || R.mode !== "tablets" || R.tabletResolving) return;
   R.tabletResolving = true;
   R.attempts = (R.attempts || 0) + 1;
-  setTimeout(function(){ tabletsFinishResolve(ok); }, ok ? 1000 : 800);
+  const token = R.tabletRunToken;
+  setTimeout(function(){ if(R.tabletRunToken === token) tabletsFinishResolve(ok); }, ok ? 1000 : 800);
   if(!ok){ tabletsResolveMiss(); return; }
   tabletsResolveHit();
 }
@@ -656,15 +1130,26 @@ function tabletsResetBlankAids(){
   R.tabletOpts = null;
   R.tabletGrey = [];
   R.tabletWinnow = [];
+  R.tabletTyped = "";
+  R.tabletTypedHit = false;
+  R.tabletGrade = null;
   R.tabletHintedIdx = -1;
   R.tabletWinnowIdx = -1;
+  R.tabletHeartT = 0;
   R.tabletBlankStart = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+}
+/* P3: the chapter's last step. Returns true when the run is over; an Endless run reads on instead. */
+function tabletsChapterDone(){
+  if(R.tabletTutorial){ finishTabletsTutorial(); return true; }
+  if(R.tabletMode === "endless"){ tabletsNextReading(); return false; }
+  if(typeof endRun === "function") endRun("complete");
+  return true;
 }
 function tabletsFinishResolve(ok){
   if(!R || R.ended || R.mode !== "tablets" || !R.tabletResolving) return;
   R.tabletResolving = false;
   if(!ok){
-    if(R.tabletTutorial || (R.tabletMiss || 0) < (R.tabletLives || 1)){
+    if(R.tabletTutorial || !R.tabletLampOut){
       tabletsResetBlankAids();
       tabletsUnlockGrid();
       paintTabletsHud();
@@ -684,13 +1169,12 @@ function tabletsFinishResolve(ok){
     R.gapIdx = 0;
   }
   tabletsResetBlankAids();
-  if(R.tabletIdx >= ((R && R.tabletSteps) || []).length){
-    if(R.tabletTutorial) finishTabletsTutorial();
-    else if(typeof endRun === "function") endRun("complete");
-    return;
-  }
+  if(R.tabletIdx >= ((R && R.tabletSteps) || []).length && tabletsChapterDone()) return;
   if(!R.tabletTutorial){
-    R.tabletClock = tabletsClockMax();
+    /* FX7: a banked Manna Jar adds its 15 s to the fresh sand, then the bank is spent. */
+    R.tabletClockMax = tabletsStepSeconds();
+    R.tabletClock = R.tabletClockMax + (R.tabletBankSand || 0);
+    R.tabletBankSand = 0;
     R.tabletLastWarnSec = -1;
   }
   tabletsUnlockGrid();
@@ -699,7 +1183,8 @@ function tabletsFinishResolve(ok){
   paintTabletsTray();
 }
 function tabletsBurnSand(dt){
-  if(!R || R.ended || R.surgeOn || tabletsUntimed()) return;
+  /* FX1: the sand waits out a resolve window, so a Last grain is not lost to the hit's 1 s hold. */
+  if(!R || R.ended || R.surgeOn || R.tabletResolving || tabletsUntimed()) return;
   const rate = R.tabletTrial ? 1.35 : 1;
   R.tabletClock = Math.max(0, (R.tabletClock || 0) - dt * rate);
   const sec = Math.floor(R.tabletClock);
@@ -723,28 +1208,83 @@ function tabletsTick(now){
   if(!R || R.ended || R.paused || R.mode !== "tablets" || !R.tabletRacing) return;
   const dt = Math.min((now - (R.tabletLast || now)) / 1000, 0.1);
   R.tabletLast = now;
+  /* E: the world holds its breath after a carve (30/55/85 ms). */
+  if(R.tabletHitstop > 0){
+    R.tabletHitstop = Math.max(0, R.tabletHitstop - dt * 1000);
+    R.tabletRaf = requestAnimationFrame(tabletsTick);
+    return;
+  }
   if(R.surgeOn) tabletsTickSurge(dt);
   if(!tabletsUntimed() && !R.surgeOn) tabletsBurnSand(dt);
   if(R.ended) return;
+  tabletsHeartbeat(dt);
   tabletsTickTrauma(dt);
   drawTabletsFx(dt);
   paintTabletsClock();
+  const ladderMarker = $("tablets-ladder-marker");
+  if(ladderMarker) ladderMarker.style.top = tabletsLadderTop(tabletsRiseOf()).toFixed(2) + "%";
   paintTabletsSurge();
   R.tabletRaf = requestAnimationFrame(tabletsTick);
 }
+/* P3: an Endless run reads the chapter again; the reading names count the passes. */
+const TABLET_READINGS = ["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth"];
+function tabletsReadingName(n){
+  const word = TABLET_READINGS[n - 1];
+  return word ? word + " reading" : "Reading " + n;
+}
+/* P3: an Endless step's sand is ramped by the words carved so far (the rules' blankSeconds). */
+function tabletsStepSeconds(){
+  const base = tabletsClockMax();
+  if(R.tabletMode !== "endless") return base;
+  return Tablets.rules.blankSeconds(base, R.correct || 0, R.streak || 0, false);
+}
+/* P3: finishing a reading Holds the chapter; the same words come round again on shorter sand. */
+function tabletsNextReading(){
+  R.tabletEndlessHeld = true;
+  R.tabletPass = (R.tabletPass || 1) + 1;
+  R.tabletIdx = 0;
+  R.gapIdx = 0;
+  spawnTabletsScorePopup(tabletsReadingName(R.tabletPass), $("tablets-slot"));
+}
+/* P2: the footer names the lamps this run really has. */
+const TABLET_MODE_NOTES = {
+  hold: "Three lamps guard the Hold",
+  judgment: "One lamp guards the Hold",
+  endless: "Three lamps · the chapter reads again"
+};
+function tabletsPaintModeNote(){
+  const el = $("tablets-hold-note");
+  if(!el) return;
+  const mode = R.tabletTutorial ? "hold" : R.tabletMode;
+  el.textContent = TABLET_MODE_NOTES[mode] || TABLET_MODE_NOTES.hold;
+}
 function startTabletsLoop(){
   stopTabletsLoop();
+  /* FX6: each run takes a new token; a finish timer from an earlier run sees the change and stands down. */
+  R.tabletRunToken = (R.tabletRunToken || 0) + 1;
   const ch = tabletsChapter();
   R.tabletIdx = 0;
   R.gapIdx = 0;
   R.tabletSteps = tabletsBuildSteps(ch, tabletsGapCount());
-  R.tabletClock = tabletsClockMax();
+  R.tabletClock = tabletsStepSeconds();
   R.tabletClockMax = R.tabletClock;
+  R.tabletPass = 1;
+  /* R1: the first paint of a run snaps the roll. */
+  R.tabletRollSnap = true;
+  R.tabletRollY = 0;
+  R.tabletEndlessHeld = false;
   R.tabletTimeout = false;
   R.tabletLastWarnSec = -1;
   R.tabletMiss = 0;
-  R.tabletLives = 2;
+  R.tabletLives = Tablets.rules.lampsFor(R.tabletMode);
+  R.tabletLampOut = false;
   R.tabletResolving = false;
+  /* FX11: a new run starts with no hitstop, no milestone banner and no banked Manna sand. */
+  R.tabletHitstop = 0;
+  R.tabletBankSand = 0;
+  clearTimeout(R.tabletMilestoneTimer);
+  const banner = $("tablets-milestone");
+  if(banner) banner.classList.remove("active");
   R.favor = 0;
   R.surge = 0;
   R.surgeOn = false;
@@ -761,6 +1301,7 @@ function startTabletsLoop(){
   paintTabletsHud();
   paintTabletsTablet();
   paintTabletsTray();
+  tabletsPaintModeNote();
   R.tabletLast = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
   if(typeof requestAnimationFrame === "function") R.tabletRaf = requestAnimationFrame(tabletsTick);
 }
@@ -820,23 +1361,69 @@ function bindTabletsChrome(){
     window.addEventListener("resize", tabletsOnResize);
   }
 }
+/* The word being carved, lower-cased, letters only: a space or an
+   apostrophe ("All hail", "eagle's") is not typed. */
+function tabletsNeedWord(){
+  const blank = tabletsGapBlank();
+  return blank ? String(blank.a || "").toLowerCase().replace(/[^a-z]/g, "") : "";
+}
+/* A power key fires only while nothing is typed and the word cannot start
+   with that letter; otherwise the letter is typing. */
+function tabletsPowerKey(k){
+  if((R && R.tabletTyped) || (k !== "i" && k !== "w" && k !== "s")) return false;
+  const need = tabletsNeedWord();
+  if(k === need.charAt(0)) return false;
+  if(k === "i") tabletsIlluminate();
+  else if(k === "w") tabletsWinnow();
+  else tabletsSurge();
+  return true;
+}
+/* A wrong letter is ignored. It is not a miss. 1-6 pick a tablet; letters
+   type the word; Backspace takes the last letter back. */
+function tabletsTypeKey(k){
+  const blank = tabletsGapBlank();
+  const need = tabletsNeedWord();
+  const typed = (R && R.tabletTyped) || "";
+  if(k === "backspace"){
+    R.tabletTyped = typed.slice(0, -1);
+    paintTabletsSlot(blank, "");
+    return true;
+  }
+  if(k.length !== 1 || k < "a" || k > "z") return false;
+  if(need.indexOf(typed + k) !== 0) return true;
+  R.tabletTyped = typed + k;
+  tabletsPlayScribeTick(typed.length / Math.max(1, need.length));
+  paintTabletsSlot(blank, "");
+  if(R.tabletTyped === need && !R.tabletResolving){
+    R.tabletTypedHit = true;
+    tabletsResolve(true);
+  }
+  return true;
+}
+/* FX4: chords, keys a field or an overlay already took, and held letters or digits are not ours. */
+function tabletsKeyIgnored(e, k){
+  if(e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return true;
+  if(e.repeat && /^[a-z0-9]$/.test(k)) return true;
+  const el = (e.target && e.target.tagName) ? e.target : document.activeElement;
+  return !!(el && (/input|select|textarea/i.test(el.tagName) || el.isContentEditable));
+}
 function tabletsOnKey(e){
   if(typeof currentView === "undefined" || currentView !== "tablets") return;
   if(!R || R.ended || R.mode !== "tablets") return;
   const k = (e.key || "").toLowerCase();
+  if(tabletsKeyIgnored(e, k)) return;
   if(R.paused){
     if(k === "enter" || k === " "){ e.preventDefault(); setTabletsPaused(false); }
     return;
   }
-  if(k === "i"){ e.preventDefault(); tabletsIlluminate(); return; }
-  if(k === "w"){ e.preventDefault(); tabletsWinnow(); return; }
-  if(k === "s"){ e.preventDefault(); tabletsSurge(); return; }
-  const letters = { a:0, b:1, c:2, d:3 };
-  let n = parseInt(e.key, 10);
-  if(k in letters) n = letters[k] + 1;
-  if(!(n >= 1 && n <= 4)) return;
-  const btn = tabletsStoneButtons()[n - 1];
-  if(btn && !btn.disabled) tabletsPick(btn.dataset.word);
+  if(tabletsPowerKey(k)){ e.preventDefault(); return; }
+  const n = parseInt(e.key, 10);
+  if(n >= 1 && n <= 6){
+    const btn = tabletsStoneButtons()[n - 1];
+    if(btn && !btn.disabled) tabletsPick(btn.dataset.word);
+    return;
+  }
+  if(tabletsTypeKey(k)) e.preventDefault();
 }
 function tabletsOnResize(){
   if(typeof currentView !== "undefined" && currentView === "tablets") tabletsFxSize();
@@ -882,13 +1469,17 @@ function tabletsRollBlessing(){
   if(Math.random() >= 0.22) return;
   const picks = [
     { icon:"🏺", text:"Manna Jar Discovered (+15s Sand)", apply:function(){
-      const cap = R.tabletClockMax || tabletsClockMax();
-      R.tabletClock = Math.min(cap, (R.tabletClock || 0) + 15);
+      /* FX7: the jar banks its 15 s for the next step; the re-arm adds it to the fresh sand. */
+      R.tabletBankSand = 15;
     } },
-    { icon:"🕯️", text:"Golden Censer (+1 Lamp Restored)", apply:function(){ R.tabletLives = (R.tabletLives || 2) + 1; } },
+    { icon:"🕯️", text:"Golden Censer (+1 Lamp Restored)", apply:function(){ if((R.tabletMiss || 0) > 0) R.tabletMiss -= 1; } },
     { icon:"✨", text:"Shekinah Glory (+35% Surge Charge)", apply:function(){ R.surge = Math.min(100, (R.surge || 0) + 35); } }
   ];
-  const b = picks[Math.floor(Math.random() * picks.length)];
+  /* P2: in Judgment the Censer leaves the pool, so the HUD never shows a lamp the run cannot use. FX8: with every lamp
+     lit the Censer has nothing to relight, so it leaves the pool too. */
+  const lampOut = (R.tabletMiss || 0) > 0;
+  const pool = picks.filter(function(p){ return p.text.indexOf("Golden Censer") < 0 || (lampOut && R.tabletMode !== "judgment"); });
+  const b = pool[Math.floor(Math.random() * pool.length)];
   b.apply();
   const el = $("tablets-blessing");
   const icon = $("tablets-blessing-icon");
@@ -927,7 +1518,7 @@ function tabletsCycleStone(){
   tabletsApplyStone(next);
   if(typeof toast === "function") toast("Stone · " + (TABLET_STONE_NAMES[next] || next));
 }
-var tabletsFx = { ctx:null, canvas:null, embers:[], sparks:[], w:0, h:0 };
+var tabletsFx = { ctx:null, canvas:null, embers:[], sparks:[], glyphs:[], beams:[], w:0, h:0 };
 function tabletsFxSize(){
   const canvas = tabletsFx.canvas || $("tablets-fx");
   const stage = $("tablets-stage");
@@ -940,6 +1531,8 @@ function tabletsFxInit(){
   tabletsFx.ctx = null;
   tabletsFx.embers = [];
   tabletsFx.sparks = [];
+  tabletsFx.glyphs = [];
+  tabletsFx.beams = [];
   if(tabletsReduced()) return;
   const canvas = $("tablets-fx");
   if(!canvas || typeof canvas.getContext !== "function") return;
@@ -951,6 +1544,8 @@ function tabletsFxInit(){
   tabletsFxSize();
   let i = 0;
   for(; i < 8; i++) tabletsFx.embers.push(tabletsFxMakeEmber(true));
+  /* V2: twelve signs across the three depth layers; none in reduced motion (the early return above). */
+  for(i = 0; i < 12; i++) tabletsFx.glyphs.push(tabletsMakeGlyph(i % 3, tabletsFx.w || 800, tabletsFx.h || 450, true));
 }
 function tabletsFxMakeEmber(randomY){
   return {
@@ -963,7 +1558,7 @@ function tabletsFxMakeEmber(randomY){
     max: 180 + Math.random() * 140
   };
 }
-function spawnTabletsSparks(x, y, count){
+function spawnTabletsSparks(x, y, count, color){
   if(!tabletsFx.ctx || tabletsReduced()) return;
   const n = count || 16;
   let i = 0;
@@ -973,9 +1568,102 @@ function spawnTabletsSparks(x, y, count){
     tabletsFx.sparks.push({
       x: x || tabletsFx.w / 2, y: y || tabletsFx.h * 0.45,
       vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.5,
-      size: 1.5 + Math.random() * 2.5, life: 1, decay: 0.03
+      size: 1.5 + Math.random() * 2.5, life: 1, decay: 0.03,
+      color: color || "255,225,130"
     });
   }
+}
+/* A: a one-shot conduit beam — energy flowing from the engraved slot toward a
+   relic card. The end point is clamped to the stage, which is where the canvas
+   ends; the beam dissolves before the tray. */
+function spawnTabletsBeam(x1, y1, x2, y2){
+  if(!tabletsFx.ctx || tabletsReduced()) return;
+  tabletsFx.beams.push({
+    x1:x1, y1:y1,
+    x2:x2, y2:Math.min(y2, (tabletsFx.h || 450) - 8),
+    life:1, decay:0.05
+  });
+}
+/* V2: faint cuneiform signs in three depth layers, behind the embers. */
+const TABLET_GLYPH_SPEED = [18, 28, 46];
+const TABLET_GLYPH_DEPTH = [0.35, 0.68, 1.18];
+const TABLET_GLYPH_ALPHA = [0.07, 0.11, 0.16];
+const TABLET_GLYPH_SURGE = 1.35;
+/* Each sign is a list of strokes [x1, y1, x2, y2, headSize, chevron] in a -1..1 box.
+   Order: DINGIR, DUB_TABLET, KA_WORD, ZI_SOUL, LUGAL_KING, PA_SCEPTER. */
+const TABLET_GLYPHS = [
+  [[-0.75,0,0.75,0,0.28,0],[0,-0.78,0,0.78,0.28,0],[-0.55,-0.55,0.55,0.55,0.24,0],[0.55,-0.55,-0.55,0.55,0.24,0]],
+  [[-0.72,-0.52,0.68,-0.52,0.26,0],[-0.72,0,0.58,0,0.24,0],[-0.72,0.52,0.68,0.52,0.26,0],[-0.45,-0.72,-0.45,0.72,0.25,0],[0.38,-0.72,0.38,0.72,0.25,0]],
+  [[-0.75,-0.4,0.45,-0.4,0.26,0],[-0.75,0.4,0.45,0.4,0.26,0],[-0.52,-0.68,-0.52,0.68,0.26,0],[0.1,-0.1,0.4,-0.1,0.28,1],[0.55,-0.68,0.55,0.68,0.28,0]],
+  [[-0.7,-0.32,0.65,-0.32,0.25,0],[-0.7,0.32,0.65,0.32,0.25,0],[-0.25,-0.7,-0.25,0.7,0.25,0],[0.25,-0.7,0.25,0.7,0.25,0],[0.52,0,0.78,0,0.28,1]],
+  [[-0.78,-0.48,0.72,-0.48,0.26,0],[-0.78,0,0.72,0,0.26,0],[-0.78,0.48,0.72,0.48,0.26,0],[-0.45,-0.22,-0.15,-0.22,0.26,1],[0.48,-0.72,0.48,0.72,0.28,0]],
+  [[-0.72,-0.28,0.72,-0.28,0.26,0],[-0.72,0.28,0.72,0.28,0.26,0],[0,-0.75,0,0.75,0.28,0]]
+];
+/* V2: Pace I/II/III speed; Surge speeds the signs up. */
+function tabletsGlyphSpeed(pace, surge){
+  const p = Math.min(3, Math.max(1, Math.round(pace) || 1));
+  return TABLET_GLYPH_SPEED[p - 1] * (surge ? TABLET_GLYPH_SURGE : 1);
+}
+function tabletsMakeGlyph(layer, w, h, randomY){
+  const size = 16 + layer * 12;
+  return {
+    layer: layer, x: Math.random() * w, y: randomY ? Math.random() * h : h + size,
+    size: size, sign: Math.floor(Math.random() * TABLET_GLYPHS.length)
+  };
+}
+/* V2: a sign drifts up at its depth; one that leaves the top comes back below the stage. */
+function tabletsGlyphStep(g, dt, speed, w, h){
+  g.y -= speed * TABLET_GLYPH_DEPTH[g.layer] * dt;
+  if(g.y < -g.size){
+    g.y = h + g.size;
+    g.x = Math.random() * w;
+    g.sign = Math.floor(Math.random() * TABLET_GLYPHS.length);
+  }
+  return g;
+}
+function tabletsGlyphHead(ctx, x, y, dx, dy, size){
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len, uy = dy / len;
+  const px = -uy * size * 0.5, py = ux * size * 0.5;
+  ctx.beginPath();
+  ctx.moveTo(x + ux * size, y + uy * size);
+  ctx.lineTo(x + px, y + py);
+  ctx.lineTo(x - px, y - py);
+  ctx.closePath();
+  ctx.fill();
+}
+function tabletsDrawGlyphStroke(ctx, g, s){
+  const half = g.size / 2;
+  const x1 = g.x + s[0] * half, y1 = g.y + s[1] * half;
+  const x2 = g.x + s[2] * half, y2 = g.y + s[3] * half;
+  const hs = s[4] * half;
+  ctx.beginPath();
+  if(s[5]){
+    ctx.moveTo(x1 + hs, y1 - hs);
+    ctx.lineTo(x1, y1);
+    ctx.lineTo(x1 + hs, y1 + hs);
+    ctx.stroke();
+    return;
+  }
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  tabletsGlyphHead(ctx, x1, y1, x1 - x2, y1 - y2, hs);
+}
+function drawTabletsGlyph(ctx, g){
+  ctx.strokeStyle = "rgba(229,181,88," + TABLET_GLYPH_ALPHA[g.layer] + ")";
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.lineWidth = Math.max(1, g.size * 0.07);
+  (TABLET_GLYPHS[g.sign] || []).forEach(function(s){ tabletsDrawGlyphStroke(ctx, g, s); });
+}
+function drawTabletsGlyphs(dt){
+  const ctx = tabletsFx.ctx;
+  const pace = Tablets.paceOf ? Tablets.paceOf(tabletsChapter()) : 1;
+  const speed = tabletsGlyphSpeed(pace, !!R.surgeOn);
+  tabletsFx.glyphs.forEach(function(g){
+    tabletsGlyphStep(g, dt, speed, tabletsFx.w, tabletsFx.h);
+    drawTabletsGlyph(ctx, g);
+  });
 }
 function drawTabletsFx(dt){
   const ctx = tabletsFx.ctx;
@@ -983,10 +1671,11 @@ function drawTabletsFx(dt){
   const w = tabletsFx.w;
   const h = tabletsFx.h;
   ctx.clearRect(0, 0, w, h);
-  if(typeof R !== "undefined" && R && typeof R.tabletClock === "number" && R.tabletClock <= 5 && !tabletsUntimed()){
-    return;
-  }
-  tabletsFx.embers.forEach(function(p){
+  /* FX5: in the last 5 s the glyphs and embers rest; the danger wash and the sparks still draw and age. */
+  const late = typeof R !== "undefined" && R && typeof R.tabletClock === "number" && R.tabletClock <= 5 && !tabletsUntimed();
+  if(!late) drawTabletsGlyphs(dt);
+  drawTabletsDanger(ctx, w, h);
+  (late ? [] : tabletsFx.embers).forEach(function(p){
     p.x += p.vx * (dt * 60);
     p.y += p.vy * (dt * 60);
     p.life += dt * 60;
@@ -994,12 +1683,27 @@ function drawTabletsFx(dt){
       const n = tabletsFxMakeEmber(false);
       p.x = n.x; p.y = n.y; p.vx = n.vx; p.vy = n.vy; p.size = n.size; p.life = 0; p.max = n.max;
     }
-    const a = Math.sin((p.life / p.max) * Math.PI) * 0.65;
+    const a = Math.sin((p.life / p.max) * Math.PI) * tabletsEmberAlpha(!!R.surgeOn);
     ctx.fillStyle = "hsla(42,95%,65%," + a + ")";
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
     ctx.fill();
   });
+  for(let i = tabletsFx.beams.length - 1; i >= 0; i--){
+    const b = tabletsFx.beams[i];
+    b.life -= b.decay * (dt * 60);
+    if(b.life <= 0){ tabletsFx.beams.splice(i, 1); continue; }
+    const mx = (b.x1 + b.x2) / 2, my = (b.y1 + b.y2) / 2 - 40;
+    ctx.strokeStyle = "rgba(255,236,170," + (b.life * 0.85).toFixed(3) + ")";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(b.x1, b.y1);
+    ctx.quadraticCurveTo(mx, my, b.x2, b.y2);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(255,255,255," + (b.life * 0.9).toFixed(3) + ")";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
   for(let i = tabletsFx.sparks.length - 1; i >= 0; i--){
     const s = tabletsFx.sparks[i];
     s.x += s.vx * (dt * 60);
@@ -1007,7 +1711,7 @@ function drawTabletsFx(dt){
     s.vy += 0.15;
     s.life -= s.decay * (dt * 60);
     if(s.life <= 0){ tabletsFx.sparks.splice(i, 1); continue; }
-    ctx.fillStyle = "rgba(255,225,130," + s.life + ")";
+    ctx.fillStyle = "rgba(" + (s.color || "255,225,130") + "," + s.life + ")";
     ctx.beginPath();
     ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
     ctx.fill();

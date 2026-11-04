@@ -161,6 +161,7 @@ fun TabletsRoute(
                     tutorial = viewModel.tutorial,
                     tutorialPrompt = viewModel.tutorialPrompt,
                     favor = viewModel.favor,
+                    hitLine = viewModel.hitLine,
                     streak = viewModel.streak,
                     paused = viewModel.paused,
                     confirmAbandon = viewModel.confirmAbandon,

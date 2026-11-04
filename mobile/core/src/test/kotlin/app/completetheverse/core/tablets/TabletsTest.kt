@@ -102,7 +102,7 @@ class TabletsTest {
         assertEquals(want91, p91.blanks.map { it.a })
         (p23.blanks + p91.blanks).forEach { blank ->
             val opts = Tablets.options(blank, rng())
-            assertEquals(4, opts.size)
+            assertEquals(6, opts.size)
             assertTrue(blank.a in opts)
             assertTrue(blank.d.size >= 3)
         }
@@ -150,26 +150,27 @@ class TabletsTest {
     }
 
     @Test
-    fun everyChapterHasFourUniqueStones() {
+    fun everyChapterHasSixUniqueStones() {
         for (ch in bank.chapters) {
             assertTrue(ch.blanks.size >= 8, ch.id)
             for (blank in ch.blanks) {
                 val opts = Tablets.options(blank, rng())
-                assertEquals(4, opts.size, "${ch.id} ${blank.r}")
+                assertEquals(6, opts.size, "${ch.id} ${blank.r}")
                 assertTrue(blank.a in opts)
                 assertTrue(blank.d.size >= 3)
-                val uniq = (listOf(blank.a) + blank.d.take(3)).map { it.lowercase() }.toSet()
-                assertEquals(4, uniq.size, "${ch.id} ${blank.r}")
+                val uniq = (listOf(blank.a) + blank.d.take(5)).map { it.lowercase() }.toSet()
+                assertEquals(6, uniq.size, "${ch.id} ${blank.r}")
             }
         }
     }
 
     @Test
-    fun heldFlagRequiresCleanFullRun() {
-        assertTrue(Tablets.held(0, 11, 11))
-        assertFalse(Tablets.held(1, 11, 11))
-        assertFalse(Tablets.held(0, 4, 11))
-        assertFalse(Tablets.held(0, 0, 0))
+    fun heldFlagFollowsTheLamps() {
+        assertTrue(Tablets.held(0, 2, 11, 11))
+        assertTrue(Tablets.held(1, 2, 11, 11))
+        assertFalse(Tablets.held(2, 2, 11, 11))
+        assertFalse(Tablets.held(0, 2, 4, 11))
+        assertFalse(Tablets.held(0, 2, 0, 0))
     }
 
     @Test
@@ -181,10 +182,10 @@ class TabletsTest {
         assertEquals(2, session.currentStep.size)
         assertEquals(1, session.illum)
         assertEquals(2, session.winnow)
-        assertEquals(2, session.tabletLives)
+        assertEquals(3, session.tabletLives)
         holdAll(session)
         assertTrue(session.ended)
-        assertTrue(Tablets.held(session.tabletMiss, session.tabletIdx, session.tabletTotal))
+        assertTrue(Tablets.held(session.tabletMiss, session.tabletLives, session.tabletIdx, session.tabletTotal))
         val rec = Tablets.recordOf(session.save, "psalm23")
         assertTrue(rec.held)
         assertEquals(100, rec.best)
@@ -198,20 +199,24 @@ class TabletsTest {
     }
 
     @Test
-    fun oneMissIsNotHeldAndSecondMissShatters() {
+    fun firstTwoMissesContinueAndThirdMissShatters() {
         val session = start("psalm23")
-        val clock = session.tabletClock
+        assertEquals(3, session.lampsLeft)
         session.pick("fear")
         session.finishResolve()
         assertFalse(session.ended)
         assertEquals(1, session.tabletMiss)
         assertEquals(0, session.tabletIdx)
-        assertEquals(clock, session.tabletClock, 0.001)
+        assertEquals(22.0, session.tabletClock, 0.001)
+        assertEquals(2, session.lampsLeft)
+        session.pick("fear")
+        session.finishResolve()
+        assertFalse(session.ended)
         assertEquals(1, session.lampsLeft)
         session.pick("fear")
         session.finishResolve()
         assertTrue(session.ended)
-        assertFalse(Tablets.held(session.tabletMiss, session.tabletIdx, session.tabletTotal))
+        assertFalse(Tablets.held(session.tabletMiss, session.tabletLives, session.tabletIdx, session.tabletTotal))
         assertFalse(Tablets.recordOf(session.save, "psalm23").held)
         assertEquals("The tablet shattered", session.result?.kick)
         assertTrue(session.result!!.shattered)
@@ -246,12 +251,12 @@ class TabletsTest {
     }
 
     @Test
-    fun clockKeepsRacingAfterAHit() {
+    fun clockFreezesWhileAHitResolves() {
         val session = start("psalm23")
         session.pick("want")
         assertTrue(session.resolving)
         session.tick(1.0)
-        assertEquals(24.0, session.tabletClock, 0.001)
+        assertEquals(25.0, session.tabletClock, 0.001)
         session.finishResolve()
         assertEquals(25.0, session.tabletClock, 0.001)
         assertEquals(1, session.gapIdx)
@@ -322,7 +327,7 @@ class TabletsTest {
         assertEquals(0, session.illum)
         assertFalse(session.illuminate())
         holdAll(session)
-        assertTrue(Tablets.held(session.tabletMiss, session.tabletIdx, session.tabletTotal))
+        assertTrue(Tablets.held(session.tabletMiss, session.tabletLives, session.tabletIdx, session.tabletTotal))
     }
 
     @Test
@@ -366,5 +371,111 @@ class TabletsTest {
 
         assertEquals("kjv", Save.translation(Save.DEFAULT))
         assertFalse(Save.translationChosen(Save.DEFAULT))
+    }
+
+    @Test
+    fun carveGradesComboAndTheTithe() {
+        assertEquals(150, TabletsRules.carve(0.1, 0).points)
+        assertEquals("divine", TabletsRules.carve(0.1, 0).grade)
+        assertEquals(1, TabletsRules.carve(0.1, 0).streak)
+        val sure = TabletsRules.carve(0.6, 1)
+        assertEquals("sacred", sure.grade)
+        assertEquals(180, sure.points)
+        val tithe = TabletsRules.carve(0.1, 9)
+        assertEquals(1025, tithe.points)
+        assertEquals(10, tithe.milestone?.streak)
+        assertEquals(265, TabletsRules.carve(0.9, 2).points)
+        assertEquals("Tithe", TabletsRules.milestoneName(10))
+        assertEquals("Double portion", TabletsRules.milestoneName(25))
+        assertEquals("Jubilee", TabletsRules.milestoneName(50))
+        assertEquals("Last grain", TabletsRules.gradeName("clutch"))
+    }
+
+    @Test
+    fun missWinnowAndRechargeFollowTheRules() {
+        val pushed = TabletsRules.miss(3, 0.9)
+        assertEquals(2, pushed.lit)
+        assertFalse(pushed.ended)
+        assertEquals(0.45, pushed.progress, 0.001)
+        assertEquals(0.12, TabletsRules.miss(2, 0.2).progress, 0.001)
+        assertTrue(TabletsRules.miss(1, 0.5).ended)
+        assertEquals(3, TabletsRules.winnowCount(5))
+        assertEquals(2, TabletsRules.winnowCount(3))
+        assertEquals(0, TabletsRules.winnowCount(1))
+        assertEquals(listOf("winnow"), TabletsRules.recharge(0, 0, 5, null).gained)
+        assertEquals(listOf("winnow", "illuminate"), TabletsRules.recharge(0, 0, 10, null).gained)
+        val capped = TabletsRules.recharge(3, 3, 10, null)
+        assertEquals(3, capped.winnow)
+        assertEquals(3, capped.illum)
+        assertTrue(capped.gained.isEmpty())
+    }
+
+    @Test
+    fun twoMissesThenFinishingIsHeld() {
+        val session = start("psalm23")
+        session.pick("fear")
+        session.finishResolve()
+        session.pick("fear")
+        session.finishResolve()
+        assertFalse(session.ended)
+        assertEquals(1, session.lampsLeft)
+        holdAll(session)
+        assertTrue(session.ended)
+        assertEquals(2, session.tabletMiss)
+        assertTrue(session.result!!.held)
+    }
+
+    @Test
+    fun kjvBlankShowsSixDistinctTabletsIncludingTheAnswer() {
+        val blank = Tablets.chapter(bank, "psalm23").blanks[0]
+        val opts = Tablets.options(blank, rng())
+        assertEquals(6, opts.size)
+        assertEquals(6, opts.map { it.lowercase() }.toSet().size)
+        assertTrue(blank.a in opts)
+    }
+
+    @Test
+    fun carveDuringAHitResolveHoldsWhenTheSandRunsLow() {
+        val session = start("psalm23")
+        while (session.tabletIdx < session.steps.size - 1) {
+            session.pick(session.currentBlank!!.a)
+            session.finishResolve()
+        }
+        session.tick(24.7)
+        assertEquals(0.3, session.tabletClock, 0.001)
+        session.pick(session.currentBlank!!.a)
+        assertTrue(session.resolving)
+        session.tick(1.0)
+        assertFalse(session.ended)
+        session.finishResolve()
+        assertTrue(session.ended)
+        assertTrue(session.result!!.held)
+        assertFalse(session.result!!.timeout)
+    }
+
+    @Test
+    fun winnowGreysThreeAndIlluminateCarvesTheTrueWord() {
+        val session = start("psalm23")
+        assertTrue(session.winnow())
+        assertEquals(3, session.grey.size)
+        val lit = start("psalm23")
+        assertTrue(lit.illuminate())
+        assertTrue(lit.resolving)
+        assertEquals(1, lit.correct)
+        assertEquals("carved", lit.lastGrade)
+        assertEquals(100, lit.favor)
+        assertEquals(0, lit.illum)
+    }
+
+    @Test
+    fun aGreyDecoyCannotBePicked() {
+        val session = start("psalm23")
+        assertTrue(session.winnow())
+        val attemptsBefore = session.attempts
+        val lampsBefore = session.lampsLeft
+        session.pick(session.grey.first())
+        assertFalse(session.resolving)
+        assertEquals(attemptsBefore, session.attempts)
+        assertEquals(lampsBefore, session.lampsLeft)
     }
 }

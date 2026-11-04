@@ -116,8 +116,8 @@ const MODES = {
     desc:"David and Goliath in the valley of Elah. Twelve questions from 1 Samuel 17. Forty seconds each. Held only if none are wrong.",
     tagline:"Goliath · twelve questions · replay any time", info:[["12","Questions"],["40s","Clock"],["Held","None wrong"]] },
   tablets:{ key:"tablets", name:"Word Tablets", kick:"Fill the Word", atlas:false,
-    desc:"The other prove-it beside the road. Carve the missing Scripture word before the clock runs out. One miss shatters the Hold. Learn the prayer, then Hold Psalm 23 to open Psalm 91, then John 1.",
-    tagline:"Pace I–III · the hall", info:[["I–III","Pace"],["Hold","One miss"],["Prayer","Then the hall"]] },
+    desc:"The other prove-it beside the road. Carve the missing Scripture word before the clock runs out. Finish with a lamp still lit to Hold. Learn the prayer, then Hold Psalm 23 to open Psalm 91, then John 1.",
+    tagline:"Pace I–III · the hall", info:[["I–III","Pace"],["Hold","A lamp lit"],["Prayer","Then the hall"]] },
   "pilgrim-recall":{ key:"pilgrim-recall", name:"Pilgrim’s Recall", kick:"Typed from memory", hidden:true,
     desc:"A site you have already cleared, walked again with no options on the screen. Same place, assembled word for word.",
     tagline:"Assemble · cleared sites", info:[["8","Verses"],["Assemble","No options"],[modeClockLabel("pilgrim-recall"),"Clock"]] },
@@ -600,7 +600,10 @@ function startRunTabletState(mode, options){
     : (mode==="tablets" && typeof Tablets !== "undefined" && Tablets.pickLevel)
       ? Tablets.pickLevel(chapter, SAVE, options && options.tabletLevel)
       : 1;
-  return { chapter: chapter, tutorial: tutorial, level: level, fromRoad: !!(options && options.fromRoad) };
+  const fromRoad = !!(options && options.fromRoad);
+  /* P1: the saved mode is read here and fixed for the run; a road run or the tutorial is a Hold. */
+  const runMode = (typeof Tablets !== "undefined" && Tablets.modeOf) ? Tablets.modeOf(SAVE, tutorial, fromRoad) : "hold";
+  return { chapter: chapter, tutorial: tutorial, level: level, fromRoad: fromRoad, mode: runMode };
 }
 function startRunTeamState(mode, options){
   if(mode!=="team") return { teamSide: null, teams: null };
@@ -655,6 +658,7 @@ function assignStartRun(mode, D, runToken, isPilgrim, siteId, siteIndex, siteDra
     tabletChapter: tab.chapter,
     tabletLevel: tab.level,
     tabletTutorial: tab.tutorial,
+    tabletMode: tab.mode,
     fromRoad: tab.fromRoad
   });
 }

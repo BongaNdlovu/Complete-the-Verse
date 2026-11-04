@@ -230,6 +230,7 @@
         <button type="button" class="btn team-pick-btn white" data-team="white">White starts</button>
         <button type="button" class="btn team-pick-btn blue" data-team="blue">Blue starts</button>
       </div>
+      <div id="brief-tablets-modes" hidden></div>
       <div id="brief-tablets-pick" hidden></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
         <button class="btn" id="brief-start">Begin</button>
@@ -486,10 +487,12 @@
           <b id="tablets-chapter">Psalm 23</b>
           <span id="tablets-sub">The LORD is my shepherd</span>
         </div>
+        <span class="tablets-seals" id="tablets-lamps" aria-label="Lamps" data-lamps-left="3"></span>
         <div class="tablets-tier" id="tablets-tier">
           <span id="tablets-tier-name">DEVOTED</span>
           <span class="tablets-mult" id="tablets-mult">1.0×</span>
         </div>
+        <div class="tablets-combo" id="tablets-combo" aria-hidden="true"><i class="tablets-combo-fill" id="tablets-combo-fill"></i></div>
         <div class="tablets-stats">
           <div class="tablets-stat"><b id="tablets-remain">1 / 11</b><span>Tablet</span></div>
           <div class="tablets-stat"><b id="tablets-streak">0</b><span>Streak</span></div>
@@ -497,6 +500,7 @@
           <div class="tablets-stat"><b id="tablets-best">0%</b><span>Best</span></div>
         </div>
         <div class="tablets-actions">
+          <span class="tablets-pace-tag" id="tablets-pace-tag">Pace I</span>
           <button type="button" class="tablets-iconbtn" id="tablets-trial">Trial</button>
           <button type="button" class="tablets-iconbtn" id="tablets-theme">Stone</button>
           <button type="button" class="tablets-iconbtn" id="tablets-pause-btn">Pause</button>
@@ -505,6 +509,15 @@
       </header>
       <div class="tablets-stage" id="tablets-stage">
         <canvas id="tablets-fx"></canvas>
+        <div class="tablets-ladder" id="tablets-ladder" aria-hidden="true">
+          <span style="top:9%">Last grain<b>1.75×</b></span>
+          <span style="top:26.5%">Carved<b>1.0×</b></span>
+          <span style="top:52.5%">Sure<b>1.2×</b></span>
+          <span style="top:85%">Fresh sand<b>1.5×</b></span>
+          <i class="tablets-ladder-marker" id="tablets-ladder-marker"></i>
+        </div>
+        <!-- L1: the milestone banner moved into the feedback lane under the stage. -->
+        <i class="tablets-flash" id="tablets-flash" aria-hidden="true"></i>
         <aside class="tablets-ground" id="tablets-ground">
           <div class="tablets-scene-img">
             <svg class="tablets-scene-svg" viewBox="0 0 240 160" aria-hidden="true">
@@ -550,7 +563,14 @@
             <span class="tablets-mark-line"></span>
           </div>
           <div class="tablets-slot" id="tablets-slot">— — —</div>
-          <p class="tablets-verse" id="tablets-verse"></p>
+          <div class="tablets-roll" id="tablets-roll">
+            <div class="tablets-sheet" id="tablets-sheet">
+              <div class="tablets-sheet-past" id="tablets-sheet-past"></div>
+              <p class="tablets-verse" id="tablets-verse"></p>
+              <div class="tablets-sheet-next" id="tablets-sheet-next"></div>
+            </div>
+            <i class="tablets-entry-line" aria-hidden="true"></i>
+          </div>
           <div class="tablets-speech" id="tablets-speech" hidden><i></i><i></i><i></i><i></i></div>
           <div class="tablets-tut-callout" id="tablets-tut-callout" hidden></div>
           <div class="tablets-sand">
@@ -569,24 +589,49 @@
           <figcaption id="tablets-companion-sign">Abram</figcaption>
         </figure>
       </div>
+      <!-- L1: one feedback lane between the stage and the stones; the milestone and the blessing sit in it. -->
+      <div class="tablets-lane" id="tablets-lane" aria-live="polite">
+        <div class="tablets-milestone" id="tablets-milestone" aria-hidden="true" data-lane="milestone">
+          <span class="tablets-milestone-kicker">Milestone</span>
+          <b id="tablets-milestone-name">Tithe</b>
+          <em id="tablets-milestone-favor">+0 FAVOR</em>
+        </div>
+        <div class="tablets-blessing" id="tablets-blessing">
+          <b id="tablets-blessing-icon">🏺</b>
+          <span>
+            <i>A blessing</i>
+            <em id="tablets-blessing-text">Manna Jar Discovered (+15s)</em>
+          </span>
+        </div>
+      </div>
       <div class="tablets-tray">
           <div class="tablets-tray-lab"><span class="tablets-orn"></span><span id="tablets-tray-word">Choose the missing word</span><span class="tablets-orn"></span></div>
         <div class="tablets-grid" id="tablets-grid"></div>
         <div class="tablets-tray-tools">
-          <span class="tablets-lamps" id="tablets-lamps">Lamps ×<b id="tablets-lamps-n">2</b></span>
-          <button type="button" class="tablets-power" id="tablets-illum">Illuminate ×<b id="tablets-illum-n">1</b><i class="tablets-hotkey">I</i></button>
-          <button type="button" class="tablets-power" id="tablets-winnow">Winnow ×<b id="tablets-winnow-n">2</b><i class="tablets-hotkey">W</i></button>
-          <button type="button" class="tablets-surge" id="tablets-surge">
-            <span>Surge</span>
+          <button type="button" class="tablets-power tablets-relic" id="tablets-illum" data-relic="illuminate">
+            <i class="tablets-hotkey">I</i>
+            <span class="tablets-relic-name">Illuminate</span>
+            <span class="tablets-relic-effect">Carve the true word</span>
+            <b class="tablets-relic-count" id="tablets-illum-n">1</b>
+          </button>
+          <button type="button" class="tablets-power tablets-relic" id="tablets-winnow" data-relic="winnow">
+            <i class="tablets-hotkey">W</i>
+            <span class="tablets-relic-name">Winnow</span>
+            <span class="tablets-relic-effect">Banish up to three</span>
+            <b class="tablets-relic-count" id="tablets-winnow-n">2</b>
+          </button>
+          <button type="button" class="tablets-surge tablets-relic" id="tablets-surge" data-relic="surge">
+            <i class="tablets-hotkey">S</i>
+            <span class="tablets-relic-name">Surge</span>
+            <span class="tablets-relic-effect">Stops the sand · ×2 Favor</span>
             <i class="tablets-surge-track"><b class="tablets-surge-fill" id="tablets-surge-fill"></b></i>
             <em id="tablets-surge-status">0%</em>
-            <i class="tablets-hotkey">S</i>
           </button>
-          <span class="tablets-keys-hint">1–4 · I · W · S</span>
+          <span class="tablets-keys-hint">1–6 · I · W · S</span>
         </div>
       </div>
       <footer class="tablets-foot">
-        <div class="tablets-hold">Two lamps guard the Hold</div>
+        <div class="tablets-hold" id="tablets-hold-note">Three lamps guard the Hold</div>
         <div class="tablets-track" id="tablets-track">
           <i class="tablets-fill" id="tablets-fill"></i>
           <i class="tablets-ghost" id="tablets-ghost" hidden></i>
@@ -594,13 +639,7 @@
         </div>
         <div class="tablets-pct" id="tablets-pct">0%</div>
       </footer>
-      <div class="tablets-blessing" id="tablets-blessing">
-        <b id="tablets-blessing-icon">🏺</b>
-        <span>
-          <i>Celestial visitation</i>
-          <em id="tablets-blessing-text">Manna Jar Discovered (+15s)</em>
-        </span>
-      </div>
+      <!-- L1: the blessing banner moved into the feedback lane under the stage. -->
       <div id="tablets-pause" class="tablets-pause" hidden>
         <div class="tablets-pause-card">
           <div class="kick">Paused</div>

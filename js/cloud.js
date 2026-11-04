@@ -332,6 +332,10 @@ var Cloud = (function () {
         best: maxNum(x.best, y.best),
         held: !!(x.held || y.held)
       };
+      /* P2/P3: the Judgment mark and the Endless best survive a cloud sync. */
+      if (x.judgment || y.judgment) out[k].judgment = true;
+      var eb = maxNum(x.endlessBest, y.endlessBest);
+      if (eb) out[k].endlessBest = eb;
       var lv = {}, n;
       for (n = 1; n <= 3; n++) {
         var lx = (x.levels && (x.levels[n] || x.levels[String(n)])) || {};

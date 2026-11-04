@@ -47,7 +47,7 @@ body.view-tablets .voice-caption{display:none!important}
 }
 .tablets-wrap{
   position:absolute;inset:0;display:flex;flex-direction:column;
-  background:linear-gradient(180deg,#0c0805 0%,#080503 100%)}
+  background:linear-gradient(180deg,#150605 0%,#0a0403 100%)}
 .tablets-top{
   flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:max(12px,env(safe-area-inset-top)) clamp(14px,3vw,28px) 12px;
@@ -73,7 +73,7 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-mult{color:#fff;background:#966418;padding:1px 5px;border-radius:10px;font-size:.58rem}
 .tablets-stats{display:flex;gap:clamp(10px,2vw,24px);align-items:center;flex:0 0 auto}
 .tablets-stat{text-align:center;min-width:3.2em}
-.tablets-stat b{display:block;font-family:var(--disp);font-size:clamp(.9rem,2vw,1.25rem);color:var(--gold-hot)}
+.tablets-stat b{display:block;font-family:var(--disp);font-size:clamp(1rem,2.2vw,1.4rem);color:var(--gold-hot);text-shadow:0 0 14px rgba(245,176,39,.45)}
 .tablets-stat span{font-family:var(--ui);font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:#8a7a62}
 .tablets-actions{display:flex;gap:8px;flex:0 0 auto}
 .tablets-iconbtn{
@@ -82,10 +82,65 @@ body.view-tablets .voice-caption{display:none!important}
   box-shadow:0 0 0 1px rgba(213,173,98,.28) inset}
 .tablets-iconbtn:hover,.tablets-iconbtn:focus-visible{color:var(--gold-hot)}
 .tablets-iconbtn.on{color:var(--gold-hot);border-color:var(--gold-hot)}
+/* D: the header's seals — three diamonds, cracked as they spend. */
+.tablets-seals{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.tablets-seal{
+  display:block;width:13px;height:13px;transform:rotate(45deg);
+  background:linear-gradient(135deg,#4a2d0c 0%,#241408 100%);
+  border:1.5px solid #caa04c;box-shadow:inset 0 0 0 2px rgba(255,224,130,.28),0 0 10px rgba(255,215,90,.4)}
+.tablets-seal.cracked{
+  background:linear-gradient(135deg,#2a2016 0%,#171008 100%);
+  border-color:#5a4526;box-shadow:none;opacity:.72}
+.tablets-seals.low .tablets-seal{border-color:#ff8a8a;box-shadow:0 0 8px rgba(255,90,80,.5)}
+/* D: the compact pace tag (decision J3). */
+.tablets-pace-tag{
+  display:flex;align-items:center;align-self:center;padding:4px 10px;border-radius:20px;
+  background:rgba(20,12,6,.85);border:1px solid #5a4526;
+  font-family:var(--ui);font-size:.6rem;font-weight:700;letter-spacing:.14em;color:#c9b088;text-transform:uppercase}
 .tablets-stage{
-  position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;
+  position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:stretch;justify-content:center;
   gap:clamp(8px,2vw,24px);padding:12px clamp(10px,2vw,20px);width:100%;max-width:1440px;margin:0 auto}
 #tablets-fx{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+/* C: the hall's red ambience over the stage, under the column. */
+.tablets-stage::before{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 36%,rgba(150,26,10,.12) 0%,rgba(84,12,5,.28) 70%,rgba(30,5,2,.48) 100%)}
+/* D: the timing ladder — fresh sand at the entry, last grain at The Mark. */
+.tablets-ladder{
+  position:absolute;top:12px;bottom:12px;right:6px;width:118px;z-index:5;pointer-events:none;
+  display:none}
+@media (min-width:900px){.tablets-ladder{display:block}}
+.tablets-ladder::before{
+  content:"";position:absolute;top:0;bottom:0;left:50%;width:1.5px;
+  background:linear-gradient(180deg,rgba(224,68,46,.55),rgba(217,182,103,.25) 55%,rgba(57,217,138,.45))}
+.tablets-ladder span{
+  position:absolute;right:0;transform:translateY(-50%);
+  font-family:var(--ui);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:#c9b088;
+  background:rgba(10,6,3,.72);border:1px solid rgba(217,182,103,.25);border-radius:999px;padding:2px 7px;white-space:nowrap}
+.tablets-ladder span b{color:var(--gold-hot);font-weight:700;margin-left:4px}
+.tablets-ladder-marker{
+  position:absolute;left:50%;width:9px;height:9px;transform:translate(-50%,-50%) rotate(45deg);
+  background:linear-gradient(135deg,#fff2c6,#dfa544);box-shadow:0 0 10px rgba(255,224,130,.9);border:1px solid #fff}
+/* E: the juice — HUD kick, milestone banner, stage washes, urgent slot. */
+.tablets-stat b.kick{animation:tabletsKick .34s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes tabletsKick{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.tablets-milestone{
+  position:absolute;top:64px;left:50%;transform:translateX(-50%) translateY(-12px);z-index:16;pointer-events:none;
+  opacity:0;background:radial-gradient(circle at 50% 20%,#463016,#1f1307);border:1.5px solid var(--gold-hot);
+  border-radius:12px;padding:8px 22px;text-align:center;box-shadow:0 10px 34px rgba(0,0,0,.8)}
+.tablets-milestone.active{opacity:1;transform:translateX(-50%) translateY(0);transition:opacity .25s ease,transform .3s cubic-bezier(.2,1.2,.3,1)}
+.tablets-milestone .tablets-milestone-kicker{display:block;font-family:var(--ui);font-size:.52rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-hot)}
+.tablets-milestone b{display:block;font-family:var(--disp);font-size:1.05rem;color:#ffe8b8}
+.tablets-milestone em{display:block;font-style:normal;font-family:var(--ui);font-size:.6rem;letter-spacing:.14em;color:#c9b088}
+.tablets-flash{position:absolute;inset:0;z-index:15;pointer-events:none;opacity:0}
+.tablets-flash.miss{background:radial-gradient(circle at 50% 50%,rgba(255,60,30,0) 40%,rgba(255,60,30,.32) 100%);animation:tabletsFlashWash .5s ease-out}
+.tablets-flash.gold{background:radial-gradient(circle at 50% 50%,rgba(255,224,130,0) 30%,rgba(255,224,130,.3) 100%);animation:tabletsFlashWash .65s ease-out}
+.tablets-flash.strong.gold{background:radial-gradient(circle at 50% 50%,rgba(255,224,130,0) 22%,rgba(255,236,180,.44) 100%)}
+@keyframes tabletsFlashWash{0%{opacity:1}100%{opacity:0}}
+.tablets-slot.urgent{border-color:#ff5238;animation:tabletsSlotUrgent .42s infinite alternate}
+/* FX13: a carve glow wins over the urgent pulse, so the success light shows. */
+.tablets-slot.glow.urgent{animation:none}
+@keyframes tabletsSlotUrgent{from{box-shadow:inset 0 6px 15px rgba(0,0,0,.98),0 0 16px rgba(229,181,88,.3)}to{box-shadow:inset 0 6px 15px rgba(0,0,0,.98),0 0 22px rgba(255,60,30,.85)}}
 .tablets-ground{
   display:none;position:relative;width:215px;flex:0 0 auto;z-index:5;padding:10px;text-align:center;border-radius:12px;
   background:linear-gradient(180deg,#24170b 0%,#120b05 100%);border:1.5px solid #573e1c;
@@ -123,25 +178,23 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-companion figcaption{
   position:relative;z-index:1;margin-top:.2em;text-align:center;
   font-family:var(--ui);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:#c4a070}
+/* B: the arcade column stands alone — the ground scene and companion step aside
+   (their markup stays; the results screens and hall still use them). */
+#v-tablets .tablets-ground,#v-tablets .tablets-companion{display:none!important}
 .tablets-companion.success img{animation:tabletsCastOk 1.05s cubic-bezier(.16,.84,.28,1) both}
 .tablets-companion.failure img{animation:tabletsCastMiss .78s cubic-bezier(.2,.7,.2,1) both}
 @keyframes tabletsCastOk{0%{filter:brightness(1)}40%{filter:brightness(1.18)}100%{filter:brightness(1)}}
 @keyframes tabletsCastMiss{0%{transform:translateX(0)}30%{transform:translateX(-6px)}60%{transform:translateX(5px)}100%{transform:translateX(0)}}
 .tablets-ms{
-  position:relative;z-index:4;width:min(610px,100%);text-align:center;border-radius:18px;
-  padding:24px 34px 16px;overflow:hidden;
-  background:
-    radial-gradient(circle at 50% 20%,rgba(215,185,145,.2) 0%,rgba(70,50,32,.65) 85%),
-    linear-gradient(175deg,var(--tab-bg-1) 0%,var(--tab-bg-2) 40%,var(--tab-bg-3) 100%);
-  border:2px solid var(--tab-border);border-bottom:3.5px solid var(--tab-border-bot);
-  box-shadow:
-    0 35px 85px rgba(0,0,0,.96),0 8px 24px rgba(0,0,0,.75),
-    inset 0 3px 5px rgba(255,255,255,.26),inset 0 -12px 28px rgba(0,0,0,.68),
-    inset 4px 0 10px rgba(255,255,255,.07),inset -4px 0 10px rgba(0,0,0,.5)}
+  position:relative;z-index:4;width:min(1200px,100%);text-align:center;border-radius:14px;
+  padding:10px 24px 14px;overflow:hidden;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,rgba(10,6,3,.58) 0%,rgba(10,6,3,.30) 42%,rgba(10,6,3,.44) 100%);
+  border:1px solid rgba(217,182,103,.18);
+  box-shadow:0 20px 60px rgba(0,0,0,.75)}
 .tablets-ms:before{
   content:"";position:absolute;inset:0;border-radius:16px;pointer-events:none;z-index:1;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='roughStone'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='4' result='noise'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23eedbbd' surfaceScale='2.2'%3E%3CfeDistantLight azimuth='65' elevation='55'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23roughStone)' opacity='0.36'/%3E%3C/svg%3E");
-  background-size:240px;mix-blend-mode:overlay;opacity:.9}
+  background-size:240px;mix-blend-mode:overlay;opacity:.16}
 .tablets-fracture{
   position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;transition:opacity .2s;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 400'%3E%3Cpath d='M250,0 L240,60 L270,120 L230,190 L260,280 L220,340 L250,400 M270,120 L340,160 L390,140 M230,190 L160,230 L110,210 M260,280 L330,320' stroke='%23ff5533' stroke-width='2.5' fill='none'/%3E%3C/svg%3E");
@@ -151,16 +204,23 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-ref-pill,.tablets-mark-row,.tablets-slot,.tablets-verse,.tablets-sand,.tablets-tut-callout,.tablets-speech{position:relative;z-index:3}
 .tablets-ref-pill{
   display:inline-block;margin:0 0 8px;font-family:var(--disp-orn);font-size:clamp(1.05rem,2.2vw,1.5rem);
-  font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--tab-text);
-  text-shadow:0 1px 1px rgba(255,255,255,.32),0 -1.5px 2px rgba(0,0,0,.9);background:none;padding:0;box-shadow:none}
+  font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#f7ecd2;
+  text-shadow:0 1px 1px rgba(0,0,0,.55),0 -1.5px 2px rgba(0,0,0,.9);background:none;padding:0;box-shadow:none}
 .tablets-mark-row{display:flex;align-items:center;gap:12px;margin:8px 0 12px}
+/* R1: the phase 7 card rise (translate) is retired; the roll moves .tablets-sheet from tabletsPaintRise. */
 .tablets-mark-line{
   flex:1;height:2px;position:relative;
-  background:linear-gradient(90deg,transparent,#e5b558 20%,#e5b558 80%,transparent);
-  box-shadow:0 0 10px rgba(229,181,88,.85)}
+  background:linear-gradient(90deg,transparent,#e0442e 20%,#ff6b4a 50%,#e0442e 80%,transparent);
+  box-shadow:0 0 12px rgba(224,68,46,.85)}
 .tablets-mark{
-  font-family:var(--disp-orn);color:var(--gold-hot);font-size:.78rem;letter-spacing:.32em;text-transform:uppercase;
-  text-shadow:0 0 12px rgba(245,190,82,.85);font-weight:700}
+  font-family:var(--disp-orn);color:#ff9a80;font-size:.78rem;letter-spacing:.32em;text-transform:uppercase;
+  text-shadow:0 0 12px rgba(255,80,50,.85);font-weight:700}
+/* B: the entry line — the green line the active blank rises from. Its 62% is
+   TABLET_ROLL_ENTRY (js/tablets-run.js), which the roll target also reads. */
+.tablets-entry-line{
+  position:absolute;left:0;right:0;top:62%;height:2px;z-index:2;pointer-events:none;
+  background:linear-gradient(90deg,transparent,#39d98a 18%,#7dffc0 50%,#39d98a 82%,transparent);
+  box-shadow:0 0 12px rgba(57,217,138,.7)}
 .tablets-slot{
   min-width:200px;max-width:280px;height:48px;margin:0 auto 14px;border-radius:10px;border:2px solid #dfa544;
   background:radial-gradient(circle at 50% 30%,rgba(20,13,7,.7),rgba(8,5,2,.96));
@@ -172,11 +232,35 @@ body.view-tablets .voice-caption{display:none!important}
   box-shadow:inset 0 4px 12px rgba(0,0,0,.95),0 0 32px rgba(255,224,130,.85);transform:scale(1.04)}
 .tablets-verse{
   font-family:var(--body);font-weight:600;font-size:clamp(1.15rem,2.4vw,1.7rem);line-height:1.35;
-  color:var(--tab-text);margin:0 0 14px;min-height:4.2em;display:flex;flex-direction:column;
+  color:#f3e6c8;margin:0 0 14px;min-height:4.2em;display:flex;flex-direction:column;
   justify-content:center;align-items:center;
-  text-shadow:0 1px 1px rgba(255,255,255,.32),0 -1px 2px rgba(0,0,0,.95)}
-.tablets-blank-word{color:#c7943f;text-shadow:0 0 12px rgba(229,181,88,.7);font-weight:700;letter-spacing:.04em}
-.tablets-blank-word.in{color:#ffe38d;text-shadow:0 0 18px var(--gold-hot)}
+  text-shadow:0 1px 1px rgba(0,0,0,.6),0 -1px 2px rgba(0,0,0,.95)}
+.tablets-blank-word{
+  display:inline-block;min-width:96px;padding:2px 16px;margin:0 2px;border-radius:9px;text-align:center;
+  color:transparent;text-shadow:none;font-weight:700;letter-spacing:.06em;
+  background:linear-gradient(180deg,rgba(214,183,138,.88),rgba(122,99,71,.88));
+  border:1px solid rgba(20,13,7,.55);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.3),inset 0 -3px 6px rgba(0,0,0,.35)}
+/* R1: the rolling chapter sheet. The window clips the carved steps above and the coming steps below. */
+.tablets-roll{position:relative;flex:1 1 auto;min-height:160px;overflow:hidden;margin:0 0 10px;-webkit-mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%)}
+.tablets-sheet{will-change:transform}
+.tablets-sheet .tablets-verse{margin:0 0 10px;min-height:0}
+.tablets-sheet-step{opacity:.42;margin:0 0 10px}
+.tablets-sheet-past .tablets-sheet-step{opacity:.55}
+@media (max-width:640px){.tablets-roll{min-height:84px}}
+/* L1: a narrow lane takes turns instead of squeezing: the Favor chip has the row to itself while it shows, then the banners follow in compact form. */
+@media (max-width:640px){
+  #tablets-lane:has(.tablets-score-popup[data-lane]) .tablets-milestone,#tablets-lane:has(.tablets-score-popup[data-lane]) .tablets-blessing{display:none}
+  #tablets-lane .tablets-milestone-kicker,#tablets-lane .tablets-blessing i{display:none}
+  #tablets-lane .tablets-milestone,#tablets-lane .tablets-blessing{flex:0 1 auto;min-width:0;padding:0 10px}
+  #tablets-lane .tablets-milestone b{flex:0 0 auto}
+  #tablets-lane .tablets-milestone em{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  #tablets-lane .tablets-blessing em{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;font-size:.7rem;line-height:1.15;overflow:hidden}
+}
+.tablets-blank-word.in{
+  color:#ffe38d;text-shadow:0 0 14px rgba(229,181,88,.8);
+  background:linear-gradient(180deg,rgba(62,43,20,.92),rgba(34,22,10,.92));
+  border-color:rgba(229,181,88,.55);box-shadow:0 0 12px rgba(229,181,88,.35),inset 0 1px 2px rgba(255,255,255,.15)}
 .tablets-gap-line{display:block;text-align:center;margin:2px 0}
 .tablets-gap-ref{display:inline-block;font-size:.62em;letter-spacing:.14em;color:var(--gold-dim);
   border:1px solid rgba(217,182,103,.35);border-radius:999px;padding:1px 10px;margin-right:10px;
@@ -224,6 +308,22 @@ body.view-tablets .voice-caption{display:none!important}
   20%{transform:translate(-50%,-10px) scale(1.15);opacity:1}
   100%{transform:translate(-50%,-65px) scale(1);opacity:0}
 }
+/* L2: the Favor beside the slot drifts sideways from its left edge and fades; the Favor below keeps the centred pop. */
+.tablets-score-popup[data-side="right"]{transform:translate(0,-50%);transform-origin:left center;animation-name:tabletsPopRiseRight}
+.tablets-score-popup[data-side="below"]{animation-name:tabletsPopRiseBelow}
+/* L2: in the lane the Favor is a chip in the row, not a floating word. */
+.tablets-lane .tablets-score-popup[data-lane]{position:static;transform:none;animation:tabletsLaneFavor .9s ease forwards;font-size:.95rem;white-space:nowrap;align-self:center}
+@keyframes tabletsLaneFavor{0%{opacity:0}15%{opacity:1}75%{opacity:1}100%{opacity:0}}
+@keyframes tabletsPopRiseRight{
+  0%{transform:translate(0,-50%) scale(.6);opacity:0}
+  20%{transform:translate(12px,-50%) scale(1.15);opacity:1}
+  100%{transform:translate(24px,-50%) scale(1);opacity:0}
+}
+@keyframes tabletsPopRiseBelow{
+  0%{transform:translate(-50%,0) scale(.6);opacity:0}
+  20%{transform:translate(-50%,4px) scale(1.15);opacity:1}
+  100%{transform:translate(-50%,12px) scale(1);opacity:0}
+}
 .tablets-sand{border-top:1.5px solid rgba(25,18,11,.75);padding-top:10px}
 .tablets-sand-row{display:flex;justify-content:space-between;align-items:center;padding:0 8px}
 .tablets-sand-row span{
@@ -257,15 +357,14 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-orn:last-child{background:linear-gradient(90deg,#805a23,transparent)}
 .tablets-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:1120px;margin:0 auto}
 .tablets-grid.locked{pointer-events:none;opacity:.72}
-@media (min-width:720px){.tablets-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:720px){.tablets-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1150px){.tablets-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .tablets-stone{
-  position:relative;height:94px;border:none;cursor:pointer;border-radius:12px;
+  position:relative;height:64px;border:none;cursor:pointer;border-radius:10px;
   font-family:var(--disp);display:flex;align-items:center;justify-content:center;
-  background:
-    radial-gradient(circle at 50% 30%,rgba(200,165,120,.2) 0%,rgba(35,22,12,.65) 85%),
-    linear-gradient(175deg,var(--tab-bg-1) 0%,var(--tab-bg-2) 50%,var(--tab-bg-3) 100%);
-  border:2px solid var(--tab-border);border-bottom:3.5px solid var(--tab-border-bot);
-  box-shadow:0 10px 24px rgba(0,0,0,.85),inset 0 2px 3px rgba(255,255,255,.2),inset 0 -8px 16px rgba(0,0,0,.65);
+  background:linear-gradient(180deg,#f3e6c8 0%,#e2cfa4 55%,#c9b183 100%);
+  border:1.5px solid #8a6f47;border-bottom:3px solid #5d4a2c;
+  box-shadow:0 8px 18px rgba(0,0,0,.8),inset 0 1px 2px rgba(255,255,255,.7),inset 0 -6px 12px rgba(93,74,44,.4);
   transition:transform .15s,box-shadow .2s,filter .3s,border-color .2s;overflow:hidden}
 .tablets-stone:before{
   content:"";position:absolute;inset:0;pointer-events:none;
@@ -276,8 +375,8 @@ body.view-tablets .voice-caption{display:none!important}
   box-shadow:0 16px 30px rgba(0,0,0,.92),0 0 20px rgba(229,181,88,.38),inset 0 2px 4px rgba(255,255,255,.28)}
 .tablets-stone:active:not(.dim){transform:translateY(1px)}
 .tablets-word{
-  font-size:clamp(1rem,2vw,1.4rem);font-weight:700;letter-spacing:.12em;color:var(--tab-text);
-  text-shadow:0 1px 1px rgba(255,255,255,.28),0 -1px 2px rgba(0,0,0,.95);z-index:2;text-transform:uppercase}
+  font-size:clamp(.95rem,1.8vw,1.25rem);font-weight:700;letter-spacing:.12em;color:#2a1d10;
+  text-shadow:0 1px 0 rgba(255,255,255,.35);z-index:2;text-transform:uppercase}
 .tablets-stone.long .tablets-word{font-size:.9em;letter-spacing:.06em}
 .tablets-key{
   position:absolute;top:7px;left:8px;width:28px;height:28px;border-radius:50%;
@@ -302,9 +401,9 @@ body.view-tablets .voice-caption{display:none!important}
 }
 .tablets-tray-tools{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;flex-wrap:wrap}
 .tablets-tray-tools button,.tablets-lamps,.tablets-surge{
-  min-height:44px;padding:7px 12px;font-family:var(--ui);letter-spacing:.1em;text-transform:uppercase;
-  font-size:.64rem;color:#deb86f;background:linear-gradient(180deg,#22160a 0%,#130c05 100%);
-  border:1px solid #4a371a;border-radius:6px}
+  min-height:36px;padding:4px 12px;font-family:var(--ui);letter-spacing:.1em;text-transform:uppercase;
+  font-size:.6rem;color:#deb86f;background:linear-gradient(180deg,#22160a 0%,#130c05 100%);
+  border:1px solid #4a371a;border-radius:999px}
 .tablets-tray-tools button:hover:not(:disabled):not(.spent){
   border-color:var(--gold-hot);color:var(--gold-hot);transform:translateY(-2px)}
 .tablets-tray-tools button:disabled,.tablets-tray-tools button.spent{opacity:.35;cursor:not-allowed}
@@ -324,6 +423,44 @@ body.view-tablets .voice-caption{display:none!important}
   display:block;height:100%;width:0;background:linear-gradient(90deg,#964910,#e69622 60%,#fff2a1)}
 .tablets-surge em{font-style:normal;font-size:.58rem;color:#ffe291;font-weight:700}
 .tablets-keys-hint{font-family:var(--ui);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#8a7a62}
+/* A: the powers wear relic cards — key chip, name, effect, count, per-card accent. */
+.tablets-tray-tools .tablets-relic{
+  position:relative;display:flex;align-items:center;gap:7px;min-width:172px;text-align:left;cursor:pointer}
+.tablets-relic .tablets-relic-name{font-weight:700;color:#f2d9a0;font-size:.66rem;letter-spacing:.12em}
+.tablets-relic .tablets-relic-effect{
+  display:block;font-size:.54rem;letter-spacing:.06em;color:#8a7a62;text-transform:none;white-space:nowrap}
+.tablets-relic .tablets-relic-count{
+  margin-left:auto;font-family:var(--disp);font-size:.95rem;font-weight:700;color:var(--relic,#ffe082);
+  text-shadow:0 0 12px var(--relic,#ffe082)}
+.tablets-relic[data-relic="illuminate"]{--relic:#ffe082}
+.tablets-relic[data-relic="winnow"]{--relic:#c9e08a}
+.tablets-relic[data-relic="surge"]{--relic:#ffb054}
+.tablets-relic.spent{--relic:#6b5c44;text-shadow:none}
+.tablets-surge.tablets-relic{min-width:210px;flex-wrap:wrap}
+.tablets-surge.tablets-relic .tablets-surge-track{flex:1 1 100%}
+/* A: the recharge celebration — the sheen is a moving background so it never
+   leaves the card, and the pill floats above the top edge. */
+.tablets-relic::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,244,200,.7) 50%,transparent 70%);
+  background-size:250% 100%;background-position:120% 0}
+.tablets-relic.recharging{animation:tabletsRelicHop .95s cubic-bezier(.2,.9,.3,1.2)}
+.tablets-relic.recharging::after{animation:tabletsSheenSweep .95s ease-out}
+.tablets-relic.recharging .tablets-relic-count{animation:tabletsCountPop .5s cubic-bezier(.2,.9,.3,1.4)}
+@keyframes tabletsRelicHop{
+  0%{transform:translateY(0) scale(1)}
+  35%{transform:translateY(-6px) scale(1.05);box-shadow:0 0 24px var(--relic,#ffe082);border-color:var(--relic,#ffe082)}
+  100%{transform:translateY(0) scale(1)}
+}
+@keyframes tabletsSheenSweep{0%{background-position:120% 0;opacity:0}25%{opacity:1}100%{background-position:-20% 0;opacity:0}}
+@keyframes tabletsCountPop{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+.tablets-relic-pill{
+  position:absolute;left:50%;top:-8px;z-index:7;pointer-events:none;
+  font-family:var(--ui);font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#1c1206;background:linear-gradient(180deg,#ffe9a8,#dfa544);border-radius:999px;padding:2px 8px;
+  box-shadow:0 4px 14px rgba(0,0,0,.6);white-space:nowrap;
+  animation:tabletsPillFloat 1.15s ease-out forwards}
+@keyframes tabletsPillFloat{0%{opacity:0;transform:translate(-50%,6px)}18%{opacity:1}100%{opacity:0;transform:translate(-50%,-26px)}}
 .tablets-foot{
   flex:0 0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   padding:8px clamp(14px,3vw,28px) max(10px,env(safe-area-inset-bottom));
@@ -350,6 +487,16 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-blessing b{font-family:var(--disp);font-size:1.2rem;color:var(--gold-hot)}
 .tablets-blessing i{display:block;font-style:normal;font-family:var(--ui);font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-hot)}
 .tablets-blessing em{display:block;font-style:normal;font-family:var(--disp);font-size:.78rem;color:#fff;font-weight:700}
+/* L1: one feedback lane between the stage and the stones: a fixed strip, the banners one line each side by side. */
+.tablets-lane{
+  flex:0 0 auto;height:48px;position:relative;z-index:17;pointer-events:none;min-width:0;
+  display:flex;align-items:flex-start;justify-content:center;gap:10px;padding:0 10px}
+.tablets-lane .tablets-milestone,.tablets-lane .tablets-blessing{position:static;top:auto;left:auto;transform:none;display:none;min-width:0;max-width:100%;box-sizing:border-box;margin:0;height:34px;padding:0 14px;white-space:nowrap;overflow:hidden}
+.tablets-lane .tablets-milestone.active{display:flex;align-items:center;gap:8px;animation:tabletsLaneRise .3s ease both}
+.tablets-lane .tablets-blessing.active{display:flex;align-items:center;gap:8px;animation:tabletsLaneRise .3s ease both}
+.tablets-lane .tablets-milestone b,.tablets-lane .tablets-milestone em,.tablets-lane .tablets-milestone-kicker,.tablets-lane .tablets-blessing i,.tablets-lane .tablets-blessing em{display:inline;margin:0}
+.tablets-lane .tablets-blessing span{display:block;min-width:0;overflow:hidden}
+@keyframes tabletsLaneRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .tablets-flying-word{
   position:fixed;z-index:90;pointer-events:none;font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:1.5rem;
   color:#fff5d6;text-shadow:0 0 20px #ffe082,0 0 35px #dfaa42,0 2px 4px #000;
@@ -387,9 +534,48 @@ body.reduced .tablets-speech i,
 body.motion-calm .tablets-speech i,
 body.reduced .tablets-companion.success img,
 body.motion-calm .tablets-companion.success img,
+body.reduced .tablets-stat b.kick,
+body.motion-calm .tablets-stat b.kick,
+body.reduced .tablets-milestone,
+body.motion-calm .tablets-milestone,
+body.reduced .tablets-flash,
+body.motion-calm .tablets-flash,
+body.reduced .tablets-slot.urgent,
+body.motion-calm .tablets-slot.urgent,
 body.reduced .tablets-companion.failure img,
-body.motion-calm .tablets-companion.failure img{animation:none;transition:none}
+body.motion-calm .tablets-companion.failure img,
+body.reduced .tablets-relic.recharging,
+body.motion-calm .tablets-relic.recharging,
+body.reduced .tablets-relic-pill,
+body.motion-calm .tablets-relic-pill{animation:none;transition:none}
+body.reduced .tablets-lane .active,body.motion-calm .tablets-lane .active,body.reduced .tablets-score-popup,body.motion-calm .tablets-score-popup{animation:none;transition:none}
+body.reduced .tablets-mult.pop,body.motion-calm .tablets-mult.pop,
+body.reduced .tablets-combo.broke,body.motion-calm .tablets-combo.broke,
+body.reduced .tablets-combo-fill,body.motion-calm .tablets-combo-fill{animation:none;transition:none}
+body.reduced .tablets-seal.snuff::after,body.motion-calm .tablets-seal.snuff::after,
+body.reduced .tablets-roll.hold-sweep::after,body.motion-calm .tablets-roll.hold-sweep::after{display:none}
+body.reduced .tablets-combo.blaze,body.motion-calm .tablets-combo.blaze,
+body.reduced .tablets-seal.glory,body.motion-calm .tablets-seal.glory{box-shadow:none}
+/* G2: the combo meter sits beside the tier pill and fills toward x5. */
+.tablets-combo{position:relative;flex:0 0 auto;align-self:center;width:58px;height:6px;border-radius:999px;background:rgba(20,12,6,.85);border:1px solid #735322;overflow:hidden}
+.tablets-combo-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#8a5e1c,#e8c46a);transition:width .25s ease-out}
+.tablets-combo.warm .tablets-combo-fill{background:linear-gradient(90deg,#e8c46a,#fff0b8)}
+.tablets-combo.blaze{box-shadow:0 0 10px rgba(255,214,120,.75)}
+.tablets-combo.broke{animation:tabletsComboBreak .52s ease-out}
+@keyframes tabletsComboBreak{0%{background:rgba(255,90,80,.55)}100%{background:rgba(20,12,6,.85)}}
+.tablets-mult.pop{animation:tabletsMultPop .42s ease-out}
+@keyframes tabletsMultPop{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+/* G3: the lamp that goes out leaves a wisp of smoke from its seal. */
+.tablets-seal.snuff{position:relative}
+.tablets-seal.snuff::after{content:"";position:absolute;left:50%;bottom:100%;width:6px;height:10px;margin-left:-3px;border-radius:50%;background:rgba(210,210,210,.55);filter:blur(2px);pointer-events:none;animation:tabletsSnuffWisp .9s ease-out forwards}
+@keyframes tabletsSnuffWisp{0%{opacity:.7;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-18px) scale(1.6)}}
+/* G4: the Hold's finish sweeps gold under the verse; the lit seals glow. */
+.tablets-roll.hold-sweep{isolation:isolate}
+.tablets-roll.hold-sweep::after{content:"";position:absolute;left:0;right:0;top:0;bottom:0;z-index:-1;pointer-events:none;opacity:.22;background:linear-gradient(180deg,rgba(255,224,130,0),rgba(255,224,130,.9) 50%,rgba(255,224,130,0));transform:translateY(-100%);animation:tabletsHoldSweep .9s ease-in-out forwards}
+@keyframes tabletsHoldSweep{to{transform:translateY(100%)}}
+.tablets-seal.glory{box-shadow:0 0 12px rgba(255,214,120,.9)}
 body.reduced #tablets-fx,body.motion-calm #tablets-fx{display:none}
+body.reduced .tablets-sheet,body.reduced .tablets-verse,body.motion-calm .tablets-sheet,body.motion-calm .tablets-verse{transition:none}
 @media (hover:hover){
   #v-tablets.trial-mode .tablets-stone:not(:hover):not(.selected) .tablets-word{
     filter:blur(3.5px);opacity:.75;letter-spacing:.2em
@@ -399,6 +585,14 @@ body.reduced #tablets-fx,body.motion-calm #tablets-fx{display:none}
   max-height:min(58vh,620px);overflow:auto;padding:0 6px 0 2px}
 #brief-tablets-pick[hidden]{display:none}
 .tablets-ch-group{margin:0 0 1.5em}
+.tablets-mode-row{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 1.1em}
+.tablets-mode-btn{flex:1;min-height:44px;padding:.5em .9em;
+  background:linear-gradient(180deg,rgba(92,61,22,.9),rgba(27,17,7,.96));border:1px solid rgba(225,183,99,.72);
+  color:#ffe7b5;font-family:var(--disp);letter-spacing:.08em;text-transform:uppercase;font-size:.85rem}
+.tablets-mode-btn.on{border-color:var(--gold-hot);box-shadow:0 0 14px rgba(217,182,103,.28)}
+.tablets-mode-note{flex-basis:100%;margin:.5em 0 0;font-family:var(--body);font-style:italic;font-size:.82rem;color:#c9b088}
+#brief-tablets-modes{display:block;width:min(640px,94vw);margin:2vh auto 0;padding:0 6px 0 2px}
+#brief-tablets-modes[hidden]{display:none}
 .tablets-ch-lab{margin:1.1em 0 .6em;text-align:left;font-family:var(--ui);font-size:.66rem;
   letter-spacing:.22em;text-transform:uppercase;color:#b79a58;
   border-bottom:1px solid rgba(217,182,103,.24);padding-bottom:.5em}
@@ -419,7 +613,7 @@ body.reduced #tablets-fx,body.motion-calm #tablets-fx{display:none}
   .tablets-tier{display:none}
   .tablets-ms{padding:18px 20px 14px}
   .tablets-verse{font-size:1.2rem;min-height:3.6em}
-  .tablets-stone{height:82px}
+  .tablets-stone{height:58px}
   .tablets-surge{width:100%;min-width:0}
 }
 @media (max-width:640px){
@@ -473,6 +667,8 @@ body.reduced #tablets-fx,body.motion-calm #tablets-fx{display:none}
   .tablets-tray-tools button,.tablets-lamps,.tablets-surge{
     min-height:40px;padding:6px 8px;font-size:.58rem}
   .tablets-surge{width:auto;min-width:0;flex:1 1 120px}
+  .tablets-relic{min-width:0;flex:1 1 auto}
+  .tablets-relic .tablets-relic-effect{display:none}
   .tablets-foot{padding:6px 10px max(8px,env(safe-area-inset-bottom));gap:8px}
   .tablets-hold{display:none}
   .tablets-pct{font-size:.82rem;min-width:2.6em}
