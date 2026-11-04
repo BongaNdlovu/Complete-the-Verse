@@ -1173,34 +1173,16 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
 }
 {
   const sb = boot();
-  eq("Pace I drifts at 18 px/s", read(sb, "tabletsGlyphSpeed(1,false)"), 18);
-  eq("Pace III drifts at 46 px/s", read(sb, "tabletsGlyphSpeed(3,false)"), 46);
-  ok("Surge speeds Pace II by 1.35", Math.abs(read(sb, "tabletsGlyphSpeed(2,true)") - 37.8) < 1e-9, read(sb, "tabletsGlyphSpeed(2,true)"));
-  eq("a pace past III clamps to 46", read(sb, "tabletsGlyphSpeed(9,false)"), 46);
-  exec(sb, "var TG = tabletsGlyphStep({layer:2,x:5,y:100,size:40,sign:0}, 0.5, 20, 800, 450)");
-  ok("a near glyph drifts up at its depth", Math.abs(read(sb, "TG.y") - (100 - 20 * 1.18 * 0.5)) < 1e-9, read(sb, "TG.y"));
-  exec(sb, "var TW = tabletsGlyphStep({layer:2,x:5,y:-50,size:40,sign:0}, 0, 20, 800, 450)");
-  eq("a glyph above the stage comes back below it", read(sb, "TW.y"), 490);
-}
-{
-  const sb = boot();
-  const signs = JSON.parse(read(sb, "JSON.stringify(TABLET_GLYPHS)"));
-  eq("six cuneiform signs are ported", signs.length, 6);
-  ok("every sign has at least three strokes", signs.every(function(s){ return s.length >= 3; }));
-  ok("every stroke coordinate sits in the -1..1 box", signs.every(function(s){
-    return s.every(function(st){ return st.slice(0, 4).every(function(v){ return Math.abs(v) <= 1; }); });
-  }));
-}
-{
-  const sb = boot();
   exec(sb, "$('tablets-fx').getContext = function(){ return {}; }; tabletsFxInit()");
-  eq("the field seeds twelve glyphs beside the eight embers", read(sb, "tabletsFx.glyphs.length"), 12);
-  eq("the field still seeds eight embers", read(sb, "tabletsFx.embers.length"), 8);
+  eq("the field seeds eight embers", read(sb, "tabletsFx.embers.length"), 8);
+  eq("the field seeds no ring", read(sb, "tabletsFx.rings.length"), 0);
+  eq("the cuneiform glyph layer is gone", read(sb, "typeof tabletsFx.glyphs"), "undefined");
+  eq("the cuneiform sign bank is gone", read(sb, "typeof TABLET_GLYPHS"), "undefined");
 }
 {
   const sb = boot();
   exec(sb, "document.body.classList.add('reduced'); $('tablets-fx').getContext = function(){ return {}; }; tabletsFxInit()");
-  eq("reduced motion makes no glyphs", read(sb, "tabletsFx.glyphs.length"), 0);
+  eq("reduced motion seeds no embers", read(sb, "tabletsFx.embers.length"), 0);
 }
 {
   const riseCss = fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8");
@@ -1304,6 +1286,11 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   ok("the field fills its column", /\.tablets-ms\{[^}]*width:100%[^}]*max-width:1440px/.test(src));
   ok("the field is flanked by carved pillars", /\.tablets-pillar\{/.test(src) && /\.tablets-pillar-l\{left:0\}/.test(src));
   ok("the speed pills light the active tier", /\.tablets-speed-pill\.on\{/.test(src));
+  ok("the field carries three light shafts", /class="tablets-shafts"[^>]*><i><\/i><i><\/i><i><\/i>/.test(html));
+  ok("the Celestial gold mood is styled", /\.tablets-stage\.gold::after\{/.test(src));
+  ok("the danger red mood is styled", /\.tablets-stage\.danger::after\{/.test(src));
+  ok("the shafts sleep under reduced motion", /body\.reduced \.tablets-shafts/.test(src));
+  ok("no cuneiform symbols remain", !/TABLET_GLYPHS|tabletsGlyph|DINGIR|DUB_TABLET/.test(src));
   ok("the candle and companion step aside on the run", /#v-tablets \.tablets-ground,#v-tablets \.tablets-companion\{display:none!important\}/.test(src));
   ok("blanks are stone pills", /\.tablets-blank-word\{[^}]*border-radius/.test(src));
   ok("coming blanks read as empty pills", /\.tablets-blank-word\{[^}]*color:transparent/.test(src));
@@ -1348,6 +1335,13 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   ok("the ladder rides the stage's right edge", /\.tablets-ladder\{[^}]*right:6px/.test(src));
   ok("the marker diamond is cut", /\.tablets-ladder-marker\{[^}]*rotate\(45deg\)/.test(src));
   ok("the pace tag sits before the speed pills", html.indexOf('id="tablets-pace-tag"') > html.indexOf('class="tablets-actions"') && html.indexOf('id="tablets-pace-tag"') < html.indexOf('id="tablets-speeds"'));
+}
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman'); R.surgeOn = true; paintTabletsClock()");
+  eq("Overdrive gilds the stage", read(sb, "$('tablets-stage').classList.contains('gold')"), true);
+  exec(sb, "R.surgeOn = false; R.tabletClock = 0.2; paintTabletsClock()");
+  eq("the danger band reddens the stage", read(sb, "$('tablets-stage').classList.contains('danger')"), true);
 }
 {
   // E: the juice (roadmap phase E).
@@ -1623,7 +1617,7 @@ const toneCount = function(sb, dur){
 {
   // G1: the carve kick, burst and note by grade.
   const sb = boot();
-  exec(sb, FAKE_BUS + "; startRun('tablets','watchman'); R.tabletTutorial = false; R.trauma = 0; tabletsFx.ctx = {}; tabletsFx.sparks = [];");
+  exec(sb, FAKE_BUS + "; startRun('tablets','watchman'); R.tabletTutorial = false; R.trauma = 0; tabletsFx.ctx = { clearRect:function(){}, beginPath:function(){}, moveTo:function(){}, lineTo:function(){}, quadraticCurveTo:function(){}, closePath:function(){}, stroke:function(){}, fill:function(){}, arc:function(){} }; tabletsFx.sparks = []; tabletsFx.rings = [];");
   exec(sb, "tabletsCarveKick({grade:'clutch'})");
   eq("a clutch carve kicks the camera 0.32", read(sb, "R.trauma"), 0.32);
   exec(sb, "R.trauma = 0; tabletsCarveKick({grade:'divine'})");
@@ -1631,7 +1625,11 @@ const toneCount = function(sb, dur){
   exec(sb, "tabletsCarveBurst({grade:'clutch'})");
   eq("a clutch burst throws 34 sparks", read(sb, "tabletsFx.sparks.length"), 34);
   eq("a clutch burst wears the clutch colour", read(sb, "tabletsFx.sparks[0].color"), "255,128,72");
-  exec(sb, "tabletsFx.sparks = []; tabletsCarveBurst({grade:'divine'})");
+  eq("a clutch carve throws one ring", read(sb, "tabletsFx.rings.length"), 1);
+  eq("the ring wears the clutch colour", read(sb, "tabletsFx.rings[0].color"), "255,128,72");
+  exec(sb, "for(var i = 0; i < 40; i++) drawTabletsFx(0.1)");
+  eq("the carve ring burns out", read(sb, "tabletsFx.rings.length"), 0);
+  exec(sb, "tabletsFx.sparks = []; tabletsFx.rings = []; tabletsCarveBurst({grade:'divine'})");
   eq("a divine burst throws 26 sparks", read(sb, "tabletsFx.sparks.length"), 26);
   eq("a divine burst wears the divine colour", read(sb, "tabletsFx.sparks[0].color"), "255,236,170");
   exec(sb, "__osc.length = 0; tabletsPlayCarveNote(0)");

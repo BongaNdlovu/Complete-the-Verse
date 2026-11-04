@@ -104,6 +104,28 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-pillar-l{left:0}
 .tablets-pillar-r{right:0;transform:scaleX(-1)}
 @media (max-width:900px){.tablets-pillar{display:none}}
+/* S4: three slow light shafts fall through the field; no cuneiform symbols. */
+.tablets-shafts{position:absolute;inset:0;z-index:2;overflow:hidden;pointer-events:none;opacity:.55}
+.tablets-shafts i{
+  position:absolute;top:-18%;bottom:-18%;width:12%;
+  background:linear-gradient(180deg,rgba(255,224,150,0),rgba(255,224,150,.12) 38%,rgba(255,224,150,.04) 72%,rgba(255,224,150,0));
+  filter:blur(7px);transform:rotate(11deg);animation:tabletsShaft 9s ease-in-out infinite alternate}
+.tablets-shafts i:nth-child(1){left:14%;animation-delay:-2s}
+.tablets-shafts i:nth-child(2){left:48%;width:9%;animation-delay:-5s;opacity:.7}
+.tablets-shafts i:nth-child(3){left:76%;width:14%;animation-delay:-7s;opacity:.55}
+@keyframes tabletsShaft{
+  from{opacity:.28;transform:translateX(-14px) rotate(11deg)}
+  to{opacity:.66;transform:translateX(18px) rotate(11deg)}}
+body.reduced .tablets-shafts,body.motion-calm .tablets-shafts{display:none}
+/* S4: the Celestial gold and danger red moods wash the field edges. */
+.tablets-stage.gold::after{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 45%,rgba(255,224,130,.20) 0%,rgba(255,190,70,.08) 55%,transparent 78%);
+  box-shadow:inset 0 0 120px rgba(255,205,90,.30)}
+.tablets-stage.danger::after{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%,transparent 42%,rgba(150,20,8,.26) 100%);
+  box-shadow:inset 0 0 110px rgba(190,30,12,.45)}
 /* D: the header's seals — three diamonds, cracked as they spend. */
 .tablets-seals{display:flex;align-items:center;gap:7px;flex:0 0 auto}
 .tablets-seal{
