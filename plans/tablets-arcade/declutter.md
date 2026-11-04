@@ -456,7 +456,7 @@ PIN fix-plan/expected.json sha256 73fc5e75cc240b9441f26a5a3b14b383cfbaef6ffe2b0d
 ```
 
 ## 8. Not measured
-- **Other browsers:** the narrow lane's turn-taking uses CSS :has(); checked in Chromium only (Safari 15.4+ and Firefox 121+ support it; older browsers would show the banners squeezed beside the chip).
+- **Other browsers:** the narrow lane's turn-taking uses CSS :has(); checked in Chromium only; support in other browsers is not measured (a browser without :has() would show the banners squeezed beside the chip).
 - **Sizes beyond the four measured** (1280x800, 1366x768, 430x900, 375x667) and landscape phones are not measured.
 - **Android:** no lane there.
 - **CI:** the stacked PR targets the feel branch; `ci.yml` runs on PRs to master only.
