@@ -160,15 +160,15 @@ test('the field rolls the active line from The Threshold toward The Mark, and a 
     return Math.abs(R.tabletRollY - window.tabletsRollTarget(win.clientHeight, window.tabletsActiveLineTop(verse), window.tabletsRiseOf())) < 4;
   }, null, { timeout: 5000 });
   const fresh = await geo();
-  expect(fresh.mark).toBeCloseTo(0.45, 2);
+  expect(fresh.mark).toBeCloseTo(0.38, 2);
   expect(fresh.entry).toBeCloseTo(0.74, 2);
   /* The line sits where the rise puts it, within 3% of the field. */
-  expect(Math.abs(fresh.line - (0.74 - 0.29 * fresh.rise))).toBeLessThan(0.03);
+  expect(Math.abs(fresh.line - (0.74 - 0.36 * fresh.rise))).toBeLessThan(0.03);
   await page.waitForFunction(() => window.tabletsRiseOf() > 0.6, null, { timeout: 8000 });
   await page.waitForTimeout(250);
   const late = await geo();
   expect(late.line).toBeLessThan(fresh.line - 0.12);
-  expect(Math.abs(late.line - (0.74 - 0.29 * late.rise))).toBeLessThan(0.03);
+  expect(Math.abs(late.line - (0.74 - 0.36 * late.rise))).toBeLessThan(0.03);
 
   const drag = await page.evaluate(() => {
     R.tabletClock = R.tabletClockMax;

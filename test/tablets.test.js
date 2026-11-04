@@ -1232,10 +1232,10 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
 }
 {
   const sb = boot();
-  /* R2: the reference's entryY = vh * 0.74 and gameOverY = vh * 0.45. */
+  /* R2: the reference's entryY = vh * 0.74 and gameOverY = vh * 0.38. */
   ok("the roll target is The Threshold (74%) on fresh sand", Math.abs(read(sb, "tabletsRollTarget(400, 0, 0)") - 296) < 1e-9, read(sb, "tabletsRollTarget(400, 0, 0)"));
-  ok("the roll target is The Mark (45%) when the sand is gone", Math.abs(read(sb, "tabletsRollTarget(400, 0, 1)") - 180) < 1e-9, read(sb, "tabletsRollTarget(400, 0, 1)"));
-  ok("the roll target takes the line's middle off the spot", Math.abs(read(sb, "tabletsRollTarget(400, 30, 0.5)") - 208) < 1e-9, read(sb, "tabletsRollTarget(400, 30, 0.5)"));
+  ok("the roll target is The Mark (38%) when the sand is gone", Math.abs(read(sb, "tabletsRollTarget(400, 0, 1)") - 152) < 1e-9, read(sb, "tabletsRollTarget(400, 0, 1)"));
+  ok("the roll target takes the line's middle off the spot", Math.abs(read(sb, "tabletsRollTarget(400, 30, 0.5)") - 194) < 1e-9, read(sb, "tabletsRollTarget(400, 30, 0.5)"));
   ok("the roll eases 16% of the way each frame", Math.abs(read(sb, "tabletsRollEase(0, 100, false)") - 16) < 1e-9, read(sb, "tabletsRollEase(0, 100, false)"));
   ok("an untimed roll jumps straight to its target", read(sb, "tabletsRollEase(0, 100, true)") === 100, read(sb, "tabletsRollEase(0, 100, true)"));
   ok("one 60 Hz frame closes 16%", Math.abs(read(sb, "tabletsRollEase(0, 100, false, 1)") - 16) < 1e-9);
@@ -1262,7 +1262,7 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   exec(sb, "$('tablets-verse').offsetTop = 200; $('tablets-roll').clientHeight = 400; document.body.classList.add('reduced'); paintTabletsClock()");
-  eq("reduced motion snaps the roll to The Mark in one paint", read(sb, "R.tabletRollY"), 400 * 0.45 - 200);
+  eq("reduced motion snaps the roll to The Mark in one paint", read(sb, "R.tabletRollY"), 400 * 0.38 - 200);
 }
 {
   const sb = boot();
@@ -1329,8 +1329,9 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   // B: the stage reads like the arcade column (roadmap phase B, decision J4).
   ok("the entry line rides inside the roll window", html.indexOf('class="tablets-entry-line"') >= 0);
   ok("the entry line sits at the roll's entry fraction (R2: The Threshold, 74%)", /#v-tablets \.tablets-entry-line\{[^}]*top:74%/.test(src));
-  ok("The Mark sits at 45% of the field", /#v-tablets \.tablets-mark-row\{[^}]*top:45%/.test(src));
-  ok("the zone runs between the marks", /#v-tablets \.tablets-zone\{[^}]*top:45%;bottom:26%/.test(src));
+  ok("The Mark sits at 38% of the field", /#v-tablets \.tablets-mark-row\{[^}]*top:38%/.test(src));
+  ok("the zone runs between the marks", /#v-tablets \.tablets-zone\{[^}]*top:38%;bottom:26%/.test(src));
+  ok("the ladder rises with the mark", /#v-tablets \.tablets-ladder\{[^}]*top:38%/.test(src));
   ok("the field fills the stage (R2)", /#v-tablets \.tablets-ms\{position:absolute;inset:0/.test(src) && /#v-tablets \.tablets-roll\{position:absolute;inset:0/.test(src));
   ok("The Mark wears the judgment red", /\.tablets-mark-line\{[^}]*#e0442e/.test(src));
   ok("the parchment card stands down for the open column", /\.tablets-ms\{[^}]*rgba\(10,6,3/.test(src));
@@ -1954,6 +1955,28 @@ const toneCount = function(sb, dur){
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   eq("the start line names three lamps", read(sb, "tabletsLampWords(R.tabletLives)"), "Three lamps");
+}
+{
+  // K: the typed word animates (2026-11-04).
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  const typeK = function(ch){ exec(sb, "tabletsOnKey({ key: " + JSON.stringify(ch) + ", preventDefault: function(){} })"); };
+  typeK("w");
+  ok("a typed letter pops the slot", read(sb, "$('tablets-slot').classList.contains('typed')"), true);
+  exec(sb, "tabletsOnKey({ key: 'backspace', preventDefault: function(){} })");
+  eq("backspace stays quiet", read(sb, "$('tablets-slot').classList.contains('typed')"), false);
+  exec(sb, "document.body.classList.add('reduced')");
+  typeK("w");
+  eq("reduced motion skips the pop", read(sb, "$('tablets-slot').classList.contains('typed')"), false);
+}
+{
+  // K: the rising mark and the smooth keying, pinned in the sources.
+  ok("The Mark rises to 38% in the roll math", /const TABLET_ROLL_MARK = 0\.38;/.test(src));
+  ok("the slot eases its states", /#v-tablets \.tablets-slot\{[\s\S]*?transition:border-color \.18s ease/.test(src));
+  ok("the typed pop has its keyframe", /animation:tabletsTypedPop \.12s/.test(src));
+  ok("the Favor popup is quicker", /animation:tabletsPopRise \.65s/.test(src));
+  ok("the pop and the easing sleep under reduced motion", /body\.reduced #v-tablets \.tablets-slot\.typed,/.test(src) && /body\.reduced #v-tablets \.tablets-slot,/.test(src));
 }
 unstubRandom();
 if (fail) {
