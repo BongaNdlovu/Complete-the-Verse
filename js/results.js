@@ -529,7 +529,9 @@ function tabletsWordsCarvedText(){
 }
 function tabletsResultsBreakdownHtml(o, row){
   const chKey = (typeof Tablets !== "undefined" && Tablets.editionKey) ? Tablets.editionKey(R.tabletChapter) : R.tabletChapter;
-  return row("Words carved", tabletsWordsCarvedText()) +
+  /* F4: a run that read its missed lines again shows how many it carved the second time. */
+  const review = R.tabletReviewTotal ? row("Review", (R.tabletReviewKept || 0) + " / " + R.tabletReviewTotal + " carved again") : "";
+  return row("Words carved", tabletsWordsCarvedText()) + review +
     row("Hold", tabletsHeld() ? "Held" : "Shattered") +
     row("Chapter best", ((SAVE.tablets && SAVE.tablets[chKey] && SAVE.tablets[chKey].best) || 0)+"%") +
     '<div class="brow tot"><span>Final</span><b>'+fmt(o.total)+'</b></div>';

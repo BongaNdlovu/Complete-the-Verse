@@ -84,15 +84,11 @@ body.view-tablets .voice-caption{display:none!important}
   box-shadow:0 0 0 1px rgba(213,173,98,.28) inset}
 .tablets-iconbtn:hover,.tablets-iconbtn:focus-visible{color:var(--gold-hot)}
 .tablets-iconbtn.on{color:var(--gold-hot);border-color:var(--gold-hot)}
-/* S2: the six speed pills replace the single cycle button on the run bar. */
-.tablets-speeds{display:flex;align-items:center;gap:3px;flex:0 0 auto}
-.tablets-speed-pill{
-  min-height:32px;padding:0 .5em;border-radius:999px;cursor:pointer;
-  font-family:var(--ui);font-size:.55rem;font-weight:700;letter-spacing:.08em;
-  color:#b79a58;background:rgba(8,9,12,.72);box-shadow:0 0 0 1px rgba(213,173,98,.24) inset}
-.tablets-speed-pill:hover,.tablets-speed-pill:focus-visible{color:var(--gold-hot)}
-.tablets-speed-pill.on{color:#1b1005;background:linear-gradient(180deg,#ffe08a,#c9973a);box-shadow:0 0 10px rgba(255,214,120,.45)}
-.tablets-speed-pill:disabled{opacity:.45;cursor:not-allowed}
+/* P7: one pace chip replaces the speed pills: 1.25x, then "1.5x · quickened" for the chapter's last third. */
+.tablets-pace{display:flex;align-items:center;flex:0 0 auto;min-height:32px;padding:0 12px;border-radius:999px;
+  font-family:var(--ui);font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;
+  color:#e9cf93;background:rgba(8,9,12,.72);box-shadow:0 0 0 1px rgba(213,173,98,.32) inset;transition:color .3s,box-shadow .3s,background .3s}
+.tablets-pace.quick{color:#1b1005;background:linear-gradient(180deg,#ffd08a,#e07a3a);box-shadow:0 0 14px rgba(255,150,80,.55)}
 /* S2: the full-width field is flanked by the two carved pillars. */
 .tablets-pillar{
   position:absolute;top:0;bottom:0;width:clamp(16px,2.4vw,32px);z-index:3;pointer-events:none;
@@ -267,10 +263,10 @@ body.reduced .tablets-shafts,body.motion-calm .tablets-shafts{display:none}
 .tablets-mark{
   font-family:var(--disp-orn);color:#ff9a80;font-size:.78rem;letter-spacing:.32em;text-transform:uppercase;
   text-shadow:0 0 12px rgba(255,80,50,.85);font-weight:700}
-/* B: the entry line — the green line the active blank rises from. Its 62% is
+/* B: the entry line — the green line the active blank rises from. Its 74% is
    TABLET_ROLL_ENTRY (js/tablets-run.js), which the roll target also reads. */
 .tablets-entry-line{
-  position:absolute;left:0;right:0;top:62%;height:2px;z-index:2;pointer-events:none;
+  position:absolute;left:0;right:0;top:74%;height:2px;z-index:2;pointer-events:none;
   background:linear-gradient(90deg,transparent,#39d98a 18%,#7dffc0 50%,#39d98a 82%,transparent);
   box-shadow:0 0 12px rgba(57,217,138,.7)}
 .tablets-slot{
@@ -452,7 +448,7 @@ body.reduced .tablets-shafts,body.motion-calm .tablets-shafts{display:none}
   100%{transform:translate(3px,14px) rotate(-3deg) scale(.9);filter:brightness(.3)}
 }
 .tablets-tray-tools{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;flex-wrap:wrap}
-.tablets-tray-tools button,.tablets-lamps,.tablets-surge{
+.tablets-tray-tools button,.tablets-lamps,.tablets-freeze{
   min-height:36px;padding:4px 12px;font-family:var(--ui);letter-spacing:.1em;text-transform:uppercase;
   font-size:.6rem;color:#deb86f;background:linear-gradient(180deg,#22160a 0%,#130c05 100%);
   border:1px solid #4a371a;border-radius:999px}
@@ -464,16 +460,16 @@ body.reduced .tablets-shafts,body.motion-calm .tablets-shafts{display:none}
 .tablets-hotkey{
   font-style:normal;font-size:.55rem;background:#3b2912;border:1px solid #6b4e20;
   padding:1px 4px;border-radius:3px;color:#f2cb7c;margin-left:4px}
-.tablets-surge{
+.tablets-freeze{
   display:flex;align-items:center;gap:8px;min-width:210px;cursor:pointer}
-.tablets-surge.ready{
-  border-color:#ffe082;box-shadow:0 0 16px rgba(255,224,130,.6);animation:tabletsSurgeReady .9s infinite alternate}
-@keyframes tabletsSurgeReady{from{transform:scale(1)}to{transform:scale(1.03)}}
-.tablets-surge-track{
+.tablets-freeze.ready{
+  border-color:#ffe082;box-shadow:0 0 16px rgba(255,224,130,.6);animation:tabletsFreezeReady .9s infinite alternate}
+@keyframes tabletsFreezeReady{from{transform:scale(1)}to{transform:scale(1.03)}}
+.tablets-freeze-track{
   flex:1;height:7px;background:#140c04;border-radius:4px;border:1px solid #3d2810;overflow:hidden;display:block}
-.tablets-surge-fill{
+.tablets-freeze-fill{
   display:block;height:100%;width:0;background:linear-gradient(90deg,#964910,#e69622 60%,#fff2a1)}
-.tablets-surge em{font-style:normal;font-size:.58rem;color:#ffe291;font-weight:700}
+.tablets-freeze em{font-style:normal;font-size:.58rem;color:#ffe291;font-weight:700}
 .tablets-keys-hint{font-family:var(--ui);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#8a7a62}
 /* A: the powers wear relic cards — key chip, name, effect, count, per-card accent. */
 .tablets-tray-tools .tablets-relic{
@@ -486,10 +482,10 @@ body.reduced .tablets-shafts,body.motion-calm .tablets-shafts{display:none}
   text-shadow:0 0 12px var(--relic,#ffe082)}
 .tablets-relic[data-relic="illuminate"]{--relic:#ffe082}
 .tablets-relic[data-relic="winnow"]{--relic:#c9e08a}
-.tablets-relic[data-relic="surge"]{--relic:#ffb054}
+.tablets-relic[data-relic="freeze"]{--relic:#ffb054}
 .tablets-relic.spent{--relic:#6b5c44;text-shadow:none}
-.tablets-surge.tablets-relic{min-width:210px;flex-wrap:wrap}
-.tablets-surge.tablets-relic .tablets-surge-track{flex:1 1 100%}
+.tablets-freeze.tablets-relic{min-width:210px;flex-wrap:wrap}
+.tablets-freeze.tablets-relic .tablets-freeze-track{flex:1 1 100%}
 /* A: the recharge celebration — the sheen is a moving background so it never
    leaves the card, and the pill floats above the top edge. */
 .tablets-relic::after{
@@ -566,8 +562,8 @@ body.reduced .tablets-tier.elevated,
 body.motion-calm .tablets-tier.elevated,
 body.reduced .tablets-clock-fill.urgent,
 body.motion-calm .tablets-clock-fill.urgent,
-body.reduced .tablets-surge.ready,
-body.motion-calm .tablets-surge.ready,
+body.reduced .tablets-freeze.ready,
+body.motion-calm .tablets-freeze.ready,
 body.reduced #tablets-aura.active,
 body.motion-calm #tablets-aura.active,
 body.reduced .tablets-stone.shatter,
@@ -661,7 +657,7 @@ body.reduced .tablets-sheet,body.reduced .tablets-verse,body.motion-calm .tablet
   .tablets-ms{padding:18px 20px 14px}
   .tablets-verse{font-size:1.2rem;min-height:3.6em}
   .tablets-stone{height:58px}
-  .tablets-surge{width:100%;min-width:0}
+  .tablets-freeze{width:100%;min-width:0}
 }
 @media (max-width:640px){
   .tablets-top{flex-wrap:wrap}
@@ -692,8 +688,7 @@ body.reduced .tablets-sheet,body.reduced .tablets-verse,body.motion-calm .tablet
   .tablets-chip,.tablets-pace-tag,#tablets-theme,#tablets-quit{display:none}
   .tablets-chip b{font-size:.82rem;letter-spacing:.1em}
   .tablets-actions{gap:4px}
-  .tablets-speeds{gap:2px}
-  .tablets-speed-pill{min-height:30px;padding:0 .34em;font-size:.5rem;letter-spacing:.02em}
+  .tablets-pace{min-height:30px;padding:0 8px;font-size:.52rem;letter-spacing:.06em}
   .tablets-iconbtn{padding:0 .55em;min-height:40px;font-size:.55rem;letter-spacing:.1em}
   .tablets-stage{padding:8px 10px;overflow:hidden;align-items:stretch}
   .tablets-ms{padding:12px 14px 10px;margin:0;border-radius:12px;flex:1 1 auto;min-height:0;
@@ -714,12 +709,219 @@ body.reduced .tablets-sheet,body.reduced .tablets-verse,body.motion-calm .tablet
   .tablets-word{font-size:.92rem;letter-spacing:.08em}
   .tablets-key{width:22px;height:22px;top:5px;left:6px;font-size:.62rem}
   .tablets-tray-tools{margin-top:8px;gap:6px}
-  .tablets-tray-tools button,.tablets-lamps,.tablets-surge{
+  .tablets-tray-tools button,.tablets-lamps,.tablets-freeze{
     min-height:40px;padding:6px 8px;font-size:.58rem}
-  .tablets-surge{width:auto;min-width:0;flex:1 1 120px}
+  .tablets-freeze{width:auto;min-width:0;flex:1 1 120px}
   .tablets-relic{min-width:0;flex:1 1 auto}
   .tablets-relic .tablets-relic-effect{display:none}
   .tablets-foot{padding:6px 10px max(8px,env(safe-area-inset-bottom));gap:8px}
   .tablets-hold{display:none}
   .tablets-pct{font-size:.82rem;min-width:2.6em}
 }
+
+/* R2: the full-screen field, as in the reference arcade. The stage is the field; the chapter sheet rolls up through
+   it from The Threshold (74%) to The Mark (45%). The rules sit last and carry #v-tablets so they win over the
+   card layout above at every width. */
+/* The stage keeps no fill of its own: the scribe-library photo (.tablets-bg) shows through it, as before the
+   rebuild, under the hall's red ambience (.tablets-stage::before). */
+#v-tablets .tablets-stage{display:block;max-width:none;width:100%;margin:0;padding:0;gap:0;overflow:hidden;background:none}
+#v-tablets .tablets-ms{position:absolute;inset:0;z-index:4;width:auto;max-width:none;margin:0;padding:0;
+  display:block;overflow:hidden;text-align:left;background:none;border:0;border-radius:0;box-shadow:none}
+#v-tablets .tablets-ms::before{display:none}
+#v-tablets .tablets-roll{position:absolute;inset:0;margin:0;min-height:0;overflow:hidden;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 7%,#000 93%,transparent 100%);
+  mask-image:linear-gradient(180deg,transparent 0,#000 7%,#000 93%,transparent 100%)}
+#v-tablets .tablets-sheet{position:absolute;top:0;left:0;right:0;margin:0 auto;max-width:960px;
+  padding:0 clamp(40px,6vw,72px);box-sizing:border-box}
+#v-tablets .tablets-sheet .tablets-verse,#v-tablets .tablets-verse{display:block;margin:0 0 8px;min-height:0;
+  font-family:var(--disp);font-size:inherit;text-shadow:0 1px 2px rgba(0,0,0,.85)}
+#v-tablets .tablets-sheet-step{opacity:1;margin:0}
+/* Every line of the chapter: verse number, words, blank. */
+#v-tablets .tablets-gap-line{display:block;text-align:left;margin:0 0 8px;padding:9px 16px;border-radius:12px;
+  border:1px solid transparent;font-family:var(--disp);font-weight:700;letter-spacing:.03em;
+  font-size:clamp(.92rem,1.35vw,1.14rem);line-height:1.7;color:#d4b885;
+  transition:background .3s,border-color .3s,color .3s}
+#v-tablets .tablets-sheet-past .tablets-gap-line{color:#b8956a;opacity:.78}
+#v-tablets .tablets-sheet-next .tablets-gap-line{opacity:.86}
+#v-tablets .tablets-gap-ref{display:inline-block;margin:0 8px 0 0;padding:0;border:0;border-radius:0;
+  font-family:ui-monospace,Consolas,monospace;font-size:.66em;letter-spacing:.04em;color:#c7a67b;vertical-align:baseline}
+/* The active line. */
+#v-tablets #tablets-verse .tablets-gap-line{color:#fff0d4;background:rgba(48,32,16,.78);
+  border-color:rgba(125,88,40,.62);box-shadow:0 8px 24px rgba(0,0,0,.45)}
+#v-tablets .tablets-ms.golden-blank #tablets-verse .tablets-gap-line{color:#fff3c4;
+  background:linear-gradient(90deg,rgba(245,176,39,.2),rgba(245,176,39,.12),rgba(245,176,39,.2));
+  border-color:rgba(245,176,39,.58);box-shadow:0 0 28px rgba(245,176,39,.22)}
+#v-tablets .tablets-stage.gold #tablets-verse .tablets-gap-line{color:#fff9db;
+  background:linear-gradient(90deg,rgba(102,70,20,.85),rgba(143,99,25,.8),rgba(102,70,20,.85));border-color:#fff3c4;
+  box-shadow:0 0 32px rgba(255,225,130,.45)}
+/* Blanks on the other lines: a carved word in gold, or an empty stone. */
+#v-tablets .tablets-blank-word{display:inline-block;vertical-align:middle;min-width:110px;height:1.75em;line-height:1.75em;
+  margin:0 4px;padding:0 12px;border-radius:8px;font-size:.95em;letter-spacing:.08em;text-align:center;
+  color:transparent;background:linear-gradient(180deg,#8c6f46,#6e532e);border:1px solid #5a4220;box-shadow:none}
+#v-tablets .tablets-blank-word.in{min-width:0;color:#ffd76e;text-transform:uppercase;letter-spacing:.1em;
+  background:rgba(43,29,16,.82);border:0;border-bottom:2px solid #f5b027;border-radius:4px;
+  box-shadow:0 0 12px rgba(245,176,39,.3);text-shadow:0 0 10px rgba(255,215,110,.45)}
+/* The slot: the active blank, carved inline. */
+#v-tablets .tablets-slot{display:inline-flex;vertical-align:middle;position:relative;z-index:3;
+  min-width:clamp(118px,11vw,150px);max-width:none;width:auto;height:2.05em;margin:0 4px;padding:0 14px;
+  border-radius:9px;border:2px solid #ffd15c;background:linear-gradient(180deg,#b89258,#8a6532);
+  color:#fff3c4;font-family:var(--disp);font-size:.95em;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  box-shadow:0 0 16px rgba(255,209,92,.35);text-shadow:0 1px 2px rgba(0,0,0,.6)}
+#v-tablets .tablets-slot.urgent{border-color:#ff4d4d;background:linear-gradient(180deg,#b05c56,#8f3838);color:#ffe8a8}
+#v-tablets .tablets-slot.glow{border-color:#fff;background:linear-gradient(180deg,#ffd76e,#c88a28);color:#241608;
+  text-shadow:none;box-shadow:0 0 24px #fff3c4;transform:scale(1.05)}
+#v-tablets .tablets-stage.selah .tablets-slot{border-color:#9fd8ff;background:linear-gradient(180deg,rgba(7,89,133,.85),rgba(8,47,73,.92));color:#e0f2fe}
+#v-tablets .tablets-slot.drag-over{border-color:#fff;background:#cba058;color:#1a120a;transform:scale(1.05)}
+#v-tablets .tablets-ms > .tablets-slot{position:absolute;left:-9999px;top:0}
+/* The zone between the marks, tinted red at The Mark and green at The Threshold. */
+#v-tablets .tablets-zone{position:absolute;top:45%;bottom:26%;left:clamp(14px,2.4vw,34px);right:clamp(14px,2.4vw,34px);
+  z-index:1;pointer-events:none;border-left:1px dashed rgba(245,176,39,.3);border-right:1px dashed rgba(245,176,39,.3);
+  background:linear-gradient(180deg,rgba(239,68,68,.07),rgba(245,158,11,.06),rgba(16,185,129,.07))}
+#v-tablets .tablets-stage.gold .tablets-zone{background:linear-gradient(180deg,rgba(252,211,77,.15),rgba(254,240,138,.18),rgba(252,211,77,.15));border-color:rgba(255,243,196,.7)}
+#v-tablets .tablets-stage.selah .tablets-zone{background:rgba(14,165,233,.08);border-color:rgba(56,189,248,.4)}
+/* The Mark: the red line at 45%, its sand readout and the sand bar under it. */
+#v-tablets .tablets-mark-row{position:absolute;left:0;right:0;top:45%;z-index:8;margin:0;padding:0 12px;
+  display:flex;align-items:center;gap:0;pointer-events:none;transform:translateY(-50%)}
+#v-tablets .tablets-mark-row::before,#v-tablets .tablets-mark-row::after{content:"";flex:0 0 auto;width:12px;height:12px;
+  background:#ff5252;border:2px solid #5a0d0d;transform:rotate(45deg);box-shadow:0 0 12px #ff3333}
+#v-tablets .tablets-mark-line{flex:1;height:2.5px;position:relative;
+  background:linear-gradient(90deg,transparent,#ff4d4d 12%,#ff4d4d 88%,transparent);
+  box-shadow:0 0 12px #ff4d4d,0 0 20px rgba(255,180,50,.75)}
+#v-tablets .tablets-mark{position:absolute;right:22px;bottom:6px;display:flex;align-items:center;gap:8px;
+  padding:2px 10px;border-radius:4px;background:#2b0b0b;border:1px solid #ff5c5c;
+  box-shadow:0 0 10px rgba(255,60,60,.65);font-family:var(--disp);font-size:.6rem;font-weight:800;letter-spacing:.18em;
+  text-transform:uppercase;color:#ffc4c4;text-shadow:none;white-space:nowrap}
+#v-tablets .tablets-mark .tablets-clock-lab{font-size:.66rem;letter-spacing:.06em;color:#ffd76e}
+#v-tablets .tablets-clock{position:absolute;left:14%;right:14%;top:5px;height:3px;margin:0;border:0;border-radius:999px;
+  background:rgba(0,0,0,.6);box-shadow:none;overflow:hidden}
+#v-tablets .tablets-clock-fill{border-radius:999px;background:linear-gradient(90deg,#ef4444,#f59e0b 40%,#34d399)}
+/* The Threshold: the green line at 74%. */
+#v-tablets .tablets-entry-line{position:absolute;left:12px;right:12px;top:74%;height:1.5px;z-index:7;
+  background:linear-gradient(90deg,transparent,#2ecc71 10%,#2ecc71 90%,transparent);box-shadow:0 0 8px #2ecc71}
+#v-tablets .tablets-entry-line::before,#v-tablets .tablets-entry-line::after{content:"";position:absolute;top:50%;width:10px;height:10px;
+  margin-top:-6px;background:#5efc8d;border:2px solid #0d5220;transform:rotate(45deg);box-shadow:0 0 8px #2ecc71}
+#v-tablets .tablets-entry-line::before{left:-2px}
+#v-tablets .tablets-entry-line::after{right:-2px}
+#v-tablets .tablets-entry-tag{position:absolute;left:24px;top:5px;padding:2px 10px;border-radius:4px;
+  background:#0d2114;border:1px solid #2ecc71;box-shadow:0 0 8px rgba(46,204,113,.5);
+  font-family:var(--disp);font-size:.58rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#b8f5cf;white-space:nowrap}
+/* The verse reference and the golden badge float at the top of the field. */
+#v-tablets .tablets-field-head{position:absolute;top:10px;left:0;right:0;z-index:9;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;gap:10px}
+#v-tablets .tablets-ref-pill{margin:0;font-size:clamp(.78rem,1.2vw,.95rem);letter-spacing:.24em;
+  padding:3px 14px;border-radius:999px;background:rgba(12,8,4,.7);border:1px solid rgba(217,182,103,.32)}
+#v-tablets .tablets-golden{margin:0}
+/* The grade ladder rides the zone's right edge: Last grain at The Mark, Fresh sand at The Threshold. */
+#v-tablets .tablets-ladder{top:45%;bottom:26%;right:clamp(20px,2.8vw,40px);width:118px}
+#v-tablets .tablets-tut-callout{position:absolute;top:9%;left:clamp(20px,4vw,48px);z-index:10;max-width:300px;margin:0}
+#v-tablets .tablets-speech{position:absolute;left:50%;bottom:10px;z-index:9;margin:0;transform:translateX(-50%)}
+#v-tablets .tablets-pillar{z-index:6}
+/* R3: the touch drag ghost. */
+.tablets-drag-ghost{position:fixed;left:0;top:0;z-index:95;pointer-events:none;padding:8px 16px;border-radius:10px;
+  font-family:'Cinzel',Georgia,serif;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#1b1005;
+  background:linear-gradient(180deg,#f3e6c8,#c9b183);border:1.5px solid #8a6f47;box-shadow:0 10px 24px rgba(0,0,0,.7)}
+#v-tablets .tablets-stone{touch-action:none}
+#v-tablets .tablets-stone.dragging{opacity:.55}
+/* R2: the feedback lane takes no height of its own: its banners rise over the foot of the field, under The
+   Threshold, so the field keeps the 48 px the empty lane used to cost. */
+#v-tablets .tablets-lane{height:0;overflow:visible;align-items:flex-end;transform:translateY(-10px)}
+@media (max-width:900px){
+  #v-tablets .tablets-sheet{padding:0 18px}
+  #v-tablets .tablets-gap-line{padding:7px 10px;font-size:.92rem;line-height:1.6}
+  #v-tablets .tablets-blank-word{min-width:84px}
+  #v-tablets .tablets-slot{min-width:96px;padding:0 10px}
+}
+@media (max-width:640px){
+  #v-tablets .tablets-stage{padding:0}
+  #v-tablets .tablets-ms{padding:0;border-radius:0;display:block}
+  #v-tablets .tablets-mark-row{display:flex}
+  #v-tablets .tablets-sheet{padding:0 12px}
+  #v-tablets .tablets-gap-line{padding:6px 9px;margin-bottom:6px;font-size:.84rem;line-height:1.55;letter-spacing:.01em}
+  #v-tablets .tablets-gap-ref{display:inline-block}
+  #v-tablets .tablets-slot{height:1.95em;font-size:.88em;letter-spacing:.1em}
+  #v-tablets .tablets-mark{right:10px;font-size:.52rem;letter-spacing:.12em}
+  #v-tablets .tablets-entry-tag{left:12px;font-size:.5rem}
+  #v-tablets .tablets-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #v-tablets .tablets-ref-pill{font-size:.72rem;letter-spacing:.16em}
+  /* The four powers share one row, as the reference's relic chips do. */
+  #v-tablets .tablets-tray-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  #v-tablets .tablets-tray-tools .tablets-relic{min-width:0;width:auto;flex:none;min-height:40px;padding:4px 8px;gap:4px;justify-content:space-between}
+  #v-tablets .tablets-tray-tools .tablets-relic-name{font-size:.56rem;letter-spacing:.06em}
+  #v-tablets .tablets-freeze.tablets-relic{flex-wrap:nowrap}
+  #v-tablets .tablets-freeze.tablets-relic .tablets-freeze-track{display:none}
+  #v-tablets .tablets-tray-tools .tablets-hotkey{display:none}
+}
+@media (prefers-reduced-motion:reduce){#v-tablets .tablets-gap-line{transition:none}}
+body.reduced #v-tablets .tablets-slot.glow,body.motion-calm #v-tablets .tablets-slot.glow{transform:none}
+
+/* F5: buttons and spacing. The stones read left with their key on the right, so a long word never runs under the
+   key badge; the powers are one even row of cards (key, name, effect, count); the header keeps one gap. */
+#v-tablets .tablets-top{gap:14px}
+#v-tablets .tablets-tray{padding:12px clamp(14px,3vw,32px) 10px}
+#v-tablets .tablets-tray-lab{margin-bottom:10px}
+#v-tablets .tablets-grid{gap:10px;max-width:1180px}
+#v-tablets .tablets-stone{height:56px;justify-content:space-between;gap:8px;padding:0 12px 0 16px;border-radius:12px}
+#v-tablets .tablets-word{flex:1 1 auto;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:clamp(.88rem,1.25vw,1.08rem);letter-spacing:.1em}
+#v-tablets .tablets-stone.long .tablets-word{font-size:clamp(.74rem,1vw,.9rem);letter-spacing:.04em}
+#v-tablets .tablets-key{position:static;order:2;flex:0 0 auto;width:24px;height:24px;font-size:.66rem}
+#v-tablets .tablets-tray-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,1.35fr);gap:10px;align-items:stretch;
+  max-width:1180px;margin:12px auto 0}
+#v-tablets .tablets-tray-tools .tablets-relic{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto;
+  column-gap:10px;row-gap:2px;align-items:center;width:100%;min-width:0;min-height:50px;padding:7px 14px;box-sizing:border-box;
+  border-radius:12px;flex:none}
+#v-tablets .tablets-tray-tools .tablets-hotkey{grid-column:1;grid-row:1 / 3;margin:0;width:22px;height:22px;padding:0;
+  display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.6rem}
+#v-tablets .tablets-tray-tools .tablets-relic-name{grid-column:2;grid-row:1;font-size:.68rem}
+#v-tablets .tablets-tray-tools .tablets-relic-effect{grid-column:2;grid-row:2;overflow:hidden;text-overflow:ellipsis;font-size:.56rem}
+#v-tablets .tablets-tray-tools .tablets-relic-count{grid-column:3;grid-row:1 / 3;margin:0}
+#v-tablets .tablets-tray-tools .tablets-freeze{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;row-gap:4px}
+#v-tablets .tablets-freeze .tablets-relic-name{grid-column:1;grid-row:1}
+#v-tablets .tablets-freeze em{grid-column:2;grid-row:1;color:#cfeeff}
+#v-tablets .tablets-freeze .tablets-freeze-track{grid-column:1 / 3;grid-row:2;width:100%}
+#v-tablets .tablets-freeze .tablets-relic-effect{grid-column:1 / 3;grid-row:3}
+#v-tablets .tablets-keys-hint{display:block;margin:8px auto 0;text-align:center;text-transform:none;letter-spacing:.06em;font-size:.6rem}
+/* F1: Freeze wears ice: the meter, the card when full, and the field while the sand stands still. */
+#v-tablets .tablets-relic[data-relic="freeze"]{--relic:#9fd8ff}
+#v-tablets .tablets-freeze-fill{background:linear-gradient(90deg,#1e5a8a,#5fb8f0 60%,#e6f7ff)}
+#v-tablets .tablets-freeze.ready{border-color:#9fd8ff;box-shadow:0 0 16px rgba(159,216,255,.6)}
+.tablets-stage.frozen::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%,rgba(170,220,255,.08) 0%,rgba(120,190,240,.12) 60%,rgba(80,150,220,.3) 100%);
+  box-shadow:inset 0 0 120px rgba(150,210,255,.45)}
+#v-tablets .tablets-stage.frozen .tablets-slot{border-color:#cfeeff;background:linear-gradient(180deg,#5a8fb8,#2f5f86);color:#f0faff}
+#v-tablets .tablets-stage.frozen .tablets-zone{background:rgba(150,210,255,.1);border-color:rgba(159,216,255,.5)}
+#v-tablets .tablets-stage.frozen .tablets-clock-fill{background:linear-gradient(90deg,#9fd8ff,#e6f7ff)}
+#tablets-aura.frozen{opacity:1;box-shadow:inset 0 0 90px rgba(160,215,255,.45)}
+/* F2: the hint card. F3: the ward chip beside the lamps. F4: a review miss shows the true word in ice. */
+#v-tablets .tablets-relic[data-relic="hint"]{--relic:#f3dca4}
+#v-tablets .tablets-ward{display:inline-flex;align-items:center;flex:0 0 auto;padding:3px 9px;border-radius:999px;
+  font-family:var(--ui);font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#d9f2ff;
+  background:rgba(40,90,130,.35);border:1px solid #8fd3ff;box-shadow:0 0 12px rgba(143,211,255,.45)}
+#v-tablets .tablets-ward[hidden]{display:none}
+#v-tablets .tablets-slot.taught{border-color:#9fd8ff;background:linear-gradient(180deg,#2f4f6a,#1d3347);color:#e6f7ff}
+@media (max-width:900px){
+  #v-tablets .tablets-tray-tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #v-tablets .tablets-tray-tools .tablets-freeze{grid-column:1 / -1}
+}
+@media (max-width:640px){
+  #v-tablets .tablets-stone{height:50px;padding:0 8px 0 10px;gap:4px}
+  #v-tablets .tablets-word{font-size:.82rem;letter-spacing:.05em}
+  #v-tablets .tablets-stone.long .tablets-word{font-size:.68rem;letter-spacing:.02em}
+  #v-tablets .tablets-key{width:20px;height:20px;font-size:.56rem}
+  #v-tablets .tablets-tray-tools{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+  #v-tablets .tablets-tray-tools .tablets-relic{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto;min-height:40px;padding:4px 8px}
+  #v-tablets .tablets-tray-tools .tablets-relic-name{grid-column:1;grid-row:1;font-size:.56rem;letter-spacing:.04em}
+  #v-tablets .tablets-tray-tools .tablets-relic-count{grid-column:2;grid-row:1;font-size:.85rem}
+  #v-tablets .tablets-tray-tools .tablets-freeze{grid-column:1 / -1;grid-template-columns:auto minmax(0,1fr) auto;min-height:30px}
+  #v-tablets .tablets-freeze .tablets-relic-name{grid-column:1}
+  #v-tablets .tablets-freeze .tablets-freeze-track{grid-column:2;grid-row:1}
+  #v-tablets .tablets-freeze.tablets-relic .tablets-freeze-track{display:block}
+  #v-tablets .tablets-freeze em{grid-column:3}
+  #v-tablets .tablets-tray-tools .tablets-relic-effect,#v-tablets .tablets-tray-tools .tablets-hotkey{display:none}
+  /* The lines run full width on a phone and start at the left, so The Threshold's tag moves to the right edge. */
+  #v-tablets .tablets-entry-tag{left:auto;right:10px}
+}
+/* P7: the last third quickens: The Mark and the zone burn a little hotter. */
+#v-tablets .tablets-stage.quick .tablets-mark-line{box-shadow:0 0 16px #ff6a3d,0 0 28px rgba(255,150,60,.85)}
+#v-tablets .tablets-stage.quick .tablets-zone{border-color:rgba(255,140,70,.5)}
+#v-tablets .tablets-gentle-row{margin-top:-.4em}

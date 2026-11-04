@@ -290,8 +290,8 @@ const NKJV_TABLETS = {
             "dwelling",
             "fortress",
             "refuge",
-            "portion",
-            "inheritance"
+            "not comprehend it",
+            "not know Him"
           ]
         },
         {
@@ -455,8 +455,8 @@ const NKJV_TABLETS = {
             "well",
             "fully",
             "ever",
-            "then",
-            "now"
+            "your dwelling place",
+            "not know Him"
           ]
         },
         {
@@ -520,8 +520,8 @@ const NKJV_TABLETS = {
             "never",
             "little",
             "again",
-            "well",
-            "fully"
+            "your dwelling place",
+            "not comprehend it"
           ]
         },
         {
@@ -1230,8 +1230,8 @@ const NKJV_TABLETS = {
             "Eve",
             "Shadow",
             "Dusk",
-            "Morning",
-            "Midnight"
+            "Midnight",
+            "world"
           ]
         },
         {
@@ -1256,8 +1256,8 @@ const NKJV_TABLETS = {
             "beasts",
             "fishes",
             "serpents",
-            "lions",
-            "eagles"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -1347,7 +1347,7 @@ const NKJV_TABLETS = {
             "it",
             "thyself",
             "them",
-            "land"
+            "tent"
           ]
         },
         {
@@ -1360,7 +1360,7 @@ const NKJV_TABLETS = {
             "house",
             "kingdom",
             "city",
-            "name"
+            "land"
           ]
         },
         {
@@ -1604,8 +1604,8 @@ const NKJV_TABLETS = {
             "idol",
             "likeness",
             "altar",
-            "god",
-            "calf"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -1746,8 +1746,8 @@ const NKJV_TABLETS = {
             "mind",
             "strength",
             "spirit",
-            "body",
-            "will"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -2056,8 +2056,8 @@ const NKJV_TABLETS = {
             "God",
             "truth",
             "life",
-            "you",
-            "him"
+            "him",
+            "iniquities"
           ]
         },
         {
@@ -2263,7 +2263,7 @@ const NKJV_TABLETS = {
             "cleansed",
             "kept",
             "lost",
-            "wounded"
+            "pain"
           ]
         },
         {
@@ -2443,8 +2443,8 @@ const NKJV_TABLETS = {
             "aye",
             "always",
             "ages",
-            "now",
-            "once"
+            "Helper, that He may abide",
+            "mirror, dimly, but then face"
           ]
         },
         {
@@ -2972,8 +2972,8 @@ const NKJV_TABLETS = {
             "Helper",
             "Spirit",
             "Advocate",
-            "Shepherd",
-            "Adversary"
+            "steadfast forever; His kingdom is",
+            "mirror, dimly, but then face"
           ]
         },
         {
@@ -3088,8 +3088,8 @@ const NKJV_TABLETS = {
             "age",
             "earth",
             "day",
-            "land",
-            "city"
+            "the world",
+            "Fear not"
           ]
         },
         {
@@ -3101,8 +3101,8 @@ const NKJV_TABLETS = {
             "Peace",
             "Fear not",
             "Follow me",
-            "Good tidings",
-            "Go forth"
+            "found.' And they began to",
+            "Good tidings"
           ]
         },
         {
@@ -3462,8 +3462,8 @@ const NKJV_TABLETS = {
             "dimly",
             "faintly",
             "partly",
-            "quickly",
-            "boldly"
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -4282,8 +4282,8 @@ const NKJV_TABLETS = {
             "wicked",
             "sinners",
             "proud",
-            "scornful",
-            "evil"
+            "evil",
+            "Almighty"
           ]
         },
         {
@@ -4525,8 +4525,8 @@ const NKJV_TABLETS = {
             "live",
             "sleep",
             "end",
-            "plant",
-            "eat"
+            "eat",
+            "sun"
           ]
         },
         {
@@ -4551,8 +4551,8 @@ const NKJV_TABLETS = {
             "sing",
             "feast",
             "leap",
-            "weep",
-            "cast"
+            "cast",
+            "sun"
           ]
         },
         {
@@ -4603,8 +4603,8 @@ const NKJV_TABLETS = {
             "good",
             "us",
             "nought",
-            "evil",
-            "years"
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         }
       ]
@@ -4768,8 +4768,8 @@ const NKJV_TABLETS = {
             "hope",
             "future",
             "rest",
-            "reward",
-            "return"
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -5139,8 +5139,8 @@ const NKJV_TABLETS = {
             "spirits",
             "demons",
             "serpents",
-            "sins",
-            "sorrows"
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -5280,8 +5280,8 @@ const NKJV_TABLETS = {
             "home",
             "saved",
             "kept",
-            "returned",
-            "restored"
+            "\"Rejoice!\" So they came and held",
+            "returned"
           ]
         },
         {
@@ -5293,8 +5293,8 @@ const NKJV_TABLETS = {
             "home",
             "here",
             "kept",
-            "sought",
-            "restored"
+            "Most High",
+            "truth's sake"
           ]
         }
       ]
@@ -5330,8 +5330,8 @@ const NKJV_TABLETS = {
             "rise",
             "stand",
             "wake",
-            "die",
-            "return"
+            "return",
+            "way"
           ]
         },
         {
@@ -5663,7 +5663,7 @@ const NKJV_TABLETS = {
             "yourselves",
             "those",
             "these",
-            "the Lord"
+            "Paul"
           ]
         },
         {
@@ -5892,8 +5892,8 @@ const NKJV_TABLETS = {
             "trials",
             "troubles",
             "sorrows",
-            "snares",
-            "pleasures"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -6328,8 +6328,8 @@ const NKJV_TABLETS = {
             "built",
             "went",
             "said",
-            "wrought",
-            "dwelt"
+            "Most High",
+            "truth's sake"
           ]
         }
       ]
@@ -6404,8 +6404,8 @@ const NKJV_TABLETS = {
             "out",
             "up",
             "safe",
-            "away",
-            "fast"
+            "razor has ever come",
+            "revealed, nor has anything"
           ]
         },
         {
@@ -6634,8 +6634,8 @@ const NKJV_TABLETS = {
             "holy",
             "strange",
             "great",
-            "fair",
-            "solemn"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -7183,8 +7183,8 @@ const NKJV_TABLETS = {
             "knife",
             "hand",
             "cord",
-            "snare",
-            "helmet"
+            "So those that entered",
+            "revealed, nor has anything"
           ]
         },
         {
@@ -8205,8 +8205,8 @@ const NKJV_TABLETS = {
             "glory",
             "strength",
             "might",
-            "majesty",
-            "wisdom"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -9663,8 +9663,8 @@ const NKJV_TABLETS = {
             "away",
             "out",
             "flee",
-            "abroad",
-            "apart"
+            "your dwelling place",
+            "not comprehend it"
           ]
         }
       ]
@@ -9713,8 +9713,8 @@ const NKJV_TABLETS = {
             "stubborn",
             "rebellious",
             "wicked",
-            "faithful",
-            "patient"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -9752,8 +9752,8 @@ const NKJV_TABLETS = {
             "hand",
             "part",
             "way",
-            "host",
-            "throne"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -10275,8 +10275,8 @@ const NKJV_TABLETS = {
             "King",
             "Most High",
             "God",
-            "Israel",
-            "Moses"
+            "Moses",
+            "praises"
           ]
         },
         {
@@ -10544,8 +10544,8 @@ const NKJV_TABLETS = {
             "David",
             "the king",
             "the chosen",
-            "she",
-            "it"
+            "inward parts",
+            "Most High"
           ]
         },
         {
@@ -10620,8 +10620,8 @@ const NKJV_TABLETS = {
             "king",
             "captain",
             "shepherd",
-            "servant",
-            "prophet"
+            "prophet",
+            "tents"
           ]
         },
         {
@@ -10685,8 +10685,8 @@ const NKJV_TABLETS = {
             "here",
             "thus far",
             "nigh",
-            "thither",
-            "thence"
+            "all time",
+            "our Lord"
           ]
         },
         {
@@ -10761,8 +10761,8 @@ const NKJV_TABLETS = {
             "below",
             "under",
             "around",
-            "beyond",
-            "afar"
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -10774,8 +10774,8 @@ const NKJV_TABLETS = {
             "temple",
             "place",
             "altar",
-            "city",
-            "palace"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -10813,8 +10813,8 @@ const NKJV_TABLETS = {
             "clean",
             "upright",
             "true",
-            "humble",
-            "faithful"
+            "Most High",
+            "truth's sake"
           ]
         }
       ]
@@ -10991,8 +10991,8 @@ const NKJV_TABLETS = {
             "glad",
             "ashamed",
             "afraid",
-            "weary",
-            "merry"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -11273,8 +11273,8 @@ const NKJV_TABLETS = {
             "joy",
             "gladness",
             "praise",
-            "feasts",
-            "war"
+            "in awe",
+            "Most High"
           ]
         }
       ]
@@ -11720,8 +11720,8 @@ const NKJV_TABLETS = {
             "in",
             "on",
             "home",
-            "out",
-            "away"
+            "your dwelling place",
+            "not comprehend it"
           ]
         },
         {
@@ -12308,8 +12308,8 @@ const NKJV_TABLETS = {
             "it",
             "all",
             "so",
-            "that",
-            "nothing"
+            "nothing",
+            "sign"
           ]
         }
       ]
@@ -12447,8 +12447,8 @@ const NKJV_TABLETS = {
             "Zion",
             "Jerusalem",
             "the earth",
-            "you",
-            "them"
+            "them",
+            "nations"
           ]
         },
         {
@@ -12998,8 +12998,8 @@ const NKJV_TABLETS = {
             "Spirit",
             "presence",
             "hand",
-            "word",
-            "son"
+            "son",
+            "silver"
           ]
         }
       ]
@@ -13163,8 +13163,8 @@ const NKJV_TABLETS = {
             "bondage",
             "pharaoh",
             "slaves",
-            "prisoners",
-            "kings"
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -13419,8 +13419,8 @@ const NKJV_TABLETS = {
             "light",
             "hope",
             "bread",
-            "wine",
-            "gold"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -13610,8 +13610,8 @@ const NKJV_TABLETS = {
             "corn",
             "grain",
             "wheat",
-            "leaves",
-            "seed"
+            "your dwelling place",
+            "not comprehend it"
           ]
         },
         {
@@ -13790,8 +13790,8 @@ const NKJV_TABLETS = {
             "void",
             "empty",
             "off",
-            "by",
-            "over"
+            "over",
+            "trouble"
           ]
         },
         {
@@ -13919,7 +13919,7 @@ const NKJV_TABLETS = {
             "heaven",
             "us",
             "him",
-            "them"
+            "vessels"
           ]
         }
       ]
@@ -13955,8 +13955,8 @@ const NKJV_TABLETS = {
             "known",
             "revealed",
             "spoken",
-            "forgotten",
-            "buried"
+            "So those that entered",
+            "razor has ever come"
           ]
         },
         {
@@ -14135,8 +14135,8 @@ const NKJV_TABLETS = {
             "off",
             "void",
             "empty",
-            "by",
-            "over"
+            "over",
+            "wall"
           ]
         },
         {
@@ -14287,8 +14287,8 @@ const NKJV_TABLETS = {
             "cease",
             "doubt",
             "fear",
-            "sleep",
-            "sin"
+            "the Lord",
+            "Most High"
           ]
         },
         {
@@ -14813,7 +14813,7 @@ const NKJV_TABLETS = {
             "heaven",
             "us",
             "him",
-            "the Father"
+            "Lord"
           ]
         },
         {
@@ -14825,8 +14825,8 @@ const NKJV_TABLETS = {
             "all",
             "us",
             "him",
-            "you",
-            "thee"
+            "thee",
+            "heaven"
           ]
         },
         {
@@ -15233,8 +15233,8 @@ const NKJV_TABLETS = {
             "hope",
             "faith",
             "peace",
-            "joy",
-            "wrath"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -15259,8 +15259,8 @@ const NKJV_TABLETS = {
             "Spirit",
             "Presence",
             "Word",
-            "Father",
-            "Angel"
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -15335,8 +15335,8 @@ const NKJV_TABLETS = {
             "in sin",
             "thus",
             "therefore",
-            "thereby",
-            "multiply"
+            "the grave",
+            "the Lord"
           ]
         },
         {
@@ -15720,7 +15720,7 @@ const NKJV_TABLETS = {
             "truth",
             "grace",
             "hope",
-            "kindness"
+            "works"
           ]
         },
         {
@@ -16511,8 +16511,8 @@ const NKJV_TABLETS = {
             "race",
             "work",
             "path",
-            "charge",
-            "labour"
+            "the door",
+            "Most High"
           ]
         },
         {
@@ -16600,8 +16600,8 @@ const NKJV_TABLETS = {
             "purity",
             "holiness",
             "faith",
-            "truth",
-            "wisdom"
+            "So those that entered",
+            "razor has ever come"
           ]
         },
         {
@@ -16627,7 +16627,7 @@ const NKJV_TABLETS = {
             "generation",
             "season",
             "hour",
-            "teaching"
+            "words"
           ]
         },
         {
@@ -16652,8 +16652,8 @@ const NKJV_TABLETS = {
             "sin",
             "evil",
             "unrighteousness",
-            "bondage",
-            "sickness"
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -17138,8 +17138,8 @@ const NKJV_TABLETS = {
             "ages",
             "all generations",
             "all time",
-            "always",
-            "nights"
+            "Most High",
+            "truth's sake"
           ]
         }
       ]
@@ -17201,8 +17201,8 @@ const NKJV_TABLETS = {
             "ashamed",
             "moved",
             "shaken",
-            "forsaken",
-            "deceived"
+            "your dwelling place",
+            "not comprehend it"
           ]
         },
         {

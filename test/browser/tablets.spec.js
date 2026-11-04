@@ -40,21 +40,22 @@ async function bootTablets(page) {
   await page.waitForTimeout(120);
 }
 
-test('the 1.0x clock climbs to The Mark and the speed control stays above the backdrop', async ({ page }) => {
+test('the 1.25x clock climbs to The Mark and the last third quickens to 1.5x', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await bootTablets(page);
   await expect(page.locator('#v-tablets')).toHaveClass(/has-library-bg/, { timeout: 8000 });
 
   const header = await page.evaluate(() => {
     const top = document.querySelector('#v-tablets .tablets-top');
-    const active = document.querySelector('#tablets-speeds .tablets-speed-pill.on');
     const style = getComputedStyle(top);
-    return { position: style.position, zIndex: style.zIndex, text: active ? active.textContent : '' };
+    return { position: style.position, zIndex: style.zIndex, pace: document.getElementById('tablets-pace').textContent,
+      pills: document.querySelectorAll('.tablets-speed-pill').length };
   });
   expect(header.position).toBe('relative');
   expect(header.zIndex).toBe('2');
-  expect(header.text).toBe('1.0×');
-  await expect(page.locator('#tablets-speed-normal')).toBeVisible();
+  expect(header.pace).toBe('1.25×');
+  expect(header.pills).toBe(0);
+  await expect(page.locator('#tablets-pace')).toBeVisible();
 
   const before = await page.evaluate(() => {
     R.proofStart = performance.now();
@@ -65,8 +66,8 @@ test('the 1.0x clock climbs to The Mark and the speed control stays above the ba
       marker: parseFloat(document.getElementById('tablets-ladder-marker').style.top)
     };
   });
-  expect(before.max).toBeCloseTo(6.5, 6);
-  await page.waitForFunction(() => R.tabletClock <= 0.65, null, { timeout: 10000 });
+  expect(before.max).toBeCloseTo(5.5, 6);
+  await page.waitForFunction(() => R.tabletClock <= 0.55, null, { timeout: 10000 });
   const after = await page.evaluate(() => {
     stopTabletsLoop();
     return {
@@ -80,28 +81,29 @@ test('the 1.0x clock climbs to The Mark and the speed control stays above the ba
   const projectedFullClimb = before.max / rate;
   expect(rate).toBeGreaterThan(0.85);
   expect(rate).toBeLessThan(1.15);
-  expect(projectedFullClimb).toBeGreaterThan(5.8);
-  expect(projectedFullClimb).toBeLessThan(7.2);
+  expect(projectedFullClimb).toBeGreaterThan(4.8);
+  expect(projectedFullClimb).toBeLessThan(6.2);
   expect(after.rise).toBeGreaterThan(0.88);
   expect(after.marker).toBeLessThan(before.marker);
 
-  await page.evaluate(() => window.tabletsShiftSpeed(1, false));
-  const faster = await page.evaluate(() => ({
-    saved: SAVE.set.tabletSpeed,
-    max: R.tabletClockMax,
-    rise: window.tabletsRiseOf(),
-    label: document.querySelector('#tablets-speeds .tablets-speed-pill.on').textContent
-  }));
-  expect(faster.saved).toBe('fast');
-  expect(faster.max).toBeCloseTo(4.5, 6);
-  expect(faster.rise).toBeCloseTo(after.rise, 6);
-  expect(faster.label).toBe('1.5×');
+  /* Carve to the 9th of Psalm 23's 11 blanks: the last third runs on the 1.5x base and says so. */
+  const quick = await page.evaluate(async () => {
+    Math.random = () => 0.9;
+    for (let i = 0; i < 8; i++) { window.tabletsResolve(true); window.tabletsFinishResolve(true); }
+    return { idx: R.tabletIdx, max: R.tabletClockMax, label: window.tabletsSpeed().label,
+      pace: document.getElementById('tablets-pace').textContent, mood: document.getElementById('tablets-stage').classList.contains('quick') };
+  });
+  expect(quick.idx).toBe(8);
+  expect(quick.label).toBe('1.5×');
+  expect(quick.pace).toBe('1.5× · quickened');
+  expect(quick.mood).toBe(true);
+  expect(quick.max).toBeLessThan(4.5);
 
-  proof.desktop = { before, after, rate, projectedFullClimb, faster };
+  proof.desktop = { before, after, rate, projectedFullClimb, quick };
   await page.screenshot({ path: 'test-results/proof-desktop-clock.png' });
 });
 
-test('drag-to-fill, golden verse and Chronos work on the live run', async ({ page }) => {
+test('drag-to-fill, golden verse and Selah work on the live run', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await bootTablets(page);
   const word = await page.evaluate(() => window.tabletsGapBlank().a);
@@ -117,27 +119,71 @@ test('drag-to-fill, golden verse and Chronos work on the live run', async ({ pag
   await expect(page.locator('#tablets-slot')).toHaveText(word);
   expect(await page.evaluate(() => !!R.tabletResolving)).toBe(true);
 
+  /* R3: Psalm 23:3 (soul) is one of the reference's golden verses; it is blank index 3. */
   const golden = await page.evaluate(() => {
-    startRun('tablets', 'watchman');
-    R.tabletIdx = 4;
+    startRun('tablets', 'watchman', { tabletChapter: 'psalm23' });
+    R.tabletIdx = 3;
     window.paintTabletsTablet();
-    return { badge: !document.getElementById('tablets-golden').hidden, field: document.getElementById('tablets-ms').classList.contains('golden-blank') };
+    return { badge: !document.getElementById('tablets-golden').hidden, field: document.getElementById('tablets-ms').classList.contains('golden-blank'),
+      word: window.tabletsGapBlank().a };
   });
   expect(golden.badge).toBe(true);
   expect(golden.field).toBe(true);
+  expect(golden.word).toBe('soul');
 
-  const chronos = await page.evaluate(() => {
-    R.tabletIdx = 0;
-    window.paintTabletsTablet();
-    R.powers.chronos = 2;
-    R.chronosLeft = 0;
-    window.tabletsChronos();
-    return { left: R.chronosLeft, charges: R.powers.chronos, frozen: R.tabletClock };
-  });
-  expect(chronos.left).toBe(4);
-  expect(chronos.charges).toBe(1);
-  expect(chronos.frozen).toBeGreaterThan(0);
+  /* R3: Selah runs the sand at 0.06 for 4 s of play. */
+  await page.evaluate(() => { R.tabletIdx = 0; window.paintTabletsTablet(); R.powers.selah = 2; R.selahLeft = 0; R.tabletClock = R.tabletClockMax; window.tabletsSelah(); window.__selahStart = R.tabletClock; });
+  await page.waitForTimeout(1500);
+  const selah = await page.evaluate(() => ({ left: R.selahLeft, charges: R.powers.selah, burned: window.__selahStart - R.tabletClock }));
+  expect(selah.charges).toBe(1);
+  expect(selah.left).toBeGreaterThan(2);
+  expect(selah.left).toBeLessThan(4);
+  expect(selah.burned).toBeGreaterThan(0);
+  expect(selah.burned).toBeLessThan(0.3);
   await page.screenshot({ path: 'test-results/proof-desktop-step3.png' });
+});
+
+test('the field rolls the active line from The Threshold toward The Mark, and a finger can drag a stone', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await bootTablets(page);
+  const geo = () => page.evaluate(() => {
+    const st = document.getElementById('tablets-stage').getBoundingClientRect();
+    const line = document.getElementById('tablets-slot').closest('.tablets-gap-line');
+    const lr = line.getBoundingClientRect();
+    const mid = el => { const r = el.getBoundingClientRect(); return (r.top + r.height / 2 - st.top) / st.height; };
+    return { line: (lr.top + lr.height / 2 - st.top) / st.height, mark: mid(document.querySelector('.tablets-mark-row')),
+      entry: mid(document.querySelector('.tablets-entry-line')), rise: window.tabletsRiseOf() };
+  });
+  /* The roll eases toward its target; on a loaded machine the first frames are slow, so let it settle. */
+  await page.waitForFunction(() => {
+    const win = document.getElementById('tablets-roll'), verse = document.getElementById('tablets-verse');
+    return Math.abs(R.tabletRollY - window.tabletsRollTarget(win.clientHeight, window.tabletsActiveLineTop(verse), window.tabletsRiseOf())) < 4;
+  }, null, { timeout: 5000 });
+  const fresh = await geo();
+  expect(fresh.mark).toBeCloseTo(0.45, 2);
+  expect(fresh.entry).toBeCloseTo(0.74, 2);
+  /* The line sits where the rise puts it, within 3% of the field. */
+  expect(Math.abs(fresh.line - (0.74 - 0.29 * fresh.rise))).toBeLessThan(0.03);
+  await page.waitForFunction(() => window.tabletsRiseOf() > 0.6, null, { timeout: 8000 });
+  await page.waitForTimeout(250);
+  const late = await geo();
+  expect(late.line).toBeLessThan(fresh.line - 0.12);
+  expect(Math.abs(late.line - (0.74 - 0.29 * late.rise))).toBeLessThan(0.03);
+
+  const drag = await page.evaluate(() => {
+    R.tabletClock = R.tabletClockMax;
+    const a = window.tabletsGapBlank().a;
+    const b = Array.from(document.querySelectorAll('#tablets-grid .tablets-stone')).find((x) => x.dataset.word === a);
+    const br = b.getBoundingClientRect(), sr = document.getElementById('tablets-slot').getBoundingClientRect();
+    const ev = (t, x, y) => new PointerEvent(t, { bubbles: true, cancelable: true, pointerType: 'touch', pointerId: 3, clientX: x, clientY: y });
+    b.dispatchEvent(ev('pointerdown', br.left + 8, br.top + 8));
+    window.dispatchEvent(ev('pointermove', sr.left + sr.width / 2, sr.top + sr.height / 2));
+    window.dispatchEvent(ev('pointerup', sr.left + sr.width / 2, sr.top + sr.height / 2));
+    return { resolving: !!R.tabletResolving, correct: R.correct || 0 };
+  });
+  expect(drag.resolving).toBe(true);
+  expect(drag.correct).toBe(1);
+  await page.screenshot({ path: 'test-results/proof-desktop-field.png' });
 });
 
 test('NKJV tablets fill all six stones', async ({ page }) => {
@@ -182,7 +228,7 @@ test('a timeout spends a lamp and pushes back; the tutorial climbs and refills',
   expect(timeout.ended).toBe(false);
   expect(timeout.timeout).toBe(false);
   expect(timeout.rise).toBeCloseTo(0.55, 6);
-  expect(timeout.clock).toBeCloseTo(2.925, 6);
+  expect(timeout.clock).toBeCloseTo(5.5 * 0.45, 6);
   expect(timeout.cracked).toBe(1);
   expect(timeout.lampLeft).toBe('2');
   await page.waitForTimeout(60);
@@ -194,13 +240,11 @@ test('a timeout spends a lamp and pushes back; the tutorial climbs and refills',
     clock: R.tabletClock,
     max: R.tabletClockMax,
     rise: window.tabletsRiseOf(),
-    speed: document.querySelector('#tablets-speeds .tablets-speed-pill.on').textContent,
-    disabled: document.getElementById('tablets-speed-meditative').disabled
+    pace: document.getElementById('tablets-pace').textContent
   }));
   expect(tutorialStart.max).toBeCloseTo(11.5, 6);
   expect(tutorialStart.clock).toBeGreaterThan(11.2);
-  expect(tutorialStart.speed).toBe('0.5×');
-  expect(tutorialStart.disabled).toBe(true);
+  expect(tutorialStart.pace).toBe('0.5×');
 
   await page.waitForTimeout(1400);
   const climbed = await page.evaluate(() => ({ clock: R.tabletClock, rise: window.tabletsRiseOf() }));

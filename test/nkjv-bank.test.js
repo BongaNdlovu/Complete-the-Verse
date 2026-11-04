@@ -156,6 +156,22 @@ eq("every NKJV tablet blank offers five decoys", badDecoyCount, 0);
 eq("every NKJV tablet blank is answerable", tabProblems.length, 0);
 if (tabProblems.length) tabProblems.slice(0, 10).forEach(p => console.log("      " + p));
 
+/* R5: the two decoys the expansion pass adds (positions 4 and 5) look like the answer: never only words the line
+   already shows, and the answer's own word count, except the three long answers no decoy anywhere matches. */
+const LOOSE_NKJV = ["matthew28|Matthew 28:9", "luke15|Luke 15:24", "acts16|Acts 16:33"];
+const tabletWordsOf = s => String(s || "").toLowerCase().replace(/[^a-z' ]/g, " ").split(/\s+/).filter(Boolean);
+let addedEcho = 0, addedLength = 0;
+NKJV_TABLETS.chapters.forEach(ch => (ch.blanks || []).forEach(bl => {
+  const verse = new Set(tabletWordsOf(bl.prefix + " " + bl.suffix));
+  const loose = LOOSE_NKJV.indexOf(ch.id + "|" + bl.r) >= 0;
+  (bl.d || []).slice(3).forEach(d => {
+    if (tabletWordsOf(d).every(w => verse.has(w))) addedEcho++;
+    if (!loose && tabletWordsOf(d).length !== tabletWordsOf(bl.a).length) addedLength++;
+  });
+}));
+eq("no added NKJV decoy is made of the line's own words", addedEcho, 0);
+eq("every added NKJV decoy has the answer's word count", addedLength, 0);
+
 const { NKJV_QUOTES } = require("../js/nkjv/quotes.js");
 const siteIds = require("../js/sites.js").SITES.filter(s => s.quoteRef).map(s => s.id).sort();
 const quoteIds = Object.keys(NKJV_QUOTES).filter(k => k !== "__vignettes").sort();
