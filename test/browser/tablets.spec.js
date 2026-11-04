@@ -140,6 +140,27 @@ test('drag-to-fill, golden verse and Chronos work on the live run', async ({ pag
   await page.screenshot({ path: 'test-results/proof-desktop-step3.png' });
 });
 
+test('NKJV tablets fill all six stones', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await bootTablets(page);
+  const nkjv = await page.evaluate(() => {
+    SAVE.set.translation = 'nkjv';
+    if (typeof Edition !== 'undefined' && Edition.activateEdition) Edition.activateEdition('nkjv');
+    startRun('tablets', 'watchman');
+    return {
+      edition: Edition.getEdition(),
+      decoys: Tablets.chapter('psalm23').blanks[0].d.length,
+      stones: document.querySelectorAll('#tablets-grid .tablets-stone').length,
+      answer: Tablets.chapter('psalm23').blanks[0].a
+    };
+  });
+  expect(nkjv.edition).toBe('nkjv');
+  expect(nkjv.decoys).toBe(5);
+  expect(nkjv.stones).toBe(6);
+  expect(nkjv.answer).toBe('want');
+  await page.screenshot({ path: 'test-results/proof-desktop-nkjv.png' });
+});
+
 test('a timeout spends a lamp and pushes back; the tutorial climbs and refills', async ({ page }) => {
   await page.setViewportSize({ width: 430, height: 900 });
   await bootTablets(page);

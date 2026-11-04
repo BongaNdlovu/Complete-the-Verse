@@ -141,14 +141,18 @@ const kjvBlankCount = kjvTablets.chapters.reduce((n, c) => n + (c.blanks || []).
 const nkjvBlankCount = NKJV_TABLETS.chapters.reduce((n, c) => n + (c.blanks || []).length, 0);
 eq("NKJV tablet blank count matches", nkjvBlankCount, kjvBlankCount);
 
-/* Every tablet blank has to be answerable: the answer must not also be
-   sitting in the options, and it must not be empty. */
+/* Every tablet blank has to be answerable: five decoys, six unique tablets,
+   the answer absent from the decoys, and nothing empty. */
 const tabProblems = [];
+let badDecoyCount = 0;
 NKJV_TABLETS.chapters.forEach(ch => (ch.blanks || []).forEach(bl => {
   if (!bl.a || !String(bl.a).trim()) tabProblems.push(ch.id + " empty answer");
   if ((bl.d || []).some(d => QA.norm(d) === QA.norm(bl.a))) tabProblems.push(ch.id + " answer in options: " + bl.a);
-  if (!Array.isArray(bl.d) || bl.d.length < 2) tabProblems.push(ch.id + " too few options: " + bl.a);
+  if (!Array.isArray(bl.d) || bl.d.length !== 5){ badDecoyCount++; tabProblems.push(ch.id + " wrong decoy count: " + (bl.d || []).length); }
+  const tray = [bl.a].concat(bl.d || []).map(w => QA.norm(w));
+  if (new Set(tray).size !== 6) tabProblems.push(ch.id + " duplicate tablets: " + bl.a);
 }));
+eq("every NKJV tablet blank offers five decoys", badDecoyCount, 0);
 eq("every NKJV tablet blank is answerable", tabProblems.length, 0);
 if (tabProblems.length) tabProblems.slice(0, 10).forEach(p => console.log("      " + p));
 
