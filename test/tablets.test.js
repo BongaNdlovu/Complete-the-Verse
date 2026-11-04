@@ -1623,6 +1623,54 @@ const toneCount = function(sb, dur){
   exec(sb, "tabletsFinishResolve(true); tabletsResolve(false)");
   eq("a miss empties the meter at once", read(sb, "$('tablets-combo-fill').style.width"), "0%");
 }
+{
+  // L1-L3: one feedback lane between the stage and the stones, the Favor beside the slot, the blessing in the game's words.
+  const laneAt = html.indexOf('id="tablets-lane"');
+  const stageAt = html.indexOf('id="tablets-stage"');
+  const trayAt = html.indexOf('<div class="tablets-tray">');
+  ok("the feedback lane sits between the stage and the stones", laneAt > stageAt && laneAt < trayAt);
+  ok("the lane holds the milestone", laneAt >= 0 && html.indexOf('id="tablets-milestone"') > laneAt && html.indexOf('id="tablets-milestone"') < trayAt);
+  ok("the lane holds the blessing", laneAt >= 0 && html.indexOf('id="tablets-blessing"') > laneAt && html.indexOf('id="tablets-blessing"') < trayAt);
+  ok("the blessing kicker reads A blessing", html.indexOf("<i>A blessing</i>") >= 0);
+  ok("Celestial appears nowhere in index.html", html.indexOf("Celestial") < 0);
+  const sbL = boot();
+  const wide = read(sbL, "tabletsPopupAnchor({left:0,right:900,top:0,bottom:500},{left:300,right:400,top:200,bottom:248})");
+  eq("a wide card pops the Favor on the right", wide.side, "right");
+  eq("the right pop starts 16 px past the slot", wide.x, 416);
+  eq("the right pop sits on the slot's centre", wide.y, 224);
+  const narrow = read(sbL, "tabletsPopupAnchor({left:0,right:500,top:40,bottom:500},{left:300,right:400,top:200,bottom:248})");
+  eq("a narrow card pops the Favor below", narrow.side, "below");
+  eq("the below pop sits 18 px under the slot", narrow.y, 226);
+  eq("the below pop centres on the slot", narrow.x, 350);
+  exec(sbL, "startRun('tablets','watchman'); $('tablets-ms').getBoundingClientRect = function(){ return {left:0,right:900,top:0,bottom:500}; }; $('tablets-slot').getBoundingClientRect = function(){ return {left:300,right:400,top:200,bottom:248}; }; spawnTabletsScorePopup('Test', $('tablets-slot'));");
+  eq("a popup spawned beside a wide slot carries data-side right", read(sbL, "$('tablets-ms').children[$('tablets-ms').children.length - 1].dataset.side"), "right");
+  const laneCss = fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8");
+  ok("the lane banners are static inside the lane", /\.tablets-lane \.tablets-milestone,\.tablets-lane \.tablets-blessing\{[^}]*position:static/.test(laneCss));
+  ok("the lane is a fixed 48 px strip", /\.tablets-lane\{[^}]*height:48px/.test(laneCss));
+  ok("the right Favor drifts sideways and does not rise", /@keyframes tabletsPopRiseRight\{[\s\S]*?100%\{transform:translate\(24px,-50%\)/.test(laneCss));
+  ok("reduced motion stills the lane", /body\.reduced \.tablets-lane \.active/.test(laneCss));
+}
+{
+  // L4: the roll yields room on short screens so the sand bar never hides under the lane or the tray.
+  const rollCss = fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8");
+  ok("the roll's floor is 160px", rollCss.indexOf(".tablets-roll{position:relative;flex:1 1 auto;min-height:160px;") >= 0);
+  ok("the phone roll's floor is 84px", rollCss.indexOf("@media (max-width:640px){.tablets-roll{min-height:84px}}") >= 0);
+}
+{
+  // L2: with no room beside the slot, the Favor shows in the lane, not over the verse.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  exec(sb, "$('tablets-ms').getBoundingClientRect = function(){ return { left:0, top:0, right:375, bottom:400, width:375, height:400 }; }");
+  exec(sb, "var __slot = { getBoundingClientRect: function(){ return { left:87, top:60, right:287, bottom:108, width:200, height:48 }; } }");
+  exec(sb, "spawnTabletsScorePopup('Sure · +180 FAVOR', __slot)");
+  const lane = read(sb, "$('tablets-lane').children");
+  ok("a narrow card sends the Favor to the lane", lane.some(function(c){ return c.className === 'tablets-score-popup' && c.dataset && c.dataset.lane === '1'; }));
+}
+{
+  // L1: a narrow lane takes turns: while the Favor chip shows, the banners wait.
+  const laneCss = fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8");
+  ok("the narrow lane gives the Favor chip the row", laneCss.indexOf("#tablets-lane:has(.tablets-score-popup[data-lane]) .tablets-milestone") >= 0);
+}
 unstubRandom();
 if (fail) {
   console.log("FAIL — tablets · " + pass + " passed · " + fail + " failed");

@@ -109,6 +109,12 @@ function tabletsRollFrame(){
   R.tabletRollSnap = false;
   if(sheet.style) sheet.style.transform = "translateY(" + R.tabletRollY.toFixed(1) + "px)";
 }
+/* L2: where the Favor pops. Right of the slot when the card has 190 px to spare; otherwise below the slot. */
+function tabletsPopupAnchor(msRect, slotRect){
+  const room = msRect.right - slotRect.right;
+  if(room >= 190) return { x: slotRect.right - msRect.left + 16, y: (slotRect.top + slotRect.bottom) / 2 - msRect.top, side: "right" };
+  return { x: (slotRect.left + slotRect.right) / 2 - msRect.left, y: slotRect.bottom - msRect.top + 18, side: "below" };
+}
 function spawnTabletsScorePopup(text, slotEl){
   const ms = $("tablets-ms");
   if(!ms) return;
@@ -116,15 +122,18 @@ function spawnTabletsScorePopup(text, slotEl){
   popup.className = "tablets-score-popup";
   popup.textContent = text;
   if(slotEl && slotEl.getBoundingClientRect){
-    const msRect = ms.getBoundingClientRect();
-    const slotRect = slotEl.getBoundingClientRect();
-    popup.style.left = Math.max(50, Math.min((ms.clientWidth || 500) - 50, slotRect.left + (slotRect.width || 0) / 2 - msRect.left)) + "px";
-    popup.style.top = Math.max(30, Math.min((ms.clientHeight || 400) - 30, slotRect.top + (slotRect.height || 0) / 2 - msRect.top)) + "px";
+    /* L2: the Favor pops beside the slot, or below it when the card has no room to its right. */
+    const anchor = tabletsPopupAnchor(ms.getBoundingClientRect(), slotEl.getBoundingClientRect());
+    popup.style.left = anchor.x + "px";
+    popup.style.top = anchor.y + "px";
+    popup.dataset.side = anchor.side;
+    /* L2: with no room beside the slot the Favor joins the feedback lane, clear of the verse. */
+    if(anchor.side === "below" && $("tablets-lane") && typeof ms.getBoundingClientRect().right === "number") popup.dataset.lane = "1";
   } else {
     popup.style.left = "50%";
     popup.style.top = "40%";
   }
-  ms.appendChild(popup);
+  (popup.dataset.lane ? $("tablets-lane") : ms).appendChild(popup);
   setTimeout(function(){ try{ popup.remove(); }catch(e){} }, 900);
 }
 /* E: how long the world holds its breath — top grades and milestones longest. */

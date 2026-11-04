@@ -242,12 +242,21 @@ body.view-tablets .voice-caption{display:none!important}
   border:1px solid rgba(20,13,7,.55);
   box-shadow:inset 0 1px 2px rgba(255,255,255,.3),inset 0 -3px 6px rgba(0,0,0,.35)}
 /* R1: the rolling chapter sheet. The window clips the carved steps above and the coming steps below. */
-.tablets-roll{position:relative;flex:1 1 auto;min-height:260px;overflow:hidden;margin:0 0 10px;-webkit-mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%)}
+.tablets-roll{position:relative;flex:1 1 auto;min-height:160px;overflow:hidden;margin:0 0 10px;-webkit-mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%)}
 .tablets-sheet{will-change:transform}
 .tablets-sheet .tablets-verse{margin:0 0 10px;min-height:0}
 .tablets-sheet-step{opacity:.42;margin:0 0 10px}
 .tablets-sheet-past .tablets-sheet-step{opacity:.55}
-@media (max-width:640px){.tablets-roll{min-height:220px}}
+@media (max-width:640px){.tablets-roll{min-height:84px}}
+/* L1: a narrow lane takes turns instead of squeezing: the Favor chip has the row to itself while it shows, then the banners follow in compact form. */
+@media (max-width:640px){
+  #tablets-lane:has(.tablets-score-popup[data-lane]) .tablets-milestone,#tablets-lane:has(.tablets-score-popup[data-lane]) .tablets-blessing{display:none}
+  #tablets-lane .tablets-milestone-kicker,#tablets-lane .tablets-blessing i{display:none}
+  #tablets-lane .tablets-milestone,#tablets-lane .tablets-blessing{flex:0 1 auto;min-width:0;padding:0 10px}
+  #tablets-lane .tablets-milestone b{flex:0 0 auto}
+  #tablets-lane .tablets-milestone em{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  #tablets-lane .tablets-blessing em{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;font-size:.7rem;line-height:1.15;overflow:hidden}
+}
 .tablets-blank-word.in{
   color:#ffe38d;text-shadow:0 0 14px rgba(229,181,88,.8);
   background:linear-gradient(180deg,rgba(62,43,20,.92),rgba(34,22,10,.92));
@@ -298,6 +307,22 @@ body.view-tablets .voice-caption{display:none!important}
   0%{transform:translate(-50%,0) scale(.6);opacity:0}
   20%{transform:translate(-50%,-10px) scale(1.15);opacity:1}
   100%{transform:translate(-50%,-65px) scale(1);opacity:0}
+}
+/* L2: the Favor beside the slot drifts sideways from its left edge and fades; the Favor below keeps the centred pop. */
+.tablets-score-popup[data-side="right"]{transform:translate(0,-50%);transform-origin:left center;animation-name:tabletsPopRiseRight}
+.tablets-score-popup[data-side="below"]{animation-name:tabletsPopRiseBelow}
+/* L2: in the lane the Favor is a chip in the row, not a floating word. */
+.tablets-lane .tablets-score-popup[data-lane]{position:static;transform:none;animation:tabletsLaneFavor .9s ease forwards;font-size:.95rem;white-space:nowrap;align-self:center}
+@keyframes tabletsLaneFavor{0%{opacity:0}15%{opacity:1}75%{opacity:1}100%{opacity:0}}
+@keyframes tabletsPopRiseRight{
+  0%{transform:translate(0,-50%) scale(.6);opacity:0}
+  20%{transform:translate(12px,-50%) scale(1.15);opacity:1}
+  100%{transform:translate(24px,-50%) scale(1);opacity:0}
+}
+@keyframes tabletsPopRiseBelow{
+  0%{transform:translate(-50%,0) scale(.6);opacity:0}
+  20%{transform:translate(-50%,4px) scale(1.15);opacity:1}
+  100%{transform:translate(-50%,12px) scale(1);opacity:0}
 }
 .tablets-sand{border-top:1.5px solid rgba(25,18,11,.75);padding-top:10px}
 .tablets-sand-row{display:flex;justify-content:space-between;align-items:center;padding:0 8px}
@@ -462,6 +487,16 @@ body.view-tablets .voice-caption{display:none!important}
 .tablets-blessing b{font-family:var(--disp);font-size:1.2rem;color:var(--gold-hot)}
 .tablets-blessing i{display:block;font-style:normal;font-family:var(--ui);font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-hot)}
 .tablets-blessing em{display:block;font-style:normal;font-family:var(--disp);font-size:.78rem;color:#fff;font-weight:700}
+/* L1: one feedback lane between the stage and the stones: a fixed strip, the banners one line each side by side. */
+.tablets-lane{
+  flex:0 0 auto;height:48px;position:relative;z-index:17;pointer-events:none;min-width:0;
+  display:flex;align-items:flex-start;justify-content:center;gap:10px;padding:0 10px}
+.tablets-lane .tablets-milestone,.tablets-lane .tablets-blessing{position:static;top:auto;left:auto;transform:none;display:none;min-width:0;max-width:100%;box-sizing:border-box;margin:0;height:34px;padding:0 14px;white-space:nowrap;overflow:hidden}
+.tablets-lane .tablets-milestone.active{display:flex;align-items:center;gap:8px;animation:tabletsLaneRise .3s ease both}
+.tablets-lane .tablets-blessing.active{display:flex;align-items:center;gap:8px;animation:tabletsLaneRise .3s ease both}
+.tablets-lane .tablets-milestone b,.tablets-lane .tablets-milestone em,.tablets-lane .tablets-milestone-kicker,.tablets-lane .tablets-blessing i,.tablets-lane .tablets-blessing em{display:inline;margin:0}
+.tablets-lane .tablets-blessing span{display:block;min-width:0;overflow:hidden}
+@keyframes tabletsLaneRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .tablets-flying-word{
   position:fixed;z-index:90;pointer-events:none;font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:1.5rem;
   color:#fff5d6;text-shadow:0 0 20px #ffe082,0 0 35px #dfaa42,0 2px 4px #000;
@@ -513,6 +548,7 @@ body.reduced .tablets-relic.recharging,
 body.motion-calm .tablets-relic.recharging,
 body.reduced .tablets-relic-pill,
 body.motion-calm .tablets-relic-pill{animation:none;transition:none}
+body.reduced .tablets-lane .active,body.motion-calm .tablets-lane .active,body.reduced .tablets-score-popup,body.motion-calm .tablets-score-popup{animation:none;transition:none}
 body.reduced .tablets-mult.pop,body.motion-calm .tablets-mult.pop,
 body.reduced .tablets-combo.broke,body.motion-calm .tablets-combo.broke,
 body.reduced .tablets-combo-fill,body.motion-calm .tablets-combo-fill{animation:none;transition:none}

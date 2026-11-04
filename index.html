@@ -516,11 +516,7 @@
           <span style="top:85%">Fresh sand<b>1.5×</b></span>
           <i class="tablets-ladder-marker" id="tablets-ladder-marker"></i>
         </div>
-        <div class="tablets-milestone" id="tablets-milestone" aria-hidden="true">
-          <span class="tablets-milestone-kicker">Milestone</span>
-          <b id="tablets-milestone-name">Tithe</b>
-          <em id="tablets-milestone-favor">+0 FAVOR</em>
-        </div>
+        <!-- L1: the milestone banner moved into the feedback lane under the stage. -->
         <i class="tablets-flash" id="tablets-flash" aria-hidden="true"></i>
         <aside class="tablets-ground" id="tablets-ground">
           <div class="tablets-scene-img">
@@ -593,6 +589,21 @@
           <figcaption id="tablets-companion-sign">Abram</figcaption>
         </figure>
       </div>
+      <!-- L1: one feedback lane between the stage and the stones; the milestone and the blessing sit in it. -->
+      <div class="tablets-lane" id="tablets-lane" aria-live="polite">
+        <div class="tablets-milestone" id="tablets-milestone" aria-hidden="true" data-lane="milestone">
+          <span class="tablets-milestone-kicker">Milestone</span>
+          <b id="tablets-milestone-name">Tithe</b>
+          <em id="tablets-milestone-favor">+0 FAVOR</em>
+        </div>
+        <div class="tablets-blessing" id="tablets-blessing">
+          <b id="tablets-blessing-icon">🏺</b>
+          <span>
+            <i>A blessing</i>
+            <em id="tablets-blessing-text">Manna Jar Discovered (+15s)</em>
+          </span>
+        </div>
+      </div>
       <div class="tablets-tray">
           <div class="tablets-tray-lab"><span class="tablets-orn"></span><span id="tablets-tray-word">Choose the missing word</span><span class="tablets-orn"></span></div>
         <div class="tablets-grid" id="tablets-grid"></div>
@@ -628,13 +639,7 @@
         </div>
         <div class="tablets-pct" id="tablets-pct">0%</div>
       </footer>
-      <div class="tablets-blessing" id="tablets-blessing">
-        <b id="tablets-blessing-icon">🏺</b>
-        <span>
-          <i>Celestial visitation</i>
-          <em id="tablets-blessing-text">Manna Jar Discovered (+15s)</em>
-        </span>
-      </div>
+      <!-- L1: the blessing banner moved into the feedback lane under the stage. -->
       <div id="tablets-pause" class="tablets-pause" hidden>
         <div class="tablets-pause-card">
           <div class="kick">Paused</div>
