@@ -228,6 +228,14 @@ body.view-tablets .voice-caption{display:none!important}
   display:inline-block;margin:0 0 8px;font-family:var(--disp-orn);font-size:clamp(1.05rem,2.2vw,1.5rem);
   font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#f7ecd2;
   text-shadow:0 1px 1px rgba(0,0,0,.55),0 -1.5px 2px rgba(0,0,0,.9);background:none;padding:0;box-shadow:none}
+/* S3: a golden verse pays double Favor and wears the gold on the reference pill. */
+.tablets-golden{
+  display:inline-block;margin:0 0 8px 10px;padding:3px 9px;border-radius:999px;
+  font-family:var(--ui);font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#2a1a06;background:linear-gradient(180deg,#ffe9a3,#d2a13c);box-shadow:0 0 14px rgba(255,214,120,.45)}
+.tablets-golden[hidden]{display:none}
+.tablets-ms.golden-blank .tablets-ref-pill{color:#ffe08a;text-shadow:0 0 16px rgba(255,214,120,.75)}
+.tablets-slot.drag-over{border-color:#ffe08a;box-shadow:inset 0 6px 15px rgba(0,0,0,.98),0 0 24px rgba(255,224,130,.7);transform:scale(1.03)}
 .tablets-mark-row{display:flex;align-items:center;gap:12px;margin:8px 0 12px}
 /* R1: the phase 7 card rise (translate) is retired; the roll moves .tablets-sheet from tabletsPaintRise. */
 .tablets-mark-line{

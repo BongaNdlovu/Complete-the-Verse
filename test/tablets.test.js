@@ -393,6 +393,48 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   eq("charges carry across blanks", read(sb, "R.powers.winnow"), 0);
 }
 
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  eq("Chronos starts with two charges", read(sb, "R.powers.chronos"), 2);
+  exec(sb, "var __c = R.tabletClock; tabletsChronos(); window.__held = R.tabletClock; tabletsBurnSand(1); window.__after = R.tabletClock; window.__base = __c");
+  eq("Chronos spends a charge", read(sb, "R.powers.chronos"), 1);
+  eq("Chronos holds the sand for 4s", read(sb, "R.chronosLeft"), 4);
+  eq("Chronos freezes the sand", read(sb, "window.__after - window.__base"), 0);
+  eq("Chronos disables its card while holding", read(sb, "$('tablets-chronos').disabled"), true);
+  exec(sb, "R.chronosLeft = 0; R.powers.chronos = 2; window.__ck = tabletsPowerKey('c')");
+  eq("c fires Chronos", read(sb, "window.__ck"), true);
+  eq("the c key starts a fresh hold", read(sb, "R.chronosLeft"), 4);
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  eq("blank 1 is not golden", read(sb, "tabletsGoldenAt(0)"), false);
+  eq("blank 5 is golden", read(sb, "tabletsGoldenAt(4)"), true);
+  exec(sb, "R.tabletIdx = 4; R.gapIdx = 0; paintTabletsTablet()");
+  eq("the golden badge shows on blank 5", read(sb, "!$('tablets-golden').hidden"), true);
+  ok("the field wears the golden class", read(sb, "$('tablets-ms').classList.contains('golden-blank')"));
+  stubRandom(sb, 0.9);
+  exec(sb, "R.tabletClock = R.tabletClockMax; tabletsResolve(true)");
+  eq("a golden verse pays double Favor", read(sb, "R.favor"), 300);
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman')");
+  stubRandom(sb, 0.9);
+  exec(sb, "R.surge = 90; R.tabletClock = R.tabletClockMax; tabletsResolve(true)");
+  eq("a full meter ignites Fever automatically", read(sb, "R.surgeOn"), true);
+  eq("Overdrive runs for 8s", read(sb, "R.surgeLeft"), 8);
+}
+
+{
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman',{tabletChapter:'prayer',tabletTutorial:true})");
+  eq("the tutorial never makes a golden blank", read(sb, "tabletsGoldenAt(4)"), false);
+}
+
 // Six tablets per blank (decision 2026-11-03): every KJV blank carries exactly five distinct decoys, none the answer.
 Tablets.chapters.forEach(function(ch){
   ch.blanks.forEach(function(blank){
@@ -1245,8 +1287,11 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   // A: the dock wears relic cards; the celebration sleeps under reduced motion.
   ok("the powers wear relic cards", html.indexOf("tablets-relic-name") >= 0 && html.indexOf("tablets-relic-effect") >= 0 && html.indexOf("tablets-relic-count") >= 0);
   ok("Winnow's card says it banishes up to three", html.indexOf("Banish up to three") >= 0);
-  ok("Illuminate's card says it carves", html.indexOf("Carve the true word") >= 0);
-  ok("Surge's card says it stops the sand", html.indexOf("Stops the sand") >= 0);
+  ok("Illuminate's card names the Chisel", html.indexOf("Chisel · Carve the true word") >= 0);
+  ok("Fever's card says Overdrive", html.indexOf("Overdrive · ×2 Favor") >= 0);
+  ok("Chronos' card says it freezes the sand", html.indexOf("Freeze the sand 4s") >= 0);
+  ok("the stones can be dragged", /b\.draggable = !dimmed/.test(src));
+  ok("the slot accepts a drop", /slot\.addEventListener\("drop"/.test(src));
   ok("the relic hop sleeps under reduced motion", /body\.reduced \.tablets-relic\.recharging/.test(src));
   ok("the floating pill sleeps under reduced motion", /body\.reduced \.tablets-relic-pill/.test(src));
 }

@@ -101,6 +101,45 @@ test('the 1.0x clock climbs to The Mark and the speed control stays above the ba
   await page.screenshot({ path: 'test-results/proof-desktop-clock.png' });
 });
 
+test('drag-to-fill, golden verse and Chronos work on the live run', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await bootTablets(page);
+  const word = await page.evaluate(() => window.tabletsGapBlank().a);
+  await page.evaluate((answer) => {
+    const stone = Array.from(document.querySelectorAll('#tablets-grid .tablets-stone')).find((b) => b.dataset.word === answer);
+    const slot = document.getElementById('tablets-slot');
+    const dt = new DataTransfer();
+    dt.setData('text/plain', answer);
+    stone.dispatchEvent(new DragEvent('dragstart', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    slot.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    slot.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
+  }, word);
+  await expect(page.locator('#tablets-slot')).toHaveText(word);
+  expect(await page.evaluate(() => !!R.tabletResolving)).toBe(true);
+
+  const golden = await page.evaluate(() => {
+    startRun('tablets', 'watchman');
+    R.tabletIdx = 4;
+    window.paintTabletsTablet();
+    return { badge: !document.getElementById('tablets-golden').hidden, field: document.getElementById('tablets-ms').classList.contains('golden-blank') };
+  });
+  expect(golden.badge).toBe(true);
+  expect(golden.field).toBe(true);
+
+  const chronos = await page.evaluate(() => {
+    R.tabletIdx = 0;
+    window.paintTabletsTablet();
+    R.powers.chronos = 2;
+    R.chronosLeft = 0;
+    window.tabletsChronos();
+    return { left: R.chronosLeft, charges: R.powers.chronos, frozen: R.tabletClock };
+  });
+  expect(chronos.left).toBe(4);
+  expect(chronos.charges).toBe(1);
+  expect(chronos.frozen).toBeGreaterThan(0);
+  await page.screenshot({ path: 'test-results/proof-desktop-step3.png' });
+});
+
 test('a timeout spends a lamp and pushes back; the tutorial climbs and refills', async ({ page }) => {
   await page.setViewportSize({ width: 430, height: 900 });
   await bootTablets(page);

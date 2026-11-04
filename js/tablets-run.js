@@ -532,6 +532,12 @@ function paintTabletsTablet(answer){
   const ch = tabletsChapter();
   const step = tabletsStepBlanks();
   const gap = tabletsGapBlank();
+  const golden = tabletsGoldenAt(R && R.tabletIdx);
+  R.tabletGolden = golden;
+  const ms = $("tablets-ms");
+  if(ms) ms.classList.toggle("golden-blank", golden);
+  const badge = $("tablets-golden");
+  if(badge) badge.hidden = !golden;
   const refEl = $("tablets-ref");
   if(refEl) refEl.textContent = gap ? gap.r : ch.r;
   paintTabletsVerse(step, (R && R.gapIdx) || 0, answer);
@@ -744,6 +750,14 @@ function paintTabletsPowers(){
     winnow.disabled = n < 1;
     winnow.classList.toggle("spent", n < 1);
   }
+  const chronos = $("tablets-chronos");
+  if(chronos){
+    const n = (R.powers && R.powers.chronos) || 0;
+    const lab = $("tablets-chronos-n");
+    if(lab) lab.textContent = String(n);
+    chronos.disabled = n < 1 || (R.chronosLeft || 0) > 0;
+    chronos.classList.toggle("spent", n < 1);
+  }
   const lamps = $("tablets-lamps");
   if(lamps){
     const left = Math.max(0, (R.tabletLives || 1) - (R.tabletMiss || 0));
@@ -778,6 +792,17 @@ function paintTabletsTray(){
     b.dataset.word = word;
     b.dataset.idx = String(i);
     b.disabled = dimmed;
+    b.draggable = !dimmed;
+    if(!dimmed){
+      b.addEventListener("dragstart", function(e){
+        try{
+          e.dataTransfer.setData("text/plain", word);
+          e.dataTransfer.effectAllowed = "copy";
+        }catch(err){}
+        b.classList.add("dragging");
+      });
+      b.addEventListener("dragend", function(){ b.classList.remove("dragging"); });
+    }
     const key = document.createElement("span");
     key.className = "tablets-key";
     key.textContent = badges[i] || String(i + 1);
@@ -884,6 +909,27 @@ function tabletsWinnow(){
   paintTabletsTray();
   if(typeof toast === "function") toast("Winnow — a false stone falls away");
   if(typeof Director !== "undefined" && Director.speak) Director.speak("Winnow — a false stone falls away.", true);
+  if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
+}
+/* S3: Chronos is the freeze relic — 4 seconds where the sand does not burn. */
+function tabletsChronos(){
+  if(!tabletsPowerReady()) return;
+  if((R.chronosLeft || 0) > 0){
+    if(typeof toast === "function") toast("Chronos is already holding the sand");
+    return;
+  }
+  if(!R.powers || (R.powers.chronos || 0) < 1){
+    if(typeof toast === "function") toast("No Chronos left");
+    return;
+  }
+  R.powers.chronos--;
+  R.usedPower = true;
+  R.powersSpent = (R.powersSpent || 0) + 1;
+  R.chronosLeft = 4;
+  paintTabletsPowers();
+  paintTabletsClock();
+  if(typeof toast === "function") toast("Chronos — the sand holds for 4 s");
+  if(typeof Director !== "undefined" && Director.speak) Director.speak("Chronos. The sand holds.", true);
   if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
 }
 function setTabletsPaused(on){
@@ -1009,6 +1055,7 @@ function tabletsCarve(){
     surge: !!R.surgeOn,
     typed: !!R.tabletTypedHit,
     grade: R.tabletGrade || null,
+    golden: !!R.tabletGolden,
     paceMult: tabletsSpeed().mult
   });
 }
@@ -1022,8 +1069,9 @@ function tabletsHitFavor(carve){
 function tabletsScoreText(carve, favor){
   if(R.tabletTutorial) return "+" + favor + " FAVOR";
   const grade = tabletsGradeName(carve.grade);
-  if(carve.milestone) return grade + " · " + tabletsMilestoneName(carve.milestone.streak) + " · +" + favor + " FAVOR";
-  return grade + " · +" + favor + " FAVOR";
+  const gold = R.tabletGolden ? "Golden verse · " : "";
+  if(carve.milestone) return gold + grade + " · " + tabletsMilestoneName(carve.milestone.streak) + " · +" + favor + " FAVOR";
+  return gold + grade + " · +" + favor + " FAVOR";
 }
 /* D4: the three milestones wear the game's names. */
 function tabletsMilestoneName(streak){
@@ -1086,6 +1134,7 @@ function tabletsResolveHit(){
   R.streak = carve.streak;
   R.best = Math.max(R.best || 0, R.streak);
   if(!R.tabletTutorial) R.surge = Math.min(100, (R.surge || 0) + carve.fill);
+  if(!R.tabletTutorial) tabletsIgniteFever();
   const favor = tabletsHitFavor(carve);
   R.favor = (R.favor || 0) + favor;
   const slot = $("tablets-slot");
@@ -1189,7 +1238,7 @@ function tabletsFinishResolve(ok){
 }
 function tabletsBurnSand(dt){
   /* FX1: the sand waits out a resolve window, so a Last grain is not lost to the hit's 1 s hold. */
-  if(!R || R.ended || R.surgeOn || R.tabletResolving || tabletsUntimed()) return;
+  if(!R || R.ended || R.surgeOn || R.chronosLeft > 0 || R.tabletResolving || tabletsUntimed()) return;
   R.tabletClock = Math.max(0, (R.tabletClock || 0) - dt);
   /* S1: one warning per blank as the line enters the danger band (the reference's 70%). */
   if(tabletsDangerLevel() > 0 && !R.tabletWarned){
@@ -1222,6 +1271,10 @@ function tabletsTick(now){
     return;
   }
   if(R.surgeOn) tabletsTickSurge(dt);
+  if((R.chronosLeft || 0) > 0){
+    R.chronosLeft = Math.max(0, R.chronosLeft - dt);
+    if(R.chronosLeft === 0) paintTabletsPowers();
+  }
   if(!tabletsUntimed() && !R.surgeOn) tabletsBurnSand(dt);
   if(R.ended) return;
   tabletsHeartbeat(dt);
@@ -1242,6 +1295,10 @@ function tabletsReadingName(n){
 /* S1: every blank's sand is the speed's base, ramped by the words carved and the streak (the rules' blankSeconds). */
 function tabletsStepSeconds(){
   return Tablets.rules.blankSeconds(tabletsClockMax(), R.correct || 0, R.streak || 0, false);
+}
+/* S3: every fifth blank (index 4, 9, ...) is a golden verse; the tutorial has none. */
+function tabletsGoldenAt(idx){
+  return !(R && R.tabletTutorial) && (idx | 0) > 0 && ((idx | 0) + 1) % 5 === 0;
 }
 /* P3: finishing a reading Holds the chapter; the same words come round again on shorter sand. */
 function tabletsNextReading(){
@@ -1293,6 +1350,7 @@ function startTabletsLoop(){
   R.surge = 0;
   R.surgeOn = false;
   R.surgeLeft = 0;
+  R.chronosLeft = 0;
   R.trauma = 0;
   tabletsResetBlankAids();
   R.tabletTotal = R.tabletSteps.length;
@@ -1362,6 +1420,22 @@ function tabletsBindOnce(id, fn){
   }
 }
 function bindTabletsChrome(){
+  const slot = $("tablets-slot");
+  if(slot && !slot._dropBound){
+    slot._dropBound = true;
+    slot.addEventListener("dragover", function(e){
+      if(e.preventDefault) e.preventDefault();
+      slot.classList.add("drag-over");
+    });
+    slot.addEventListener("dragleave", function(){ slot.classList.remove("drag-over"); });
+    slot.addEventListener("drop", function(e){
+      if(e.preventDefault) e.preventDefault();
+      slot.classList.remove("drag-over");
+      let word = "";
+      try{ word = e.dataTransfer.getData("text/plain") || ""; }catch(err){}
+      if(word) tabletsPick(word);
+    });
+  }
   tabletsBindOnce("tablets-quit", function(){
     if(typeof quitTablets === "function") quitTablets();
     else if(typeof abandonRun === "function") abandonRun();
@@ -1373,6 +1447,7 @@ function bindTabletsChrome(){
   });
   tabletsBindOnce("tablets-illum", tabletsIlluminate);
   tabletsBindOnce("tablets-winnow", tabletsWinnow);
+  tabletsBindOnce("tablets-chronos", tabletsChronos);
   tabletsBindOnce("tablets-surge", tabletsSurge);
   tabletsBindOnce("tablets-theme", tabletsCycleStone);
   Tablets.rules.SPEEDS.forEach(function(s){
@@ -1393,11 +1468,12 @@ function tabletsNeedWord(){
 /* A power key fires only while nothing is typed and the word cannot start
    with that letter; otherwise the letter is typing. */
 function tabletsPowerKey(k){
-  if((R && R.tabletTyped) || (k !== "i" && k !== "w" && k !== "s")) return false;
+  if((R && R.tabletTyped) || (k !== "i" && k !== "w" && k !== "s" && k !== "c")) return false;
   const need = tabletsNeedWord();
   if(k === need.charAt(0)) return false;
   if(k === "i") tabletsIlluminate();
   else if(k === "w") tabletsWinnow();
+  else if(k === "c") tabletsChronos();
   else tabletsSurge();
   return true;
 }
@@ -1483,16 +1559,20 @@ function startTabletsStage(){
   startTabletsLoop();
   tabletsSpeakStart();
 }
-function tabletsSurge(){
-  if(!R || R.ended || R.paused || R.mode !== "tablets" || R.tabletTutorial) return;
-  if((R.surge || 0) < 100 || R.surgeOn) return;
+function tabletsIgniteFever(){
+  if(!R || R.ended || R.paused || R.mode !== "tablets" || R.tabletTutorial) return false;
+  if((R.surge || 0) < 100 || R.surgeOn) return false;
   R.surgeOn = true;
-  R.surgeLeft = 9;
+  R.surgeLeft = 8;
   tabletsPlayGoldChime();
   spawnTabletsSparks(0, 0, 24);
-  if(typeof Director !== "undefined" && Director.speak) Director.speak("Surge. The clock holds.", true);
+  if(typeof Director !== "undefined" && Director.speak) Director.speak("Fever. Overdrive.", true);
   paintTabletsSurge();
   paintTabletsHud();
+  return true;
+}
+function tabletsSurge(){
+  tabletsIgniteFever();
 }
 function tabletsRollBlessing(){
   if(Math.random() >= 0.22) return;
@@ -1502,7 +1582,7 @@ function tabletsRollBlessing(){
       R.tabletBankSand = 15;
     } },
     { icon:"🕯️", text:"Golden Censer (+1 Lamp Restored)", apply:function(){ if((R.tabletMiss || 0) > 0) R.tabletMiss -= 1; } },
-    { icon:"✨", text:"Shekinah Glory (+35% Surge Charge)", apply:function(){ R.surge = Math.min(100, (R.surge || 0) + 35); } }
+    { icon:"✨", text:"Shekinah Glory (+35% Surge Charge)", apply:function(){ R.surge = Math.min(100, (R.surge || 0) + 35); tabletsIgniteFever(); } }
   ];
   /* P2: in Judgment the Censer leaves the pool, so the HUD never shows a lamp the run cannot use. FX8: with every lamp
      lit the Censer has nothing to relight, so it leaves the pool too. */
@@ -1800,5 +1880,7 @@ if(typeof window !== "undefined"){
   window.paintTabletsTablet = paintTabletsTablet;
   window.paintTabletsStage = paintTabletsStage;
   window.tabletsRiseOf = tabletsRiseOf;
+  window.tabletsChronos = tabletsChronos;
+  window.tabletsGapBlank = tabletsGapBlank;
   window.tabletsGreyWords = tabletsGreyWords;
 }
