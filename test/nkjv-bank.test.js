@@ -141,16 +141,36 @@ const kjvBlankCount = kjvTablets.chapters.reduce((n, c) => n + (c.blanks || []).
 const nkjvBlankCount = NKJV_TABLETS.chapters.reduce((n, c) => n + (c.blanks || []).length, 0);
 eq("NKJV tablet blank count matches", nkjvBlankCount, kjvBlankCount);
 
-/* Every tablet blank has to be answerable: the answer must not also be
-   sitting in the options, and it must not be empty. */
+/* Every tablet blank has to be answerable: five decoys, six unique tablets,
+   the answer absent from the decoys, and nothing empty. */
 const tabProblems = [];
+let badDecoyCount = 0;
 NKJV_TABLETS.chapters.forEach(ch => (ch.blanks || []).forEach(bl => {
   if (!bl.a || !String(bl.a).trim()) tabProblems.push(ch.id + " empty answer");
   if ((bl.d || []).some(d => QA.norm(d) === QA.norm(bl.a))) tabProblems.push(ch.id + " answer in options: " + bl.a);
-  if (!Array.isArray(bl.d) || bl.d.length < 2) tabProblems.push(ch.id + " too few options: " + bl.a);
+  if (!Array.isArray(bl.d) || bl.d.length !== 5){ badDecoyCount++; tabProblems.push(ch.id + " wrong decoy count: " + (bl.d || []).length); }
+  const tray = [bl.a].concat(bl.d || []).map(w => QA.norm(w));
+  if (new Set(tray).size !== 6) tabProblems.push(ch.id + " duplicate tablets: " + bl.a);
 }));
+eq("every NKJV tablet blank offers five decoys", badDecoyCount, 0);
 eq("every NKJV tablet blank is answerable", tabProblems.length, 0);
 if (tabProblems.length) tabProblems.slice(0, 10).forEach(p => console.log("      " + p));
+
+/* R5: the two decoys the expansion pass adds (positions 4 and 5) look like the answer: never only words the line
+   already shows, and the answer's own word count, except the three long answers no decoy anywhere matches. */
+const LOOSE_NKJV = ["matthew28|Matthew 28:9", "luke15|Luke 15:24", "acts16|Acts 16:33"];
+const tabletWordsOf = s => String(s || "").toLowerCase().replace(/[^a-z' ]/g, " ").split(/\s+/).filter(Boolean);
+let addedEcho = 0, addedLength = 0;
+NKJV_TABLETS.chapters.forEach(ch => (ch.blanks || []).forEach(bl => {
+  const verse = new Set(tabletWordsOf(bl.prefix + " " + bl.suffix));
+  const loose = LOOSE_NKJV.indexOf(ch.id + "|" + bl.r) >= 0;
+  (bl.d || []).slice(3).forEach(d => {
+    if (tabletWordsOf(d).every(w => verse.has(w))) addedEcho++;
+    if (!loose && tabletWordsOf(d).length !== tabletWordsOf(bl.a).length) addedLength++;
+  });
+}));
+eq("no added NKJV decoy is made of the line's own words", addedEcho, 0);
+eq("every added NKJV decoy has the answer's word count", addedLength, 0);
 
 const { NKJV_QUOTES } = require("../js/nkjv/quotes.js");
 const siteIds = require("../js/sites.js").SITES.filter(s => s.quoteRef).map(s => s.id).sort();

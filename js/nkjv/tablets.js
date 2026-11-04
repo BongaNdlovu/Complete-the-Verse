@@ -20,7 +20,9 @@ const NKJV_TABLETS = {
           "d": [
             "fear",
             "fall",
-            "fail"
+            "fail",
+            "wander",
+            "stumble"
           ]
         },
         {
@@ -31,7 +33,9 @@ const NKJV_TABLETS = {
           "d": [
             "meadows",
             "valleys",
-            "fields"
+            "fields",
+            "gardens",
+            "wilderness"
           ]
         },
         {
@@ -42,7 +46,9 @@ const NKJV_TABLETS = {
           "d": [
             "rivers",
             "streams",
-            "fountains"
+            "fountains",
+            "wells",
+            "seas"
           ]
         },
         {
@@ -53,7 +59,9 @@ const NKJV_TABLETS = {
           "d": [
             "heart",
             "spirit",
-            "strength"
+            "strength",
+            "flesh",
+            "body"
           ]
         },
         {
@@ -64,7 +72,9 @@ const NKJV_TABLETS = {
           "d": [
             "holiness",
             "peace",
-            "truth"
+            "truth",
+            "wisdom",
+            "judgment"
           ]
         },
         {
@@ -75,7 +85,9 @@ const NKJV_TABLETS = {
           "d": [
             "death",
             "darkness",
-            "trouble"
+            "trouble",
+            "sin",
+            "lion"
           ]
         },
         {
@@ -86,7 +98,9 @@ const NKJV_TABLETS = {
           "d": [
             "shield",
             "sword",
-            "hand"
+            "hand",
+            "spear",
+            "bow"
           ]
         },
         {
@@ -97,7 +111,9 @@ const NKJV_TABLETS = {
           "d": [
             "foes",
             "brethren",
-            "rulers"
+            "rulers",
+            "servants",
+            "kings"
           ]
         },
         {
@@ -108,7 +124,9 @@ const NKJV_TABLETS = {
           "d": [
             "wine",
             "grace",
-            "water"
+            "water",
+            "myrrh",
+            "honey"
           ]
         },
         {
@@ -119,7 +137,9 @@ const NKJV_TABLETS = {
           "d": [
             "truth",
             "peace",
-            "glory"
+            "glory",
+            "love",
+            "faith"
           ]
         },
         {
@@ -130,7 +150,9 @@ const NKJV_TABLETS = {
           "d": [
             "ages",
             "safety",
-            "eternity"
+            "eternity",
+            "now",
+            "once"
           ]
         }
       ]
@@ -150,7 +172,9 @@ const NKJV_TABLETS = {
           "d": [
             "Father",
             "Rock",
-            "King"
+            "King",
+            "Creator",
+            "Judge"
           ]
         },
         {
@@ -161,7 +185,9 @@ const NKJV_TABLETS = {
           "d": [
             "strength",
             "shield",
-            "tower"
+            "tower",
+            "garden",
+            "wilderness"
           ]
         },
         {
@@ -172,7 +198,9 @@ const NKJV_TABLETS = {
           "d": [
             "hunter",
             "wicked",
-            "lion"
+            "lion",
+            "shepherd",
+            "watchman"
           ]
         },
         {
@@ -183,7 +211,9 @@ const NKJV_TABLETS = {
           "d": [
             "hands",
             "mantle",
-            "shadow"
+            "shadow",
+            "garments",
+            "gold"
           ]
         },
         {
@@ -194,7 +224,9 @@ const NKJV_TABLETS = {
           "d": [
             "helmet",
             "sword",
-            "rock"
+            "rock",
+            "spear",
+            "breastplate"
           ]
         },
         {
@@ -205,7 +237,9 @@ const NKJV_TABLETS = {
           "d": [
             "storm",
             "death",
-            "fire"
+            "fire",
+            "wind",
+            "thunder"
           ]
         },
         {
@@ -216,7 +250,9 @@ const NKJV_TABLETS = {
           "d": [
             "midnight",
             "daybreak",
-            "evening"
+            "evening",
+            "morning",
+            "night"
           ]
         },
         {
@@ -227,7 +263,9 @@ const NKJV_TABLETS = {
           "d": [
             "left",
             "own",
-            "other"
+            "other",
+            "mighty",
+            "holy"
           ]
         },
         {
@@ -238,7 +276,9 @@ const NKJV_TABLETS = {
           "d": [
             "righteous",
             "nations",
-            "proud"
+            "proud",
+            "heathen",
+            "rich"
           ]
         },
         {
@@ -249,7 +289,9 @@ const NKJV_TABLETS = {
           "d": [
             "dwelling",
             "fortress",
-            "refuge"
+            "refuge",
+            "not comprehend it",
+            "not know Him"
           ]
         },
         {
@@ -260,7 +302,9 @@ const NKJV_TABLETS = {
           "d": [
             "house",
             "tent",
-            "habitation"
+            "habitation",
+            "camp",
+            "city"
           ]
         },
         {
@@ -271,7 +315,9 @@ const NKJV_TABLETS = {
           "d": [
             "spirits",
             "hosts",
-            "saints"
+            "saints",
+            "servants",
+            "prophets"
           ]
         },
         {
@@ -282,7 +328,9 @@ const NKJV_TABLETS = {
           "d": [
             "rock",
             "snare",
-            "serpent"
+            "serpent",
+            "thorn",
+            "bush"
           ]
         },
         {
@@ -293,7 +341,9 @@ const NKJV_TABLETS = {
           "d": [
             "conquer",
             "cast",
-            "break"
+            "break",
+            "slay",
+            "devour"
           ]
         },
         {
@@ -304,7 +354,9 @@ const NKJV_TABLETS = {
           "d": [
             "preserve",
             "save",
-            "strengthen"
+            "strengthen",
+            "forsake",
+            "bless"
           ]
         },
         {
@@ -315,7 +367,9 @@ const NKJV_TABLETS = {
           "d": [
             "danger",
             "need",
-            "battle"
+            "battle",
+            "fire",
+            "sickness"
           ]
         },
         {
@@ -326,7 +380,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "glory",
-            "favour"
+            "favour",
+            "strength",
+            "wisdom"
           ]
         }
       ]
@@ -346,7 +402,9 @@ const NKJV_TABLETS = {
           "d": [
             "Light",
             "Law",
-            "Voice"
+            "Voice",
+            "Life",
+            "Spirit"
           ]
         },
         {
@@ -357,7 +415,9 @@ const NKJV_TABLETS = {
           "d": [
             "man",
             "heaven",
-            "us"
+            "us",
+            "Moses",
+            "Abraham"
           ]
         },
         {
@@ -368,7 +428,9 @@ const NKJV_TABLETS = {
           "d": [
             "done",
             "seen",
-            "formed"
+            "formed",
+            "begotten",
+            "born"
           ]
         },
         {
@@ -379,7 +441,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "heaven",
-            "angels"
+            "angels",
+            "saints",
+            "kings"
           ]
         },
         {
@@ -390,7 +454,9 @@ const NKJV_TABLETS = {
           "d": [
             "well",
             "fully",
-            "ever"
+            "ever",
+            "your dwelling place",
+            "not know Him"
           ]
         },
         {
@@ -401,7 +467,9 @@ const NKJV_TABLETS = {
           "d": [
             "Jesus",
             "Elijah",
-            "Moses"
+            "Moses",
+            "Peter",
+            "Paul"
           ]
         },
         {
@@ -412,7 +480,9 @@ const NKJV_TABLETS = {
           "d": [
             "live",
             "see",
-            "follow"
+            "follow",
+            "hear",
+            "know"
           ]
         },
         {
@@ -423,7 +493,9 @@ const NKJV_TABLETS = {
           "d": [
             "Word",
             "truth",
-            "life"
+            "life",
+            "Saviour",
+            "Prophet"
           ]
         },
         {
@@ -434,7 +506,9 @@ const NKJV_TABLETS = {
           "d": [
             "kingdom",
             "earth",
-            "day"
+            "day",
+            "city",
+            "house"
           ]
         },
         {
@@ -445,7 +519,9 @@ const NKJV_TABLETS = {
           "d": [
             "never",
             "little",
-            "again"
+            "again",
+            "your dwelling place",
+            "not comprehend it"
           ]
         },
         {
@@ -456,7 +532,9 @@ const NKJV_TABLETS = {
           "d": [
             "gladly",
             "fully",
-            "never"
+            "never",
+            "well",
+            "again"
           ]
         },
         {
@@ -467,7 +545,9 @@ const NKJV_TABLETS = {
           "d": [
             "man",
             "Abraham",
-            "Israel"
+            "Israel",
+            "Adam",
+            "Jacob"
           ]
         },
         {
@@ -478,7 +558,9 @@ const NKJV_TABLETS = {
           "d": [
             "grace",
             "heaven",
-            "truth"
+            "truth",
+            "Jesus",
+            "Abraham"
           ]
         },
         {
@@ -489,7 +571,9 @@ const NKJV_TABLETS = {
           "d": [
             "Son",
             "Lord",
-            "Most High"
+            "Most High",
+            "Spirit",
+            "Christ"
           ]
         },
         {
@@ -500,7 +584,9 @@ const NKJV_TABLETS = {
           "d": [
             "above",
             "with",
-            "near"
+            "near",
+            "behind",
+            "beyond"
           ]
         },
         {
@@ -511,7 +597,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "truth",
-            "truth's sake"
+            "truth's sake",
+            "love",
+            "faith"
           ]
         },
         {
@@ -522,7 +610,9 @@ const NKJV_TABLETS = {
           "d": [
             "the Lord",
             "of Nazareth",
-            "Messiah"
+            "Messiah",
+            "Abraham",
+            "David"
           ]
         },
         {
@@ -533,7 +623,9 @@ const NKJV_TABLETS = {
           "d": [
             "revealed",
             "seen",
-            "known"
+            "known",
+            "beheld",
+            "sought"
           ]
         },
         {
@@ -544,7 +636,9 @@ const NKJV_TABLETS = {
           "d": [
             "ye",
             "he",
-            "this"
+            "this",
+            "thyself",
+            "Light"
           ]
         },
         {
@@ -555,7 +649,9 @@ const NKJV_TABLETS = {
           "d": [
             "prophet",
             "Messiah",
-            "king"
+            "king",
+            "Lord",
+            "Elias"
           ]
         },
         {
@@ -566,7 +662,9 @@ const NKJV_TABLETS = {
           "d": [
             "priest",
             "scribe",
-            "teacher"
+            "teacher",
+            "judge",
+            "shepherd"
           ]
         },
         {
@@ -577,7 +675,9 @@ const NKJV_TABLETS = {
           "d": [
             "the Christ",
             "the kingdom",
-            "this man"
+            "this man",
+            "others",
+            "prophets"
           ]
         },
         {
@@ -588,7 +688,9 @@ const NKJV_TABLETS = {
           "d": [
             "king",
             "Christ",
-            "Most High"
+            "Most High",
+            "Father",
+            "Shepherd"
           ]
         },
         {
@@ -599,7 +701,9 @@ const NKJV_TABLETS = {
           "d": [
             "Sadducees",
             "scribes",
-            "priests"
+            "priests",
+            "Romans",
+            "Egyptians"
           ]
         },
         {
@@ -610,7 +714,9 @@ const NKJV_TABLETS = {
           "d": [
             "priest",
             "teacher",
-            "king"
+            "king",
+            "judge",
+            "shepherd"
           ]
         },
         {
@@ -621,7 +727,9 @@ const NKJV_TABLETS = {
           "d": [
             "little",
             "already",
-            "well"
+            "well",
+            "now",
+            "again"
           ]
         },
         {
@@ -632,7 +740,9 @@ const NKJV_TABLETS = {
           "d": [
             "bear",
             "touch",
-            "take"
+            "take",
+            "wash",
+            "kiss"
           ]
         },
         {
@@ -643,7 +753,9 @@ const NKJV_TABLETS = {
           "d": [
             "preaching",
             "dwelling",
-            "teaching"
+            "teaching",
+            "praying",
+            "fasting"
           ]
         },
         {
@@ -654,7 +766,9 @@ const NKJV_TABLETS = {
           "d": [
             "people",
             "nations",
-            "earth"
+            "earth",
+            "land",
+            "city"
           ]
         },
         {
@@ -665,7 +779,9 @@ const NKJV_TABLETS = {
           "d": [
             "above",
             "with",
-            "near"
+            "near",
+            "behind",
+            "beyond"
           ]
         },
         {
@@ -676,7 +792,9 @@ const NKJV_TABLETS = {
           "d": [
             "preaching",
             "teaching",
-            "calling"
+            "calling",
+            "fasting",
+            "rejoicing"
           ]
         },
         {
@@ -687,7 +805,9 @@ const NKJV_TABLETS = {
           "d": [
             "cloud",
             "flame",
-            "bird"
+            "bird",
+            "eagle",
+            "lamb"
           ]
         },
         {
@@ -697,7 +817,10 @@ const NKJV_TABLETS = {
           "suffix": ".'",
           "d": [
             "fire",
-            "water"
+            "water",
+            "Word",
+            "Name",
+            "Light"
           ]
         },
         {
@@ -708,7 +831,9 @@ const NKJV_TABLETS = {
           "d": [
             "man",
             "David",
-            "Israel"
+            "Israel",
+            "Abraham",
+            "Moses"
           ]
         },
         {
@@ -719,7 +844,9 @@ const NKJV_TABLETS = {
           "d": [
             "brethren",
             "servants",
-            "followers"
+            "followers",
+            "sons",
+            "children"
           ]
         },
         {
@@ -730,7 +857,9 @@ const NKJV_TABLETS = {
           "d": [
             "heaven",
             "Israel",
-            "the Lord"
+            "the Lord",
+            "Christ",
+            "Light"
           ]
         },
         {
@@ -741,7 +870,9 @@ const NKJV_TABLETS = {
           "d": [
             "John",
             "him",
-            "after"
+            "after",
+            "Peter",
+            "Andrew"
           ]
         },
         {
@@ -752,7 +883,9 @@ const NKJV_TABLETS = {
           "d": [
             "thou",
             "they",
-            "we"
+            "we",
+            "these",
+            "Light"
           ]
         },
         {
@@ -763,7 +896,9 @@ const NKJV_TABLETS = {
           "d": [
             "sixth",
             "ninth",
-            "third"
+            "third",
+            "seventh",
+            "first"
           ]
         },
         {
@@ -774,7 +909,9 @@ const NKJV_TABLETS = {
           "d": [
             "father",
             "son",
-            "friend"
+            "friend",
+            "wife",
+            "sister"
           ]
         },
         {
@@ -785,7 +922,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Prophet",
-            "Saviour"
+            "Saviour",
+            "Lord",
+            "Shepherd"
           ]
         },
         {
@@ -796,7 +935,9 @@ const NKJV_TABLETS = {
           "d": [
             "rock",
             "disciple",
-            "Peter"
+            "Peter",
+            "tower",
+            "pillar"
           ]
         },
         {
@@ -807,7 +948,9 @@ const NKJV_TABLETS = {
           "d": [
             "him",
             "Jesus",
-            "thee"
+            "thee",
+            "myself",
+            "mine"
           ]
         },
         {
@@ -818,7 +961,9 @@ const NKJV_TABLETS = {
           "d": [
             "John",
             "Philip",
-            "Nathanael"
+            "Nathanael",
+            "James",
+            "Thomas"
           ]
         },
         {
@@ -829,7 +974,9 @@ const NKJV_TABLETS = {
           "d": [
             "David",
             "Mary",
-            "God"
+            "God",
+            "Jacob",
+            "Jesse"
           ]
         },
         {
@@ -840,7 +987,9 @@ const NKJV_TABLETS = {
           "d": [
             "follow",
             "believe",
-            "hear"
+            "hear",
+            "wait",
+            "dwell"
           ]
         },
         {
@@ -850,7 +999,10 @@ const NKJV_TABLETS = {
           "suffix": "!\"",
           "d": [
             "sin",
-            "doubt"
+            "doubt",
+            "pride",
+            "fear",
+            "Light"
           ]
         },
         {
@@ -861,7 +1013,9 @@ const NKJV_TABLETS = {
           "d": [
             "him",
             "me",
-            "it"
+            "it",
+            "thyself",
+            "Light"
           ]
         },
         {
@@ -872,7 +1026,9 @@ const NKJV_TABLETS = {
           "d": [
             "the Jews",
             "heaven",
-            "men"
+            "men",
+            "Judah",
+            "Jacob"
           ]
         },
         {
@@ -883,7 +1039,9 @@ const NKJV_TABLETS = {
           "d": [
             "this",
             "before",
-            "now"
+            "now",
+            "those",
+            "others"
           ]
         },
         {
@@ -894,7 +1052,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "David",
-            "Joseph"
+            "Joseph",
+            "Adam",
+            "Abraham"
           ]
         }
       ]
@@ -914,7 +1074,9 @@ const NKJV_TABLETS = {
           "d": [
             "Master",
             "Maker",
-            "Lord"
+            "Lord",
+            "Shepherd",
+            "Judge"
           ]
         },
         {
@@ -925,7 +1087,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "word",
-            "throne"
+            "throne",
+            "will",
+            "kingdom"
           ]
         },
         {
@@ -936,7 +1100,9 @@ const NKJV_TABLETS = {
           "d": [
             "power",
             "glory",
-            "spirit"
+            "spirit",
+            "throne",
+            "word"
           ]
         },
         {
@@ -947,7 +1113,9 @@ const NKJV_TABLETS = {
           "d": [
             "word",
             "law",
-            "peace"
+            "peace",
+            "glory",
+            "power"
           ]
         },
         {
@@ -958,7 +1126,9 @@ const NKJV_TABLETS = {
           "d": [
             "portion",
             "manna",
-            "food"
+            "food",
+            "water",
+            "wine"
           ]
         },
         {
@@ -969,7 +1139,9 @@ const NKJV_TABLETS = {
           "d": [
             "enemies",
             "brothers",
-            "neighbors"
+            "neighbors",
+            "sinners",
+            "servants"
           ]
         },
         {
@@ -980,7 +1152,9 @@ const NKJV_TABLETS = {
           "d": [
             "darkness",
             "sin",
-            "trouble"
+            "trouble",
+            "death",
+            "famine"
           ]
         },
         {
@@ -991,7 +1165,9 @@ const NKJV_TABLETS = {
           "d": [
             "honor",
             "praise",
-            "might"
+            "might",
+            "throne",
+            "wisdom"
           ]
         }
       ]
@@ -1014,7 +1190,9 @@ const NKJV_TABLETS = {
           "d": [
             "world",
             "deep",
-            "light"
+            "light",
+            "sea",
+            "dust"
           ]
         },
         {
@@ -1025,7 +1203,9 @@ const NKJV_TABLETS = {
           "d": [
             "waters",
             "void",
-            "night"
+            "night",
+            "heaven",
+            "sea"
           ]
         },
         {
@@ -1036,7 +1216,9 @@ const NKJV_TABLETS = {
           "d": [
             "day",
             "life",
-            "order"
+            "order",
+            "land",
+            "water"
           ]
         },
         {
@@ -1047,7 +1229,9 @@ const NKJV_TABLETS = {
           "d": [
             "Eve",
             "Shadow",
-            "Dusk"
+            "Dusk",
+            "Midnight",
+            "world"
           ]
         },
         {
@@ -1058,7 +1242,9 @@ const NKJV_TABLETS = {
           "d": [
             "heaven",
             "earth",
-            "seas"
+            "seas",
+            "land",
+            "world"
           ]
         },
         {
@@ -1069,7 +1255,9 @@ const NKJV_TABLETS = {
           "d": [
             "beasts",
             "fishes",
-            "serpents"
+            "serpents",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -1080,7 +1268,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "spirit",
-            "likeness"
+            "likeness",
+            "name",
+            "hand"
           ]
         },
         {
@@ -1091,7 +1281,9 @@ const NKJV_TABLETS = {
           "d": [
             "him",
             "us",
-            "all"
+            "all",
+            "those",
+            "these"
           ]
         },
         {
@@ -1102,7 +1294,9 @@ const NKJV_TABLETS = {
           "d": [
             "increase",
             "fill",
-            "spread"
+            "spread",
+            "rest",
+            "rejoice"
           ]
         },
         {
@@ -1113,7 +1307,9 @@ const NKJV_TABLETS = {
           "d": [
             "fair",
             "true",
-            "done"
+            "done",
+            "great",
+            "wicked"
           ]
         }
       ]
@@ -1136,7 +1332,9 @@ const NKJV_TABLETS = {
           "d": [
             "land",
             "tent",
-            "people"
+            "people",
+            "gods",
+            "sons"
           ]
         },
         {
@@ -1146,7 +1344,10 @@ const NKJV_TABLETS = {
           "suffix": ".",
           "d": [
             "him",
-            "it"
+            "it",
+            "thyself",
+            "them",
+            "tent"
           ]
         },
         {
@@ -1157,7 +1358,9 @@ const NKJV_TABLETS = {
           "d": [
             "people",
             "house",
-            "kingdom"
+            "kingdom",
+            "city",
+            "land"
           ]
         },
         {
@@ -1168,7 +1371,9 @@ const NKJV_TABLETS = {
           "d": [
             "witness",
             "light",
-            "father"
+            "father",
+            "curse",
+            "gift"
           ]
         },
         {
@@ -1179,7 +1384,9 @@ const NKJV_TABLETS = {
           "d": [
             "gathered",
             "saved",
-            "named"
+            "named",
+            "loved",
+            "chosen"
           ]
         },
         {
@@ -1190,7 +1397,9 @@ const NKJV_TABLETS = {
           "d": [
             "them",
             "Abram",
-            "thee"
+            "thee",
+            "her",
+            "it"
           ]
         },
         {
@@ -1201,7 +1410,9 @@ const NKJV_TABLETS = {
           "d": [
             "place",
             "country",
-            "earth"
+            "earth",
+            "city",
+            "mountain"
           ]
         },
         {
@@ -1212,7 +1423,9 @@ const NKJV_TABLETS = {
           "d": [
             "Most High",
             "Almighty",
-            "God"
+            "God",
+            "Father",
+            "Shepherd"
           ]
         }
       ]
@@ -1235,7 +1448,9 @@ const NKJV_TABLETS = {
           "d": [
             "knowest",
             "fearest",
-            "keepest"
+            "keepest",
+            "seest",
+            "heardest"
           ]
         },
         {
@@ -1246,7 +1461,9 @@ const NKJV_TABLETS = {
           "d": [
             "hills",
             "altars",
-            "places"
+            "places",
+            "valleys",
+            "rivers"
           ]
         },
         {
@@ -1257,7 +1474,9 @@ const NKJV_TABLETS = {
           "d": [
             "servant",
             "lad",
-            "heir"
+            "heir",
+            "firstborn",
+            "daughter"
           ]
         },
         {
@@ -1268,7 +1487,9 @@ const NKJV_TABLETS = {
           "d": [
             "sacrifice",
             "altar",
-            "gift"
+            "gift",
+            "beast",
+            "incense"
           ]
         },
         {
@@ -1279,7 +1500,9 @@ const NKJV_TABLETS = {
           "d": [
             "ram",
             "kid",
-            "bull"
+            "bull",
+            "goat",
+            "sheep"
           ]
         },
         {
@@ -1290,7 +1513,9 @@ const NKJV_TABLETS = {
           "d": [
             "child",
             "heir",
-            "seed"
+            "seed",
+            "daughter",
+            "brother"
           ]
         },
         {
@@ -1301,7 +1526,9 @@ const NKJV_TABLETS = {
           "d": [
             "lad",
             "child",
-            "seed"
+            "seed",
+            "servant",
+            "brother"
           ]
         },
         {
@@ -1312,7 +1539,9 @@ const NKJV_TABLETS = {
           "d": [
             "done",
             "given",
-            "known"
+            "known",
+            "heard",
+            "knowest"
           ]
         },
         {
@@ -1323,7 +1552,9 @@ const NKJV_TABLETS = {
           "d": [
             "sky",
             "night",
-            "host"
+            "host",
+            "sea",
+            "earth"
           ]
         },
         {
@@ -1334,7 +1565,9 @@ const NKJV_TABLETS = {
           "d": [
             "gathered",
             "saved",
-            "named"
+            "named",
+            "cursed",
+            "called"
           ]
         }
       ]
@@ -1357,7 +1590,9 @@ const NKJV_TABLETS = {
           "d": [
             "him",
             "us",
-            "thee"
+            "thee",
+            "them",
+            "myself"
           ]
         },
         {
@@ -1368,7 +1603,9 @@ const NKJV_TABLETS = {
           "d": [
             "idol",
             "likeness",
-            "altar"
+            "altar",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -1379,7 +1616,9 @@ const NKJV_TABLETS = {
           "d": [
             "jest",
             "anger",
-            "haste"
+            "haste",
+            "pride",
+            "sin"
           ]
         },
         {
@@ -1390,7 +1629,9 @@ const NKJV_TABLETS = {
           "d": [
             "clean",
             "set",
-            "apart"
+            "apart",
+            "secret",
+            "quiet"
           ]
         },
         {
@@ -1401,7 +1642,9 @@ const NKJV_TABLETS = {
           "d": [
             "house",
             "kin",
-            "elders"
+            "elders",
+            "brother",
+            "sister"
           ]
         },
         {
@@ -1412,7 +1655,9 @@ const NKJV_TABLETS = {
           "d": [
             "steal",
             "swear",
-            "covet"
+            "covet",
+            "lie",
+            "forsake"
           ]
         },
         {
@@ -1423,7 +1668,9 @@ const NKJV_TABLETS = {
           "d": [
             "murder",
             "idolatry",
-            "theft"
+            "theft",
+            "covetousness",
+            "treason"
           ]
         },
         {
@@ -1434,7 +1681,9 @@ const NKJV_TABLETS = {
           "d": [
             "kill",
             "lie",
-            "covet"
+            "covet",
+            "swear",
+            "forsake"
           ]
         },
         {
@@ -1445,7 +1694,9 @@ const NKJV_TABLETS = {
           "d": [
             "brother",
             "friend",
-            "people"
+            "people",
+            "enemy",
+            "stranger"
           ]
         },
         {
@@ -1456,7 +1707,9 @@ const NKJV_TABLETS = {
           "d": [
             "take",
             "touch",
-            "keep"
+            "keep",
+            "build",
+            "sell"
           ]
         }
       ]
@@ -1479,7 +1732,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "King",
-            "Name"
+            "Name",
+            "Father",
+            "Judge"
           ]
         },
         {
@@ -1490,7 +1745,9 @@ const NKJV_TABLETS = {
           "d": [
             "mind",
             "strength",
-            "spirit"
+            "spirit",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -1501,7 +1758,9 @@ const NKJV_TABLETS = {
           "d": [
             "mouth",
             "house",
-            "hand"
+            "hand",
+            "eyes",
+            "bosom"
           ]
         },
         {
@@ -1512,7 +1771,9 @@ const NKJV_TABLETS = {
           "d": [
             "sons",
             "people",
-            "house"
+            "house",
+            "servants",
+            "brethren"
           ]
         },
         {
@@ -1523,7 +1784,9 @@ const NKJV_TABLETS = {
           "d": [
             "again",
             "early",
-            "forth"
+            "forth",
+            "awake",
+            "out"
           ]
         },
         {
@@ -1534,7 +1797,9 @@ const NKJV_TABLETS = {
           "d": [
             "arm",
             "brow",
-            "door"
+            "door",
+            "foot",
+            "heart"
           ]
         },
         {
@@ -1545,7 +1810,9 @@ const NKJV_TABLETS = {
           "d": [
             "doors",
             "walls",
-            "lintel"
+            "lintel",
+            "tables",
+            "hearts"
           ]
         },
         {
@@ -1556,7 +1823,9 @@ const NKJV_TABLETS = {
           "d": [
             "Canaan",
             "Horeb",
-            "Goshen"
+            "Goshen",
+            "Babylon",
+            "Assyria"
           ]
         }
       ]
@@ -1579,7 +1848,9 @@ const NKJV_TABLETS = {
           "d": [
             "Abraham",
             "Jacob",
-            "Judah"
+            "Judah",
+            "Esau",
+            "Levi"
           ]
         },
         {
@@ -1589,7 +1860,10 @@ const NKJV_TABLETS = {
           "suffix": "all the days of your life; as I was with Moses, so I will be with you. I will not leave you nor forsake you.",
           "d": [
             "him",
-            "us"
+            "us",
+            "them",
+            "thyself",
+            "Abraham"
           ]
         },
         {
@@ -1600,7 +1874,9 @@ const NKJV_TABLETS = {
           "d": [
             "leave",
             "forget",
-            "fear"
+            "fear",
+            "hate",
+            "praise"
           ]
         },
         {
@@ -1611,7 +1887,9 @@ const NKJV_TABLETS = {
           "d": [
             "heart",
             "faith",
-            "hope"
+            "hope",
+            "conscience",
+            "report"
           ]
         },
         {
@@ -1622,7 +1900,9 @@ const NKJV_TABLETS = {
           "d": [
             "hand",
             "heart",
-            "sight"
+            "sight",
+            "house",
+            "land"
           ]
         },
         {
@@ -1633,7 +1913,9 @@ const NKJV_TABLETS = {
           "d": [
             "evening",
             "dawn",
-            "always"
+            "always",
+            "morning",
+            "year"
           ]
         },
         {
@@ -1644,7 +1926,9 @@ const NKJV_TABLETS = {
           "d": [
             "troubled",
             "weak",
-            "moved"
+            "moved",
+            "proud",
+            "wise"
           ]
         },
         {
@@ -1655,7 +1939,9 @@ const NKJV_TABLETS = {
           "d": [
             "walkest",
             "turnest",
-            "dwellest"
+            "dwellest",
+            "sittest",
+            "sleepest"
           ]
         }
       ]
@@ -1678,7 +1964,9 @@ const NKJV_TABLETS = {
           "d": [
             "iniquities",
             "sins",
-            "offences"
+            "offences",
+            "sorrows",
+            "tears"
           ]
         },
         {
@@ -1689,7 +1977,9 @@ const NKJV_TABLETS = {
           "d": [
             "guilt",
             "stain",
-            "shame"
+            "shame",
+            "pride",
+            "fear"
           ]
         },
         {
@@ -1700,7 +1990,9 @@ const NKJV_TABLETS = {
           "d": [
             "wool",
             "light",
-            "linen"
+            "linen",
+            "milk",
+            "gold"
           ]
         },
         {
@@ -1711,7 +2003,9 @@ const NKJV_TABLETS = {
           "d": [
             "us",
             "thee",
-            "him"
+            "him",
+            "it",
+            "them"
           ]
         },
         {
@@ -1722,7 +2016,9 @@ const NKJV_TABLETS = {
           "d": [
             "us",
             "thee",
-            "him"
+            "him",
+            "it",
+            "them"
           ]
         },
         {
@@ -1733,7 +2029,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "presence",
-            "truth"
+            "truth",
+            "strength",
+            "glory"
           ]
         },
         {
@@ -1744,7 +2042,9 @@ const NKJV_TABLETS = {
           "d": [
             "hand",
             "grace",
-            "word"
+            "word",
+            "gift",
+            "will"
           ]
         },
         {
@@ -1755,7 +2055,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "truth",
-            "life"
+            "life",
+            "him",
+            "iniquities"
           ]
         },
         {
@@ -1766,7 +2068,9 @@ const NKJV_TABLETS = {
           "d": [
             "heart",
             "will",
-            "pride"
+            "pride",
+            "offering",
+            "vessel"
           ]
         },
         {
@@ -1777,7 +2081,9 @@ const NKJV_TABLETS = {
           "d": [
             "refuse",
             "forget",
-            "break"
+            "break",
+            "accept",
+            "forsake"
           ]
         }
       ]
@@ -1800,7 +2106,9 @@ const NKJV_TABLETS = {
           "d": [
             "soul",
             "mind",
-            "might"
+            "might",
+            "hand",
+            "eyes"
           ]
         },
         {
@@ -1811,7 +2119,9 @@ const NKJV_TABLETS = {
           "d": [
             "wisdom",
             "strength",
-            "counsel"
+            "counsel",
+            "hand",
+            "sight"
           ]
         },
         {
@@ -1822,7 +2132,9 @@ const NKJV_TABLETS = {
           "d": [
             "steps",
             "ways",
-            "feet"
+            "feet",
+            "thoughts",
+            "hearts"
           ]
         },
         {
@@ -1833,7 +2145,9 @@ const NKJV_TABLETS = {
           "d": [
             "sin",
             "pride",
-            "folly"
+            "folly",
+            "idols",
+            "anger"
           ]
         },
         {
@@ -1844,7 +2158,9 @@ const NKJV_TABLETS = {
           "d": [
             "labour",
             "field",
-            "house"
+            "house",
+            "garden",
+            "treasure"
           ]
         },
         {
@@ -1855,7 +2171,9 @@ const NKJV_TABLETS = {
           "d": [
             "rebuke",
             "rod",
-            "law"
+            "law",
+            "love",
+            "favour"
           ]
         },
         {
@@ -1866,7 +2184,9 @@ const NKJV_TABLETS = {
           "d": [
             "knowledge",
             "riches",
-            "honour"
+            "honour",
+            "gold",
+            "peace"
           ]
         },
         {
@@ -1877,7 +2197,9 @@ const NKJV_TABLETS = {
           "d": [
             "so",
             "this",
-            "good"
+            "good",
+            "that",
+            "him"
           ]
         }
       ]
@@ -1900,7 +2222,9 @@ const NKJV_TABLETS = {
           "d": [
             "pain",
             "shame",
-            "death"
+            "death",
+            "joy",
+            "sin"
           ]
         },
         {
@@ -1911,7 +2235,9 @@ const NKJV_TABLETS = {
           "d": [
             "sins",
             "pains",
-            "burdens"
+            "burdens",
+            "tears",
+            "treasures"
           ]
         },
         {
@@ -1922,7 +2248,9 @@ const NKJV_TABLETS = {
           "d": [
             "sins",
             "offences",
-            "guilts"
+            "guilts",
+            "griefs",
+            "weakness"
           ]
         },
         {
@@ -1933,7 +2261,9 @@ const NKJV_TABLETS = {
           "d": [
             "saved",
             "cleansed",
-            "kept"
+            "kept",
+            "lost",
+            "pain"
           ]
         },
         {
@@ -1944,7 +2274,9 @@ const NKJV_TABLETS = {
           "d": [
             "away",
             "aside",
-            "forth"
+            "forth",
+            "back",
+            "abroad"
           ]
         },
         {
@@ -1955,7 +2287,9 @@ const NKJV_TABLETS = {
           "d": [
             "both",
             "now",
-            "then"
+            "then",
+            "many",
+            "some"
           ]
         },
         {
@@ -1966,7 +2300,9 @@ const NKJV_TABLETS = {
           "d": [
             "lips",
             "voice",
-            "hand"
+            "hand",
+            "heart",
+            "eyes"
           ]
         },
         {
@@ -1977,7 +2313,9 @@ const NKJV_TABLETS = {
           "d": [
             "altar",
             "shearer",
-            "cross"
+            "cross",
+            "sheepfold",
+            "pasture"
           ]
         },
         {
@@ -1988,7 +2326,9 @@ const NKJV_TABLETS = {
           "d": [
             "tomb",
             "sleep",
-            "end"
+            "end",
+            "pit",
+            "house"
           ]
         },
         {
@@ -1999,7 +2339,9 @@ const NKJV_TABLETS = {
           "d": [
             "wicked",
             "sinners",
-            "thieves"
+            "thieves",
+            "prophets",
+            "saints"
           ]
         }
       ]
@@ -2022,7 +2364,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Lord",
-            "Father"
+            "Father",
+            "Judge",
+            "Shepherd"
           ]
         },
         {
@@ -2033,7 +2377,9 @@ const NKJV_TABLETS = {
           "d": [
             "beasts",
             "fire",
-            "stone"
+            "stone",
+            "wolves",
+            "ravens"
           ]
         },
         {
@@ -2044,7 +2390,9 @@ const NKJV_TABLETS = {
           "d": [
             "pit",
             "king",
-            "law"
+            "law",
+            "wolves",
+            "fire"
           ]
         },
         {
@@ -2055,7 +2403,9 @@ const NKJV_TABLETS = {
           "d": [
             "jaws",
             "teeth",
-            "roar"
+            "roar",
+            "eyes",
+            "gates"
           ]
         },
         {
@@ -2066,7 +2416,9 @@ const NKJV_TABLETS = {
           "d": [
             "wrong",
             "harm",
-            "ill"
+            "ill",
+            "good",
+            "service"
           ]
         },
         {
@@ -2077,7 +2429,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "word",
-            "angel"
+            "angel",
+            "Father",
+            "Judge"
           ]
         },
         {
@@ -2088,7 +2442,9 @@ const NKJV_TABLETS = {
           "d": [
             "aye",
             "always",
-            "ages"
+            "ages",
+            "Helper, that He may abide",
+            "mirror, dimly, but then face"
           ]
         },
         {
@@ -2099,7 +2455,9 @@ const NKJV_TABLETS = {
           "d": [
             "land",
             "world",
-            "deep"
+            "deep",
+            "sea",
+            "hell"
           ]
         }
       ]
@@ -2122,7 +2480,9 @@ const NKJV_TABLETS = {
           "d": [
             "crib",
             "bed",
-            "stall"
+            "stall",
+            "field",
+            "tent"
           ]
         },
         {
@@ -2133,7 +2493,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "hope",
-            "glory"
+            "glory",
+            "sorrow",
+            "light"
           ]
         },
         {
@@ -2144,7 +2506,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Prophet",
-            "Son"
+            "Son",
+            "Shepherd",
+            "Stranger"
           ]
         },
         {
@@ -2155,7 +2519,9 @@ const NKJV_TABLETS = {
           "d": [
             "crib",
             "bed",
-            "house"
+            "house",
+            "field",
+            "tent"
           ]
         },
         {
@@ -2166,7 +2532,9 @@ const NKJV_TABLETS = {
           "d": [
             "us",
             "all",
-            "Israel"
+            "Israel",
+            "saints",
+            "kings"
           ]
         },
         {
@@ -2177,7 +2545,9 @@ const NKJV_TABLETS = {
           "d": [
             "joy",
             "rest",
-            "hope"
+            "hope",
+            "death",
+            "glory"
           ]
         },
         {
@@ -2188,7 +2558,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "Christ",
-            "mercy"
+            "mercy",
+            "power",
+            "wrath"
           ]
         },
         {
@@ -2199,7 +2571,9 @@ const NKJV_TABLETS = {
           "d": [
             "Judah",
             "Jacob",
-            "Zion"
+            "Zion",
+            "Abraham",
+            "Moses"
           ]
         },
         {
@@ -2210,7 +2584,9 @@ const NKJV_TABLETS = {
           "d": [
             "them",
             "us",
-            "it"
+            "it",
+            "her",
+            "thee"
           ]
         },
         {
@@ -2220,7 +2596,10 @@ const NKJV_TABLETS = {
           "suffix": ".",
           "d": [
             "Israel",
-            "heaven"
+            "heaven",
+            "angels",
+            "saints",
+            "crib"
           ]
         }
       ]
@@ -2243,7 +2622,9 @@ const NKJV_TABLETS = {
           "d": [
             "heaven",
             "man",
-            "light"
+            "light",
+            "Adam",
+            "David"
           ]
         },
         {
@@ -2254,7 +2635,9 @@ const NKJV_TABLETS = {
           "d": [
             "heaven",
             "man",
-            "life"
+            "life",
+            "Israel",
+            "David"
           ]
         },
         {
@@ -2265,7 +2648,9 @@ const NKJV_TABLETS = {
           "d": [
             "anew",
             "of God",
-            "from above"
+            "from above",
+            "twice",
+            "alone"
           ]
         },
         {
@@ -2276,7 +2661,9 @@ const NKJV_TABLETS = {
           "d": [
             "water",
             "word",
-            "light"
+            "light",
+            "flesh",
+            "blood"
           ]
         },
         {
@@ -2287,7 +2674,9 @@ const NKJV_TABLETS = {
           "d": [
             "high",
             "forth",
-            "again"
+            "again",
+            "down",
+            "out"
           ]
         },
         {
@@ -2298,7 +2687,9 @@ const NKJV_TABLETS = {
           "d": [
             "Child",
             "Word",
-            "Lamb"
+            "Lamb",
+            "Spirit",
+            "Prophet"
           ]
         },
         {
@@ -2309,7 +2700,9 @@ const NKJV_TABLETS = {
           "d": [
             "hope",
             "peace",
-            "joy"
+            "joy",
+            "glory",
+            "rest"
           ]
         },
         {
@@ -2320,7 +2713,9 @@ const NKJV_TABLETS = {
           "d": [
             "healed",
             "kept",
-            "known"
+            "known",
+            "judged",
+            "warned"
           ]
         }
       ]
@@ -2343,7 +2738,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "life",
-            "peace"
+            "peace",
+            "earth",
+            "glory"
           ]
         },
         {
@@ -2354,7 +2751,9 @@ const NKJV_TABLETS = {
           "d": [
             "healed",
             "kept",
-            "lifted"
+            "lifted",
+            "saved",
+            "heard"
           ]
         },
         {
@@ -2365,7 +2764,9 @@ const NKJV_TABLETS = {
           "d": [
             "land",
             "kingdom",
-            "world"
+            "world",
+            "heaven",
+            "throne"
           ]
         },
         {
@@ -2376,7 +2777,9 @@ const NKJV_TABLETS = {
           "d": [
             "fed",
             "kept",
-            "blessed"
+            "blessed",
+            "troubled",
+            "scattered"
           ]
         },
         {
@@ -2387,7 +2790,9 @@ const NKJV_TABLETS = {
           "d": [
             "Christ",
             "heaven",
-            "light"
+            "light",
+            "serve",
+            "fear"
           ]
         },
         {
@@ -2398,7 +2803,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "heaven",
-            "light"
+            "light",
+            "Israel",
+            "Abraham"
           ]
         },
         {
@@ -2409,7 +2816,9 @@ const NKJV_TABLETS = {
           "d": [
             "earth",
             "house",
-            "city"
+            "city",
+            "sea",
+            "nation"
           ]
         },
         {
@@ -2420,7 +2829,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "secret",
-            "truth"
+            "truth",
+            "earth",
+            "hell"
           ]
         },
         {
@@ -2431,7 +2842,9 @@ const NKJV_TABLETS = {
           "d": [
             "keep",
             "teach",
-            "finish"
+            "finish",
+            "build",
+            "sin"
           ]
         },
         {
@@ -2442,7 +2855,9 @@ const NKJV_TABLETS = {
           "d": [
             "thee",
             "us",
-            "them"
+            "them",
+            "me",
+            "him"
           ]
         }
       ]
@@ -2465,7 +2880,9 @@ const NKJV_TABLETS = {
           "d": [
             "afraid",
             "weary",
-            "moved"
+            "moved",
+            "broken",
+            "lost"
           ]
         },
         {
@@ -2476,7 +2893,9 @@ const NKJV_TABLETS = {
           "d": [
             "rooms",
             "places",
-            "thrones"
+            "thrones",
+            "sons",
+            "servants"
           ]
         },
         {
@@ -2487,7 +2906,9 @@ const NKJV_TABLETS = {
           "d": [
             "too",
             "then",
-            "now"
+            "now",
+            "here",
+            "once"
           ]
         },
         {
@@ -2498,7 +2919,9 @@ const NKJV_TABLETS = {
           "d": [
             "light",
             "word",
-            "door"
+            "door",
+            "bread",
+            "vine"
           ]
         },
         {
@@ -2509,7 +2932,9 @@ const NKJV_TABLETS = {
           "d": [
             "him",
             "us",
-            "thee"
+            "thee",
+            "it",
+            "them"
           ]
         },
         {
@@ -2520,7 +2945,9 @@ const NKJV_TABLETS = {
           "d": [
             "Son",
             "Lord",
-            "Spirit"
+            "Spirit",
+            "Word",
+            "Prophet"
           ]
         },
         {
@@ -2531,7 +2958,9 @@ const NKJV_TABLETS = {
           "d": [
             "words",
             "sayings",
-            "law"
+            "law",
+            "ways",
+            "servants"
           ]
         },
         {
@@ -2542,7 +2971,9 @@ const NKJV_TABLETS = {
           "d": [
             "Helper",
             "Spirit",
-            "Advocate"
+            "Advocate",
+            "steadfast forever; His kingdom is",
+            "mirror, dimly, but then face"
           ]
         },
         {
@@ -2553,7 +2984,9 @@ const NKJV_TABLETS = {
           "d": [
             "moved",
             "weary",
-            "cast"
+            "cast",
+            "glad",
+            "hidden"
           ]
         },
         {
@@ -2564,7 +2997,9 @@ const NKJV_TABLETS = {
           "d": [
             "thee",
             "us",
-            "them"
+            "them",
+            "me",
+            "him"
           ]
         }
       ]
@@ -2587,7 +3022,9 @@ const NKJV_TABLETS = {
           "d": [
             "buried",
             "slain",
-            "taken"
+            "taken",
+            "stoned",
+            "rejected"
           ]
         },
         {
@@ -2598,7 +3035,9 @@ const NKJV_TABLETS = {
           "d": [
             "spake",
             "promised",
-            "told"
+            "told",
+            "commanded",
+            "wept"
           ]
         },
         {
@@ -2609,7 +3048,9 @@ const NKJV_TABLETS = {
           "d": [
             "slept",
             "rested",
-            "was"
+            "was",
+            "stood",
+            "sat"
           ]
         },
         {
@@ -2620,7 +3061,9 @@ const NKJV_TABLETS = {
           "d": [
             "hell",
             "glory",
-            "the world"
+            "the world",
+            "sea",
+            "dust"
           ]
         },
         {
@@ -2630,7 +3073,10 @@ const NKJV_TABLETS = {
           "suffix": ",",
           "d": [
             "One",
-            "Name"
+            "Name",
+            "Word",
+            "Light",
+            "buried"
           ]
         },
         {
@@ -2641,7 +3087,9 @@ const NKJV_TABLETS = {
           "d": [
             "age",
             "earth",
-            "day"
+            "day",
+            "the world",
+            "Fear not"
           ]
         },
         {
@@ -2652,7 +3100,9 @@ const NKJV_TABLETS = {
           "d": [
             "Peace",
             "Fear not",
-            "Follow me"
+            "Follow me",
+            "found.' And they began to",
+            "Good tidings"
           ]
         },
         {
@@ -2663,7 +3113,9 @@ const NKJV_TABLETS = {
           "d": [
             "feared",
             "wondered",
-            "fled"
+            "fled",
+            "believed",
+            "rejoiced"
           ]
         }
       ]
@@ -2686,7 +3138,9 @@ const NKJV_TABLETS = {
           "d": [
             "house",
             "mind",
-            "spirit"
+            "spirit",
+            "city",
+            "temple"
           ]
         },
         {
@@ -2697,7 +3151,9 @@ const NKJV_TABLETS = {
           "d": [
             "fire",
             "voice",
-            "cloud"
+            "cloud",
+            "stream",
+            "river"
           ]
         },
         {
@@ -2708,7 +3164,9 @@ const NKJV_TABLETS = {
           "d": [
             "flame",
             "light",
-            "gold"
+            "gold",
+            "water",
+            "brass"
           ]
         },
         {
@@ -2719,7 +3177,9 @@ const NKJV_TABLETS = {
           "d": [
             "speech",
             "words",
-            "power"
+            "power",
+            "strength",
+            "courage"
           ]
         },
         {
@@ -2730,7 +3190,9 @@ const NKJV_TABLETS = {
           "d": [
             "healed",
             "kept",
-            "blessed"
+            "blessed",
+            "lost",
+            "glad"
           ]
         },
         {
@@ -2741,7 +3203,9 @@ const NKJV_TABLETS = {
           "d": [
             "them",
             "death",
-            "hell"
+            "hell",
+            "him",
+            "her"
           ]
         },
         {
@@ -2752,7 +3216,9 @@ const NKJV_TABLETS = {
           "d": [
             "disciples",
             "apostles",
-            "servants"
+            "servants",
+            "prophets",
+            "debtors"
           ]
         },
         {
@@ -2763,7 +3229,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Saviour",
-            "Son"
+            "Son",
+            "Judge",
+            "Father"
           ]
         },
         {
@@ -2774,7 +3242,9 @@ const NKJV_TABLETS = {
           "d": [
             "guilt",
             "debts",
-            "offences"
+            "offences",
+            "pains",
+            "wages"
           ]
         },
         {
@@ -2785,7 +3255,9 @@ const NKJV_TABLETS = {
           "d": [
             "psalms",
             "alms",
-            "fasts"
+            "fasts",
+            "labours",
+            "fasting"
           ]
         }
       ]
@@ -2808,7 +3280,9 @@ const NKJV_TABLETS = {
           "d": [
             "debts",
             "works",
-            "flesh"
+            "flesh",
+            "tears",
+            "cares"
           ]
         },
         {
@@ -2819,7 +3293,9 @@ const NKJV_TABLETS = {
           "d": [
             "you",
             "them",
-            "me"
+            "me",
+            "him",
+            "it"
           ]
         },
         {
@@ -2830,7 +3306,9 @@ const NKJV_TABLETS = {
           "d": [
             "kept",
             "healed",
-            "called"
+            "called",
+            "blessed",
+            "chosen"
           ]
         },
         {
@@ -2841,7 +3319,9 @@ const NKJV_TABLETS = {
           "d": [
             "works",
             "hope",
-            "love"
+            "love",
+            "prayer",
+            "baptism"
           ]
         },
         {
@@ -2852,7 +3332,9 @@ const NKJV_TABLETS = {
           "d": [
             "Christ",
             "grace",
-            "heaven"
+            "heaven",
+            "Moses",
+            "Abraham"
           ]
         },
         {
@@ -2863,7 +3345,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "trust",
-            "rise"
+            "rise",
+            "fear",
+            "pray"
           ]
         },
         {
@@ -2874,7 +3358,9 @@ const NKJV_TABLETS = {
           "d": [
             "fruit",
             "deeds",
-            "paths"
+            "paths",
+            "gifts",
+            "ends"
           ]
         },
         {
@@ -2885,7 +3371,9 @@ const NKJV_TABLETS = {
           "d": [
             "hatred",
             "stone",
-            "law"
+            "law",
+            "gate",
+            "hedge"
           ]
         }
       ]
@@ -2908,7 +3396,9 @@ const NKJV_TABLETS = {
           "d": [
             "bell",
             "drum",
-            "harp"
+            "harp",
+            "trumpet",
+            "psaltery"
           ]
         },
         {
@@ -2919,7 +3409,9 @@ const NKJV_TABLETS = {
           "d": [
             "empty",
             "vain",
-            "lost"
+            "lost",
+            "rich",
+            "wise"
           ]
         },
         {
@@ -2930,7 +3422,9 @@ const NKJV_TABLETS = {
           "d": [
             "meek",
             "true",
-            "pure"
+            "pure",
+            "proud",
+            "bold"
           ]
         },
         {
@@ -2941,7 +3435,9 @@ const NKJV_TABLETS = {
           "d": [
             "lifted",
             "set",
-            "raised"
+            "raised",
+            "bound",
+            "filled"
           ]
         },
         {
@@ -2952,7 +3448,9 @@ const NKJV_TABLETS = {
           "d": [
             "endeth",
             "ceaseth",
-            "falleth"
+            "falleth",
+            "changeth",
+            "sleepeth"
           ]
         },
         {
@@ -2963,7 +3461,9 @@ const NKJV_TABLETS = {
           "d": [
             "dimly",
             "faintly",
-            "partly"
+            "partly",
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -2974,7 +3474,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "light",
-            "truth"
+            "truth",
+            "eye",
+            "hand"
           ]
         },
         {
@@ -2984,7 +3486,10 @@ const NKJV_TABLETS = {
           "suffix": ", these three; but the greatest of these is love.",
           "d": [
             "faith",
-            "hope"
+            "hope",
+            "knowledge",
+            "prophecy",
+            "bell"
           ]
         },
         {
@@ -2995,7 +3500,9 @@ const NKJV_TABLETS = {
           "d": [
             "days",
             "trials",
-            "pains"
+            "pains",
+            "men",
+            "sufferings"
           ]
         },
         {
@@ -3006,7 +3513,9 @@ const NKJV_TABLETS = {
           "d": [
             "ways",
             "words",
-            "fears"
+            "fears",
+            "dreams",
+            "tears"
           ]
         }
       ]
@@ -3029,7 +3538,9 @@ const NKJV_TABLETS = {
           "d": [
             "truth",
             "word",
-            "law"
+            "law",
+            "light",
+            "faith"
           ]
         },
         {
@@ -3040,7 +3551,9 @@ const NKJV_TABLETS = {
           "d": [
             "light",
             "Abraham",
-            "heaven"
+            "heaven",
+            "Adam",
+            "Israel"
           ]
         },
         {
@@ -3051,7 +3564,9 @@ const NKJV_TABLETS = {
           "d": [
             "light",
             "promise",
-            "heaven"
+            "heaven",
+            "Abraham",
+            "Israel"
           ]
         },
         {
@@ -3062,7 +3577,9 @@ const NKJV_TABLETS = {
           "d": [
             "you",
             "them",
-            "me"
+            "me",
+            "him",
+            "it"
           ]
         },
         {
@@ -3073,7 +3590,9 @@ const NKJV_TABLETS = {
           "d": [
             "spoken",
             "named",
-            "told"
+            "told",
+            "written",
+            "touched"
           ]
         },
         {
@@ -3084,7 +3603,9 @@ const NKJV_TABLETS = {
           "d": [
             "Christ",
             "truth",
-            "life"
+            "life",
+            "Israel",
+            "Jesus"
           ]
         },
         {
@@ -3095,7 +3616,9 @@ const NKJV_TABLETS = {
           "d": [
             "thee",
             "him",
-            "them"
+            "them",
+            "me",
+            "you"
           ]
         },
         {
@@ -3106,7 +3629,9 @@ const NKJV_TABLETS = {
           "d": [
             "you",
             "them",
-            "me"
+            "me",
+            "her",
+            "it"
           ]
         },
         {
@@ -3117,7 +3642,9 @@ const NKJV_TABLETS = {
           "d": [
             "pass",
             "be",
-            "end"
+            "end",
+            "go",
+            "remain"
           ]
         },
         {
@@ -3128,7 +3655,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Saviour",
-            "Head"
+            "Head",
+            "Shepherd",
+            "Father"
           ]
         }
       ]
@@ -3151,7 +3680,9 @@ const NKJV_TABLETS = {
           "d": [
             "world",
             "city",
-            "sea"
+            "sea",
+            "garden",
+            "garment"
           ]
         },
         {
@@ -3162,7 +3693,9 @@ const NKJV_TABLETS = {
           "d": [
             "night",
             "death",
-            "pain"
+            "pain",
+            "tears",
+            "light"
           ]
         },
         {
@@ -3173,7 +3706,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "the sky",
-            "the cloud"
+            "the cloud",
+            "earth",
+            "Zion"
           ]
         },
         {
@@ -3184,7 +3719,9 @@ const NKJV_TABLETS = {
           "d": [
             "night",
             "pain",
-            "fear"
+            "fear",
+            "sickness",
+            "sin"
           ]
         },
         {
@@ -3195,7 +3732,9 @@ const NKJV_TABLETS = {
           "d": [
             "on",
             "by",
-            "off"
+            "off",
+            "over",
+            "behind"
           ]
         },
         {
@@ -3206,7 +3745,9 @@ const NKJV_TABLETS = {
           "d": [
             "whole",
             "good",
-            "true"
+            "true",
+            "clean",
+            "old"
           ]
         },
         {
@@ -3217,7 +3758,9 @@ const NKJV_TABLETS = {
           "d": [
             "last",
             "finish",
-            "close"
+            "close",
+            "middle",
+            "height"
           ]
         },
         {
@@ -3228,7 +3771,9 @@ const NKJV_TABLETS = {
           "d": [
             "Lord",
             "Word",
-            "Son"
+            "Son",
+            "Father",
+            "Spirit"
           ]
         },
         {
@@ -3239,7 +3784,9 @@ const NKJV_TABLETS = {
           "d": [
             "fear",
             "night",
-            "tears"
+            "tears",
+            "sickness",
+            "shame"
           ]
         },
         {
@@ -3250,7 +3797,9 @@ const NKJV_TABLETS = {
           "d": [
             "names",
             "heaven",
-            "glory"
+            "glory",
+            "death",
+            "record"
           ]
         }
       ]
@@ -3272,7 +3821,9 @@ const NKJV_TABLETS = {
           "d": [
             "subtle",
             "crafty",
-            "wise"
+            "wise",
+            "fierce",
+            "strong"
           ]
         },
         {
@@ -3283,7 +3834,9 @@ const NKJV_TABLETS = {
           "d": [
             "fall",
             "sin",
-            "eat"
+            "eat",
+            "touch",
+            "taste"
           ]
         },
         {
@@ -3294,7 +3847,9 @@ const NKJV_TABLETS = {
           "d": [
             "drink",
             "take",
-            "see"
+            "see",
+            "hear",
+            "smell"
           ]
         },
         {
@@ -3305,7 +3860,9 @@ const NKJV_TABLETS = {
           "d": [
             "ashamed",
             "afraid",
-            "lost"
+            "lost",
+            "blind",
+            "wise"
           ]
         },
         {
@@ -3316,7 +3873,9 @@ const NKJV_TABLETS = {
           "d": [
             "hand",
             "foot",
-            "side"
+            "side",
+            "neck",
+            "knee"
           ]
         },
         {
@@ -3327,7 +3886,9 @@ const NKJV_TABLETS = {
           "d": [
             "go",
             "rest",
-            "sleep"
+            "sleep",
+            "remain",
+            "wander"
           ]
         },
         {
@@ -3338,7 +3899,9 @@ const NKJV_TABLETS = {
           "d": [
             "Haran",
             "Zion",
-            "Canaan"
+            "Canaan",
+            "Gilead",
+            "Carmel"
           ]
         },
         {
@@ -3349,7 +3912,9 @@ const NKJV_TABLETS = {
           "d": [
             "spear",
             "fire",
-            "gate"
+            "gate",
+            "brand",
+            "lamp"
           ]
         }
       ]
@@ -3371,7 +3936,9 @@ const NKJV_TABLETS = {
           "d": [
             "Most High",
             "Almighty",
-            "God"
+            "God",
+            "Saviour",
+            "Redeemer"
           ]
         },
         {
@@ -3382,7 +3949,9 @@ const NKJV_TABLETS = {
           "d": [
             "tongue",
             "place",
-            "rest"
+            "rest",
+            "breath",
+            "hands"
           ]
         },
         {
@@ -3393,7 +3962,9 @@ const NKJV_TABLETS = {
           "d": [
             "river",
             "deep",
-            "waters"
+            "waters",
+            "land",
+            "mountain"
           ]
         },
         {
@@ -3404,7 +3975,9 @@ const NKJV_TABLETS = {
           "d": [
             "blast",
             "storm",
-            "breath"
+            "breath",
+            "tempest",
+            "spirit"
           ]
         },
         {
@@ -3415,7 +3988,9 @@ const NKJV_TABLETS = {
           "d": [
             "hedge",
             "bank",
-            "tower"
+            "tower",
+            "shadow",
+            "fire"
           ]
         },
         {
@@ -3426,7 +4001,9 @@ const NKJV_TABLETS = {
           "d": [
             "deep",
             "flood",
-            "wave"
+            "wave",
+            "river",
+            "host"
           ]
         },
         {
@@ -3437,7 +4014,9 @@ const NKJV_TABLETS = {
           "d": [
             "us",
             "him",
-            "these"
+            "these",
+            "those",
+            "whom"
           ]
         },
         {
@@ -3448,7 +4027,9 @@ const NKJV_TABLETS = {
           "d": [
             "Aaron",
             "Joshua",
-            "Joseph"
+            "Joseph",
+            "Caleb",
+            "David"
           ]
         }
       ]
@@ -3470,7 +4051,9 @@ const NKJV_TABLETS = {
           "d": [
             "him",
             "us",
-            "her"
+            "her",
+            "them",
+            "stay"
           ]
         },
         {
@@ -3481,7 +4064,9 @@ const NKJV_TABLETS = {
           "d": [
             "stay",
             "come",
-            "walk"
+            "walk",
+            "tarry",
+            "remain"
           ]
         },
         {
@@ -3492,7 +4077,9 @@ const NKJV_TABLETS = {
           "d": [
             "dwell",
             "rest",
-            "abide"
+            "abide",
+            "sleep",
+            "eat"
           ]
         },
         {
@@ -3503,7 +4090,9 @@ const NKJV_TABLETS = {
           "d": [
             "LORD",
             "King",
-            "help"
+            "help",
+            "Saviour",
+            "Judge"
           ]
         },
         {
@@ -3514,7 +4103,9 @@ const NKJV_TABLETS = {
           "d": [
             "lie",
             "sleep",
-            "rest"
+            "rest",
+            "live",
+            "stay"
           ]
         },
         {
@@ -3525,7 +4116,9 @@ const NKJV_TABLETS = {
           "d": [
             "thee",
             "us",
-            "her"
+            "her",
+            "him",
+            "them"
           ]
         },
         {
@@ -3536,7 +4129,9 @@ const NKJV_TABLETS = {
           "d": [
             "Rachel",
             "Hannah",
-            "Sarah"
+            "Sarah",
+            "Ruth",
+            "Miriam"
           ]
         },
         {
@@ -3547,7 +4142,9 @@ const NKJV_TABLETS = {
           "d": [
             "poor",
             "bare",
-            "alone"
+            "alone",
+            "weary",
+            "rich"
           ]
         }
       ]
@@ -3569,7 +4166,9 @@ const NKJV_TABLETS = {
           "d": [
             "wisdom",
             "understanding",
-            "truth"
+            "truth",
+            "fear",
+            "shame"
           ]
         },
         {
@@ -3580,7 +4179,9 @@ const NKJV_TABLETS = {
           "d": [
             "world",
             "deep",
-            "heavens"
+            "heavens",
+            "sea",
+            "mountains"
           ]
         },
         {
@@ -3591,7 +4192,9 @@ const NKJV_TABLETS = {
           "d": [
             "praise",
             "glory",
-            "wonder"
+            "wonder",
+            "war",
+            "fear"
           ]
         },
         {
@@ -3602,7 +4205,9 @@ const NKJV_TABLETS = {
           "d": [
             "bars",
             "gates",
-            "bonds"
+            "bonds",
+            "walls",
+            "fetters"
           ]
         },
         {
@@ -3613,7 +4218,9 @@ const NKJV_TABLETS = {
           "d": [
             "more",
             "beyond",
-            "longer"
+            "longer",
+            "lower",
+            "less"
           ]
         },
         {
@@ -3624,7 +4231,9 @@ const NKJV_TABLETS = {
           "d": [
             "rain",
             "ice",
-            "frost"
+            "frost",
+            "dew",
+            "wind"
           ]
         },
         {
@@ -3635,7 +4244,9 @@ const NKJV_TABLETS = {
           "d": [
             "Arcturus",
             "Mazzaroth",
-            "the Bear"
+            "the Bear",
+            "Edom",
+            "Gilead"
           ]
         },
         {
@@ -3646,7 +4257,9 @@ const NKJV_TABLETS = {
           "d": [
             "the LORD",
             "heaven",
-            "man"
+            "man",
+            "Elijah",
+            "Baal"
           ]
         }
       ]
@@ -3668,7 +4281,9 @@ const NKJV_TABLETS = {
           "d": [
             "wicked",
             "sinners",
-            "proud"
+            "proud",
+            "evil",
+            "Almighty"
           ]
         },
         {
@@ -3679,7 +4294,9 @@ const NKJV_TABLETS = {
           "d": [
             "Most High",
             "Almighty",
-            "God"
+            "God",
+            "Saviour",
+            "Redeemer"
           ]
         },
         {
@@ -3690,7 +4307,9 @@ const NKJV_TABLETS = {
           "d": [
             "life",
             "Eden",
-            "peace"
+            "peace",
+            "oil",
+            "milk"
           ]
         },
         {
@@ -3701,7 +4320,9 @@ const NKJV_TABLETS = {
           "d": [
             "fail",
             "fade",
-            "fall"
+            "fall",
+            "cease",
+            "blossom"
           ]
         },
         {
@@ -3712,7 +4333,9 @@ const NKJV_TABLETS = {
           "d": [
             "dust",
             "stubble",
-            "ash"
+            "ash",
+            "stone",
+            "rock"
           ]
         },
         {
@@ -3723,7 +4346,9 @@ const NKJV_TABLETS = {
           "d": [
             "fire",
             "gate",
-            "day"
+            "day",
+            "assembly",
+            "temple"
           ]
         },
         {
@@ -3734,7 +4359,9 @@ const NKJV_TABLETS = {
           "d": [
             "just",
             "holy",
-            "meek"
+            "meek",
+            "wicked",
+            "faithful"
           ]
         },
         {
@@ -3745,7 +4372,9 @@ const NKJV_TABLETS = {
           "d": [
             "fail",
             "end",
-            "fall"
+            "fall",
+            "wither",
+            "burn"
           ]
         }
       ]
@@ -3767,7 +4396,9 @@ const NKJV_TABLETS = {
           "d": [
             "hope",
             "strength",
-            "peace"
+            "peace",
+            "refuge",
+            "shield"
           ]
         },
         {
@@ -3778,7 +4409,9 @@ const NKJV_TABLETS = {
           "d": [
             "sea",
             "all",
-            "man"
+            "man",
+            "hell",
+            "waters"
           ]
         },
         {
@@ -3789,7 +4422,9 @@ const NKJV_TABLETS = {
           "d": [
             "sleep",
             "fail",
-            "leave"
+            "leave",
+            "faint",
+            "rest"
           ]
         },
         {
@@ -3800,7 +4435,9 @@ const NKJV_TABLETS = {
           "d": [
             "rest",
             "fail",
-            "tire"
+            "tire",
+            "dream",
+            "faint"
           ]
         },
         {
@@ -3811,7 +4448,9 @@ const NKJV_TABLETS = {
           "d": [
             "side",
             "arm",
-            "path"
+            "path",
+            "eye",
+            "foot"
           ]
         },
         {
@@ -3822,7 +4461,9 @@ const NKJV_TABLETS = {
           "d": [
             "dark",
             "even",
-            "watch"
+            "watch",
+            "morning",
+            "summer"
           ]
         },
         {
@@ -3833,7 +4474,9 @@ const NKJV_TABLETS = {
           "d": [
             "harm",
             "fear",
-            "death"
+            "death",
+            "sorrow",
+            "famine"
           ]
         },
         {
@@ -3844,7 +4487,9 @@ const NKJV_TABLETS = {
           "d": [
             "rising",
             "walking",
-            "standing"
+            "standing",
+            "sitting",
+            "dwelling"
           ]
         }
       ]
@@ -3866,7 +4511,9 @@ const NKJV_TABLETS = {
           "d": [
             "sun",
             "earth",
-            "sky"
+            "sky",
+            "moon",
+            "stars"
           ]
         },
         {
@@ -3877,7 +4524,9 @@ const NKJV_TABLETS = {
           "d": [
             "live",
             "sleep",
-            "end"
+            "end",
+            "eat",
+            "sun"
           ]
         },
         {
@@ -3888,7 +4537,9 @@ const NKJV_TABLETS = {
           "d": [
             "sing",
             "dance",
-            "rejoice"
+            "rejoice",
+            "hate",
+            "embrace"
           ]
         },
         {
@@ -3899,7 +4550,9 @@ const NKJV_TABLETS = {
           "d": [
             "sing",
             "feast",
-            "leap"
+            "leap",
+            "cast",
+            "sun"
           ]
         },
         {
@@ -3910,7 +4563,9 @@ const NKJV_TABLETS = {
           "d": [
             "cry",
             "pray",
-            "teach"
+            "teach",
+            "hear",
+            "answer"
           ]
         },
         {
@@ -3921,7 +4576,9 @@ const NKJV_TABLETS = {
           "d": [
             "rest",
             "ease",
-            "quiet"
+            "quiet",
+            "famine",
+            "hunger"
           ]
         },
         {
@@ -3932,7 +4589,9 @@ const NKJV_TABLETS = {
           "d": [
             "way",
             "hour",
-            "season"
+            "season",
+            "day",
+            "hand"
           ]
         },
         {
@@ -3943,7 +4602,9 @@ const NKJV_TABLETS = {
           "d": [
             "good",
             "us",
-            "nought"
+            "nought",
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         }
       ]
@@ -3965,7 +4626,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "LORD",
-            "Father"
+            "Father",
+            "Redeemer",
+            "Saviour"
           ]
         },
         {
@@ -3976,7 +4639,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Christ",
-            "Most High"
+            "Most High",
+            "Judge",
+            "Redeemer"
           ]
         },
         {
@@ -3987,7 +4652,9 @@ const NKJV_TABLETS = {
           "d": [
             "aye",
             "truth",
-            "us"
+            "us",
+            "evil",
+            "years"
           ]
         },
         {
@@ -3998,7 +4665,9 @@ const NKJV_TABLETS = {
           "d": [
             "father",
             "king",
-            "guide"
+            "guide",
+            "husbandman",
+            "gardener"
           ]
         },
         {
@@ -4009,7 +4678,9 @@ const NKJV_TABLETS = {
           "d": [
             "weak",
             "spent",
-            "tired"
+            "tired",
+            "afraid",
+            "wise"
           ]
         },
         {
@@ -4020,7 +4691,9 @@ const NKJV_TABLETS = {
           "d": [
             "youth",
             "hope",
-            "heart"
+            "heart",
+            "faith",
+            "spirit"
           ]
         },
         {
@@ -4031,7 +4704,9 @@ const NKJV_TABLETS = {
           "d": [
             "doves",
             "angels",
-            "cherubims"
+            "cherubims",
+            "ravens",
+            "lambs"
           ]
         },
         {
@@ -4042,7 +4717,9 @@ const NKJV_TABLETS = {
           "d": [
             "fall",
             "fail",
-            "tire"
+            "tire",
+            "stumble",
+            "sleep"
           ]
         }
       ]
@@ -4064,7 +4741,9 @@ const NKJV_TABLETS = {
           "d": [
             "exiles",
             "strangers",
-            "servants"
+            "servants",
+            "kings",
+            "gold"
           ]
         },
         {
@@ -4075,7 +4754,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "hope",
-            "good"
+            "good",
+            "love",
+            "wrath"
           ]
         },
         {
@@ -4086,7 +4767,9 @@ const NKJV_TABLETS = {
           "d": [
             "hope",
             "future",
-            "rest"
+            "rest",
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -4097,7 +4780,9 @@ const NKJV_TABLETS = {
           "d": [
             "them",
             "us",
-            "thee"
+            "thee",
+            "him",
+            "her"
           ]
         },
         {
@@ -4108,7 +4793,9 @@ const NKJV_TABLETS = {
           "d": [
             "soul",
             "might",
-            "mind"
+            "mind",
+            "strength",
+            "spirit"
           ]
         },
         {
@@ -4119,7 +4806,9 @@ const NKJV_TABLETS = {
           "d": [
             "sorrow",
             "bondage",
-            "shame"
+            "shame",
+            "transgressions",
+            "anger"
           ]
         },
         {
@@ -4130,7 +4819,9 @@ const NKJV_TABLETS = {
           "d": [
             "oath",
             "work",
-            "promise"
+            "promise",
+            "pleasure",
+            "counsel"
           ]
         },
         {
@@ -4141,7 +4832,9 @@ const NKJV_TABLETS = {
           "d": [
             "bound",
             "lost",
-            "sold"
+            "sold",
+            "afflicted",
+            "strangers"
           ]
         }
       ]
@@ -4163,7 +4856,9 @@ const NKJV_TABLETS = {
           "d": [
             "rise",
             "stand",
-            "speak"
+            "speak",
+            "move",
+            "breathe"
           ]
         },
         {
@@ -4174,7 +4869,9 @@ const NKJV_TABLETS = {
           "d": [
             "Most High",
             "Almighty",
-            "God"
+            "God",
+            "Saviour",
+            "Redeemer"
           ]
         },
         {
@@ -4185,7 +4882,9 @@ const NKJV_TABLETS = {
           "d": [
             "rise",
             "stand",
-            "wake"
+            "wake",
+            "move",
+            "sleep"
           ]
         },
         {
@@ -4196,7 +4895,9 @@ const NKJV_TABLETS = {
           "d": [
             "wind",
             "thunder",
-            "quake"
+            "quake",
+            "rushing",
+            "earthquake"
           ]
         },
         {
@@ -4207,7 +4908,9 @@ const NKJV_TABLETS = {
           "d": [
             "us",
             "him",
-            "it"
+            "it",
+            "these",
+            "those"
           ]
         },
         {
@@ -4218,7 +4921,9 @@ const NKJV_TABLETS = {
           "d": [
             "spirit",
             "air",
-            "life"
+            "life",
+            "soul",
+            "fire"
           ]
         },
         {
@@ -4229,7 +4934,9 @@ const NKJV_TABLETS = {
           "d": [
             "host",
             "people",
-            "nation"
+            "nation",
+            "company",
+            "flock"
           ]
         },
         {
@@ -4240,7 +4947,9 @@ const NKJV_TABLETS = {
           "d": [
             "house",
             "city",
-            "place"
+            "place",
+            "country",
+            "ground"
           ]
         }
       ]
@@ -4262,7 +4971,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "life",
-            "joy"
+            "joy",
+            "hope",
+            "help"
           ]
         },
         {
@@ -4273,7 +4984,9 @@ const NKJV_TABLETS = {
           "d": [
             "spirit",
             "mind",
-            "soul"
+            "soul",
+            "deed",
+            "speech"
           ]
         },
         {
@@ -4284,7 +4997,9 @@ const NKJV_TABLETS = {
           "d": [
             "hearts",
             "minds",
-            "flesh"
+            "flesh",
+            "bodies",
+            "spirits"
           ]
         },
         {
@@ -4295,7 +5010,9 @@ const NKJV_TABLETS = {
           "d": [
             "small",
             "kind",
-            "fair"
+            "fair",
+            "heavy",
+            "sweet"
           ]
         },
         {
@@ -4306,7 +5023,9 @@ const NKJV_TABLETS = {
           "d": [
             "children",
             "the poor",
-            "sinners"
+            "sinners",
+            "saints",
+            "fools"
           ]
         },
         {
@@ -4317,7 +5036,9 @@ const NKJV_TABLETS = {
           "d": [
             "Spirit",
             "Lord",
-            "Most High"
+            "Most High",
+            "Saviour",
+            "Creator"
           ]
         },
         {
@@ -4328,7 +5049,9 @@ const NKJV_TABLETS = {
           "d": [
             "tried",
             "worn",
-            "spent"
+            "spent",
+            "weary",
+            "afflicted"
           ]
         },
         {
@@ -4339,7 +5062,9 @@ const NKJV_TABLETS = {
           "d": [
             "him",
             "God",
-            "this"
+            "this",
+            "them",
+            "thee"
           ]
         }
       ]
@@ -4361,7 +5086,9 @@ const NKJV_TABLETS = {
           "d": [
             "dead",
             "gone",
-            "lost"
+            "lost",
+            "there",
+            "near"
           ]
         },
         {
@@ -4372,7 +5099,9 @@ const NKJV_TABLETS = {
           "d": [
             "Jesus",
             "the Lord",
-            "them"
+            "them",
+            "it",
+            "her"
           ]
         },
         {
@@ -4383,7 +5112,9 @@ const NKJV_TABLETS = {
           "d": [
             "nation",
             "people",
-            "tongue"
+            "tongue",
+            "man",
+            "kindred"
           ]
         },
         {
@@ -4394,7 +5125,9 @@ const NKJV_TABLETS = {
           "d": [
             "blessed",
             "kept",
-            "healed"
+            "healed",
+            "sanctified",
+            "forgiven"
           ]
         },
         {
@@ -4405,7 +5138,9 @@ const NKJV_TABLETS = {
           "d": [
             "spirits",
             "demons",
-            "serpents"
+            "serpents",
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -4416,7 +5151,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "the cloud",
-            "the sky"
+            "the sky",
+            "wilderness",
+            "sea"
           ]
         },
         {
@@ -4427,7 +5164,9 @@ const NKJV_TABLETS = {
           "d": [
             "wonders",
             "miracles",
-            "power"
+            "power",
+            "promises",
+            "tears"
           ]
         },
         {
@@ -4438,7 +5177,9 @@ const NKJV_TABLETS = {
           "d": [
             "alive",
             "gone",
-            "taken"
+            "taken",
+            "dead",
+            "buried"
           ]
         }
       ]
@@ -4460,7 +5201,9 @@ const NKJV_TABLETS = {
           "d": [
             "gone",
             "strayed",
-            "hurt"
+            "hurt",
+            "wandering",
+            "scattered"
           ]
         },
         {
@@ -4471,7 +5214,9 @@ const NKJV_TABLETS = {
           "d": [
             "dead",
             "gone",
-            "stolen"
+            "stolen",
+            "hurt",
+            "sick"
           ]
         },
         {
@@ -4482,7 +5227,9 @@ const NKJV_TABLETS = {
           "d": [
             "her",
             "them",
-            "one"
+            "one",
+            "that",
+            "him"
           ]
         },
         {
@@ -4493,7 +5240,9 @@ const NKJV_TABLETS = {
           "d": [
             "drink",
             "pleasure",
-            "waste"
+            "waste",
+            "mirth",
+            "wine"
           ]
         },
         {
@@ -4503,7 +5252,10 @@ const NKJV_TABLETS = {
           "suffix": ",",
           "d": [
             "God",
-            "him"
+            "him",
+            "me",
+            "them",
+            "gone"
           ]
         },
         {
@@ -4514,7 +5266,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "pity",
-            "joy"
+            "joy",
+            "gladness",
+            "sorrow"
           ]
         },
         {
@@ -4525,7 +5279,9 @@ const NKJV_TABLETS = {
           "d": [
             "home",
             "saved",
-            "kept"
+            "kept",
+            "\"Rejoice!\" So they came and held",
+            "returned"
           ]
         },
         {
@@ -4536,7 +5292,9 @@ const NKJV_TABLETS = {
           "d": [
             "home",
             "here",
-            "kept"
+            "kept",
+            "Most High",
+            "truth's sake"
           ]
         }
       ]
@@ -4558,7 +5316,9 @@ const NKJV_TABLETS = {
           "d": [
             "way",
             "truth",
-            "light"
+            "light",
+            "death",
+            "hope"
           ]
         },
         {
@@ -4569,7 +5329,9 @@ const NKJV_TABLETS = {
           "d": [
             "rise",
             "stand",
-            "wake"
+            "wake",
+            "return",
+            "way"
           ]
         },
         {
@@ -4580,7 +5342,9 @@ const NKJV_TABLETS = {
           "d": [
             "fall",
             "perish",
-            "sleep"
+            "sleep",
+            "fail",
+            "thirst"
           ]
         },
         {
@@ -4591,7 +5355,9 @@ const NKJV_TABLETS = {
           "d": [
             "sighed",
             "groaned",
-            "prayed"
+            "prayed",
+            "marvelled",
+            "rejoiced"
           ]
         },
         {
@@ -4602,7 +5368,9 @@ const NKJV_TABLETS = {
           "d": [
             "cloth",
             "door",
-            "grave"
+            "grave",
+            "cave",
+            "pit"
           ]
         },
         {
@@ -4613,7 +5381,9 @@ const NKJV_TABLETS = {
           "d": [
             "out",
             "up",
-            "here"
+            "here",
+            "back",
+            "in"
           ]
         },
         {
@@ -4624,7 +5394,9 @@ const NKJV_TABLETS = {
           "d": [
             "linen",
             "bands",
-            "cloths"
+            "cloths",
+            "fetters",
+            "silver"
           ]
         },
         {
@@ -4635,7 +5407,9 @@ const NKJV_TABLETS = {
           "d": [
             "the Father",
             "heaven",
-            "the Lord"
+            "the Lord",
+            "Christ",
+            "Moses"
           ]
         }
       ]
@@ -4657,7 +5431,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "the sun",
-            "glory"
+            "glory",
+            "clouds",
+            "fire"
           ]
         },
         {
@@ -4668,7 +5444,9 @@ const NKJV_TABLETS = {
           "d": [
             "us",
             "them",
-            "him"
+            "him",
+            "her",
+            "those"
           ]
         },
         {
@@ -4679,7 +5457,9 @@ const NKJV_TABLETS = {
           "d": [
             "hatest",
             "huntest",
-            "scourgest"
+            "scourgest",
+            "fearest",
+            "lovest"
           ]
         },
         {
@@ -4690,7 +5470,9 @@ const NKJV_TABLETS = {
           "d": [
             "say",
             "be",
-            "go"
+            "go",
+            "suffer",
+            "hear"
           ]
         },
         {
@@ -4701,7 +5483,9 @@ const NKJV_TABLETS = {
           "d": [
             "sleep",
             "speak",
-            "pray"
+            "pray",
+            "fast",
+            "taste"
           ]
         },
         {
@@ -4712,7 +5496,9 @@ const NKJV_TABLETS = {
           "d": [
             "men",
             "Judah",
-            "Abraham"
+            "Abraham",
+            "Levi",
+            "Benjamin"
           ]
         },
         {
@@ -4723,7 +5509,9 @@ const NKJV_TABLETS = {
           "d": [
             "dust",
             "film",
-            "veils"
+            "veils",
+            "tears",
+            "stones"
           ]
         },
         {
@@ -4734,7 +5522,9 @@ const NKJV_TABLETS = {
           "d": [
             "man",
             "David",
-            "Abraham"
+            "Abraham",
+            "Judah",
+            "Moses"
           ]
         }
       ]
@@ -4756,7 +5546,9 @@ const NKJV_TABLETS = {
           "d": [
             "offering",
             "gift",
-            "altar"
+            "altar",
+            "witness",
+            "candle"
           ]
         },
         {
@@ -4767,7 +5559,9 @@ const NKJV_TABLETS = {
           "d": [
             "heart",
             "soul",
-            "spirit"
+            "spirit",
+            "faith",
+            "understanding"
           ]
         },
         {
@@ -4778,7 +5572,9 @@ const NKJV_TABLETS = {
           "d": [
             "true",
             "holy",
-            "just"
+            "just",
+            "right",
+            "pure"
           ]
         },
         {
@@ -4789,7 +5585,9 @@ const NKJV_TABLETS = {
           "d": [
             "faith",
             "watch",
-            "fasting"
+            "fasting",
+            "praise",
+            "charity"
           ]
         },
         {
@@ -4800,7 +5598,9 @@ const NKJV_TABLETS = {
           "d": [
             "mourn",
             "cry",
-            "sorrow"
+            "sorrow",
+            "laugh",
+            "sing"
           ]
         },
         {
@@ -4811,7 +5611,9 @@ const NKJV_TABLETS = {
           "d": [
             "people",
             "brethren",
-            "nations"
+            "nations",
+            "saints",
+            "things"
           ]
         },
         {
@@ -4822,7 +5624,9 @@ const NKJV_TABLETS = {
           "d": [
             "love",
             "truth",
-            "light"
+            "light",
+            "patience",
+            "meekness"
           ]
         },
         {
@@ -4833,7 +5637,9 @@ const NKJV_TABLETS = {
           "d": [
             "lowly",
             "meekly",
-            "truly"
+            "truly",
+            "wisely",
+            "rightly"
           ]
         }
       ]
@@ -4854,7 +5660,10 @@ const NKJV_TABLETS = {
           "suffix": ".",
           "d": [
             "ourselves",
-            "yourselves"
+            "yourselves",
+            "those",
+            "these",
+            "Paul"
           ]
         },
         {
@@ -4865,7 +5674,9 @@ const NKJV_TABLETS = {
           "d": [
             "the Lord",
             "our Lord",
-            "Jesus Christ"
+            "Jesus Christ",
+            "Paul",
+            "Timothy"
           ]
         },
         {
@@ -4876,7 +5687,9 @@ const NKJV_TABLETS = {
           "d": [
             "the Father",
             "heaven",
-            "man"
+            "man",
+            "Abraham",
+            "Moses"
           ]
         },
         {
@@ -4887,7 +5700,9 @@ const NKJV_TABLETS = {
           "d": [
             "man",
             "slave",
-            "son"
+            "son",
+            "king",
+            "prophet"
           ]
         },
         {
@@ -4898,7 +5713,9 @@ const NKJV_TABLETS = {
           "d": [
             "tree",
             "grave",
-            "world"
+            "world",
+            "sword",
+            "altar"
           ]
         },
         {
@@ -4909,7 +5726,9 @@ const NKJV_TABLETS = {
           "d": [
             "power",
             "throne",
-            "title"
+            "title",
+            "kingdom",
+            "nation"
           ]
         },
         {
@@ -4920,7 +5739,9 @@ const NKJV_TABLETS = {
           "d": [
             "bend",
             "fall",
-            "kneel"
+            "kneel",
+            "stoop",
+            "tremble"
           ]
         },
         {
@@ -4931,7 +5752,9 @@ const NKJV_TABLETS = {
           "d": [
             "Most High",
             "Almighty",
-            "Holy Ghost"
+            "Holy Ghost",
+            "Son",
+            "Spirit"
           ]
         }
       ]
@@ -4953,7 +5776,9 @@ const NKJV_TABLETS = {
           "d": [
             "known",
             "held",
-            "named"
+            "named",
+            "heard",
+            "bought"
           ]
         },
         {
@@ -4964,7 +5789,9 @@ const NKJV_TABLETS = {
           "d": [
             "the LORD",
             "his mouth",
-            "power"
+            "power",
+            "Christ",
+            "Moses"
           ]
         },
         {
@@ -4975,7 +5802,9 @@ const NKJV_TABLETS = {
           "d": [
             "thee",
             "us",
-            "it"
+            "it",
+            "her",
+            "all"
           ]
         },
         {
@@ -4986,7 +5815,9 @@ const NKJV_TABLETS = {
           "d": [
             "altar",
             "house",
-            "tent"
+            "tent",
+            "vessel",
+            "ship"
           ]
         },
         {
@@ -4997,7 +5828,9 @@ const NKJV_TABLETS = {
           "d": [
             "came",
             "walked",
-            "sailed"
+            "sailed",
+            "ran",
+            "rested"
           ]
         },
         {
@@ -5008,7 +5841,9 @@ const NKJV_TABLETS = {
           "d": [
             "Ishmael",
             "his son",
-            "the lad"
+            "the lad",
+            "Jacob",
+            "Lot"
           ]
         },
         {
@@ -5019,7 +5854,9 @@ const NKJV_TABLETS = {
           "d": [
             "bread",
             "wine",
-            "haste"
+            "haste",
+            "joy",
+            "fear"
           ]
         },
         {
@@ -5030,7 +5867,9 @@ const NKJV_TABLETS = {
           "d": [
             "land",
             "way",
-            "world"
+            "world",
+            "sea",
+            "hills"
           ]
         }
       ]
@@ -5052,7 +5891,9 @@ const NKJV_TABLETS = {
           "d": [
             "trials",
             "troubles",
-            "sorrows"
+            "sorrows",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -5063,7 +5904,9 @@ const NKJV_TABLETS = {
           "d": [
             "hope",
             "peace",
-            "strength"
+            "strength",
+            "joy",
+            "courage"
           ]
         },
         {
@@ -5074,7 +5917,9 @@ const NKJV_TABLETS = {
           "d": [
             "thee",
             "you",
-            "them"
+            "them",
+            "me",
+            "us"
           ]
         },
         {
@@ -5085,7 +5930,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "righteousness",
-            "joy"
+            "joy",
+            "honour",
+            "gold"
           ]
         },
         {
@@ -5096,7 +5943,9 @@ const NKJV_TABLETS = {
           "d": [
             "spirits",
             "glory",
-            "heaven"
+            "heaven",
+            "mercies",
+            "stars"
           ]
         },
         {
@@ -5107,7 +5956,9 @@ const NKJV_TABLETS = {
           "d": [
             "anger",
             "judge",
-            "strife"
+            "strife",
+            "sin",
+            "pride"
           ]
         },
         {
@@ -5118,7 +5969,9 @@ const NKJV_TABLETS = {
           "d": [
             "hearts",
             "souls",
-            "minds"
+            "minds",
+            "eyes",
+            "gods"
           ]
         },
         {
@@ -5129,7 +5982,9 @@ const NKJV_TABLETS = {
           "d": [
             "flesh",
             "evil",
-            "age"
+            "age",
+            "sin",
+            "devil"
           ]
         }
       ]
@@ -5151,7 +6006,9 @@ const NKJV_TABLETS = {
           "d": [
             "truth",
             "light",
-            "life"
+            "life",
+            "Christ",
+            "Jesus"
           ]
         },
         {
@@ -5162,7 +6019,9 @@ const NKJV_TABLETS = {
           "d": [
             "light",
             "life",
-            "truth"
+            "truth",
+            "spirit",
+            "power"
           ]
         },
         {
@@ -5173,7 +6032,9 @@ const NKJV_TABLETS = {
           "d": [
             "Christ",
             "Jesus",
-            "the Word"
+            "the Word",
+            "it",
+            "them"
           ]
         },
         {
@@ -5184,7 +6045,9 @@ const NKJV_TABLETS = {
           "d": [
             "souls",
             "guilt",
-            "death"
+            "death",
+            "burdens",
+            "wages"
           ]
         },
         {
@@ -5195,7 +6058,9 @@ const NKJV_TABLETS = {
           "d": [
             "death",
             "hate",
-            "doubt"
+            "doubt",
+            "pain",
+            "sin"
           ]
         },
         {
@@ -5206,7 +6071,9 @@ const NKJV_TABLETS = {
           "d": [
             "me",
             "thee",
-            "them"
+            "them",
+            "you",
+            "all"
           ]
         },
         {
@@ -5217,7 +6084,9 @@ const NKJV_TABLETS = {
           "d": [
             "us",
             "them",
-            "thee"
+            "thee",
+            "me",
+            "it"
           ]
         },
         {
@@ -5228,7 +6097,9 @@ const NKJV_TABLETS = {
           "d": [
             "neighbour",
             "friend",
-            "enemy"
+            "enemy",
+            "sister",
+            "father"
           ]
         }
       ]
@@ -5250,7 +6121,9 @@ const NKJV_TABLETS = {
           "d": [
             "slept",
             "stayed",
-            "stopped"
+            "stopped",
+            "blessed",
+            "walked"
           ]
         },
         {
@@ -5261,7 +6134,9 @@ const NKJV_TABLETS = {
           "d": [
             "made",
             "kept",
-            "named"
+            "named",
+            "finished",
+            "loved"
           ]
         },
         {
@@ -5272,7 +6147,9 @@ const NKJV_TABLETS = {
           "d": [
             "air",
             "spirit",
-            "days"
+            "days",
+            "heaven",
+            "wind"
           ]
         },
         {
@@ -5283,7 +6160,9 @@ const NKJV_TABLETS = {
           "d": [
             "Zion",
             "Ur",
-            "Shinar"
+            "Shinar",
+            "Gilead",
+            "Carmel"
           ]
         },
         {
@@ -5294,7 +6173,9 @@ const NKJV_TABLETS = {
           "d": [
             "fruit",
             "meat",
-            "shade"
+            "shade",
+            "drink",
+            "use"
           ]
         },
         {
@@ -5305,7 +6186,9 @@ const NKJV_TABLETS = {
           "d": [
             "till",
             "watch",
-            "hold"
+            "hold",
+            "guard",
+            "water"
           ]
         },
         {
@@ -5316,7 +6199,9 @@ const NKJV_TABLETS = {
           "d": [
             "afraid",
             "idle",
-            "silent"
+            "silent",
+            "naked",
+            "wise"
           ]
         },
         {
@@ -5327,7 +6212,9 @@ const NKJV_TABLETS = {
           "d": [
             "house",
             "people",
-            "God"
+            "God",
+            "son",
+            "brother"
           ]
         }
       ]
@@ -5349,7 +6236,9 @@ const NKJV_TABLETS = {
           "d": [
             "favour",
             "mercy",
-            "peace"
+            "peace",
+            "rest",
+            "fault"
           ]
         },
         {
@@ -5360,7 +6249,9 @@ const NKJV_TABLETS = {
           "d": [
             "holy",
             "humble",
-            "faithful"
+            "faithful",
+            "wise",
+            "strong"
           ]
         },
         {
@@ -5371,7 +6262,9 @@ const NKJV_TABLETS = {
           "d": [
             "blood",
             "wickedness",
-            "pride"
+            "pride",
+            "sin",
+            "idols"
           ]
         },
         {
@@ -5382,7 +6275,9 @@ const NKJV_TABLETS = {
           "d": [
             "cedar",
             "stone",
-            "reed"
+            "reed",
+            "brass",
+            "gold"
           ]
         },
         {
@@ -5393,7 +6288,9 @@ const NKJV_TABLETS = {
           "d": [
             "end",
             "roof",
-            "front"
+            "front",
+            "midst",
+            "ground"
           ]
         },
         {
@@ -5404,7 +6301,9 @@ const NKJV_TABLETS = {
           "d": [
             "promise",
             "word",
-            "peace"
+            "peace",
+            "oath",
+            "statute"
           ]
         },
         {
@@ -5415,7 +6314,9 @@ const NKJV_TABLETS = {
           "d": [
             "kind",
             "one",
-            "beast"
+            "beast",
+            "creature",
+            "fowl"
           ]
         },
         {
@@ -5426,7 +6327,9 @@ const NKJV_TABLETS = {
           "d": [
             "built",
             "went",
-            "said"
+            "said",
+            "Most High",
+            "truth's sake"
           ]
         }
       ]
@@ -5448,7 +6351,9 @@ const NKJV_TABLETS = {
           "d": [
             "garden",
             "ship",
-            "tent"
+            "tent",
+            "vessel",
+            "city"
           ]
         },
         {
@@ -5459,7 +6364,9 @@ const NKJV_TABLETS = {
           "d": [
             "years",
             "nights",
-            "hours"
+            "hours",
+            "months",
+            "moons"
           ]
         },
         {
@@ -5470,7 +6377,9 @@ const NKJV_TABLETS = {
           "d": [
             "them",
             "God",
-            "Moses"
+            "Moses",
+            "thee",
+            "us"
           ]
         },
         {
@@ -5481,7 +6390,9 @@ const NKJV_TABLETS = {
           "d": [
             "years",
             "weeks",
-            "storms"
+            "storms",
+            "moons",
+            "ages"
           ]
         },
         {
@@ -5492,7 +6403,9 @@ const NKJV_TABLETS = {
           "d": [
             "out",
             "up",
-            "safe"
+            "safe",
+            "razor has ever come",
+            "revealed, nor has anything"
           ]
         },
         {
@@ -5503,7 +6416,9 @@ const NKJV_TABLETS = {
           "d": [
             "rise",
             "grow",
-            "stand"
+            "stand",
+            "increase",
+            "overflow"
           ]
         },
         {
@@ -5514,7 +6429,9 @@ const NKJV_TABLETS = {
           "d": [
             "safe",
             "there",
-            "whole"
+            "whole",
+            "sound",
+            "quiet"
           ]
         },
         {
@@ -5525,7 +6442,9 @@ const NKJV_TABLETS = {
           "d": [
             "nights",
             "years",
-            "weeks"
+            "weeks",
+            "months",
+            "ages"
           ]
         }
       ]
@@ -5547,7 +6466,9 @@ const NKJV_TABLETS = {
           "d": [
             "angels",
             "voices",
-            "strangers"
+            "strangers",
+            "kings",
+            "elders"
           ]
         },
         {
@@ -5558,7 +6479,9 @@ const NKJV_TABLETS = {
           "d": [
             "hands",
             "face",
-            "head"
+            "head",
+            "eyes",
+            "garments"
           ]
         },
         {
@@ -5569,7 +6492,9 @@ const NKJV_TABLETS = {
           "d": [
             "child",
             "seed",
-            "daughter"
+            "daughter",
+            "heir",
+            "servant"
           ]
         },
         {
@@ -5580,7 +6505,9 @@ const NKJV_TABLETS = {
           "d": [
             "rest",
             "a child",
-            "joy"
+            "joy",
+            "strength",
+            "riches"
           ]
         },
         {
@@ -5591,7 +6518,9 @@ const NKJV_TABLETS = {
           "d": [
             "great",
             "hidden",
-            "far"
+            "far",
+            "strange",
+            "high"
           ]
         },
         {
@@ -5602,7 +6531,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "truth",
-            "good"
+            "good",
+            "evil",
+            "service"
           ]
         },
         {
@@ -5613,7 +6544,9 @@ const NKJV_TABLETS = {
           "d": [
             "just",
             "well",
-            "thus"
+            "thus",
+            "wrong",
+            "good"
           ]
         },
         {
@@ -5624,7 +6557,9 @@ const NKJV_TABLETS = {
           "d": [
             "their",
             "one",
-            "pity"
+            "pity",
+            "fifty",
+            "twenty"
           ]
         }
       ]
@@ -5646,7 +6581,9 @@ const NKJV_TABLETS = {
           "d": [
             "sky",
             "Zion",
-            "light"
+            "light",
+            "clouds",
+            "stars"
           ]
         },
         {
@@ -5657,7 +6594,9 @@ const NKJV_TABLETS = {
           "d": [
             "Jacob",
             "Israel",
-            "Sarah"
+            "Sarah",
+            "Esau",
+            "Ishmael"
           ]
         },
         {
@@ -5668,7 +6607,9 @@ const NKJV_TABLETS = {
           "d": [
             "him",
             "us",
-            "Israel"
+            "Israel",
+            "me",
+            "sky"
           ]
         },
         {
@@ -5679,7 +6620,9 @@ const NKJV_TABLETS = {
           "d": [
             "house",
             "land",
-            "dream"
+            "dream",
+            "temple",
+            "city"
           ]
         },
         {
@@ -5690,7 +6633,9 @@ const NKJV_TABLETS = {
           "d": [
             "holy",
             "strange",
-            "great"
+            "great",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -5701,7 +6646,9 @@ const NKJV_TABLETS = {
           "d": [
             "altar",
             "mark",
-            "heap"
+            "heap",
+            "memorial",
+            "witness"
           ]
         },
         {
@@ -5712,7 +6659,9 @@ const NKJV_TABLETS = {
           "d": [
             "Peniel",
             "Shiloh",
-            "Mizpah"
+            "Mizpah",
+            "Hebron",
+            "Gilgal"
           ]
         },
         {
@@ -5723,7 +6672,9 @@ const NKJV_TABLETS = {
           "d": [
             "altar",
             "field",
-            "land"
+            "land",
+            "tabernacle",
+            "temple"
           ]
         }
       ]
@@ -5745,7 +6696,9 @@ const NKJV_TABLETS = {
           "d": [
             "cloud",
             "tree",
-            "rock"
+            "rock",
+            "thicket",
+            "stone"
           ]
         },
         {
@@ -5756,7 +6709,9 @@ const NKJV_TABLETS = {
           "d": [
             "Aaron",
             "Abraham",
-            "master"
+            "master",
+            "Samuel",
+            "Joshua"
           ]
         },
         {
@@ -5767,7 +6722,9 @@ const NKJV_TABLETS = {
           "d": [
             "clean",
             "set",
-            "blessed"
+            "blessed",
+            "burning",
+            "barren"
           ]
         },
         {
@@ -5778,7 +6735,9 @@ const NKJV_TABLETS = {
           "d": [
             "Israel",
             "Joseph",
-            "David"
+            "David",
+            "Esau",
+            "Ishmael"
           ]
         },
         {
@@ -5789,7 +6748,9 @@ const NKJV_TABLETS = {
           "d": [
             "burdens",
             "enemies",
-            "sorrows"
+            "sorrows",
+            "chariots",
+            "idols"
           ]
         },
         {
@@ -5800,7 +6761,9 @@ const NKJV_TABLETS = {
           "d": [
             "wide",
             "rich",
-            "free"
+            "free",
+            "fair",
+            "pleasant"
           ]
         },
         {
@@ -5811,7 +6774,9 @@ const NKJV_TABLETS = {
           "d": [
             "Jacob",
             "Judah",
-            "Abraham"
+            "Abraham",
+            "Levi",
+            "Joseph"
           ]
         },
         {
@@ -5822,7 +6787,9 @@ const NKJV_TABLETS = {
           "d": [
             "called",
             "made",
-            "kept"
+            "kept",
+            "brought",
+            "led"
           ]
         }
       ]
@@ -5844,7 +6811,9 @@ const NKJV_TABLETS = {
           "d": [
             "psalm",
             "prayer",
-            "word"
+            "word",
+            "mourning",
+            "dance"
           ]
         },
         {
@@ -5855,7 +6824,9 @@ const NKJV_TABLETS = {
           "d": [
             "shield",
             "refuge",
-            "tower"
+            "tower",
+            "glory",
+            "fortress"
           ]
         },
         {
@@ -5866,7 +6837,9 @@ const NKJV_TABLETS = {
           "d": [
             "battle",
             "power",
-            "mercy"
+            "mercy",
+            "sorrows",
+            "peace"
           ]
         },
         {
@@ -5877,7 +6850,9 @@ const NKJV_TABLETS = {
           "d": [
             "anger",
             "might",
-            "war"
+            "war",
+            "majesty",
+            "holiness"
           ]
         },
         {
@@ -5888,7 +6863,9 @@ const NKJV_TABLETS = {
           "d": [
             "holy",
             "mighty",
-            "radiant"
+            "radiant",
+            "terrible",
+            "righteous"
           ]
         },
         {
@@ -5899,7 +6876,9 @@ const NKJV_TABLETS = {
           "d": [
             "chosen",
             "saved",
-            "gathered"
+            "gathered",
+            "forgiven",
+            "remembered"
           ]
         },
         {
@@ -5910,7 +6889,9 @@ const NKJV_TABLETS = {
           "d": [
             "rock",
             "wall",
-            "grave"
+            "grave",
+            "pillar",
+            "sea"
           ]
         },
         {
@@ -5921,7 +6902,9 @@ const NKJV_TABLETS = {
           "d": [
             "rule",
             "judge",
-            "stand"
+            "stand",
+            "sing",
+            "rest"
           ]
         }
       ]
@@ -5943,7 +6926,9 @@ const NKJV_TABLETS = {
           "d": [
             "Jacob",
             "Judah",
-            "Levi"
+            "Levi",
+            "Abraham",
+            "Joseph"
           ]
         },
         {
@@ -5954,7 +6939,9 @@ const NKJV_TABLETS = {
           "d": [
             "iron",
             "blade",
-            "hand"
+            "hand",
+            "sword",
+            "dew"
           ]
         },
         {
@@ -5965,7 +6952,9 @@ const NKJV_TABLETS = {
           "d": [
             "grave",
             "place",
-            "man"
+            "man",
+            "soul",
+            "beast"
           ]
         },
         {
@@ -5976,7 +6965,9 @@ const NKJV_TABLETS = {
           "d": [
             "clean",
             "given",
-            "sealed"
+            "sealed",
+            "vowed",
+            "faithful"
           ]
         },
         {
@@ -5987,7 +6978,9 @@ const NKJV_TABLETS = {
           "d": [
             "keep",
             "love",
-            "guard"
+            "guard",
+            "guide",
+            "defend"
           ]
         },
         {
@@ -5998,7 +6991,9 @@ const NKJV_TABLETS = {
           "d": [
             "us",
             "me",
-            "them"
+            "them",
+            "him",
+            "Jacob"
           ]
         },
         {
@@ -6009,7 +7004,9 @@ const NKJV_TABLETS = {
           "d": [
             "rest",
             "joy",
-            "grace"
+            "grace",
+            "favour",
+            "life"
           ]
         },
         {
@@ -6020,7 +7017,9 @@ const NKJV_TABLETS = {
           "d": [
             "keep",
             "hear",
-            "honour"
+            "honour",
+            "curse",
+            "lead"
           ]
         }
       ]
@@ -6042,7 +7041,9 @@ const NKJV_TABLETS = {
           "d": [
             "Ai",
             "Canaan",
-            "Gibeon"
+            "Gibeon",
+            "Gilgal",
+            "Shechem"
           ]
         },
         {
@@ -6053,7 +7054,9 @@ const NKJV_TABLETS = {
           "d": [
             "levites",
             "soldiers",
-            "men"
+            "men",
+            "elders",
+            "prophets"
           ]
         },
         {
@@ -6064,7 +7067,9 @@ const NKJV_TABLETS = {
           "d": [
             "cry",
             "sing",
-            "knock"
+            "knock",
+            "rejoice",
+            "tremble"
           ]
         },
         {
@@ -6075,7 +7080,9 @@ const NKJV_TABLETS = {
           "d": [
             "priests",
             "trumpets",
-            "king"
+            "king",
+            "glory",
+            "cloud"
           ]
         },
         {
@@ -6086,7 +7093,9 @@ const NKJV_TABLETS = {
           "d": [
             "land",
             "victory",
-            "spoil"
+            "spoil",
+            "enemy",
+            "battle"
           ]
         },
         {
@@ -6097,7 +7106,9 @@ const NKJV_TABLETS = {
           "d": [
             "gate",
             "tower",
-            "city"
+            "city",
+            "house",
+            "altar"
           ]
         },
         {
@@ -6108,7 +7119,9 @@ const NKJV_TABLETS = {
           "d": [
             "camel",
             "goat",
-            "dog"
+            "dog",
+            "horses",
+            "lions"
           ]
         },
         {
@@ -6119,7 +7132,9 @@ const NKJV_TABLETS = {
           "d": [
             "again",
             "Ai",
-            "Shiloh"
+            "Shiloh",
+            "Bethel",
+            "Hebron"
           ]
         }
       ]
@@ -6141,7 +7156,9 @@ const NKJV_TABLETS = {
           "d": [
             "Tamar",
             "Jael",
-            "Rahab"
+            "Rahab",
+            "Ruth",
+            "Abigail"
           ]
         },
         {
@@ -6152,7 +7169,9 @@ const NKJV_TABLETS = {
           "d": [
             "power",
             "secret",
-            "courage"
+            "courage",
+            "wisdom",
+            "glory"
           ]
         },
         {
@@ -6163,7 +7182,9 @@ const NKJV_TABLETS = {
           "d": [
             "knife",
             "hand",
-            "cord"
+            "cord",
+            "So those that entered",
+            "revealed, nor has anything"
           ]
         },
         {
@@ -6174,7 +7195,9 @@ const NKJV_TABLETS = {
           "d": [
             "her",
             "them",
-            "it"
+            "it",
+            "thee",
+            "us"
           ]
         },
         {
@@ -6185,7 +7208,9 @@ const NKJV_TABLETS = {
           "d": [
             "hair",
             "hands",
-            "armour"
+            "armour",
+            "locks",
+            "sight"
           ]
         },
         {
@@ -6196,7 +7221,9 @@ const NKJV_TABLETS = {
           "d": [
             "hear",
             "help",
-            "bless"
+            "bless",
+            "comfort",
+            "save"
           ]
         },
         {
@@ -6206,7 +7233,10 @@ const NKJV_TABLETS = {
           "suffix": ", and he braced himself against them, one on his right and the other on his left.",
           "d": [
             "wall",
-            "tower"
+            "tower",
+            "roof",
+            "palace",
+            "Tamar"
           ]
         },
         {
@@ -6217,7 +7247,9 @@ const NKJV_TABLETS = {
           "d": [
             "youth",
             "days",
-            "wars"
+            "wars",
+            "strength",
+            "power"
           ]
         }
       ]
@@ -6239,7 +7271,9 @@ const NKJV_TABLETS = {
           "d": [
             "Saul",
             "Samson",
-            "Abner"
+            "Abner",
+            "Jonathan",
+            "Nabal"
           ]
         },
         {
@@ -6250,7 +7284,9 @@ const NKJV_TABLETS = {
           "d": [
             "angry",
             "moved",
-            "silent"
+            "silent",
+            "ashamed",
+            "glad"
           ]
         },
         {
@@ -6261,7 +7297,9 @@ const NKJV_TABLETS = {
           "d": [
             "holy",
             "great",
-            "eternal"
+            "eternal",
+            "sovereign",
+            "jealous"
           ]
         },
         {
@@ -6272,7 +7310,9 @@ const NKJV_TABLETS = {
           "d": [
             "stand",
             "wrestle",
-            "speak"
+            "speak",
+            "smite",
+            "reason"
           ]
         },
         {
@@ -6283,7 +7323,9 @@ const NKJV_TABLETS = {
           "d": [
             "giant",
             "man",
-            "warrior"
+            "warrior",
+            "Hittite",
+            "Egyptian"
           ]
         },
         {
@@ -6294,7 +7336,9 @@ const NKJV_TABLETS = {
           "d": [
             "round",
             "plain",
-            "small"
+            "small",
+            "white",
+            "golden"
           ]
         },
         {
@@ -6305,7 +7349,9 @@ const NKJV_TABLETS = {
           "d": [
             "Israel",
             "armies",
-            "glory"
+            "glory",
+            "majesty",
+            "heaven"
           ]
         },
         {
@@ -6316,7 +7362,9 @@ const NKJV_TABLETS = {
           "d": [
             "ground",
             "dust",
-            "sea"
+            "sea",
+            "heaven",
+            "water"
           ]
         }
       ]
@@ -6338,7 +7386,9 @@ const NKJV_TABLETS = {
           "d": [
             "shield",
             "tower",
-            "strength"
+            "strength",
+            "help",
+            "hope"
           ]
         },
         {
@@ -6349,7 +7399,9 @@ const NKJV_TABLETS = {
           "d": [
             "danger",
             "enemies",
-            "death"
+            "death",
+            "sin",
+            "sorrow"
           ]
         },
         {
@@ -6360,7 +7412,9 @@ const NKJV_TABLETS = {
           "d": [
             "sang",
             "prayed",
-            "looked"
+            "looked",
+            "wept",
+            "spake"
           ]
         },
         {
@@ -6371,7 +7425,9 @@ const NKJV_TABLETS = {
           "d": [
             "lift",
             "tame",
-            "fill"
+            "fill",
+            "scatter",
+            "clear"
           ]
         },
         {
@@ -6382,7 +7438,9 @@ const NKJV_TABLETS = {
           "d": [
             "pure",
             "just",
-            "holy"
+            "holy",
+            "straight",
+            "hidden"
           ]
         },
         {
@@ -6393,7 +7451,9 @@ const NKJV_TABLETS = {
           "d": [
             "refuge",
             "might",
-            "peace"
+            "peace",
+            "glory",
+            "wisdom"
           ]
         },
         {
@@ -6404,7 +7464,9 @@ const NKJV_TABLETS = {
           "d": [
             "strength",
             "mercy",
-            "hope"
+            "hope",
+            "help",
+            "fortress"
           ]
         },
         {
@@ -6415,7 +7477,9 @@ const NKJV_TABLETS = {
           "d": [
             "nations",
             "people",
-            "brethren"
+            "brethren",
+            "kings",
+            "princes"
           ]
         }
       ]
@@ -6437,7 +7501,9 @@ const NKJV_TABLETS = {
           "d": [
             "tower",
             "house",
-            "den"
+            "den",
+            "pit",
+            "tomb"
           ]
         },
         {
@@ -6448,7 +7514,9 @@ const NKJV_TABLETS = {
           "d": [
             "minds",
             "gods",
-            "ways"
+            "ways",
+            "masters",
+            "kings"
           ]
         },
         {
@@ -6459,7 +7527,9 @@ const NKJV_TABLETS = {
           "d": [
             "rain",
             "voice",
-            "sign"
+            "sign",
+            "water",
+            "thunder"
           ]
         },
         {
@@ -6470,7 +7540,9 @@ const NKJV_TABLETS = {
           "d": [
             "hideth",
             "resteth",
-            "fainteth"
+            "fainteth",
+            "walketh",
+            "cometh"
           ]
         },
         {
@@ -6481,7 +7553,9 @@ const NKJV_TABLETS = {
           "d": [
             "him",
             "God",
-            "us"
+            "us",
+            "thee",
+            "you"
           ]
         },
         {
@@ -6492,7 +7566,9 @@ const NKJV_TABLETS = {
           "d": [
             "Zion",
             "Judah",
-            "the world"
+            "the world",
+            "Egypt",
+            "Canaan"
           ]
         },
         {
@@ -6503,7 +7579,9 @@ const NKJV_TABLETS = {
           "d": [
             "offering",
             "altar",
-            "lamb"
+            "lamb",
+            "incense",
+            "bread"
           ]
         },
         {
@@ -6514,7 +7592,9 @@ const NKJV_TABLETS = {
           "d": [
             "knees",
             "feet",
-            "hands"
+            "hands",
+            "heads",
+            "shoulders"
           ]
         }
       ]
@@ -6536,7 +7616,9 @@ const NKJV_TABLETS = {
           "d": [
             "storm",
             "cloud",
-            "wind"
+            "wind",
+            "chariot",
+            "fire"
           ]
         },
         {
@@ -6547,7 +7629,9 @@ const NKJV_TABLETS = {
           "d": [
             "touched",
             "parted",
-            "hit"
+            "hit",
+            "lifted",
+            "blessed"
           ]
         },
         {
@@ -6558,7 +7642,9 @@ const NKJV_TABLETS = {
           "d": [
             "power",
             "blessing",
-            "grace"
+            "grace",
+            "glory",
+            "mantle"
           ]
         },
         {
@@ -6569,7 +7655,9 @@ const NKJV_TABLETS = {
           "d": [
             "horse",
             "cloud",
-            "wind"
+            "wind",
+            "pillar",
+            "flame"
           ]
         },
         {
@@ -6580,7 +7668,9 @@ const NKJV_TABLETS = {
           "d": [
             "mantle",
             "garments",
-            "robe"
+            "robe",
+            "hair",
+            "hands"
           ]
         },
         {
@@ -6591,7 +7681,9 @@ const NKJV_TABLETS = {
           "d": [
             "Israel",
             "Abraham",
-            "Zion"
+            "Zion",
+            "Moses",
+            "Joshua"
           ]
         },
         {
@@ -6602,7 +7694,9 @@ const NKJV_TABLETS = {
           "d": [
             "springs",
             "lands",
-            "people"
+            "people",
+            "cities",
+            "gates"
           ]
         },
         {
@@ -6613,7 +7707,9 @@ const NKJV_TABLETS = {
           "d": [
             "man",
             "prophet",
-            "fool"
+            "fool",
+            "priest",
+            "stranger"
           ]
         }
       ]
@@ -6635,7 +7731,9 @@ const NKJV_TABLETS = {
           "d": [
             "word",
             "praise",
-            "mercy"
+            "mercy",
+            "majesty",
+            "power"
           ]
         },
         {
@@ -6646,7 +7744,9 @@ const NKJV_TABLETS = {
           "d": [
             "praise",
             "power",
-            "words"
+            "words",
+            "victory",
+            "glory"
           ]
         },
         {
@@ -6657,7 +7757,9 @@ const NKJV_TABLETS = {
           "d": [
             "hands",
             "power",
-            "spirit"
+            "spirit",
+            "wonders",
+            "word"
           ]
         },
         {
@@ -6668,7 +7770,9 @@ const NKJV_TABLETS = {
           "d": [
             "Adam",
             "flesh",
-            "dust"
+            "dust",
+            "sin",
+            "vanity"
           ]
         },
         {
@@ -6679,7 +7783,9 @@ const NKJV_TABLETS = {
           "d": [
             "heavens",
             "kings",
-            "thrones"
+            "thrones",
+            "stars",
+            "beasts"
           ]
         },
         {
@@ -6690,7 +7796,9 @@ const NKJV_TABLETS = {
           "d": [
             "power",
             "rule",
-            "charge"
+            "charge",
+            "care",
+            "glory"
           ]
         },
         {
@@ -6701,7 +7809,9 @@ const NKJV_TABLETS = {
           "d": [
             "cattle",
             "herds",
-            "goats"
+            "goats",
+            "lambs",
+            "horses"
           ]
         },
         {
@@ -6712,7 +7822,9 @@ const NKJV_TABLETS = {
           "d": [
             "world",
             "lands",
-            "heavens"
+            "heavens",
+            "sea",
+            "field"
           ]
         }
       ]
@@ -6734,7 +7846,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "power",
-            "wonders"
+            "wonders",
+            "majesty",
+            "truth"
           ]
         },
         {
@@ -6745,7 +7859,9 @@ const NKJV_TABLETS = {
           "d": [
             "words",
             "praise",
-            "wisdom"
+            "wisdom",
+            "songs",
+            "wonders"
           ]
         },
         {
@@ -6756,7 +7872,9 @@ const NKJV_TABLETS = {
           "d": [
             "pure",
             "holy",
-            "good"
+            "good",
+            "pleasant",
+            "sweet"
           ]
         },
         {
@@ -6767,7 +7885,9 @@ const NKJV_TABLETS = {
           "d": [
             "true",
             "just",
-            "good"
+            "good",
+            "sure",
+            "sweet"
           ]
         },
         {
@@ -6778,7 +7898,9 @@ const NKJV_TABLETS = {
           "d": [
             "silver",
             "jewels",
-            "riches"
+            "riches",
+            "brass",
+            "wine"
           ]
         },
         {
@@ -6789,7 +7911,9 @@ const NKJV_TABLETS = {
           "d": [
             "ways",
             "heart",
-            "law"
+            "law",
+            "counsels",
+            "judgments"
           ]
         },
         {
@@ -6800,7 +7924,9 @@ const NKJV_TABLETS = {
           "d": [
             "fall",
             "offence",
-            "wickedness"
+            "wickedness",
+            "rebellion",
+            "wrath"
           ]
         },
         {
@@ -6811,7 +7937,9 @@ const NKJV_TABLETS = {
           "d": [
             "rock",
             "refuge",
-            "shield"
+            "shield",
+            "help",
+            "hope"
           ]
         }
       ]
@@ -6833,7 +7961,9 @@ const NKJV_TABLETS = {
           "d": [
             "shield",
             "tower",
-            "hope"
+            "hope",
+            "power",
+            "comfort"
           ]
         },
         {
@@ -6844,7 +7974,9 @@ const NKJV_TABLETS = {
           "d": [
             "waters",
             "nations",
-            "hills"
+            "hills",
+            "rocks",
+            "islands"
           ]
         },
         {
@@ -6855,7 +7987,9 @@ const NKJV_TABLETS = {
           "d": [
             "house",
             "Zion",
-            "heart"
+            "heart",
+            "temple",
+            "camp"
           ]
         },
         {
@@ -6866,7 +8000,9 @@ const NKJV_TABLETS = {
           "d": [
             "shaken",
             "fallen",
-            "lost"
+            "lost",
+            "broken",
+            "forsaken"
           ]
         },
         {
@@ -6877,7 +8013,9 @@ const NKJV_TABLETS = {
           "d": [
             "shook",
             "burned",
-            "trembled"
+            "trembled",
+            "fled",
+            "groaned"
           ]
         },
         {
@@ -6888,7 +8026,9 @@ const NKJV_TABLETS = {
           "d": [
             "strength",
             "fortress",
-            "hope"
+            "hope",
+            "rock",
+            "tower"
           ]
         },
         {
@@ -6899,7 +8039,9 @@ const NKJV_TABLETS = {
           "d": [
             "sword",
             "spear",
-            "shield"
+            "shield",
+            "arrow",
+            "staff"
           ]
         },
         {
@@ -6910,7 +8052,9 @@ const NKJV_TABLETS = {
           "d": [
             "nations",
             "world",
-            "skies"
+            "skies",
+            "heavens",
+            "city"
           ]
         }
       ]
@@ -6932,7 +8076,9 @@ const NKJV_TABLETS = {
           "d": [
             "people",
             "nations",
-            "earth"
+            "earth",
+            "saints",
+            "servants"
           ]
         },
         {
@@ -6943,7 +8089,9 @@ const NKJV_TABLETS = {
           "d": [
             "fear",
             "pride",
-            "sorrow"
+            "sorrow",
+            "trembling",
+            "faith"
           ]
         },
         {
@@ -6954,7 +8102,9 @@ const NKJV_TABLETS = {
           "d": [
             "king",
             "good",
-            "one"
+            "one",
+            "Shepherd",
+            "Judge"
           ]
         },
         {
@@ -6965,7 +8115,9 @@ const NKJV_TABLETS = {
           "d": [
             "hand",
             "field",
-            "fold"
+            "fold",
+            "flock",
+            "tent"
           ]
         },
         {
@@ -6976,7 +8128,9 @@ const NKJV_TABLETS = {
           "d": [
             "praise",
             "singing",
-            "joy"
+            "joy",
+            "trumpets",
+            "music"
           ]
         },
         {
@@ -6987,7 +8141,9 @@ const NKJV_TABLETS = {
           "d": [
             "praise",
             "love",
-            "call"
+            "call",
+            "fear",
+            "remember"
           ]
         },
         {
@@ -6998,7 +8154,9 @@ const NKJV_TABLETS = {
           "d": [
             "eternal",
             "boundless",
-            "great"
+            "great",
+            "sure",
+            "plenteous"
           ]
         },
         {
@@ -7009,7 +8167,9 @@ const NKJV_TABLETS = {
           "d": [
             "lasteth",
             "standeth",
-            "liveth"
+            "liveth",
+            "fadeth",
+            "changeth"
           ]
         }
       ]
@@ -7031,7 +8191,9 @@ const NKJV_TABLETS = {
           "d": [
             "temple",
             "glory",
-            "house"
+            "house",
+            "heavens",
+            "kingdom"
           ]
         },
         {
@@ -7042,7 +8204,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "strength",
-            "might"
+            "might",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -7053,7 +8217,9 @@ const NKJV_TABLETS = {
           "d": [
             "deeds",
             "works",
-            "grace"
+            "grace",
+            "wonders",
+            "power"
           ]
         },
         {
@@ -7064,7 +8230,9 @@ const NKJV_TABLETS = {
           "d": [
             "cymbal",
             "shout",
-            "organ"
+            "organ",
+            "timbrel",
+            "thunder"
           ]
         },
         {
@@ -7075,7 +8243,9 @@ const NKJV_TABLETS = {
           "d": [
             "trumpet",
             "organ",
-            "flute"
+            "flute",
+            "cymbal",
+            "timbrel"
           ]
         },
         {
@@ -7086,7 +8256,9 @@ const NKJV_TABLETS = {
           "d": [
             "singing",
             "music",
-            "psaltery"
+            "psaltery",
+            "trumpet",
+            "harp"
           ]
         },
         {
@@ -7097,7 +8269,9 @@ const NKJV_TABLETS = {
           "d": [
             "life",
             "voice",
-            "being"
+            "being",
+            "soul",
+            "heart"
           ]
         },
         {
@@ -7108,7 +8282,9 @@ const NKJV_TABLETS = {
           "d": [
             "name",
             "God",
-            "king"
+            "king",
+            "SAVIOUR",
+            "CREATOR"
           ]
         }
       ]
@@ -7130,7 +8306,9 @@ const NKJV_TABLETS = {
           "d": [
             "known",
             "praised",
-            "heard"
+            "heard",
+            "feared",
+            "served"
           ]
         },
         {
@@ -7141,7 +8319,9 @@ const NKJV_TABLETS = {
           "d": [
             "heaven",
             "silence",
-            "quiet"
+            "quiet",
+            "darkness",
+            "shadow"
           ]
         },
         {
@@ -7152,7 +8332,9 @@ const NKJV_TABLETS = {
           "d": [
             "Holy",
             "Blessed",
-            "Glorious"
+            "Glorious",
+            "Honoured",
+            "Feared"
           ]
         },
         {
@@ -7163,7 +8345,9 @@ const NKJV_TABLETS = {
           "d": [
             "Zion",
             "the church",
-            "the world"
+            "the world",
+            "glory",
+            "hell"
           ]
         },
         {
@@ -7174,7 +8358,9 @@ const NKJV_TABLETS = {
           "d": [
             "food",
             "portion",
-            "grace"
+            "grace",
+            "water",
+            "wine"
           ]
         },
         {
@@ -7185,7 +8371,9 @@ const NKJV_TABLETS = {
           "d": [
             "them",
             "us",
-            "all"
+            "all",
+            "thee",
+            "him"
           ]
         },
         {
@@ -7196,7 +8384,9 @@ const NKJV_TABLETS = {
           "d": [
             "riches",
             "gifts",
-            "crowns"
+            "crowns",
+            "pearls",
+            "horses"
           ]
         },
         {
@@ -7207,7 +8397,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "truth",
-            "peace"
+            "peace",
+            "glory",
+            "power"
           ]
         }
       ]
@@ -7229,7 +8421,9 @@ const NKJV_TABLETS = {
           "d": [
             "condemned",
             "blamed",
-            "scorned"
+            "scorned",
+            "tempted",
+            "tried"
           ]
         },
         {
@@ -7239,7 +8433,10 @@ const NKJV_TABLETS = {
           "suffix": "in your own eye?",
           "d": [
             "stick",
-            "mote"
+            "mote",
+            "thorn",
+            "spear",
+            "condemned"
           ]
         },
         {
@@ -7250,7 +8447,9 @@ const NKJV_TABLETS = {
           "d": [
             "call",
             "cry",
-            "wait"
+            "wait",
+            "pray",
+            "sleep"
           ]
         },
         {
@@ -7261,7 +8460,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "all",
-            "him"
+            "him",
+            "others",
+            "thee"
           ]
         },
         {
@@ -7272,7 +8473,9 @@ const NKJV_TABLETS = {
           "d": [
             "door",
             "path",
-            "way"
+            "way",
+            "road",
+            "highway"
           ]
         },
         {
@@ -7283,7 +8486,9 @@ const NKJV_TABLETS = {
           "d": [
             "lions",
             "dogs",
-            "serpents"
+            "serpents",
+            "oxen",
+            "eagles"
           ]
         },
         {
@@ -7294,7 +8499,9 @@ const NKJV_TABLETS = {
           "d": [
             "words",
             "deeds",
-            "works"
+            "works",
+            "ways",
+            "names"
           ]
         },
         {
@@ -7305,7 +8512,9 @@ const NKJV_TABLETS = {
           "d": [
             "hill",
             "stone",
-            "cliff"
+            "cliff",
+            "mountain",
+            "river"
           ]
         }
       ]
@@ -7327,7 +8536,9 @@ const NKJV_TABLETS = {
           "d": [
             "man",
             "David",
-            "glory"
+            "glory",
+            "Abraham",
+            "Adam"
           ]
         },
         {
@@ -7338,7 +8549,9 @@ const NKJV_TABLETS = {
           "d": [
             "plain",
             "level",
-            "open"
+            "open",
+            "crooked",
+            "narrow"
           ]
         },
         {
@@ -7349,7 +8562,9 @@ const NKJV_TABLETS = {
           "d": [
             "fire",
             "water",
-            "grace"
+            "grace",
+            "Power",
+            "Angel"
           ]
         },
         {
@@ -7360,7 +8575,9 @@ const NKJV_TABLETS = {
           "d": [
             "content",
             "glad",
-            "honoured"
+            "honoured",
+            "displeased",
+            "grieved"
           ]
         },
         {
@@ -7371,7 +8588,9 @@ const NKJV_TABLETS = {
           "d": [
             "return",
             "watch",
-            "pray"
+            "pray",
+            "rejoice",
+            "hear"
           ]
         },
         {
@@ -7382,7 +8601,9 @@ const NKJV_TABLETS = {
           "d": [
             "souls",
             "sheep",
-            "nations"
+            "nations",
+            "beasts",
+            "gods"
           ]
         },
         {
@@ -7393,7 +8614,9 @@ const NKJV_TABLETS = {
           "d": [
             "me",
             "them",
-            "ye"
+            "ye",
+            "her",
+            "it"
           ]
         },
         {
@@ -7404,7 +8627,9 @@ const NKJV_TABLETS = {
           "d": [
             "plagues",
             "sicknesses",
-            "ills"
+            "ills",
+            "sorrows",
+            "measures"
           ]
         }
       ]
@@ -7426,7 +8651,9 @@ const NKJV_TABLETS = {
           "d": [
             "known",
             "answered",
-            "seen"
+            "seen",
+            "granted",
+            "forgiven"
           ]
         },
         {
@@ -7436,7 +8663,10 @@ const NKJV_TABLETS = {
           "suffix": ", even from his mother's womb.",
           "d": [
             "grace",
-            "faith"
+            "faith",
+            "Wisdom",
+            "Light",
+            "known"
           ]
         },
         {
@@ -7447,7 +8677,9 @@ const NKJV_TABLETS = {
           "d": [
             "grace",
             "peace",
-            "mercy"
+            "mercy",
+            "rest",
+            "help"
           ]
         },
         {
@@ -7458,7 +8690,9 @@ const NKJV_TABLETS = {
           "d": [
             "Emmanuel",
             "Saviour",
-            "Christ"
+            "Christ",
+            "JOHN",
+            "ISAAC"
           ]
         },
         {
@@ -7469,7 +8703,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Lord",
-            "Living"
+            "Living",
+            "Mighty",
+            "Holy"
           ]
         },
         {
@@ -7480,7 +8716,9 @@ const NKJV_TABLETS = {
           "d": [
             "hidden",
             "denied",
-            "lost"
+            "lost",
+            "hard",
+            "cold"
           ]
         },
         {
@@ -7491,7 +8729,9 @@ const NKJV_TABLETS = {
           "d": [
             "will",
             "promise",
-            "grace"
+            "grace",
+            "command",
+            "law"
           ]
         },
         {
@@ -7502,7 +8742,9 @@ const NKJV_TABLETS = {
           "d": [
             "Father",
             "King",
-            "God"
+            "God",
+            "Creator",
+            "Christ"
           ]
         }
       ]
@@ -7524,7 +8766,9 @@ const NKJV_TABLETS = {
           "d": [
             "ready",
             "gone",
-            "weak"
+            "weak",
+            "many",
+            "rich"
           ]
         },
         {
@@ -7535,7 +8779,9 @@ const NKJV_TABLETS = {
           "d": [
             "sheep",
             "doves",
-            "children"
+            "children",
+            "goats",
+            "lions"
           ]
         },
         {
@@ -7546,7 +8792,9 @@ const NKJV_TABLETS = {
           "d": [
             "Grace",
             "Joy",
-            "Health"
+            "Health",
+            "Mercy",
+            "Blessing"
           ]
         },
         {
@@ -7557,7 +8805,9 @@ const NKJV_TABLETS = {
           "d": [
             "might",
             "being",
-            "life"
+            "life",
+            "body",
+            "will"
           ]
         },
         {
@@ -7568,7 +8818,9 @@ const NKJV_TABLETS = {
           "d": [
             "brother",
             "friend",
-            "equal"
+            "equal",
+            "kinsman",
+            "enemy"
           ]
         },
         {
@@ -7579,7 +8831,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "pity",
-            "love"
+            "love",
+            "anger",
+            "fear"
           ]
         },
         {
@@ -7590,7 +8844,9 @@ const NKJV_TABLETS = {
           "d": [
             "robbers",
             "men",
-            "dead"
+            "dead",
+            "enemies",
+            "beasts"
           ]
         },
         {
@@ -7601,7 +8857,9 @@ const NKJV_TABLETS = {
           "d": [
             "works",
             "tasks",
-            "needs"
+            "needs",
+            "cares",
+            "sorrows"
           ]
         }
       ]
@@ -7623,7 +8881,9 @@ const NKJV_TABLETS = {
           "d": [
             "pride",
             "envy",
-            "lies"
+            "lies",
+            "malice",
+            "covetousness"
           ]
         },
         {
@@ -7634,7 +8894,9 @@ const NKJV_TABLETS = {
           "d": [
             "hidden",
             "shown",
-            "spoken"
+            "spoken",
+            "destroyed",
+            "forgotten"
           ]
         },
         {
@@ -7645,7 +8907,9 @@ const NKJV_TABLETS = {
           "d": [
             "known",
             "named",
-            "lost"
+            "lost",
+            "seen",
+            "heard"
           ]
         },
         {
@@ -7656,7 +8920,9 @@ const NKJV_TABLETS = {
           "d": [
             "counted",
             "known",
-            "kept"
+            "kept",
+            "white",
+            "green"
           ]
         },
         {
@@ -7667,7 +8933,9 @@ const NKJV_TABLETS = {
           "d": [
             "owneth",
             "keeps",
-            "gathereth"
+            "gathereth",
+            "seeketh",
+            "burneth"
           ]
         },
         {
@@ -7678,7 +8946,9 @@ const NKJV_TABLETS = {
           "d": [
             "drink",
             "wear",
-            "lack"
+            "lack",
+            "taste",
+            "buy"
           ]
         },
         {
@@ -7689,7 +8959,9 @@ const NKJV_TABLETS = {
           "d": [
             "flowers",
             "fields",
-            "roses"
+            "roses",
+            "ravens",
+            "trees"
           ]
         },
         {
@@ -7700,7 +8972,9 @@ const NKJV_TABLETS = {
           "d": [
             "hope",
             "wealth",
-            "soul"
+            "soul",
+            "mind",
+            "joy"
           ]
         }
       ]
@@ -7722,7 +8996,9 @@ const NKJV_TABLETS = {
           "d": [
             "Nazareth",
             "Capernaum",
-            "Bethany"
+            "Bethany",
+            "Bethsaida",
+            "Jericho"
           ]
         },
         {
@@ -7733,7 +9009,9 @@ const NKJV_TABLETS = {
           "d": [
             "bread",
             "help",
-            "room"
+            "room",
+            "oil",
+            "water"
           ]
         },
         {
@@ -7744,7 +9022,9 @@ const NKJV_TABLETS = {
           "d": [
             "time",
             "day",
-            "work"
+            "work",
+            "glory",
+            "power"
           ]
         },
         {
@@ -7755,7 +9035,9 @@ const NKJV_TABLETS = {
           "d": [
             "wine",
             "oil",
-            "grain"
+            "grain",
+            "milk",
+            "honey"
           ]
         },
         {
@@ -7766,7 +9048,9 @@ const NKJV_TABLETS = {
           "d": [
             "saw",
             "spake",
-            "feared"
+            "feared",
+            "heard",
+            "drank"
           ]
         },
         {
@@ -7776,7 +9060,10 @@ const NKJV_TABLETS = {
           "suffix": "Jesus did in Cana of Galilee, and manifested His glory; and His disciples believed in Him.",
           "d": [
             "works",
-            "wonders"
+            "wonders",
+            "power",
+            "blessings",
+            "Nazareth"
           ]
         },
         {
@@ -7787,7 +9074,9 @@ const NKJV_TABLETS = {
           "d": [
             "seats",
             "trays",
-            "coins"
+            "coins",
+            "altars",
+            "doves"
           ]
         },
         {
@@ -7798,7 +9087,9 @@ const NKJV_TABLETS = {
           "d": [
             "house",
             "body",
-            "place"
+            "place",
+            "city",
+            "altar"
           ]
         }
       ]
@@ -7820,7 +9111,9 @@ const NKJV_TABLETS = {
           "d": [
             "wolf",
             "stranger",
-            "coward"
+            "coward",
+            "hireling",
+            "shepherd"
           ]
         },
         {
@@ -7831,7 +9124,9 @@ const NKJV_TABLETS = {
           "d": [
             "heart",
             "kind",
-            "love"
+            "love",
+            "sign",
+            "word"
           ]
         },
         {
@@ -7842,7 +9137,9 @@ const NKJV_TABLETS = {
           "d": [
             "fold",
             "field",
-            "world"
+            "world",
+            "house",
+            "tent"
           ]
         },
         {
@@ -7853,7 +9150,9 @@ const NKJV_TABLETS = {
           "d": [
             "safe",
             "fed",
-            "kept"
+            "kept",
+            "healed",
+            "blessed"
           ]
         },
         {
@@ -7864,7 +9163,9 @@ const NKJV_TABLETS = {
           "d": [
             "fold",
             "flock",
-            "lambs"
+            "lambs",
+            "people",
+            "friends"
           ]
         },
         {
@@ -7875,7 +9176,9 @@ const NKJV_TABLETS = {
           "d": [
             "love",
             "keep",
-            "feed"
+            "feed",
+            "call",
+            "lead"
           ]
         },
         {
@@ -7886,7 +9189,9 @@ const NKJV_TABLETS = {
           "d": [
             "name",
             "word",
-            "call"
+            "call",
+            "sound",
+            "cry"
           ]
         },
         {
@@ -7897,7 +9202,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "bread",
-            "rest"
+            "rest",
+            "joy",
+            "glory"
           ]
         }
       ]
@@ -7919,7 +9226,9 @@ const NKJV_TABLETS = {
           "d": [
             "night",
             "dawn",
-            "cold"
+            "cold",
+            "light",
+            "dry"
           ]
         },
         {
@@ -7930,7 +9239,9 @@ const NKJV_TABLETS = {
           "d": [
             "hid",
             "put",
-            "gone"
+            "gone",
+            "moved",
+            "hidden"
           ]
         },
         {
@@ -7941,7 +9252,9 @@ const NKJV_TABLETS = {
           "d": [
             "death",
             "sleep",
-            "darkness"
+            "darkness",
+            "earth",
+            "sea"
           ]
         },
         {
@@ -7951,7 +9264,10 @@ const NKJV_TABLETS = {
           "suffix": "Him away, tell me where You have laid Him, and I will take Him away.\"",
           "d": [
             "hidden",
-            "laid"
+            "laid",
+            "moved",
+            "sent",
+            "night"
           ]
         },
         {
@@ -7962,7 +9278,9 @@ const NKJV_TABLETS = {
           "d": [
             "Woman",
             "Martha",
-            "Rabboni"
+            "Rabboni",
+            "Sarah",
+            "Rachel"
           ]
         },
         {
@@ -7973,7 +9291,9 @@ const NKJV_TABLETS = {
           "d": [
             "Grace",
             "Joy",
-            "Fear not"
+            "Fear not",
+            "Love",
+            "Mercy"
           ]
         },
         {
@@ -7984,7 +9304,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Master",
-            "Saviour"
+            "Saviour",
+            "Father",
+            "Christ"
           ]
         },
         {
@@ -7995,7 +9317,9 @@ const NKJV_TABLETS = {
           "d": [
             "known",
             "touched",
-            "followed"
+            "followed",
+            "tasted",
+            "eaten"
           ]
         }
       ]
@@ -8017,7 +9341,9 @@ const NKJV_TABLETS = {
           "d": [
             "grace",
             "strength",
-            "favour"
+            "favour",
+            "power",
+            "measure"
           ]
         },
         {
@@ -8028,7 +9354,9 @@ const NKJV_TABLETS = {
           "d": [
             "save",
             "teach",
-            "see"
+            "see",
+            "bless",
+            "lead"
           ]
         },
         {
@@ -8039,7 +9367,9 @@ const NKJV_TABLETS = {
           "d": [
             "softened",
             "touched",
-            "changed"
+            "changed",
+            "kindled",
+            "hardened"
           ]
         },
         {
@@ -8050,7 +9380,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "truth",
-            "the Lord"
+            "the Lord",
+            "vengeance",
+            "destruction"
           ]
         },
         {
@@ -8061,7 +9393,9 @@ const NKJV_TABLETS = {
           "d": [
             "sang",
             "called",
-            "woke"
+            "woke",
+            "wept",
+            "fasted"
           ]
         },
         {
@@ -8072,7 +9406,9 @@ const NKJV_TABLETS = {
           "d": [
             "thunder",
             "wind",
-            "noise"
+            "noise",
+            "tempest",
+            "flood"
           ]
         },
         {
@@ -8083,7 +9419,9 @@ const NKJV_TABLETS = {
           "d": [
             "healed",
             "kept",
-            "blessed"
+            "blessed",
+            "delivered",
+            "chosen"
           ]
         },
         {
@@ -8094,7 +9432,9 @@ const NKJV_TABLETS = {
           "d": [
             "then",
             "anon",
-            "that hour"
+            "that hour",
+            "afterward",
+            "gladly"
           ]
         }
       ]
@@ -8116,7 +9456,9 @@ const NKJV_TABLETS = {
           "d": [
             "hope",
             "crown",
-            "peace"
+            "peace",
+            "glory",
+            "pride"
           ]
         },
         {
@@ -8126,7 +9468,10 @@ const NKJV_TABLETS = {
           "suffix": ". Again I will say, rejoice!",
           "d": [
             "today",
-            "still"
+            "still",
+            "sometimes",
+            "never",
+            "hope"
           ]
         },
         {
@@ -8137,7 +9482,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "work",
-            "rest"
+            "rest",
+            "war",
+            "ease"
           ]
         },
         {
@@ -8148,7 +9495,9 @@ const NKJV_TABLETS = {
           "d": [
             "praise",
             "fasting",
-            "faith"
+            "faith",
+            "tears",
+            "humility"
           ]
         },
         {
@@ -8159,7 +9508,9 @@ const NKJV_TABLETS = {
           "d": [
             "thought",
             "knowledge",
-            "words"
+            "words",
+            "power",
+            "sorrow"
           ]
         },
         {
@@ -8170,7 +9521,9 @@ const NKJV_TABLETS = {
           "d": [
             "thankful",
             "patient",
-            "still"
+            "still",
+            "afraid",
+            "troubled"
           ]
         },
         {
@@ -8181,7 +9534,9 @@ const NKJV_TABLETS = {
           "d": [
             "faith",
             "grace",
-            "God"
+            "God",
+            "Moses",
+            "David"
           ]
         },
         {
@@ -8192,7 +9547,9 @@ const NKJV_TABLETS = {
           "d": [
             "give",
             "fill",
-            "grant"
+            "grant",
+            "remove",
+            "forget"
           ]
         }
       ]
@@ -8214,7 +9571,9 @@ const NKJV_TABLETS = {
           "d": [
             "goat",
             "bullock",
-            "ram"
+            "ram",
+            "calf",
+            "dove"
           ]
         },
         {
@@ -8225,7 +9584,9 @@ const NKJV_TABLETS = {
           "d": [
             "spot",
             "fault",
-            "sin"
+            "sin",
+            "fear",
+            "wound"
           ]
         },
         {
@@ -8236,7 +9597,9 @@ const NKJV_TABLETS = {
           "d": [
             "frame",
             "beam",
-            "sill"
+            "sill",
+            "gate",
+            "window"
           ]
         },
         {
@@ -8247,7 +9610,9 @@ const NKJV_TABLETS = {
           "d": [
             "covenant",
             "feast",
-            "supper"
+            "supper",
+            "sacrifice",
+            "offering"
           ]
         },
         {
@@ -8258,7 +9623,9 @@ const NKJV_TABLETS = {
           "d": [
             "by",
             "through",
-            "near"
+            "near",
+            "under",
+            "beside"
           ]
         },
         {
@@ -8269,7 +9636,9 @@ const NKJV_TABLETS = {
           "d": [
             "sign",
             "token",
-            "statute"
+            "statute",
+            "reproach",
+            "warning"
           ]
         },
         {
@@ -8280,7 +9649,9 @@ const NKJV_TABLETS = {
           "d": [
             "evening",
             "daybreak",
-            "noon"
+            "noon",
+            "morning",
+            "day"
           ]
         },
         {
@@ -8291,7 +9662,9 @@ const NKJV_TABLETS = {
           "d": [
             "away",
             "out",
-            "flee"
+            "flee",
+            "your dwelling place",
+            "not comprehend it"
           ]
         }
       ]
@@ -8313,7 +9686,9 @@ const NKJV_TABLETS = {
           "d": [
             "us",
             "them",
-            "this"
+            "this",
+            "it",
+            "her"
           ]
         },
         {
@@ -8324,7 +9699,9 @@ const NKJV_TABLETS = {
           "d": [
             "image",
             "idol",
-            "bull"
+            "bull",
+            "lamb",
+            "stone"
           ]
         },
         {
@@ -8335,7 +9712,9 @@ const NKJV_TABLETS = {
           "d": [
             "stubborn",
             "rebellious",
-            "wicked"
+            "wicked",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -8346,7 +9725,9 @@ const NKJV_TABLETS = {
           "d": [
             "burned",
             "dashed",
-            "dropped"
+            "dropped",
+            "hid",
+            "laid"
           ]
         },
         {
@@ -8357,7 +9738,9 @@ const NKJV_TABLETS = {
           "d": [
             "furnace",
             "flame",
-            "heat"
+            "heat",
+            "wilderness",
+            "garden"
           ]
         },
         {
@@ -8368,7 +9751,9 @@ const NKJV_TABLETS = {
           "d": [
             "hand",
             "part",
-            "way"
+            "way",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -8379,7 +9764,9 @@ const NKJV_TABLETS = {
           "d": [
             "scroll",
             "life",
-            "record"
+            "record",
+            "law",
+            "word"
           ]
         },
         {
@@ -8390,7 +9777,9 @@ const NKJV_TABLETS = {
           "d": [
             "Spirit",
             "Presence",
-            "Cloud"
+            "Cloud",
+            "Captain",
+            "Prophet"
           ]
         }
       ]
@@ -8412,7 +9801,9 @@ const NKJV_TABLETS = {
           "d": [
             "just",
             "pure",
-            "true"
+            "true",
+            "jealous",
+            "mighty"
           ]
         },
         {
@@ -8423,7 +9814,9 @@ const NKJV_TABLETS = {
           "d": [
             "remnant",
             "corn",
-            "sheaves"
+            "sheaves",
+            "fruits",
+            "grapes"
           ]
         },
         {
@@ -8434,7 +9827,9 @@ const NKJV_TABLETS = {
           "d": [
             "swear",
             "speak",
-            "boast"
+            "boast",
+            "covet",
+            "curse"
           ]
         },
         {
@@ -8445,7 +9840,9 @@ const NKJV_TABLETS = {
           "d": [
             "sun",
             "daybreak",
-            "morrow"
+            "morrow",
+            "evening",
+            "noonday"
           ]
         },
         {
@@ -8456,7 +9853,9 @@ const NKJV_TABLETS = {
           "d": [
             "snare",
             "stone",
-            "trap"
+            "trap",
+            "burden",
+            "sword"
           ]
         },
         {
@@ -8467,7 +9866,9 @@ const NKJV_TABLETS = {
           "d": [
             "mind",
             "soul",
-            "house"
+            "house",
+            "eye",
+            "hand"
           ]
         },
         {
@@ -8478,7 +9879,9 @@ const NKJV_TABLETS = {
           "d": [
             "a brother",
             "a friend",
-            "thy life"
+            "thy life",
+            "himself",
+            "herself"
           ]
         },
         {
@@ -8489,7 +9892,9 @@ const NKJV_TABLETS = {
           "d": [
             "thy son",
             "a brother",
-            "thy kin"
+            "thy kin",
+            "myself",
+            "themselves"
           ]
         }
       ]
@@ -8511,7 +9916,9 @@ const NKJV_TABLETS = {
           "d": [
             "statutes",
             "laws",
-            "ways"
+            "ways",
+            "judgments",
+            "promises"
           ]
         },
         {
@@ -8522,7 +9929,9 @@ const NKJV_TABLETS = {
           "d": [
             "follow",
             "cover",
-            "fill"
+            "fill",
+            "forsake",
+            "forget"
           ]
         },
         {
@@ -8533,7 +9942,9 @@ const NKJV_TABLETS = {
           "d": [
             "land",
             "gate",
-            "house"
+            "house",
+            "garden",
+            "wilderness"
           ]
         },
         {
@@ -8544,7 +9955,9 @@ const NKJV_TABLETS = {
           "d": [
             "walkest",
             "departest",
-            "sleepest"
+            "sleepest",
+            "sittest",
+            "risest"
           ]
         },
         {
@@ -8555,7 +9968,9 @@ const NKJV_TABLETS = {
           "d": [
             "three",
             "many",
-            "ten"
+            "ten",
+            "four",
+            "twelve"
           ]
         },
         {
@@ -8566,7 +9981,9 @@ const NKJV_TABLETS = {
           "d": [
             "barns",
             "fields",
-            "dwellings"
+            "dwellings",
+            "cities",
+            "kingdoms"
           ]
         },
         {
@@ -8577,7 +9994,9 @@ const NKJV_TABLETS = {
           "d": [
             "chosen",
             "righteous",
-            "great"
+            "great",
+            "everlasting",
+            "ancient"
           ]
         },
         {
@@ -8588,7 +10007,9 @@ const NKJV_TABLETS = {
           "d": [
             "crown",
             "first",
-            "king"
+            "king",
+            "eye",
+            "hand"
           ]
         }
       ]
@@ -8610,7 +10031,9 @@ const NKJV_TABLETS = {
           "d": [
             "away",
             "above",
-            "out"
+            "out",
+            "behind",
+            "beneath"
           ]
         },
         {
@@ -8621,7 +10044,9 @@ const NKJV_TABLETS = {
           "d": [
             "the clouds",
             "the sky",
-            "Zion"
+            "Zion",
+            "earth",
+            "waters"
           ]
         },
         {
@@ -8632,7 +10057,9 @@ const NKJV_TABLETS = {
           "d": [
             "deep",
             "ocean",
-            "flood"
+            "flood",
+            "river",
+            "mountain"
           ]
         },
         {
@@ -8643,7 +10070,9 @@ const NKJV_TABLETS = {
           "d": [
             "mind",
             "soul",
-            "breast"
+            "breast",
+            "hand",
+            "head"
           ]
         },
         {
@@ -8654,7 +10083,9 @@ const NKJV_TABLETS = {
           "d": [
             "judgment",
             "sorrow",
-            "wrath"
+            "wrath",
+            "bondage",
+            "sickness"
           ]
         },
         {
@@ -8665,7 +10096,9 @@ const NKJV_TABLETS = {
           "d": [
             "plague",
             "famine",
-            "wrath"
+            "wrath",
+            "mourning",
+            "weeping"
           ]
         },
         {
@@ -8676,7 +10109,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "the LORD",
-            "truth"
+            "truth",
+            "wisdom",
+            "riches"
           ]
         },
         {
@@ -8687,7 +10122,9 @@ const NKJV_TABLETS = {
           "d": [
             "shield",
             "rock",
-            "glory"
+            "glory",
+            "portion",
+            "strength"
           ]
         }
       ]
@@ -8709,7 +10146,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "righteousness",
-            "holiness"
+            "holiness",
+            "faith",
+            "love"
           ]
         },
         {
@@ -8719,7 +10158,10 @@ const NKJV_TABLETS = {
           "suffix": "and in Egypt. Serve the LORD!",
           "d": [
             "sea",
-            "mount"
+            "mount",
+            "wilderness",
+            "hill",
+            "peace"
           ]
         },
         {
@@ -8730,7 +10172,9 @@ const NKJV_TABLETS = {
           "d": [
             "follow",
             "fear",
-            "worship"
+            "worship",
+            "praise",
+            "forsake"
           ]
         },
         {
@@ -8741,7 +10185,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "King",
-            "Most High"
+            "Most High",
+            "Baal",
+            "Mammon"
           ]
         },
         {
@@ -8752,7 +10198,9 @@ const NKJV_TABLETS = {
           "d": [
             "kings",
             "idols",
-            "masters"
+            "masters",
+            "nations",
+            "men"
           ]
         },
         {
@@ -8763,7 +10211,9 @@ const NKJV_TABLETS = {
           "d": [
             "hear",
             "keep",
-            "follow"
+            "follow",
+            "fear",
+            "trust"
           ]
         },
         {
@@ -8774,7 +10224,9 @@ const NKJV_TABLETS = {
           "d": [
             "rock",
             "pillar",
-            "tablet"
+            "tablet",
+            "altar",
+            "tree"
           ]
         },
         {
@@ -8785,7 +10237,9 @@ const NKJV_TABLETS = {
           "d": [
             "sign",
             "memorial",
-            "token"
+            "token",
+            "judge",
+            "guide"
           ]
         }
       ]
@@ -8807,7 +10261,9 @@ const NKJV_TABLETS = {
           "d": [
             "their gifts",
             "their swords",
-            "praises"
+            "praises",
+            "yourselves",
+            "ourselves"
           ]
         },
         {
@@ -8818,7 +10274,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Most High",
-            "God"
+            "God",
+            "Moses",
+            "praises"
           ]
         },
         {
@@ -8829,7 +10287,9 @@ const NKJV_TABLETS = {
           "d": [
             "prophetess",
             "judge",
-            "leader"
+            "leader",
+            "captain",
+            "sister"
           ]
         },
         {
@@ -8840,7 +10300,9 @@ const NKJV_TABLETS = {
           "d": [
             "voice",
             "prayer",
-            "word"
+            "word",
+            "cry",
+            "wail"
           ]
         },
         {
@@ -8851,7 +10313,9 @@ const NKJV_TABLETS = {
           "d": [
             "angels",
             "clouds",
-            "winds"
+            "winds",
+            "waters",
+            "lions"
           ]
         },
         {
@@ -8862,7 +10326,9 @@ const NKJV_TABLETS = {
           "d": [
             "Jordan",
             "Arnon",
-            "Jabbok"
+            "Jabbok",
+            "Euphrates",
+            "Abana"
           ]
         },
         {
@@ -8873,7 +10339,9 @@ const NKJV_TABLETS = {
           "d": [
             "Hannah",
             "Ruth",
-            "Esther"
+            "Esther",
+            "Deborah",
+            "Miriam"
           ]
         },
         {
@@ -8884,7 +10352,9 @@ const NKJV_TABLETS = {
           "d": [
             "stars",
             "day",
-            "light"
+            "light",
+            "moon",
+            "lion"
           ]
         }
       ]
@@ -8906,7 +10376,9 @@ const NKJV_TABLETS = {
           "d": [
             "head",
             "glory",
-            "voice"
+            "voice",
+            "hand",
+            "soul"
           ]
         },
         {
@@ -8917,7 +10389,9 @@ const NKJV_TABLETS = {
           "d": [
             "shield",
             "tower",
-            "king"
+            "king",
+            "river",
+            "spring"
           ]
         },
         {
@@ -8928,7 +10402,9 @@ const NKJV_TABLETS = {
           "d": [
             "judged",
             "counted",
-            "tried"
+            "tried",
+            "hidden",
+            "known"
           ]
         },
         {
@@ -8939,7 +10415,9 @@ const NKJV_TABLETS = {
           "d": [
             "power",
             "glory",
-            "might"
+            "might",
+            "armour",
+            "courage"
           ]
         },
         {
@@ -8950,7 +10428,9 @@ const NKJV_TABLETS = {
           "d": [
             "pit",
             "dust",
-            "deep"
+            "deep",
+            "prison",
+            "heaven"
           ]
         },
         {
@@ -8961,7 +10441,9 @@ const NKJV_TABLETS = {
           "d": [
             "great",
             "strong",
-            "wise"
+            "wise",
+            "sick",
+            "glad"
           ]
         },
         {
@@ -8972,7 +10454,9 @@ const NKJV_TABLETS = {
           "d": [
             "mire",
             "earth",
-            "ground"
+            "ground",
+            "prison",
+            "well"
           ]
         },
         {
@@ -8983,7 +10467,9 @@ const NKJV_TABLETS = {
           "d": [
             "servants",
             "chosen",
-            "holy"
+            "holy",
+            "prophets",
+            "angels"
           ]
         }
       ]
@@ -9005,7 +10491,9 @@ const NKJV_TABLETS = {
           "d": [
             "Ephrathite",
             "Levite",
-            "Judean"
+            "Judean",
+            "Benjamite",
+            "Hittite"
           ]
         },
         {
@@ -9016,7 +10504,9 @@ const NKJV_TABLETS = {
           "d": [
             "head",
             "crown",
-            "body"
+            "body",
+            "hair",
+            "wisdom"
           ]
         },
         {
@@ -9027,7 +10517,9 @@ const NKJV_TABLETS = {
           "d": [
             "soul",
             "mind",
-            "inward parts"
+            "inward parts",
+            "face",
+            "hand"
           ]
         },
         {
@@ -9038,7 +10530,9 @@ const NKJV_TABLETS = {
           "d": [
             "flock",
             "cattle",
-            "lambs"
+            "lambs",
+            "goats",
+            "oxen"
           ]
         },
         {
@@ -9049,7 +10543,9 @@ const NKJV_TABLETS = {
           "d": [
             "David",
             "the king",
-            "the chosen"
+            "the chosen",
+            "inward parts",
+            "Most High"
           ]
         },
         {
@@ -9060,7 +10556,9 @@ const NKJV_TABLETS = {
           "d": [
             "presence",
             "sight",
-            "house"
+            "house",
+            "family",
+            "company"
           ]
         },
         {
@@ -9071,7 +10569,9 @@ const NKJV_TABLETS = {
           "d": [
             "forth",
             "on",
-            "always"
+            "always",
+            "backward",
+            "again"
           ]
         },
         {
@@ -9082,7 +10582,9 @@ const NKJV_TABLETS = {
           "d": [
             "psaltery",
             "viol",
-            "pipe"
+            "pipe",
+            "timbrel",
+            "cymbal"
           ]
         }
       ]
@@ -9104,7 +10606,9 @@ const NKJV_TABLETS = {
           "d": [
             "tents",
             "boards",
-            "linen"
+            "linen",
+            "walls",
+            "cities"
           ]
         },
         {
@@ -9115,7 +10619,9 @@ const NKJV_TABLETS = {
           "d": [
             "king",
             "captain",
-            "shepherd"
+            "shepherd",
+            "prophet",
+            "tents"
           ]
         },
         {
@@ -9126,7 +10632,9 @@ const NKJV_TABLETS = {
           "d": [
             "throne",
             "house",
-            "glory"
+            "glory",
+            "name",
+            "mercy"
           ]
         },
         {
@@ -9137,7 +10645,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "habitation",
-            "praise"
+            "praise",
+            "people",
+            "servant"
           ]
         },
         {
@@ -9148,7 +10658,9 @@ const NKJV_TABLETS = {
           "d": [
             "servant",
             "chosen",
-            "king"
+            "king",
+            "daughter",
+            "brother"
           ]
         },
         {
@@ -9159,7 +10671,9 @@ const NKJV_TABLETS = {
           "d": [
             "all time",
             "ages",
-            "generations"
+            "generations",
+            "years",
+            "nights"
           ]
         },
         {
@@ -9170,7 +10684,9 @@ const NKJV_TABLETS = {
           "d": [
             "here",
             "thus far",
-            "nigh"
+            "nigh",
+            "all time",
+            "our Lord"
           ]
         },
         {
@@ -9181,7 +10697,9 @@ const NKJV_TABLETS = {
           "d": [
             "our Lord",
             "the Father",
-            "the King"
+            "the King",
+            "me",
+            "him"
           ]
         }
       ]
@@ -9203,7 +10721,9 @@ const NKJV_TABLETS = {
           "d": [
             "smoke",
             "glory",
-            "fire"
+            "fire",
+            "dust",
+            "flood"
           ]
         },
         {
@@ -9214,7 +10734,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "King",
-            "Most High"
+            "Most High",
+            "Israel",
+            "Zion"
           ]
         },
         {
@@ -9225,7 +10747,9 @@ const NKJV_TABLETS = {
           "d": [
             "clouds",
             "shadow",
-            "silence"
+            "silence",
+            "night",
+            "mire"
           ]
         },
         {
@@ -9236,7 +10760,9 @@ const NKJV_TABLETS = {
           "d": [
             "below",
             "under",
-            "around"
+            "around",
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -9247,7 +10773,9 @@ const NKJV_TABLETS = {
           "d": [
             "temple",
             "place",
-            "altar"
+            "altar",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -9258,7 +10786,9 @@ const NKJV_TABLETS = {
           "d": [
             "answer",
             "pardon",
-            "hear"
+            "hear",
+            "remember",
+            "punish"
           ]
         },
         {
@@ -9269,7 +10799,9 @@ const NKJV_TABLETS = {
           "d": [
             "statute",
             "covenant",
-            "thought"
+            "thought",
+            "thing",
+            "blessing"
           ]
         },
         {
@@ -9280,7 +10812,9 @@ const NKJV_TABLETS = {
           "d": [
             "clean",
             "upright",
-            "true"
+            "true",
+            "Most High",
+            "truth's sake"
           ]
         }
       ]
@@ -9302,7 +10836,9 @@ const NKJV_TABLETS = {
           "d": [
             "palm",
             "fig",
-            "myrtle"
+            "myrtle",
+            "cedar",
+            "thorn"
           ]
         },
         {
@@ -9313,7 +10849,9 @@ const NKJV_TABLETS = {
           "d": [
             "drink",
             "pray",
-            "stand"
+            "stand",
+            "sleep",
+            "rest"
           ]
         },
         {
@@ -9324,7 +10862,9 @@ const NKJV_TABLETS = {
           "d": [
             "Sinai",
             "Carmel",
-            "Zion"
+            "Zion",
+            "Gilead",
+            "Edom"
           ]
         },
         {
@@ -9335,7 +10875,9 @@ const NKJV_TABLETS = {
           "d": [
             "servant",
             "prophet",
-            "Elisha"
+            "Elisha",
+            "Jonah",
+            "Samuel"
           ]
         },
         {
@@ -9346,7 +10888,9 @@ const NKJV_TABLETS = {
           "d": [
             "tempest",
             "storm",
-            "blast"
+            "blast",
+            "fire",
+            "rain"
           ]
         },
         {
@@ -9357,7 +10901,9 @@ const NKJV_TABLETS = {
           "d": [
             "tremor",
             "ground",
-            "mountain"
+            "mountain",
+            "fire",
+            "thunder"
           ]
         },
         {
@@ -9368,7 +10914,9 @@ const NKJV_TABLETS = {
           "d": [
             "sound",
             "whisper",
-            "breath"
+            "breath",
+            "word",
+            "thunder"
           ]
         },
         {
@@ -9379,7 +10927,9 @@ const NKJV_TABLETS = {
           "d": [
             "hundred",
             "score",
-            "men"
+            "men",
+            "fifty",
+            "twelve"
           ]
         }
       ]
@@ -9401,7 +10951,9 @@ const NKJV_TABLETS = {
           "d": [
             "stranger",
             "heathen",
-            "servant"
+            "servant",
+            "captive",
+            "soldier"
           ]
         },
         {
@@ -9412,7 +10964,9 @@ const NKJV_TABLETS = {
           "d": [
             "child",
             "daughter",
-            "virgin"
+            "virgin",
+            "servant",
+            "stranger"
           ]
         },
         {
@@ -9423,7 +10977,9 @@ const NKJV_TABLETS = {
           "d": [
             "three",
             "ten",
-            "twelve"
+            "twelve",
+            "five",
+            "nine"
           ]
         },
         {
@@ -9434,7 +10990,9 @@ const NKJV_TABLETS = {
           "d": [
             "glad",
             "ashamed",
-            "afraid"
+            "afraid",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -9445,7 +11003,9 @@ const NKJV_TABLETS = {
           "d": [
             "Syria",
             "Tyre",
-            "Sidon"
+            "Sidon",
+            "Egypt",
+            "Babylon"
           ]
         },
         {
@@ -9456,7 +11016,9 @@ const NKJV_TABLETS = {
           "d": [
             "whole",
             "healed",
-            "pure"
+            "pure",
+            "holy",
+            "free"
           ]
         },
         {
@@ -9467,7 +11029,9 @@ const NKJV_TABLETS = {
           "d": [
             "lamb",
             "maid",
-            "youth"
+            "youth",
+            "goat",
+            "dove"
           ]
         },
         {
@@ -9478,7 +11042,9 @@ const NKJV_TABLETS = {
           "d": [
             "Zion",
             "heaven",
-            "truth"
+            "truth",
+            "Judah",
+            "Syria"
           ]
         }
       ]
@@ -9500,7 +11066,9 @@ const NKJV_TABLETS = {
           "d": [
             "cloud",
             "glory",
-            "light"
+            "light",
+            "wind",
+            "rain"
           ]
         },
         {
@@ -9511,7 +11079,9 @@ const NKJV_TABLETS = {
           "d": [
             "generations",
             "all",
-            "ages"
+            "ages",
+            "years",
+            "nights"
           ]
         },
         {
@@ -9522,7 +11092,9 @@ const NKJV_TABLETS = {
           "d": [
             "bow",
             "prostrate",
-            "chasten"
+            "chasten",
+            "gather",
+            "stir"
           ]
         },
         {
@@ -9533,7 +11105,9 @@ const NKJV_TABLETS = {
           "d": [
             "people",
             "nation",
-            "cities"
+            "cities",
+            "wounds",
+            "sickness"
           ]
         },
         {
@@ -9544,7 +11118,9 @@ const NKJV_TABLETS = {
           "d": [
             "house",
             "temple",
-            "court"
+            "court",
+            "city",
+            "day"
           ]
         },
         {
@@ -9555,7 +11131,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "power",
-            "presence"
+            "presence",
+            "word",
+            "kingdom"
           ]
         },
         {
@@ -9566,7 +11144,9 @@ const NKJV_TABLETS = {
           "d": [
             "for ever",
             "always",
-            "continually"
+            "continually",
+            "sometimes",
+            "never"
           ]
         },
         {
@@ -9577,7 +11157,9 @@ const NKJV_TABLETS = {
           "d": [
             "commandments",
             "laws",
-            "words"
+            "words",
+            "promises",
+            "sacrifices"
           ]
         }
       ]
@@ -9599,7 +11181,9 @@ const NKJV_TABLETS = {
           "d": [
             "scroll",
             "roll",
-            "words"
+            "words",
+            "record",
+            "chronicles"
           ]
         },
         {
@@ -9610,7 +11194,9 @@ const NKJV_TABLETS = {
           "d": [
             "commandment",
             "covenant",
-            "Lord"
+            "Lord",
+            "word",
+            "prophets"
           ]
         },
         {
@@ -9621,7 +11207,9 @@ const NKJV_TABLETS = {
           "d": [
             "still",
             "in awe",
-            "together"
+            "together",
+            "down",
+            "forth"
           ]
         },
         {
@@ -9632,7 +11220,9 @@ const NKJV_TABLETS = {
           "d": [
             "Selah",
             "Holy",
-            "Praise"
+            "Praise",
+            "Verily",
+            "Surely"
           ]
         },
         {
@@ -9643,7 +11233,9 @@ const NKJV_TABLETS = {
           "d": [
             "meaning",
             "truth",
-            "light"
+            "light",
+            "words",
+            "order"
           ]
         },
         {
@@ -9654,7 +11246,9 @@ const NKJV_TABLETS = {
           "d": [
             "mourned",
             "trembled",
-            "cried"
+            "cried",
+            "sang",
+            "prayed"
           ]
         },
         {
@@ -9665,7 +11259,9 @@ const NKJV_TABLETS = {
           "d": [
             "shield",
             "portion",
-            "song"
+            "song",
+            "hope",
+            "refuge"
           ]
         },
         {
@@ -9676,7 +11272,9 @@ const NKJV_TABLETS = {
           "d": [
             "joy",
             "gladness",
-            "praise"
+            "praise",
+            "in awe",
+            "Most High"
           ]
         }
       ]
@@ -9698,7 +11296,9 @@ const NKJV_TABLETS = {
           "d": [
             "mourning",
             "linen",
-            "garments"
+            "garments",
+            "purple",
+            "ornaments"
           ]
         },
         {
@@ -9709,7 +11309,9 @@ const NKJV_TABLETS = {
           "d": [
             "shame",
             "judgment",
-            "prison"
+            "prison",
+            "bondage",
+            "trial"
           ]
         },
         {
@@ -9720,7 +11322,9 @@ const NKJV_TABLETS = {
           "d": [
             "rod",
             "crown",
-            "hand"
+            "hand",
+            "ring",
+            "sword"
           ]
         },
         {
@@ -9731,7 +11335,9 @@ const NKJV_TABLETS = {
           "d": [
             "people",
             "servants",
-            "captives"
+            "captives",
+            "Egyptians",
+            "Philistines"
           ]
         },
         {
@@ -9742,7 +11348,9 @@ const NKJV_TABLETS = {
           "d": [
             "quarter",
             "hand",
-            "king"
+            "king",
+            "people",
+            "country"
           ]
         },
         {
@@ -9753,7 +11361,9 @@ const NKJV_TABLETS = {
           "d": [
             "day",
             "hour",
-            "season"
+            "season",
+            "need",
+            "war"
           ]
         },
         {
@@ -9764,7 +11374,9 @@ const NKJV_TABLETS = {
           "d": [
             "pray",
             "cry",
-            "weep"
+            "weep",
+            "watch",
+            "wait"
           ]
         },
         {
@@ -9775,7 +11387,9 @@ const NKJV_TABLETS = {
           "d": [
             "die",
             "fall",
-            "stand"
+            "stand",
+            "faint",
+            "fear"
           ]
         }
       ]
@@ -9797,7 +11411,9 @@ const NKJV_TABLETS = {
           "d": [
             "reproaches",
             "speeches",
-            "judgment"
+            "judgment",
+            "swords",
+            "stones"
           ]
         },
         {
@@ -9808,7 +11424,9 @@ const NKJV_TABLETS = {
           "d": [
             "garment",
             "honour",
-            "diadem"
+            "diadem",
+            "mantle",
+            "helmet"
           ]
         },
         {
@@ -9819,7 +11437,9 @@ const NKJV_TABLETS = {
           "d": [
             "rod",
             "wrath",
-            "judgment"
+            "judgment",
+            "arm",
+            "plague"
           ]
         },
         {
@@ -9830,7 +11450,9 @@ const NKJV_TABLETS = {
           "d": [
             "scroll",
             "roll",
-            "tablet"
+            "tablet",
+            "letter",
+            "pillar"
           ]
         },
         {
@@ -9841,7 +11463,9 @@ const NKJV_TABLETS = {
           "d": [
             "stone",
             "pillar",
-            "wall"
+            "wall",
+            "dust",
+            "water"
           ]
         },
         {
@@ -9852,7 +11476,9 @@ const NKJV_TABLETS = {
           "d": [
             "Saviour",
             "God",
-            "Lord"
+            "Lord",
+            "friend",
+            "witness"
           ]
         },
         {
@@ -9863,7 +11489,9 @@ const NKJV_TABLETS = {
           "d": [
             "the King",
             "the Lord",
-            "Him"
+            "Him",
+            "Moses",
+            "Abraham"
           ]
         },
         {
@@ -9874,7 +11502,9 @@ const NKJV_TABLETS = {
           "d": [
             "a stranger",
             "an enemy",
-            "a foe"
+            "a foe",
+            "others",
+            "other"
           ]
         }
       ]
@@ -9896,7 +11526,9 @@ const NKJV_TABLETS = {
           "d": [
             "riches",
             "glory",
-            "nations"
+            "nations",
+            "beauty",
+            "treasures"
           ]
         },
         {
@@ -9906,7 +11538,10 @@ const NKJV_TABLETS = {
           "suffix": ".",
           "d": [
             "rivers",
-            "deep"
+            "deep",
+            "hills",
+            "rocks",
+            "riches"
           ]
         },
         {
@@ -9917,7 +11552,9 @@ const NKJV_TABLETS = {
           "d": [
             "secret",
             "sanctuary",
-            "glorious"
+            "glorious",
+            "high",
+            "strong"
           ]
         },
         {
@@ -9928,7 +11565,9 @@ const NKJV_TABLETS = {
           "d": [
             "clean",
             "humble",
-            "true"
+            "true",
+            "faithful",
+            "tender"
           ]
         },
         {
@@ -9939,7 +11578,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "peace",
-            "grace"
+            "grace",
+            "favour",
+            "strength"
           ]
         },
         {
@@ -9950,7 +11591,9 @@ const NKJV_TABLETS = {
           "d": [
             "kings",
             "peace",
-            "Israel"
+            "Israel",
+            "power",
+            "wrath"
           ]
         },
         {
@@ -9961,7 +11604,9 @@ const NKJV_TABLETS = {
           "d": [
             "great",
             "terrible",
-            "holy"
+            "holy",
+            "patient",
+            "gentle"
           ]
         },
         {
@@ -9972,7 +11617,9 @@ const NKJV_TABLETS = {
           "d": [
             "armies",
             "heaven",
-            "glory"
+            "glory",
+            "saints",
+            "nations"
           ]
         }
       ]
@@ -9994,7 +11641,9 @@ const NKJV_TABLETS = {
           "d": [
             "dread",
             "flee",
-            "know"
+            "know",
+            "trust",
+            "seek"
           ]
         },
         {
@@ -10005,7 +11654,9 @@ const NKJV_TABLETS = {
           "d": [
             "faint",
             "fail",
-            "tremble"
+            "tremble",
+            "yield",
+            "doubt"
           ]
         },
         {
@@ -10016,7 +11667,9 @@ const NKJV_TABLETS = {
           "d": [
             "years",
             "time",
-            "hours"
+            "hours",
+            "nights",
+            "tears"
           ]
         },
         {
@@ -10027,7 +11680,9 @@ const NKJV_TABLETS = {
           "d": [
             "sanctuary",
             "palace",
-            "house"
+            "house",
+            "garden",
+            "throne"
           ]
         },
         {
@@ -10038,7 +11693,9 @@ const NKJV_TABLETS = {
           "d": [
             "tabernacle",
             "tent",
-            "chamber"
+            "chamber",
+            "shadow",
+            "bosom"
           ]
         },
         {
@@ -10049,7 +11706,9 @@ const NKJV_TABLETS = {
           "d": [
             "find",
             "behold",
-            "praise"
+            "praise",
+            "serve",
+            "love"
           ]
         },
         {
@@ -10060,7 +11719,9 @@ const NKJV_TABLETS = {
           "d": [
             "in",
             "on",
-            "home"
+            "home",
+            "your dwelling place",
+            "not comprehend it"
           ]
         },
         {
@@ -10071,7 +11732,9 @@ const NKJV_TABLETS = {
           "d": [
             "cheer",
             "hope",
-            "mind"
+            "mind",
+            "report",
+            "speed"
           ]
         }
       ]
@@ -10093,7 +11756,9 @@ const NKJV_TABLETS = {
           "d": [
             "heart",
             "lips",
-            "song"
+            "song",
+            "soul",
+            "hand"
           ]
         },
         {
@@ -10104,7 +11769,9 @@ const NKJV_TABLETS = {
           "d": [
             "praise",
             "glory",
-            "voice"
+            "voice",
+            "word",
+            "works"
           ]
         },
         {
@@ -10115,7 +11782,9 @@ const NKJV_TABLETS = {
           "d": [
             "love",
             "serve",
-            "seek"
+            "seek",
+            "hate",
+            "forsake"
           ]
         },
         {
@@ -10126,7 +11795,9 @@ const NKJV_TABLETS = {
           "d": [
             "great",
             "holy",
-            "gracious"
+            "gracious",
+            "near",
+            "mighty"
           ]
         },
         {
@@ -10137,7 +11808,9 @@ const NKJV_TABLETS = {
           "d": [
             "clean",
             "living",
-            "holy"
+            "holy",
+            "earthly",
+            "evil"
           ]
         },
         {
@@ -10147,7 +11820,10 @@ const NKJV_TABLETS = {
           "suffix": ".",
           "d": [
             "lies",
-            "wrath"
+            "wrath",
+            "folly",
+            "treason",
+            "heart"
           ]
         },
         {
@@ -10158,7 +11834,9 @@ const NKJV_TABLETS = {
           "d": [
             "soul",
             "mind",
-            "life"
+            "life",
+            "hope",
+            "promise"
           ]
         },
         {
@@ -10169,7 +11847,9 @@ const NKJV_TABLETS = {
           "d": [
             "now",
             "soon",
-            "whole"
+            "whole",
+            "some",
+            "none"
           ]
         }
       ]
@@ -10191,7 +11871,9 @@ const NKJV_TABLETS = {
           "d": [
             "word",
             "glory",
-            "presence"
+            "presence",
+            "house",
+            "temple"
           ]
         },
         {
@@ -10202,7 +11884,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercies",
             "works",
-            "gifts"
+            "gifts",
+            "promises",
+            "sins"
           ]
         },
         {
@@ -10213,7 +11897,9 @@ const NKJV_TABLETS = {
           "d": [
             "sickness",
             "pains",
-            "wounds"
+            "wounds",
+            "sorrows",
+            "hunger"
           ]
         },
         {
@@ -10224,7 +11910,9 @@ const NKJV_TABLETS = {
           "d": [
             "grace",
             "favour",
-            "peace"
+            "peace",
+            "blessings",
+            "promises"
           ]
         },
         {
@@ -10235,7 +11923,9 @@ const NKJV_TABLETS = {
           "d": [
             "lion's",
             "dove's",
-            "cedar"
+            "cedar",
+            "hart",
+            "lamb's"
           ]
         },
         {
@@ -10246,7 +11936,9 @@ const NKJV_TABLETS = {
           "d": [
             "truth",
             "grace",
-            "goodness"
+            "goodness",
+            "power",
+            "love"
           ]
         },
         {
@@ -10257,7 +11949,9 @@ const NKJV_TABLETS = {
           "d": [
             "love",
             "praise",
-            "serve"
+            "serve",
+            "forget",
+            "hate"
           ]
         },
         {
@@ -10268,7 +11962,9 @@ const NKJV_TABLETS = {
           "d": [
             "sins",
             "iniquities",
-            "faults"
+            "faults",
+            "burdens",
+            "griefs"
           ]
         }
       ]
@@ -10290,7 +11986,9 @@ const NKJV_TABLETS = {
           "d": [
             "tried",
             "seen",
-            "found"
+            "found",
+            "loved",
+            "heard"
           ]
         },
         {
@@ -10301,7 +11999,9 @@ const NKJV_TABLETS = {
           "d": [
             "away",
             "above",
-            "out"
+            "out",
+            "beyond",
+            "apart"
           ]
         },
         {
@@ -10312,7 +12012,9 @@ const NKJV_TABLETS = {
           "d": [
             "face",
             "sight",
-            "glory"
+            "glory",
+            "hand",
+            "wrath"
           ]
         },
         {
@@ -10323,7 +12025,9 @@ const NKJV_TABLETS = {
           "d": [
             "the grave",
             "the pit",
-            "the deep"
+            "the deep",
+            "dust",
+            "death"
           ]
         },
         {
@@ -10334,7 +12038,9 @@ const NKJV_TABLETS = {
           "d": [
             "earth",
             "deep",
-            "world"
+            "world",
+            "desert",
+            "heavens"
           ]
         },
         {
@@ -10345,7 +12051,9 @@ const NKJV_TABLETS = {
           "d": [
             "keep",
             "guide",
-            "save"
+            "save",
+            "lift",
+            "bless"
           ]
         },
         {
@@ -10356,7 +12064,9 @@ const NKJV_TABLETS = {
           "d": [
             "formed",
             "created",
-            "fashioned"
+            "fashioned",
+            "born",
+            "kept"
           ]
         },
         {
@@ -10367,7 +12077,9 @@ const NKJV_TABLETS = {
           "d": [
             "soul",
             "mind",
-            "ways"
+            "ways",
+            "name",
+            "feet"
           ]
         }
       ]
@@ -10389,7 +12101,9 @@ const NKJV_TABLETS = {
           "d": [
             "wisdom",
             "knowledge",
-            "truth"
+            "truth",
+            "discretion",
+            "judgment"
           ]
         },
         {
@@ -10400,7 +12114,9 @@ const NKJV_TABLETS = {
           "d": [
             "words",
             "counsel",
-            "way"
+            "way",
+            "gospel",
+            "truth"
           ]
         },
         {
@@ -10411,7 +12127,9 @@ const NKJV_TABLETS = {
           "d": [
             "knowledge",
             "prudence",
-            "instruction"
+            "instruction",
+            "judgment",
+            "righteousness"
           ]
         },
         {
@@ -10422,7 +12140,9 @@ const NKJV_TABLETS = {
           "d": [
             "love",
             "seek",
-            "hold"
+            "hold",
+            "despise",
+            "forsake"
           ]
         },
         {
@@ -10433,7 +12153,9 @@ const NKJV_TABLETS = {
           "d": [
             "holy",
             "bright",
-            "glorious"
+            "glorious",
+            "fair",
+            "dark"
           ]
         },
         {
@@ -10444,7 +12166,9 @@ const NKJV_TABLETS = {
           "d": [
             "night",
             "shadow",
-            "folly"
+            "folly",
+            "mire",
+            "brightness"
           ]
         },
         {
@@ -10455,7 +12179,9 @@ const NKJV_TABLETS = {
           "d": [
             "truth",
             "wisdom",
-            "soul"
+            "soul",
+            "death",
+            "joy"
           ]
         },
         {
@@ -10466,7 +12192,9 @@ const NKJV_TABLETS = {
           "d": [
             "sin",
             "darkness",
-            "mischief"
+            "mischief",
+            "folly",
+            "gold"
           ]
         }
       ]
@@ -10488,7 +12216,9 @@ const NKJV_TABLETS = {
           "d": [
             "sign",
             "star",
-            "glory"
+            "glory",
+            "vision",
+            "wonder"
           ]
         },
         {
@@ -10499,7 +12229,9 @@ const NKJV_TABLETS = {
           "d": [
             "fallen",
             "risen",
-            "come"
+            "come",
+            "appeared",
+            "fled"
           ]
         },
         {
@@ -10510,7 +12242,9 @@ const NKJV_TABLETS = {
           "d": [
             "king",
             "saviour",
-            "prince"
+            "prince",
+            "ruler",
+            "heir"
           ]
         },
         {
@@ -10521,7 +12255,9 @@ const NKJV_TABLETS = {
           "d": [
             "hand",
             "head",
-            "arm"
+            "arm",
+            "neck",
+            "back"
           ]
         },
         {
@@ -10532,7 +12268,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Lord",
-            "Prince"
+            "Prince",
+            "Judge",
+            "Shepherd"
           ]
         },
         {
@@ -10543,7 +12281,9 @@ const NKJV_TABLETS = {
           "d": [
             "Life",
             "Glory",
-            "Israel"
+            "Israel",
+            "Light",
+            "Righteousness"
           ]
         },
         {
@@ -10554,7 +12294,9 @@ const NKJV_TABLETS = {
           "d": [
             "bounds",
             "measure",
-            "stay"
+            "stay",
+            "rest",
+            "ceasing"
           ]
         },
         {
@@ -10565,7 +12307,9 @@ const NKJV_TABLETS = {
           "d": [
             "it",
             "all",
-            "so"
+            "so",
+            "nothing",
+            "sign"
           ]
         }
       ]
@@ -10587,7 +12331,9 @@ const NKJV_TABLETS = {
           "d": [
             "wells",
             "fountains",
-            "streams"
+            "streams",
+            "springs",
+            "rivers"
           ]
         },
         {
@@ -10598,7 +12344,9 @@ const NKJV_TABLETS = {
           "d": [
             "cost",
             "labour",
-            "measure"
+            "measure",
+            "silver",
+            "gold"
           ]
         },
         {
@@ -10609,7 +12357,9 @@ const NKJV_TABLETS = {
           "d": [
             "prosper",
             "rejoice",
-            "see"
+            "see",
+            "die",
+            "rest"
           ]
         },
         {
@@ -10620,7 +12370,9 @@ const NKJV_TABLETS = {
           "d": [
             "seen",
             "heard",
-            "known"
+            "known",
+            "sought",
+            "shown"
           ]
         },
         {
@@ -10631,7 +12383,9 @@ const NKJV_TABLETS = {
           "d": [
             "words",
             "counsel",
-            "deeds"
+            "deeds",
+            "desires",
+            "feet"
           ]
         },
         {
@@ -10642,7 +12396,9 @@ const NKJV_TABLETS = {
           "d": [
             "paths",
             "counsels",
-            "works"
+            "works",
+            "deeds",
+            "steps"
           ]
         },
         {
@@ -10653,7 +12409,9 @@ const NKJV_TABLETS = {
           "d": [
             "empty",
             "fruitless",
-            "broken"
+            "broken",
+            "full",
+            "bare"
           ]
         },
         {
@@ -10664,7 +12422,9 @@ const NKJV_TABLETS = {
           "d": [
             "boughs",
             "leaves",
-            "branches"
+            "branches",
+            "feet",
+            "heads"
           ]
         }
       ]
@@ -10686,7 +12446,9 @@ const NKJV_TABLETS = {
           "d": [
             "Zion",
             "Jerusalem",
-            "the earth"
+            "the earth",
+            "them",
+            "nations"
           ]
         },
         {
@@ -10697,7 +12459,9 @@ const NKJV_TABLETS = {
           "d": [
             "nations",
             "gentiles",
-            "lands"
+            "lands",
+            "kings",
+            "tribes"
           ]
         },
         {
@@ -10708,7 +12472,9 @@ const NKJV_TABLETS = {
           "d": [
             "dawn",
             "sun",
-            "glory"
+            "glory",
+            "word",
+            "truth"
           ]
         },
         {
@@ -10719,7 +12485,9 @@ const NKJV_TABLETS = {
           "d": [
             "even",
             "season",
-            "moment"
+            "moment",
+            "morning",
+            "evening"
           ]
         },
         {
@@ -10730,7 +12498,9 @@ const NKJV_TABLETS = {
           "d": [
             "Peace",
             "Glory",
-            "Righteousness"
+            "Righteousness",
+            "Mercy",
+            "Holiness"
           ]
         },
         {
@@ -10741,7 +12511,9 @@ const NKJV_TABLETS = {
           "d": [
             "stars",
             "lamps",
-            "heavens"
+            "heavens",
+            "fire",
+            "candle"
           ]
         },
         {
@@ -10752,7 +12524,9 @@ const NKJV_TABLETS = {
           "d": [
             "portion",
             "defence",
-            "crown"
+            "crown",
+            "strength",
+            "joy"
           ]
         },
         {
@@ -10763,7 +12537,9 @@ const NKJV_TABLETS = {
           "d": [
             "people",
             "kingdom",
-            "host"
+            "host",
+            "city",
+            "tribe"
           ]
         }
       ]
@@ -10785,7 +12561,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "covenant",
-            "grace"
+            "grace",
+            "wrath",
+            "sorrow"
           ]
         },
         {
@@ -10796,7 +12574,9 @@ const NKJV_TABLETS = {
           "d": [
             "Israel",
             "my people",
-            "Zion"
+            "Zion",
+            "them",
+            "us"
           ]
         },
         {
@@ -10807,7 +12587,9 @@ const NKJV_TABLETS = {
           "d": [
             "gladness",
             "praise",
-            "peace"
+            "peace",
+            "weeping",
+            "ashes"
           ]
         },
         {
@@ -10818,7 +12600,9 @@ const NKJV_TABLETS = {
           "d": [
             "law",
             "statute",
-            "word"
+            "word",
+            "promise",
+            "name"
           ]
         },
         {
@@ -10829,7 +12613,9 @@ const NKJV_TABLETS = {
           "d": [
             "minds",
             "souls",
-            "hands"
+            "hands",
+            "eyes",
+            "lips"
           ]
         },
         {
@@ -10840,7 +12626,9 @@ const NKJV_TABLETS = {
           "d": [
             "Word",
             "Law",
-            "King"
+            "King",
+            "Shepherd",
+            "Judge"
           ]
         },
         {
@@ -10851,7 +12639,9 @@ const NKJV_TABLETS = {
           "d": [
             "longer",
             "further",
-            "again"
+            "again",
+            "less",
+            "later"
           ]
         },
         {
@@ -10862,7 +12652,9 @@ const NKJV_TABLETS = {
           "d": [
             "season",
             "darkness",
-            "even"
+            "even",
+            "evening",
+            "morning"
           ]
         }
       ]
@@ -10884,7 +12676,9 @@ const NKJV_TABLETS = {
           "d": [
             "destroyed",
             "cut off",
-            "perished"
+            "perished",
+            "afflicted",
+            "forsaken"
           ]
         },
         {
@@ -10895,7 +12689,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "truth",
-            "goodness"
+            "goodness",
+            "wisdom",
+            "power"
           ]
         },
         {
@@ -10906,7 +12702,9 @@ const NKJV_TABLETS = {
           "d": [
             "trust",
             "wait",
-            "rejoice"
+            "rejoice",
+            "fear",
+            "dwell"
           ]
         },
         {
@@ -10917,7 +12715,9 @@ const NKJV_TABLETS = {
           "d": [
             "loveth",
             "feareth",
-            "calleth"
+            "calleth",
+            "knoweth",
+            "obeyeth"
           ]
         },
         {
@@ -10928,7 +12728,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "counsel",
-            "word"
+            "word",
+            "judgment",
+            "wrath"
           ]
         },
         {
@@ -10939,7 +12741,9 @@ const NKJV_TABLETS = {
           "d": [
             "burden",
             "cross",
-            "rod"
+            "rod",
+            "bond",
+            "crown"
           ]
         },
         {
@@ -10950,7 +12754,9 @@ const NKJV_TABLETS = {
           "d": [
             "generations",
             "always",
-            "long"
+            "long",
+            "years",
+            "nights"
           ]
         },
         {
@@ -10961,7 +12767,9 @@ const NKJV_TABLETS = {
           "d": [
             "thou not",
             "nothing",
-            "no evil"
+            "no evil",
+            "ye",
+            "them"
           ]
         }
       ]
@@ -10983,7 +12791,9 @@ const NKJV_TABLETS = {
           "d": [
             "country",
             "cities",
-            "border"
+            "border",
+            "home",
+            "nation"
           ]
         },
         {
@@ -10994,7 +12804,9 @@ const NKJV_TABLETS = {
           "d": [
             "oil",
             "blood",
-            "dew"
+            "dew",
+            "milk",
+            "wine"
           ]
         },
         {
@@ -11005,7 +12817,9 @@ const NKJV_TABLETS = {
           "d": [
             "soul",
             "mind",
-            "life"
+            "life",
+            "name",
+            "covenant"
           ]
         },
         {
@@ -11016,7 +12830,9 @@ const NKJV_TABLETS = {
           "d": [
             "love",
             "peace",
-            "grace"
+            "grace",
+            "brass",
+            "gold"
           ]
         },
         {
@@ -11027,7 +12843,9 @@ const NKJV_TABLETS = {
           "d": [
             "law",
             "word",
-            "presence"
+            "presence",
+            "grace",
+            "anger"
           ]
         },
         {
@@ -11038,7 +12856,9 @@ const NKJV_TABLETS = {
           "d": [
             "Lord",
             "King",
-            "Father"
+            "Father",
+            "Shepherd",
+            "Judge"
           ]
         },
         {
@@ -11049,7 +12869,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "Zion",
-            "Canaan"
+            "Canaan",
+            "Sharon",
+            "Lebanon"
           ]
         },
         {
@@ -11060,7 +12882,9 @@ const NKJV_TABLETS = {
           "d": [
             "perform",
             "fulfil",
-            "keep"
+            "keep",
+            "bring",
+            "send"
           ]
         }
       ]
@@ -11082,7 +12906,9 @@ const NKJV_TABLETS = {
           "d": [
             "silver",
             "brass",
-            "stone"
+            "stone",
+            "iron",
+            "wood"
           ]
         },
         {
@@ -11093,7 +12919,9 @@ const NKJV_TABLETS = {
           "d": [
             "Daniel",
             "Belteshazzar",
-            "Ezra"
+            "Ezra",
+            "Nebuchadnezzar",
+            "Moses"
           ]
         },
         {
@@ -11104,7 +12932,9 @@ const NKJV_TABLETS = {
           "d": [
             "flame",
             "oven",
-            "fire"
+            "fire",
+            "den",
+            "pit"
           ]
         },
         {
@@ -11115,7 +12945,9 @@ const NKJV_TABLETS = {
           "d": [
             "statue",
             "idol",
-            "calf"
+            "calf",
+            "altar",
+            "pillar"
           ]
         },
         {
@@ -11126,7 +12958,9 @@ const NKJV_TABLETS = {
           "d": [
             "pit",
             "flame",
-            "heat"
+            "heat",
+            "den",
+            "grave"
           ]
         },
         {
@@ -11137,7 +12971,9 @@ const NKJV_TABLETS = {
           "d": [
             "harm",
             "fear",
-            "pain"
+            "pain",
+            "shame",
+            "dread"
           ]
         },
         {
@@ -11148,7 +12984,9 @@ const NKJV_TABLETS = {
           "d": [
             "Angel",
             "Messenger",
-            "Servant"
+            "Servant",
+            "Prophet",
+            "Priest"
           ]
         },
         {
@@ -11159,7 +12997,9 @@ const NKJV_TABLETS = {
           "d": [
             "Spirit",
             "presence",
-            "hand"
+            "hand",
+            "son",
+            "silver"
           ]
         }
       ]
@@ -11181,7 +13021,9 @@ const NKJV_TABLETS = {
           "d": [
             "Gabriel",
             "the King",
-            "the Messiah"
+            "the Messiah",
+            "Joshua",
+            "Ezra"
           ]
         },
         {
@@ -11192,7 +13034,9 @@ const NKJV_TABLETS = {
           "d": [
             "rise",
             "stand",
-            "live"
+            "live",
+            "tremble",
+            "mourn"
           ]
         },
         {
@@ -11203,7 +13047,9 @@ const NKJV_TABLETS = {
           "d": [
             "sun",
             "heavens",
-            "stars"
+            "stars",
+            "moon",
+            "clouds"
           ]
         },
         {
@@ -11214,7 +13060,9 @@ const NKJV_TABLETS = {
           "d": [
             "sun",
             "lights",
-            "angels"
+            "angels",
+            "dew",
+            "mountains"
           ]
         },
         {
@@ -11225,7 +13073,9 @@ const NKJV_TABLETS = {
           "d": [
             "close",
             "hide",
-            "write"
+            "write",
+            "open",
+            "burn"
           ]
         },
         {
@@ -11236,7 +13086,9 @@ const NKJV_TABLETS = {
           "d": [
             "multiplied",
             "great",
-            "spread"
+            "spread",
+            "fulfilled",
+            "ended"
           ]
         },
         {
@@ -11247,7 +13099,9 @@ const NKJV_TABLETS = {
           "d": [
             "proved",
             "cleansed",
-            "sanctified"
+            "sanctified",
+            "bowed",
+            "tempted"
           ]
         },
         {
@@ -11258,7 +13112,9 @@ const NKJV_TABLETS = {
           "d": [
             "years",
             "time",
-            "earth"
+            "earth",
+            "ages",
+            "wars"
           ]
         }
       ]
@@ -11280,7 +13136,9 @@ const NKJV_TABLETS = {
           "d": [
             "valleys",
             "heavens",
-            "nations"
+            "nations",
+            "rocks",
+            "trees"
           ]
         },
         {
@@ -11291,7 +13149,9 @@ const NKJV_TABLETS = {
           "d": [
             "deep",
             "world",
-            "hills"
+            "hills",
+            "sea",
+            "waters"
           ]
         },
         {
@@ -11302,7 +13162,9 @@ const NKJV_TABLETS = {
           "d": [
             "bondage",
             "pharaoh",
-            "slaves"
+            "slaves",
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -11313,7 +13175,9 @@ const NKJV_TABLETS = {
           "d": [
             "Joshua",
             "Hur",
-            "Caleb"
+            "Caleb",
+            "Samuel",
+            "Nathan"
           ]
         },
         {
@@ -11324,7 +13188,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Lord",
-            "Priest"
+            "Priest",
+            "Shepherd",
+            "Judge"
           ]
         },
         {
@@ -11335,7 +13201,9 @@ const NKJV_TABLETS = {
           "d": [
             "right",
             "holy",
-            "just"
+            "just",
+            "true",
+            "pure"
           ]
         },
         {
@@ -11346,7 +13214,9 @@ const NKJV_TABLETS = {
           "d": [
             "rightly",
             "truth",
-            "good"
+            "good",
+            "wisely",
+            "kindly"
           ]
         },
         {
@@ -11357,7 +13227,9 @@ const NKJV_TABLETS = {
           "d": [
             "closely",
             "purely",
-            "uprightly"
+            "uprightly",
+            "faithfully",
+            "boldly"
           ]
         }
       ]
@@ -11379,7 +13251,9 @@ const NKJV_TABLETS = {
           "d": [
             "humbled",
             "troubled",
-            "amazed"
+            "amazed",
+            "ashamed",
+            "glad"
           ]
         },
         {
@@ -11390,7 +13264,9 @@ const NKJV_TABLETS = {
           "d": [
             "grace",
             "pity",
-            "compassion"
+            "compassion",
+            "judgment",
+            "vengeance"
           ]
         },
         {
@@ -11401,7 +13277,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "power",
-            "light"
+            "light",
+            "wisdom",
+            "goodness"
           ]
         },
         {
@@ -11412,7 +13290,9 @@ const NKJV_TABLETS = {
           "d": [
             "sun",
             "fire",
-            "day"
+            "day",
+            "lightning",
+            "morning"
           ]
         },
         {
@@ -11423,7 +13303,9 @@ const NKJV_TABLETS = {
           "d": [
             "olive",
             "palm",
-            "myrtle"
+            "myrtle",
+            "cedar",
+            "oak"
           ]
         },
         {
@@ -11434,7 +13316,9 @@ const NKJV_TABLETS = {
           "d": [
             "vine",
             "fig",
-            "corn"
+            "corn",
+            "palm",
+            "wine"
           ]
         },
         {
@@ -11445,7 +13329,9 @@ const NKJV_TABLETS = {
           "d": [
             "life",
             "peace",
-            "hope"
+            "hope",
+            "wrath",
+            "judgment"
           ]
         },
         {
@@ -11456,7 +13342,9 @@ const NKJV_TABLETS = {
           "d": [
             "lions'",
             "eagles'",
-            "roes'"
+            "roes'",
+            "rams'",
+            "harts'"
           ]
         }
       ]
@@ -11478,7 +13366,9 @@ const NKJV_TABLETS = {
           "d": [
             "Judah",
             "Israel",
-            "peace"
+            "peace",
+            "Samaria",
+            "Babylon"
           ]
         },
         {
@@ -11489,7 +13379,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "peace",
-            "glory"
+            "glory",
+            "wisdom",
+            "strength"
           ]
         },
         {
@@ -11500,7 +13392,9 @@ const NKJV_TABLETS = {
           "d": [
             "horse",
             "mule",
-            "camel"
+            "camel",
+            "ox",
+            "eagle"
           ]
         },
         {
@@ -11510,7 +13404,10 @@ const NKJV_TABLETS = {
           "suffix": "; His dominion shall be 'from sea to sea, And from the River to the ends of the earth.'",
           "d": [
             "gentiles",
-            "people"
+            "people",
+            "kings",
+            "princes",
+            "Judah"
           ]
         },
         {
@@ -11521,7 +13418,9 @@ const NKJV_TABLETS = {
           "d": [
             "light",
             "hope",
-            "bread"
+            "bread",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -11532,7 +13431,9 @@ const NKJV_TABLETS = {
           "d": [
             "faith",
             "peace",
-            "mercy"
+            "mercy",
+            "sin",
+            "grace"
           ]
         },
         {
@@ -11543,7 +13444,9 @@ const NKJV_TABLETS = {
           "d": [
             "temple",
             "diadem",
-            "sceptre"
+            "sceptre",
+            "palace",
+            "sanctuary"
           ]
         },
         {
@@ -11554,7 +13457,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "power",
-            "majesty"
+            "majesty",
+            "mercy",
+            "favour"
           ]
         }
       ]
@@ -11576,7 +13481,9 @@ const NKJV_TABLETS = {
           "d": [
             "angel",
             "servant",
-            "prophet"
+            "prophet",
+            "herald",
+            "shepherd"
           ]
         },
         {
@@ -11587,7 +13494,9 @@ const NKJV_TABLETS = {
           "d": [
             "city",
             "palace",
-            "throne"
+            "throne",
+            "altar",
+            "field"
           ]
         },
         {
@@ -11598,7 +13507,9 @@ const NKJV_TABLETS = {
           "d": [
             "furnace",
             "flame",
-            "silver"
+            "silver",
+            "gold",
+            "iron"
           ]
         },
         {
@@ -11609,7 +13520,9 @@ const NKJV_TABLETS = {
           "d": [
             "gold",
             "vessels",
-            "metal"
+            "metal",
+            "brass",
+            "lead"
           ]
         },
         {
@@ -11620,7 +13533,9 @@ const NKJV_TABLETS = {
           "d": [
             "fail",
             "repent",
-            "sleep"
+            "sleep",
+            "lie",
+            "forget"
           ]
         },
         {
@@ -11631,7 +13546,9 @@ const NKJV_TABLETS = {
           "d": [
             "temple",
             "barn",
-            "treasury"
+            "treasury",
+            "winepress",
+            "sanctuary"
           ]
         },
         {
@@ -11642,7 +13559,9 @@ const NKJV_TABLETS = {
           "d": [
             "life",
             "words",
-            "mercy"
+            "mercy",
+            "judgment",
+            "wisdom"
           ]
         },
         {
@@ -11653,7 +13572,9 @@ const NKJV_TABLETS = {
           "d": [
             "crown",
             "treasures",
-            "people"
+            "people",
+            "sheep",
+            "vessels"
           ]
         }
       ]
@@ -11675,7 +13596,9 @@ const NKJV_TABLETS = {
           "d": [
             "reap",
             "plant",
-            "gather"
+            "gather",
+            "water",
+            "sell"
           ]
         },
         {
@@ -11686,7 +13609,9 @@ const NKJV_TABLETS = {
           "d": [
             "corn",
             "grain",
-            "wheat"
+            "wheat",
+            "your dwelling place",
+            "not comprehend it"
           ]
         },
         {
@@ -11697,7 +13622,9 @@ const NKJV_TABLETS = {
           "d": [
             "understand",
             "listen",
-            "know"
+            "know",
+            "see",
+            "fear"
           ]
         },
         {
@@ -11708,7 +13635,9 @@ const NKJV_TABLETS = {
           "d": [
             "wheat",
             "corn",
-            "fig"
+            "fig",
+            "barley",
+            "salt"
           ]
         },
         {
@@ -11719,7 +13648,9 @@ const NKJV_TABLETS = {
           "d": [
             "salt",
             "bread",
-            "honey"
+            "honey",
+            "wine",
+            "gold"
           ]
         },
         {
@@ -11730,7 +13661,9 @@ const NKJV_TABLETS = {
           "d": [
             "house",
             "garden",
-            "mountain"
+            "mountain",
+            "cave",
+            "city"
           ]
         },
         {
@@ -11741,7 +13674,9 @@ const NKJV_TABLETS = {
           "d": [
             "jewels",
             "gems",
-            "stones"
+            "stones",
+            "rubies",
+            "silver"
           ]
         },
         {
@@ -11752,7 +13687,9 @@ const NKJV_TABLETS = {
           "d": [
             "worth",
             "beauty",
-            "glory"
+            "glory",
+            "treasure",
+            "size"
           ]
         }
       ]
@@ -11774,7 +13711,9 @@ const NKJV_TABLETS = {
           "d": [
             "trouble",
             "lead",
-            "harm"
+            "harm",
+            "tempt",
+            "praise"
           ]
         },
         {
@@ -11785,7 +13724,9 @@ const NKJV_TABLETS = {
           "d": [
             "famines",
             "earthquakes",
-            "plagues"
+            "plagues",
+            "sorrows",
+            "gold"
           ]
         },
         {
@@ -11796,7 +13737,9 @@ const NKJV_TABLETS = {
           "d": [
             "death",
             "trial",
-            "last"
+            "last",
+            "day",
+            "time"
           ]
         },
         {
@@ -11807,7 +13750,9 @@ const NKJV_TABLETS = {
           "d": [
             "earth",
             "land",
-            "cities"
+            "cities",
+            "heavens",
+            "sea"
           ]
         },
         {
@@ -11818,7 +13763,9 @@ const NKJV_TABLETS = {
           "d": [
             "south",
             "north",
-            "ends"
+            "ends",
+            "earth",
+            "sea"
           ]
         },
         {
@@ -11829,7 +13776,9 @@ const NKJV_TABLETS = {
           "d": [
             "might",
             "majesty",
-            "light"
+            "light",
+            "joy",
+            "wrath"
           ]
         },
         {
@@ -11840,7 +13789,9 @@ const NKJV_TABLETS = {
           "d": [
             "void",
             "empty",
-            "off"
+            "off",
+            "over",
+            "trouble"
           ]
         },
         {
@@ -11851,7 +13802,9 @@ const NKJV_TABLETS = {
           "d": [
             "day",
             "season",
-            "moment"
+            "moment",
+            "night",
+            "morning"
           ]
         }
       ]
@@ -11873,7 +13826,9 @@ const NKJV_TABLETS = {
           "d": [
             "vessels",
             "torches",
-            "pitchers"
+            "pitchers",
+            "garments",
+            "treasures"
           ]
         },
         {
@@ -11884,7 +13839,9 @@ const NKJV_TABLETS = {
           "d": [
             "simple",
             "slothful",
-            "blind"
+            "blind",
+            "wicked",
+            "holy"
           ]
         },
         {
@@ -11895,7 +13852,9 @@ const NKJV_TABLETS = {
           "d": [
             "wine",
             "bread",
-            "light"
+            "light",
+            "water",
+            "salt"
           ]
         },
         {
@@ -11906,7 +13865,9 @@ const NKJV_TABLETS = {
           "d": [
             "king",
             "master",
-            "lord"
+            "lord",
+            "messenger",
+            "judge"
           ]
         },
         {
@@ -11917,7 +13878,9 @@ const NKJV_TABLETS = {
           "d": [
             "just",
             "wise",
-            "true"
+            "true",
+            "humble",
+            "cruel"
           ]
         },
         {
@@ -11928,7 +13891,9 @@ const NKJV_TABLETS = {
           "d": [
             "rest",
             "kingdom",
-            "peace"
+            "peace",
+            "house",
+            "gates"
           ]
         },
         {
@@ -11939,7 +13904,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "rest",
-            "inheritance"
+            "inheritance",
+            "earth",
+            "heavens"
           ]
         },
         {
@@ -11950,7 +13917,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "heaven",
-            "us"
+            "us",
+            "him",
+            "vessels"
           ]
         }
       ]
@@ -11972,7 +13941,9 @@ const NKJV_TABLETS = {
           "d": [
             "listen",
             "understand",
-            "take heed"
+            "take heed",
+            "see",
+            "know"
           ]
         },
         {
@@ -11983,7 +13954,9 @@ const NKJV_TABLETS = {
           "d": [
             "known",
             "revealed",
-            "spoken"
+            "spoken",
+            "So those that entered",
+            "razor has ever come"
           ]
         },
         {
@@ -11994,7 +13967,9 @@ const NKJV_TABLETS = {
           "d": [
             "given",
             "counted",
-            "judged"
+            "judged",
+            "rendered",
+            "sold"
           ]
         },
         {
@@ -12005,7 +13980,9 @@ const NKJV_TABLETS = {
           "d": [
             "stalk",
             "flower",
-            "leaf"
+            "leaf",
+            "root",
+            "seed"
           ]
         },
         {
@@ -12015,7 +13992,10 @@ const NKJV_TABLETS = {
           "suffix": ", so that it was already filling.",
           "d": [
             "vessel",
-            "deep"
+            "deep",
+            "wall",
+            "cave",
+            "listen"
           ]
         },
         {
@@ -12026,7 +14006,9 @@ const NKJV_TABLETS = {
           "d": [
             "drown",
             "die",
-            "sink"
+            "sink",
+            "suffer",
+            "faint"
           ]
         },
         {
@@ -12037,7 +14019,9 @@ const NKJV_TABLETS = {
           "d": [
             "calm",
             "quiet",
-            "silent"
+            "silent",
+            "gone",
+            "vexed"
           ]
         },
         {
@@ -12048,7 +14032,9 @@ const NKJV_TABLETS = {
           "d": [
             "fear",
             "know",
-            "hear"
+            "hear",
+            "follow",
+            "worship"
           ]
         }
       ]
@@ -12070,7 +14056,9 @@ const NKJV_TABLETS = {
           "d": [
             "wall",
             "pillar",
-            "brick"
+            "brick",
+            "beam",
+            "tower"
           ]
         },
         {
@@ -12081,7 +14069,9 @@ const NKJV_TABLETS = {
           "d": [
             "afraid",
             "dismayed",
-            "fearful"
+            "fearful",
+            "shaken",
+            "glad"
           ]
         },
         {
@@ -12092,7 +14082,9 @@ const NKJV_TABLETS = {
           "d": [
             "peoples",
             "gentiles",
-            "lands"
+            "lands",
+            "churches",
+            "tribes"
           ]
         },
         {
@@ -12102,7 +14094,10 @@ const NKJV_TABLETS = {
           "suffix": ".",
           "d": [
             "Father",
-            "Lord"
+            "Lord",
+            "Word",
+            "Angel",
+            "wall"
           ]
         },
         {
@@ -12113,7 +14108,9 @@ const NKJV_TABLETS = {
           "d": [
             "delivered",
             "blessed",
-            "crowned"
+            "crowned",
+            "spared",
+            "forgiven"
           ]
         },
         {
@@ -12124,7 +14121,9 @@ const NKJV_TABLETS = {
           "d": [
             "majesty",
             "might",
-            "light"
+            "light",
+            "wisdom",
+            "wrath"
           ]
         },
         {
@@ -12135,7 +14134,9 @@ const NKJV_TABLETS = {
           "d": [
             "off",
             "void",
-            "empty"
+            "empty",
+            "over",
+            "wall"
           ]
         },
         {
@@ -12146,7 +14147,9 @@ const NKJV_TABLETS = {
           "d": [
             "Pray",
             "Stand",
-            "Believe"
+            "Believe",
+            "Remember",
+            "Rejoice"
           ]
         }
       ]
@@ -12168,7 +14171,9 @@ const NKJV_TABLETS = {
           "d": [
             "desert",
             "mount",
-            "plain"
+            "plain",
+            "temple",
+            "field"
           ]
         },
         {
@@ -12179,7 +14184,9 @@ const NKJV_TABLETS = {
           "d": [
             "commandment",
             "statute",
-            "truth"
+            "truth",
+            "name",
+            "work"
           ]
         },
         {
@@ -12190,7 +14197,9 @@ const NKJV_TABLETS = {
           "d": [
             "alone",
             "truly",
-            "ever"
+            "ever",
+            "first",
+            "always"
           ]
         },
         {
@@ -12201,7 +14210,9 @@ const NKJV_TABLETS = {
           "d": [
             "Father",
             "King",
-            "Master"
+            "Master",
+            "Judge",
+            "Shepherd"
           ]
         },
         {
@@ -12212,7 +14223,9 @@ const NKJV_TABLETS = {
           "d": [
             "meek",
             "broken",
-            "nations"
+            "nations",
+            "sick",
+            "lost"
           ]
         },
         {
@@ -12223,7 +14236,9 @@ const NKJV_TABLETS = {
           "d": [
             "meek",
             "mourners",
-            "sinners"
+            "sinners",
+            "afflicted",
+            "dumb"
           ]
         },
         {
@@ -12234,7 +14249,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "King",
-            "Father"
+            "Father",
+            "Prophet",
+            "Priest"
           ]
         },
         {
@@ -12244,7 +14261,10 @@ const NKJV_TABLETS = {
           "suffix": ".",
           "d": [
             "grace",
-            "truth"
+            "truth",
+            "wisdom",
+            "glory",
+            "desert"
           ]
         }
       ]
@@ -12266,7 +14286,9 @@ const NKJV_TABLETS = {
           "d": [
             "cease",
             "doubt",
-            "fear"
+            "fear",
+            "the Lord",
+            "Most High"
           ]
         },
         {
@@ -12277,7 +14299,9 @@ const NKJV_TABLETS = {
           "d": [
             "face",
             "heart",
-            "head"
+            "head",
+            "hand",
+            "knee"
           ]
         },
         {
@@ -12288,7 +14312,9 @@ const NKJV_TABLETS = {
           "d": [
             "servant",
             "man",
-            "debtor"
+            "debtor",
+            "stranger",
+            "saint"
           ]
         },
         {
@@ -12299,7 +14325,9 @@ const NKJV_TABLETS = {
           "d": [
             "raised",
             "blessed",
-            "saved"
+            "saved",
+            "ashamed",
+            "forgiven"
           ]
         },
         {
@@ -12310,7 +14338,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "grace",
-            "family"
+            "family",
+            "church",
+            "temple"
           ]
         },
         {
@@ -12321,7 +14351,9 @@ const NKJV_TABLETS = {
           "d": [
             "servant",
             "disciple",
-            "son"
+            "son",
+            "lamb",
+            "man"
           ]
         },
         {
@@ -12332,7 +14364,9 @@ const NKJV_TABLETS = {
           "d": [
             "faith",
             "prayer",
-            "the Lord"
+            "the Lord",
+            "Mammon",
+            "Heaven"
           ]
         },
         {
@@ -12343,7 +14377,9 @@ const NKJV_TABLETS = {
           "d": [
             "prayer",
             "hope",
-            "desire"
+            "desire",
+            "pity",
+            "patience"
           ]
         }
       ]
@@ -12365,7 +14401,9 @@ const NKJV_TABLETS = {
           "d": [
             "bread",
             "truth",
-            "grace"
+            "grace",
+            "wine",
+            "fire"
           ]
         },
         {
@@ -12376,7 +14414,9 @@ const NKJV_TABLETS = {
           "d": [
             "faint",
             "perish",
-            "die"
+            "die",
+            "weary",
+            "fear"
           ]
         },
         {
@@ -12387,7 +14427,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "peace",
-            "grace"
+            "grace",
+            "joy",
+            "salvation"
           ]
         },
         {
@@ -12398,7 +14440,9 @@ const NKJV_TABLETS = {
           "d": [
             "holiness",
             "peace",
-            "love"
+            "love",
+            "faith",
+            "power"
           ]
         },
         {
@@ -12409,7 +14453,9 @@ const NKJV_TABLETS = {
           "d": [
             "Light",
             "Fire",
-            "Father"
+            "Father",
+            "Judge",
+            "Shepherd"
           ]
         },
         {
@@ -12420,7 +14466,9 @@ const NKJV_TABLETS = {
           "d": [
             "word",
             "law",
-            "commandment"
+            "commandment",
+            "course",
+            "song"
           ]
         },
         {
@@ -12431,7 +14479,9 @@ const NKJV_TABLETS = {
           "d": [
             "reap",
             "ripen",
-            "gather"
+            "gather",
+            "sow",
+            "eat"
           ]
         },
         {
@@ -12442,7 +14492,9 @@ const NKJV_TABLETS = {
           "d": [
             "people",
             "nations",
-            "earth"
+            "earth",
+            "church",
+            "flock"
           ]
         }
       ]
@@ -12464,7 +14516,9 @@ const NKJV_TABLETS = {
           "d": [
             "heaven",
             "truth",
-            "God"
+            "God",
+            "wisdom",
+            "grace"
           ]
         },
         {
@@ -12475,7 +14529,9 @@ const NKJV_TABLETS = {
           "d": [
             "die",
             "faint",
-            "perish"
+            "perish",
+            "fear",
+            "weary"
           ]
         },
         {
@@ -12486,7 +14542,9 @@ const NKJV_TABLETS = {
           "d": [
             "away",
             "off",
-            "down"
+            "down",
+            "back",
+            "aside"
           ]
         },
         {
@@ -12497,7 +14555,9 @@ const NKJV_TABLETS = {
           "d": [
             "great",
             "final",
-            "latter"
+            "latter",
+            "first",
+            "dreadful"
           ]
         },
         {
@@ -12508,7 +14568,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "joy",
-            "glory"
+            "glory",
+            "death",
+            "wrath"
           ]
         },
         {
@@ -12519,7 +14581,9 @@ const NKJV_TABLETS = {
           "d": [
             "the Father",
             "glory",
-            "above"
+            "above",
+            "earth",
+            "hell"
           ]
         },
         {
@@ -12530,7 +14594,9 @@ const NKJV_TABLETS = {
           "d": [
             "truth",
             "light",
-            "grace"
+            "grace",
+            "love",
+            "peace"
           ]
         },
         {
@@ -12541,7 +14607,9 @@ const NKJV_TABLETS = {
           "d": [
             "truth",
             "salvation",
-            "grace"
+            "grace",
+            "glory",
+            "light"
           ]
         }
       ]
@@ -12563,7 +14631,9 @@ const NKJV_TABLETS = {
           "d": [
             "gardener",
             "keeper",
-            "builder"
+            "builder",
+            "shepherd",
+            "judge"
           ]
         },
         {
@@ -12574,7 +14644,9 @@ const NKJV_TABLETS = {
           "d": [
             "cleanseth",
             "watereth",
-            "keepeth"
+            "keepeth",
+            "burneth",
+            "drinketh"
           ]
         },
         {
@@ -12585,7 +14657,9 @@ const NKJV_TABLETS = {
           "d": [
             "shoots",
             "leaves",
-            "twigs"
+            "twigs",
+            "roots",
+            "stones"
           ]
         },
         {
@@ -12596,7 +14670,9 @@ const NKJV_TABLETS = {
           "d": [
             "little",
             "naught",
-            "no good"
+            "no good",
+            "all",
+            "anything"
           ]
         },
         {
@@ -12607,7 +14683,9 @@ const NKJV_TABLETS = {
           "d": [
             "given",
             "granted",
-            "opened"
+            "opened",
+            "sent",
+            "withheld"
           ]
         },
         {
@@ -12618,7 +14696,9 @@ const NKJV_TABLETS = {
           "d": [
             "serve",
             "forgive",
-            "help"
+            "help",
+            "honour",
+            "trust"
           ]
         },
         {
@@ -12629,7 +14709,9 @@ const NKJV_TABLETS = {
           "d": [
             "soul",
             "body",
-            "all"
+            "all",
+            "wealth",
+            "money"
           ]
         },
         {
@@ -12640,7 +14722,9 @@ const NKJV_TABLETS = {
           "d": [
             "called",
             "named",
-            "sent"
+            "sent",
+            "known",
+            "loved"
           ]
         }
       ]
@@ -12662,7 +14746,9 @@ const NKJV_TABLETS = {
           "d": [
             "the Father",
             "heaven",
-            "thy name"
+            "thy name",
+            "him",
+            "them"
           ]
         },
         {
@@ -12673,7 +14759,9 @@ const NKJV_TABLETS = {
           "d": [
             "Lord",
             "Father",
-            "King"
+            "King",
+            "Saviour",
+            "Judge"
           ]
         },
         {
@@ -12684,7 +14772,9 @@ const NKJV_TABLETS = {
           "d": [
             "done",
             "completed",
-            "fulfilled"
+            "fulfilled",
+            "begun",
+            "left"
           ]
         },
         {
@@ -12695,7 +14785,9 @@ const NKJV_TABLETS = {
           "d": [
             "holy",
             "pure",
-            "kept"
+            "kept",
+            "blessed",
+            "safe"
           ]
         },
         {
@@ -12706,7 +14798,9 @@ const NKJV_TABLETS = {
           "d": [
             "holy",
             "life",
-            "light"
+            "light",
+            "love",
+            "power"
           ]
         },
         {
@@ -12717,7 +14811,9 @@ const NKJV_TABLETS = {
           "d": [
             "them",
             "heaven",
-            "us"
+            "us",
+            "him",
+            "Lord"
           ]
         },
         {
@@ -12728,7 +14824,9 @@ const NKJV_TABLETS = {
           "d": [
             "all",
             "us",
-            "him"
+            "him",
+            "thee",
+            "heaven"
           ]
         },
         {
@@ -12739,7 +14837,9 @@ const NKJV_TABLETS = {
           "d": [
             "go",
             "dwell",
-            "reign"
+            "reign",
+            "live",
+            "rest"
           ]
         }
       ]
@@ -12761,7 +14861,9 @@ const NKJV_TABLETS = {
           "d": [
             "signs",
             "tokens",
-            "wonders"
+            "wonders",
+            "witnesses",
+            "gifts"
           ]
         },
         {
@@ -12772,7 +14874,9 @@ const NKJV_TABLETS = {
           "d": [
             "grace",
             "glory",
-            "strength"
+            "strength",
+            "wisdom",
+            "authority"
           ]
         },
         {
@@ -12783,7 +14887,9 @@ const NKJV_TABLETS = {
           "d": [
             "world",
             "nations",
-            "land"
+            "land",
+            "sea",
+            "desert"
           ]
         },
         {
@@ -12794,7 +14900,9 @@ const NKJV_TABLETS = {
           "d": [
             "light",
             "chariot",
-            "flame"
+            "flame",
+            "whirlwind",
+            "fire"
           ]
         },
         {
@@ -12805,7 +14913,9 @@ const NKJV_TABLETS = {
           "d": [
             "the clouds",
             "the sky",
-            "glory"
+            "glory",
+            "air",
+            "sea"
           ]
         },
         {
@@ -12816,7 +14926,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "power",
-            "clouds"
+            "clouds",
+            "measure",
+            "season"
           ]
         },
         {
@@ -12827,7 +14939,9 @@ const NKJV_TABLETS = {
           "d": [
             "praise",
             "fasting",
-            "fellowship"
+            "fellowship",
+            "thanksgiving",
+            "watching"
           ]
         },
         {
@@ -12838,7 +14952,9 @@ const NKJV_TABLETS = {
           "d": [
             "souls",
             "minds",
-            "ways"
+            "ways",
+            "thoughts",
+            "bones"
           ]
         }
       ]
@@ -12860,7 +14976,9 @@ const NKJV_TABLETS = {
           "d": [
             "Isaac",
             "Jacob",
-            "David"
+            "David",
+            "Noah",
+            "Moses"
           ]
         },
         {
@@ -12871,7 +14989,9 @@ const NKJV_TABLETS = {
           "d": [
             "stone",
             "cedar",
-            "man"
+            "man",
+            "wings",
+            "clouds"
           ]
         },
         {
@@ -12882,7 +15002,9 @@ const NKJV_TABLETS = {
           "d": [
             "dwelling",
             "footstep",
-            "habitation"
+            "habitation",
+            "seat",
+            "pavement"
           ]
         },
         {
@@ -12892,7 +15014,10 @@ const NKJV_TABLETS = {
           "suffix": "; as your fathers did, so do you.",
           "d": [
             "Presence",
-            "Word"
+            "Word",
+            "Father",
+            "Angel",
+            "Isaac"
           ]
         },
         {
@@ -12903,7 +15028,9 @@ const NKJV_TABLETS = {
           "d": [
             "side",
             "throne",
-            "part"
+            "part",
+            "arm",
+            "left"
           ]
         },
         {
@@ -12914,7 +15041,9 @@ const NKJV_TABLETS = {
           "d": [
             "power",
             "glory",
-            "the Father"
+            "the Father",
+            "Heaven",
+            "Zion"
           ]
         },
         {
@@ -12925,7 +15054,9 @@ const NKJV_TABLETS = {
           "d": [
             "soul",
             "life",
-            "prayer"
+            "prayer",
+            "heart",
+            "breath"
           ]
         },
         {
@@ -12936,7 +15067,9 @@ const NKJV_TABLETS = {
           "d": [
             "account",
             "heart",
-            "door"
+            "door",
+            "fault",
+            "wages"
           ]
         }
       ]
@@ -12958,7 +15091,9 @@ const NKJV_TABLETS = {
           "d": [
             "stars",
             "day",
-            "lightning"
+            "lightning",
+            "moon",
+            "fire"
           ]
         },
         {
@@ -12968,7 +15103,10 @@ const NKJV_TABLETS = {
           "suffix": ".'",
           "d": [
             "stones",
-            "thorns"
+            "thorns",
+            "walls",
+            "gates",
+            "stars"
           ]
         },
         {
@@ -12979,7 +15117,9 @@ const NKJV_TABLETS = {
           "d": [
             "Christ",
             "Messiah",
-            "God"
+            "God",
+            "Stephen",
+            "Peter"
           ]
         },
         {
@@ -12990,7 +15130,9 @@ const NKJV_TABLETS = {
           "d": [
             "day",
             "life",
-            "glory"
+            "glory",
+            "truth",
+            "wisdom"
           ]
         },
         {
@@ -13001,7 +15143,9 @@ const NKJV_TABLETS = {
           "d": [
             "voice",
             "calling",
-            "sign"
+            "sign",
+            "commandment",
+            "revelation"
           ]
         },
         {
@@ -13012,7 +15156,9 @@ const NKJV_TABLETS = {
           "d": [
             "hour",
             "time",
-            "season"
+            "season",
+            "night",
+            "morning"
           ]
         },
         {
@@ -13023,7 +15169,9 @@ const NKJV_TABLETS = {
           "d": [
             "believer",
             "disciple",
-            "brother"
+            "brother",
+            "Jew",
+            "Pharisee"
           ]
         },
         {
@@ -13033,7 +15181,10 @@ const NKJV_TABLETS = {
           "suffix": ".\"",
           "d": [
             "fetters",
-            "stripes"
+            "stripes",
+            "cords",
+            "silver",
+            "stars"
           ]
         }
       ]
@@ -13055,7 +15206,9 @@ const NKJV_TABLETS = {
           "d": [
             "grace",
             "fellowship",
-            "favour"
+            "favour",
+            "access",
+            "joy"
           ]
         },
         {
@@ -13066,7 +15219,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "light",
-            "kingdom"
+            "kingdom",
+            "place",
+            "world"
           ]
         },
         {
@@ -13077,7 +15232,9 @@ const NKJV_TABLETS = {
           "d": [
             "hope",
             "faith",
-            "peace"
+            "peace",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -13088,7 +15245,9 @@ const NKJV_TABLETS = {
           "d": [
             "faith",
             "joy",
-            "peace"
+            "peace",
+            "trial",
+            "love"
           ]
         },
         {
@@ -13099,7 +15258,9 @@ const NKJV_TABLETS = {
           "d": [
             "Spirit",
             "Presence",
-            "Word"
+            "Word",
+            "Most High",
+            "truth's sake"
           ]
         },
         {
@@ -13110,7 +15271,9 @@ const NKJV_TABLETS = {
           "d": [
             "suffered",
             "came",
-            "paid"
+            "paid",
+            "wept",
+            "walked"
           ]
         },
         {
@@ -13121,7 +15284,9 @@ const NKJV_TABLETS = {
           "d": [
             "holy",
             "just",
-            "clean"
+            "clean",
+            "faithful",
+            "perfect"
           ]
         },
         {
@@ -13132,7 +15297,9 @@ const NKJV_TABLETS = {
           "d": [
             "multiply",
             "exceed",
-            "reign"
+            "reign",
+            "rise",
+            "remain"
           ]
         }
       ]
@@ -13154,7 +15321,9 @@ const NKJV_TABLETS = {
           "d": [
             "multiply",
             "increase",
-            "reign"
+            "reign",
+            "abide",
+            "remain"
           ]
         },
         {
@@ -13164,7 +15333,10 @@ const NKJV_TABLETS = {
           "suffix": "?",
           "d": [
             "in sin",
-            "thus"
+            "thus",
+            "therefore",
+            "the grave",
+            "the Lord"
           ]
         },
         {
@@ -13175,7 +15347,9 @@ const NKJV_TABLETS = {
           "d": [
             "the grave",
             "life",
-            "sin"
+            "sin",
+            "sepulchre",
+            "darkness"
           ]
         },
         {
@@ -13186,7 +15360,9 @@ const NKJV_TABLETS = {
           "d": [
             "spirit",
             "grace",
-            "truth"
+            "truth",
+            "faith",
+            "hope"
           ]
         },
         {
@@ -13197,7 +15373,9 @@ const NKJV_TABLETS = {
           "d": [
             "the Lord",
             "our Saviour",
-            "the Son"
+            "the Son",
+            "Master",
+            "Prophet"
           ]
         },
         {
@@ -13208,7 +15386,9 @@ const NKJV_TABLETS = {
           "d": [
             "faith",
             "mercy",
-            "truth"
+            "truth",
+            "works",
+            "wrath"
           ]
         },
         {
@@ -13219,7 +15399,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "joy",
-            "glory"
+            "glory",
+            "salvation",
+            "reward"
           ]
         },
         {
@@ -13230,7 +15412,9 @@ const NKJV_TABLETS = {
           "d": [
             "grace",
             "salvation",
-            "peace"
+            "peace",
+            "joy",
+            "reward"
           ]
         }
       ]
@@ -13252,7 +15436,9 @@ const NKJV_TABLETS = {
           "d": [
             "law",
             "prophets",
-            "word"
+            "word",
+            "promises",
+            "precepts"
           ]
         },
         {
@@ -13263,7 +15449,9 @@ const NKJV_TABLETS = {
           "d": [
             "law",
             "gospel",
-            "word"
+            "word",
+            "promises",
+            "dreams"
           ]
         },
         {
@@ -13274,7 +15462,9 @@ const NKJV_TABLETS = {
           "d": [
             "firstborn",
             "head",
-            "prince"
+            "prince",
+            "witnesses",
+            "gift"
           ]
         },
         {
@@ -13285,7 +15475,9 @@ const NKJV_TABLETS = {
           "d": [
             "righteous",
             "holy",
-            "one"
+            "one",
+            "whole",
+            "perfect"
           ]
         },
         {
@@ -13296,7 +15488,9 @@ const NKJV_TABLETS = {
           "d": [
             "sin",
             "the grave",
-            "satan"
+            "satan",
+            "hell",
+            "sorrow"
           ]
         },
         {
@@ -13307,7 +15501,9 @@ const NKJV_TABLETS = {
           "d": [
             "raised",
             "gathered",
-            "clothed"
+            "clothed",
+            "lifted",
+            "caught"
           ]
         },
         {
@@ -13318,7 +15514,9 @@ const NKJV_TABLETS = {
           "d": [
             "life",
             "glory",
-            "light"
+            "light",
+            "salvation",
+            "darkness"
           ]
         },
         {
@@ -13329,7 +15527,9 @@ const NKJV_TABLETS = {
           "d": [
             "power",
             "might",
-            "triumph"
+            "triumph",
+            "strength",
+            "glory"
           ]
         }
       ]
@@ -13351,7 +15551,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "skies",
-            "heights"
+            "heights",
+            "mansions",
+            "clouds"
           ]
         },
         {
@@ -13362,7 +15564,9 @@ const NKJV_TABLETS = {
           "d": [
             "works",
             "flesh",
-            "fear"
+            "fear",
+            "reason",
+            "sense"
           ]
         },
         {
@@ -13373,7 +15577,9 @@ const NKJV_TABLETS = {
           "d": [
             "throne",
             "hall",
-            "place"
+            "place",
+            "court",
+            "gate"
           ]
         },
         {
@@ -13384,7 +15590,9 @@ const NKJV_TABLETS = {
           "d": [
             "me",
             "them",
-            "all"
+            "all",
+            "you",
+            "him"
           ]
         },
         {
@@ -13394,7 +15602,10 @@ const NKJV_TABLETS = {
           "suffix": "; old things have passed away; behold, all things have become new.",
           "d": [
             "man",
-            "vessel"
+            "vessel",
+            "spirit",
+            "soul",
+            "glory"
           ]
         },
         {
@@ -13405,7 +15616,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "grace",
-            "righteousness"
+            "righteousness",
+            "salvation",
+            "forgiveness"
           ]
         },
         {
@@ -13416,7 +15629,9 @@ const NKJV_TABLETS = {
           "d": [
             "God",
             "heaven",
-            "the truth"
+            "the truth",
+            "men",
+            "sinners"
           ]
         },
         {
@@ -13427,7 +15642,9 @@ const NKJV_TABLETS = {
           "d": [
             "holiness",
             "glory",
-            "children"
+            "children",
+            "power",
+            "wisdom"
           ]
         }
       ]
@@ -13449,7 +15666,9 @@ const NKJV_TABLETS = {
           "d": [
             "grace",
             "peace",
-            "truth"
+            "truth",
+            "joy",
+            "spirit"
           ]
         },
         {
@@ -13460,7 +15679,9 @@ const NKJV_TABLETS = {
           "d": [
             "grace",
             "hope",
-            "works"
+            "works",
+            "peace",
+            "truth"
           ]
         },
         {
@@ -13471,7 +15692,9 @@ const NKJV_TABLETS = {
           "d": [
             "a brother",
             "thy life",
-            "the Lord"
+            "the Lord",
+            "himself",
+            "ourselves"
           ]
         },
         {
@@ -13482,7 +15705,9 @@ const NKJV_TABLETS = {
           "d": [
             "world",
             "eyes",
-            "mind"
+            "mind",
+            "heart",
+            "pride"
           ]
         },
         {
@@ -13493,7 +15718,9 @@ const NKJV_TABLETS = {
           "d": [
             "mercy",
             "truth",
-            "grace"
+            "grace",
+            "hope",
+            "works"
           ]
         },
         {
@@ -13504,7 +15731,9 @@ const NKJV_TABLETS = {
           "d": [
             "sin",
             "wrath",
-            "condemnation"
+            "condemnation",
+            "need",
+            "fear"
           ]
         },
         {
@@ -13515,7 +15744,9 @@ const NKJV_TABLETS = {
           "d": [
             "body",
             "world",
-            "old man"
+            "old man",
+            "sin",
+            "heart"
           ]
         },
         {
@@ -13526,7 +15757,9 @@ const NKJV_TABLETS = {
           "d": [
             "light",
             "truth",
-            "Lord"
+            "Lord",
+            "Word",
+            "Son"
           ]
         }
       ]
@@ -13548,7 +15781,9 @@ const NKJV_TABLETS = {
           "d": [
             "strength",
             "arm",
-            "grace"
+            "grace",
+            "glory",
+            "wisdom"
           ]
         },
         {
@@ -13559,7 +15794,9 @@ const NKJV_TABLETS = {
           "d": [
             "shield",
             "garment",
-            "breastplate"
+            "breastplate",
+            "helmet",
+            "sword"
           ]
         },
         {
@@ -13570,7 +15807,9 @@ const NKJV_TABLETS = {
           "d": [
             "bone",
             "earth",
-            "men"
+            "men",
+            "spirit",
+            "soul"
           ]
         },
         {
@@ -13581,7 +15820,9 @@ const NKJV_TABLETS = {
           "d": [
             "faith",
             "peace",
-            "grace"
+            "grace",
+            "wisdom",
+            "power"
           ]
         },
         {
@@ -13592,7 +15833,9 @@ const NKJV_TABLETS = {
           "d": [
             "truth",
             "salvation",
-            "peace"
+            "peace",
+            "hope",
+            "love"
           ]
         },
         {
@@ -13603,7 +15846,9 @@ const NKJV_TABLETS = {
           "d": [
             "faith",
             "hope",
-            "peace"
+            "peace",
+            "righteousness",
+            "glory"
           ]
         },
         {
@@ -13614,7 +15859,9 @@ const NKJV_TABLETS = {
           "d": [
             "truth",
             "gospel",
-            "law"
+            "law",
+            "voice",
+            "promise"
           ]
         },
         {
@@ -13625,7 +15872,9 @@ const NKJV_TABLETS = {
           "d": [
             "heart",
             "church",
-            "truth"
+            "truth",
+            "Word",
+            "Temple"
           ]
         }
       ]
@@ -13647,7 +15896,9 @@ const NKJV_TABLETS = {
           "d": [
             "Lord",
             "Christ",
-            "Prince"
+            "Prince",
+            "Father",
+            "Lamb"
           ]
         },
         {
@@ -13658,7 +15909,9 @@ const NKJV_TABLETS = {
           "d": [
             "iniquities",
             "debts",
-            "trespasses"
+            "trespasses",
+            "faults",
+            "errors"
           ]
         },
         {
@@ -13668,7 +15921,10 @@ const NKJV_TABLETS = {
           "suffix": ".",
           "d": [
             "thing",
-            "generation"
+            "generation",
+            "man",
+            "nation",
+            "Lord"
           ]
         },
         {
@@ -13679,7 +15935,9 @@ const NKJV_TABLETS = {
           "d": [
             "the clouds",
             "glory",
-            "the skies"
+            "the skies",
+            "hell",
+            "dust"
           ]
         },
         {
@@ -13690,7 +15948,9 @@ const NKJV_TABLETS = {
           "d": [
             "stand",
             "abide",
-            "live"
+            "live",
+            "endure",
+            "remain"
           ]
         },
         {
@@ -13701,7 +15961,9 @@ const NKJV_TABLETS = {
           "d": [
             "assembly",
             "saints",
-            "temple"
+            "temple",
+            "people",
+            "family"
           ]
         },
         {
@@ -13712,7 +15974,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "power",
-            "dominion"
+            "dominion",
+            "honour",
+            "praise"
           ]
         },
         {
@@ -13723,7 +15987,9 @@ const NKJV_TABLETS = {
           "d": [
             "salvation",
             "peace",
-            "life"
+            "life",
+            "righteousness",
+            "heaven"
           ]
         }
       ]
@@ -13745,7 +16011,9 @@ const NKJV_TABLETS = {
           "d": [
             "heavenly",
             "eternal",
-            "pure"
+            "pure",
+            "beneath",
+            "below"
           ]
         },
         {
@@ -13756,7 +16024,9 @@ const NKJV_TABLETS = {
           "d": [
             "flesh",
             "world",
-            "ground"
+            "ground",
+            "dust",
+            "sea"
           ]
         },
         {
@@ -13767,7 +16037,9 @@ const NKJV_TABLETS = {
           "d": [
             "heaven",
             "glory",
-            "light"
+            "light",
+            "Spirit",
+            "Zion"
           ]
         },
         {
@@ -13778,7 +16050,9 @@ const NKJV_TABLETS = {
           "d": [
             "heart",
             "spirit",
-            "soul"
+            "soul",
+            "wisdom",
+            "hope"
           ]
         },
         {
@@ -13789,7 +16063,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "unity",
-            "love"
+            "love",
+            "faith",
+            "grace"
           ]
         },
         {
@@ -13800,7 +16076,9 @@ const NKJV_TABLETS = {
           "d": [
             "minds",
             "souls",
-            "house"
+            "house",
+            "lives",
+            "thoughts"
           ]
         },
         {
@@ -13811,7 +16089,9 @@ const NKJV_TABLETS = {
           "d": [
             "knowledge",
             "truth",
-            "grace"
+            "grace",
+            "joy",
+            "love"
           ]
         },
         {
@@ -13822,7 +16102,9 @@ const NKJV_TABLETS = {
           "d": [
             "power",
             "glory",
-            "faith"
+            "faith",
+            "Spirit",
+            "presence"
           ]
         }
       ]
@@ -13844,7 +16126,9 @@ const NKJV_TABLETS = {
           "d": [
             "holiness",
             "peace",
-            "salvation"
+            "salvation",
+            "redemption",
+            "election"
           ]
         },
         {
@@ -13855,7 +16139,9 @@ const NKJV_TABLETS = {
           "d": [
             "peaceable",
             "still",
-            "gentle"
+            "gentle",
+            "content",
+            "wise"
           ]
         },
         {
@@ -13866,7 +16152,9 @@ const NKJV_TABLETS = {
           "d": [
             "dead",
             "fallen",
-            "departed"
+            "departed",
+            "alive",
+            "living"
           ]
         },
         {
@@ -13877,7 +16165,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "power",
-            "angels"
+            "angels",
+            "us",
+            "you"
           ]
         },
         {
@@ -13888,7 +16178,9 @@ const NKJV_TABLETS = {
           "d": [
             "cloud",
             "cry",
-            "song"
+            "song",
+            "blast",
+            "noise"
           ]
         },
         {
@@ -13899,7 +16191,9 @@ const NKJV_TABLETS = {
           "d": [
             "together",
             "soon",
-            "now"
+            "now",
+            "again",
+            "up"
           ]
         },
         {
@@ -13910,7 +16204,9 @@ const NKJV_TABLETS = {
           "d": [
             "sky",
             "heavens",
-            "glory"
+            "glory",
+            "midst",
+            "wind"
           ]
         },
         {
@@ -13921,7 +16217,9 @@ const NKJV_TABLETS = {
           "d": [
             "promises",
             "hopes",
-            "truths"
+            "truths",
+            "things",
+            "tidings"
           ]
         }
       ]
@@ -13943,7 +16241,9 @@ const NKJV_TABLETS = {
           "d": [
             "riches",
             "peace",
-            "reward"
+            "reward",
+            "wealth",
+            "store"
           ]
         },
         {
@@ -13954,7 +16254,9 @@ const NKJV_TABLETS = {
           "d": [
             "away",
             "forth",
-            "hence"
+            "hence",
+            "back",
+            "in"
           ]
         },
         {
@@ -13965,7 +16267,9 @@ const NKJV_TABLETS = {
           "d": [
             "sin",
             "trouble",
-            "wickedness"
+            "wickedness",
+            "vanity",
+            "pride"
           ]
         },
         {
@@ -13976,7 +16280,9 @@ const NKJV_TABLETS = {
           "d": [
             "truth",
             "hope",
-            "peace"
+            "peace",
+            "humility",
+            "joy"
           ]
         },
         {
@@ -13987,7 +16293,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "truth",
-            "righteousness"
+            "righteousness",
+            "hope",
+            "grace"
           ]
         },
         {
@@ -13998,7 +16306,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "hosts",
-            "heaven"
+            "heaven",
+            "nations",
+            "princes"
           ]
         },
         {
@@ -14009,7 +16319,9 @@ const NKJV_TABLETS = {
           "d": [
             "behold",
             "know",
-            "reach"
+            "reach",
+            "hear",
+            "touch"
           ]
         },
         {
@@ -14020,7 +16332,9 @@ const NKJV_TABLETS = {
           "d": [
             "care",
             "hand",
-            "charge"
+            "charge",
+            "faith",
+            "word"
           ]
         }
       ]
@@ -14042,7 +16356,9 @@ const NKJV_TABLETS = {
           "d": [
             "appear",
             "arise",
-            "begin"
+            "begin",
+            "fall",
+            "perish"
           ]
         },
         {
@@ -14053,7 +16369,9 @@ const NKJV_TABLETS = {
           "d": [
             "grace",
             "truth",
-            "spirit"
+            "spirit",
+            "faith",
+            "word"
           ]
         },
         {
@@ -14064,7 +16382,9 @@ const NKJV_TABLETS = {
           "d": [
             "tribulation",
             "affliction",
-            "loss"
+            "loss",
+            "shame",
+            "death"
           ]
         },
         {
@@ -14075,7 +16395,9 @@ const NKJV_TABLETS = {
           "d": [
             "taught",
             "persuaded",
-            "instructed"
+            "instructed",
+            "warned",
+            "moved"
           ]
         },
         {
@@ -14086,7 +16408,9 @@ const NKJV_TABLETS = {
           "d": [
             "life",
             "truth",
-            "godliness"
+            "godliness",
+            "righteousness",
+            "glory"
           ]
         },
         {
@@ -14097,7 +16421,9 @@ const NKJV_TABLETS = {
           "d": [
             "the Spirit",
             "heaven",
-            "the Lord"
+            "the Lord",
+            "man",
+            "Moses"
           ]
         },
         {
@@ -14108,7 +16434,9 @@ const NKJV_TABLETS = {
           "d": [
             "holiness",
             "truth",
-            "godliness"
+            "godliness",
+            "wisdom",
+            "faith"
           ]
         },
         {
@@ -14119,7 +16447,9 @@ const NKJV_TABLETS = {
           "d": [
             "holy",
             "clean",
-            "righteous"
+            "righteous",
+            "great",
+            "fair"
           ]
         }
       ]
@@ -14141,7 +16471,9 @@ const NKJV_TABLETS = {
           "d": [
             "gospel",
             "truth",
-            "law"
+            "law",
+            "faith",
+            "name"
           ]
         },
         {
@@ -14152,7 +16484,9 @@ const NKJV_TABLETS = {
           "d": [
             "apostle",
             "teacher",
-            "prophet"
+            "prophet",
+            "elder",
+            "merchant"
           ]
         },
         {
@@ -14163,7 +16497,9 @@ const NKJV_TABLETS = {
           "d": [
             "the door",
             "night",
-            "last"
+            "last",
+            "rest",
+            "need"
           ]
         },
         {
@@ -14174,7 +16510,9 @@ const NKJV_TABLETS = {
           "d": [
             "race",
             "work",
-            "path"
+            "path",
+            "the door",
+            "Most High"
           ]
         },
         {
@@ -14185,7 +16523,9 @@ const NKJV_TABLETS = {
           "d": [
             "commandment",
             "word",
-            "truth"
+            "truth",
+            "law",
+            "gospel"
           ]
         },
         {
@@ -14196,7 +16536,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "life",
-            "peace"
+            "peace",
+            "honour",
+            "gold"
           ]
         },
         {
@@ -14207,7 +16549,9 @@ const NKJV_TABLETS = {
           "d": [
             "coming",
             "name",
-            "glory"
+            "glory",
+            "kingdom",
+            "return"
           ]
         },
         {
@@ -14218,7 +16562,9 @@ const NKJV_TABLETS = {
           "d": [
             "habitation",
             "city",
-            "rest"
+            "rest",
+            "bread",
+            "garden"
           ]
         }
       ]
@@ -14240,7 +16586,9 @@ const NKJV_TABLETS = {
           "d": [
             "teaching",
             "words",
-            "truth"
+            "truth",
+            "faith",
+            "wisdom"
           ]
         },
         {
@@ -14251,7 +16599,9 @@ const NKJV_TABLETS = {
           "d": [
             "purity",
             "holiness",
-            "faith"
+            "faith",
+            "So those that entered",
+            "razor has ever come"
           ]
         },
         {
@@ -14262,7 +16612,9 @@ const NKJV_TABLETS = {
           "d": [
             "nations",
             "sinners",
-            "peoples"
+            "peoples",
+            "saints",
+            "angels"
           ]
         },
         {
@@ -14272,7 +16624,10 @@ const NKJV_TABLETS = {
           "suffix": ",",
           "d": [
             "life",
-            "generation"
+            "generation",
+            "season",
+            "hour",
+            "words"
           ]
         },
         {
@@ -14283,7 +16638,9 @@ const NKJV_TABLETS = {
           "d": [
             "coming",
             "revelation",
-            "day"
+            "day",
+            "kingdom",
+            "brightness"
           ]
         },
         {
@@ -14294,7 +16651,9 @@ const NKJV_TABLETS = {
           "d": [
             "sin",
             "evil",
-            "unrighteousness"
+            "unrighteousness",
+            "steadfast forever; His kingdom is",
+            "Helper, that He may abide"
           ]
         },
         {
@@ -14305,7 +16664,9 @@ const NKJV_TABLETS = {
           "d": [
             "deeds",
             "fruits",
-            "ways"
+            "ways",
+            "words",
+            "things"
           ]
         },
         {
@@ -14316,7 +16677,9 @@ const NKJV_TABLETS = {
           "d": [
             "judge",
             "hinder",
-            "mock"
+            "mock",
+            "forsake",
+            "forget"
           ]
         }
       ]
@@ -14338,7 +16701,9 @@ const NKJV_TABLETS = {
           "d": [
             "angels",
             "scribes",
-            "priests"
+            "priests",
+            "kings",
+            "elders"
           ]
         },
         {
@@ -14349,7 +16714,9 @@ const NKJV_TABLETS = {
           "d": [
             "Word",
             "Servant",
-            "Spirit"
+            "Spirit",
+            "Father",
+            "Angel"
           ]
         },
         {
@@ -14360,7 +16727,9 @@ const NKJV_TABLETS = {
           "d": [
             "substance",
             "presence",
-            "nature"
+            "nature",
+            "face",
+            "form"
           ]
         },
         {
@@ -14371,7 +16740,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "the throne",
-            "heaven"
+            "heaven",
+            "earth",
+            "Zion"
           ]
         },
         {
@@ -14382,7 +16753,9 @@ const NKJV_TABLETS = {
           "d": [
             "holiness",
             "peace",
-            "truth"
+            "truth",
+            "power",
+            "glory"
           ]
         },
         {
@@ -14393,7 +16766,9 @@ const NKJV_TABLETS = {
           "d": [
             "sin",
             "wickedness",
-            "evil"
+            "evil",
+            "wrong",
+            "folly"
           ]
         },
         {
@@ -14404,7 +16779,9 @@ const NKJV_TABLETS = {
           "d": [
             "eternal",
             "Lord",
-            "first"
+            "first",
+            "last",
+            "true"
           ]
         },
         {
@@ -14415,7 +16792,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "the kingdom",
-            "life"
+            "life",
+            "rest",
+            "wrath"
           ]
         }
       ]
@@ -14437,7 +16816,9 @@ const NKJV_TABLETS = {
           "d": [
             "saints",
             "angels",
-            "holy ones"
+            "holy ones",
+            "locusts",
+            "ashes"
           ]
         },
         {
@@ -14448,7 +16829,9 @@ const NKJV_TABLETS = {
           "d": [
             "snare",
             "bind",
-            "hinder"
+            "hinder",
+            "tempt",
+            "trouble"
           ]
         },
         {
@@ -14459,7 +16842,9 @@ const NKJV_TABLETS = {
           "d": [
             "salvation",
             "hope",
-            "course"
+            "course",
+            "peace",
+            "race"
           ]
         },
         {
@@ -14470,7 +16855,9 @@ const NKJV_TABLETS = {
           "d": [
             "pain",
             "sorrow",
-            "reproach"
+            "reproach",
+            "death",
+            "glory"
           ]
         },
         {
@@ -14481,7 +16868,9 @@ const NKJV_TABLETS = {
           "d": [
             "righteousness",
             "purity",
-            "love"
+            "love",
+            "mercy",
+            "grace"
           ]
         },
         {
@@ -14492,7 +16881,9 @@ const NKJV_TABLETS = {
           "d": [
             "Sinai",
             "Moriah",
-            "Horeb"
+            "Horeb",
+            "Carmel",
+            "Olivet"
           ]
         },
         {
@@ -14502,7 +16893,10 @@ const NKJV_TABLETS = {
           "suffix": ", let us have grace, by which we may serve God acceptably with reverence and godly fear.",
           "d": [
             "broken",
-            "destroyed"
+            "destroyed",
+            "forsaken",
+            "bought",
+            "saints"
           ]
         },
         {
@@ -14513,7 +16907,9 @@ const NKJV_TABLETS = {
           "d": [
             "flame",
             "judge",
-            "light"
+            "light",
+            "wrath",
+            "judgment"
           ]
         }
       ]
@@ -14535,7 +16931,9 @@ const NKJV_TABLETS = {
           "d": [
             "just",
             "wise",
-            "holy"
+            "holy",
+            "godly",
+            "good"
           ]
         },
         {
@@ -14546,7 +16944,9 @@ const NKJV_TABLETS = {
           "d": [
             "mouth",
             "word",
-            "lip"
+            "lip",
+            "heart",
+            "hand"
           ]
         },
         {
@@ -14557,7 +16957,9 @@ const NKJV_TABLETS = {
           "d": [
             "flame",
             "spark",
-            "sword"
+            "sword",
+            "spring",
+            "stream"
           ]
         },
         {
@@ -14568,7 +16970,9 @@ const NKJV_TABLETS = {
           "d": [
             "bitterness",
             "venom",
-            "deceit"
+            "deceit",
+            "sting",
+            "malice"
           ]
         },
         {
@@ -14579,7 +16983,9 @@ const NKJV_TABLETS = {
           "d": [
             "wrath",
             "evil",
-            "bitterness"
+            "bitterness",
+            "praise",
+            "thanks"
           ]
         },
         {
@@ -14590,7 +16996,9 @@ const NKJV_TABLETS = {
           "d": [
             "knowledge",
             "heart",
-            "truth"
+            "truth",
+            "faith",
+            "love"
           ]
         },
         {
@@ -14601,7 +17009,9 @@ const NKJV_TABLETS = {
           "d": [
             "holy",
             "clean",
-            "righteous"
+            "righteous",
+            "meek",
+            "wise"
           ]
         },
         {
@@ -14612,7 +17022,9 @@ const NKJV_TABLETS = {
           "d": [
             "love",
             "joy",
-            "truth"
+            "truth",
+            "hope",
+            "grace"
           ]
         }
       ]
@@ -14634,7 +17046,9 @@ const NKJV_TABLETS = {
           "d": [
             "faith",
             "life",
-            "peace"
+            "peace",
+            "inheritance",
+            "joy"
           ]
         },
         {
@@ -14645,7 +17059,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "light",
-            "eternity"
+            "eternity",
+            "hope",
+            "earth"
           ]
         },
         {
@@ -14656,7 +17072,9 @@ const NKJV_TABLETS = {
           "d": [
             "silver",
             "rubies",
-            "pearls"
+            "pearls",
+            "wood",
+            "stone"
           ]
         },
         {
@@ -14667,7 +17085,9 @@ const NKJV_TABLETS = {
           "d": [
             "trust",
             "seek",
-            "praise"
+            "praise",
+            "know",
+            "fear"
           ]
         },
         {
@@ -14678,7 +17098,9 @@ const NKJV_TABLETS = {
           "d": [
             "pure",
             "clean",
-            "righteous"
+            "righteous",
+            "perfect",
+            "good"
           ]
         },
         {
@@ -14689,7 +17111,9 @@ const NKJV_TABLETS = {
           "d": [
             "rubies",
             "jewels",
-            "pearls"
+            "pearls",
+            "brass",
+            "iron"
           ]
         },
         {
@@ -14700,7 +17124,9 @@ const NKJV_TABLETS = {
           "d": [
             "sin",
             "fault",
-            "wrinkle"
+            "wrinkle",
+            "blot",
+            "shame"
           ]
         },
         {
@@ -14711,7 +17137,9 @@ const NKJV_TABLETS = {
           "d": [
             "ages",
             "all generations",
-            "all time"
+            "all time",
+            "Most High",
+            "truth's sake"
           ]
         }
       ]
@@ -14733,7 +17161,9 @@ const NKJV_TABLETS = {
           "d": [
             "live",
             "stand",
-            "prosper"
+            "prosper",
+            "feed",
+            "rejoice"
           ]
         },
         {
@@ -14744,7 +17174,9 @@ const NKJV_TABLETS = {
           "d": [
             "rock",
             "pillar",
-            "temple"
+            "temple",
+            "altar",
+            "tree"
           ]
         },
         {
@@ -14755,7 +17187,9 @@ const NKJV_TABLETS = {
           "d": [
             "temple",
             "sanctuary",
-            "building"
+            "building",
+            "altar",
+            "city"
           ]
         },
         {
@@ -14766,7 +17200,9 @@ const NKJV_TABLETS = {
           "d": [
             "ashamed",
             "moved",
-            "shaken"
+            "shaken",
+            "your dwelling place",
+            "not comprehend it"
           ]
         },
         {
@@ -14777,7 +17213,9 @@ const NKJV_TABLETS = {
           "d": [
             "house",
             "kingdom",
-            "family"
+            "family",
+            "race",
+            "crown"
           ]
         },
         {
@@ -14788,7 +17226,9 @@ const NKJV_TABLETS = {
           "d": [
             "glory",
             "day",
-            "kingdom"
+            "kingdom",
+            "love",
+            "power"
           ]
         },
         {
@@ -14799,7 +17239,9 @@ const NKJV_TABLETS = {
           "d": [
             "cross",
             "wood",
-            "mount"
+            "mount",
+            "altar",
+            "beam"
           ]
         },
         {
@@ -14810,7 +17252,9 @@ const NKJV_TABLETS = {
           "d": [
             "saved",
             "cleansed",
-            "redeemed"
+            "redeemed",
+            "bound",
+            "slain"
           ]
         }
       ]
@@ -14832,7 +17276,9 @@ const NKJV_TABLETS = {
           "d": [
             "days",
             "ages",
-            "generations"
+            "generations",
+            "nights",
+            "months"
           ]
         },
         {
@@ -14843,7 +17289,9 @@ const NKJV_TABLETS = {
           "d": [
             "patient",
             "merciful",
-            "gracious"
+            "gracious",
+            "faithful",
+            "kind"
           ]
         },
         {
@@ -14854,7 +17302,9 @@ const NKJV_TABLETS = {
           "d": [
             "life",
             "faith",
-            "salvation"
+            "salvation",
+            "light",
+            "judgment"
           ]
         },
         {
@@ -14865,7 +17315,9 @@ const NKJV_TABLETS = {
           "d": [
             "snare",
             "storm",
-            "flame"
+            "flame",
+            "flood",
+            "whirlwind"
           ]
         },
         {
@@ -14876,7 +17328,9 @@ const NKJV_TABLETS = {
           "d": [
             "fire",
             "flame",
-            "wrath"
+            "wrath",
+            "zeal",
+            "love"
           ]
         },
         {
@@ -14887,7 +17341,9 @@ const NKJV_TABLETS = {
           "d": [
             "Jerusalem",
             "Zion",
-            "creation"
+            "creation",
+            "city",
+            "heart"
           ]
         },
         {
@@ -14898,7 +17354,9 @@ const NKJV_TABLETS = {
           "d": [
             "holy",
             "pure",
-            "clean"
+            "clean",
+            "merciful",
+            "patient"
           ]
         },
         {
@@ -14909,7 +17367,9 @@ const NKJV_TABLETS = {
           "d": [
             "the King",
             "the Lord",
-            "our God"
+            "our God",
+            "Master",
+            "Prophet"
           ]
         }
       ]
@@ -14931,7 +17391,9 @@ const NKJV_TABLETS = {
           "d": [
             "truth",
             "God",
-            "glory"
+            "glory",
+            "grace",
+            "power"
           ]
         },
         {
@@ -14942,7 +17404,9 @@ const NKJV_TABLETS = {
           "d": [
             "the Lord",
             "our Saviour",
-            "the King"
+            "the King",
+            "Master",
+            "Prophet"
           ]
         },
         {
@@ -14953,7 +17417,9 @@ const NKJV_TABLETS = {
           "d": [
             "great",
             "complete",
-            "abundant"
+            "abundant",
+            "strong",
+            "sure"
           ]
         },
         {
@@ -14964,7 +17430,9 @@ const NKJV_TABLETS = {
           "d": [
             "love",
             "truth",
-            "holy"
+            "holy",
+            "spirit",
+            "fire"
           ]
         },
         {
@@ -14975,7 +17443,9 @@ const NKJV_TABLETS = {
           "d": [
             "iniquity",
             "unrighteousness",
-            "evil"
+            "evil",
+            "trouble",
+            "shame"
           ]
         },
         {
@@ -14986,7 +17456,9 @@ const NKJV_TABLETS = {
           "d": [
             "our hearts",
             "them",
-            "me"
+            "me",
+            "him",
+            "you"
           ]
         },
         {
@@ -14997,7 +17469,9 @@ const NKJV_TABLETS = {
           "d": [
             "iniquity",
             "evil",
-            "fault"
+            "fault",
+            "pride",
+            "folly"
           ]
         },
         {
@@ -15008,7 +17482,9 @@ const NKJV_TABLETS = {
           "d": [
             "our soul",
             "our mouth",
-            "them"
+            "them",
+            "you",
+            "me"
           ]
         }
       ]
@@ -15030,7 +17506,9 @@ const NKJV_TABLETS = {
           "d": [
             "King",
             "Lord",
-            "Father"
+            "Father",
+            "Shepherd",
+            "Prophet"
           ]
         },
         {
@@ -15041,7 +17519,9 @@ const NKJV_TABLETS = {
           "d": [
             "peace",
             "healing",
-            "righteousness"
+            "righteousness",
+            "knowledge",
+            "wisdom"
           ]
         },
         {
@@ -15052,7 +17532,9 @@ const NKJV_TABLETS = {
           "d": [
             "blessing",
             "salvation",
-            "health"
+            "health",
+            "food",
+            "shade"
           ]
         },
         {
@@ -15063,7 +17545,9 @@ const NKJV_TABLETS = {
           "d": [
             "sorrow",
             "death",
-            "crying"
+            "crying",
+            "pain",
+            "night"
           ]
         },
         {
@@ -15074,7 +17558,9 @@ const NKJV_TABLETS = {
           "d": [
             "seal",
             "mark",
-            "glory"
+            "glory",
+            "image",
+            "sign"
           ]
         },
         {
@@ -15085,7 +17571,9 @@ const NKJV_TABLETS = {
           "d": [
             "words",
             "covenant",
-            "law"
+            "law",
+            "vision",
+            "epistle"
           ]
         },
         {
@@ -15096,7 +17584,9 @@ const NKJV_TABLETS = {
           "d": [
             "eternal",
             "almighty",
-            "finisher"
+            "finisher",
+            "same",
+            "great"
           ]
         },
         {
@@ -15107,7 +17597,9 @@ const NKJV_TABLETS = {
           "d": [
             "Christ",
             "God",
-            "King"
+            "King",
+            "Master",
+            "Prophet"
           ]
         }
       ]

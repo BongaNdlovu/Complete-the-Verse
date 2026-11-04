@@ -42,6 +42,14 @@ data class TabletRecord(
     val held: Boolean = false,
 )
 
+/* S1: the six speed tiers shared with the web build. */
+data class TabletSpeedTier(
+    val id: String,
+    val label: String,
+    val base: Double,
+    val mult: Double,
+)
+
 data class TabletsBank(
     val blankS: Int,
     val holdsToOpen: Int,
@@ -89,6 +97,11 @@ object TabletsRules {
     private const val ROUND_TO = 5.0
     private const val PUSHBACK = 0.45
     private const val PUSHBACK_FLOOR = 0.12
+    private const val RAMP_PER_BLANK = 0.014
+    private const val RAMP_PER_STREAK = 0.011
+    private const val RAMP_CAP = 0.3
+    private const val GOLDEN_PACE = 0.9
+    private const val MIN_BLANK_S = 1.55
     private const val CHARGE_MAX = 3
     private const val WINNOW_EVERY = 5
     private const val ILLUM_EVERY = 10
@@ -161,6 +174,12 @@ object TabletsRules {
         return Miss(next, false, maxOf(PUSHBACK_FLOOR, progress - PUSHBACK))
     }
 
+    /* S1: the sand is the speed's base, ramped by the words carved and the streak. */
+    fun blankSeconds(base: Double, blankIdx: Int, streak: Int, golden: Boolean = false): Double {
+        val ramp = minOf(RAMP_CAP, blankIdx * RAMP_PER_BLANK + streak * RAMP_PER_STREAK)
+        return maxOf(MIN_BLANK_S, base * (1.0 - ramp) * (if (golden) GOLDEN_PACE else 1.0))
+    }
+
     /* Winnow comes back every WINNOW_EVERY streak, Illuminate every ILLUM_EVERY and on a milestone, never above CHARGE_MAX. */
     fun recharge(winnow: Int, illum: Int, streak: Int, milestone: Milestone?): Recharge {
         var w = winnow
@@ -185,6 +204,21 @@ object Tablets {
     const val LIVES = 3
     const val HIT_HOLD_MS = 1_000L
     const val MISS_HOLD_MS = 800L
+    const val DEFAULT_SPEED = "normal"
+
+    val SPEEDS = listOf(
+        TabletSpeedTier("meditative", "0.5×", 11.5, 0.75),
+        TabletSpeedTier("slow", "0.75×", 8.8, 0.9),
+        TabletSpeedTier("normal", "1.0×", 6.5, 1.0),
+        TabletSpeedTier("fast", "1.5×", 4.5, 1.35),
+        TabletSpeedTier("inferno", "2.0×", 3.2, 1.75),
+        TabletSpeedTier("seraphim", "3.0×", 2.3, 2.5),
+    )
+
+    fun speed(id: String?): TabletSpeedTier = SPEEDS.firstOrNull { it.id == id } ?: SPEEDS[2]
+
+    /* S1: the web clock no longer reads blankS; the six speed tiers own it. */
+    fun clockSeconds(speedId: String? = null): Double = speed(speedId).base
 
     val LEVEL_NAME = listOf("I", "II", "III")
 
@@ -222,17 +256,12 @@ object Tablets {
 
     fun pickLevel(ch: TabletChapter?): Int = paceOf(ch)
 
-    fun clockS(bank: TabletsBank? = null, pace: Int? = null): Int {
-        if (pace != null) return bank?.blankS ?: BLANK_S
-        return bank?.blankS ?: BLANK_S
-    }
+    fun clockS(bank: TabletsBank? = null, pace: Int? = null): Double = clockSeconds(null)
 
     fun levelName(level: Int): String = LEVEL_NAME.getOrElse(clampLevel(level) - 1) { "I" }
 
-    fun gapCount(tutorial: Boolean, level: Int): Int {
-        if (tutorial) return 1
-        return (level + 1).coerceIn(1, 4)
-    }
+    /* S1: one blank per step. The pace still names the chapter, not the tray size. */
+    fun gapCount(tutorial: Boolean, level: Int): Int = 1
 
     fun buildSteps(ch: TabletChapter, k: Int): List<List<TabletBlank>> {
         val size = k.coerceAtLeast(1)

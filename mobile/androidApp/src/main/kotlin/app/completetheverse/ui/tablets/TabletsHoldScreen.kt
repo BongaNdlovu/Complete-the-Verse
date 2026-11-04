@@ -83,6 +83,7 @@ fun TabletsHoldScreen(
     remainingMs: Long,
     durationMs: Long,
     untimed: Boolean,
+    speedLabel: String,
     tutorial: Boolean,
     tutorialPrompt: String,
     favor: Int,
@@ -100,6 +101,7 @@ fun TabletsHoldScreen(
     onIlluminate: () -> Unit,
     onWinnow: () -> Unit,
     onPause: () -> Unit,
+    onSpeed: () -> Unit,
     onResume: () -> Unit,
     onAbandonRequest: () -> Unit,
     onStay: () -> Unit,
@@ -161,10 +163,12 @@ fun TabletsHoldScreen(
                 crit = crit,
                 frac = frac,
                 untimed = untimed,
+                speedLabel = speedLabel,
                 lamps = lamps,
                 favor = favor,
                 streak = streak,
                 onPause = onPause,
+                onSpeed = onSpeed,
             )
             Text(
                 text = hitLine.ifEmpty { " " },
@@ -275,10 +279,12 @@ private fun HoldHeader(
     crit: Boolean,
     frac: Float,
     untimed: Boolean,
+    speedLabel: String,
     lamps: Int,
     favor: Int,
     streak: Int,
     onPause: () -> Unit,
+    onSpeed: () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().widthIn(max = 720.dp)) {
         Row(
@@ -286,7 +292,10 @@ private fun HoldHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            GhostButton("Pause", onClick = onPause, small = true)
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                GhostButton("Pause", onClick = onPause, small = true)
+                GhostButton(speedLabel, onClick = onSpeed, small = true)
+            }
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
                 Text(
                     text = chapter.name.uppercase(),
