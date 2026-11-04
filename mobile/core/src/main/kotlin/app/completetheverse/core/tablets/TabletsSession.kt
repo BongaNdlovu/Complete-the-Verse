@@ -15,6 +15,7 @@ data class TabletsConfig(
     val save: SaveBlob = Save.DEFAULT,
     val tutorial: Boolean? = null,
     val untimed: Boolean = false,
+    val speedId: String? = null,
     val persist: PlayPersister? = null,
     val rng: (() -> Double)? = null,
     val nowMs: () -> Long = { System.currentTimeMillis() },
@@ -101,9 +102,12 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
 
     val chapter: TabletChapter = Tablets.chapter(config.bank, config.chapterId)
     val tutorial: Boolean = config.tutorial ?: (chapter.tutorial || chapter.id == "prayer")
-    val untimed: Boolean = config.untimed || tutorial
+    /* S1: only reduced motion stops the sand; the tutorial is timed and refills. */
+    val untimed: Boolean = config.untimed
+    var speed: TabletSpeedTier = if (tutorial) Tablets.speed("meditative") else Tablets.speed(config.speedId)
+        private set
     val tabletLevel: Int = if (tutorial) 1 else Tablets.pickLevel(chapter)
-    val steps: List<List<TabletBlank>> = Tablets.buildSteps(chapter, Tablets.gapCount(tutorial, tabletLevel))
+    val steps: List<List<TabletBlank>> = Tablets.buildSteps(chapter, 1)
     val tabletTotal: Int = steps.size
     val bank: TabletsBank get() = config.bank
 
@@ -150,6 +154,17 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
         if (ok) resolveHit() else resolveMiss()
     }
 
+    /* S1: the speed changes live; only the time left rescales, the line keeps its place. */
+    fun setSpeed(id: String) {
+        if (ended || tutorial || phase != TabletsPhase.Playing && phase != TabletsPhase.Paused) return
+        val next = Tablets.speed(id)
+        if (next.id == speed.id) return
+        val oldMax = tabletClockMax.coerceAtLeast(0.001)
+        speed = next
+        tabletClockMax = TabletsRules.blankSeconds(Tablets.clockSeconds(next.id), correct, streak)
+        tabletClock = (tabletClock * tabletClockMax / oldMax).coerceAtMost(tabletClockMax)
+    }
+
     fun finishResolve() {
         if (ended || !resolving) return
         resolving = false
@@ -176,15 +191,29 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
             return
         }
         resetAids()
-        if (!untimed) tabletClock = tabletClockMax
+        if (!untimed) {
+            tabletClockMax = TabletsRules.blankSeconds(Tablets.clockSeconds(speed.id), correct, streak)
+            tabletClock = tabletClockMax
+        }
     }
 
     fun tick(dt: Double) {
         if (ended || phase != TabletsPhase.Playing || resolving || untimed) return
         tabletClock = (tabletClock - dt).coerceAtLeast(0.0)
         if (tabletClock > 0.0) return
-        tabletTimeout = true
-        finish(timeout = true, abandoned = false)
+        if (tutorial) {
+            tabletClock = tabletClockMax
+            return
+        }
+        val m = TabletsRules.miss(lampsLeft, 1.0)
+        if (m.ended) {
+            tabletTimeout = true
+            finish(timeout = true, abandoned = false)
+            return
+        }
+        tabletMiss = tabletLives - m.lit
+        tabletClock = tabletClockMax * (1.0 - m.progress)
+        streak = 0
     }
 
     fun tickTo(nowMs: Long) {
@@ -267,7 +296,7 @@ class TabletsSession private constructor(private val config: TabletsConfig) {
         tabletMiss = 0
         tabletLives = Tablets.LIVES
         lampOut = false
-        tabletClockMax = Tablets.clockS(config.bank).toDouble()
+        tabletClockMax = Tablets.clockSeconds(speed.id)
         tabletClock = tabletClockMax
         tabletTimeout = false
         resolving = false

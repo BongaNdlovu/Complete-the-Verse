@@ -73,6 +73,10 @@ class TabletsViewModel : ViewModel() {
         private set
     var untimed by mutableStateOf(false)
         private set
+    var speedId by mutableStateOf(Tablets.DEFAULT_SPEED)
+        private set
+    var speedLabel by mutableStateOf(Tablets.speed(null).label)
+        private set
     var tutorial by mutableStateOf(false)
         private set
     var tutorialPrompt by mutableStateOf("")
@@ -171,7 +175,7 @@ class TabletsViewModel : ViewModel() {
         val wantTut = tutorial == true || chapterId == "prayer" || Tablets.chapter(bank, chapterId).tutorial
         chapter = Tablets.chapter(bank, chapterId)
         this.tutorial = wantTut
-        untimed = reduced || wantTut
+        untimed = reduced
         uiPhase = TabletsUiPhase.Hold
         result = null
         pausedByHide = false
@@ -184,7 +188,8 @@ class TabletsViewModel : ViewModel() {
                 chapterId = chapterId,
                 save = loaded,
                 tutorial = wantTut,
-                untimed = reduced || wantTut,
+                untimed = reduced,
+                speedId = speedId,
                 persist = PlayPersister { blob -> saves.persistAsync(blob) },
                 rng = { Random.nextDouble() },
                 nowMs = { SystemClock.elapsedRealtime() },
@@ -195,6 +200,16 @@ class TabletsViewModel : ViewModel() {
         token++
         publish()
         saves.persistAsync(loaded)
+    }
+
+    /* S1: cycle the six speed tiers; the session rescales the live clock. */
+    fun cycleSpeed() {
+        val at = Tablets.SPEEDS.indexOfFirst { it.id == speedId }.coerceAtLeast(0)
+        val next = Tablets.SPEEDS[(at + 1) % Tablets.SPEEDS.size]
+        speedId = next.id
+        speedLabel = next.label
+        session?.setSpeed(next.id)
+        publish()
     }
 
     fun pick(word: String) {
@@ -340,6 +355,8 @@ class TabletsViewModel : ViewModel() {
         remainingMs = s.remainingMs()
         durationMs = (s.tabletClockMax * 1000).toLong()
         untimed = s.untimed
+        speedId = s.speed.id
+        speedLabel = s.speed.label
         tutorial = s.tutorial
         tutorialPrompt = if (s.tutorial) Tablets.tutorialPrompt(s.tabletIdx) else ""
         favor = s.favor
