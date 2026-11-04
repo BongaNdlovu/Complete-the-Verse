@@ -2,7 +2,12 @@ function tabletsReduced(){
   return !!(document.body && (document.body.classList.contains("reduced") || document.body.classList.contains("motion-calm")));
 }
 function tabletsUntimed(){
-  return tabletsReduced() || !!(typeof R !== "undefined" && R && R.tabletTutorial);
+  /* S1: only reduced motion stops the sand; the tutorial runs at the slowest speed. */
+  return tabletsReduced();
+}
+/* S1: the tutorial and reduced motion stay calm: no danger red, no combo blaze, no seal smoke. */
+function tabletsQuiet(){
+  return tabletsUntimed() || !!(typeof R !== "undefined" && R && R.tabletTutorial);
 }
 function stopTabletsLoop(){
   if(typeof R === "undefined" || !R) return;
@@ -20,9 +25,16 @@ function tabletsPct(){
   const total = R.tabletTotal || 1;
   return Math.round(((R.tabletIdx || 0) / total) * 100);
 }
+/* S1: the tutorial always runs at the slowest speed; a run uses the saved speed (1.0x by default). */
+function tabletsSpeedId(){
+  if(typeof R !== "undefined" && R && R.tabletTutorial) return "meditative";
+  return (typeof SAVE !== "undefined" && SAVE.set && SAVE.set.tabletSpeed) || "normal";
+}
+function tabletsSpeed(){
+  return Tablets.rules.speed(tabletsSpeedId());
+}
 function tabletsClockMax(){
-  if(typeof Tablets !== "undefined" && Tablets.clockS) return Tablets.clockS();
-  return 25;
+  return Tablets.clockS(tabletsSpeedId());
 }
 /* O2: the tier names stay as the streak label; the multiplier beside them is
    the carve's combo, because that is what the Favor is really multiplied by. */
@@ -44,7 +56,7 @@ function paintTabletsClock(){
   if(fill){
     fill.style.width = (Math.min(100, Math.max(0, left) * 100)) + "%";
     fill.classList.toggle("banked", left > 1 && !tabletsUntimed());
-    fill.classList.toggle("urgent", (R.tabletClock || 0) <= 6 && !tabletsUntimed());
+    fill.classList.toggle("urgent", tabletsDangerLevel() > 0);
   }
   if(lab){
     if(tabletsUntimed()) lab.textContent = "Untimed Hold";
@@ -52,9 +64,9 @@ function paintTabletsClock(){
   }
   tabletsPaintRise();
   const slotEl = $("tablets-slot");
-  if(slotEl) slotEl.classList.toggle("urgent", tabletsDangerLevel() > 0.5 && !tabletsUntimed());
+  if(slotEl) slotEl.classList.toggle("urgent", tabletsDangerLevel() > 0.5);
 }
-/* V1: the verse card rises as the sand runs; untimed (tutorial, reduced motion) pins it at The Mark. */
+/* V1: the verse card rises as the sand runs; reduced motion pins it at The Mark. */
 function tabletsRiseOf(){
   if(tabletsUntimed()) return 1;
   return Tablets.rules.progressOf(R.tabletClock, R.tabletClockMax || tabletsClockMax() || 1);
@@ -62,7 +74,7 @@ function tabletsRiseOf(){
 /* C: the room reddens as the active blank nears The Mark — 0 on fresh sand,
    1 at the mark; the tutorial and reduced motion never redden. */
 function tabletsDangerLevel(){
-  if(tabletsUntimed()) return 0;
+  if(tabletsQuiet()) return 0;
   const rise = tabletsRiseOf();
   return Math.max(0, Math.min(1, (rise - 0.7) / 0.3));
 }
@@ -99,7 +111,7 @@ function tabletsActiveLineTop(verse){
   const line = verse.children ? verse.children[R.gapIdx || 0] : null;
   return (verse.offsetTop || 0) + ((line && line.offsetTop) || 0);
 }
-/* R1: untimed (tutorial, reduced motion) and a freshly painted step jump; otherwise the sheet eases toward its target. */
+/* R1: reduced motion and a freshly painted step jump; otherwise the sheet eases toward its target. */
 function tabletsRollFrame(){
   const win = $("tablets-roll"), sheet = $("tablets-sheet"), verse = $("tablets-verse");
   if(!win || !sheet || !verse) return;
@@ -317,14 +329,14 @@ function paintTabletsCombo(){
   const bit = $("tablets-combo-fill");
   if(bit) bit.style.width = (fill * 100) + "%";
   if(!bar) return;
-  const quiet = tabletsUntimed();
+  const quiet = tabletsQuiet();
   bar.classList.toggle("warm", !quiet && fill >= 0.5);
   bar.classList.toggle("blaze", !quiet && fill >= 1);
 }
 /* G2: the multiplier pops for 420 ms when a carve climbs the combo; asleep in the tutorial and under reduced motion. */
 function tabletsPopMult(){
   const el = $("tablets-mult");
-  if(!el || tabletsUntimed()) return;
+  if(!el || tabletsQuiet()) return;
   el.classList.remove("pop");
   if(el.offsetWidth !== undefined) void el.offsetWidth;
   el.classList.add("pop");
@@ -347,7 +359,7 @@ function tabletsComboBreak(oldStreak){
   if(R.tabletTutorial || oldStreak < 2) return;
   tabletsPlayWith(function(bus){ tabletsBlip(bus, "sine", 110, 0.22, 0.09, 70); });
   const bar = $("tablets-combo");
-  if(!bar || tabletsUntimed()) return;
+  if(!bar || tabletsQuiet()) return;
   bar.classList.remove("broke");
   if(bar.offsetWidth !== undefined) void bar.offsetWidth;
   bar.classList.add("broke");
@@ -391,7 +403,7 @@ function tabletsHoldFinale(){
   tabletsPlayWith(function(bus){
     [523.25, 659.25, 783.99, 1046.5].forEach(function(f, i){ tabletsBlip(bus, "sine", f, 1.4, 0.07, 0, i * 0.06); });
   });
-  if(tabletsUntimed()) return;
+  if(tabletsQuiet()) return;
   R.tabletGlory = true;
   paintTabletsPowers();
   clearTimeout(R.tabletGloryTimer);
@@ -416,7 +428,7 @@ function paintTabletsTutorialCallout(){
       ? "Tap FATHER below"
       : "Tap FATHER below, or type the word (1–6 picks)",
     "The word flies into the carved slot",
-    "In the true Hold the sand runs; here it stands still",
+    "Here the sand runs slow and costs no lamp",
     "Illuminate carves the true word for you",
     "Winnow casts three false stones into shadow",
     "Three lamps guard a wrong word. The sand is the Hold",
@@ -427,14 +439,7 @@ function paintTabletsTutorialCallout(){
   callout.textContent = msg;
   callout.hidden = false;
 }
-/* Multi-gap steps: Pace I carves 2 words per stone-setting, Pace II carves
-   3, Pace III carves 4. Steps group consecutive blanks at run start, so all
-   144 authored chapters work unchanged. The prayer tutorial stays single-gap. */
-function tabletsGapCount(){
-  if(typeof R !== "undefined" && R && R.tabletTutorial) return 1;
-  const lvl = (typeof R !== "undefined" && R && R.tabletLevel) || 1;
-  return Math.min(4, Math.max(1, (lvl | 0) + 1));
-}
+/* S1: one blank at a time — every step holds a single verse line. */
 function tabletsBuildSteps(ch, k){
   const steps = [];
   const blanks = (ch && ch.blanks) || [];
@@ -683,6 +688,7 @@ function paintTabletsHud(){
   paintTabletsTutorialCallout();
   const paceEl = $("tablets-pace-tag");
   if(paceEl) paceEl.textContent = tabletsPaceLabel(Tablets.paceOf ? Tablets.paceOf(tabletsChapter()) : 1);
+  paintTabletsSpeed();
 }
 function tabletsOptsForBlank(){
   const blank = tabletsGapBlank();
@@ -697,7 +703,7 @@ function tabletsOptsForBlank(){
 function tabletsSealsMarkup(left, total){
   /* G3/G4: the smoke and the glow ride the seals; the tutorial and reduced motion never show them. */
   const run = (typeof R !== "undefined" && R) || {};
-  const quiet = tabletsUntimed();
+  const quiet = tabletsQuiet();
   return tabletsSealMarks(left, total, quiet ? -1 : run.tabletSnuffAt, !quiet && !!run.tabletGlory);
 }
 /* G3/G4: the seals' markup. The seal that just went dark smokes; the lit seals glow at the Hold's finish. */
@@ -1002,12 +1008,13 @@ function tabletsCarve(){
     streak: R.streak || 0,
     surge: !!R.surgeOn,
     typed: !!R.tabletTypedHit,
-    grade: R.tabletGrade || null
+    grade: R.tabletGrade || null,
+    paceMult: tabletsSpeed().mult
   });
 }
-/* O2: the carve's points are the Favor. Trial stays an outer 2.5x. */
+/* S1: the carve's points are the Favor; the speed's multiplier is already inside them. */
 function tabletsHitFavor(carve){
-  return Math.round((carve.points || 0) * (R.tabletTrial ? 2.5 : 1));
+  return carve.points || 0;
 }
 /* The popup names the grade, and the milestone when the carve reaches one
    (D4: a Favor popup, so the blessing banner stays the blessing's). The
@@ -1136,6 +1143,7 @@ function tabletsResetBlankAids(){
   R.tabletHintedIdx = -1;
   R.tabletWinnowIdx = -1;
   R.tabletHeartT = 0;
+  R.tabletWarned = false;
   R.tabletBlankStart = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
 }
 /* P3: the chapter's last step. Returns true when the run is over; an Endless run reads on instead. */
@@ -1170,13 +1178,10 @@ function tabletsFinishResolve(ok){
   }
   tabletsResetBlankAids();
   if(R.tabletIdx >= ((R && R.tabletSteps) || []).length && tabletsChapterDone()) return;
-  if(!R.tabletTutorial){
-    /* FX7: a banked Manna Jar adds its 15 s to the fresh sand, then the bank is spent. */
-    R.tabletClockMax = tabletsStepSeconds();
-    R.tabletClock = R.tabletClockMax + (R.tabletBankSand || 0);
-    R.tabletBankSand = 0;
-    R.tabletLastWarnSec = -1;
-  }
+  /* FX7: a banked Manna Jar adds its 15 s to the fresh sand, then the bank is spent. */
+  R.tabletClockMax = tabletsStepSeconds();
+  R.tabletClock = R.tabletClockMax + (R.tabletBankSand || 0);
+  R.tabletBankSand = 0;
   tabletsUnlockGrid();
   paintTabletsHud();
   paintTabletsTablet();
@@ -1185,16 +1190,18 @@ function tabletsFinishResolve(ok){
 function tabletsBurnSand(dt){
   /* FX1: the sand waits out a resolve window, so a Last grain is not lost to the hit's 1 s hold. */
   if(!R || R.ended || R.surgeOn || R.tabletResolving || tabletsUntimed()) return;
-  const rate = R.tabletTrial ? 1.35 : 1;
-  R.tabletClock = Math.max(0, (R.tabletClock || 0) - dt * rate);
-  const sec = Math.floor(R.tabletClock);
-  if(R.tabletClock <= 5 && sec !== R.tabletLastWarnSec){
-    R.tabletLastWarnSec = sec;
+  R.tabletClock = Math.max(0, (R.tabletClock || 0) - dt);
+  /* S1: one warning per blank as the line enters the danger band (the reference's 70%). */
+  if(tabletsDangerLevel() > 0 && !R.tabletWarned){
+    R.tabletWarned = true;
     tabletsPlayDangerWarn();
   }
   if(R.tabletClock > 0) return;
-  R.tabletTimeout = true;
-  if(typeof endRun === "function") endRun("death");
+  /* S1: the tutorial cannot fail; its sand refills. */
+  if(R.tabletTutorial){ R.tabletClock = R.tabletClockMax || tabletsClockMax(); return; }
+  /* S3: the line at The Mark is a miss (a lamp and the push back); only the last lamp, or Judgment, ends the run. */
+  tabletsResolve(false);
+  R.tabletTimeout = !!R.tabletLampOut;
 }
 function tabletsTickSurge(dt){
   if(!R.surgeOn) return;
@@ -1232,11 +1239,9 @@ function tabletsReadingName(n){
   const word = TABLET_READINGS[n - 1];
   return word ? word + " reading" : "Reading " + n;
 }
-/* P3: an Endless step's sand is ramped by the words carved so far (the rules' blankSeconds). */
+/* S1: every blank's sand is the speed's base, ramped by the words carved and the streak (the rules' blankSeconds). */
 function tabletsStepSeconds(){
-  const base = tabletsClockMax();
-  if(R.tabletMode !== "endless") return base;
-  return Tablets.rules.blankSeconds(base, R.correct || 0, R.streak || 0, false);
+  return Tablets.rules.blankSeconds(tabletsClockMax(), R.correct || 0, R.streak || 0, false);
 }
 /* P3: finishing a reading Holds the chapter; the same words come round again on shorter sand. */
 function tabletsNextReading(){
@@ -1265,7 +1270,7 @@ function startTabletsLoop(){
   const ch = tabletsChapter();
   R.tabletIdx = 0;
   R.gapIdx = 0;
-  R.tabletSteps = tabletsBuildSteps(ch, tabletsGapCount());
+  R.tabletSteps = tabletsBuildSteps(ch, 1);
   R.tabletClock = tabletsStepSeconds();
   R.tabletClockMax = R.tabletClock;
   R.tabletPass = 1;
@@ -1274,7 +1279,6 @@ function startTabletsLoop(){
   R.tabletRollY = 0;
   R.tabletEndlessHeld = false;
   R.tabletTimeout = false;
-  R.tabletLastWarnSec = -1;
   R.tabletMiss = 0;
   R.tabletLives = Tablets.rules.lampsFor(R.tabletMode);
   R.tabletLampOut = false;
@@ -1313,25 +1317,27 @@ function tabletsPulseSpeech(){
   clearTimeout(el._t);
   el._t = setTimeout(function(){ el.classList.remove("active"); el.hidden = true; }, 2000);
 }
-function tabletsApplyTrial(on){
-  if(typeof R !== "undefined" && R) R.tabletTrial = !!on;
-  const el = $("v-tablets");
-  if(el) el.classList.toggle("trial-mode", !!on);
-  const btn = $("tablets-trial");
-  if(btn){
-    btn.classList.toggle("on", !!on);
-    btn.textContent = on ? "Trial on" : "Trial";
-  }
+/* S1: the speed button cycles; [ and ] (or - and =) step slower or faster. The choice is saved; the tutorial keeps the slowest. */
+function paintTabletsSpeed(){
+  const btn = $("tablets-speed");
+  if(!btn) return;
+  btn.textContent = "Speed " + tabletsSpeed().label;
+  btn.disabled = !!(R && R.tabletTutorial);
 }
-function tabletsToggleTrial(){
-  if(!R || R.mode !== "tablets") return;
-  const on = !R.tabletTrial;
-  tabletsApplyTrial(on);
-  if(typeof SAVE !== "undefined" && SAVE.set){
-    SAVE.set.tabletTrial = on;
-    if(typeof persist === "function") persist();
-  }
-  if(typeof toast === "function") toast(on ? "Trial · sand runs faster, Favor is 2.5×" : "Trial off");
+function tabletsShiftSpeed(delta, wrap){
+  if(!R || R.ended || R.mode !== "tablets" || R.tabletTutorial) return;
+  const list = Tablets.rules.SPEEDS;
+  const at = list.indexOf(tabletsSpeed());
+  const next = wrap ? (at + delta + list.length) % list.length : Math.max(0, Math.min(list.length - 1, at + delta));
+  if(next === at) return;
+  const oldMax = R.tabletClockMax || tabletsClockMax();
+  SAVE.set.tabletSpeed = list[next].id;
+  if(typeof persist === "function") persist();
+  /* The blank keeps its place on the climb; only the time left rescales. */
+  R.tabletClockMax = tabletsStepSeconds();
+  R.tabletClock = (R.tabletClock || 0) * (R.tabletClockMax / oldMax);
+  paintTabletsSpeed();
+  if(typeof toast === "function") toast("Speed " + list[next].label + " · Favor ×" + list[next].mult);
 }
 function tabletsBindOnce(id, fn){
   const el = $(id);
@@ -1354,7 +1360,7 @@ function bindTabletsChrome(){
   tabletsBindOnce("tablets-winnow", tabletsWinnow);
   tabletsBindOnce("tablets-surge", tabletsSurge);
   tabletsBindOnce("tablets-theme", tabletsCycleStone);
-  tabletsBindOnce("tablets-trial", tabletsToggleTrial);
+  tabletsBindOnce("tablets-speed", function(){ tabletsShiftSpeed(1, true); });
   if(typeof window !== "undefined" && !window._tabletsKeys){
     window._tabletsKeys = true;
     window.addEventListener("keydown", tabletsOnKey);
@@ -1377,6 +1383,12 @@ function tabletsPowerKey(k){
   else if(k === "w") tabletsWinnow();
   else tabletsSurge();
   return true;
+}
+/* S1: the speed keys: [ or - slower, ] or = faster. Returns true when the key was theirs. */
+function tabletsSpeedKey(k){
+  if(k === "[" || k === "-"){ tabletsShiftSpeed(-1, false); return true; }
+  if(k === "]" || k === "="){ tabletsShiftSpeed(1, false); return true; }
+  return false;
 }
 /* A wrong letter is ignored. It is not a miss. 1-6 pick a tablet; letters
    type the word; Backspace takes the last letter back. */
@@ -1417,6 +1429,7 @@ function tabletsOnKey(e){
     return;
   }
   if(tabletsPowerKey(k)){ e.preventDefault(); return; }
+  if(tabletsSpeedKey(k)){ e.preventDefault(); return; }
   const n = parseInt(e.key, 10);
   if(n >= 1 && n <= 6){
     const btn = tabletsStoneButtons()[n - 1];
@@ -1436,7 +1449,6 @@ function tabletsSpeakStart(){
 function startTabletsStage(){
   bindTabletsChrome();
   tabletsApplyStone((typeof SAVE !== "undefined" && SAVE.set && SAVE.set.tabletStone) || "sandstone");
-  tabletsApplyTrial(!!(typeof SAVE !== "undefined" && SAVE.set && SAVE.set.tabletTrial));
   tabletsFxInit();
   const ch = tabletsChapter();
   const site = tabletsParentSite();
@@ -1671,8 +1683,8 @@ function drawTabletsFx(dt){
   const w = tabletsFx.w;
   const h = tabletsFx.h;
   ctx.clearRect(0, 0, w, h);
-  /* FX5: in the last 5 s the glyphs and embers rest; the danger wash and the sparks still draw and age. */
-  const late = typeof R !== "undefined" && R && typeof R.tabletClock === "number" && R.tabletClock <= 5 && !tabletsUntimed();
+  /* FX5: in the last 30% of the climb the glyphs and embers rest; the danger wash and the sparks still draw and age. */
+  const late = !!(typeof R !== "undefined" && R) && tabletsDangerLevel() > 0;
   if(!late) drawTabletsGlyphs(dt);
   drawTabletsDanger(ctx, w, h);
   (late ? [] : tabletsFx.embers).forEach(function(p){
@@ -1764,11 +1776,12 @@ if(typeof window !== "undefined"){
   window.tabletsBurnSand = tabletsBurnSand;
   window.tabletsSurge = tabletsSurge;
   window.tabletsCycleStone = tabletsCycleStone;
-  window.tabletsToggleTrial = tabletsToggleTrial;
+  window.tabletsShiftSpeed = tabletsShiftSpeed;
   window.tabletsRollBlessing = tabletsRollBlessing;
   window.tabletsTier = tabletsTier;
   window.paintTabletsHud = paintTabletsHud;
   window.paintTabletsTablet = paintTabletsTablet;
   window.paintTabletsStage = paintTabletsStage;
+  window.tabletsRiseOf = tabletsRiseOf;
   window.tabletsGreyWords = tabletsGreyWords;
 }

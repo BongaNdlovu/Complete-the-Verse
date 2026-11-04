@@ -598,14 +598,14 @@ function tabletsBriefChapter(ch){
   b.appendChild(sub);
   if(ch.tutorial){
     b.dataset.tutorial = "1";
-    sub.textContent = "Untimed · learn the Hold";
+    sub.textContent = "Slow sand · learn the Hold";
     return b;
   }
   const locked = !Tablets.unlocked(ch.id, SAVE);
   const rec = Tablets.recordOf(SAVE, ch.id);
   sub.textContent = locked
     ? (Tablets.unlockLabel ? Tablets.unlockLabel(ch.id, SAVE) : "Locked")
-    : (ch.blanks.length + " blanks · Pace " + (Tablets.levelName ? Tablets.levelName(ch.pace || 1) : ch.pace || 1) + " · " + ((Tablets.clockS && Tablets.clockS()) || 25) + "s");
+    : (ch.blanks.length + " blanks · Pace " + (Tablets.levelName ? Tablets.levelName(ch.pace || 1) : ch.pace || 1) + " · " + ((Tablets.clockS && Tablets.clockS(SAVE.set.tabletSpeed)) || 6.5) + "s");
   const best = document.createElement("i");
   best.className = "tablets-ch-best";
   best.textContent = locked ? "·" : (rec.best || 0) + "%";

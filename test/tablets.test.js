@@ -49,8 +49,9 @@ const p91 = Tablets.chapter("psalm91");
 eq("Psalm 23 has 11 blanks", p23.blanks.length, 11);
 eq("Psalm 91 has 17 blanks", p91.blanks.length, 17);
 eq("BLANK_S is 25", Tablets.BLANK_S, 25);
-eq("clockS is 25", Tablets.clockS(), 25);
-eq("clockS ignores pace", Tablets.clockS(3), 25);
+eq("clockS is 6.5 at 1.0x", Tablets.clockS(), 6.5);
+eq("clockS reads the seraphim base", Tablets.clockS("seraphim"), 2.3);
+eq("clockS maps an unknown speed to 1.0x", Tablets.clockS("nope"), 6.5);
 eq("Psalm 23 pace is 1", Tablets.paceOf(p23), 1);
 eq("Psalm 91 pace is 1", Tablets.paceOf(p91), 1);
 eq("John 1 pace is 1", Tablets.paceOf(Tablets.chapter("john1")), 1);
@@ -131,6 +132,13 @@ ok("short run is not Held", !Tablets.held({ tabletMiss:0, tabletIdx:4, tabletTot
   eq("half sand is progress 0.5", TR.progressOf(12.5, 25), 0.5);
   eq("extra sand clamps to 0", TR.progressOf(30, 25), 0);
   eq("no clock reads as spent", TR.progressOf(5, 0), 1);
+
+  eq("six speeds", TR.SPEEDS.length, 6);
+  eq("the speed bases run 11.5 to 2.3", TR.SPEEDS.map(function(s){ return s.base; }).join(","), "11.5,8.8,6.5,4.5,3.2,2.3");
+  eq("the speed multipliers run 0.75 to 2.5", TR.SPEEDS.map(function(s){ return s.mult; }).join(","), "0.75,0.9,1,1.35,1.75,2.5");
+  eq("every speed has a label and an id", TR.SPEEDS.every(function(s){ return !!s.id && !!s.label; }), true);
+  eq("an unknown speed reads 1.0x", TR.speed("x").id, "normal");
+  eq("a missing speed reads 1.0x", TR.speed().id, "normal");
 
   const first = TR.carve({ progress:0.1, streak:0 });
   eq("first divine carve is 150", first.points, 150);
@@ -225,12 +233,12 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   eq("no Selah or Wind", read(sb, "R.powers.selah + R.powers.wind"), 0);
   eq("chapter is Psalm 23", read(sb, "R.tabletChapter"), "psalm23");
   eq("starts on Pace I", read(sb, "R.tabletLevel"), 1);
-  eq("Psalm 23 paints 6 step pips", read(sb, "$('tablets-pips').children.length"), 6);
+  eq("Psalm 23 paints 11 step pips", read(sb, "$('tablets-pips').children.length"), 11);
   eq("91 still locked", read(sb, "Tablets.unlocked('psalm91', SAVE)"), false);
   stubRandom(sb, 0.9);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("a hit advances the gap", read(sb, "R.gapIdx"), 1);
-  eq("the step holds until every gap is carved", read(sb, "R.tabletIdx"), 0);
+  eq("a hit advances the blank", read(sb, "R.tabletIdx"), 1);
+  eq("the blank re-arms at the first gap", read(sb, "R.gapIdx"), 0);
   eq("the clock keeps racing after a hit", read(sb, "R.tabletRacing"), true);
   eq("resolving clears", read(sb, "!!R.tabletResolving"), false);
   holdAll(sb);
@@ -255,13 +263,44 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
-  eq("a blank starts with 25s", read(sb, "R.tabletClock"), 25);
+  eq("a blank starts with 6.5s", read(sb, "R.tabletClock"), 6.5);
   stubRandom(sb, 0.9);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("the next blank resets to 25s", read(sb, "R.tabletClock"), 25);
+  ok("the next blank gets ramped sand", read(sb, "R.tabletClock") < 6.5, read(sb, "R.tabletClock"));
+  eq("the ramp is one carved word and one streak", read(sb, "Math.abs(R.tabletClockMax - 6.5*0.975) < 1e-9"), true);
   exec(sb, "R.tabletClock = 0.05; tabletsBurnSand(0.1)");
-  eq("empty sand ends the run", read(sb, "R.ended"), true);
-  eq("timeout is recorded", read(sb, "!!R.tabletTimeout"), true);
+  eq("a timeout spends a lamp", read(sb, "R.tabletMiss"), 1);
+  eq("a timeout keeps the run going", read(sb, "R.ended"), false);
+  eq("a timeout is not the end", read(sb, "!!R.tabletTimeout"), false);
+  ok("a timeout pushes the line back to 0.55", Math.abs(read(sb, "tabletsRiseOf()") - 0.55) < 1e-9, read(sb, "tabletsRiseOf()"));
+  exec(sb, "tabletsFinishResolve(false)");
+  exec(sb, "R.tabletMiss = 2; R.tabletClock = 0.05; tabletsBurnSand(0.1); tabletsFinishResolve(false)");
+  eq("a timeout on the last lamp ends the run", read(sb, "R.ended"), true);
+  eq("the last-lamp timeout is recorded", read(sb, "!!R.tabletTimeout"), true);
+}
+
+{
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletMode = 'judgment'; startRun('tablets','watchman')");
+  exec(sb, "R.tabletClock = 0.05; tabletsBurnSand(0.1); tabletsFinishResolve(false)");
+  eq("a timeout in Judgment ends the run", read(sb, "R.ended"), true);
+  eq("the Judgment timeout is recorded", read(sb, "!!R.tabletTimeout"), true);
+}
+
+{
+  // S1: the danger warning plays once per blank and re-arms on the next.
+  const sb = boot();
+  exec(sb, "startRun('tablets','watchman'); var __warns = 0; tabletsPlayDangerWarn = function(){ __warns++; };");
+  exec(sb, "R.tabletClock = R.tabletClockMax * 0.29; tabletsBurnSand(0.01)");
+  eq("the danger warns once as the line enters the last 30%", read(sb, "__warns"), 1);
+  eq("the blank remembers its warning", read(sb, "R.tabletWarned"), true);
+  exec(sb, "tabletsBurnSand(0.01)");
+  eq("the warning does not repeat on the same blank", read(sb, "__warns"), 1);
+  stubRandom(sb, 0.9);
+  exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("the next blank re-arms the warning", read(sb, "R.tabletWarned"), false);
+  exec(sb, "R.tabletClock = R.tabletClockMax * 0.29; tabletsBurnSand(0.01)");
+  eq("the warning plays on the next blank", read(sb, "__warns"), 2);
 }
 
 {
@@ -293,7 +332,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   const sb = boot();
   exec(sb, "SAVE.tablets.psalm23 = { held: true }; persist(); startRun('tablets','watchman',{tabletChapter:'psalm91'})");
   eq("Psalm 91 starts when unlocked", read(sb, "R.tabletChapter"), "psalm91");
-  eq("Psalm 91 chunks into 9 steps", read(sb, "R.tabletTotal"), 9);
+  eq("Psalm 91 chunks into 17 steps", read(sb, "R.tabletTotal"), 17);
   holdAll(sb);
   eq("91 Held", read(sb, "SAVE.tablets.psalm91.held"), true);
 }
@@ -302,7 +341,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   const sb = boot();
   exec(sb, "SAVE.tablets.psalm23 = { held: true }; SAVE.tablets.psalm91 = { held: true }; persist(); startRun('tablets','watchman',{tabletChapter:'john1'})");
   eq("John 1 starts when unlocked", read(sb, "R.tabletChapter"), "john1");
-  eq("John 1 chunks into 26 steps", read(sb, "R.tabletTotal"), 26);
+  eq("John 1 chunks into 51 steps", read(sb, "R.tabletTotal"), 51);
   eq("John 1 skips a 51-pip strip", read(sb, "$('tablets-pips').children.length"), 0);
   holdAll(sb);
   eq("John 1 Held", read(sb, "SAVE.tablets.john1.held"), true);
@@ -350,7 +389,7 @@ ok("walker walks onto tablet pins", !/if \(to && to\.kind === "tablets"\) \{\s*s
   stubRandom(sb, 0.9);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   exec(sb, "tabletsWinnow()");
-  eq("winnow re-arms on the next gap", read(sb, "R.tabletWinnowIdx"), "0:1");
+  eq("winnow re-arms on the next blank", read(sb, "R.tabletWinnowIdx"), "1:0");
   eq("charges carry across blanks", read(sb, "R.powers.winnow"), 0);
 }
 
@@ -424,7 +463,13 @@ Tablets.chapters.forEach(function(ch){
   exec(sb, "openBrief('tablets')");
   eq("first open is the prayer", read(sb, "R.tabletChapter"), "prayer");
   eq("tutorial flag", read(sb, "!!R.tabletTutorial"), true);
-  eq("tutorial is untimed", read(sb, "tabletsUntimed()"), true);
+  eq("the tutorial is timed at 11.5s", read(sb, "R.tabletClock"), 11.5);
+  eq("the tutorial is not untimed", read(sb, "tabletsUntimed()"), false);
+  eq("the tutorial is quiet", read(sb, "tabletsQuiet()"), true);
+  exec(sb, "R.tabletClock = 0.05; tabletsBurnSand(0.1)");
+  eq("the tutorial sand refills", read(sb, "R.tabletClock"), 11.5);
+  eq("the tutorial spends no lamp", read(sb, "R.tabletMiss"), 0);
+  eq("the tutorial run goes on", read(sb, "R.ended"), false);
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
   eq("a miss does not shatter the prayer", read(sb, "!!R.ended"), false);
   eq("still the same blank", read(sb, "R.tabletIdx"), 0);
@@ -447,7 +492,7 @@ Tablets.chapters.forEach(function(ch){
   const sb = boot();
   exec(sb, "startRun('tablets','watchman',{tabletChapter:'genesis1'})");
   eq("Genesis 1 opens", read(sb, "R.tabletChapter"), "genesis1");
-  eq("Genesis 1 starts with 25s", read(sb, "R.tabletClock"), 25);
+  eq("Genesis 1 starts with 6.5s", read(sb, "R.tabletClock"), 6.5);
   eq("place is Ur", read(sb, "$('tablets-place').textContent"), "Ur");
   eq("companion is Abram", read(sb, "$('tablets-companion-sign').textContent"), "Abram");
   eq("companion is shown", read(sb, "!$('tablets-companion').hidden"), true);
@@ -562,19 +607,54 @@ ok("the Hold keeps a few embers", /i < 8/.test(src) && !/i < 45/.test(src));
 ok("a hit registers after the fly", /tabletsFlyWord[\s\S]{0,220}paintTabletsTablet\("hit"\)/.test(src));
 ok("torch scene is in the view", html.indexOf("tablets-scene-svg") >= 0);
 ok("candle is in the scene", html.indexOf('id="tablets-candle"') >= 0);
-ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
+ok("speed control is in the view", html.indexOf('id="tablets-speed"') >= 0);
+ok("the trial control is gone", html.indexOf('id="tablets-trial"') < 0);
+ok("the speed control names 1.0×", html.indexOf('id="tablets-speed"') >= 0 && html.indexOf("Speed 1.0×") >= 0);
+ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >= 0);
 
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
-  exec(sb, "tabletsToggleTrial()");
-  eq("trial is on", read(sb, "!!R.tabletTrial"), true);
-  ok("trial class is on the view", read(sb, "$('v-tablets').classList.contains('trial-mode')"));
-  exec(sb, "R.tabletClock = 10; tabletsBurnSand(1)");
-  eq("trial drains 1.35s", Math.abs(read(sb, "R.tabletClock") - 8.65) < 0.001, true);
+  eq("a run starts at 1.0×", read(sb, "R.tabletClock"), 6.5);
+  eq("the speed button reads 1.0×", read(sb, "$('tablets-speed').textContent"), "Speed 1.0×");
+  eq("the speed button is live", read(sb, "$('tablets-speed').disabled"), false);
+  exec(sb, "R.tabletClock = R.tabletClockMax / 2; tabletsShiftSpeed(1, false)");
+  eq("faster saves the speed", read(sb, "SAVE.set.tabletSpeed"), "fast");
+  ok("the faster base shortens the blank", Math.abs(read(sb, "R.tabletClockMax") - 4.5) < 1e-9, read(sb, "R.tabletClockMax"));
+  ok("the change keeps the line's place", Math.abs(read(sb, "tabletsRiseOf()") - 0.5) < 1e-9, read(sb, "tabletsRiseOf()"));
+  eq("the speed button names the new speed", read(sb, "$('tablets-speed').textContent"), "Speed 1.5×");
+}
+
+{
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletSpeed = 'seraphim'; startRun('tablets','watchman')");
+  eq("3.0× reads a 2.3s blank", read(sb, "R.tabletClock"), 2.3);
   stubRandom(sb, 0.9);
-  exec(sb, "R.tabletClock = 25; R.streak = 0; R.favor = 0; tabletsResolve(true)");
-  eq("trial Favor is 2.5×", read(sb, "R.favor"), 375);
+  exec(sb, "tabletsResolve(true)");
+  eq("3.0× pays 2.5× Favor", read(sb, "R.favor"), 375);
+}
+
+{
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletSpeed = 'seraphim'; startRun('tablets','watchman')");
+  exec(sb, "var __pd = 0; var __fn = function(){ __pd++; }; tabletsOnKey({ key:'[', preventDefault:__fn })");
+  eq("[ steps slower", read(sb, "SAVE.set.tabletSpeed"), "inferno");
+  exec(sb, "tabletsOnKey({ key:']', preventDefault:__fn })");
+  eq("] steps faster", read(sb, "SAVE.set.tabletSpeed"), "seraphim");
+  exec(sb, "tabletsOnKey({ key:']', preventDefault:__fn })");
+  eq("] at the top speed stays at 3.0×", read(sb, "SAVE.set.tabletSpeed"), "seraphim");
+  eq("the speed keys take their keys", read(sb, "__pd"), 3);
+}
+
+{
+  const sb = boot();
+  exec(sb, "SAVE.set.tabletSpeed = 'fast'; startRun('tablets','watchman',{tabletChapter:'prayer',tabletTutorial:true})");
+  eq("the tutorial always runs at 0.5×", read(sb, "R.tabletClock"), 11.5);
+  eq("the tutorial button reads 0.5×", read(sb, "$('tablets-speed').textContent"), "Speed 0.5×");
+  eq("the tutorial button is disabled", read(sb, "$('tablets-speed').disabled"), true);
+  exec(sb, "tabletsShiftSpeed(1, false)");
+  eq("the tutorial ignores a faster speed", read(sb, "R.tabletClock"), 11.5);
+  eq("the tutorial keeps the saved speed for later runs", read(sb, "SAVE.set.tabletSpeed"), "fast");
 }
 
 {
@@ -582,8 +662,8 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   stubRandom(sb, 0.9);
-  exec(sb, "R.tabletClock = 10; R.streak = 1; tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("a hit with 15s gone is Sure", read(sb, "tabletsGradeName('sacred')"), "Sure");
+  exec(sb, "R.tabletClock = R.tabletClockMax * 0.5; R.streak = 1; tabletsResolve(true); tabletsFinishResolve(true)");
+  eq("a hit with half the sand gone is Sure", read(sb, "tabletsGradeName('sacred')"), "Sure");
   eq("the popup names the grade and the Favor",
     read(sb, "$('tablets-ms').children[$('tablets-ms').children.length - 1].textContent"), "Sure · +180 FAVOR");
   eq("the Sure grade pays 180 Favor", read(sb, "R.favor"), 180);
@@ -598,7 +678,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   stubRandom(sb, 0.9);
-  exec(sb, "R.tabletClock = 10; R.streak = 1; R.surgeOn = true; tabletsResolve(true); tabletsFinishResolve(true)");
+  exec(sb, "R.tabletClock = R.tabletClockMax * 0.5; R.streak = 1; R.surgeOn = true; tabletsResolve(true); tabletsFinishResolve(true)");
   eq("Surge doubles the Sure carve", read(sb, "R.favor"), 360);
   ok("Surge is not the old x3", read(sb, "R.favor !== 540"));
 }
@@ -609,7 +689,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   exec(sb, "startRun('tablets','watchman',{tabletChapter:'prayer',tabletTutorial:true})");
   exec(sb, "tabletsPick('Father')");
   eq("a tutorial hit carries no grade",
-    read(sb, "$('tablets-ms').children[$('tablets-ms').children.length - 1].textContent"), "+150 FAVOR");
+    read(sb, "$('tablets-ms').children[$('tablets-ms').children.length - 1].textContent"), "+115 FAVOR");
   eq("the tutorial never fills the surge", read(sb, "R.surge"), 0);
 }
 
@@ -617,7 +697,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   // Phase 3: a miss pushes the sand back, and the floor holds.
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
-  exec(sb, "R.tabletClock = 2.5");
+  exec(sb, "R.tabletClock = R.tabletClockMax * 0.1");
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
   eq("a miss at 90% gone leaves 45% gone",
     read(sb, "Math.abs((1 - R.tabletClock / R.tabletClockMax) - 0.45) < 1e-9"), true);
@@ -657,7 +737,8 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("the typed carve fills 36", read(sb, "R.surge"), 36);
   eq("the slot takes the carved word", read(sb, "$('tablets-slot').textContent"), "want");
   exec(sb, "tabletsFinishResolve(true)");
-  eq("typing want carves Psalm 23:1", read(sb, "R.gapIdx"), 1);
+  eq("typing want advances the blank", read(sb, "R.tabletIdx"), 1);
+  eq("the next blank starts at its first gap", read(sb, "R.gapIdx"), 0);
   eq("the next gap starts with nothing typed", read(sb, "R.tabletTyped"), "");
 }
 
@@ -682,12 +763,12 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   const type = function(ch){ exec(sb, "tabletsOnKey({ key: " + JSON.stringify(ch) + ", preventDefault: function(){} })"); };
-  exec(sb, "R.tabletIdx = 1; R.gapIdx = 0; R.tabletTyped = ''; paintTabletsTray()");
-  eq("the third gap is waters", read(sb, "tabletsGapBlank().a"), "waters");
+  exec(sb, "R.tabletIdx = 2; R.gapIdx = 0; R.tabletTyped = ''; paintTabletsTray()");
+  eq("the third blank is waters", read(sb, "tabletsGapBlank().a"), "waters");
   type("w");
   eq("w types a letter for waters", read(sb, "R.tabletTyped"), "w");
-  exec(sb, "R.gapIdx = 1; R.tabletTyped = ''; paintTabletsTray()");
-  eq("the fourth gap is soul", read(sb, "tabletsGapBlank().a"), "soul");
+  exec(sb, "R.tabletIdx = 3; R.gapIdx = 0; R.tabletTyped = ''; paintTabletsTray()");
+  eq("the fourth blank is soul", read(sb, "tabletsGapBlank().a"), "soul");
   type("w");
   eq("w fires Winnow for soul", read(sb, "R.powers.winnow"), 1);
   eq("w typed nothing for soul", read(sb, "R.tabletTyped"), "");
@@ -726,7 +807,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("the Illuminate carve counts the streak", read(sb, "R.streak"), 1);
   eq("Illuminate still spends its charge", read(sb, "R.powers.illum"), 0);
   exec(sb, "tabletsFinishResolve(true)");
-  eq("the carved gap advances", read(sb, "R.gapIdx"), 1);
+  eq("the carved blank advances", read(sb, "R.tabletIdx"), 1);
 }
 
 {
@@ -803,55 +884,57 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
 }
 
 {
-  // Multi-gap steps: Pace I carves 2 words, II carves 3, III carves 4.
+  // S1: one blank at a time for every pace.
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
-  eq("Pace I carves 2 gaps per step", read(sb, "tabletsGapCount()"), 2);
-  eq("Psalm 23 chunks 11 blanks into 6 steps", read(sb, "R.tabletTotal"), 6);
-  eq("first step holds 2 gaps", read(sb, "R.tabletSteps[0].length"), 2);
-  eq("last step is the short tail", read(sb, "R.tabletSteps[5].length"), 1);
+  eq("Psalm 23 carves one blank per step", read(sb, "R.tabletSteps.length"), 11);
+  eq("Psalm 23 still totals 11 blanks", read(sb, "R.tabletTotal"), 11);
+  eq("first step holds one blank", read(sb, "R.tabletSteps[0].length"), 1);
+  ok("every Pace I step holds one blank", read(sb, "R.tabletSteps.every(function(s){ return s.length === 1; })"), true);
+  stubRandom(sb, 0.9);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("first carve advances the gap", read(sb, "R.gapIdx"), 1);
-  eq("the step holds", read(sb, "R.tabletIdx"), 0);
-  eq("remain counts steps", read(sb, "$('tablets-remain').textContent"), "1 / 6");
-  eq("tray names the gap", read(sb, "$('tablets-tray-word').textContent"), "Word 2 of 2 · Choose the missing word");
+  eq("a hit advances the blank", read(sb, "R.tabletIdx"), 1);
+  eq("the next blank starts at its first gap", read(sb, "R.gapIdx"), 0);
+  eq("remain counts blanks", read(sb, "$('tablets-remain').textContent"), "2 / 11");
+  eq("tray names one blank", read(sb, "$('tablets-tray-word').textContent"), "Choose the missing word");
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("second carve advances the step", read(sb, "R.tabletIdx"), 1);
-  eq("the gap re-arms", read(sb, "R.gapIdx"), 0);
+  eq("the second hit advances again", read(sb, "R.tabletIdx"), 2);
+  eq("the gap stays at zero", read(sb, "R.gapIdx"), 0);
 }
 
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman',{tabletChapter:'genesis1'})");
-  eq("Pace II carves 3 gaps per step", read(sb, "tabletsGapCount()"), 3);
-  eq("Genesis 1 chunks 10 blanks into 4 steps", read(sb, "R.tabletTotal"), 4);
+  eq("Pace II also carves one blank per step", read(sb, "R.tabletSteps.length"), 10);
+  eq("Genesis 1 totals 10 blanks", read(sb, "R.tabletTotal"), 10);
 }
 
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman',{tabletChapter:'genesis22'})");
-  eq("Pace III carves 4 gaps per step", read(sb, "tabletsGapCount()"), 4);
-  eq("Genesis 22 chunks 10 blanks into 3 steps", read(sb, "R.tabletTotal"), 3);
+  eq("Pace III also carves one blank per step", read(sb, "R.tabletSteps.length"), 10);
+  eq("Genesis 22 totals 10 blanks", read(sb, "R.tabletTotal"), 10);
 }
 
 {
-  // A miss spends a lamp but keeps already-carved gaps.
+  // A miss spends a lamp but holds the blank in place.
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
   eq("the miss spends a lamp", read(sb, "R.tabletMiss"), 1);
-  eq("the miss holds the gap", read(sb, "R.gapIdx"), 1);
-  ok("the first gap stays carved",
-    read(sb, "$('tablets-verse').children[0].children.map(function(c){ return c.textContent; }).join('').indexOf('want') >= 0"));
-  ok("the tray re-arms for the next gap",
+  eq("the miss holds the blank", read(sb, "R.tabletIdx"), 1);
+  eq("the held blank starts at its first gap", read(sb, "R.gapIdx"), 0);
+  ok("the carved word stays in the sheet above",
+    read(sb, "$('tablets-sheet-past').children[0].children[0].children.map(function(c){ return c.textContent; }).join('').indexOf('want') >= 0"));
+  ok("the tray re-arms for the next blank",
     read(sb, "tabletsOptsForBlank().indexOf('pastures') >= 0"));
 }
 
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman',{tabletChapter:'prayer',tabletTutorial:true})");
-  eq("the tutorial stays single-gap", read(sb, "tabletsGapCount()"), 1);
+  eq("the tutorial carves one blank per step", read(sb, "R.tabletSteps.every(function(s){ return s.length === 1; })"), true);
   eq("the prayer keeps 8 steps", read(sb, "R.tabletTotal"), 8);
 }
 
@@ -863,7 +946,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("winnow keys the first gap", read(sb, "R.tabletWinnowIdx"), "0:0");
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
   exec(sb, "tabletsWinnow()");
-  eq("winnow re-arms on the next gap", read(sb, "R.tabletWinnowIdx"), "0:1");
+  eq("winnow re-arms on the next blank", read(sb, "R.tabletWinnowIdx"), "1:0");
 }
 
 {
@@ -877,7 +960,8 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
-  eq("two gaps share one setting", read(sb, "R.tabletSteps[0].map(function(b){ return b.r; }).join('|')"), "Psalm 23:1|Psalm 23:2");
+  eq("each step holds one verse line", read(sb, "R.tabletSteps[0].map(function(b){ return b.r; }).join('|')"), "Psalm 23:1");
+  eq("the next step holds the next line", read(sb, "R.tabletSteps[1].map(function(b){ return b.r; }).join('|')"), "Psalm 23:2");
   ok("every gap line prints its own ref",
     read(sb, "(function(){ paintTabletsTablet(); var ls = $('tablets-verse').children; return ls.length > 0 && ls.filter(function(l){ return l.children[0].textContent.indexOf('Psalm 23:') === 0; }).length === ls.length; })()"));
 }
@@ -920,7 +1004,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("an Endless run does not end at the chapter end", read(sb, "R.ended"), false);
   eq("finishing the first reading Holds", read(sb, "Tablets.held(R)"), true);
   eq("the reading is announced", read(sb, "(function(){ var ms = $('tablets-ms').children; return ms[ms.length - 1].textContent; })()"), "Second reading");
-  ok("the second reading runs on shorter sand", read(sb, "R.tabletClockMax") < 25);
+  ok("the second reading runs on shorter sand", read(sb, "R.tabletClockMax") < 6.5);
   const carved = read(sb, "R.correct");
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
   exec(sb, "tabletsResolve(false); tabletsFinishResolve(false)");
@@ -934,9 +1018,9 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
 {
   const sb = boot();
   exec(sb, "SAVE.set.tabletMode = 'endless'; startRun('tablets','watchman')");
-  eq("a fresh Endless step has the full sand", read(sb, "tabletsStepSeconds()"), 25);
+  eq("a fresh Endless step has the full sand", read(sb, "tabletsStepSeconds()"), 6.5);
   exec(sb, "R.correct = 100; R.streak = 100");
-  ok("the Endless sand ramps to the 30% cap", Math.abs(read(sb, "tabletsStepSeconds()") - 17.5) < 1e-9);
+  ok("the Endless sand ramps to the 30% cap", Math.abs(read(sb, "tabletsStepSeconds()") - 4.55) < 1e-9);
 }
 {
   const sb = boot();
@@ -952,8 +1036,11 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
 {
   const sb = boot();
   exec(sb, "SAVE.set.tabletMode = 'judgment'; SAVE.set.tabletTrial = true; startRun('tablets','watchman')");
-  eq("Trial stacks with Judgment: one lamp", read(sb, "R.tabletLives"), 1);
-  eq("Trial is on in Judgment", read(sb, "!!R.tabletTrial"), true);
+  eq("a saved trial still starts Judgment with one lamp", read(sb, "R.tabletLives"), 1);
+  eq("a saved trial is ignored", read(sb, "!!R.tabletTrial"), false);
+  stubRandom(sb, 0.9);
+  exec(sb, "tabletsResolve(true)");
+  eq("a saved trial does not scale Favor", read(sb, "R.favor"), 150);
 }
 {
   const sb = boot();
@@ -1030,7 +1117,9 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman',{tabletChapter:'prayer',tabletTutorial:true})");
-  eq("the tutorial pins the card at The Mark", read(sb, "tabletsRiseOf()"), 1);
+  eq("the tutorial card starts low", read(sb, "tabletsRiseOf()"), 0);
+  exec(sb, "R.tabletClock = R.tabletClockMax / 2");
+  eq("the tutorial card is halfway up at half the sand", read(sb, "tabletsRiseOf()"), 0.5);
 }
 {
   const sb = boot();
@@ -1098,7 +1187,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   stubRandom(sb, 0.9);
   exec(sb, "for(var i = 0; i < 20 && R.tabletIdx === 0; i++){ tabletsResolve(true); tabletsFinishResolve(true); }");
   eq("a finished step rolls into the sheet above", read(sb, "$('tablets-sheet-past').children.length"), 1);
-  ok("the carved step above shows its answers", read(sb, "$('tablets-sheet-past').children[0].children.map(function(l){ return l.children.map(function(c){ return c.textContent; }).join(''); }).join(' ')").indexOf("want") >= 0 && read(sb, "$('tablets-sheet-past').children[0].children.map(function(l){ return l.children.map(function(c){ return c.textContent; }).join(''); }).join(' ')").indexOf("pastures") >= 0);
+  ok("the carved step above shows its answer", read(sb, "$('tablets-sheet-past').children[0].children[0].children.map(function(c){ return c.textContent; }).join('').indexOf('want') >= 0") && read(sb, "tabletsGapBlank().a") === "pastures");
   eq("the coming steps drop by the one just carved", read(sb, "$('tablets-sheet-next').children.length"), read(sb, "R.tabletSteps.length - 2"));
 }
 {
@@ -1187,7 +1276,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("fresh sand carries no danger", read(sb, "tabletsDangerLevel()"), 0);
   exec(sb, "R.tabletClock = R.tabletClockMax * 0.2");
   ok("80% of the sand burned is danger 1/3", Math.abs(read(sb, "tabletsDangerLevel()") - 1 / 3) < 1e-9, read(sb, "tabletsDangerLevel()"));
-  exec(sb, "R.tabletClock = 0.2");
+  exec(sb, "R.tabletClock = R.tabletClockMax * 0.01");
   ok("the last sand is nearly full danger", read(sb, "tabletsDangerLevel()") > 0.95, read(sb, "tabletsDangerLevel()"));
   eq("the embers rest at their cool light", read(sb, "tabletsEmberAlpha(false)"), 0.65);
   eq("Surge burns the embers brighter", read(sb, "tabletsEmberAlpha(true)"), 0.85);
@@ -1204,10 +1293,11 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   ok("the marker tops out at The Mark", Math.abs(read(sb, "tabletsLadderTop(1)")) < 1e-9, read(sb, "tabletsLadderTop(1)"));
   ok("the marker sits at the entry on fresh sand", Math.abs(read(sb, "tabletsLadderTop(0)") - 100) < 1e-9, read(sb, "tabletsLadderTop(0)"));
   ok("the seals live in the header", /tablets-seals" id="tablets-lamps"/.test(html) && html.indexOf("tablets-top") < html.indexOf('id="tablets-lamps"'));
+  ok("the header paints above the backdrop", /\.tablets-top\{[^}]*position:relative[^}]*z-index:2/.test(src));
   ok("the dock no longer repeats the lamp count", html.indexOf("tablets-lamps-n") < 0);
   ok("the ladder rides the stage's right edge", /\.tablets-ladder\{[^}]*right:6px/.test(src));
   ok("the marker diamond is cut", /\.tablets-ladder-marker\{[^}]*rotate\(45deg\)/.test(src));
-  ok("the pace tag sits in the actions", html.indexOf('id="tablets-pace-tag"') > html.indexOf('class="tablets-actions"') && html.indexOf('id="tablets-pace-tag"') < html.indexOf('id="tablets-trial"'));
+  ok("the pace tag sits before the speed control", html.indexOf('id="tablets-pace-tag"') > html.indexOf('class="tablets-actions"') && html.indexOf('id="tablets-pace-tag"') < html.indexOf('id="tablets-speed"'));
 }
 {
   // E: the juice (roadmap phase E).
@@ -1325,14 +1415,14 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   unstubRandom();
 }
 {
-  // FX5: in the last 5 s the danger wash still draws, and the sparks still age.
+  // FX5: in the danger band the danger wash still draws, and the sparks still age.
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   exec(sb, "var __calls = []; var _ctx = new Proxy({}, { get: function(t, k){ if(k === 'createRadialGradient') return function(){ __calls.push('gradient'); return { addColorStop: function(){} }; }; return function(){ __calls.push(String(k)); }; }, set: function(){ return true; } }); $('tablets-fx').getContext = function(){ return _ctx; }; tabletsFxInit()");
-  exec(sb, "R.tabletClock = 2; __calls = []; drawTabletsFx(0.016)");
-  ok("the danger wash draws in the last 5 s", read(sb, "__calls.indexOf('gradient') >= 0"), read(sb, "__calls.join(',')"));
+  exec(sb, "R.tabletClock = R.tabletClockMax * 0.2; __calls = []; drawTabletsFx(0.016)");
+  ok("the danger wash draws in the danger band", read(sb, "__calls.indexOf('gradient') >= 0"), read(sb, "__calls.join(',')"));
   exec(sb, "spawnTabletsSparks(100, 100, 10); for (var i = 0; i < 60; i++) drawTabletsFx(0.1)");
-  eq("the sparks burn out in the last 5 s", read(sb, "tabletsFx.sparks.length"), 0);
+  eq("the sparks burn out in the danger band", read(sb, "tabletsFx.sparks.length"), 0);
 }
 {
   // FX6: a finish timer left by an earlier run does not advance the run that replaced it.
@@ -1354,7 +1444,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("the Manna Jar banks 15 s", read(sb, "R.tabletBankSand"), 15);
   stubRandom(sb, 0.9);
   exec(sb, "tabletsResolve(true); tabletsFinishResolve(true)");
-  eq("the next step starts with 40 s", read(sb, "R.tabletClock"), 40);
+  ok("the next step starts with the ramped base plus 15 s", Math.abs(read(sb, "R.tabletClock") - 21.3375) < 1e-9, read(sb, "R.tabletClock"));
   unstubRandom();
 }
 {
@@ -1405,7 +1495,7 @@ ok("trial control is in the view", html.indexOf('id="tablets-trial"') >= 0);
   eq("the milestone banner is down in a new run", read(sb, "$('tablets-milestone').classList.contains('active')"), false);
   stubRandom(sb, 0.9);
   exec(sb, "tabletsTick(R.tabletLast + 100)");
-  ok("the sand burns in a new run", read(sb, "R.tabletClock") < 25, read(sb, "R.tabletClock"));
+  ok("the sand burns in a new run", read(sb, "R.tabletClock") < 6.5, read(sb, "R.tabletClock"));
   unstubRandom();
 }
 {

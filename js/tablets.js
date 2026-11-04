@@ -191,8 +191,9 @@ const Tablets = (function(){
   function paceGateLabel(pace){
     return pace >= 3 ? "Hold 3 at Pace II to open" : "Hold 3 at Pace I to open";
   }
-  function clockS(){
-    return BLANK_S;
+  /* S1: a blank's sand is the chosen speed's base seconds; an unknown id reads 1.0x. */
+  function clockS(speedId){
+    return Tablets.rules.speed(speedId).base;
   }
   function levelName(level){
     return LEVEL_NAME[clampLevel(level) - 1] || "I";
@@ -360,6 +361,19 @@ Tablets.rules = (function(){
   const GOLDEN_PACE = 0.9, MIN_BLANK_S = 1.55;
   const PUSHBACK = 0.45, PUSHBACK_FLOOR = 0.12;
   const CHARGE_MAX = 3, WINNOW_EVERY = 5, ILLUM_EVERY = 10;
+  /* S1: the six speeds a player picks (the reference's speed tiers): base seconds per blank and the Favor multiplier. */
+  const SPEEDS = [
+    { id:"meditative", label:"0.5×", base:11.5, mult:0.75 },
+    { id:"slow",       label:"0.75×", base:8.8, mult:0.9 },
+    { id:"normal",     label:"1.0×", base:6.5, mult:1 },
+    { id:"fast",       label:"1.5×", base:4.5, mult:1.35 },
+    { id:"inferno",    label:"2.0×", base:3.2, mult:1.75 },
+    { id:"seraphim",   label:"3.0×", base:2.3, mult:2.5 }
+  ];
+  function speed(id){
+    for(let i = 0; i < SPEEDS.length; i++) if(SPEEDS[i].id === id) return SPEEDS[i];
+    return SPEEDS[2];
+  }
 
   function clamp01(n){ return Math.max(0, Math.min(1, n)); }
   function progressOf(left, max){
@@ -456,6 +470,8 @@ Tablets.rules = (function(){
   }
   return {
     GRADES: GRADES,
+    SPEEDS: SPEEDS,
+    speed: speed,
     comboOf: comboOf,
     progressOf: progressOf,
     grade: grade,
