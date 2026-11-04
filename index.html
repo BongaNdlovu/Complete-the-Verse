@@ -501,7 +501,14 @@
         </div>
         <div class="tablets-actions">
           <span class="tablets-pace-tag" id="tablets-pace-tag">Pace I</span>
-          <button type="button" class="tablets-iconbtn" id="tablets-speed" aria-label="Speed, [ slower, ] faster">Speed 1.0×</button>
+          <span class="tablets-speeds" id="tablets-speeds" role="group" aria-label="Speed">
+            <button type="button" class="tablets-speed-pill" id="tablets-speed-meditative" data-speed="meditative" aria-pressed="false">0.5×</button>
+            <button type="button" class="tablets-speed-pill" id="tablets-speed-slow" data-speed="slow" aria-pressed="false">0.75×</button>
+            <button type="button" class="tablets-speed-pill" id="tablets-speed-normal" data-speed="normal" aria-pressed="true">1.0×</button>
+            <button type="button" class="tablets-speed-pill" id="tablets-speed-fast" data-speed="fast" aria-pressed="false">1.5×</button>
+            <button type="button" class="tablets-speed-pill" id="tablets-speed-inferno" data-speed="inferno" aria-pressed="false">2.0×</button>
+            <button type="button" class="tablets-speed-pill" id="tablets-speed-seraphim" data-speed="seraphim" aria-pressed="false">3.0×</button>
+          </span>
           <button type="button" class="tablets-iconbtn" id="tablets-theme">Stone</button>
           <button type="button" class="tablets-iconbtn" id="tablets-pause-btn">Pause</button>
           <button type="button" class="tablets-iconbtn" id="tablets-quit">Quit</button>
@@ -554,6 +561,8 @@
           <b id="tablets-place">The Hall</b>
           <span id="tablets-place-sub"></span>
         </aside>
+        <i class="tablets-pillar tablets-pillar-l" aria-hidden="true"></i>
+        <i class="tablets-pillar tablets-pillar-r" aria-hidden="true"></i>
         <div class="tablets-ms" id="tablets-ms">
           <div class="tablets-fracture" id="tablets-fracture"></div>
           <div class="tablets-ref-pill" id="tablets-ref">Psalm 23:1</div>

@@ -1317,19 +1317,26 @@ function tabletsPulseSpeech(){
   clearTimeout(el._t);
   el._t = setTimeout(function(){ el.classList.remove("active"); el.hidden = true; }, 2000);
 }
-/* S1: the speed button cycles; [ and ] (or - and =) step slower or faster. The choice is saved; the tutorial keeps the slowest. */
+/* S2: six pills show the speed; the active one is the saved speed. The tutorial keeps the slowest. */
 function paintTabletsSpeed(){
-  const btn = $("tablets-speed");
-  if(!btn) return;
-  btn.textContent = "Speed " + tabletsSpeed().label;
-  btn.disabled = !!(R && R.tabletTutorial);
+  const off = !!(R && R.tabletTutorial);
+  const active = tabletsSpeedId();
+  Tablets.rules.SPEEDS.forEach(function(s){
+    const btn = $("tablets-speed-" + s.id);
+    if(!btn) return;
+    const on = s.id === active;
+    btn.classList.toggle("on", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    btn.disabled = off;
+  });
 }
-function tabletsShiftSpeed(delta, wrap){
+function tabletsSetSpeed(id){
   if(!R || R.ended || R.mode !== "tablets" || R.tabletTutorial) return;
   const list = Tablets.rules.SPEEDS;
+  let next = -1;
+  for(let i = 0; i < list.length; i++) if(list[i].id === id) next = i;
   const at = list.indexOf(tabletsSpeed());
-  const next = wrap ? (at + delta + list.length) % list.length : Math.max(0, Math.min(list.length - 1, at + delta));
-  if(next === at) return;
+  if(next < 0 || next === at) return;
   const oldMax = R.tabletClockMax || tabletsClockMax();
   SAVE.set.tabletSpeed = list[next].id;
   if(typeof persist === "function") persist();
@@ -1338,6 +1345,14 @@ function tabletsShiftSpeed(delta, wrap){
   R.tabletClock = (R.tabletClock || 0) * (R.tabletClockMax / oldMax);
   paintTabletsSpeed();
   if(typeof toast === "function") toast("Speed " + list[next].label + " · Favor ×" + list[next].mult);
+}
+function tabletsShiftSpeed(delta, wrap){
+  if(!R || R.ended || R.mode !== "tablets" || R.tabletTutorial) return;
+  const list = Tablets.rules.SPEEDS;
+  const at = list.indexOf(tabletsSpeed());
+  const next = wrap ? (at + delta + list.length) % list.length : Math.max(0, Math.min(list.length - 1, at + delta));
+  if(next === at) return;
+  tabletsSetSpeed(list[next].id);
 }
 function tabletsBindOnce(id, fn){
   const el = $(id);
@@ -1360,7 +1375,9 @@ function bindTabletsChrome(){
   tabletsBindOnce("tablets-winnow", tabletsWinnow);
   tabletsBindOnce("tablets-surge", tabletsSurge);
   tabletsBindOnce("tablets-theme", tabletsCycleStone);
-  tabletsBindOnce("tablets-speed", function(){ tabletsShiftSpeed(1, true); });
+  Tablets.rules.SPEEDS.forEach(function(s){
+    tabletsBindOnce("tablets-speed-" + s.id, function(){ tabletsSetSpeed(s.id); });
+  });
   if(typeof window !== "undefined" && !window._tabletsKeys){
     window._tabletsKeys = true;
     window.addEventListener("keydown", tabletsOnKey);

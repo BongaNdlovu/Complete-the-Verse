@@ -607,22 +607,24 @@ ok("the Hold keeps a few embers", /i < 8/.test(src) && !/i < 45/.test(src));
 ok("a hit registers after the fly", /tabletsFlyWord[\s\S]{0,220}paintTabletsTablet\("hit"\)/.test(src));
 ok("torch scene is in the view", html.indexOf("tablets-scene-svg") >= 0);
 ok("candle is in the scene", html.indexOf('id="tablets-candle"') >= 0);
-ok("speed control is in the view", html.indexOf('id="tablets-speed"') >= 0);
+ok("speed pills are in the view", html.indexOf('id="tablets-speeds"') >= 0 && (html.match(/class="tablets-speed-pill"/g) || []).length === 6);
 ok("the trial control is gone", html.indexOf('id="tablets-trial"') < 0);
-ok("the speed control names 1.0×", html.indexOf('id="tablets-speed"') >= 0 && html.indexOf("Speed 1.0×") >= 0);
+ok("the speed pills name 0.5× to 3.0×", /0.5×[\s\S]*0.75×[\s\S]*1.0×[\s\S]*1.5×[\s\S]*2.0×[\s\S]*3.0×/.test(html));
+ok("the tutorial pill is the 0.5× tier", /id="tablets-speed-meditative"[^>]*>0\.5×/.test(html));
 ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >= 0);
 
 {
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
   eq("a run starts at 1.0×", read(sb, "R.tabletClock"), 6.5);
-  eq("the speed button reads 1.0×", read(sb, "$('tablets-speed').textContent"), "Speed 1.0×");
-  eq("the speed button is live", read(sb, "$('tablets-speed').disabled"), false);
+  eq("the 1.0× pill is on", read(sb, "$('tablets-speed-normal').classList.contains('on')"), true);
+  eq("the 1.0× pill is live", read(sb, "$('tablets-speed-normal').disabled"), false);
   exec(sb, "R.tabletClock = R.tabletClockMax / 2; tabletsShiftSpeed(1, false)");
   eq("faster saves the speed", read(sb, "SAVE.set.tabletSpeed"), "fast");
   ok("the faster base shortens the blank", Math.abs(read(sb, "R.tabletClockMax") - 4.5) < 1e-9, read(sb, "R.tabletClockMax"));
   ok("the change keeps the line's place", Math.abs(read(sb, "tabletsRiseOf()") - 0.5) < 1e-9, read(sb, "tabletsRiseOf()"));
-  eq("the speed button names the new speed", read(sb, "$('tablets-speed').textContent"), "Speed 1.5×");
+  eq("the 1.5× pill is on", read(sb, "$('tablets-speed-fast').classList.contains('on')"), true);
+  eq("the 1.0× pill is off", read(sb, "$('tablets-speed-normal').classList.contains('on')"), false);
 }
 
 {
@@ -650,8 +652,8 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   const sb = boot();
   exec(sb, "SAVE.set.tabletSpeed = 'fast'; startRun('tablets','watchman',{tabletChapter:'prayer',tabletTutorial:true})");
   eq("the tutorial always runs at 0.5×", read(sb, "R.tabletClock"), 11.5);
-  eq("the tutorial button reads 0.5×", read(sb, "$('tablets-speed').textContent"), "Speed 0.5×");
-  eq("the tutorial button is disabled", read(sb, "$('tablets-speed').disabled"), true);
+  eq("the tutorial 0.5× pill is on", read(sb, "$('tablets-speed-meditative').classList.contains('on')"), true);
+  eq("the tutorial disables every pill", read(sb, "Tablets.rules.SPEEDS.every(function(s){ return $('tablets-speed-' + s.id).disabled; })"), true);
   exec(sb, "tabletsShiftSpeed(1, false)");
   eq("the tutorial ignores a faster speed", read(sb, "R.tabletClock"), 11.5);
   eq("the tutorial keeps the saved speed for later runs", read(sb, "SAVE.set.tabletSpeed"), "fast");
@@ -1254,6 +1256,9 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   ok("the entry line sits at the roll's entry fraction", /\.tablets-entry-line\{[^}]*top:62%/.test(src));
   ok("The Mark wears the judgment red", /\.tablets-mark-line\{[^}]*#e0442e/.test(src));
   ok("the parchment card stands down for the open column", /\.tablets-ms\{[^}]*rgba\(10,6,3/.test(src));
+  ok("the field fills its column", /\.tablets-ms\{[^}]*width:100%[^}]*max-width:1440px/.test(src));
+  ok("the field is flanked by carved pillars", /\.tablets-pillar\{/.test(src) && /\.tablets-pillar-l\{left:0\}/.test(src));
+  ok("the speed pills light the active tier", /\.tablets-speed-pill\.on\{/.test(src));
   ok("the candle and companion step aside on the run", /#v-tablets \.tablets-ground,#v-tablets \.tablets-companion\{display:none!important\}/.test(src));
   ok("blanks are stone pills", /\.tablets-blank-word\{[^}]*border-radius/.test(src));
   ok("coming blanks read as empty pills", /\.tablets-blank-word\{[^}]*color:transparent/.test(src));
@@ -1297,7 +1302,7 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   ok("the dock no longer repeats the lamp count", html.indexOf("tablets-lamps-n") < 0);
   ok("the ladder rides the stage's right edge", /\.tablets-ladder\{[^}]*right:6px/.test(src));
   ok("the marker diamond is cut", /\.tablets-ladder-marker\{[^}]*rotate\(45deg\)/.test(src));
-  ok("the pace tag sits before the speed control", html.indexOf('id="tablets-pace-tag"') > html.indexOf('class="tablets-actions"') && html.indexOf('id="tablets-pace-tag"') < html.indexOf('id="tablets-speed"'));
+  ok("the pace tag sits before the speed pills", html.indexOf('id="tablets-pace-tag"') > html.indexOf('class="tablets-actions"') && html.indexOf('id="tablets-pace-tag"') < html.indexOf('id="tablets-speeds"'));
 }
 {
   // E: the juice (roadmap phase E).

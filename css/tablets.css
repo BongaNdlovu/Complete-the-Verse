@@ -84,6 +84,26 @@ body.view-tablets .voice-caption{display:none!important}
   box-shadow:0 0 0 1px rgba(213,173,98,.28) inset}
 .tablets-iconbtn:hover,.tablets-iconbtn:focus-visible{color:var(--gold-hot)}
 .tablets-iconbtn.on{color:var(--gold-hot);border-color:var(--gold-hot)}
+/* S2: the six speed pills replace the single cycle button on the run bar. */
+.tablets-speeds{display:flex;align-items:center;gap:3px;flex:0 0 auto}
+.tablets-speed-pill{
+  min-height:32px;padding:0 .5em;border-radius:999px;cursor:pointer;
+  font-family:var(--ui);font-size:.55rem;font-weight:700;letter-spacing:.08em;
+  color:#b79a58;background:rgba(8,9,12,.72);box-shadow:0 0 0 1px rgba(213,173,98,.24) inset}
+.tablets-speed-pill:hover,.tablets-speed-pill:focus-visible{color:var(--gold-hot)}
+.tablets-speed-pill.on{color:#1b1005;background:linear-gradient(180deg,#ffe08a,#c9973a);box-shadow:0 0 10px rgba(255,214,120,.45)}
+.tablets-speed-pill:disabled{opacity:.45;cursor:not-allowed}
+/* S2: the full-width field is flanked by the two carved pillars. */
+.tablets-pillar{
+  position:absolute;top:0;bottom:0;width:clamp(16px,2.4vw,32px);z-index:3;pointer-events:none;
+  background:linear-gradient(90deg,rgba(43,29,16,.96),rgba(110,78,38,.78) 45%,rgba(31,20,10,.98));
+  box-shadow:inset 0 0 0 1px rgba(125,88,40,.55),0 0 28px rgba(0,0,0,.8)}
+.tablets-pillar:before,.tablets-pillar:after{content:"";position:absolute;left:20%;right:20%;height:10px;background:rgba(255,214,120,.22);border-radius:2px}
+.tablets-pillar:before{top:12%}
+.tablets-pillar:after{bottom:12%}
+.tablets-pillar-l{left:0}
+.tablets-pillar-r{right:0;transform:scaleX(-1)}
+@media (max-width:900px){.tablets-pillar{display:none}}
 /* D: the header's seals — three diamonds, cracked as they spend. */
 .tablets-seals{display:flex;align-items:center;gap:7px;flex:0 0 auto}
 .tablets-seal{
@@ -188,8 +208,8 @@ body.view-tablets .voice-caption{display:none!important}
 @keyframes tabletsCastOk{0%{filter:brightness(1)}40%{filter:brightness(1.18)}100%{filter:brightness(1)}}
 @keyframes tabletsCastMiss{0%{transform:translateX(0)}30%{transform:translateX(-6px)}60%{transform:translateX(5px)}100%{transform:translateX(0)}}
 .tablets-ms{
-  position:relative;z-index:4;width:min(1200px,100%);text-align:center;border-radius:14px;
-  padding:10px 24px 14px;overflow:hidden;display:flex;flex-direction:column;
+  position:relative;z-index:4;width:100%;max-width:1440px;text-align:center;border-radius:0;
+  padding:18px clamp(28px,6vw,90px) 20px;overflow:hidden;display:flex;flex-direction:column;
   background:linear-gradient(180deg,rgba(10,6,3,.58) 0%,rgba(10,6,3,.30) 42%,rgba(10,6,3,.44) 100%);
   border:1px solid rgba(217,182,103,.18);
   box-shadow:0 20px 60px rgba(0,0,0,.75)}
@@ -639,8 +659,11 @@ body.reduced .tablets-sheet,body.reduced .tablets-verse,body.motion-calm .tablet
     min-height:48px}
   .tablets-chip{flex:1 1 0;min-width:0}
   .tablets-chip span,.tablets-stats,.tablets-tier{display:none}
+  .tablets-chip,.tablets-pace-tag,#tablets-theme,#tablets-quit{display:none}
   .tablets-chip b{font-size:.82rem;letter-spacing:.1em}
   .tablets-actions{gap:4px}
+  .tablets-speeds{gap:2px}
+  .tablets-speed-pill{min-height:30px;padding:0 .34em;font-size:.5rem;letter-spacing:.02em}
   .tablets-iconbtn{padding:0 .55em;min-height:40px;font-size:.55rem;letter-spacing:.1em}
   .tablets-stage{padding:8px 10px;overflow:hidden;align-items:stretch}
   .tablets-ms{padding:12px 14px 10px;margin:0;border-radius:12px;flex:1 1 auto;min-height:0;

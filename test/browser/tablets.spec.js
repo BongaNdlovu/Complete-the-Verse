@@ -47,14 +47,14 @@ test('the 1.0x clock climbs to The Mark and the speed control stays above the ba
 
   const header = await page.evaluate(() => {
     const top = document.querySelector('#v-tablets .tablets-top');
-    const speed = document.getElementById('tablets-speed');
+    const active = document.querySelector('#tablets-speeds .tablets-speed-pill.on');
     const style = getComputedStyle(top);
-    return { position: style.position, zIndex: style.zIndex, text: speed.textContent };
+    return { position: style.position, zIndex: style.zIndex, text: active ? active.textContent : '' };
   });
   expect(header.position).toBe('relative');
   expect(header.zIndex).toBe('2');
-  expect(header.text).toMatch(/^Speed (0\.5|0\.75|1\.0|1\.5|2\.0|3\.0)×$/);
-  await expect(page.locator('#tablets-speed')).toBeVisible();
+  expect(header.text).toBe('1.0×');
+  await expect(page.locator('#tablets-speed-normal')).toBeVisible();
 
   const before = await page.evaluate(() => {
     R.proofStart = performance.now();
@@ -90,12 +90,12 @@ test('the 1.0x clock climbs to The Mark and the speed control stays above the ba
     saved: SAVE.set.tabletSpeed,
     max: R.tabletClockMax,
     rise: window.tabletsRiseOf(),
-    label: document.getElementById('tablets-speed').textContent
+    label: document.querySelector('#tablets-speeds .tablets-speed-pill.on').textContent
   }));
   expect(faster.saved).toBe('fast');
   expect(faster.max).toBeCloseTo(4.5, 6);
   expect(faster.rise).toBeCloseTo(after.rise, 6);
-  expect(faster.label).toBe('Speed 1.5×');
+  expect(faster.label).toBe('1.5×');
 
   proof.desktop = { before, after, rate, projectedFullClimb, faster };
   await page.screenshot({ path: 'test-results/proof-desktop-clock.png' });
@@ -134,12 +134,12 @@ test('a timeout spends a lamp and pushes back; the tutorial climbs and refills',
     clock: R.tabletClock,
     max: R.tabletClockMax,
     rise: window.tabletsRiseOf(),
-    speed: document.getElementById('tablets-speed').textContent,
-    disabled: document.getElementById('tablets-speed').disabled
+    speed: document.querySelector('#tablets-speeds .tablets-speed-pill.on').textContent,
+    disabled: document.getElementById('tablets-speed-meditative').disabled
   }));
   expect(tutorialStart.max).toBeCloseTo(11.5, 6);
   expect(tutorialStart.clock).toBeGreaterThan(11.2);
-  expect(tutorialStart.speed).toBe('Speed 0.5×');
+  expect(tutorialStart.speed).toBe('0.5×');
   expect(tutorialStart.disabled).toBe(true);
 
   await page.waitForTimeout(1400);
