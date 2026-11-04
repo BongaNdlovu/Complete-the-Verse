@@ -118,9 +118,9 @@ function tabletsEmberAlpha(frozen){
   return frozen ? 0.35 : 0.65;
 }
 /* R2: the rolling chapter sheet fills the field. The active line sits on The Threshold (74% of the field) on fresh
-   sand and on The Mark (45%) when the sand is gone; each frame eases 16% of the way to that spot. */
+   sand and on The Mark (38%) when the sand is gone; each frame eases 16% of the way to that spot. */
 const TABLET_ROLL_ENTRY = 0.74;
-const TABLET_ROLL_MARK = 0.45;
+const TABLET_ROLL_MARK = 0.38;
 const TABLET_ROLL_EASE = 0.16;
 function tabletsRollTarget(windowH, lineMid, rise){
   return windowH * (TABLET_ROLL_ENTRY - (TABLET_ROLL_ENTRY - TABLET_ROLL_MARK) * rise) - lineMid;
@@ -563,7 +563,7 @@ function fillTabletsSheet(host, list, carved){
 function paintTabletsSlot(blank, kind){
   const slot = $("tablets-slot");
   if(!slot) return;
-  slot.classList.remove("glow", "taught");
+  slot.classList.remove("glow", "taught", "typed");
   if(kind === "hit" && blank){
     slot.textContent = blank.a;
     slot.classList.add("glow");
@@ -571,6 +571,16 @@ function paintTabletsSlot(blank, kind){
   }
   /* The letters of the word being typed stand in the slot until it lands. */
   slot.textContent = (R && R.tabletTyped) ? R.tabletTyped : "— — —";
+}
+/* K2: each typed letter lands with a soft pop on the slot; backspace stays
+   quiet. Reduced motion skips it (the CSS sleeps too). */
+function tabletsPopTypedSlot(){
+  const slot = $("tablets-slot");
+  if(!slot || tabletsReduced()) return;
+  slot.classList.remove("typed");
+  if(slot.offsetWidth !== undefined) void slot.offsetWidth;
+  slot.classList.add("typed");
+  setTimeout(function(){ slot.classList.remove("typed"); }, 200);
 }
 function tabletsShowFracture(){
   const f = $("tablets-fracture");
@@ -1743,6 +1753,7 @@ function tabletsTypeKey(k){
   tabletsPlayScribeTick(typed.length / Math.max(1, need.length));
   paintTabletsSlot(blank, "");
   paintTabletsHintBtn();
+  tabletsPopTypedSlot();
   if(R.tabletTyped === need && !R.tabletResolving){
     R.tabletTypedHit = !R.tabletHintUsed;
     tabletsResolve(true);
