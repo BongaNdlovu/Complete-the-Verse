@@ -90,6 +90,25 @@ ok("5 combined_migrations.sql matches the migrations folder", combined.isFresh()
   ok("5 versions are plain numbers", asNumbers.every(function (n) { return n > 0; }));
 }
 
+/* ---------- 11. the tip jar's numbers: public to read, the owner's alone to change ---------- */
+{
+  const mig10 = read("supabase/migrations/010_tip_jar.sql");
+  ok("11 the table holds exactly one row", /constraint tip_jar_single_row check \(id = 1\)/.test(mig10) && /insert into public\.tip_jar \(id\) values \(1\) on conflict \(id\) do nothing/.test(mig10));
+  ok("11 the total and goal are bounded", /raised_usd >= 0 and raised_usd <= 1000000/.test(mig10) && /goal_usd >= 1 and goal_usd <= 1000000/.test(mig10));
+  ok("11 anyone may read it", /create policy "tip jar readable"\s+on public\.tip_jar for select\s+to anon, authenticated\s+using \(true\)/.test(mig10));
+  ok("11 only a site admin may update it", /create policy "owner update tip jar"[\s\S]*?using \(public\.is_site_admin\(\)\)[\s\S]*?with check \(public\.is_site_admin\(\)\)/.test(mig10));
+  ok("11 players may touch only the two numbers, never who or when", /grant update \(raised_usd, goal_usd\) on table public\.tip_jar to authenticated/.test(mig10) && /new\.updated_by := auth\.uid\(\)/.test(mig10));
+  ok("11 players cannot insert or delete", /revoke insert, update, delete on table public\.tip_jar from anon, authenticated/.test(mig10) && !/grant insert[^;]*to authenticated/.test(mig10));
+  ok("11 the touch function is not callable by clients", /revoke all on function public\.touch_tip_jar\(\) from anon, authenticated/.test(mig10));
+  const page = read("admin.html");
+  const hub = read("js/admin-hub.js");
+  ok("11 the admin page has the tip jar card, hidden until the gate passes", /id="tip-card"/.test(page) && /class="card hidden" id="tip-card"/.test(page));
+  ok("11 the card is shown only for an admin, in the same place as the composer", /function renderHub\(\) \{[\s\S]*?\$\("tip-card"\)\.classList\.remove\("hidden"\)[\s\S]*?refreshTipJar\(\)/.test(hub));
+  ok("11 the card updates the one row, and an empty result is reported as not saved", /from\("tip_jar"\)\.update\(\{ raised_usd: form\.raised, goal_usd: form\.goal \}\)\.eq\("id", 1\)\.select\("id"\)/.test(hub) && /Nothing was saved: your account is not in site_admins/.test(hub));
+  ok("11 the jar asks the cloud for the numbers when it opens", /Cloud\.fetchTipJar\(\)/.test(read("js/tip-jar.js")) && /id="tip-updated"/.test(read("index.html")));
+  ok("11 the docs name the table", /tip_jar/.test(read("docs/BACKEND.md")));
+}
+
 /* ---------- 6. esc() escapes the single quote too ---------- */
 {
   const escFrom = function (rel) {
@@ -300,6 +319,32 @@ const sync = function (calls) { return calls.filter(function (c) { return c.tabl
   ok("3 the resend buttons are held for the cooldown",
     /holdButton\(signInBtn, Cloud\.OTP_COOLDOWN_MS/.test(read("js/panels.js")) &&
     (read("js/briefs.js").match(/holdButton\((send), Cloud\.OTP_COOLDOWN_MS/g) || []).length === 2);
+
+  /* 11. the jar reads the owner's numbers, and any doubt leaves the built-in ones showing */
+  {
+    const h = bootCloud({ remote: { raised_usd: "42.50", goal_usd: "150.00", updated_at: "2026-11-05T18:00:00Z" } });
+    const jar = await h.Cloud.fetchTipJar();
+    eq("11 the raised total is read as a number", jar.raisedUsd, 42.5);
+    eq("11 the goal is read as a number", jar.goalUsd, 150);
+    eq("11 the date comes through", jar.updatedAt, "2026-11-05T18:00:00Z");
+    const call = h.calls.filter(function (c) { return c.table === "tip_jar"; })[0];
+    ok("11 only the three columns are asked for", call && call.cols === "raised_usd, goal_usd, updated_at", call);
+    const plain = bootCloud({ remote: { raised_usd: 7, goal_usd: 100, updated_at: "" } });
+    eq("11 plain numbers work too", (await plain.Cloud.fetchTipJar()).raisedUsd, 7);
+    const none = bootCloud({ remote: null });
+    eq("11 a missing row reads as nothing", await none.Cloud.fetchTipJar(), null);
+    const failing = bootCloud({ remote: { raised_usd: 5, goal_usd: 100 } });
+    failing.state.selectError = { message: "relation public.tip_jar does not exist" };
+    eq("11 a missing table reads as nothing", await failing.Cloud.fetchTipJar(), null);
+    const hung = bootCloud();
+    hung.state.hang = true;
+    eq("11 a hung request reads as nothing", await hung.Cloud.fetchTipJar(), null);
+    eq("11 a negative total is refused", await bootCloud({ remote: { raised_usd: -1, goal_usd: 100 } }).Cloud.fetchTipJar(), null);
+    eq("11 a zero goal is refused", await bootCloud({ remote: { raised_usd: 5, goal_usd: 0 } }).Cloud.fetchTipJar(), null);
+    eq("11 text instead of a number is refused", await bootCloud({ remote: { raised_usd: "lots", goal_usd: 100 } }).Cloud.fetchTipJar(), null);
+    const off = bootCloud({ config: { url: "", anonKey: "" } });
+    eq("11 with the cloud off the jar keeps its own numbers", await off.Cloud.fetchTipJar(), null);
+  }
 
   /* 9. the admin hub escapes the notice id it writes into attributes */
   {

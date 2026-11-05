@@ -1410,6 +1410,26 @@ var Cloud = (function () {
     });
   }
 
+  /* ------------------- tip jar ------------------- */
+
+  /* The Tip Jar's numbers, typed in by the owner on admin.html and kept in the tip_jar table. Anyone may read
+     them. Null when the cloud is off or the read fails, and the jar then shows its built-in numbers. */
+  async function fetchTipJar() {
+    var sb = ensureClient();
+    if (!sb) return null;
+    var res;
+    try {
+      res = await withTimeout(sb.from("tip_jar").select("raised_usd, goal_usd, updated_at").eq("id", 1).maybeSingle(), SYNC_TIMEOUT_MS);
+    } catch (e) {
+      return null;
+    }
+    if (res.error || !res.data) return null;
+    var raised = Number(res.data.raised_usd);
+    var goal = Number(res.data.goal_usd);
+    if (!(raised >= 0) || !(goal > 0)) return null;
+    return { raisedUsd: raised, goalUsd: goal, updatedAt: String(res.data.updated_at || "") };
+  }
+
   /* ------------------- friend races ------------------- */
 
   var ROOM_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -1509,6 +1529,7 @@ var Cloud = (function () {
     reportScore: reportScore,
     upsertGhost: upsertGhost,
     fetchGhosts: fetchGhosts,
+    fetchTipJar: fetchTipJar,
     generateRoomCode: generateRoomCode,
     formatRaceUrl: formatRaceUrl,
     parseRaceCodeFromUrl: parseRaceCodeFromUrl,

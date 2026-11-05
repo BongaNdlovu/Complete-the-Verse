@@ -1,6 +1,7 @@
 /* The tip jar: a goal ring, an amount picker, then PayPal's own checkout.
    PayPal's page asks the player for the amount and ignores one in the link, so the picker names the amount to enter.
-   raisedUsd is set by hand from the PayPal account: nothing on this page can read what has really come in. */
+   The raised total and the goal are typed in by the owner on admin.html and kept in the tip_jar table; nothing here
+   reads PayPal. The numbers below are what shows until (or unless) that row can be read. */
 const TIP_JAR = {
   goalUsd: 100,
   raisedUsd: 0,
@@ -10,6 +11,7 @@ const TIP_JAR = {
   defaultUsd: 5,
 };
 const TIP_RING_LENGTH = 100;
+const TIP_REFRESH_MS = 60000;
 
 function tipJarFilled(raisedUsd, goalUsd){
   if(!(goalUsd > 0) || !(raisedUsd > 0)) return 0;
@@ -38,6 +40,10 @@ function bindTipJar(){
   const amountButtons = [].slice.call(modal.querySelectorAll("[data-tip-amount]"));
   let chosenUsd = TIP_JAR.defaultUsd;
   let isCustom = false;
+  let raisedUsd = TIP_JAR.raisedUsd;
+  let goalUsd = TIP_JAR.goalUsd;
+  let updatedAt = "";
+  let loadedAt = 0;
 
   function showStep(name){
     [].slice.call(modal.querySelectorAll("[data-tip-step]")).forEach(function(step){
@@ -45,10 +51,28 @@ function bindTipJar(){
     });
   }
   function paintGoal(){
-    el("tip-raised").textContent = tipJarMoney(TIP_JAR.raisedUsd);
-    el("tip-goal").textContent = tipJarMoney(TIP_JAR.goalUsd);
-    const filled = tipJarFilled(TIP_JAR.raisedUsd, TIP_JAR.goalUsd);
+    el("tip-raised").textContent = tipJarMoney(raisedUsd);
+    el("tip-goal").textContent = tipJarMoney(goalUsd);
+    const filled = tipJarFilled(raisedUsd, goalUsd);
     el("tip-ring-fill").style.strokeDashoffset = String(TIP_RING_LENGTH * (1 - filled));
+    const when = updatedAt ? new Date(updatedAt) : null;
+    const hasDate = !!when && !isNaN(when.getTime());
+    el("tip-updated").hidden = !hasDate;
+    if(hasDate) el("tip-updated").textContent = "Updated " + when.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+  }
+  /* Reads the owner's numbers at most once a minute. A failed read leaves whatever is already showing. */
+  function loadTotal(){
+    if(typeof Cloud === "undefined" || !Cloud.fetchTipJar) return;
+    if(Date.now() - loadedAt < TIP_REFRESH_MS) return;
+    const ready = Cloud.whenReady ? Cloud.whenReady() : Promise.resolve();
+    ready.then(function(){ return Cloud.fetchTipJar(); }).then(function(jar){
+      if(!jar) return;
+      loadedAt = Date.now();
+      raisedUsd = jar.raisedUsd;
+      goalUsd = jar.goalUsd;
+      updatedAt = jar.updatedAt;
+      if(!modal.hidden) paintGoal();
+    }).catch(function(){});
   }
   function paintAmount(){
     amountButtons.forEach(function(btn){
@@ -80,6 +104,7 @@ function bindTipJar(){
     if(modal.offsetWidth !== undefined) void modal.offsetWidth;
     modal.classList.add("on");
     paintGoal();
+    loadTotal();
     el("tip-leave").focus();
   }
   function closeModal(){

@@ -420,6 +420,8 @@ body.reduced .menu-tip-btn:after,body.motion-calm .menu-tip-btn:after{display:no
 .menu-tip-flame.tip-ring-flame{position:relative;width:26px;height:44px;margin:0}
 .tip-total{font-family:var(--disp);font-size:1.15rem;font-weight:700;color:var(--parch-dim);letter-spacing:.04em}
 .tip-total b{font-size:1.75rem;font-weight:800;color:var(--gold-hot)}
+.tip-updated{margin-top:2px;font-family:var(--ui);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--parch-dim)}
+.tip-updated[hidden]{display:none}
 .tip-why{margin:8px 0 0;font-size:1.08rem;line-height:1.35;color:var(--parch)}
 .tip-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:50px;margin-top:16px;padding:0 18px;border:1px solid #fff0bd;border-radius:3px;
   background:linear-gradient(180deg,#ffe39a,#d9a441 56%,#a8772a);color:#1b1005;text-decoration:none;font-family:var(--disp);font-size:.95rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;

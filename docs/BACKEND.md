@@ -106,7 +106,8 @@ node scripts/dev-server.js
 - `saves` — full `SAVE` JSON + `revision`  
 - `daily_scores` — one row per user per day  
 - `blitz_scores` — Scripture Blitz runs (shipped)  
-- `run_ghosts` — timeline samples for async rivals  
+- `run_ghosts` — timeline samples for async rivals
+- `tip_jar` — one row: the raised total and goal shown on the menu's Tip Jar, typed in by the owner on `admin.html` (public read, site-admin write)  
 
 RLS: saves = own only; boards = public read; score inserts and updates are service-role only via `submit-score`. Ghosts = public read, own write. Friend-race create/join UI is out of the production promise.
 
