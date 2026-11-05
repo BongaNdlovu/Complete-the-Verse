@@ -235,12 +235,52 @@ body.reduced .tablets-shafts,body.motion-calm .tablets-shafts{display:none}
   content:"";position:absolute;inset:0;border-radius:16px;pointer-events:none;z-index:1;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='roughStone'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='4' result='noise'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23eedbbd' surfaceScale='2.2'%3E%3CfeDistantLight azimuth='65' elevation='55'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23roughStone)' opacity='0.36'/%3E%3C/svg%3E");
   background-size:240px;mix-blend-mode:overlay;opacity:.16}
-.tablets-fracture{
-  position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;transition:opacity .2s;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 400'%3E%3Cpath d='M250,0 L240,60 L270,120 L230,190 L260,280 L220,340 L250,400 M270,120 L340,160 L390,140 M230,190 L160,230 L110,210 M260,280 L330,320' stroke='%23ff5533' stroke-width='2.5' fill='none'/%3E%3C/svg%3E");
-  background-size:cover}
-.tablets-fracture.active{opacity:1;animation:tabletsCrackFlash .5s ease-out}
-@keyframes tabletsCrackFlash{0%{filter:brightness(2.2);opacity:1}100%{filter:brightness(1);opacity:.8}}
+/* K1: the crack. Grown per miss by tabletsCrackPaths; each path is drawn four times: a dark groove, a pale lip
+   offset down-right (the broken edge catching the light), a soft glow and a hot core that burns white, cools to
+   red and dies. Widths taper by tier (t0 root, t1 middle, t2 tip). The tiers draw out one after another; the whole
+   crack holds, then fades by 1.5 s. The glow is a wide soft stroke, not a CSS filter over the field. */
+.tablets-fracture{position:absolute;inset:0;pointer-events:none;z-index:9;opacity:0;background:none}
+.tablets-fracture.active{animation:tabletsCrackHold 1.5s ease-out forwards}
+.tablets-fracture svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.tablets-fracture path{fill:none;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:3;
+  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
+  animation:tabletsCrackDraw .14s cubic-bezier(.2,.8,.3,1) var(--d,0s) forwards}
+.tablets-crack-groove path{stroke:#0a0402;opacity:.92}
+.tablets-crack-groove path.t0{stroke-width:4.4}
+.tablets-crack-groove path.t1{stroke-width:2.9}
+.tablets-crack-groove path.t2{stroke-width:1.6}
+.tablets-crack-groove path.spall{stroke-width:1.8}
+.tablets-crack-groove path.hair{stroke-width:1}
+.tablets-crack-lip{transform:translate(1px,1.3px)}
+.tablets-crack-lip path{stroke:rgba(255,232,196,.4)}
+.tablets-crack-lip path.t0{stroke-width:1}
+.tablets-crack-lip path.t1{stroke-width:.75}
+.tablets-crack-lip path.t2,.tablets-crack-lip path.spall,.tablets-crack-lip path.hair{stroke-width:.5}
+.tablets-crack-glow path{stroke:rgba(255,120,40,.45);
+  animation:tabletsCrackDraw .14s cubic-bezier(.2,.8,.3,1) var(--d,0s) forwards,tabletsCrackGlowFade 1.1s ease-out var(--d,0s) forwards}
+.tablets-crack-glow path.t0{stroke-width:8}
+.tablets-crack-glow path.t1{stroke-width:5.5}
+.tablets-crack-glow path.t2,.tablets-crack-glow path.spall{stroke-width:3.5}
+.tablets-crack-glow path.hair{stroke-width:2}
+.tablets-crack-hot path{stroke:#fff3d0;
+  animation:tabletsCrackDraw .14s cubic-bezier(.2,.8,.3,1) var(--d,0s) forwards,tabletsCrackCool 1.1s ease-out var(--d,0s) forwards}
+.tablets-crack-hot path.t0{stroke-width:1.9}
+.tablets-crack-hot path.t1{stroke-width:1.2}
+.tablets-crack-hot path.t2,.tablets-crack-hot path.spall{stroke-width:.75}
+.tablets-crack-hot path.hair{stroke-width:.5}
+.tablets-crack-burst{transform-box:fill-box;transform-origin:center;opacity:0;animation:tabletsCrackBurst .42s ease-out forwards}
+.tablets-crack-crater{transform-box:fill-box;transform-origin:center;animation:tabletsCrackCrater .18s ease-out forwards}
+@keyframes tabletsCrackDraw{to{stroke-dashoffset:0}}
+@keyframes tabletsCrackCool{0%{stroke:#fff6dc}18%{stroke:#ffd27a}40%{stroke:#ff7a2e}70%{stroke:#b3200c}100%{stroke:#3a0c05}}
+@keyframes tabletsCrackGlowFade{0%{stroke:rgba(255,220,150,.6)}45%{stroke:rgba(255,100,40,.35)}100%{stroke:rgba(140,20,8,0)}}
+@keyframes tabletsCrackBurst{0%{opacity:1;transform:scale(.25)}35%{opacity:.85}100%{opacity:0;transform:scale(1.6)}}
+@keyframes tabletsCrackCrater{0%{opacity:0;transform:scale(.4)}100%{opacity:1;transform:scale(1)}}
+@keyframes tabletsCrackHold{0%{opacity:1}72%{opacity:1}100%{opacity:0}}
+/* Reduced motion: the crack is shown whole and still, with no burst or glow, and simply fades. */
+body.reduced .tablets-fracture path,body.motion-calm .tablets-fracture path,
+body.reduced .tablets-crack-crater,body.motion-calm .tablets-crack-crater{animation:none;stroke-dashoffset:0}
+body.reduced .tablets-crack-hot path,body.motion-calm .tablets-crack-hot path{stroke:#9a2410}
+body.reduced .tablets-crack-burst,body.motion-calm .tablets-crack-burst,body.reduced .tablets-crack-glow,body.motion-calm .tablets-crack-glow{display:none}
 .tablets-ref-pill,.tablets-mark-row,.tablets-slot,.tablets-verse,.tablets-sand,.tablets-tut-callout,.tablets-speech{position:relative;z-index:3}
 .tablets-ref-pill{
   display:inline-block;margin:0 0 8px;font-family:var(--disp-orn);font-size:clamp(1.05rem,2.2vw,1.5rem);
@@ -932,4 +972,3 @@ body.reduced #v-tablets .tablets-slot.glow,body.motion-calm #v-tablets .tablets-
 /* P7: the last third quickens: The Mark and the zone burn a little hotter. */
 #v-tablets .tablets-stage.quick .tablets-mark-line{box-shadow:0 0 16px #ff6a3d,0 0 28px rgba(255,150,60,.85)}
 #v-tablets .tablets-stage.quick .tablets-zone{border-color:rgba(255,140,70,.5)}
-#v-tablets .tablets-gentle-row{margin-top:-.4em}

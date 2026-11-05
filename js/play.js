@@ -153,7 +153,7 @@ function startTutorialRun(opts){
   const token=(R.runToken||0)+1;
   invalidateRun();
   Object.assign(R,{
-    runToken:token, sceneToken:0, ended:false, mode:"tutorial", diff:resolveDiff("watchman"),
+    runToken:token, sceneToken:0, ended:false, mode:"tutorial", diff:resolveDiff("disciple"),
     q:null, qTotal:0, qInAct:0, score:0, disp:0, lives:3, maxLives:3,
     streak:0, best:0, correct:0, attempts:0, missed:[], used:new Set(), usedRefs:new Set(),
     powers:{selah:1,illum:1,wind:0}, usedPower:false, qUsedPower:false, powersSpent:0,

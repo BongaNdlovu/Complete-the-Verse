@@ -830,7 +830,7 @@ var Atlas = (function () {
     var diffTime = 1;
     try {
       if (typeof SAVE !== "undefined" && SAVE.set && typeof DIFFS !== "undefined") {
-        diffTime = (typeof resolveDiff==="function" ? resolveDiff(SAVE.set.diff) : (DIFFS.watchman||DIFFS.disciple)).time;
+        diffTime = (typeof resolveDiff==="function" ? resolveDiff(SAVE.set.diff) : (DIFFS.disciple||DIFFS.watchman)).time;
       }
     } catch (e) {}
     var ms = (typeof Polish !== "undefined" && Polish.pacedClockMs)

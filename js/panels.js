@@ -782,8 +782,10 @@ function renderSettings(){
       '<span class="edition-locked">'+(s.translation==="nkjv" ? "New King James Version" : "King James Version")+'</span>') +
     setRow("Translation license","Scripture taken from the New King James Version®. Copyright © 1982 by Thomas Nelson. Used by permission. All rights reserved.",
       '<div class="hint" style="text-align:right;">NKJV © 1982 Thomas Nelson</div>') +
-    setRow("Ordeal","Watchman. Two lamps, the full clock.",
-      seg("diff",(typeof selectableDiffs==="function"?selectableDiffs():["watchman"]).map(function(k){ return [k, DIFFS[k].name]; }),s.diff||"watchman")) +
+    setRow("Ordeal","Disciple (the default): three lamps and the clock as it is written. Watchman: two lamps and a shorter clock.",
+      seg("diff",(typeof selectableDiffs==="function"?selectableDiffs():["disciple"]).map(function(k){ return [k, DIFFS[k].name]; }),s.diff||"disciple")) +
+    setRow("Word Tablets pace","Steady runs each chapter at 0.75× and quickens to 1.0× for its last third. Gentle keeps 0.5× all the way.",
+      seg("tabletGentle",[[false,"Steady"],[true,"Gentle"]],!!s.tabletGentle)) +
     setRow("Music","Ambient drone beneath the cathedral.",
       '<input type="range" id="set-music" min="0" max="1" step="0.05" value="'+s.music+'">') +
     setRow("Sound effects","Ticks, heartbeat, the hit when you are wrong.",

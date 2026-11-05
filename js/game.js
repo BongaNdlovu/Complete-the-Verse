@@ -147,13 +147,14 @@ const MODES = {
     tagline:"12 verses · assemble", info:[["12","Verses"],["Assemble","No options"],[modeClockLabel("recall"),"Clock"]] }
 };
 const DIFFS = {
+  /* The user's call (2026-11-05): Disciple is the default level everywhere; Watchman stays a choice. */
   disciple:{ key:"disciple", name:"Disciple", lives:3, time:1.0, score:0.85,
-    desc:"Three lamps. The clock as it is written.", buried:true },
+    desc:"Three lamps. The clock as it is written." },
   watchman:{ key:"watchman", name:"Watchman", lives:2, time:0.85, score:1.0,
     desc:"Two lamps. The clock as the ordeal writes it." }
 };
 function resolveDiff(key){
-  return DIFFS[key] || DIFFS.watchman;
+  return DIFFS[key] || DIFFS.disciple;
 }
 function selectableDiffs(){
   return Object.keys(DIFFS).filter(function(k){ return !DIFFS[k].buried; });

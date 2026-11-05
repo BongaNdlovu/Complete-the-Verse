@@ -34,7 +34,7 @@ const DEFAULT_SAVE = {
   pilgrim:{sites:{}, lastPlayed:"", started:0, usedIds:[]},
   /* Relics unlocked by first site clear. Shape owned by artifacts.js. */
   artifacts:{unlocked:{}, seen:{}},
-  set:{music:0.45, sfx:0.7, musicMute:false, sfxMute:false, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"watchman",
+  set:{music:0.45, sfx:0.7, musicMute:false, sfxMute:false, quality:"high", qualityLocked:false, motion:"full", reduced:false, shake:true, voice:true, diff:"disciple",
        tutorialDone:false, tutorialSeen:false, tabletsTutorialDone:false, introPlayed:false, liveWeather:true, coldOpenDone:false, urPrologueDone:false, quiet:false, contrast:false, haptics:true,
        singleTap:true,
        translation:"kjv", translationChosen:false,
@@ -219,6 +219,8 @@ function load(){
     if(!raw){ raw = localStorage.getItem(LEGACY_SAVE_KEY); migrating = !!raw; }
     if(!raw){
       const fresh = JSON.parse(JSON.stringify(DEFAULT_SAVE));
+      /* A new save starts on Disciple already; the flag keeps a later Watchman pick from being moved back. */
+      fresh.set.diffDiscipleDefault = true;
       ensureEditions(fresh);
       return fresh;
     }
@@ -272,7 +274,13 @@ function migrateProfile(out){
   if(!out || !out.set) return;
   if(out.set.characterDone && !out.set.profileDone) out.set.profileDone = true;
   if(out.set.playerName == null) out.set.playerName = "";
-  out.set.diff = "watchman";
+  /* The user's call (2026-11-05): Disciple is the default level. Saves made in the Watchman-only era were forced to
+     Watchman, so they move to Disciple once; after that the player's own pick is kept. */
+  if(!out.set.diffDiscipleDefault){
+    out.set.diff = "disciple";
+    out.set.diffDiscipleDefault = true;
+  }
+  if(out.set.diff !== "disciple" && out.set.diff !== "watchman") out.set.diff = "disciple";
   const id = out.set.character;
   const known = typeof Characters !== "undefined" && Characters.byId(id);
   if(!known){

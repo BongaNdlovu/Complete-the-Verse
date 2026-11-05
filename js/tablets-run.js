@@ -25,10 +25,13 @@ function tabletsPct(){
   const total = R.tabletTotal || 1;
   return Math.round(((R.tabletIdx || 0) / total) * 100);
 }
-/* P7: the run sets its own pace (the user's call, 2026-11-04). The first two-thirds of a chapter run at 1.25x and
-   the last third quickens to 1.5x (the rules' "fast" tier). Gentle, off by default and chosen in the library, keeps
-   0.75x (the rules' "slow" tier) all the way. The tutorial and the missed-lines review keep the slowest tier. */
-const TABLET_PACE_STEADY = { id:"steady", label:"1.25×", base:5.5, mult:1.15 };
+/* P7: the run sets its own pace (the user's call, 2026-11-05: 1.25x/1.5x was too fast). The first two-thirds of a
+   chapter run at 0.75x (the rules' "slow" tier, 8.8 s) and the last third quickens to 1.0x ("normal", 6.5 s).
+   Gentle, off by default and chosen in the library, keeps 0.5x ("meditative", 11.5 s) all the way. The tutorial
+   and the missed-lines review keep 0.5x too. */
+const TABLET_PACE_STEADY_ID = "slow";
+const TABLET_PACE_QUICK_ID = "normal";
+const TABLET_PACE_GENTLE_ID = "meditative";
 const TABLET_QUICKEN_AT = 2 / 3;
 function tabletsGentle(){
   return !!(typeof SAVE !== "undefined" && SAVE.set && SAVE.set.tabletGentle);
@@ -44,16 +47,18 @@ function tabletsQuickened(){
 function tabletsSpeed(){
   const live = typeof R !== "undefined" && R;
   if(live && (R.tabletTutorial || R.tabletReviewing)) return Tablets.rules.speed("meditative");
-  if(tabletsGentle()) return Tablets.rules.speed("slow");
-  return tabletsQuickened() ? Tablets.rules.speed("fast") : TABLET_PACE_STEADY;
+  if(tabletsGentle()) return Tablets.rules.speed(TABLET_PACE_GENTLE_ID);
+  return Tablets.rules.speed(tabletsQuickened() ? TABLET_PACE_QUICK_ID : TABLET_PACE_STEADY_ID);
 }
 function tabletsClockMax(){
   return tabletsSpeed().base;
 }
 /* The library line: what the next run's sand will be. */
 function tabletsPaceSummary(){
-  if(tabletsGentle()) return "Gentle " + Tablets.rules.speed("slow").label + " · " + Tablets.rules.speed("slow").base + "s";
-  return TABLET_PACE_STEADY.label + " → " + Tablets.rules.speed("fast").label + " · " + TABLET_PACE_STEADY.base + "s to " + Tablets.rules.speed("fast").base + "s";
+  const gentle = Tablets.rules.speed(TABLET_PACE_GENTLE_ID);
+  if(tabletsGentle()) return "Gentle " + gentle.label + " · " + gentle.base + "s";
+  const steady = Tablets.rules.speed(TABLET_PACE_STEADY_ID), quick = Tablets.rules.speed(TABLET_PACE_QUICK_ID);
+  return steady.label + " → " + quick.label + " · " + steady.base + "s to " + quick.base + "s";
 }
 /* O2: the tier names stay as the streak label; the multiplier beside them is
    the carve's combo, because that is what the Favor is really multiplied by. */
@@ -582,11 +587,131 @@ function tabletsPopTypedSlot(){
   slot.classList.add("typed");
   setTimeout(function(){ slot.classList.remove("typed"); }, 200);
 }
+/* K1: a miss cracks the stone where the wrong word struck. Each crack is grown fresh, the way stone fails: a crushed
+   crater at the strike with a ring of spall cracks, 5-7 rays that zigzag sharply about a steady heading and taper
+   from thick at the strike to hairline at the tip (three width tiers), side branches, and hairline offshoots.
+   The tiers draw out one after another in about 0.35 s, burn white-hot, cool through red to a dark groove, then
+   fade (css: tabletsCrack*). */
+const TABLET_CRACK = {
+  rays: [5, 7], step: [7, 17], kink: 0.95, drift: 0.16, spread: 0.6,
+  reach: [0.55, 1], tiers: 3, tierDelay: 0.06,
+  branchChance: 0.6, branchTurn: [0.4, 0.9], branchReach: [0.25, 0.45],
+  hairs: [1, 2], hairLen: [14, 34],
+  spall: [9, 13], spallRing: [12, 26], spallLen: [6, 14], crater: 20,
+  showMs: 1500
+};
+function tabletsCrackPick(range, rnd){
+  return range[0] + rnd() * (range[1] - range[0]);
+}
+/* A walk from (x, y) that kinks hard each step about a heading that only drifts: sharp zigzags, not a curve. */
+function tabletsCrackWalk(x, y, heading, len, rnd){
+  const pts = [[x, y]];
+  let h = heading, travelled = 0;
+  while(travelled < len){
+    const step = Math.min(len - travelled, tabletsCrackPick(TABLET_CRACK.step, rnd));
+    h += (rnd() - 0.5) * TABLET_CRACK.drift;
+    const a = h + (rnd() - 0.5) * TABLET_CRACK.kink;
+    x += Math.cos(a) * step;
+    y += Math.sin(a) * step;
+    pts.push([x, y]);
+    travelled += step;
+  }
+  return { pts:pts, len:travelled };
+}
+function tabletsCrackD(pts){
+  return "M" + pts.map(function(p){ return p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" L");
+}
+function tabletsCrackLen(pts){
+  let n = 0;
+  for(let i = 1; i < pts.length; i++) n += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+  return n;
+}
+/* A walk cut into width tiers that share their joins: tier 0 is the thick root, the last tier the hairline tip.
+   Each tier starts drawing when the one before it is under way, so the crack runs outward. */
+function tabletsCrackTiers(walk, kind, firstTier, delay, out){
+  const pts = walk.pts;
+  const tiers = Math.max(1, Math.min(TABLET_CRACK.tiers - firstTier, pts.length - 1));
+  const per = (pts.length - 1) / tiers;
+  for(let t = 0; t < tiers; t++){
+    const seg = pts.slice(Math.round(t * per), Math.round((t + 1) * per) + 1);
+    if(seg.length < 2) continue;
+    out.push({ d:tabletsCrackD(seg), len:tabletsCrackLen(seg), kind:kind, tier:firstTier + t, delay:+(delay + t * TABLET_CRACK.tierDelay).toFixed(2) });
+  }
+}
+/* Pure: the crack's paths for an impact at (cx, cy) with `reach` px of room. Each is { d, len, kind, tier, delay }. */
+function tabletsCrackPaths(cx, cy, reach, rnd){
+  const out = [];
+  const rays = Math.round(tabletsCrackPick(TABLET_CRACK.rays, rnd));
+  const base = rnd() * Math.PI * 2;
+  for(let i = 0; i < rays; i++){
+    const angle = base + i * (Math.PI * 2 / rays) + (rnd() - 0.5) * TABLET_CRACK.spread;
+    const ray = tabletsCrackWalk(cx, cy, angle, reach * tabletsCrackPick(TABLET_CRACK.reach, rnd), rnd);
+    tabletsCrackTiers(ray, "main", 0, 0, out);
+    if(ray.pts.length < 3) continue;
+    if(rnd() < TABLET_CRACK.branchChance){
+      const k = 1 + Math.floor(rnd() * (ray.pts.length - 2));
+      const turn = tabletsCrackPick(TABLET_CRACK.branchTurn, rnd) * (rnd() < 0.5 ? -1 : 1);
+      const branch = tabletsCrackWalk(ray.pts[k][0], ray.pts[k][1], angle + turn, reach * tabletsCrackPick(TABLET_CRACK.branchReach, rnd), rnd);
+      tabletsCrackTiers(branch, "branch", 1, 0.08 + k * 0.012, out);
+    }
+    const hairs = Math.round(tabletsCrackPick(TABLET_CRACK.hairs, rnd));
+    for(let j = 0; j < hairs; j++){
+      const k = 1 + Math.floor(rnd() * (ray.pts.length - 2));
+      const turn = tabletsCrackPick([0.6, 1.3], rnd) * (rnd() < 0.5 ? -1 : 1);
+      const hair = tabletsCrackWalk(ray.pts[k][0], ray.pts[k][1], angle + turn, tabletsCrackPick(TABLET_CRACK.hairLen, rnd), rnd);
+      out.push({ d:tabletsCrackD(hair.pts), len:hair.len, kind:"hair", tier:2, delay:+(0.12 + k * 0.012).toFixed(2) });
+    }
+  }
+  const spall = Math.round(tabletsCrackPick(TABLET_CRACK.spall, rnd));
+  for(let j = 0; j < spall; j++){
+    const a = rnd() * Math.PI * 2;
+    const r = tabletsCrackPick(TABLET_CRACK.spallRing, rnd);
+    const chip = tabletsCrackWalk(cx + Math.cos(a) * r, cy + Math.sin(a) * r, a + Math.PI / 2 + (rnd() - 0.5), tabletsCrackPick(TABLET_CRACK.spallLen, rnd), rnd);
+    out.push({ d:tabletsCrackD(chip.pts), len:chip.len, kind:"spall", tier:1, delay:0 });
+  }
+  return out;
+}
+/* The overlay: an impact burst and a crushed crater, then each path four times (dark groove, light lip, soft glow,
+   hot core); the class carries the kind and the width tier. */
+function tabletsCrackSvg(w, h, cx, cy, paths){
+  const layer = function(cls){
+    return '<g class="' + cls + '">' + paths.map(function(p){
+      return '<path class="' + p.kind + " t" + p.tier + '" d="' + p.d + '" style="--len:' + p.len.toFixed(1) + ';--d:' + p.delay + 's"/>';
+    }).join("") + "</g>";
+  };
+  const at = 'cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '"';
+  return '<svg viewBox="0 0 ' + Math.round(w) + " " + Math.round(h) + '" aria-hidden="true">' +
+    '<defs><radialGradient id="tablets-crack-burst"><stop offset="0" stop-color="#fff6dc" stop-opacity=".95"/>' +
+    '<stop offset=".35" stop-color="#ff9a4a" stop-opacity=".55"/><stop offset="1" stop-color="#ff4a1a" stop-opacity="0"/></radialGradient>' +
+    '<radialGradient id="tablets-crack-crater"><stop offset="0" stop-color="#050201" stop-opacity=".9"/>' +
+    '<stop offset=".55" stop-color="#1a0b04" stop-opacity=".55"/><stop offset="1" stop-color="#1a0b04" stop-opacity="0"/></radialGradient></defs>' +
+    '<circle class="tablets-crack-crater" ' + at + ' r="' + TABLET_CRACK.crater + '" fill="url(#tablets-crack-crater)"/>' +
+    '<circle class="tablets-crack-burst" ' + at + ' r="70" fill="url(#tablets-crack-burst)"/>' +
+    layer("tablets-crack-groove") + layer("tablets-crack-lip") + layer("tablets-crack-glow") + layer("tablets-crack-hot") + "</svg>";
+}
 function tabletsShowFracture(){
   const f = $("tablets-fracture");
   if(!f) return;
+  const ms = $("tablets-ms"), slot = $("tablets-slot");
+  const msRect = (ms && ms.getBoundingClientRect) ? ms.getBoundingClientRect() : { left:0, top:0, width:800, height:450 };
+  const sRect = (slot && slot.getBoundingClientRect) ? slot.getBoundingClientRect() : { left:350, top:200, width:100, height:40 };
+  const w = msRect.width || 800, h = msRect.height || 450;
+  const cx = sRect.left - msRect.left + sRect.width / 2;
+  const cy = sRect.top - msRect.top + sRect.height / 2;
+  f.innerHTML = tabletsCrackSvg(w, h, cx, cy, tabletsCrackPaths(cx, cy, Math.min(w, h) * 0.42, Math.random));
+  f.classList.remove("active");
+  void f.offsetWidth;
   f.classList.add("active");
-  setTimeout(function(){ try{ f.classList.remove("active"); }catch(e){} }, 500);
+  tabletsCrackChips(sRect);
+  clearTimeout(f._t);
+  f._t = setTimeout(function(){ try{ f.classList.remove("active"); f.innerHTML = ""; }catch(e){} }, TABLET_CRACK.showMs);
+}
+/* Stone chips fall from the strike: dark grit and a few hot flecks (none under reduced motion). */
+function tabletsCrackChips(r){
+  if(tabletsReduced() || !r) return;
+  const x = r.left + r.width / 2, y = r.top + r.height / 2;
+  spawnTabletsSparks(x, y, 16, "58,40,26");
+  spawnTabletsSparks(x, y, 8, "255,170,90");
 }
 function paintTabletsTablet(answer){
   const ch = tabletsChapter();
