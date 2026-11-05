@@ -644,28 +644,10 @@ function tabletsBriefModes(){
   row.appendChild(note);
   return row;
 }
-/* P7: the run sets the pace (1.25x, quickening to 1.5x for the last third); the library says so, and offers Gentle. */
+/* P7: the run sets the pace (0.75x, quickening to 1.0x for the last third); the library line says which pace the
+   next run gets. Gentle lives in Settings (Word Tablets pace). */
 function tabletsBriefPaceText(){
-  return (typeof window !== "undefined" && typeof window.tabletsPaceSummary === "function") ? window.tabletsPaceSummary() : "1.25× → 1.5×";
-}
-function tabletsBriefGentle(){
-  const on = !!SAVE.set.tabletGentle;
-  const row = document.createElement("div");
-  row.className = "tablets-mode-row tablets-gentle-row";
-  const b = document.createElement("button");
-  b.type = "button";
-  b.className = "tablets-mode-btn tablets-gentle-btn" + (on ? " on" : "");
-  b.dataset.tabletGentle = "1";
-  b.setAttribute("aria-pressed", on ? "true" : "false");
-  b.textContent = "Gentle pace · " + (on ? "on" : "off");
-  row.appendChild(b);
-  const note = document.createElement("p");
-  note.className = "tablets-mode-note";
-  note.textContent = on
-    ? "The sand runs at 0.75× for the whole chapter"
-    : "Off · each chapter runs at 1.25× and quickens to 1.5× for its last third";
-  row.appendChild(note);
-  return row;
+  return (typeof window !== "undefined" && typeof window.tabletsPaceSummary === "function") ? window.tabletsPaceSummary() : "0.75× → 1.0×";
 }
 function paintTabletsBriefModes(on){
   const modes = $("brief-tablets-modes");
@@ -674,7 +656,6 @@ function paintTabletsBriefModes(on){
   modes.innerHTML = "";
   if(!on) return;
   modes.appendChild(tabletsBriefModes());
-  modes.appendChild(tabletsBriefGentle());
 }
 function paintTabletsBrief(on){
   paintTabletsBriefModes(on);
@@ -843,15 +824,6 @@ function tabletsFocusModeBtn(id){
 }
 const tabletsModesHost = $("brief-tablets-modes");
 if(tabletsModesHost) tabletsModesHost.addEventListener("click", function(e){
-  const gentleBtn = e.target.closest("[data-tablet-gentle]");
-  if(gentleBtn){
-    /* P7: Gentle is saved and read by the next run; it is off unless the player turns it on. */
-    SAVE.set.tabletGentle = !SAVE.set.tabletGentle;
-    if(typeof persist === "function") persist();
-    if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
-    paintTabletsBrief(true);
-    return;
-  }
   const modeBtn = e.target.closest("[data-tablet-mode]");
   if(!modeBtn) return;
   /* P1: the picked mode is saved; the next run reads it and keeps it. */
@@ -1081,7 +1053,7 @@ function renderSiteDiffs(){
   if(!host) return;
   host.innerHTML = (typeof selectableDiffs === "function" ? selectableDiffs() : Object.keys(DIFFS)).map(function(k, di){
     const d = DIFFS[k];
-    const on = (SAVE.set.diff || "watchman") === k;
+    const on = (SAVE.set.diff || "disciple") === k;
     return '<button type="button" class="diff'+(on?" sel":"")+'" data-diff="'+esc(k)+'" title="Shortcut: '+(di+1)+'"><b>'+esc(d.name)+'</b><span>'+esc(d.desc)+'</span></button>';
   }).join("");
   host.querySelectorAll("[data-diff]").forEach(function(b){

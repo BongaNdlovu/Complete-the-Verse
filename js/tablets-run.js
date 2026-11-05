@@ -25,10 +25,13 @@ function tabletsPct(){
   const total = R.tabletTotal || 1;
   return Math.round(((R.tabletIdx || 0) / total) * 100);
 }
-/* P7: the run sets its own pace (the user's call, 2026-11-04). The first two-thirds of a chapter run at 1.25x and
-   the last third quickens to 1.5x (the rules' "fast" tier). Gentle, off by default and chosen in the library, keeps
-   0.75x (the rules' "slow" tier) all the way. The tutorial and the missed-lines review keep the slowest tier. */
-const TABLET_PACE_STEADY = { id:"steady", label:"1.25×", base:5.5, mult:1.15 };
+/* P7: the run sets its own pace (the user's call, 2026-11-05: 1.25x/1.5x was too fast). The first two-thirds of a
+   chapter run at 0.75x (the rules' "slow" tier, 8.8 s) and the last third quickens to 1.0x ("normal", 6.5 s).
+   Gentle, off by default and chosen in the library, keeps 0.5x ("meditative", 11.5 s) all the way. The tutorial
+   and the missed-lines review keep 0.5x too. */
+const TABLET_PACE_STEADY_ID = "slow";
+const TABLET_PACE_QUICK_ID = "normal";
+const TABLET_PACE_GENTLE_ID = "meditative";
 const TABLET_QUICKEN_AT = 2 / 3;
 function tabletsGentle(){
   return !!(typeof SAVE !== "undefined" && SAVE.set && SAVE.set.tabletGentle);
@@ -44,16 +47,18 @@ function tabletsQuickened(){
 function tabletsSpeed(){
   const live = typeof R !== "undefined" && R;
   if(live && (R.tabletTutorial || R.tabletReviewing)) return Tablets.rules.speed("meditative");
-  if(tabletsGentle()) return Tablets.rules.speed("slow");
-  return tabletsQuickened() ? Tablets.rules.speed("fast") : TABLET_PACE_STEADY;
+  if(tabletsGentle()) return Tablets.rules.speed(TABLET_PACE_GENTLE_ID);
+  return Tablets.rules.speed(tabletsQuickened() ? TABLET_PACE_QUICK_ID : TABLET_PACE_STEADY_ID);
 }
 function tabletsClockMax(){
   return tabletsSpeed().base;
 }
 /* The library line: what the next run's sand will be. */
 function tabletsPaceSummary(){
-  if(tabletsGentle()) return "Gentle " + Tablets.rules.speed("slow").label + " · " + Tablets.rules.speed("slow").base + "s";
-  return TABLET_PACE_STEADY.label + " → " + Tablets.rules.speed("fast").label + " · " + TABLET_PACE_STEADY.base + "s to " + Tablets.rules.speed("fast").base + "s";
+  const gentle = Tablets.rules.speed(TABLET_PACE_GENTLE_ID);
+  if(tabletsGentle()) return "Gentle " + gentle.label + " · " + gentle.base + "s";
+  const steady = Tablets.rules.speed(TABLET_PACE_STEADY_ID), quick = Tablets.rules.speed(TABLET_PACE_QUICK_ID);
+  return steady.label + " → " + quick.label + " · " + steady.base + "s to " + quick.base + "s";
 }
 /* O2: the tier names stay as the streak label; the multiplier beside them is
    the carve's combo, because that is what the Favor is really multiplied by. */

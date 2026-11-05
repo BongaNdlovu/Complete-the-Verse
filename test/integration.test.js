@@ -60,14 +60,19 @@ eq("SRS is available to the game", read(sb, "typeof SRS.schedule"), "function");
 eq("Recall is available to the game", read(sb, "typeof Recall.grade"), "function");
 eq("a fresh save has no schedule", read(sb, "Object.keys(SAVE.srs).length"), 0);
 eq("a fresh save reports nothing due", read(sb, "dueToday()"), 0);
-/* One ordeal. A new player meets Watchman: two lamps, clock ×0.85. */
-eq("a fresh save plays Watchman", read(sb, "SAVE.set.diff"), "watchman");
+/* A new player meets Disciple: three lamps, the clock as written. Watchman stays a choice: two lamps, ×0.85. */
+eq("a fresh save plays Disciple", read(sb, "SAVE.set.diff"), "disciple");
+eq("a fresh save is marked as already on the Disciple default", read(sb, "SAVE.set.diffDiscipleDefault"), true);
 eq("the printed clock matches the pure helper",
    read(sb, "pacedClockMs(14000, 1, 1500)"), read(sb, "Math.round((14000 * 1 + 1500) * PACE + FLAT_ADD_MS)"));
 eq("the Disciple-era helper still prints 23.6s at ×1", read(sb, "pacedClockMs(14000, 1, 1500)"), 23600);
-eq("Watchman clock is ×0.85", read(sb, "resolveDiff().time"), 0.85);
-eq("Watchman has two lamps", read(sb, "resolveDiff().lives"), 2);
-eq("Watchman score is unboosted", read(sb, "resolveDiff().score"), 1);
+eq("an unknown level falls back to Disciple", read(sb, "resolveDiff().key"), "disciple");
+eq("Disciple keeps the written clock", read(sb, "resolveDiff().time"), 1);
+eq("Disciple has three lamps", read(sb, "resolveDiff().lives"), 3);
+eq("Watchman clock is ×0.85", read(sb, "resolveDiff('watchman').time"), 0.85);
+eq("Watchman has two lamps", read(sb, "resolveDiff('watchman').lives"), 2);
+eq("Watchman score is unboosted", read(sb, "resolveDiff('watchman').score"), 1);
+eq("both levels can be picked", read(sb, "selectableDiffs().join()"), "disciple,watchman");
 eq("quitPlay is wired", read(sb, "typeof quitPlay"), "function");
 eq("a cold candle is dark", read(sb, "candleProgress()"), 0);
 read(sb, "R.mode='trial'; R.correct=20; R.streak=12; R.qTotal=20;");
@@ -82,7 +87,19 @@ read(sb, "invalidateRun();");
     best:{}, life:{}, books:{}, verse:{}, srs:{}, board:[],
     daily:{date:"", score:0}, set:{diff:"disciple"}
   }});
-  eq("an old Disciple save migrates to Watchman", read(migrated, "SAVE.set.diff"), "watchman");
+  eq("an old Disciple save stays Disciple", read(migrated, "SAVE.set.diff"), "disciple");
+}
+{
+  /* A save from the Watchman-only era moves to Disciple once; after that the player's pick is kept. */
+  const old = boot({key:"ctv_save_v3", value:{ v:3, xp:0, runs:0, seals:[], best:{}, life:{}, books:{}, verse:{}, srs:{}, board:[],
+    daily:{date:"", score:0}, set:{diff:"watchman"} }});
+  eq("a Watchman-era save moves to Disciple once", read(old, "SAVE.set.diff"), "disciple");
+  const picked = boot({key:"ctv_save_v3", value:{ v:3, xp:0, runs:0, seals:[], best:{}, life:{}, books:{}, verse:{}, srs:{}, board:[],
+    daily:{date:"", score:0}, set:{diff:"watchman", diffDiscipleDefault:true} }});
+  eq("a Watchman pick made after the move is kept", read(picked, "SAVE.set.diff"), "watchman");
+  const odd = boot({key:"ctv_save_v3", value:{ v:3, xp:0, runs:0, seals:[], best:{}, life:{}, books:{}, verse:{}, srs:{}, board:[],
+    daily:{date:"", score:0}, set:{diff:"zealot", diffDiscipleDefault:true} }});
+  eq("an unknown level in a save becomes Disciple", read(odd, "SAVE.set.diff"), "disciple");
 }
 
 /* ---------- a Drill run schedules what it asks ---------- */
@@ -206,7 +223,8 @@ read(sb, "invalidateRun();");
   eq("seals survive migration", read(s, "SAVE.seals.length"), 2);
   eq("best scores survive migration", read(s, "SAVE.best.trial"), 12000);
   eq("lifetime totals survive migration", read(s, "SAVE.life.correct"), 120);
-  eq("settings survive migration", read(s, "SAVE.set.diff"), "watchman");
+  eq("settings survive migration", read(s, "SAVE.set.sfx"), 0.9);
+  eq("a v2 save moves to the Disciple default", read(s, "SAVE.set.diff"), "disciple");
   eq("book stats survive migration", read(s, "SAVE.books.Genesis.c"), 8);
   eq("the save is stamped v3", read(s, "SAVE.v"), 3);
 
@@ -485,7 +503,7 @@ read(sb, "invalidateRun();");
   ok("a pre-Pilgrimage save still loads", read(s, "SAVE.xp") === 9000);
   eq("its seals survive", read(s, "SAVE.seals.length"), 2);
   eq("its records survive", read(s, "SAVE.best.trial"), 5000);
-  eq("its settings survive", read(s, "SAVE.set.diff"), "watchman");
+  eq("its level moves to the Disciple default", read(s, "SAVE.set.diff"), "disciple");
   eq("it gains a blank journey", read(s, "Pilgrimage.clearedCount(SAVE.pilgrim)"), 0);
   eq("starting at Ur", read(s, "Pilgrimage.currentSite(SAVE.pilgrim).id"), "ur");
   eq("and a Pilgrimage best of zero", read(s, "SAVE.best.pilgrimage"), 0);

@@ -932,4 +932,3 @@ body.reduced #v-tablets .tablets-slot.glow,body.motion-calm #v-tablets .tablets-
 /* P7: the last third quickens: The Mark and the zone burn a little hotter. */
 #v-tablets .tablets-stage.quick .tablets-mark-line{box-shadow:0 0 16px #ff6a3d,0 0 28px rgba(255,150,60,.85)}
 #v-tablets .tablets-stage.quick .tablets-zone{border-color:rgba(255,140,70,.5)}
-#v-tablets .tablets-gentle-row{margin-top:-.4em}

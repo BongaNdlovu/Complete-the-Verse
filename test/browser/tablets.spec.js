@@ -40,7 +40,7 @@ async function bootTablets(page) {
   await page.waitForTimeout(120);
 }
 
-test('the 1.25x clock climbs to The Mark and the last third quickens to 1.5x', async ({ page }) => {
+test('the 0.75x clock climbs to The Mark and the last third quickens to 1.0x', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await bootTablets(page);
   await expect(page.locator('#v-tablets')).toHaveClass(/has-library-bg/, { timeout: 8000 });
@@ -53,7 +53,7 @@ test('the 1.25x clock climbs to The Mark and the last third quickens to 1.5x', a
   });
   expect(header.position).toBe('relative');
   expect(header.zIndex).toBe('2');
-  expect(header.pace).toBe('1.25×');
+  expect(header.pace).toBe('0.75×');
   expect(header.pills).toBe(0);
   await expect(page.locator('#tablets-pace')).toBeVisible();
 
@@ -66,8 +66,8 @@ test('the 1.25x clock climbs to The Mark and the last third quickens to 1.5x', a
       marker: parseFloat(document.getElementById('tablets-ladder-marker').style.top)
     };
   });
-  expect(before.max).toBeCloseTo(5.5, 6);
-  await page.waitForFunction(() => R.tabletClock <= 0.55, null, { timeout: 10000 });
+  expect(before.max).toBeCloseTo(8.8, 6);
+  await page.waitForFunction(() => R.tabletClock <= 0.88, null, { timeout: 15000 });
   const after = await page.evaluate(() => {
     stopTabletsLoop();
     return {
@@ -81,12 +81,12 @@ test('the 1.25x clock climbs to The Mark and the last third quickens to 1.5x', a
   const projectedFullClimb = before.max / rate;
   expect(rate).toBeGreaterThan(0.85);
   expect(rate).toBeLessThan(1.15);
-  expect(projectedFullClimb).toBeGreaterThan(4.8);
-  expect(projectedFullClimb).toBeLessThan(6.2);
+  expect(projectedFullClimb).toBeGreaterThan(7.8);
+  expect(projectedFullClimb).toBeLessThan(9.8);
   expect(after.rise).toBeGreaterThan(0.88);
   expect(after.marker).toBeLessThan(before.marker);
 
-  /* Carve to the 9th of Psalm 23's 11 blanks: the last third runs on the 1.5x base and says so. */
+  /* Carve to the 9th of Psalm 23's 11 blanks: the last third runs on the 1.0x base and says so. */
   const quick = await page.evaluate(async () => {
     Math.random = () => 0.9;
     for (let i = 0; i < 8; i++) { window.tabletsResolve(true); window.tabletsFinishResolve(true); }
@@ -94,10 +94,10 @@ test('the 1.25x clock climbs to The Mark and the last third quickens to 1.5x', a
       pace: document.getElementById('tablets-pace').textContent, mood: document.getElementById('tablets-stage').classList.contains('quick') };
   });
   expect(quick.idx).toBe(8);
-  expect(quick.label).toBe('1.5×');
-  expect(quick.pace).toBe('1.5× · quickened');
+  expect(quick.label).toBe('1.0×');
+  expect(quick.pace).toBe('1.0× · quickened');
   expect(quick.mood).toBe(true);
-  expect(quick.max).toBeLessThan(4.5);
+  expect(quick.max).toBeLessThan(6.5);
 
   proof.desktop = { before, after, rate, projectedFullClimb, quick };
   await page.screenshot({ path: 'test-results/proof-desktop-clock.png' });
@@ -228,7 +228,7 @@ test('a timeout spends a lamp and pushes back; the tutorial climbs and refills',
   expect(timeout.ended).toBe(false);
   expect(timeout.timeout).toBe(false);
   expect(timeout.rise).toBeCloseTo(0.55, 6);
-  expect(timeout.clock).toBeCloseTo(5.5 * 0.45, 6);
+  expect(timeout.clock).toBeCloseTo(8.8 * 0.45, 6);
   expect(timeout.cracked).toBe(1);
   expect(timeout.lampLeft).toBe('2');
   await page.waitForTimeout(60);
