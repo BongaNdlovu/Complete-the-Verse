@@ -100,6 +100,7 @@ const PRECACHE_ASSETS = [
   "js/tablets-hall.js",
   "js/tablets-run.js",
   "js/game.js",
+  "js/tip-jar.js",
   "js/register-sw.js",
   "privacy.html",
   "support.html",

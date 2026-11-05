@@ -211,6 +211,14 @@
         <button class="btn ghost sm" data-go="settings">Settings</button>
         <button class="btn ghost sm" id="menu-quit-app" type="button" hidden>Quit game</button>
       </div>
+      <aside class="menu-tip" aria-label="Tip jar">
+        <span class="menu-tip-glow" aria-hidden="true"></span>
+        <span class="menu-tip-flame" aria-hidden="true"></span>
+        <p class="menu-tip-verse">God loveth a cheerful giver.</p>
+        <p class="menu-tip-ref">2 Corinthians 9:7</p>
+        <button class="menu-tip-btn" id="menu-tip-open" type="button"><span>Tip Jar</span></button>
+        <p class="menu-tip-note">Help keep the site up and running · Cards or PayPal</p>
+      </aside>
       <div class="hint" id="menu-hint"></div>
     </div>
   </section>
@@ -939,6 +947,54 @@
   </div>
 </div>
 
+<!-- ============ TIP JAR ============ -->
+<div id="tip-modal" class="tip-modal" role="dialog" aria-modal="true" aria-labelledby="tip-title" hidden>
+  <div class="tip-card">
+    <button class="tip-close" id="tip-close" type="button" aria-label="Close the tip jar">✕</button>
+    <h2 class="tip-title" id="tip-title">Tip Jar</h2>
+
+    <div class="tip-step" data-tip-step="goal">
+      <div class="tip-ring">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="tip-ring-track" cx="60" cy="60" r="52" pathLength="100"></circle>
+          <circle class="tip-ring-fill" id="tip-ring-fill" cx="60" cy="60" r="52" pathLength="100"></circle>
+        </svg>
+        <span class="tip-ring-glow" aria-hidden="true"></span>
+        <span class="menu-tip-flame tip-ring-flame" aria-hidden="true"></span>
+      </div>
+      <p class="tip-total"><b id="tip-raised">$0</b> / <span id="tip-goal">$100</span></p>
+      <p class="tip-why">Keep Complete the Verse up and running.</p>
+      <button class="tip-action" id="tip-leave" type="button">Leave a tip</button>
+    </div>
+
+    <div class="tip-step" data-tip-step="amount" hidden>
+      <p class="tip-why">Keep Complete the Verse up and running.</p>
+      <div class="tip-amounts">
+        <button type="button" class="tip-amount" data-tip-amount="1"><b>$1</b><span>Small tip</span></button>
+        <button type="button" class="tip-amount" data-tip-amount="3"><b>$3</b><span>Sweet spot</span></button>
+        <button type="button" class="tip-amount" data-tip-amount="5"><b>$5</b><span>Big boost</span></button>
+        <button type="button" class="tip-amount" data-tip-amount="10"><b>$10</b><span>Super tip</span></button>
+        <button type="button" class="tip-amount" data-tip-amount="25"><b>$25</b><span>Huge tip</span></button>
+        <button type="button" class="tip-amount" data-tip-amount="custom"><b>$</b><span>Custom</span></button>
+      </div>
+      <label class="tip-custom" id="tip-custom" hidden>
+        <span>Your amount in US dollars</span>
+        <input id="tip-custom-input" type="text" inputmode="decimal" autocomplete="off" placeholder="$1 or more">
+      </label>
+      <a class="tip-action" id="tip-checkout" href="#" target="_blank" rel="noopener noreferrer">Tip $5</a>
+      <button class="tip-back" id="tip-back" type="button">Back</button>
+    </div>
+
+    <div class="tip-step" data-tip-step="thanks" hidden>
+      <span class="menu-tip-flame" aria-hidden="true"></span>
+      <p class="tip-enter">Enter <b id="tip-enter-amount">$5</b> on the PayPal page.</p>
+      <p class="tip-why">PayPal opened in a new tab. Cards work there too. Thank you for keeping the lamp lit.</p>
+      <a class="tip-back" id="tip-reopen" href="#" target="_blank" rel="noopener noreferrer">Open PayPal again</a>
+      <button class="tip-action" id="tip-done" type="button">Back to the game</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ JOURNEY STORY VIGNETTE MODAL ============ -->
 <div id="journey-vignette-modal" class="journey-vignette-modal" aria-modal="true" role="dialog" aria-labelledby="jv-title" hidden>
   <div class="jv-card brass-corners">
@@ -1031,6 +1087,7 @@
 <script defer src="js/play.js"></script>
 <script defer src="js/tablets-run.js"></script>
 <script defer src="js/game.js"></script>
+<script defer src="js/tip-jar.js"></script>
 <script defer src="js/register-sw.js"></script>
 </body>
 </html>
