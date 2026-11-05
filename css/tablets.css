@@ -612,6 +612,8 @@ body.reduced .tablets-stone.revealed,
 body.motion-calm .tablets-stone.revealed,
 body.reduced #v-tablets .tablets-slot,
 body.motion-calm #v-tablets .tablets-slot,
+body.reduced #v-tablets .tablets-blank-word.in.fresh,
+body.motion-calm #v-tablets .tablets-blank-word.in.fresh,
 body.reduced #v-tablets .tablets-slot.typed,
 body.motion-calm #v-tablets .tablets-slot.typed,
 body.reduced .tablets-slot.glow,
@@ -812,9 +814,17 @@ body.reduced .tablets-sheet,body.reduced .tablets-verse,body.motion-calm .tablet
   color:#fff3c4;font-family:var(--disp);font-size:.95em;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
   box-shadow:0 0 16px rgba(255,209,92,.35);text-shadow:0 1px 2px rgba(0,0,0,.6);
   transition:border-color .18s ease,background .18s ease,color .18s ease,box-shadow .18s ease,transform .18s cubic-bezier(.2,.9,.3,1.2)}
-/* K2: the typed word animates — a soft pop per keystroke. */
-#v-tablets .tablets-slot.typed{animation:tabletsTypedPop .12s cubic-bezier(.2,.9,.3,1.2)}
-@keyframes tabletsTypedPop{0%{transform:translateY(2px) scale(.97)}100%{transform:none}}
+/* K2: the typed word animates — a springy gold pulse per keystroke. */
+#v-tablets .tablets-slot.typed{animation:tabletsTypedPop .18s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes tabletsTypedPop{0%{transform:scale(1)}40%{transform:scale(1.09);box-shadow:0 0 26px rgba(255,235,150,.95)}100%{transform:scale(1)}}
+/* The stones that fit the letters typed light up and lift. */
+#v-tablets .tablets-stone.typed-match{background:linear-gradient(135deg,#fff,#fff0b8 50%,#f5b027);border-color:#fff;
+  transform:translateY(-2px);box-shadow:0 0 24px rgba(255,235,150,.9)}
+#v-tablets .tablets-stone.typed-match .tablets-word{color:#1f1205}
+/* The word just carved flashes white-gold and settles. */
+#v-tablets .tablets-blank-word.in.fresh{animation:tabletsCarveFlash .65s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes tabletsCarveFlash{0%{color:#fff;text-shadow:0 0 16px #f6b73c,0 0 28px #fffae6;transform:scale(1.16)}
+  50%{color:#ffd76e;text-shadow:0 0 10px #f6b73c}100%{color:#ffd76e;transform:scale(1)}}
 #v-tablets .tablets-slot.urgent{border-color:#ff4d4d;background:linear-gradient(180deg,#b05c56,#8f3838);color:#ffe8a8}
 #v-tablets .tablets-slot.glow{border-color:#fff;background:linear-gradient(180deg,#ffd76e,#c88a28);color:#241608;
   text-shadow:none;box-shadow:0 0 24px #fff3c4;transform:scale(1.05)}

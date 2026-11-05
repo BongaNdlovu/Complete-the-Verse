@@ -116,8 +116,9 @@ test('drag-to-fill, golden verse and Selah work on the live run', async ({ page 
     slot.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: dt }));
     slot.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
   }, word);
-  await expect(page.locator('#tablets-slot')).toHaveText(word);
-  expect(await page.evaluate(() => !!R.tabletResolving)).toBe(true);
+  /* The word carves at once and the next line is ready. */
+  await expect(page.locator('#tablets-sheet-past .tablets-blank-word.in').last()).toHaveText(word);
+  expect(await page.evaluate(() => ({ correct: R.correct, idx: R.tabletIdx, resolving: !!R.tabletResolving }))).toEqual({ correct: 1, idx: 1, resolving: false });
 
   /* R3: Psalm 23:3 (soul) is one of the reference's golden verses; it is blank index 3. */
   const golden = await page.evaluate(() => {
