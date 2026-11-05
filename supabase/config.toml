@@ -208,11 +208,14 @@ token_verifications = 30
 # Number of Web3 logins that can be made in a 5 minute interval per IP address.
 web3 = 30
 
-# Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
+# Bot protection for email sign-in (open signup multiplies every per-user quota and burns the OTP email quota).
+# Providers: `hcaptcha`, `turnstile`. The page side is already wired for Turnstile: put the widget's site key in
+# js/cloud-config.js (turnstileSiteKey) and the secret in the environment, then switch this on. It stays commented
+# because, with it on, a sign-in without a captcha token is refused, locally too.
 # [auth.captcha]
 # enabled = true
-# provider = "hcaptcha"
-# secret = ""
+# provider = "turnstile"
+# secret = "env(SUPABASE_AUTH_CAPTCHA_SECRET)"
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
@@ -382,6 +385,10 @@ deno_version = 2
 
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
+
+# The scores function re-checks the caller itself, but the gateway should refuse an unsigned call before it runs.
+[functions.submit-score]
+verify_jwt = true
 
 [analytics]
 enabled = true

@@ -126,7 +126,7 @@ Browser (static game on Vercel)
 | File | Purpose |
 |------|---------|
 | `001_complete_the_verse.sql` | Tables, RLS, signup → profile + empty save, grants |
-| `002_lock_trigger_functions.sql` | Revoke RPC execute on SECURITY DEFINER triggers |
+| `009_lock_trigger_functions.sql` (was `002_lock_trigger_functions.sql`) | Revoke RPC execute on SECURITY DEFINER triggers |
 | `003_score_constraints.sql` | Score/accuracy/duration CHECK ceilings |
 
 **Applied on project:** migrations run successfully by project owner.

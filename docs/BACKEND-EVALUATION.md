@@ -195,7 +195,7 @@ Direct client INSERT/UPDATE on score tables is revoked by `005_edge_only_scores.
 | Item | State |
 |---|---|
 | Vercel | header-only config; `.vercelignore` trims tests, scripts, `content/`, `node_modules`, `*.md`, backup audio from the payload |
-| Supabase migrations | migrations `001..007` + `20260901104635` present in `supabase/migrations/`; combined bundle in `combined_migrations.sql` |
+| Supabase migrations | migrations `001..008` + `20260901104635` present in `supabase/migrations/`; the one-paste bundle `combined_migrations.sql` is generated from them (`npm run db:combine`, checked by `npm run db:check` and the `backend guards` suite) |
 | Edge Function | `supabase/functions/submit-score` source present with Deno serve, plausibility validation, and rate-limits |
 | Auth redirects | allow-listed origins (prod + localhost:8781) |
 | Secrets | anon key only in `js/cloud-config.js`; rotation runbook in SECURITY-EVALUATION §9 |

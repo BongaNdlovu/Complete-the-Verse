@@ -269,7 +269,9 @@ function bindSignInView(){
       }
       if(send) send.disabled = true;
       const done = function(res){
-        if(send) send.disabled = false;
+        const holdsResend = !!res && (res.ok || res.reason === "rate-limited" || res.reason === "cooldown");
+        if(send && holdsResend && typeof holdButton === "function") holdButton(send, Cloud.OTP_COOLDOWN_MS || 60000);
+        else if(send) send.disabled = false;
         const reason = res && res.ok ? "sent" : (res && res.reason);
         setSignInStatus(Cloud.authNotice ? Cloud.authNotice(reason) : "Check your email for the 6-digit code.");
       };
@@ -330,7 +332,9 @@ function sendMenuSignIn(){
   const send = $("menu-send-link");
   if(send) send.disabled = true;
   const done = function(res){
-    if(send) send.disabled = false;
+    const holdsResend = !!res && (res.ok || res.reason === "rate-limited" || res.reason === "cooldown");
+    if(send && holdsResend && typeof holdButton === "function") holdButton(send, Cloud.OTP_COOLDOWN_MS || 60000);
+    else if(send) send.disabled = false;
     if(typeof toast!=="function") return;
     toast(Cloud.authNotice ? Cloud.authNotice(res && res.ok ? "sent" : (res && res.reason)) : (res && res.ok ? "Check your email for the sign-in link" : "Sign-in failed"));
   };
@@ -1295,11 +1299,12 @@ function presentSaveCorrupt(then){
     }
   });
 }
+/* A first-time visitor has used no mode yet, so nothing is fetched for them here: the packs come with the first
+   mode they open (Defer.forRun). A returning player keeps the idle prefetch, so an offline session has every bank. */
 function scheduleDeferredPrefetch(){
-  if(typeof Defer === "undefined" || !Defer.prefetch) return;
-  const kick = function(){ Defer.prefetch(); };
-  if(typeof requestIdleCallback === "function") requestIdleCallback(kick, { timeout: 4000 });
-  else setTimeout(kick, 1800);
+  if(typeof Defer === "undefined" || !Defer.prefetchWhenIdle) return;
+  if(!(typeof SAVE !== "undefined" && SAVE && SAVE.runs > 0)) return;
+  Defer.prefetchWhenIdle();
 }
 let signinLeavePending = null;
 let signinLeaveTimer = 0;

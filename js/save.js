@@ -208,6 +208,21 @@ function ensureEditions(save){
   save.set.translation = active;
   applyEdition(save, active);
 }
+/* A hostile save blob may carry __proto__/constructor keys hoping to poison the merge below (the cloud copy gets the
+   same treatment in Cloud.sanitizeSavePayload). Every key is re-housed onto a clean object. */
+function scrubSavePayload(value, depth){
+  depth = depth || 0;
+  if(!value || typeof value !== "object") return value;
+  if(depth > 8) return Array.isArray(value) ? [] : {};
+  if(Array.isArray(value)) return value.map(function(v){ return scrubSavePayload(v, depth + 1); });
+  const out = {};
+  Object.keys(value).forEach(function(k){
+    if(k === "__proto__" || k === "constructor" || k === "prototype") return;
+    out[k] = scrubSavePayload(value[k], depth + 1);
+  });
+  return out;
+}
+
 function load(){
   try{
     if(typeof localStorage === "undefined"){
@@ -224,7 +239,7 @@ function load(){
       ensureEditions(fresh);
       return fresh;
     }
-    const s = JSON.parse(raw);
+    const s = scrubSavePayload(JSON.parse(raw));
     const out = mergeLoadedSave(s);
     if(migrating) migrateV2(out, s);
     migrateProfile(out);

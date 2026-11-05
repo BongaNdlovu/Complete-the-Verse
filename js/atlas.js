@@ -61,8 +61,8 @@ var Atlas = (function () {
   }
   function hasMap() { return !!(map && typeof L !== "undefined"); }
   function esc(s) {
-    return String(s == null ? "" : s).replace(/[&<>"]/g, function (m) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m];
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
     });
   }
   function sfx(name) {

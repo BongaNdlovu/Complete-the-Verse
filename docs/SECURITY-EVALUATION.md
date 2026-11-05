@@ -94,7 +94,7 @@ the renderers reviewed.
 | localStorage progress | player can inflate their own XP/seals | by design — no economic value; boards unaffected |
 | Score *computation* | runs in browser | Edge Function clamps ceilings server-side (§5); DB CHECK constraints (migration 003) reject negatives/over-ceiling rows |
 | Score *submission* | client could post any under-ceiling value | **Edge-only submit enforced (005_edge_only_scores.sql)** (`functions.invoke("submit-score")`). Direct client write access is revoked; Edge Function applies full plausibility model (`settleDaily`/`plausibleDaily`/`plausibleBlitz`) and rate-limiting |
-| Ghost timelines | coarse 0–1 progress curves, no impact on scores | cosmetic; accepted (guarded by 007_run_ghosts_guard.sql) |
+| Ghost timelines | coarse 0–1 progress curves, no impact on scores | cosmetic; accepted (guarded by 007_run_ghosts_guard.sql; 008_abuse_guards.sql caps rows per user and fixes the key formats) |
 | Clock/timer | inspectable & pausable | single-player fairness only; pausing hides the tab (auto-pause on `visibilitychange`) |
 
 Direct client table access via the REST endpoint is blocked by Postgres permissions (`005_edge_only_scores.sql` revokes INSERT/UPDATE on score tables from `authenticated` and `anon`). All submissions must route through the `submit-score` Edge Function, which re-evaluates the scoring formulas and clamps parameters.

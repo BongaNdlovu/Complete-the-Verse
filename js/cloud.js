@@ -17,6 +17,12 @@ var Cloud = (function () {
   var user = null;
   var profile = null;
   var lastRevision = 0;
+  /* The last save body that reached the cloud, per account: an unchanged body is not sent again. */
+  var lastPushed = { uid: "", json: "" };
+  /* The last address a sign-in code went to: the same address is not sent another one inside the cooldown. */
+  var lastOtp = { email: "", at: 0 };
+  var OTP_COOLDOWN_MS = 60000;
+  var SYNC_TIMEOUT_MS = 8000;
   var lastSubmitVia = null;
   var lastError = "";
   var pushTimer = null;
@@ -649,6 +655,8 @@ var Cloud = (function () {
     if (reason === "offline") return "You're offline. Try again when you reconnect.";
     if (reason === "invalid-email") return "Enter a valid email address.";
     if (reason === "rate-limited") return "Too many attempts. Wait a few minutes.";
+    if (reason === "cooldown") return "A code is already on its way. Wait a minute before asking for another.";
+    if (reason === "captcha-failed") return "Could not check that you are a person. Check your connection and try again.";
     if (reason === "not-configured") return "Cloud is not available on this build.";
     if (reason === "unavailable") return "Could not send the link. Try again.";
     if (reason === "signed-out") return "Sign in to enter the hall.";
@@ -720,27 +728,90 @@ var Cloud = (function () {
     return profile;
   }
 
+  /* Cloudflare Turnstile, used only when js/cloud-config.js carries a turnstileSiteKey (and the project has the same
+     provider switched on under Authentication -> Attack Protection). Without a key no token is asked for. */
+  var turnstileLoading = null;
+  function loadTurnstile() {
+    if (typeof window === "undefined" || typeof document === "undefined" || !document.head) return Promise.resolve(null);
+    if (window.turnstile) return Promise.resolve(window.turnstile);
+    if (turnstileLoading) return turnstileLoading;
+    turnstileLoading = new Promise(function (resolve) {
+      var el = document.createElement("script");
+      el.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      el.async = true;
+      el.onload = function () { resolve(window.turnstile || null); };
+      el.onerror = function () { turnstileLoading = null; resolve(null); };
+      document.head.appendChild(el);
+    });
+    return turnstileLoading;
+  }
+  /* "" when no captcha is configured, a token when it passed, null when it was needed and could not be had. */
+  async function captchaToken() {
+    var siteKey = cfg().turnstileSiteKey;
+    if (!siteKey) return "";
+    var turnstile = await loadTurnstile();
+    if (!turnstile) return null;
+    return new Promise(function (resolve) {
+      var host = document.createElement("div");
+      host.style.cssText = "position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999";
+      document.body.appendChild(host);
+      var widgetId = null;
+      var settled = false;
+      var timer = setTimeout(function () { finish(null); }, 20000);
+      function finish(token) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        try { if (widgetId !== null) turnstile.remove(widgetId); } catch (e) {}
+        try { host.remove(); } catch (e) {}
+        resolve(token);
+      }
+      try {
+        widgetId = turnstile.render(host, {
+          sitekey: siteKey,
+          appearance: "interaction-only",
+          callback: finish,
+          "error-callback": function () { finish(null); },
+          "expired-callback": function () { finish(null); }
+        });
+      } catch (e) {
+        finish(null);
+      }
+    });
+  }
+
+  /* What a send attempt came to. A server error that is not about the rate, the captcha or the address still reads as
+     sent, so the form does not reveal which addresses have accounts. */
+  function otpSendOutcome(error, email) {
+    var msg = String((error && error.message) || "").toLowerCase();
+    if (/rate|too many/.test(msg)) return { ok: false, reason: "rate-limited" };
+    if (/captcha/.test(msg)) return { ok: false, reason: "captcha-failed" };
+    if (/invalid/.test(msg) && /email/.test(msg)) return { ok: false, reason: "invalid-email" };
+    lastOtp = { email: email.toLowerCase(), at: Date.now() };
+    return { ok: true, reason: "sent" };
+  }
+
   async function signInWithEmail(email) {
     var sb = ensureClient();
     if (!sb) return { ok: false, reason: "not-configured" };
     if (typeof navigator !== "undefined" && navigator.onLine === false) return { ok: false, reason: "offline" };
     email = String(email || "").trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, reason: "invalid-email" };
+    var sameAddress = lastOtp.email === email.toLowerCase();
+    if (sameAddress && Date.now() - lastOtp.at < OTP_COOLDOWN_MS) return { ok: false, reason: "cooldown" };
     try {
       if (typeof localStorage !== "undefined") {
         try { localStorage.setItem("cloud_pending_email", email); } catch(e){}
       }
+      var captcha = await captchaToken();
+      if (captcha === null) return { ok: false, reason: "captcha-failed" };
+      var options = { emailRedirectTo: authRedirectTo() };
+      if (captcha) options.captchaToken = captcha;
       var res = await withTimeout(sb.auth.signInWithOtp({
         email: email,
-        options: { emailRedirectTo: authRedirectTo() }
+        options: options
       }), 8000);
-      if (res.error) {
-        var msg = String(res.error.message || "").toLowerCase();
-        if (/rate|too many/.test(msg)) return { ok: false, reason: "rate-limited" };
-        if (/invalid/.test(msg) && /email/.test(msg)) return { ok: false, reason: "invalid-email" };
-        return { ok: true, reason: "sent" };
-      }
-      return { ok: true, reason: "sent" };
+      return otpSendOutcome(res.error, email);
     } catch (e) {
       return { ok: false, reason: (typeof navigator !== "undefined" && navigator.onLine === false) ? "offline" : "unavailable" };
     }
@@ -861,33 +932,48 @@ var Cloud = (function () {
 
   /* ----------------------- save sync ----------------------- */
 
-  async function pullSave() {
+  /* ok:false means the read itself failed. That is not the same as "no cloud save yet", and syncOnBoot must not
+     answer it by writing the local copy over whatever the cloud holds. */
+  async function pullSaveChecked() {
     var sb = ensureClient();
-    if (!sb || !user) return null;
+    if (!sb || !user) return { ok: true, data: null };
     setSyncing(true);
     try {
-      var res = await sb.from("saves").select("payload, revision, client_updated_at")
-        .eq("user_id", user.id).maybeSingle();
+      var res = await withTimeout(sb.from("saves").select("payload, revision, client_updated_at")
+        .eq("user_id", user.id).maybeSingle(), SYNC_TIMEOUT_MS);
       if (res.error) {
         emit("onError", { message: "Could not load cloud progress." });
-        return null;
+        return { ok: false, data: null };
       }
-      if (!res.data) return null;
+      if (!res.data) return { ok: true, data: null };
       lastRevision = res.data.revision || 0;
-      return res.data;
+      return { ok: true, data: res.data };
+    } catch (e) {
+      emit("onError", { message: "Could not load cloud progress." });
+      return { ok: false, data: null };
     } finally {
       setSyncing(false);
     }
   }
 
+  async function pullSave() {
+    return (await pullSaveChecked()).data;
+  }
+
   async function pushSave(saveObj) {
     var sb = ensureClient();
     if (!sb || !user) return { ok: false, reason: "signed-out" };
+    var payload = saveObj || {};
+    var json = JSON.stringify(payload);
+    if (lastPushed.uid === user.id && lastPushed.json === json) {
+      return { ok: true, revision: lastRevision, unchanged: true };
+    }
     setSyncing(true);
     try {
-      /* Optimistic lock: if remote moved past what we last merged, refuse blind overwrite. */
-      var peek = await sb.from("saves").select("revision, payload, client_updated_at")
-        .eq("user_id", user.id).maybeSingle();
+      /* Optimistic lock: if remote moved past what we last merged, refuse blind overwrite. Only the revision is
+         read: the whole save blob used to come down with it on every push. */
+      var peek = await withTimeout(sb.from("saves").select("revision")
+        .eq("user_id", user.id).maybeSingle(), SYNC_TIMEOUT_MS);
       var remoteRev = (peek.data && peek.data.revision) || 0;
       if (lastRevision > 0 && remoteRev > lastRevision) {
         return {
@@ -899,18 +985,22 @@ var Cloud = (function () {
       var nextRev = Math.max(lastRevision || 0, remoteRev) + 1;
       var row = {
         user_id: user.id,
-        payload: saveObj || {},
+        payload: payload,
         revision: nextRev,
         client_updated_at: new Date().toISOString()
       };
-      var res = await sb.from("saves").upsert(row, { onConflict: "user_id" });
+      var res = await withTimeout(sb.from("saves").upsert(row, { onConflict: "user_id" }), SYNC_TIMEOUT_MS);
       if (res.error) {
         emit("onError", { message: "Could not save cloud progress." });
         return { ok: false, reason: "rejected" };
       }
       lastRevision = nextRev;
+      lastPushed = { uid: user.id, json: json };
       emit("onSync", { direction: "push", revision: nextRev });
       return { ok: true, revision: nextRev };
+    } catch (e) {
+      emit("onError", { message: "Could not save cloud progress." });
+      return { ok: false, reason: "unavailable" };
     } finally {
       setSyncing(false);
     }
@@ -948,7 +1038,9 @@ var Cloud = (function () {
     if (!isSignedIn()) return { ok: false, reason: "signed-out", save: localSave };
     setSyncing(true);
     try {
-      var remote = await pullSave();
+      var pulled = await pullSaveChecked();
+      if (!pulled.ok) return { ok: false, reason: "pull-failed", save: localSave };
+      var remote = pulled.data;
       if (!remote || !remote.payload || !Object.keys(remote.payload).length) {
         await pushSave(localSave);
         return { ok: true, save: localSave, merged: false };
@@ -1269,15 +1361,20 @@ var Cloud = (function () {
     if (!sb || !user) return { ok: false, reason: "signed-out" };
     var ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
     var finalKey = (mode === "daily" && !String(runKey).includes("~")) ? (ed + "~" + runKey) : runKey;
-    var res = await sb.from("run_ghosts").upsert({
-      user_id: user.id,
-      mode: mode,
-      run_key: finalKey,
-      best_score: bestScore | 0,
-      timeline: timeline || { version: 1, samples: [] },
-      meta: meta || {},
-      updated_at: new Date().toISOString()
-    }, { onConflict: "user_id,mode,run_key" });
+    var res;
+    try {
+      res = await withTimeout(sb.from("run_ghosts").upsert({
+        user_id: user.id,
+        mode: mode,
+        run_key: finalKey,
+        best_score: bestScore | 0,
+        timeline: timeline || { version: 1, samples: [] },
+        meta: meta || {},
+        updated_at: new Date().toISOString()
+      }, { onConflict: "user_id,mode,run_key" }), SYNC_TIMEOUT_MS);
+    } catch (e) {
+      return { ok: false, reason: "unavailable" };
+    }
     if (res.error) return { ok: false, reason: "rejected" };
     return { ok: true };
   }
@@ -1288,12 +1385,17 @@ var Cloud = (function () {
     limit = limit || 5;
     var ed = (typeof Edition !== "undefined" && Edition.getEdition) ? Edition.getEdition() : "kjv";
     var finalKey = (mode === "daily" && !String(runKey).includes("~")) ? (ed + "~" + runKey) : runKey;
-    var res = await sb.from("run_ghosts")
-      .select("best_score, timeline, meta, profiles(display_name)")
-      .eq("mode", mode)
-      .eq("run_key", finalKey)
-      .order("best_score", { ascending: false })
-      .limit(limit);
+    var res;
+    try {
+      res = await withTimeout(sb.from("run_ghosts")
+        .select("best_score, timeline, meta, profiles(display_name)")
+        .eq("mode", mode)
+        .eq("run_key", finalKey)
+        .order("best_score", { ascending: false })
+        .limit(limit), SYNC_TIMEOUT_MS);
+    } catch (e) {
+      return [];
+    }
     if (res.error) return [];
     return (res.data || []).map(function (r) {
       var raw = (r.profiles && r.profiles.display_name) || "Pilgrim";
@@ -1382,6 +1484,7 @@ var Cloud = (function () {
     user: sessionUser,
     profile: function () { return profile; },
     signInWithEmail: signInWithEmail,
+    OTP_COOLDOWN_MS: OTP_COOLDOWN_MS,
     signInWithGoogle: signInWithGoogle,
     signInWithIdToken: signInWithIdToken,
     verifyOtp: verifyOtp,

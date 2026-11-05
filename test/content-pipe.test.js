@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const ROOT = require("../scripts/repo-root");
-const { ContentJson } = require("../js/content-json.js");
+const { ContentJson } = require("../scripts/content-json.js");
 const { loadBank } = require("../scripts/load-bank.js");
 
 let pass = 0, fail = 0;

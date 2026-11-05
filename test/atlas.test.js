@@ -282,7 +282,7 @@ function walkTo(P, n){
   ok("the dossier gives the modern country", d.indexOf("Iraq") >= 0);
   // The seconds mark comes through esc() as &quot; — correct escaping,
   // and it still renders as a double quote, so match either form.
-  ok("the dossier gives the coordinates", /\d+°\d+'\d+(?:"|&quot;)[NS]/.test(d), d.slice(0, 200));
+  ok("the dossier gives the coordinates", /\d+°\d+(?:'|&#39;)\d+(?:"|&quot;)[NS]/.test(d), d.slice(0, 200));
   ok("the dossier gives the elevation", d.indexOf("10 m") >= 0);
   ok("the dossier reports conditions", d.indexOf("Conditions now") >= 0);
   ok("conditions are labelled typical when not live", d.indexOf("Typical") >= 0);

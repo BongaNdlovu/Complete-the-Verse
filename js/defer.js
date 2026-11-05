@@ -91,16 +91,30 @@ var Defer = (function () {
     if (mode === "tutorial") return play;
     return banks && play && more;
   }
+  /* The rest of the packs are fetched once, when the player first uses a mode (or opens the game again after
+     playing), never for a visitor who only looked at the menu. */
   function forRun(mode) {
     var jobs = [loadPack("play"), loadPack("more"), loadPack("banks")];
     if (mode === "tablets") jobs.push(loadPack("tablets"));
     if (mode === "tutorial") jobs = [loadPack("play")];
-    return Promise.all(jobs);
+    return Promise.all(jobs).then(afterFirstUse);
   }
-  function forAtlas() { return loadPack("atlas"); }
-  function forTablets() { return Promise.all([loadPack("tablets"), loadPack("banks"), loadPack("more")]); }
+  function forAtlas() { return loadPack("atlas").then(afterFirstUse); }
+  function forTablets() { return Promise.all([loadPack("tablets"), loadPack("banks"), loadPack("more")]).then(afterFirstUse); }
+  function afterFirstUse(result) {
+    prefetchWhenIdle();
+    return result;
+  }
   function prefetch() {
     return Promise.all([loadPack("play"), loadPack("more"), loadPack("banks"), loadPack("tablets"), loadPack("atlas")]);
+  }
+  var prefetchScheduled = false;
+  function prefetchWhenIdle() {
+    if (prefetchScheduled || headless()) return;
+    prefetchScheduled = true;
+    var kick = function () { prefetch(); };
+    if (typeof requestIdleCallback === "function") requestIdleCallback(kick, { timeout: 4000 });
+    else setTimeout(kick, 1800);
   }
 
   var api = {
@@ -110,7 +124,8 @@ var Defer = (function () {
     forRun: forRun,
     forAtlas: forAtlas,
     forTablets: forTablets,
-    prefetch: prefetch
+    prefetch: prefetch,
+    prefetchWhenIdle: prefetchWhenIdle
   };
   if (typeof module !== "undefined" && module.exports) module.exports = { Defer: api };
   return api;

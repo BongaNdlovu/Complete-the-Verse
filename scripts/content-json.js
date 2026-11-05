@@ -1,10 +1,7 @@
+/* Applies the shared/content/*.json exports onto the JS banks, so test/content-pipe.test.js can prove the exported JSON
+   rebuilds exactly what the game ships. The game itself never loads this file (it is not in index.html or the service
+   worker); Android reads the JSON through its own copy. */
 var ContentJson = (function(){
-  function canFetch(){
-    return typeof fetch === "function" &&
-      typeof location !== "undefined" &&
-      (location.protocol === "http:" || location.protocol === "https:");
-  }
-
   function replaceArray(target, next){
     if(!target || !next) return;
     target.length = 0;
@@ -62,27 +59,10 @@ var ContentJson = (function(){
     if(typeof Tablets !== "undefined" && Tablets.applyShared) Tablets.applyShared(data);
   }
 
-  function load(){
-    if(!canFetch()) return null;
-    return Promise.all([
-      fetch("shared/content/verses.json").then(function(r){ if(!r.ok) throw new Error("verses"); return r.json(); }),
-      fetch("shared/content/sites.json").then(function(r){ if(!r.ok) throw new Error("sites"); return r.json(); }),
-      fetch("shared/content/tablets.json").then(function(r){ if(!r.ok) throw new Error("tablets"); return r.json(); })
-    ]).then(function(parts){
-      applyVerses(parts[0]);
-      applySites(parts[1]);
-      applyTablets(parts[2]);
-      return true;
-    }).catch(function(){
-      return false;
-    });
-  }
-
   return {
     applyVerses: applyVerses,
     applySites: applySites,
-    applyTablets: applyTablets,
-    load: load
+    applyTablets: applyTablets
   };
 })();
 if(typeof module !== "undefined" && module.exports){

@@ -2,7 +2,7 @@
 
 Compose Play Store app (`:androidApp`) plus a JVM rules library (`:core`). This is not a TWA and does not wrap the PWA.
 
-Version `1.0.0` (`versionCode` 1) is the first Play AAB for package `app.completetheverse`. Waves A–D are the game. Wave E is store cutover in this repo. Wave F is one content pipe: `shared/content/*.json` from `npm run content:export`. The PWA fetches that JSON on http(s) (`js/content-json.js`); `file://` and Node tests keep the JS banks. Android assets are mirrored from the same JSON.
+Version `1.0.0` (`versionCode` 1) is the first Play AAB for package `app.completetheverse`. Waves A–D are the game. Wave E is store cutover in this repo. Wave F is one content pipe: `shared/content/*.json` from `npm run content:export`. The PWA ships the JS banks as before and does not fetch that JSON; `test/content-pipe.test.js` proves the export rebuilds them. Android assets are mirrored from the same JSON.
 
 The Valley stays incoming until the website drops `incoming` on Beat. Play Asset Delivery is deferred. Atlas is rail-first (no Leaflet tiles).
 
