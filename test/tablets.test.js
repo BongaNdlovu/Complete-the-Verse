@@ -1984,6 +1984,42 @@ const toneCount = function(sb, dur){
   ok("the Favor popup is quicker", /animation:tabletsPopRise \.65s/.test(src));
   ok("the pop and the easing sleep under reduced motion", /body\.reduced #v-tablets \.tablets-slot\.typed,/.test(src) && /body\.reduced #v-tablets \.tablets-slot,/.test(src));
 }
+{
+  // K1: the crack grows from the strike: 5-7 jagged rays, side branches, a ring of spall chips, three layers each.
+  const sb = boot();
+  exec(sb, "var __seed = 7; var __rnd = function(){ __seed = (__seed * 16807) % 2147483647; return (__seed - 1) / 2147483646; }");
+  exec(sb, "window.__cp = tabletsCrackPaths(400, 200, 180, __rnd)");
+  const mains = read(sb, "window.__cp.filter(function(p){ return p.kind === 'main' && p.tier === 0; }).length");
+  ok("5 to 7 main rays", mains >= 5 && mains <= 7, mains);
+  ok("every ray's thick root starts at the strike", read(sb, "window.__cp.filter(function(p){ return p.kind === 'main' && p.tier === 0; }).every(function(p){ return p.d.indexOf('M400.0 200.0 L') === 0; })"));
+  ok("the rays taper: root, middle and tip tiers", read(sb, "[0,1,2].every(function(t){ return window.__cp.some(function(p){ return p.kind === 'main' && p.tier === t; }); })"));
+  ok("the tip draws after the root", read(sb, "window.__cp.filter(function(p){ return p.kind === 'main' && p.tier === 2; }).every(function(p){ return p.delay > 0; })"));
+  ok("hairline offshoots run off the rays", read(sb, "window.__cp.some(function(p){ return p.kind === 'hair'; })"));
+  ok("no ray runs past its reach", read(sb, "window.__cp.filter(function(p){ return p.kind === 'main'; }).every(function(p){ return p.len <= 180 + 1e-9 && p.len > 0; })"));
+  const spall = read(sb, "window.__cp.filter(function(p){ return p.kind === 'spall'; }).length");
+  ok("9 to 13 spall chips ring the crushed strike", spall >= 9 && spall <= 13, spall);
+  ok("branches start a beat after the rays", read(sb, "window.__cp.filter(function(p){ return p.kind === 'branch'; }).every(function(p){ return p.delay > 0; })"));
+  ok("the rays turn as they run (not straight lines)", read(sb, "window.__cp.filter(function(p){ return p.kind === 'main'; }).every(function(p){ return p.d.split(' L').length >= 3; })"));
+  exec(sb, "__seed = 7; window.__cp2 = tabletsCrackPaths(400, 200, 180, __rnd)");
+  eq("the same seed grows the same crack", read(sb, "JSON.stringify(window.__cp) === JSON.stringify(window.__cp2)"), true);
+  exec(sb, "__seed = 99; window.__cp3 = tabletsCrackPaths(400, 200, 180, __rnd)");
+  eq("another seed grows another crack", read(sb, "JSON.stringify(window.__cp) === JSON.stringify(window.__cp3)"), false);
+  const svg = read(sb, "tabletsCrackSvg(800, 450, 400, 200, window.__cp)");
+  ok("the crack has a groove, a lip, a glow and a hot core", ["groove", "lip", "glow", "hot"].every(function(k){ return svg.indexOf('class="tablets-crack-' + k + '"') >= 0; }));
+  ok("every path carries its length for the draw-in", (svg.match(/--len:/g) || []).length === read(sb, "window.__cp.length") * 4);
+  ok("no full-field CSS filter on the crack (it stalled the first frame)", !/.tablets-crack-hot{filter:/.test(fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8")));
+  ok("the impact burst sits at the strike", svg.indexOf('cx="400.0" cy="200.0"') >= 0);
+  exec(sb, "startRun('tablets','watchman',{tabletChapter:'psalm23'}); tabletsShowFracture()");
+  ok("a miss fills the overlay with a fresh crack", /tablets-crack-hot/.test(read(sb, "$('tablets-fracture').innerHTML")));
+  const css = fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8");
+  ok("the hot core cools from white to dark red", /@keyframes tabletsCrackCool\{0%\{stroke:#fff6dc\}[\s\S]*100%\{stroke:#3a0c05\}\}/.test(css));
+  ok("the crack draws out from its length", /stroke-dashoffset:var\(--len\)/.test(css) && /@keyframes tabletsCrackDraw\{to\{stroke-dashoffset:0\}\}/.test(css));
+  ok("reduced motion shows the crack still", /body\.reduced \.tablets-fracture path,body\.motion-calm \.tablets-fracture path,\s*body\.reduced \.tablets-crack-crater,body\.motion-calm \.tablets-crack-crater\{animation:none;stroke-dashoffset:0\}/.test(css));
+  ok("the strike leaves a crushed crater", svg.indexOf('class="tablets-crack-crater"') >= 0);
+  ok("the groove tapers from 4.4 to 1.6 px", /\.tablets-crack-groove path\.t0\{stroke-width:4\.4\}/.test(css) && /\.tablets-crack-groove path\.t2\{stroke-width:1\.6\}/.test(css));
+  exec(sb, "tabletsFx.sparks = []; tabletsFx.ctx = {}; document.body.classList.add('reduced'); tabletsCrackChips({ left:0, top:0, width:10, height:10 })");
+  eq("reduced motion throws no chips", read(sb, "tabletsFx.sparks.length"), 0);
+}
 unstubRandom();
 if (fail) {
   console.log("FAIL — tablets · " + pass + " passed · " + fail + " failed");
