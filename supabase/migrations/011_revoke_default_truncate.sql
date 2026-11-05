@@ -23,7 +23,9 @@ begin
 end;
 $$;
 
--- A table created from now on starts the same way, so the next migration does not have to remember.
+-- A table created from now on by the role that runs migrations and the SQL Editor (postgres) starts the same way, so
+-- the next migration does not have to remember. Supabase keeps a second default for tables made by its own
+-- supabase_admin role; that one is not ours to change, and no migration or SQL Editor query creates tables as it.
 alter default privileges in schema public
   revoke truncate, references, trigger on tables from anon, authenticated;
 
