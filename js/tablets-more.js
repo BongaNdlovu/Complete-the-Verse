@@ -11514,9 +11514,2036 @@
     });
     T.more = MORE.filter(function(ch){ return !!ch.blanks; });
   }
+  const OT = [
+  {
+    "id": "genesis4",
+    "name": "Genesis 4",
+    "r": "Genesis 4",
+    "subtitle": "Am I my brother's keeper?",
+    "hall": true,
+    "testament": "ot",
+    "pace": 1,
+    "blanks": [
+      {
+        "r": "Genesis 4:1",
+        "prefix": "And Adam knew Eve his wife; and she",
+        "a": "conceived",
+        "suffix": ", and bare Cain, and said, I have gotten a man from the LORD.",
+        "d": ["formed", "carried", "made", "brought", "raised"]
+      },
+      {
+        "r": "Genesis 4:1",
+        "prefix": "and bare Cain, and said, I have gotten a",
+        "a": "man",
+        "suffix": "from the LORD.",
+        "d": ["son", "gift", "child", "blessing", "helper"]
+      },
+      {
+        "r": "Genesis 4:2",
+        "prefix": "And she again bare his brother",
+        "a": "Abel",
+        "suffix": ". And Abel was a keeper of sheep, but Cain was a tiller of the ground.",
+        "d": ["Seth", "Enoch", "Isaac", "Noah", "Shem"]
+      },
+      {
+        "r": "Genesis 4:2",
+        "prefix": "And Abel was a keeper of sheep, but Cain was a tiller of the",
+        "a": "ground",
+        "suffix": ".",
+        "d": ["field", "land", "earth", "soil", "garden"]
+      },
+      {
+        "r": "Genesis 4:4",
+        "prefix": "And the LORD had respect unto Abel, and to his",
+        "a": "offering",
+        "suffix": ":",
+        "d": ["sacrifice", "gift", "altar", "prayer", "firstfruits"]
+      },
+      {
+        "r": "Genesis 4:7",
+        "prefix": "and if thou doest not well,",
+        "a": "sin",
+        "suffix": "lieth at the door. And unto thee shall be his desire, and thou shalt rule over him.",
+        "d": ["death", "sorrow", "fear", "pride", "wrath"]
+      },
+      {
+        "r": "Genesis 4:9",
+        "prefix": "And the LORD said unto Cain, Where is Abel thy",
+        "a": "brother",
+        "suffix": "? And he said, I know not: Am I my brother's keeper?",
+        "d": ["sheep", "offering", "friend", "servant", "father"]
+      },
+      {
+        "r": "Genesis 4:9",
+        "prefix": "And he said, I know not: Am I my brother's",
+        "a": "keeper",
+        "suffix": "?",
+        "d": ["judge", "shepherd", "guardian", "watchman", "avenger"]
+      }
+    ]
+  },
+  {
+    "id": "genesis9",
+    "name": "Genesis 9",
+    "r": "Genesis 9",
+    "subtitle": "The bow in the cloud",
+    "hall": true,
+    "testament": "ot",
+    "pace": 1,
+    "blanks": [
+      {
+        "r": "Genesis 9:11",
+        "prefix": "And I will establish my covenant with you; neither shall all flesh be cut off any more by the waters of a",
+        "a": "flood",
+        "suffix": "; neither shall there any more be a flood to destroy the earth.",
+        "d": ["storm", "deluge", "rain", "wind", "wave"]
+      },
+      {
+        "r": "Genesis 9:12",
+        "prefix": "And God said, This is the",
+        "a": "token",
+        "suffix": "of the covenant which I make between me and you and every living creature that is with you, for perpetual generations:",
+        "d": ["sign", "seal", "mark", "wonder", "promise"]
+      },
+      {
+        "r": "Genesis 9:12",
+        "prefix": "between me and you and every living creature that is with you, for perpetual",
+        "a": "generations",
+        "suffix": ":",
+        "d": ["ages", "seasons", "days", "peoples", "worlds"]
+      },
+      {
+        "r": "Genesis 9:14",
+        "prefix": "And it shall come to pass, when I bring a cloud over the earth, that the bow shall be",
+        "a": "seen",
+        "suffix": "in the cloud:",
+        "d": ["set", "shown", "found", "raised", "remembered"]
+      },
+      {
+        "r": "Genesis 9:13",
+        "prefix": "I do set my bow in the cloud, and it shall be for a token of a covenant between me and the",
+        "a": "earth",
+        "suffix": ".",
+        "d": ["world", "ground", "land", "deep", "nations"]
+      },
+      {
+        "r": "Genesis 9:15",
+        "prefix": "and the waters shall no more become a flood to",
+        "a": "destroy",
+        "suffix": "all flesh.",
+        "d": ["consume", "cover", "drown", "end", "blot"]
+      },
+      {
+        "r": "Genesis 9:16",
+        "prefix": "And the bow shall be in the cloud; and I will look upon it, that I may remember the everlasting",
+        "a": "covenant",
+        "suffix": "between God and every living creature of all flesh that is upon the earth.",
+        "d": ["promise", "word", "mercy", "law", "rest"]
+      },
+      {
+        "r": "Genesis 9:16",
+        "prefix": "And the",
+        "a": "bow",
+        "suffix": "shall be in the cloud; and I will look upon it, that I may remember the everlasting covenant between God and every living creature of all flesh that is upon the earth.",
+        "d": ["rain", "sign", "light", "cloud", "storm"]
+      }
+    ]
+  },
+  {
+    "id": "genesis50",
+    "name": "Genesis 50",
+    "r": "Genesis 50",
+    "subtitle": "God meant it unto good",
+    "hall": true,
+    "testament": "ot",
+    "pace": 1,
+    "blanks": [
+      {
+        "r": "Genesis 50:19",
+        "prefix": "And Joseph said unto them, Fear not: for am I in the place of",
+        "a": "God",
+        "suffix": "?",
+        "d": ["man", "king", "judge", "pharaoh", "master"]
+      },
+      {
+        "r": "Genesis 50:20",
+        "prefix": "But as for you, ye thought",
+        "a": "evil",
+        "suffix": "against me; but God meant it unto good, to bring to pass, as it is this day, to save much people alive.",
+        "d": ["harm", "wickedness", "spoiling", "plagues", "war"]
+      },
+      {
+        "r": "Genesis 50:20",
+        "prefix": "but God meant it unto",
+        "a": "good",
+        "suffix": ", to bring to pass, as it is this day, to save much people alive.",
+        "d": ["peace", "mercy", "rest", "blessing", "glory"]
+      },
+      {
+        "r": "Genesis 50:20",
+        "prefix": "to bring to pass, as it is this day, to save much people",
+        "a": "alive",
+        "suffix": ".",
+        "d": ["safe", "whole", "free", "near", "strong"]
+      },
+      {
+        "r": "Genesis 50:21",
+        "prefix": "Now therefore fear ye not: I will nourish you, and your little",
+        "a": "ones",
+        "suffix": ". And he comforted them, and spake kindly unto them.",
+        "d": ["children", "flock", "house", "seed", "lambs"]
+      },
+      {
+        "r": "Genesis 50:21",
+        "prefix": "And he comforted them, and spake",
+        "a": "kindly",
+        "suffix": "unto them.",
+        "d": ["gently", "softly", "fairly", "plainly", "sweetly"]
+      },
+      {
+        "r": "Genesis 50:24",
+        "prefix": "And Joseph said unto his brethren, I die: and God will surely",
+        "a": "visit",
+        "suffix": "you, and bring you out of this land unto the land which he sware to Abraham, to Isaac, and to Jacob.",
+        "d": ["bless", "keep", "seek", "remember", "gather"]
+      },
+      {
+        "r": "Genesis 50:25",
+        "prefix": "And Joseph took an oath of the children of Israel, saying, God will surely visit you, and ye shall carry up my",
+        "a": "bones",
+        "suffix": "from hence.",
+        "d": ["body", "dust", "sons", "house", "flock"]
+      }
+    ]
+  },
+  {
+    "id": "exodus16",
+    "name": "Exodus 16",
+    "r": "Exodus 16",
+    "subtitle": "Bread from heaven",
+    "hall": true,
+    "testament": "ot",
+    "pace": 1,
+    "blanks": [
+      {
+        "r": "Exodus 16:4",
+        "prefix": "Then said the LORD unto Moses, Behold, I will rain",
+        "a": "bread",
+        "suffix": "from heaven for you; and the people shall go out and gather a certain rate every day, that I may prove them, whether they will walk in my law, or no.",
+        "d": ["manna", "food", "grain", "quails", "mercies"]
+      },
+      {
+        "r": "Exodus 16:4",
+        "prefix": "and the people shall go out and gather a certain rate every day, that I may",
+        "a": "prove",
+        "suffix": "them, whether they will walk in my law, or no.",
+        "d": ["try", "teach", "lead", "feed", "bless"]
+      },
+      {
+        "r": "Exodus 16:7",
+        "prefix": "And in the morning, then ye shall see the glory of the",
+        "a": "LORD",
+        "suffix": "; for that he heareth your murmurings against the LORD: and what are we, that ye murmur against us?",
+        "d": ["king", "angel", "host", "heavens", "fire"]
+      },
+      {
+        "r": "Exodus 16:12",
+        "prefix": "At even ye shall eat flesh, and in the morning ye shall be filled with",
+        "a": "bread",
+        "suffix": "; and ye shall know that I am the LORD your God.",
+        "d": ["manna", "quails", "milk", "honey", "oil"]
+      },
+      {
+        "r": "Exodus 16:15",
+        "prefix": "And when the children of Israel saw it, they said one to another, It is",
+        "a": "manna",
+        "suffix": ": for they wist not what it was. And Moses said unto them, This is the bread which the LORD hath given you to eat.",
+        "d": ["corn", "honey", "dew", "seed", "grain"]
+      },
+      {
+        "r": "Exodus 16:15",
+        "prefix": "This is the bread which the LORD hath given you to",
+        "a": "eat",
+        "suffix": ".",
+        "d": ["keep", "taste", "gather", "bake", "share"]
+      },
+      {
+        "r": "Exodus 16:18",
+        "prefix": "And when they did mete it with an omer, he that gathered much had nothing over, and he that gathered little had no",
+        "a": "lack",
+        "suffix": "; they gathered every man according to his eating.",
+        "d": ["plenty", "less", "hunger", "need", "waste"]
+      },
+      {
+        "r": "Exodus 16:19",
+        "prefix": "And Moses said, Let no man leave of it till the",
+        "a": "morning",
+        "suffix": ".",
+        "d": ["evening", "night", "sabbath", "end", "week"]
+      }
+    ]
+  },
+  {
+    "id": "exodus33",
+    "name": "Exodus 33",
+    "r": "Exodus 33",
+    "subtitle": "My presence shall go with thee",
+    "hall": true,
+    "testament": "ot",
+    "pace": 1,
+    "blanks": [
+      {
+        "r": "Exodus 33:13",
+        "prefix": "Now therefore, I pray thee, if I have found grace in thy sight, shew me now thy",
+        "a": "way",
+        "suffix": ", that I may know thee, that I may find grace in thy sight: and consider that this nation is thy people.",
+        "d": ["law", "glory", "truth", "promise", "face"]
+      },
+      {
+        "r": "Exodus 33:13",
+        "prefix": "that I may know thee, that I may find grace in thy",
+        "a": "sight",
+        "suffix": ": and consider that this nation is thy people.",
+        "d": ["house", "law", "book", "covenant", "rest"]
+      },
+      {
+        "r": "Exodus 33:14",
+        "prefix": "And he said, My presence shall go with thee, and I will give thee",
+        "a": "rest",
+        "suffix": ".",
+        "d": ["peace", "land", "victory", "mercy", "honour"]
+      },
+      {
+        "r": "Exodus 33:14",
+        "prefix": "My presence shall go with",
+        "a": "thee",
+        "suffix": ", and I will give thee rest.",
+        "d": ["us", "them", "israel", "judah", "my people"]
+      },
+      {
+        "r": "Exodus 33:15",
+        "prefix": "And he said unto him, If thy presence go not with me, carry us not up",
+        "a": "hence",
+        "suffix": ".",
+        "d": ["away", "forward", "thither", "again", "out"]
+      },
+      {
+        "r": "Exodus 33:16",
+        "prefix": "by this shall we be separated, I and thy people, from all the people that are upon the face of the",
+        "a": "earth",
+        "suffix": ".",
+        "d": ["land", "world", "ground", "field", "wilderness"]
+      },
+      {
+        "r": "Exodus 33:17",
+        "prefix": "for thou hast found grace in my sight, and I know thee by",
+        "a": "name",
+        "suffix": ".",
+        "d": ["voice", "word", "law", "truth", "father"]
+      },
+      {
+        "r": "Exodus 33:18",
+        "prefix": "And he said, I beseech thee, shew me thy",
+        "a": "glory",
+        "suffix": ".",
+        "d": ["face", "way", "kingdom", "mercy", "power"]
+      }
+    ]
+  },
+  {
+    "id": "numbers23",
+    "name": "Numbers 23",
+    "r": "Numbers 23",
+    "subtitle": "God is not a man that he should lie",
+    "hall": true,
+    "testament": "ot",
+    "pace": 1,
+    "blanks": [
+      {
+        "r": "Numbers 23:19",
+        "prefix": "God is not a man, that he should",
+        "a": "lie",
+        "suffix": "; neither the son of man, that he should repent: hath he said, and shall he not do it? or hath he spoken, and shall he not make it good?",
+        "d": ["fail", "change", "forget", "sleep", "weary"]
+      },
+      {
+        "r": "Numbers 23:19",
+        "prefix": "neither the son of man, that he should",
+        "a": "repent",
+        "suffix": ": hath he said, and shall he not do it? or hath he spoken, and shall he not make it good?",
+        "d": ["falter", "doubt", "tarry", "return", "refuse"]
+      },
+      {
+        "r": "Numbers 23:19",
+        "prefix": "or hath he spoken, and shall he not make it",
+        "a": "good",
+        "suffix": "?",
+        "d": ["true", "known", "plain", "whole", "new"]
+      },
+      {
+        "r": "Numbers 23:21",
+        "prefix": "the LORD his God is with him, and the shout of a king is",
+        "a": "among",
+        "suffix": "them.",
+        "d": ["over", "near", "for", "upon", "within"]
+      },
+      {
+        "r": "Numbers 23:23",
+        "prefix": "Surely there is no enchantment against Jacob, neither is there any divination against",
+        "a": "Israel",
+        "suffix": ":",
+        "d": ["Judah", "Zion", "the seed", "Abraham", "the camp"]
+      },
+      {
+        "r": "Numbers 23:23",
+        "prefix": "according to this time it shall be said of Jacob and of Israel, What hath God",
+        "a": "wrought",
+        "suffix": "!",
+        "d": ["spoken", "done", "built", "given", "shown"]
+      },
+      {
+        "r": "Numbers 23:22",
+        "prefix": "God brought them out of",
+        "a": "Egypt",
+        "suffix": "; he hath as it were the strength of an unicorn.",
+        "d": ["bondage", "moab", "amalek", "eden", "sinai"]
+      },
+      {
+        "r": "Numbers 23:20",
+        "prefix": "Behold, I have received commandment to bless: and he hath blessed; and I cannot",
+        "a": "reverse",
+        "suffix": "it.",
+        "d": ["refuse", "recall", "undo", "deny", "loosen"]
+      }
+    ]
+  },
+  {
+    "id": "deuteronomy31",
+    "name": "Deuteronomy 31",
+    "r": "Deuteronomy 31",
+    "subtitle": "He will not fail thee",
+    "hall": true,
+    "testament": "ot",
+    "pace": 1,
+    "blanks": [
+      {
+        "r": "Deuteronomy 31:6",
+        "prefix": "Be strong and of a good courage, fear not, nor be afraid of them: for the LORD thy God, he it is that doth go with",
+        "a": "thee",
+        "suffix": "; he will not fail thee, nor forsake thee.",
+        "d": ["us", "them", "israel", "judah", "thy seed"]
+      },
+      {
+        "r": "Deuteronomy 31:6",
+        "prefix": "he will not fail thee, nor",
+        "a": "forsake",
+        "suffix": "thee.",
+        "d": ["leave", "forget", "refuse", "spare", "shame"]
+      },
+      {
+        "r": "Deuteronomy 31:6",
+        "prefix": "Be strong and of a good",
+        "a": "courage",
+        "suffix": ", fear not, nor be afraid of them: for the LORD thy God, he it is that doth go with thee; he will not fail thee, nor forsake thee.",
+        "d": ["heart", "hand", "faith", "will", "stature"]
+      },
+      {
+        "r": "Deuteronomy 31:7",
+        "prefix": "And Moses called unto",
+        "a": "Joshua",
+        "suffix": ", and said unto him in the sight of all Israel, Be strong and of a good courage: for thou must go with this people unto the land which the LORD hath sworn unto their fathers to give them; and thou shalt cause them to inherit it.",
+        "d": ["Caleb", "Aaron", "Hur", "Eleazar", "the priest"]
+      },
+      {
+        "r": "Deuteronomy 31:7",
+        "prefix": "for thou must go with this people unto the land which the LORD hath sworn unto their fathers to",
+        "a": "give",
+        "suffix": "them; and thou shalt cause them to inherit it.",
+        "d": ["show", "lead", "grant", "divide", "prepare"]
+      },
+      {
+        "r": "Deuteronomy 31:8",
+        "prefix": "fear not, neither be",
+        "a": "dismayed",
+        "suffix": ".",
+        "d": ["ashamed", "moved", "troubled", "weary", "idle"]
+      },
+      {
+        "r": "Deuteronomy 31:11",
+        "prefix": "thou shalt read this law before all Israel in their",
+        "a": "hearing",
+        "suffix": ".",
+        "d": ["sight", "gates", "courts", "assembly", "ears"]
+      },
+      {
+        "r": "Deuteronomy 31:12",
+        "prefix": "that they may hear, and that they may",
+        "a": "learn",
+        "suffix": ", and fear the LORD your God, and observe to do all the words of this law:",
+        "d": ["keep", "mark", "hold", "teach", "seek"]
+      }
+    ]
+  },
+  {
+    "id": "judges6",
+    "name": "Judges 6",
+    "r": "Judges 6",
+    "subtitle": "The LORD is with thee, thou mighty man of valour",
+    "hall": true,
+    "testament": "ot",
+    "pace": 1,
+    "blanks": [
+      {
+        "r": "Judges 6:12",
+        "prefix": "And the angel of the LORD",
+        "a": "appeared",
+        "suffix": "unto him, and said unto him, The LORD is with thee, thou mighty man of valour.",
+        "d": ["spoke", "stood", "called", "looked", "came"]
+      },
+      {
+        "r": "Judges 6:12",
+        "prefix": "The LORD is with thee, thou mighty man of",
+        "a": "valour",
+        "suffix": ".",
+        "d": ["faith", "war", "renown", "honour", "might"]
+      },
+      {
+        "r": "Judges 6:14",
+        "prefix": "And the LORD looked upon him, and said, Go in this thy might, and thou shalt save Israel from the hand of the Midianites: have not I",
+        "a": "sent",
+        "suffix": "thee?",
+        "d": ["chosen", "called", "kept", "known", "loved"]
+      },
+      {
+        "r": "Judges 6:14",
+        "prefix": "Go in this thy",
+        "a": "might",
+        "suffix": ", and thou shalt save Israel from the hand of the Midianites: have not I sent thee?",
+        "d": ["strength", "name", "peace", "truth", "spirit"]
+      },
+      {
+        "r": "Judges 6:15",
+        "prefix": "behold, my family is poor in Manasseh, and I am the least in my father's",
+        "a": "house",
+        "suffix": ".",
+        "d": ["field", "city", "tribe", "army", "land"]
+      },
+      {
+        "r": "Judges 6:16",
+        "prefix": "And the LORD said unto him, Surely I will be with thee, and thou shalt smite the Midianites as one",
+        "a": "man",
+        "suffix": ".",
+        "d": ["host", "voice", "blow", "army", "knight"]
+      },
+      {
+        "r": "Judges 6:23",
+        "prefix": "And the LORD said unto him, Peace be unto thee; fear not: thou shalt not",
+        "a": "die",
+        "suffix": ".",
+        "d": ["fear", "fall", "tremble", "turn", "doubt"]
+      },
+      {
+        "r": "Judges 6:24",
+        "prefix": "Then Gideon built an altar there unto the LORD, and called it",
+        "a": "Jehovahshalom",
+        "suffix": ": unto this day it is yet in Ophrah of the Abiezrites.",
+        "d": ["Ebenezer", "Gilgal", "Bethel", "Mizpah", "Shiloh"]
+      }
+    ]
+  },
+  {
+    "id": "1samuel3",
+    "name": "1 Samuel 3",
+    "r": "1 Samuel 3",
+    "subtitle": "Speak; for thy servant heareth",
+    "hall": true,
+    "testament": "ot",
+    "pace": 1,
+    "blanks": [
+      {
+        "r": "1 Samuel 3:1",
+        "prefix": "And the word of the LORD was precious in those days; there was no open",
+        "a": "vision",
+        "suffix": ".",
+        "d": ["prophet", "voice", "seer", "dream", "saying"]
+      },
+      {
+        "r": "1 Samuel 3:4",
+        "prefix": "That the LORD called",
+        "a": "Samuel",
+        "suffix": ": and he answered, Here am I.",
+        "d": ["Eli", "David", "Saul", "the child", "Israel"]
+      },
+      {
+        "r": "1 Samuel 3:7",
+        "prefix": "Now Samuel did not yet know the LORD, neither was the word of the LORD yet",
+        "a": "revealed",
+        "suffix": "unto him.",
+        "d": ["spoken", "heard", "given", "opened", "known"]
+      },
+      {
+        "r": "1 Samuel 3:9",
+        "prefix": "Go, lie down: and it shall be, if he call thee, that thou shalt say, Speak, LORD; for thy servant",
+        "a": "heareth",
+        "suffix": ".",
+        "d": ["waiteth", "seeketh", "serveth", "calleth", "watcheth"]
+      },
+      {
+        "r": "1 Samuel 3:10",
+        "prefix": "And the LORD came, and stood, and called as at other",
+        "a": "times",
+        "suffix": ", Samuel, Samuel. Then Samuel answered, Speak; for thy servant heareth.",
+        "d": ["hours", "days", "visions", "nights", "ways"]
+      },
+      {
+        "r": "1 Samuel 3:10",
+        "prefix": "Then Samuel answered,",
+        "a": "Speak",
+        "suffix": "; for thy servant heareth.",
+        "d": ["Hear", "Send", "Show", "Rise", "Turn"]
+      },
+      {
+        "r": "1 Samuel 3:19",
+        "prefix": "And Samuel grew, and the LORD was with him, and did let none of his words fall to the",
+        "a": "ground",
+        "suffix": ".",
+        "d": ["earth", "side", "dust", "stone", "wind"]
+      },
+      {
+        "r": "1 Samuel 3:20",
+        "prefix": "And all Israel from Dan even to Beersheba knew that Samuel was established to be a",
+        "a": "prophet",
+        "suffix": "of the LORD.",
+        "d": ["priest", "judge", "seer", "scribe", "messenger"]
+      }
+    ]
+  },
+  {
+    "id": "1kings3",
+    "name": "1 Kings 3",
+    "r": "1 Kings 3",
+    "subtitle": "An understanding heart",
+    "hall": true,
+    "testament": "ot",
+    "pace": 1,
+    "blanks": [
+      {
+        "r": "1 Kings 3:5",
+        "prefix": "In Gibeon the LORD appeared to Solomon in a dream by night: and God said, Ask what I shall",
+        "a": "give",
+        "suffix": "thee.",
+        "d": ["show", "do", "grant", "teach", "build"]
+      },
+      {
+        "r": "1 Kings 3:9",
+        "prefix": "Give therefore thy servant an understanding",
+        "a": "heart",
+        "suffix": "to judge thy people, that I may discern between good and bad: for who is able to judge this thy so great a people?",
+        "d": ["spirit", "mind", "hand", "rule", "fear"]
+      },
+      {
+        "r": "1 Kings 3:9",
+        "prefix": "that I may discern between good and",
+        "a": "bad",
+        "suffix": ": for who is able to judge this thy so great a people?",
+        "d": ["evil", "wrong", "foolish", "lesser", "dark"]
+      },
+      {
+        "r": "1 Kings 3:11",
+        "prefix": "and hast not asked for thyself long",
+        "a": "life",
+        "suffix": "; neither hast asked riches for thyself, nor hast asked the life of thine enemies; but hast asked for thyself understanding to discern judgment;",
+        "d": ["honour", "gold", "victory", "glory", "rest"]
+      },
+      {
+        "r": "1 Kings 3:11",
+        "prefix": "but hast asked for thyself understanding to discern",
+        "a": "judgment",
+        "suffix": ";",
+        "d": ["truth", "justice", "mercy", "law", "counsel"]
+      },
+      {
+        "r": "1 Kings 3:12",
+        "prefix": "so that there was none like thee before thee, neither after thee shall any",
+        "a": "arise",
+        "suffix": "like unto thee.",
+        "d": ["reign", "stand", "sit", "return", "rule"]
+      },
+      {
+        "r": "1 Kings 3:13",
+        "prefix": "And I have also given thee that which thou hast not asked, both riches, and",
+        "a": "honour",
+        "suffix": ": so that there shall not be any among the kings like unto thee all thy days.",
+        "d": ["glory", "peace", "victory", "length", "wisdom"]
+      },
+      {
+        "r": "1 Kings 3:28",
+        "prefix": "for they saw that the wisdom of God was in him, to do",
+        "a": "judgment",
+        "suffix": ".",
+        "d": ["justice", "mercy", "truth", "wonders", "will"]
+      }
+    ]
+  },
+  {
+    "id": "2chronicles16",
+    "name": "2 Chronicles 16",
+    "r": "2 Chronicles 16",
+    "subtitle": "The eyes of the LORD run to and fro",
+    "hall": true,
+    "testament": "ot",
+    "pace": 1,
+    "blanks": [
+      {
+        "r": "2 Chronicles 16:9",
+        "prefix": "For the eyes of the LORD run to and fro throughout the whole",
+        "a": "earth",
+        "suffix": ", to shew himself strong in the behalf of them whose heart is perfect toward him.",
+        "d": ["land", "nation", "world", "coast", "kingdom"]
+      },
+      {
+        "r": "2 Chronicles 16:9",
+        "prefix": "to shew himself strong in the behalf of them whose heart is",
+        "a": "perfect",
+        "suffix": "toward him.",
+        "d": ["faithful", "humble", "steady", "upright", "holy"]
+      },
+      {
+        "r": "2 Chronicles 16:9",
+        "prefix": "For the eyes of the LORD run to and fro throughout the whole earth, to shew himself",
+        "a": "strong",
+        "suffix": "in the behalf of them whose heart is perfect toward him.",
+        "d": ["mighty", "near", "swift", "gracious", "just"]
+      },
+      {
+        "r": "2 Chronicles 16:7",
+        "prefix": "And at that time Hanani the seer came to Asa king of",
+        "a": "Judah",
+        "suffix": ", and said unto him, Because thou hast relied on the king of Syria, and not relied on the LORD thy God, therefore is the host of the king of Syria escaped out of thine hand.",
+        "d": ["Israel", "Samaria", "Gilead", "Zion", "Ephraim"]
+      },
+      {
+        "r": "2 Chronicles 16:7",
+        "prefix": "Because thou hast relied on the king of Syria, and not relied on the LORD thy",
+        "a": "God",
+        "suffix": ", therefore is the host of the king of Syria escaped out of thine hand.",
+        "d": ["prophet", "army", "father", "ally", "host"]
+      },
+      {
+        "r": "2 Chronicles 16:8",
+        "prefix": "yet, because thou didst rely on the LORD, he delivered them into thine",
+        "a": "hand",
+        "suffix": ".",
+        "d": ["land", "keep", "grace", "name", "rest"]
+      },
+      {
+        "r": "2 Chronicles 16:12",
+        "prefix": "yet in his disease he sought not to the LORD, but to the",
+        "a": "physicians",
+        "suffix": ".",
+        "d": ["priests", "prophets", "chariots", "idols", "kings"]
+      },
+      {
+        "r": "2 Chronicles 16:10",
+        "prefix": "And Asa was wroth with the seer, and put him in a prison",
+        "a": "house",
+        "suffix": "; for he was in a rage with him because of this thing.",
+        "d": ["hold", "chain", "city", "dungeon", "watch"]
+      }
+    ]
+  },
+  {
+    "id": "ezra7",
+    "name": "Ezra 7",
+    "r": "Ezra 7",
+    "subtitle": "Ezra had prepared his heart",
+    "hall": true,
+    "testament": "ot",
+    "pace": 2,
+    "blanks": [
+      {
+        "r": "Ezra 7:9",
+        "prefix": "For upon the first day of the first month began he to go up from",
+        "a": "Babylon",
+        "suffix": ", and on the first day of the fifth month came he to Jerusalem, according to the good hand of his God upon him.",
+        "d": ["Assyria", "captivity", "Shushan", "Egypt", "Judah"]
+      },
+      {
+        "r": "Ezra 7:9",
+        "prefix": "and on the first day of the fifth month came he to",
+        "a": "Jerusalem",
+        "suffix": ", according to the good hand of his God upon him.",
+        "d": ["Zion", "Shiloh", "Samaria", "the temple", "Jordan"]
+      },
+      {
+        "r": "Ezra 7:9",
+        "prefix": "according to the good hand of his God",
+        "a": "upon",
+        "suffix": "him.",
+        "d": ["over", "with", "among", "toward", "before"]
+      },
+      {
+        "r": "Ezra 7:10",
+        "prefix": "For Ezra had prepared his",
+        "a": "heart",
+        "suffix": "to seek the law of the LORD, and to do it, and to teach in Israel statutes and judgments.",
+        "d": ["mind", "house", "way", "hand", "spirit"]
+      },
+      {
+        "r": "Ezra 7:10",
+        "prefix": "For Ezra had prepared his heart to",
+        "a": "seek",
+        "suffix": "the law of the LORD, and to do it, and to teach in Israel statutes and judgments.",
+        "d": ["keep", "read", "learn", "find", "hold"]
+      },
+      {
+        "r": "Ezra 7:10",
+        "prefix": "to seek the law of the LORD, and to",
+        "a": "do",
+        "suffix": "it, and to teach in Israel statutes and judgments.",
+        "d": ["keep", "write", "love", "hold", "prove"]
+      },
+      {
+        "r": "Ezra 7:10",
+        "prefix": "and to teach in Israel statutes and",
+        "a": "judgments",
+        "suffix": ".",
+        "d": ["commandments", "ordinances", "truths", "wonders", "ways"]
+      },
+      {
+        "r": "Ezra 7:10",
+        "prefix": "and to do it, and to",
+        "a": "teach",
+        "suffix": "in Israel statutes and judgments.",
+        "d": ["preach", "write", "sing", "declare", "restore"]
+      }
+    ]
+  },
+  {
+    "id": "psalm63",
+    "name": "Psalm 63",
+    "r": "Psalm 63",
+    "subtitle": "Early will I seek thee",
+    "hall": true,
+    "testament": "ot",
+    "pace": 2,
+    "blanks": [
+      {
+        "r": "Psalm 63:1",
+        "prefix": "O God, thou art my God; early will I",
+        "a": "seek",
+        "suffix": "thee: my soul thirsteth for thee, my flesh longeth for thee in a dry and thirsty land, where no water is;",
+        "d": ["praise", "serve", "find", "call", "wait"]
+      },
+      {
+        "r": "Psalm 63:1",
+        "prefix": "my flesh longeth for thee in a dry and thirsty land, where no",
+        "a": "water",
+        "suffix": "is;",
+        "d": ["rain", "dew", "stream", "well", "shade"]
+      },
+      {
+        "r": "Psalm 63:3",
+        "prefix": "Because thy lovingkindness is better than",
+        "a": "life",
+        "suffix": ", my lips shall praise thee.",
+        "d": ["gold", "honour", "wine", "rest", "strength"]
+      },
+      {
+        "r": "Psalm 63:4",
+        "prefix": "Thus will I bless thee while I live: I will lift up my hands in thy",
+        "a": "name",
+        "suffix": ".",
+        "d": ["truth", "house", "fear", "law", "love"]
+      },
+      {
+        "r": "Psalm 63:5",
+        "prefix": "and my mouth shall praise thee with joyful",
+        "a": "lips",
+        "suffix": ":",
+        "d": ["songs", "heart", "voice", "thanksgiving", "shouting"]
+      },
+      {
+        "r": "Psalm 63:6",
+        "prefix": "When I remember thee upon my bed, and meditate on thee in the night",
+        "a": "watches",
+        "suffix": ".",
+        "d": ["seasons", "hours", "quiet", "darkness", "camps"]
+      },
+      {
+        "r": "Psalm 63:7",
+        "prefix": "Because thou hast been my help, therefore in the shadow of thy wings will I",
+        "a": "rejoice",
+        "suffix": ".",
+        "d": ["rest", "hide", "sing", "trust", "dwell"]
+      },
+      {
+        "r": "Psalm 63:7",
+        "prefix": "therefore in the shadow of thy",
+        "a": "wings",
+        "suffix": "will I rejoice.",
+        "d": ["house", "arms", "mercy", "presence", "truth"]
+      }
+    ]
+  },
+  {
+    "id": "psalm118",
+    "name": "Psalm 118",
+    "r": "Psalm 118",
+    "subtitle": "This is the day which the LORD hath made",
+    "hall": true,
+    "testament": "ot",
+    "pace": 2,
+    "blanks": [
+      {
+        "r": "Psalm 118:6",
+        "prefix": "The LORD is on my side; I will not",
+        "a": "fear",
+        "suffix": ": what can man do unto me?",
+        "d": ["fall", "doubt", "flee", "move", "turn"]
+      },
+      {
+        "r": "Psalm 118:6",
+        "prefix": "The LORD is on my",
+        "a": "side",
+        "suffix": "; I will not fear: what can man do unto me?",
+        "d": ["right", "path", "part", "throne", "rock"]
+      },
+      {
+        "r": "Psalm 118:8",
+        "prefix": "It is better to trust in the LORD than to put confidence in",
+        "a": "man",
+        "suffix": ".",
+        "d": ["princes", "kings", "flesh", "idols", "nations"]
+      },
+      {
+        "r": "Psalm 118:9",
+        "prefix": "It is better to trust in the LORD than to put confidence in",
+        "a": "princes",
+        "suffix": ".",
+        "d": ["rulers", "captains", "armies", "pharaohs", "judges"]
+      },
+      {
+        "r": "Psalm 118:14",
+        "prefix": "The LORD is my strength and song, and is become my",
+        "a": "salvation",
+        "suffix": ".",
+        "d": ["refuge", "shield", "portion", "deliverer", "rest"]
+      },
+      {
+        "r": "Psalm 118:22",
+        "prefix": "The stone which the builders",
+        "a": "refused",
+        "suffix": "is become the head stone of the corner.",
+        "d": ["lost", "broke", "cast", "missed", "despised"]
+      },
+      {
+        "r": "Psalm 118:22",
+        "prefix": "is become the head stone of the",
+        "a": "corner",
+        "suffix": ".",
+        "d": ["gate", "temple", "wall", "altar", "arch"]
+      },
+      {
+        "r": "Psalm 118:24",
+        "prefix": "This is the day which the LORD hath made; we will rejoice and be",
+        "a": "glad",
+        "suffix": "in it.",
+        "d": ["strong", "still", "merry", "free", "whole"]
+      }
+    ]
+  },
+  {
+    "id": "psalm119",
+    "name": "Psalm 119",
+    "r": "Psalm 119",
+    "subtitle": "Thy word is a lamp unto my feet",
+    "hall": true,
+    "testament": "ot",
+    "pace": 2,
+    "blanks": [
+      {
+        "r": "Psalm 119:9",
+        "prefix": "Wherewithal shall a young man cleanse his way? by taking heed thereto according to thy",
+        "a": "word",
+        "suffix": ".",
+        "d": ["law", "grace", "spirit", "truth", "mercy"]
+      },
+      {
+        "r": "Psalm 119:10",
+        "prefix": "With my whole heart have I sought thee: O let me not wander from thy",
+        "a": "commandments",
+        "suffix": ".",
+        "d": ["precepts", "paths", "presence", "house", "promises"]
+      },
+      {
+        "r": "Psalm 119:11",
+        "prefix": "Thy word have I hid in mine",
+        "a": "heart",
+        "suffix": ", that I might not sin against thee.",
+        "d": ["mind", "bosom", "house", "hand", "way"]
+      },
+      {
+        "r": "Psalm 119:11",
+        "prefix": "that I might not",
+        "a": "sin",
+        "suffix": "against thee.",
+        "d": ["stumble", "wander", "fall", "turn", "err"]
+      },
+      {
+        "r": "Psalm 119:105",
+        "prefix": "Thy word is a lamp unto my",
+        "a": "feet",
+        "suffix": ", and a light unto my path.",
+        "d": ["way", "eyes", "soul", "steps", "heart"]
+      },
+      {
+        "r": "Psalm 119:105",
+        "prefix": "and a light unto my",
+        "a": "path",
+        "suffix": ".",
+        "d": ["road", "day", "house", "land", "journey"]
+      },
+      {
+        "r": "Psalm 119:130",
+        "prefix": "The entrance of thy words giveth light; it giveth understanding unto the",
+        "a": "simple",
+        "suffix": ".",
+        "d": ["weary", "humble", "young", "meek", "blind"]
+      },
+      {
+        "r": "Psalm 119:165",
+        "prefix": "Great peace have they which love thy law: and nothing shall",
+        "a": "offend",
+        "suffix": "them.",
+        "d": ["move", "hurt", "shake", "spoil", "stumble"]
+      }
+    ]
+  },
+  {
+    "id": "psalm133",
+    "name": "Psalm 133",
+    "r": "Psalm 133",
+    "subtitle": "Dwell together in unity",
+    "hall": true,
+    "testament": "ot",
+    "pace": 2,
+    "blanks": [
+      {
+        "r": "Psalm 133:1",
+        "prefix": "Behold, how good and how pleasant it is for brethren to dwell together in",
+        "a": "unity",
+        "suffix": "!",
+        "d": ["peace", "love", "truth", "fear", "gladness"]
+      },
+      {
+        "r": "Psalm 133:1",
+        "prefix": "Behold, how good and how pleasant it is for",
+        "a": "brethren",
+        "suffix": "to dwell together in unity!",
+        "d": ["saints", "neighbours", "friends", "tribes", "elders"]
+      },
+      {
+        "r": "Psalm 133:2",
+        "prefix": "It is like the precious",
+        "a": "ointment",
+        "suffix": "upon the head, that ran down upon the beard, even Aaron's beard: that went down to the skirts of his garments;",
+        "d": ["oil", "dew", "water", "myrrh", "incense"]
+      },
+      {
+        "r": "Psalm 133:2",
+        "prefix": "that ran down upon the",
+        "a": "beard",
+        "suffix": ", even Aaron's beard: that went down to the skirts of his garments;",
+        "d": ["crown", "altar", "garment", "robe", "shield"]
+      },
+      {
+        "r": "Psalm 133:2",
+        "prefix": "that went down to the skirts of his",
+        "a": "garments",
+        "suffix": ";",
+        "d": ["robe", "crown", "house", "gates", "fields"]
+      },
+      {
+        "r": "Psalm 133:3",
+        "prefix": "As the dew of",
+        "a": "Hermon",
+        "suffix": ", and as the dew that descended upon the mountains of Zion: for there the LORD commanded the blessing, even life for evermore.",
+        "d": ["Gilead", "Sinai", "Carmel", "Lebanon", "Gilboa"]
+      },
+      {
+        "r": "Psalm 133:3",
+        "prefix": "as the dew that descended upon the mountains of",
+        "a": "Zion",
+        "suffix": ": for there the LORD commanded the blessing, even life for evermore.",
+        "d": ["Judah", "Jerusalem", "Israel", "the ark", "Gilgal"]
+      },
+      {
+        "r": "Psalm 133:3",
+        "prefix": "for there the LORD commanded the blessing, even life for",
+        "a": "evermore",
+        "suffix": ".",
+        "d": ["ever", "ages", "always", "eternity", "the age"]
+      }
+    ]
+  },
+  {
+    "id": "proverbs18",
+    "name": "Proverbs 18",
+    "r": "Proverbs 18",
+    "subtitle": "The name of the LORD is a strong tower",
+    "hall": true,
+    "testament": "ot",
+    "pace": 2,
+    "blanks": [
+      {
+        "r": "Proverbs 18:10",
+        "prefix": "The name of the LORD is a strong",
+        "a": "tower",
+        "suffix": ": the righteous runneth into it, and is safe.",
+        "d": ["refuge", "shield", "rock", "city", "fortress"]
+      },
+      {
+        "r": "Proverbs 18:10",
+        "prefix": "the righteous runneth into it, and is",
+        "a": "safe",
+        "suffix": ".",
+        "d": ["saved", "still", "free", "strong", "found"]
+      },
+      {
+        "r": "Proverbs 18:15",
+        "prefix": "The heart of the prudent getteth",
+        "a": "knowledge",
+        "suffix": "; and the ear of the wise seeketh knowledge.",
+        "d": ["wisdom", "truth", "grace", "rest", "riches"]
+      },
+      {
+        "r": "Proverbs 18:15",
+        "prefix": "and the ear of the wise",
+        "a": "seeketh",
+        "suffix": "knowledge.",
+        "d": ["keepeth", "findeth", "loveth", "heareth", "learneth"]
+      },
+      {
+        "r": "Proverbs 18:24",
+        "prefix": "and there is a friend that sticketh closer than a",
+        "a": "brother",
+        "suffix": ".",
+        "d": ["father", "neighbour", "son", "servant", "king"]
+      },
+      {
+        "r": "Proverbs 18:24",
+        "prefix": "A man that hath friends must shew himself",
+        "a": "friendly",
+        "suffix": ": and there is a friend that sticketh closer than a brother.",
+        "d": ["faithful", "kind", "gentle", "just", "humble"]
+      },
+      {
+        "r": "Proverbs 18:22",
+        "prefix": "Whoso findeth a wife findeth a good thing, and obtaineth favour of the",
+        "a": "LORD",
+        "suffix": ".",
+        "d": ["king", "elders", "land", "people", "temple"]
+      },
+      {
+        "r": "Proverbs 18:22",
+        "prefix": "Whoso findeth a wife findeth a good",
+        "a": "thing",
+        "suffix": ", and obtaineth favour of the LORD.",
+        "d": ["gift", "portion", "treasure", "heritage", "prize"]
+      }
+    ]
+  },
+  {
+    "id": "proverbs22",
+    "name": "Proverbs 22",
+    "r": "Proverbs 22",
+    "subtitle": "Train up a child in the way he should go",
+    "hall": true,
+    "testament": "ot",
+    "pace": 2,
+    "blanks": [
+      {
+        "r": "Proverbs 22:1",
+        "prefix": "A good name is rather to be chosen than great",
+        "a": "riches",
+        "suffix": ", and loving favour rather than silver and gold.",
+        "d": ["honours", "treasures", "wisdom", "castles", "fields"]
+      },
+      {
+        "r": "Proverbs 22:1",
+        "prefix": "and loving favour rather than silver and",
+        "a": "gold",
+        "suffix": ".",
+        "d": ["iron", "pearls", "bronze", "jewels", "spice"]
+      },
+      {
+        "r": "Proverbs 22:3",
+        "prefix": "A prudent man foreseeth the evil, and",
+        "a": "hideth",
+        "suffix": "himself: but the simple pass on, and are punished.",
+        "d": ["turns", "flees", "waits", "prays", "watcheth"]
+      },
+      {
+        "r": "Proverbs 22:3",
+        "prefix": "but the simple pass on, and are",
+        "a": "punished",
+        "suffix": ".",
+        "d": ["spoiled", "snared", "scattered", "hurt", "blinded"]
+      },
+      {
+        "r": "Proverbs 22:5",
+        "prefix": "Thorns and snares are in the way of the froward: he that doth keep his",
+        "a": "soul",
+        "suffix": "shall be far from them.",
+        "d": ["way", "heart", "vow", "law", "peace"]
+      },
+      {
+        "r": "Proverbs 22:6",
+        "prefix": "Train up a",
+        "a": "child",
+        "suffix": "in the way he should go: and when he is old, he will not depart from it.",
+        "d": ["servant", "son", "people", "house", "youth"]
+      },
+      {
+        "r": "Proverbs 22:6",
+        "prefix": "and when he is old, he will not",
+        "a": "depart",
+        "suffix": "from it.",
+        "d": ["turn", "swerve", "fall", "drift", "hide"]
+      },
+      {
+        "r": "Proverbs 22:2",
+        "prefix": "The rich and poor meet together: the LORD is the maker of them",
+        "a": "all",
+        "suffix": ".",
+        "d": ["both", "alike", "equal", "one", "two"]
+      }
+    ]
+  },
+  {
+    "id": "ecclesiastes12",
+    "name": "Ecclesiastes 12",
+    "r": "Ecclesiastes 12",
+    "subtitle": "Remember now thy Creator",
+    "hall": true,
+    "testament": "ot",
+    "pace": 2,
+    "blanks": [
+      {
+        "r": "Ecclesiastes 12:1",
+        "prefix": "Remember now thy",
+        "a": "Creator",
+        "suffix": "in the days of thy youth, while the evil days come not, nor the years draw nigh, when thou shalt say, I have no pleasure in them;",
+        "d": ["maker", "shepherd", "father", "keeper", "judge"]
+      },
+      {
+        "r": "Ecclesiastes 12:1",
+        "prefix": "Remember now thy Creator in the days of thy",
+        "a": "youth",
+        "suffix": ", while the evil days come not, nor the years draw nigh, when thou shalt say, I have no pleasure in them;",
+        "d": ["strength", "life", "labour", "keeping", "prime"]
+      },
+      {
+        "r": "Ecclesiastes 12:1",
+        "prefix": "nor the years draw",
+        "a": "nigh",
+        "suffix": ", when thou shalt say, I have no pleasure in them;",
+        "d": ["near", "close", "short", "on", "away"]
+      },
+      {
+        "r": "Ecclesiastes 12:6",
+        "prefix": "Or ever the silver cord be",
+        "a": "loosed",
+        "suffix": ", or the golden bowl be broken, or the pitcher be broken at the fountain, or the wheel broken at the cistern.",
+        "d": ["cut", "broken", "cast", "spun", "lost"]
+      },
+      {
+        "r": "Ecclesiastes 12:13",
+        "prefix": "Let us hear the conclusion of the whole matter: Fear God, and keep his",
+        "a": "commandments",
+        "suffix": ": for this is the whole duty of man.",
+        "d": ["word", "sabbaths", "statutes", "covenant", "precepts"]
+      },
+      {
+        "r": "Ecclesiastes 12:13",
+        "prefix": "for this is the whole duty of",
+        "a": "man",
+        "suffix": ".",
+        "d": ["life", "flesh", "israel", "a king", "the wise"]
+      },
+      {
+        "r": "Ecclesiastes 12:14",
+        "prefix": "For God shall bring every work into",
+        "a": "judgment",
+        "suffix": ", with every secret thing, whether it be good, or whether it be evil.",
+        "d": ["light", "account", "order", "trial", "rest"]
+      },
+      {
+        "r": "Ecclesiastes 12:14",
+        "prefix": "with every secret thing, whether it be good, or whether it be",
+        "a": "evil",
+        "suffix": ".",
+        "d": ["hid", "vain", "lost", "false", "small"]
+      }
+    ]
+  },
+  {
+    "id": "isaiah6",
+    "name": "Isaiah 6",
+    "r": "Isaiah 6",
+    "subtitle": "Here am I; send me",
+    "hall": true,
+    "testament": "ot",
+    "pace": 2,
+    "blanks": [
+      {
+        "r": "Isaiah 6:1",
+        "prefix": "In the year that king Uzziah died I saw also the Lord sitting upon a",
+        "a": "throne",
+        "suffix": ", high and lifted up, and his train filled the temple.",
+        "d": ["seat", "chariot", "altar", "cloud", "mountain"]
+      },
+      {
+        "r": "Isaiah 6:1",
+        "prefix": "high and lifted up, and his train filled the",
+        "a": "temple",
+        "suffix": ".",
+        "d": ["house", "earth", "heavens", "courts", "land"]
+      },
+      {
+        "r": "Isaiah 6:3",
+        "prefix": "Holy, holy, holy, is the LORD of",
+        "a": "hosts",
+        "suffix": ": the whole earth is full of his glory.",
+        "d": ["heaven", "angels", "glory", "israel", "armies"]
+      },
+      {
+        "r": "Isaiah 6:3",
+        "prefix": "the whole earth is full of his",
+        "a": "glory",
+        "suffix": ".",
+        "d": ["praise", "light", "mercy", "word", "spirit"]
+      },
+      {
+        "r": "Isaiah 6:5",
+        "prefix": "Woe is me! for I am undone; because I am a man of unclean",
+        "a": "lips",
+        "suffix": ", and I dwell in the midst of a people of unclean lips: for mine eyes have seen the King, the LORD of hosts.",
+        "d": ["hands", "heart", "spirit", "words", "garment"]
+      },
+      {
+        "r": "Isaiah 6:7",
+        "prefix": "Lo, this hath touched thy lips; and thine iniquity is taken away, and thy sin",
+        "a": "purged",
+        "suffix": ".",
+        "d": ["forgiven", "covered", "cleansed", "removed", "burned"]
+      },
+      {
+        "r": "Isaiah 6:8",
+        "prefix": "Whom shall I send, and who will go for us? Then said I, Here am I;",
+        "a": "send",
+        "suffix": "me.",
+        "d": ["use", "keep", "lead", "love", "try"]
+      },
+      {
+        "r": "Isaiah 6:8",
+        "prefix": "Then said I, Here am I; send",
+        "a": "me",
+        "suffix": ".",
+        "d": ["us", "them", "him", "thee", "this one"]
+      }
+    ]
+  },
+  {
+    "id": "isaiah26",
+    "name": "Isaiah 26",
+    "r": "Isaiah 26",
+    "subtitle": "Thou wilt keep him in perfect peace",
+    "hall": true,
+    "testament": "ot",
+    "pace": 2,
+    "blanks": [
+      {
+        "r": "Isaiah 26:3",
+        "prefix": "Thou wilt keep him in perfect",
+        "a": "peace",
+        "suffix": ", whose mind is stayed on thee: because he trusteth in thee.",
+        "d": ["rest", "safety", "light", "joy", "honour"]
+      },
+      {
+        "r": "Isaiah 26:3",
+        "prefix": "whose mind is",
+        "a": "stayed",
+        "suffix": "on thee: because he trusteth in thee.",
+        "d": ["set", "turned", "joined", "looking", "resting"]
+      },
+      {
+        "r": "Isaiah 26:3",
+        "prefix": "because he",
+        "a": "trusteth",
+        "suffix": "in thee.",
+        "d": ["hopeth", "waiteth", "leaneth", "calleth", "seeketh"]
+      },
+      {
+        "r": "Isaiah 26:4",
+        "prefix": "Trust ye in the LORD for ever: for in the LORD JEHOVAH is everlasting",
+        "a": "strength",
+        "suffix": ":",
+        "d": ["refuge", "mercy", "light", "glory", "rock"]
+      },
+      {
+        "r": "Isaiah 26:12",
+        "prefix": "LORD, thou wilt ordain peace for us: for thou also hast wrought all our",
+        "a": "works",
+        "suffix": "in us.",
+        "d": ["days", "ways", "battles", "paths", "harvest"]
+      },
+      {
+        "r": "Isaiah 26:7",
+        "prefix": "The way of the just is",
+        "a": "uprightness",
+        "suffix": ": thou, most upright, dost weigh the path of the just.",
+        "d": ["peace", "plainness", "mercy", "light", "gladness"]
+      },
+      {
+        "r": "Isaiah 26:8",
+        "prefix": "the desire of our soul is to thy",
+        "a": "name",
+        "suffix": ", and to the remembrance of thee.",
+        "d": ["word", "house", "mercy", "law", "spirit"]
+      },
+      {
+        "r": "Isaiah 26:8",
+        "prefix": "Yea, in the way of thy judgments, O LORD, have we",
+        "a": "waited",
+        "suffix": "for thee; the desire of our soul is to thy name, and to the remembrance of thee.",
+        "d": ["hoped", "called", "walked", "looked", "praised"]
+      }
+    ]
+  },
+  {
+    "id": "isaiah41",
+    "name": "Isaiah 41",
+    "r": "Isaiah 41",
+    "subtitle": "Fear thou not; for I am with thee",
+    "hall": true,
+    "testament": "ot",
+    "pace": 3,
+    "blanks": [
+      {
+        "r": "Isaiah 41:10",
+        "prefix": "Fear thou not; for I am with thee: be not dismayed; for I am thy",
+        "a": "God",
+        "suffix": ": I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.",
+        "d": ["shield", "helper", "king", "refuge", "maker"]
+      },
+      {
+        "r": "Isaiah 41:10",
+        "prefix": "Fear thou not; for I am with thee: be not",
+        "a": "dismayed",
+        "suffix": "; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.",
+        "d": ["afraid", "ashamed", "moved", "weary", "troubled"]
+      },
+      {
+        "r": "Isaiah 41:10",
+        "prefix": "I will strengthen thee; yea, I will",
+        "a": "help",
+        "suffix": "thee; yea, I will uphold thee with the right hand of my righteousness.",
+        "d": ["keep", "bless", "lead", "guide", "cover"]
+      },
+      {
+        "r": "Isaiah 41:10",
+        "prefix": "yea, I will uphold thee with the right hand of my",
+        "a": "righteousness",
+        "suffix": ".",
+        "d": ["mercy", "glory", "truth", "grace", "holiness"]
+      },
+      {
+        "r": "Isaiah 41:13",
+        "prefix": "For I the LORD thy God will hold thy right",
+        "a": "hand",
+        "suffix": ", saying unto thee, Fear not; I will help thee.",
+        "d": ["way", "head", "heart", "cause", "peace"]
+      },
+      {
+        "r": "Isaiah 41:9",
+        "prefix": "Thou art my servant; I have chosen thee, and not cast thee",
+        "a": "away",
+        "suffix": ".",
+        "d": ["out", "off", "down", "aside", "behind"]
+      },
+      {
+        "r": "Isaiah 41:15",
+        "prefix": "thou shalt thresh the mountains, and beat them small, and shalt make the hills as",
+        "a": "chaff",
+        "suffix": ".",
+        "d": ["dust", "ashes", "smoke", "water", "sand"]
+      },
+      {
+        "r": "Isaiah 41:18",
+        "prefix": "I will open rivers in high places, and fountains in the midst of the",
+        "a": "valleys",
+        "suffix": ": I will make the wilderness a pool of water, and the dry land springs of water.",
+        "d": ["desert", "rocks", "nations", "fields", "earth"]
+      }
+    ]
+  },
+  {
+    "id": "jeremiah33",
+    "name": "Jeremiah 33",
+    "r": "Jeremiah 33",
+    "subtitle": "Call unto me, and I will answer thee",
+    "hall": true,
+    "testament": "ot",
+    "pace": 3,
+    "blanks": [
+      {
+        "r": "Jeremiah 33:3",
+        "prefix": "Call unto me, and I will",
+        "a": "answer",
+        "suffix": "thee, and shew thee great and mighty things, which thou knowest not.",
+        "d": ["hear", "keep", "bless", "guide", "visit"]
+      },
+      {
+        "r": "Jeremiah 33:3",
+        "prefix": "Call unto me, and I will answer thee, and shew thee great and",
+        "a": "mighty",
+        "suffix": "things, which thou knowest not.",
+        "d": ["hidden", "marvellous", "sure", "deep", "new"]
+      },
+      {
+        "r": "Jeremiah 33:3",
+        "prefix": "and shew thee great and mighty things, which thou",
+        "a": "knowest",
+        "suffix": "not.",
+        "d": ["seekest", "fearest", "lovest", "askest", "rememberest"]
+      },
+      {
+        "r": "Jeremiah 33:6",
+        "prefix": "and will reveal unto them the abundance of peace and",
+        "a": "truth",
+        "suffix": ".",
+        "d": ["mercy", "grace", "joy", "glory", "rest"]
+      },
+      {
+        "r": "Jeremiah 33:7",
+        "prefix": "And I will cause the captivity of Judah and the captivity of Israel to",
+        "a": "return",
+        "suffix": ", and will build them, as at the first.",
+        "d": ["end", "cease", "turn", "heal", "pass"]
+      },
+      {
+        "r": "Jeremiah 33:7",
+        "prefix": "and will build them, as at the",
+        "a": "first",
+        "suffix": ".",
+        "d": ["beginning", "former", "start", "ancient", "origins"]
+      },
+      {
+        "r": "Jeremiah 33:8",
+        "prefix": "And I will cleanse them from all their",
+        "a": "iniquity",
+        "suffix": ", whereby they have sinned against me; and I will pardon all their iniquities, whereby they have sinned, and whereby they have transgressed against me.",
+        "d": ["sin", "wounds", "transgressions", "faults", "idols"]
+      },
+      {
+        "r": "Jeremiah 33:8",
+        "prefix": "and I will",
+        "a": "pardon",
+        "suffix": "all their iniquities, whereby they have sinned, and whereby they have transgressed against me.",
+        "d": ["heal", "spare", "cover", "forget", "blot"]
+      }
+    ]
+  },
+  {
+    "id": "jonah2",
+    "name": "Jonah 2",
+    "r": "Jonah 2",
+    "subtitle": "Salvation is of the LORD",
+    "hall": true,
+    "testament": "ot",
+    "pace": 3,
+    "blanks": [
+      {
+        "r": "Jonah 2:1",
+        "prefix": "Then Jonah prayed unto the LORD his God out of the fish's",
+        "a": "belly",
+        "suffix": ".",
+        "d": ["depths", "heart", "shadow", "darkness", "side"]
+      },
+      {
+        "r": "Jonah 2:2",
+        "prefix": "I cried by reason of mine affliction unto the LORD, and he",
+        "a": "heard",
+        "suffix": "me; out of the belly of hell cried I, and thou heardest my voice.",
+        "d": ["kept", "spared", "answered", "marked", "knew"]
+      },
+      {
+        "r": "Jonah 2:2",
+        "prefix": "out of the belly of hell cried I, and thou",
+        "a": "heardest",
+        "suffix": "my voice.",
+        "d": ["answered", "remembered", "regarded", "received", "sent"]
+      },
+      {
+        "r": "Jonah 2:3",
+        "prefix": "For thou hadst cast me into the deep, in the midst of the seas; and the floods",
+        "a": "compassed",
+        "suffix": "me about: all thy billows and thy waves passed over me.",
+        "d": ["covered", "surrounded", "broken", "washed", "closed"]
+      },
+      {
+        "r": "Jonah 2:7",
+        "prefix": "When my soul fainted within me I",
+        "a": "remembered",
+        "suffix": "the LORD: and my prayer came in unto thee, into thine holy temple.",
+        "d": ["sought", "called", "trusted", "blessed", "praised"]
+      },
+      {
+        "r": "Jonah 2:7",
+        "prefix": "and my prayer came in unto thee, into thine holy",
+        "a": "temple",
+        "suffix": ".",
+        "d": ["presence", "house", "heaven", "rest", "ark"]
+      },
+      {
+        "r": "Jonah 2:9",
+        "prefix": "But I will sacrifice unto thee with the voice of",
+        "a": "thanksgiving",
+        "suffix": "; I will pay that that I have vowed. Salvation is of the LORD.",
+        "d": ["praise", "joy", "mercy", "mourning", "fasting"]
+      },
+      {
+        "r": "Jonah 2:9",
+        "prefix": "Salvation is of the",
+        "a": "LORD",
+        "suffix": ".",
+        "d": ["deep", "sea", "prophet", "temple", "king"]
+      }
+    ]
+  },
+  {
+    "id": "hosea6",
+    "name": "Hosea 6",
+    "r": "Hosea 6",
+    "subtitle": "He will heal us",
+    "hall": true,
+    "testament": "ot",
+    "pace": 3,
+    "blanks": [
+      {
+        "r": "Hosea 6:1",
+        "prefix": "Come, and let us",
+        "a": "return",
+        "suffix": "unto the LORD: for he hath torn, and he will heal us; he hath smitten, and he will bind us up.",
+        "d": ["look", "run", "call", "flee", "turn"]
+      },
+      {
+        "r": "Hosea 6:1",
+        "prefix": "for he hath torn, and he will",
+        "a": "heal",
+        "suffix": "us; he hath smitten, and he will bind us up.",
+        "d": ["spare", "cover", "restore", "keep", "raise"]
+      },
+      {
+        "r": "Hosea 6:1",
+        "prefix": "he hath smitten, and he will bind us",
+        "a": "up",
+        "suffix": ".",
+        "d": ["in", "fast", "together", "close", "again"]
+      },
+      {
+        "r": "Hosea 6:2",
+        "prefix": "After two days will he",
+        "a": "revive",
+        "suffix": "us: in the third day he will raise us up, and we shall live in his sight.",
+        "d": ["raise", "heal", "keep", "gather", "renew"]
+      },
+      {
+        "r": "Hosea 6:2",
+        "prefix": "and we shall live in his",
+        "a": "sight",
+        "suffix": ".",
+        "d": ["light", "house", "land", "peace", "way"]
+      },
+      {
+        "r": "Hosea 6:3",
+        "prefix": "his going forth is prepared as the",
+        "a": "morning",
+        "suffix": "; and he shall come unto us as the rain, as the latter and former rain unto the earth.",
+        "d": ["dawn", "sun", "light", "spring", "harvest"]
+      },
+      {
+        "r": "Hosea 6:3",
+        "prefix": "and he shall come unto us as the rain, as the latter and former rain unto the",
+        "a": "earth",
+        "suffix": ".",
+        "d": ["fields", "valley", "land", "ground", "corn"]
+      },
+      {
+        "r": "Hosea 6:3",
+        "prefix": "Then shall we know, if we follow on to know the",
+        "a": "LORD",
+        "suffix": ": his going forth is prepared as the morning; and he shall come unto us as the rain, as the latter and former rain unto the earth.",
+        "d": ["way", "prophet", "law", "father", "word"]
+      }
+    ]
+  },
+  {
+    "id": "joel2",
+    "name": "Joel 2",
+    "r": "Joel 2",
+    "subtitle": "I will restore to you the years",
+    "hall": true,
+    "testament": "ot",
+    "pace": 3,
+    "blanks": [
+      {
+        "r": "Joel 2:12",
+        "prefix": "Therefore also now, saith the LORD, turn ye even to me with all your",
+        "a": "heart",
+        "suffix": ", and with fasting, and with weeping, and with mourning:",
+        "d": ["soul", "strength", "voice", "house", "tears"]
+      },
+      {
+        "r": "Joel 2:13",
+        "prefix": "And rend your heart, and not your",
+        "a": "garments",
+        "suffix": ", and turn unto the LORD your God: for he is gracious and merciful, slow to anger, and of great kindness, and repenteth him of the evil.",
+        "d": ["offering", "silence", "strength", "house", "joy"]
+      },
+      {
+        "r": "Joel 2:13",
+        "prefix": "and turn unto the LORD your God: for he is gracious and",
+        "a": "merciful",
+        "suffix": ", slow to anger, and of great kindness, and repenteth him of the evil.",
+        "d": ["patient", "faithful", "gentle", "just", "near"]
+      },
+      {
+        "r": "Joel 2:13",
+        "prefix": "slow to anger, and of great",
+        "a": "kindness",
+        "suffix": ", and repenteth him of the evil.",
+        "d": ["mercy", "goodness", "glory", "grace", "power"]
+      },
+      {
+        "r": "Joel 2:25",
+        "prefix": "And I will",
+        "a": "restore",
+        "suffix": "to you the years that the locust hath eaten, the cankerworm, and the caterpiller, and the palmerworm, my great army which I sent among you.",
+        "d": ["return", "repay", "raise", "bless", "spare"]
+      },
+      {
+        "r": "Joel 2:25",
+        "prefix": "And I will restore to you the",
+        "a": "years",
+        "suffix": "that the locust hath eaten, the cankerworm, and the caterpiller, and the palmerworm, my great army which I sent among you.",
+        "d": ["harvest", "seasons", "fields", "flocks", "fruit"]
+      },
+      {
+        "r": "Joel 2:25",
+        "prefix": "my great",
+        "a": "army",
+        "suffix": "which I sent among you.",
+        "d": ["host", "wind", "fire", "plague", "voice"]
+      },
+      {
+        "r": "Joel 2:32",
+        "prefix": "whosoever shall call on the name of the LORD shall be",
+        "a": "delivered",
+        "suffix": ": for in mount Zion and in Jerusalem shall be deliverance, as the LORD hath said, and in the remnant whom the LORD shall call.",
+        "d": ["spared", "saved", "gathered", "heard", "kept"]
+      }
+    ]
+  },
+  {
+    "id": "amos5",
+    "name": "Amos 5",
+    "r": "Amos 5",
+    "subtitle": "Let judgment run down as waters",
+    "hall": true,
+    "testament": "ot",
+    "pace": 3,
+    "blanks": [
+      {
+        "r": "Amos 5:14",
+        "prefix": "Seek",
+        "a": "good",
+        "suffix": ", and not evil, that ye may live: and so the LORD, the God of hosts, shall be with you, as ye have spoken.",
+        "d": ["peace", "truth", "mercy", "plenty", "praise"]
+      },
+      {
+        "r": "Amos 5:14",
+        "prefix": "Seek good, and not evil, that ye may",
+        "a": "live",
+        "suffix": ": and so the LORD, the God of hosts, shall be with you, as ye have spoken.",
+        "d": ["prosper", "stand", "rest", "reign", "return"]
+      },
+      {
+        "r": "Amos 5:15",
+        "prefix": "Hate the evil, and love the good, and establish judgment in the",
+        "a": "gate",
+        "suffix": ": it may be that the LORD God of hosts will be gracious unto the remnant of Joseph.",
+        "d": ["land", "house", "courts", "morning", "street"]
+      },
+      {
+        "r": "Amos 5:15",
+        "prefix": "it may be that the LORD God of hosts will be",
+        "a": "gracious",
+        "suffix": "unto the remnant of Joseph.",
+        "d": ["merciful", "near", "just", "faithful", "quiet"]
+      },
+      {
+        "r": "Amos 5:24",
+        "prefix": "But let judgment run down as",
+        "a": "waters",
+        "suffix": ", and righteousness as a mighty stream.",
+        "d": ["rain", "milk", "oil", "wine", "fire"]
+      },
+      {
+        "r": "Amos 5:24",
+        "prefix": "and righteousness as a mighty",
+        "a": "stream",
+        "suffix": ".",
+        "d": ["river", "flood", "wind", "storm", "current"]
+      },
+      {
+        "r": "Amos 5:8",
+        "prefix": "Seek him that maketh the seven stars and Orion, and turneth the shadow of death into the",
+        "a": "morning",
+        "suffix": ", and maketh the day dark with night: that calleth for the waters of the sea, and poureth them out upon the face of the earth: The LORD is his name:",
+        "d": ["light", "dawn", "day", "mercy", "harvest"]
+      },
+      {
+        "r": "Amos 5:8",
+        "prefix": "that calleth for the waters of the sea, and poureth them out upon the face of the",
+        "a": "earth",
+        "suffix": ": The LORD is his name:",
+        "d": ["land", "deep", "nations", "ground", "valley"]
+      }
+    ]
+  },
+  {
+    "id": "nahum1",
+    "name": "Nahum 1",
+    "r": "Nahum 1",
+    "subtitle": "The LORD is good, a strong hold",
+    "hall": true,
+    "testament": "ot",
+    "pace": 3,
+    "blanks": [
+      {
+        "r": "Nahum 1:7",
+        "prefix": "The LORD is good, a strong",
+        "a": "hold",
+        "suffix": "in the day of trouble; and he knoweth them that trust in him.",
+        "d": ["rock", "tower", "refuge", "shield", "city"]
+      },
+      {
+        "r": "Nahum 1:7",
+        "prefix": "The LORD is good, a strong hold in the day of",
+        "a": "trouble",
+        "suffix": "; and he knoweth them that trust in him.",
+        "d": ["storm", "wrath", "need", "battle", "darkness"]
+      },
+      {
+        "r": "Nahum 1:7",
+        "prefix": "and he knoweth them that",
+        "a": "trust",
+        "suffix": "in him.",
+        "d": ["fear", "love", "wait", "call", "seek"]
+      },
+      {
+        "r": "Nahum 1:8",
+        "prefix": "and darkness shall pursue his",
+        "a": "enemies",
+        "suffix": ".",
+        "d": ["servants", "people", "prophets", "city", "pride"]
+      },
+      {
+        "r": "Nahum 1:3",
+        "prefix": "The LORD is slow to",
+        "a": "anger",
+        "suffix": ", and great in power, and will not at all acquit the wicked: the LORD hath his way in the whirlwind and in the storm, and the clouds are the dust of his feet.",
+        "d": ["wrath", "judgment", "speak", "pass", "strive"]
+      },
+      {
+        "r": "Nahum 1:3",
+        "prefix": "and will not at all",
+        "a": "acquit",
+        "suffix": "the wicked: the LORD hath his way in the whirlwind and in the storm, and the clouds are the dust of his feet.",
+        "d": ["spare", "pardon", "keep", "leave", "bless"]
+      },
+      {
+        "r": "Nahum 1:3",
+        "prefix": "the LORD hath his way in the whirlwind and in the",
+        "a": "storm",
+        "suffix": ", and the clouds are the dust of his feet.",
+        "d": ["flood", "fire", "sea", "earthquake", "tempest"]
+      },
+      {
+        "r": "Nahum 1:6",
+        "prefix": "his fury is poured out like",
+        "a": "fire",
+        "suffix": ", and the rocks are thrown down by him.",
+        "d": ["water", "smoke", "wind", "lightning", "ash"]
+      }
+    ]
+  },
+  {
+    "id": "zephaniah3",
+    "name": "Zephaniah 3",
+    "r": "Zephaniah 3",
+    "subtitle": "The LORD thy God in the midst of thee is mighty",
+    "hall": true,
+    "testament": "ot",
+    "pace": 3,
+    "blanks": [
+      {
+        "r": "Zephaniah 3:17",
+        "prefix": "The LORD thy God in the midst of thee is",
+        "a": "mighty",
+        "suffix": "; he will save, he will joy over thee with singing.",
+        "d": ["holy", "near", "just", "gracious", "king"]
+      },
+      {
+        "r": "Zephaniah 3:17",
+        "prefix": "he will save, he will joy over thee with",
+        "a": "singing",
+        "suffix": ".",
+        "d": ["praise", "gladness", "mercy", "peace", "trumpets"]
+      },
+      {
+        "r": "Zephaniah 3:9",
+        "prefix": "For then will I return to the people a pure",
+        "a": "language",
+        "suffix": ", that they may all call upon the name of the LORD, to serve him with one consent.",
+        "d": ["tongue", "voice", "law", "spirit", "offering"]
+      },
+      {
+        "r": "Zephaniah 3:9",
+        "prefix": "to serve him with one",
+        "a": "consent",
+        "suffix": ".",
+        "d": ["heart", "voice", "accord", "purpose", "mind"]
+      },
+      {
+        "r": "Zephaniah 3:12",
+        "prefix": "and they shall trust in the name of the",
+        "a": "LORD",
+        "suffix": ".",
+        "d": ["king", "prophet", "land", "temple", "host"]
+      },
+      {
+        "r": "Zephaniah 3:15",
+        "prefix": "thou shalt not see",
+        "a": "evil",
+        "suffix": "any more.",
+        "d": ["famine", "war", "sorrow", "plagues", "shame"]
+      },
+      {
+        "r": "Zephaniah 3:19",
+        "prefix": "Behold, at that time I will undo all that",
+        "a": "afflict",
+        "suffix": "thee: and I will save her that halteth, and gather her that was driven out; and I will get them praise and fame in every land where they have been put to shame.",
+        "d": ["hurt", "trouble", "weaken", "spoil", "forsake"]
+      },
+      {
+        "r": "Zephaniah 3:19",
+        "prefix": "and I will get them praise and fame in every",
+        "a": "land",
+        "suffix": "where they have been put to shame.",
+        "d": ["nation", "city", "coast", "house", "age"]
+      }
+    ]
+  },
+  {
+    "id": "haggai1",
+    "name": "Haggai 1",
+    "r": "Haggai 1",
+    "subtitle": "Consider your ways",
+    "hall": true,
+    "testament": "ot",
+    "pace": 3,
+    "blanks": [
+      {
+        "r": "Haggai 1:5",
+        "prefix": "Now therefore thus saith the LORD of hosts;",
+        "a": "Consider",
+        "suffix": "your ways.",
+        "d": ["Mark", "Number", "Remember", "Behold", "Weigh"]
+      },
+      {
+        "r": "Haggai 1:5",
+        "prefix": "Consider your",
+        "a": "ways",
+        "suffix": ".",
+        "d": ["hearts", "house", "fields", "works", "sin"]
+      },
+      {
+        "r": "Haggai 1:6",
+        "prefix": "Ye have sown much, and bring in",
+        "a": "little",
+        "suffix": "; ye eat, but ye have not enough; ye drink, but ye are not filled with drink; ye clothe you, but there is none warm; and he that earneth wages earneth wages to put it into a bag with holes.",
+        "d": ["less", "nothing", "straw", "thorns", "chaff"]
+      },
+      {
+        "r": "Haggai 1:6",
+        "prefix": "and he that earneth wages earneth wages to put it into a bag with",
+        "a": "holes",
+        "suffix": ".",
+        "d": ["tears", "stones", "grain", "ash", "wine"]
+      },
+      {
+        "r": "Haggai 1:8",
+        "prefix": "Go up to the",
+        "a": "mountain",
+        "suffix": ", and bring wood, and build the house; and I will take pleasure in it, and I will be glorified, saith the LORD.",
+        "d": ["hill", "field", "land", "city", "forest"]
+      },
+      {
+        "r": "Haggai 1:8",
+        "prefix": "Go up to the mountain, and bring wood, and build the",
+        "a": "house",
+        "suffix": "; and I will take pleasure in it, and I will be glorified, saith the LORD.",
+        "d": ["altar", "wall", "city", "gate", "court"]
+      },
+      {
+        "r": "Haggai 1:9",
+        "prefix": "Because of mine house that is",
+        "a": "waste",
+        "suffix": ", and ye run every man unto his own house.",
+        "d": ["broken", "left", "empty", "ruined", "cold"]
+      },
+      {
+        "r": "Haggai 1:9",
+        "prefix": "Ye looked for much, and, lo, it came to little; and when ye brought it home, I did",
+        "a": "blow",
+        "suffix": "upon it. Why? saith the LORD of hosts. Because of mine house that is waste, and ye run every man unto his own house.",
+        "d": ["turn", "look", "cast", "send", "bring"]
+      }
+    ]
+  }
+  ];
+
+  function installOT(T){
+    if(!T) return;
+    OT.forEach(function(ch){
+      if(!ch.blanks) return;
+      let i = 0, found = false;
+      for(; i < T.chapters.length; i++) if(T.chapters[i].id === ch.id) found = true;
+      if(!found) T.chapters.push(ch);
+    });
+    if(!T.more) T.more = [];
+    OT.forEach(function(ch){
+      if(ch.blanks && T.more.indexOf(ch) < 0) T.more.push(ch);
+    });
+  }
   if(typeof Tablets !== "undefined") install(Tablets);
+  if(typeof Tablets !== "undefined") installOT(Tablets);
   if(typeof module !== "undefined"){
     module.exports = { TABLETS_MORE: MORE, install: install };
-    try{ install(require("./tablets.js").Tablets); }catch(e){}
+    try{ const T = require("./tablets.js").Tablets; install(T); installOT(T); }catch(e){}
   }
 })();

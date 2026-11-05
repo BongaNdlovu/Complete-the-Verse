@@ -92,11 +92,11 @@ eq("Exodus 20 is in the canon", Tablets.chapter("exodus20").id, "exodus20");
 eq("John 14 is in the canon", Tablets.chapter("john14").id, "john14");
 eq("20 road chapters", Tablets.canon.length, 20);
 eq("20 hall chapters", Tablets.hall.length, 20);
-eq("100 more chapters", Tablets.more.length, 100);
-eq("144 total chapters", Tablets.chapters.length, 144);
-eq("47 Pace I playable chapters", Tablets.chapters.filter(c => !c.tutorial && Tablets.paceOf(c) === 1).length, 47);
-eq("48 Pace II playable chapters", Tablets.chapters.filter(c => !c.tutorial && Tablets.paceOf(c) === 2).length, 48);
-eq("48 Pace III playable chapters", Tablets.chapters.filter(c => !c.tutorial && Tablets.paceOf(c) === 3).length, 48);
+eq("130 more chapters", Tablets.more.length, 130);
+eq("174 total chapters", Tablets.chapters.length, 174);
+eq("58 Pace I playable chapters", Tablets.chapters.filter(c => !c.tutorial && Tablets.paceOf(c) === 1).length, 58);
+eq("58 Pace II playable chapters", Tablets.chapters.filter(c => !c.tutorial && Tablets.paceOf(c) === 2).length, 58);
+eq("57 Pace III playable chapters", Tablets.chapters.filter(c => !c.tutorial && Tablets.paceOf(c) === 3).length, 57);
 ok("hall stays off the road", Tablets.hall.every(function(c){ return !c.after && c.hall; }));
 ok("hall locked until John 1", !Tablets.unlocked("genesis3", { tablets:{ john1:{ held:false } } }));
 ok("hall opens after John 1 Hold", Tablets.unlocked("genesis3", { tablets:{ john1:{ held:true } } }));
@@ -2019,6 +2019,22 @@ const toneCount = function(sb, dur){
   ok("the groove tapers from 4.4 to 1.6 px", /\.tablets-crack-groove path\.t0\{stroke-width:4\.4\}/.test(css) && /\.tablets-crack-groove path\.t2\{stroke-width:1\.6\}/.test(css));
   exec(sb, "tabletsFx.sparks = []; tabletsFx.ctx = {}; document.body.classList.add('reduced'); tabletsCrackChips({ left:0, top:0, width:10, height:10 })");
   eq("reduced motion throws no chips", read(sb, "tabletsFx.sparks.length"), 0);
+}
+{
+  // OT: the thirty new Old Testament chapters (2026-11-05).
+  const ot = ["genesis4", "genesis9", "genesis50", "exodus16", "exodus33", "numbers23", "deuteronomy31",
+    "judges6", "1samuel3", "1kings3", "2chronicles16", "ezra7", "psalm63", "psalm118", "psalm119", "psalm133",
+    "proverbs18", "proverbs22", "ecclesiastes12", "isaiah6", "isaiah26", "isaiah41", "jeremiah33", "jonah2",
+    "hosea6", "joel2", "amos5", "nahum1", "zephaniah3", "haggai1"];
+  ok("the thirty OT chapters sit in the hall, never on the road", ot.every(function(id){
+    const c = Tablets.chapter(id);
+    return c && c.hall === true && !c.after && !c.tutorial;
+  }), true);
+  ok("every OT chapter carries eight blanks with five decoys", ot.every(function(id){
+    const c = Tablets.chapter(id);
+    return c.blanks.length === 8 && c.blanks.every(function(b){ return (b.d || []).length === 5; });
+  }), true);
+  eq("the OT set begins from Genesis", Tablets.chapter(ot[0]).r.indexOf("Genesis") === 0, true);
 }
 unstubRandom();
 if (fail) {
