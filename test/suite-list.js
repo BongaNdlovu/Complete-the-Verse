@@ -73,6 +73,7 @@ module.exports = [
   ["memory leak", "test/memory-leak.test.js"],
   ["support reviews", "test/support-reviews.test.js"],
   ["tip jar", "test/tip-jar.test.js"],
+  ["backend guards", "test/backend-guards.test.js"],
   ["site notice", "test/site-notice.test.js"],
   ["leaderboard", "test/leaderboard.test.js"],
   ["seo", "test/seo.test.js"],

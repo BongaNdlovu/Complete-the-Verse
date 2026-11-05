@@ -10,6 +10,8 @@
     "start": "node scripts/dev-server.js",
     "content:export": "node scripts/export-content.mjs",
     "content:check": "node scripts/export-content.mjs --check",
+    "db:combine": "node scripts/build-combined-migrations.js",
+    "db:check": "node scripts/build-combined-migrations.js --check",
     "optimise-media": "node scripts/optimise-media.js",
     "optimize-media": "node scripts/optimise-media.js"
   },

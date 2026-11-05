@@ -7,8 +7,8 @@
   var notices = [];
 
   function esc(s) {
-    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
   function setStatus(id, msg, isErr) {
@@ -95,14 +95,14 @@
     host.innerHTML = notices.map(function (n) {
       var d = new Date(n.created_at);
       var stamp = d.toLocaleDateString() + " · " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      return '<div class="notice" data-id="' + n.id + '">' +
+      return '<div class="notice" data-id="' + esc(n.id) + '">' +
         '<div class="nhead">' +
         '<span class="badge ' + (n.active ? "live" : "retired") + '">' + (n.active ? "Live" : "Retired") + '</span>' +
         '<span class="ndate">' + esc(stamp) + '</span></div>' +
         '<div class="ntitle">' + esc(n.title) + '</div>' +
         '<div class="nbody">' + esc(n.body) + '</div>' +
         '<div class="nrow">' +
-        '<button class="btn ghost small" data-toggle="' + n.id + '">' + (n.active ? "Retire" : "Restore") + '</button>' +
+        '<button class="btn ghost small" data-toggle="' + esc(n.id) + '">' + (n.active ? "Retire" : "Restore") + '</button>' +
         '</div></div>';
     }).join("");
     host.querySelectorAll("[data-toggle]").forEach(function (btn) {

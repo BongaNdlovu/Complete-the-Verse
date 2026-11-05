@@ -22,7 +22,11 @@ var CLOUD_CONFIG = {
   /* Project ref fgwfniblkuozxlbgytfk — dashboard:
      https://supabase.com/dashboard/project/fgwfniblkuozxlbgytfk */
   url: "https://fgwfniblkuozxlbgytfk.supabase.co",
-  anonKey: "sb_publishable_HCTg_41unUkwNVZwrSIEYg_8QDo4Fu0"
+  anonKey: "sb_publishable_HCTg_41unUkwNVZwrSIEYg_8QDo4Fu0",
+  /* Cloudflare Turnstile site key (public). Leave empty until the same provider is switched on in the Supabase
+     dashboard (Authentication -> Attack Protection): with a key set here and captcha off there, sign-in still works;
+     with captcha on there and no key here, sign-in is refused. */
+  turnstileSiteKey: ""
 };
 
 if (typeof module !== "undefined" && module.exports) {

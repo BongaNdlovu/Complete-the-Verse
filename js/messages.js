@@ -59,8 +59,8 @@ var Messages = (function () {
      the player to the message box. Only the offline fallback (which has
      no message box to open) shows its full body. */
   function esc(s) {
-    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
 

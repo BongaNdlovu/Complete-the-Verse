@@ -902,7 +902,9 @@ function bindSettingsHandlers(){
       if(!email){ toast("Enter an email address"); return; }
       signInBtn.disabled = true;
       const res = await Cloud.signInWithEmail(email);
-      signInBtn.disabled = false;
+      const holdsResend = res.ok || res.reason === "rate-limited" || res.reason === "cooldown";
+      if(holdsResend && typeof holdButton === "function") holdButton(signInBtn, Cloud.OTP_COOLDOWN_MS || 60000);
+      else signInBtn.disabled = false;
       toast(Cloud.authNotice ? Cloud.authNotice(res.ok ? "sent" : res.reason) : (res.ok ? "Check your email for the sign-in code/link" : "Sign-in failed"));
     });
   }

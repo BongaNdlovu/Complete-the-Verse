@@ -11,10 +11,27 @@ const DAILY_MAX_ATTEMPTS = 20;
 const DAILY_MAX_BASE = 348000;
 
 const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-retry-count",
-  "Access-Control-Allow-Methods": "POST, OPTIONS"
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Vary": "Origin"
 };
+
+/* Browsers may call this function only from the game's own origin. Set ALLOWED_ORIGINS (comma separated) to add
+   preview deployments. The native apps are not browsers and ignore CORS. */
+const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ||
+  "https://complete-the-verse.vercel.app,http://localhost:8781,http://127.0.0.1:8781")
+  .split(",").map((origin) => origin.trim()).filter(Boolean);
+
+function allowedOrigin(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  return ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+}
+
+function withCors(req: Request, res: Response) {
+  const headers = new Headers(res.headers);
+  headers.set("Access-Control-Allow-Origin", allowedOrigin(req));
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+}
 
 function json(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -174,7 +191,7 @@ async function upsertBlitzScore(supabase, user, body) {
   return json({ ok: true, score: row.score });
 }
 
-Deno.serve(async (req) => {
+async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: CORS_HEADERS });
   }
@@ -214,4 +231,6 @@ Deno.serve(async (req) => {
 
   if (kind === "daily") return upsertDailyScore(supabase, user, body);
   return upsertBlitzScore(supabase, user, body);
-});
+}
+
+Deno.serve(async (req) => withCors(req, await handle(req)));

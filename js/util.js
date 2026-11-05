@@ -5,7 +5,30 @@
    ================================================================== */
 
 const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"]/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const esc = s => String(s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+/* After a code or link goes out, keeps its send button off for `ms`, counting down on the label. A resend is a
+   second email, and the hosted project only allows a few an hour. */
+function holdButton(btn, ms){
+  if(!btn) return;
+  /* A second hold on a button already holding restarts the count and keeps the real label. */
+  clearTimeout(btn._holdTimer);
+  if(btn._holdLabel === undefined) btn._holdLabel = btn.textContent;
+  const label = btn._holdLabel;
+  const until = Date.now() + ms;
+  btn.disabled = true;
+  const tick = function(){
+    const left = Math.ceil((until - Date.now()) / 1000);
+    if(left <= 0){
+      btn.textContent = label;
+      btn.disabled = false;
+      btn._holdLabel = undefined;
+      return;
+    }
+    btn.textContent = label + " (" + left + "s)";
+    btn._holdTimer = setTimeout(tick, 1000);
+  };
+  tick();
+}
 const sep = s => /^[.,;:!?]/.test(s) ? "" : " ";
 const fullVerse = v => v.p + " " + v.a + sep(v.s) + v.s;
 function shuffle(a, rnd){ a = a.slice(); const r = rnd || Math.random;
@@ -74,6 +97,7 @@ function revealStandaloneChrome(){
 if (typeof window !== "undefined") {
   window.$ = $;
   window.esc = esc;
+  window.holdButton = holdButton;
   window.sep = sep;
   window.fullVerse = fullVerse;
   window.shuffle = shuffle;

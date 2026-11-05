@@ -74,8 +74,8 @@ function walk(dir, out) {
   const util = fs.readFileSync(path.join(ROOT, "js", "util.js"), "utf8");
   const game = fs.readFileSync(path.join(ROOT, "js", "game.js"), "utf8");
   const esc = function (s) {
-    return String(s).replace(/[&<>"]/g, function (m) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m];
+    return String(s).replace(/[&<>"']/g, function (m) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
     });
   };
   const payload = '<script>alert(1)</script><img src=x onerror=alert(1)>';

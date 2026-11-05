@@ -62,17 +62,18 @@ select
 from public.blitz_scores;
 
 -- 3. ABUSE & REPORT LOG AUDIT (Migration 004+)
--- Aggregates any unresolved reports filed against players
+-- Open reports (pending or being reviewed), grouped by the score they were filed against
 select
-  target_user_id,
-  reason,
+  board,
+  score_id,
   count(*) as report_count,
+  count(distinct reporter_id) as distinct_reporters,
   min(created_at) as first_reported,
   max(created_at) as last_reported
 from public.leaderboard_reports
-where not resolved
-group by target_user_id, reason
-order by report_count desc;
+where status in ('pending', 'reviewing')
+group by board, score_id
+order by report_count desc, last_reported desc;
 
 -- 4. SUBMISSION VELOCITY / RATE-LIMIT WATCH (Last 24 Hours)
 -- Flags accounts that submitted more than 50 times in 24 hours
@@ -87,7 +88,35 @@ group by user_id, kind
 having count(*) > 50
 order by submissions_last_24h desc;
 
--- 5. DAILY PARTICIPATION TREND (Past 7 Days)
+-- 5. STORAGE HOT SPOTS (Migration 008 caps these; a row here means the caps were bypassed)
+-- Accounts holding more ghost rows than the caps allow, and saves close to the 1 MiB guard.
+select
+  'run_ghosts' as table_name,
+  user_id,
+  count(*) as row_count,
+  null::int as payload_bytes
+from public.run_ghosts
+group by user_id
+having count(*) > 100
+
+union all
+
+select
+  'saves' as table_name,
+  user_id,
+  1 as row_count,
+  pg_column_size(payload) as payload_bytes
+from public.saves
+where pg_column_size(payload) > 786432;
+
+-- 6. LOG PRUNING (Migration 008): the oldest submission-log row should be under about 31 days
+select
+  count(*) as log_rows,
+  min(created_at) as oldest_row,
+  now() - min(created_at) as oldest_age
+from public.score_submission_log;
+
+-- 7. DAILY PARTICIPATION TREND (Past 7 Days)
 select
   play_date,
   translation,

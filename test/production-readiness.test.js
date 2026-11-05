@@ -332,9 +332,12 @@ assert(/max-age=0, must-revalidate/.test(vercelJson) && /\/sw\.js/.test(vercelJs
 assert(/\/css\/:path\*[\s\S]{0,180}max-age=0, must-revalidate/.test(vercelJson) &&
   /\/js\/:path\*[\s\S]{0,180}max-age=0, must-revalidate/.test(vercelJson),
   "CSS and JS revalidate so a deploy is not stuck for a day");
-assert(/\/fonts\/:path\*/.test(vercelJson) && /\/assets\/:path\*/.test(vercelJson) &&
-  /max-age=86400/.test(vercelJson),
-  "fonts and images keep a one-day public cache");
+assert(/\/assets\/:path\*/.test(vercelJson) && /max-age=86400/.test(vercelJson),
+  "images keep a one-day public cache");
+assert(/\/fonts\/:path\*[\s\S]{0,120}max-age=31536000, immutable/.test(vercelJson),
+  "fonts are cached for a year (their file names never change under the same bytes)");
+assert(/\/assets\/beats\/goliath\/prologue\.mp4[\s\S]{0,120}max-age=31536000, immutable/.test(vercelJson),
+  "the 19 MB prologue film is cached for a year (the service worker will not hold it, so the browser cache must)");
 assert(fs.existsSync(path.join(ROOT, "favicon.ico")), "root favicon.ico is present");
 assert(/Typical climate — live weather paused/.test(read("js/atlas.js")),
   "atlas notes when live weather is paused");

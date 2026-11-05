@@ -32,6 +32,7 @@
     "updateCloudChip": "readonly",
     "enterCoffeePath": "readonly",
     "setSignInStatus": "readonly",
+    "holdButton": "readonly",
     "currentView": "readonly",
     "Atlas": "readonly",
     "supabase": "readonly",

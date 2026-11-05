@@ -1,5 +1,8 @@
 -- Fix Supabase linter WARN: SECURITY DEFINER functions executable by anon/authenticated
 -- Safe to run alone if 001 already applied.
+-- Renamed from 002_lock_trigger_functions.sql: two migrations shared version 002, which the Supabase CLI
+-- cannot apply. Every statement below is idempotent, so a project that already ran it under the old name can
+-- run it again unchanged.
 -- Lints: 0028_anon_security_definer_function_executable
 --        0029_authenticated_security_definer_function_executable
 
