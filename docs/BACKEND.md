@@ -109,7 +109,7 @@ node scripts/dev-server.js
 - `run_ghosts` — timeline samples for async rivals
 - `tip_jar` — one row: the raised total and goal shown on the menu's Tip Jar, typed in by the owner on `admin.html` (public read, site-admin write)  
 
-RLS: saves = own only; boards = public read; score inserts and updates are service-role only via `submit-score`. Ghosts = public read, own write. Supabase hands every new table all privileges for the API roles (`TRUNCATE` included, which RLS does not cover); `011_revoke_default_truncate.sql` takes `TRUNCATE`, `REFERENCES` and `TRIGGER` away from `anon` and `authenticated` on every public table and on tables created later. Friend-race create/join UI is out of the production promise.
+RLS: saves = own only; boards = public read; score inserts and updates are service-role only via `submit-score`. Ghosts = public read, own write. Supabase hands every new table all privileges for the API roles (`TRUNCATE` included, which RLS does not cover); `011_revoke_default_truncate.sql` takes `TRUNCATE`, `REFERENCES`, `TRIGGER` and (on Postgres 17+) `MAINTAIN` away from `anon` and `authenticated` on every public table and on tables created later. Friend-race create/join UI is out of the production promise.
 
 ---
 
