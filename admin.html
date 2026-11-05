@@ -135,6 +135,21 @@
       <div class="status" id="publish-status"></div>
     </div>
 
+    <!-- Admin: the tip jar's numbers -->
+    <div class="card hidden" id="tip-card">
+      <h2>Tip jar</h2>
+      <p class="hint" style="margin-top:0">The ring on the menu's Tip Jar shows these two numbers. Nothing reads PayPal for
+        you: after a tip reaches your PayPal account, type the new total here.</p>
+      <label for="tip-raised">Raised so far (US dollars)</label>
+      <input type="text" id="tip-raised" inputmode="decimal" autocomplete="off" placeholder="0">
+      <label for="tip-goal">Goal (US dollars)</label>
+      <input type="text" id="tip-goal" inputmode="decimal" autocomplete="off" placeholder="100">
+      <div class="row" style="margin-top:16px">
+        <button class="btn" id="btn-tip-save" disabled>Save tip jar</button>
+      </div>
+      <div class="status" id="tip-status"></div>
+    </div>
+
     <!-- Admin: published list -->
     <div class="card hidden" id="list-card">
       <h2>Published notices</h2>

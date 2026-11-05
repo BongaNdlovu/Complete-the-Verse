@@ -83,6 +83,73 @@
     btn.disabled = false;
   });
 
+  /* ---------- tip jar ---------- */
+  /* The numbers behind the menu's Tip Jar ring, kept by hand: type in what has really reached PayPal. */
+  var TIP_MAX = 1000000;
+  var tipSaved = null;
+  function parseMoney(text) {
+    var clean = String(text || "").trim().replace(/^\$/, "").replace(/,/g, "");
+    if (!/^\d+(\.\d{1,2})?$/.test(clean)) return null;
+    return Number(clean);
+  }
+  function money(n) {
+    return "$" + (Number.isInteger(n) ? String(n) : n.toFixed(2));
+  }
+  function tipForm() {
+    var raised = parseMoney($("tip-raised").value);
+    var goal = parseMoney($("tip-goal").value);
+    var isValid = raised !== null && raised <= TIP_MAX && goal !== null && goal >= 1 && goal <= TIP_MAX;
+    var isChanged = !!tipSaved && isValid && (raised !== tipSaved.raised || goal !== tipSaved.goal);
+    return { raised: raised, goal: goal, isValid: isValid, isChanged: isChanged };
+  }
+  function tipFormEdited() {
+    var form = tipForm();
+    $("btn-tip-save").disabled = !form.isChanged;
+    var isEmpty = !$("tip-raised").value.trim() && !$("tip-goal").value.trim();
+    if (!form.isValid && !isEmpty) setStatus("tip-status", "Use plain amounts such as 42 or 42.50. The goal must be at least 1.", true);
+    else setStatus("tip-status", "");
+  }
+  $("tip-raised").addEventListener("input", tipFormEdited);
+  $("tip-goal").addEventListener("input", tipFormEdited);
+
+  async function refreshTipJar() {
+    var res = await sb.from("tip_jar").select("raised_usd,goal_usd,updated_at").eq("id", 1).maybeSingle();
+    if (res.error || !res.data) {
+      var why = res.error ? res.error.message : "the tip_jar row is missing";
+      setStatus("tip-status", "Could not read the tip jar: " + why + ". Run migration 010_tip_jar.sql first.", true);
+      return false;
+    }
+    tipSaved = { raised: Number(res.data.raised_usd), goal: Number(res.data.goal_usd) };
+    $("tip-raised").value = tipSaved.raised.toFixed(2);
+    $("tip-goal").value = tipSaved.goal.toFixed(2);
+    $("btn-tip-save").disabled = true;
+    var when = new Date(res.data.updated_at);
+    setStatus("tip-status", "Showing " + money(tipSaved.raised) + " of " + money(tipSaved.goal) + ". Last saved " +
+      when.toLocaleDateString() + " " + when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + ".");
+    return true;
+  }
+  $("btn-tip-save").addEventListener("click", async function () {
+    var form = tipForm();
+    if (!form.isChanged) return;
+    var btn = $("btn-tip-save");
+    btn.disabled = true;
+    setStatus("tip-status", "Saving…");
+    var res = await sb.from("tip_jar").update({ raised_usd: form.raised, goal_usd: form.goal }).eq("id", 1).select("id");
+    if (res.error) {
+      setStatus("tip-status", res.error.message, true);
+      btn.disabled = false;
+      return;
+    }
+    if (!res.data || !res.data.length) {
+      setStatus("tip-status", "Nothing was saved: your account is not in site_admins, or the tip_jar row is missing.", true);
+      btn.disabled = false;
+      return;
+    }
+    if (await refreshTipJar()) {
+      setStatus("tip-status", "Saved. Players see " + money(form.raised) + " of " + money(form.goal) + " the next time the Tip Jar opens.");
+    }
+  });
+
   /* ---------- notices list ---------- */
   async function refreshNotices() {
     var res = await sb.from("site_notices")
@@ -129,9 +196,11 @@
   function renderHub() {
     $("bootstrap-card").classList.add("hidden");
     $("composer-card").classList.remove("hidden");
+    $("tip-card").classList.remove("hidden");
     $("list-card").classList.remove("hidden");
     counters();
     refreshNotices();
+    refreshTipJar();
   }
 
   async function afterAuth(user) {
