@@ -145,7 +145,7 @@ function tabletsActiveLineTop(verse){
   const line = verse.children ? verse.children[R.gapIdx || 0] : null;
   return (verse.offsetTop || 0) + ((line && line.offsetTop) || 0) + ((line && line.offsetHeight) || 0) / 2;
 }
-/* R1: reduced motion and a freshly painted step jump; otherwise the sheet eases toward its target. */
+/* R1: reduced motion and a run's first paint jump; otherwise the sheet eases toward its target. */
 function tabletsRollFrame(){
   const win = $("tablets-roll"), sheet = $("tablets-sheet"), verse = $("tablets-verse");
   if(!win || !sheet || !verse) return;
@@ -234,7 +234,7 @@ function tabletsFlash(kind, strong){
 function tabletsAudio(){
   return (typeof Snd !== "undefined" && Snd.sfxBus) ? Snd.sfxBus() : null;
 }
-/* E: the scribe's chisel ticks upward as the word fills. */
+/* E: the scribe's chisel: a stone tap and a chime that climb as the word fills and as the streak grows. */
 function tabletsPlayScribeTick(progress){
   const bus = tabletsAudio();
   if(!bus) return;
@@ -242,16 +242,30 @@ function tabletsPlayScribeTick(progress){
     const ctx = bus.ctx;
     if(ctx.state === "suspended") ctx.resume();
     const t = ctx.currentTime;
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = "triangle";
-    o.frequency.setValueAtTime(392 + Math.min(1, Math.max(0, progress)) * 392, t);
-    g.gain.setValueAtTime(0.05, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
-    o.connect(g);
-    g.connect(bus.out);
-    o.start(t);
-    o.stop(t + 0.09);
+    const filled = Math.min(1, Math.max(0, progress));
+    const streakLift = Math.min((R && R.streak) || 0, 12) * 14;
+    const tap = ctx.createOscillator();
+    const tapGain = ctx.createGain();
+    tap.type = "triangle";
+    tap.frequency.setValueAtTime(210 + filled * 90, t);
+    tap.frequency.exponentialRampToValueAtTime(42, t + 0.05);
+    tapGain.gain.setValueAtTime(0.24, t);
+    tapGain.gain.exponentialRampToValueAtTime(0.005, t + 0.05);
+    tap.connect(tapGain);
+    tapGain.connect(bus.out);
+    tap.start(t);
+    tap.stop(t + 0.05);
+    const chime = ctx.createOscillator();
+    const chimeGain = ctx.createGain();
+    chime.type = "sine";
+    chime.frequency.setValueAtTime(392 + filled * 392 + streakLift, t);
+    chimeGain.gain.setValueAtTime(0.001, t);
+    chimeGain.gain.linearRampToValueAtTime(0.11, t + 0.01);
+    chimeGain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+    chime.connect(chimeGain);
+    chimeGain.connect(bus.out);
+    chime.start(t);
+    chime.stop(t + 0.16);
   }catch(e){}
 }
 function tabletsPlayGoldChime(){
@@ -515,7 +529,8 @@ function paintTabletsVerseLine(host, blank, carved, slot){
   if(slot) line.appendChild(slot);
   else{
     const mid = document.createElement("span");
-    mid.className = "tablets-blank-word" + (carved ? " in" : "");
+    const isFresh = carved && !!R && blank === R.tabletJustCarved;
+    mid.className = "tablets-blank-word" + (carved ? " in" : "") + (isFresh ? " fresh" : "");
     mid.textContent = carved ? blank.a : "___";
     line.appendChild(mid);
   }
@@ -551,7 +566,9 @@ function paintTabletsSheet(){
   const steps = (R && R.tabletSteps) || [];
   if(!past || !next || !steps.length) return;
   const idx = R.tabletIdx || 0;
-  if(R.tabletRollStep !== idx) R.tabletRollSnap = true;
+  /* The next step glides up, as in the reference; only a jump (a new run, a new reading) snaps. */
+  const isNextStep = idx === R.tabletRollStep + 1;
+  if(R.tabletRollStep !== idx && !isNextStep) R.tabletRollSnap = true;
   R.tabletRollStep = idx;
   fillTabletsSheet(past, steps.slice(0, idx), true);
   fillTabletsSheet(next, steps.slice(idx + 1), false);
@@ -574,10 +591,37 @@ function paintTabletsSlot(blank, kind){
     slot.classList.add("glow");
     return;
   }
-  /* The letters of the word being typed stand in the slot until it lands. */
-  slot.textContent = (R && R.tabletTyped) ? R.tabletTyped : "— — —";
+  /* The letters of the word being typed stand in the slot until it lands, and a mark for each letter still to come. */
+  slot.textContent = (R && R.tabletTyped) ? tabletsSlotPrompt(R.tabletTyped) : "— — —";
+  paintTabletsTypedStones();
 }
-/* K2: each typed letter lands with a soft pop on the slot; backspace stays
+function tabletsSlotPrompt(typed){
+  const remaining = Math.max(0, tabletsNeedWord().length - typed.length);
+  return typed + " _".repeat(remaining);
+}
+/* The stones that still fit the letters typed light up and lift. */
+function paintTabletsTypedStones(){
+  const typed = (R && R.tabletTyped) || "";
+  const stones = tabletsStoneButtons();
+  for(let i = 0; i < stones.length; i++){
+    const stone = stones[i];
+    const isMatch = typed.length > 0 && !stone.disabled && tabletsLettersOf(stone.dataset.word).indexOf(typed) === 0;
+    stone.classList.toggle("typed-match", isMatch);
+  }
+}
+/* Each typed letter throws a few sparks and a small ring from the slot; the tutorial and reduced motion stay still. */
+const TABLET_KEY_SPARKS = 9;
+const TABLET_KEY_COLOR = "255,215,110";
+function tabletsKeySpark(){
+  const slot = $("tablets-slot");
+  if(R.tabletTutorial || tabletsReduced() || !slot || !slot.getBoundingClientRect) return;
+  const r = slot.getBoundingClientRect();
+  const x = r.left + r.width / 2;
+  const y = r.top + r.height / 2;
+  spawnTabletsSparks(x, y, TABLET_KEY_SPARKS, TABLET_KEY_COLOR);
+  spawnTabletsRing(x, y, TABLET_KEY_COLOR, 58, 1.6);
+}
+/* K2: each typed letter pulses the slot with a gold glow; backspace stays
    quiet. Reduced motion skips it (the CSS sleeps too). */
 function tabletsPopTypedSlot(){
   const slot = $("tablets-slot");
@@ -1416,19 +1460,27 @@ function tabletsResolveHit(){
     tabletsRecharge(carve);
   }
 }
+/* The next word comes at once, as in the reference; the last word of a run or reading keeps a beat for the finish. */
+const TABLET_HIT_HOLD_MS = 0;
+const TABLET_LAST_HOLD_MS = 1000;
+function tabletsHitHoldMs(){
+  const isLastStep = (R.tabletIdx || 0) >= ((R.tabletSteps || []).length - 1);
+  const isLastGap = (R.gapIdx || 0) >= tabletsStepBlanks().length - 1;
+  return isLastStep && isLastGap ? TABLET_LAST_HOLD_MS : TABLET_HIT_HOLD_MS;
+}
 function tabletsResolve(ok){
   if(!R || R.ended || R.paused || R.mode !== "tablets" || R.tabletResolving) return;
   R.tabletResolving = true;
   const token = R.tabletRunToken;
   /* F4: the review round is practice. It counts no attempt, and a missed line stays up long enough to read the word. */
   if(R.tabletReviewing){
-    setTimeout(function(){ if(R.tabletRunToken === token) tabletsFinishResolve(ok); }, ok ? 1000 : TABLET_REVIEW_TEACH_MS);
+    setTimeout(function(){ if(R.tabletRunToken === token) tabletsFinishResolve(ok); }, ok ? tabletsHitHoldMs() : TABLET_REVIEW_TEACH_MS);
     if(ok) tabletsResolveReviewHit();
     else tabletsResolveReviewMiss();
     return;
   }
   R.attempts = (R.attempts || 0) + 1;
-  setTimeout(function(){ if(R.tabletRunToken === token) tabletsFinishResolve(ok); }, ok ? 1000 : 800);
+  setTimeout(function(){ if(R.tabletRunToken === token) tabletsFinishResolve(ok); }, ok ? tabletsHitHoldMs() : 800);
   if(!ok){ tabletsResolveMiss(); return; }
   tabletsResolveHit();
 }
@@ -1598,6 +1650,7 @@ function tabletsFinishResolve(ok){
   /* A carved gap advances within the step; only a finished step moves the
      stone-setting forward. Each gap re-arms the tray and the sand. */
   const step = tabletsStepBlanks();
+  R.tabletJustCarved = ok ? tabletsGapBlank() : null;
   R.gapIdx = (R.gapIdx || 0) + 1;
   if(R.gapIdx >= step.length){
     R.tabletIdx++;
@@ -1612,11 +1665,12 @@ function tabletsFinishResolve(ok){
   tabletsUnlockGrid();
   paintTabletsHud();
   paintTabletsTablet();
+  R.tabletJustCarved = null;
   paintTabletsTray();
   tabletsAnnounceQuicken();
 }
 function tabletsBurnSand(dt){
-  /* FX1: the sand waits out a resolve window, so a Last grain is not lost to the hit's 1 s hold. */
+  /* FX1: the sand waits out a resolve window, so a Last grain is not lost to the hold on the last word. */
   if(!R || R.ended || R.tabletResolving || tabletsUntimed()) return;
   /* F1: Freeze stops the sand; Selah slows it to 0.06. */
   R.tabletClock = Math.max(0, (R.tabletClock || 0) - dt * tabletsSandScale());
@@ -1844,9 +1898,12 @@ function bindTabletsChrome(){
 }
 /* The word being carved, lower-cased, letters only: a space or an
    apostrophe ("All hail", "eagle's") is not typed. */
+function tabletsLettersOf(word){
+  return String(word || "").toLowerCase().replace(/[^a-z]/g, "");
+}
 function tabletsNeedWord(){
   const blank = tabletsGapBlank();
-  return blank ? String(blank.a || "").toLowerCase().replace(/[^a-z]/g, "") : "";
+  return blank ? tabletsLettersOf(blank.a) : "";
 }
 /* A power key fires only while nothing is typed and the word cannot start
    with that letter; otherwise the letter is typing. */
@@ -1875,10 +1932,11 @@ function tabletsTypeKey(k){
   if(k.length !== 1 || k < "a" || k > "z") return false;
   if(need.indexOf(typed + k) !== 0) return true;
   R.tabletTyped = typed + k;
-  tabletsPlayScribeTick(typed.length / Math.max(1, need.length));
+  tabletsPlayScribeTick(R.tabletTyped.length / Math.max(1, need.length));
   paintTabletsSlot(blank, "");
   paintTabletsHintBtn();
   tabletsPopTypedSlot();
+  tabletsKeySpark();
   if(R.tabletTyped === need && !R.tabletResolving){
     R.tabletTypedHit = !R.tabletHintUsed;
     tabletsResolve(true);
@@ -2080,9 +2138,9 @@ function spawnTabletsBeam(x1, y1, x2, y2){
   });
 }
 /* S4: a carve throws one expanding ring from the engraved slot. */
-function spawnTabletsRing(x, y, color){
+function spawnTabletsRing(x, y, color, size, width){
   if(!tabletsFx.ctx || tabletsReduced()) return;
-  tabletsFx.rings.push({ x:x, y:y, life:1, decay:0.035, color:color || "255,225,130" });
+  tabletsFx.rings.push({ x:x, y:y, life:1, decay:0.035, color:color || "255,225,130", size:size || 72, width:width || 2.5 });
 }
 function drawTabletsFx(dt){
   const ctx = tabletsFx.ctx;
@@ -2114,9 +2172,9 @@ function drawTabletsFx(dt){
     const r = tabletsFx.rings[i];
     r.life -= r.decay * (dt * 60);
     if(r.life <= 0){ tabletsFx.rings.splice(i, 1); continue; }
-    const rad = (1 - r.life) * 72;
+    const rad = (1 - r.life) * r.size;
     ctx.strokeStyle = "rgba(" + r.color + "," + r.life.toFixed(3) + ")";
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = r.width;
     ctx.beginPath();
     ctx.arc(r.x, r.y, rad, 0, Math.PI * 2);
     ctx.stroke();
@@ -2160,10 +2218,9 @@ function tabletsFlyWord(fromBtn, toSlot, text, done){
   }
   const start = fromBtn.getBoundingClientRect();
   const target = toSlot.getBoundingClientRect();
-  if(!start.width || (start.left === target.left && start.top === target.top)){
-    land();
-    return;
-  }
+  /* The word carves at once; the flying word is the flourish over it. */
+  land();
+  if(!start.width || (start.left === target.left && start.top === target.top)) return;
   const flyer = document.createElement("div");
   flyer.className = "tablets-flying-word";
   flyer.textContent = text;
@@ -2179,7 +2236,6 @@ function tabletsFlyWord(fromBtn, toSlot, text, done){
   setTimeout(function(){
     spawnTabletsSparks(target.left + target.width / 2, target.top + target.height / 2, 16);
     try{ flyer.remove(); }catch(e){}
-    land();
   }, 460);
 }
 if(typeof window !== "undefined"){

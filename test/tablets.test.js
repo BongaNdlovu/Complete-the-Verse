@@ -689,7 +689,7 @@ ok("the Hold does not paint god-rays", !/tabletsFx\.rays/.test(src));
 ok("the Hold has no screen wash overlay", !/#v-tablets:after/.test(fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8")));
 ok("Hold aura stays off until surge", /#tablets-aura\{[^}]*animation:\s*none/.test(fs.readFileSync(path.join(ROOT, "css", "tablets.css"), "utf8")));
 ok("the Hold keeps a few embers", /i < 8/.test(src) && !/i < 45/.test(src));
-ok("a hit registers after the fly", /tabletsFlyWord[\s\S]{0,220}paintTabletsTablet\("hit"\)/.test(src));
+ok("a hit registers as the word flies", /tabletsFlyWord[\s\S]{0,220}paintTabletsTablet\("hit"\)/.test(src));
 ok("torch scene is in the view", html.indexOf("tablets-scene-svg") >= 0);
 ok("candle is in the scene", html.indexOf('id="tablets-candle"') >= 0);
 /* P7: the run sets the pace; there are no speed pills. */
@@ -812,7 +812,7 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   const type = function(ch){ exec(sb, "tabletsOnKey({ key: " + JSON.stringify(ch) + ", preventDefault: function(){} })"); };
   type("w");
   type("a");
-  eq("the slot shows the letters typed", read(sb, "$('tablets-slot').textContent"), "wa");
+  eq("the slot shows the letters typed and the shape of the rest", read(sb, "$('tablets-slot').textContent"), "wa _ _");
   type("n");
   type("t");
   eq("the typed popup pays the +50", read(sb, "$('tablets-ms').children[$('tablets-ms').children.length - 1].textContent"), "Fresh sand · +" + FAVOR({ progress:0, streak:0, typed:true }) + " FAVOR");
@@ -866,7 +866,7 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   type("a");
   type("Backspace");
   eq("Backspace removes a letter", read(sb, "R.tabletTyped"), "w");
-  eq("the slot forgets the letter", read(sb, "$('tablets-slot').textContent"), "w");
+  eq("the slot forgets the letter", read(sb, "$('tablets-slot').textContent"), "w _ _ _");
   type("Backspace");
   eq("an empty prefix shows the empty slot", read(sb, "$('tablets-slot').textContent"), "— — —");
 }
@@ -1636,7 +1636,7 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
 // ---- feel phase: S0 bus, G1 carve impact, G2 combo meter, G3 danger and miss, G4 the Hold's finish ----
 const FAKE_BUS = "var __osc = [], __conn = [], __dest = { name:'dest' }, __out = { name:'out' };" +
   " var __ctx = { currentTime:0, destination:__dest," +
-  " createOscillator(){ var o = { type:'', freq:[], ramp:[], frequency:{ setValueAtTime(v){ o.freq.push(v); }, linearRampToValueAtTime(v){ o.ramp.push(v); } }," +
+  " createOscillator(){ var o = { type:'', freq:[], ramp:[], frequency:{ setValueAtTime(v){ o.freq.push(v); }, linearRampToValueAtTime(v){ o.ramp.push(v); }, exponentialRampToValueAtTime(v){ o.ramp.push(v); } }," +
   " connect(){}, start(t){ o.startAt = t; }, stop(t){ o.stopAt = t; } }; __osc.push(o); return o; }," +
   " createGain(){ return { gain:{ setValueAtTime(){}, exponentialRampToValueAtTime(){}, linearRampToValueAtTime(){} }, connect(t){ __conn.push(t); } }; } };" +
   " Snd.sfxBus = function(){ return { ctx:__ctx, out:__out }; };";
@@ -1667,7 +1667,7 @@ const toneCount = function(sb, dur){
   eq("the gold chime connects four gains", read(sb, "__conn.length"), 4);
   ok("the gold chime routes to the sfx bus", read(sb, "__conn.every(function(t){ return t === __out; })") === true);
   exec(sb, "__conn.length = 0; tabletsPlayScribeTick(0.5); tabletsPlayDangerWarn()");
-  ok("the scribe tick and the danger warn route to the sfx bus", read(sb, "__conn.length === 2 && __conn.every(function(t){ return t === __out; })") === true);
+  ok("the scribe tap, its chime and the danger warn route to the sfx bus", read(sb, "__conn.length === 3 && __conn.every(function(t){ return t === __out; })") === true);
   ok("nothing routes to the destination", read(sb, "__conn.indexOf(__dest) < 0") === true);
   exec(sb, "Snd.sfxBus = function(){ return null; }; __conn.length = 0; tabletsPlayGoldChime(); tabletsPlayScribeTick(0.5); tabletsPlayDangerWarn(); tabletsPlayCarveNote(0); tabletsComboBreak(3);");
   eq("with no bus nothing connects", read(sb, "__conn.length"), 0);
@@ -1963,6 +1963,36 @@ const toneCount = function(sb, dur){
   eq("the start line names three lamps", read(sb, "tabletsLampWords(R.tabletLives)"), "Three lamps");
 }
 {
+  // Keying like the reference (2026-11-05): the word's shape, the stones, the sparks, no wait, the glide, the flash.
+  const sb = boot();
+  exec(sb, "var __timers = []; setTimeout = function(fn, ms){ __timers.push({ fn: fn, ms: ms }); return 0; }");
+  exec(sb, "startRun('tablets','watchman'); R.tabletTutorial = false; tabletsFx.ctx = {}; tabletsFx.sparks = []; tabletsFx.rings = []; paintTabletsTray()");
+  const type = function(ch){ exec(sb, "tabletsOnKey({ key: " + JSON.stringify(ch) + ", preventDefault: function(){} })"); };
+  const lit = "tabletsStoneButtons().filter(function(b){ return b.classList.contains('typed-match'); }).map(function(b){ return b.dataset.word.toLowerCase(); })";
+  eq("no stone is lit before a letter", read(sb, lit + ".length"), 0);
+  type("w");
+  eq("a typed letter throws nine sparks", read(sb, "tabletsFx.sparks.length"), 9);
+  eq("a typed letter throws one small ring", read(sb, "tabletsFx.rings[0].size"), 58);
+  ok("the true word's stone lights", read(sb, lit + ".indexOf('want') >= 0"));
+  ok("only stones that fit the letter light", read(sb, lit + ".every(function(w){ return w.charAt(0) === 'w'; })"));
+  type("Backspace");
+  eq("Backspace puts the stones out", read(sb, lit + ".length"), 0);
+  exec(sb, "__timers.length = 0");
+  ["w", "a", "n", "t"].forEach(type);
+  eq("the next word comes at once", read(sb, "__timers.filter(function(t){ return t.ms === 0; }).length"), 1);
+  exec(sb, "R.tabletRollSnap = false; var __carved = tabletsGapBlank(); tabletsFinishResolve(true)");
+  eq("the next step glides, it does not snap", read(sb, "R.tabletRollSnap"), false);
+  eq("the mark of a just-carved word is spent after the paint", read(sb, "R.tabletJustCarved"), null);
+  exec(sb, "R.tabletJustCarved = __carved; var __host = document.createElement('div'); paintTabletsVerseLine(__host, __carved, true); R.tabletJustCarved = null");
+  ok("the just-carved word flashes", read(sb, "__host.children[0].children.some(function(c){ return c.classList.contains('fresh'); })"));
+  exec(sb, "__host = document.createElement('div'); paintTabletsVerseLine(__host, __carved, true)");
+  ok("an older carved word does not flash", read(sb, "!__host.children[0].children.some(function(c){ return c.classList.contains('fresh'); })"));
+  exec(sb, "R.tabletRollStep = 5; R.tabletIdx = 0; R.gapIdx = 0; R.tabletRollSnap = false; paintTabletsSheet()");
+  eq("a jump back to the top still snaps", read(sb, "R.tabletRollSnap"), true);
+  exec(sb, "R.tabletIdx = R.tabletSteps.length - 1; R.gapIdx = tabletsStepBlanks().length - 1");
+  eq("the last word keeps its beat", read(sb, "tabletsHitHoldMs()"), 1000);
+}
+{
   // K: the typed word animates (2026-11-04).
   const sb = boot();
   exec(sb, "startRun('tablets','watchman')");
@@ -1980,7 +2010,7 @@ const toneCount = function(sb, dur){
   // K: the rising mark and the smooth keying, pinned in the sources.
   ok("The Mark rises to 38% in the roll math", /const TABLET_ROLL_MARK = 0\.38;/.test(src));
   ok("the slot eases its states", /#v-tablets \.tablets-slot\{[\s\S]*?transition:border-color \.18s ease/.test(src));
-  ok("the typed pop has its keyframe", /animation:tabletsTypedPop \.12s/.test(src));
+  ok("the typed pop has its keyframe", /animation:tabletsTypedPop \.18s/.test(src));
   ok("the Favor popup is quicker", /animation:tabletsPopRise \.65s/.test(src));
   ok("the pop and the easing sleep under reduced motion", /body\.reduced #v-tablets \.tablets-slot\.typed,/.test(src) && /body\.reduced #v-tablets \.tablets-slot,/.test(src));
 }
