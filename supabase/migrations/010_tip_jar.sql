@@ -54,8 +54,10 @@ create policy "owner update tip jar"
   with check (public.is_site_admin());
 
 -- Postgres checks table privileges before RLS, so these grants are what make the policy reachable.
+-- Supabase gives every new table all privileges for anon and authenticated by default, including TRUNCATE (which
+-- row-level security does not cover), so everything is taken away first and only what is needed is given back.
 -- There is no insert or delete for clients: the one row is created above.
-revoke insert, update, delete on table public.tip_jar from anon, authenticated;
+revoke all on table public.tip_jar from anon, authenticated;
 grant select on table public.tip_jar to anon, authenticated, service_role;
 grant update (raised_usd, goal_usd) on table public.tip_jar to authenticated;
 grant insert, update on table public.tip_jar to service_role;

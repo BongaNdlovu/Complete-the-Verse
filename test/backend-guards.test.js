@@ -98,7 +98,9 @@ ok("5 combined_migrations.sql matches the migrations folder", combined.isFresh()
   ok("11 anyone may read it", /create policy "tip jar readable"\s+on public\.tip_jar for select\s+to anon, authenticated\s+using \(true\)/.test(mig10));
   ok("11 only a site admin may update it", /create policy "owner update tip jar"[\s\S]*?using \(public\.is_site_admin\(\)\)[\s\S]*?with check \(public\.is_site_admin\(\)\)/.test(mig10));
   ok("11 players may touch only the two numbers, never who or when", /grant update \(raised_usd, goal_usd\) on table public\.tip_jar to authenticated/.test(mig10) && /new\.updated_by := auth\.uid\(\)/.test(mig10));
-  ok("11 players cannot insert or delete", /revoke insert, update, delete on table public\.tip_jar from anon, authenticated/.test(mig10) && !/grant insert[^;]*to authenticated/.test(mig10));
+  ok("11 players start with nothing (Supabase hands out every privilege, TRUNCATE included, to new tables) and get back only SELECT and the two columns",
+    /revoke all on table public\.tip_jar from anon, authenticated;\s+grant select on table public\.tip_jar to anon, authenticated, service_role;\s+grant update \(raised_usd, goal_usd\) on table public\.tip_jar to authenticated;/.test(mig10) &&
+    !/grant insert[^;]*to authenticated/.test(mig10) && !/grant (all|truncate)[^;]*to (anon|authenticated)/i.test(mig10));
   ok("11 the touch function is not callable by clients", /revoke all on function public\.touch_tip_jar\(\) from anon, authenticated/.test(mig10));
   const page = read("admin.html");
   const hub = read("js/admin-hub.js");
