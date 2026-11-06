@@ -39,6 +39,10 @@ eq("a negative is refused", tipJarParseAmount("-5", 1, 10000), null);
 eq("empty is refused", tipJarParseAmount("", 1, 10000), null);
 
 ok("the menu opens the tip jar", html.indexOf('id="menu-tip-open"') > html.indexOf('id="v-menu"'));
+ok("the Tip Jar panel sits near the top of the menu: after the reviews strip, before the logo and the modes", (function () {
+  const tip = html.indexOf('class="menu-tip"');
+  return html.indexOf('class="menu-reviews-spot"') < tip && tip < html.indexOf('class="menu-brand"') && tip < html.indexOf('id="modes"');
+})());
 ok("the modal is a hidden dialog", /id="tip-modal"[^>]*role="dialog"[^>]*hidden/.test(html));
 ["1", "3", "5", "10", "25", "custom"].forEach(function(amount){
   ok("the picker offers " + amount, html.indexOf('data-tip-amount="' + amount + '"') >= 0);

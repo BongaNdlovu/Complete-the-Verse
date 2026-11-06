@@ -370,7 +370,7 @@ body.motion-calm .menu-reviews-track{
 }
 .subnav{display:flex;gap:12px;margin-top:4vh;flex-wrap:wrap;justify-content:center}
 /* The tip jar: a lamp-lit panel with a verse and one gold button. A plain link, because the CSP's form-action blocks a form post to PayPal. */
-.menu-tip{position:relative;isolation:isolate;overflow:hidden;flex:none;width:min(100%,420px);margin:4vh auto 0;padding:30px 24px 18px;text-align:center;
+.menu-tip{position:relative;isolation:isolate;overflow:hidden;flex:none;width:min(100%,420px);margin:2vh auto 2.4vh;padding:30px 24px 18px;text-align:center;
   border:1px solid rgba(217,182,103,.42);border-radius:4px;background:linear-gradient(180deg,rgba(38,26,12,.9),rgba(7,6,8,.95));
   box-shadow:0 18px 44px rgba(0,0,0,.7),inset 0 0 0 4px rgba(4,5,10,.72),inset 0 0 0 5px rgba(217,182,103,.2)}
 .menu-tip-glow{position:absolute;z-index:-1;left:50%;top:-90px;width:340px;height:270px;margin-left:-170px;pointer-events:none;
