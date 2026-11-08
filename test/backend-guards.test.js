@@ -111,6 +111,22 @@ ok("5 combined_migrations.sql matches the migrations folder", combined.isFresh()
   ok("11 the docs name the table", /tip_jar/.test(read("docs/BACKEND.md")));
 }
 
+/* ---------- 12. clients hold no TRUNCATE, REFERENCES or TRIGGER on any public table ---------- */
+{
+  const raw = read("supabase/migrations/011_revoke_default_truncate.sql");
+  const sql = raw.split("\n").filter(function (line) { return !/^\s*--/.test(line); }).join("\n");
+  ok("12 every ordinary and partitioned public table is covered", /relkind in \('r', 'p'\)/.test(sql) && /n\.nspname = 'public'/.test(sql));
+  ok("12 exactly these privileges are revoked, from exactly the two API roles",
+    /revoke truncate, references, trigger on table public\.%I from anon, authenticated/.test(sql));
+  ok("12 tables created later start the same way", /alter default privileges in schema public\s+revoke truncate, references, trigger on tables from anon, authenticated/.test(sql));
+  ok("12 MAINTAIN (Postgres 17 and later) goes too, only where the server knows it", /has_maintain constant boolean := current_setting\('server_version_num'\)::int >= 170000/.test(sql) &&
+    /revoke maintain on table public\.%I from anon, authenticated/.test(sql) &&
+    /revoke maintain on tables from anon, authenticated/.test(sql) && /if current_setting\('server_version_num'\)::int >= 170000 then/.test(sql));
+  ok("12 SELECT, INSERT, UPDATE and DELETE are never revoked here", !/revoke[^;]*\b(select|insert|update|delete|all)\b/i.test(sql));
+  ok("12 service_role is never touched", !/service_role/.test(sql));
+  ok("12 the tip jar table keeps its own revoke-all, so it is safe even where this migration was skipped", /revoke all on table public\.tip_jar from anon, authenticated/.test(read("supabase/migrations/010_tip_jar.sql")));
+}
+
 /* ---------- 6. esc() escapes the single quote too ---------- */
 {
   const escFrom = function (rel) {
