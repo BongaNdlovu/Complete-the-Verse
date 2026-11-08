@@ -205,8 +205,9 @@ function renderStudy(){
     });
     sel.addEventListener("change", drawStudy);
     $("study-filter").addEventListener("change", drawStudy);
-    $("study-q").addEventListener("input", drawStudy);
+    $("study-q").addEventListener("input", drawStudySoon);
   }
+  bindStudyList();
   const reviewBtn = $("study-review-due");
   const due = typeof dueToday === "function" ? dueToday() : 0;
   if(reviewBtn){
@@ -281,7 +282,41 @@ function drawThinPlaces(){
     });
   });
 }
+/* Perf: the study list used to rebuild every matching card on each keystroke —
+   a full-bank filter, one giant innerHTML and two listeners per card, several
+   times per word. The input debounces, the page renders at most STUDY_PAGE
+   cards behind a "show more" step, and one listener on the list handles every
+   card. */
+const STUDY_PAGE = 60, STUDY_PAGE_MORE = 120;
+let _studyTimer = 0;
+function drawStudySoon(){
+  clearTimeout(_studyTimer);
+  const el = $("study-list");
+  /* A new keystroke starts a new search: back to the first page. */
+  if(el && el.dataset) el.dataset.cap = "";
+  _studyTimer = setTimeout(drawStudy, 180);
+}
+function studyListen(id, el){
+  const v = VERSES.find(x=>String(x.id)===id);
+  if(!v) return;
+  if(typeof window !== "undefined" && ('speechSynthesis' in window)){
+    /* cancel() can fire the previous utterance's onend in some
+       engines — mark it so a second Listen tap cannot launch a run
+       the player never asked for. */
+    if(el._studyUtter) el._studyUtter._ctvCancelled = true;
+    window.speechSynthesis.cancel();
+    const fullText = (v.p ? v.p + " " : "") + (v.a || "") + (v.s ? " " + v.s : "");
+    const utter = new SpeechSynthesisUtterance(fullText);
+    utter.rate = 0.9;
+    el._studyUtter = utter;
+    utter.onend = () => { if(utter._ctvCancelled) return; startRun("recall", SAVE.set.diff, { queue: [v], forcedVerse: v }); };
+    utter.onerror = () => { if(utter._ctvCancelled) return; startRun("recall", SAVE.set.diff, { queue: [v], forcedVerse: v }); };
+    window.speechSynthesis.speak(utter);
+    if(typeof toast === "function") toast("Listening to " + v.r + "…");
+  }
+}
 function drawStudy(){
+  const el = $("study-list");
   const q = ($("study-q").value||"").toLowerCase().trim();
   const bk = $("study-book").value;
   const f = $("study-filter").value;
@@ -293,7 +328,6 @@ function drawStudy(){
     if(q && (fullVerse(v)+" "+v.r).toLowerCase().indexOf(q)<0) return false;
     return true;
   }).sort((a,b)=> (order[a.b]-order[b.b]) || (a.t-b.t));
-  const el = $("study-list");
   if(!list.length){
     const msg = (f==="due")
       ? "No verses due for review — your memory is clear. Walk new ground on the road."
@@ -301,8 +335,10 @@ function drawStudy(){
     el.innerHTML='<div class="empty">'+msg+'</div>';
     return;
   }
+  const cap = Number(el.dataset && el.dataset.cap) || STUDY_PAGE;
+  const shown = list.slice(0, cap);
   const hasTTS = typeof window !== "undefined" && ('speechSynthesis' in window);
-  el.innerHTML = list.map(v=>{
+  el.innerHTML = shown.map(v=>{
     const sch = verseScheduleLabel(v);
     const note = (typeof VERSE_NOTES !== "undefined" && v.id && VERSE_NOTES[v.id])
       ? '<div class="vcard-note">' + esc(VERSE_NOTES[v.id]) + '</div>' : '';
@@ -315,45 +351,37 @@ function drawStudy(){
       note+
       (listenBtn ? '<div class="vcard-actions">'+listenBtn+'</div>' : '')+
       '<div class="vcard-insight" hidden></div></div>';
-  }).join("");
-  el.querySelectorAll(".vcard").forEach(card=>{
-    card.addEventListener("click", (e)=>{
-      if(e.target.closest(".vcard-listen")) return;
-      const id = card.dataset.vid;
-      const v = VERSES.find(x=>String(x.id)===id);
-      const box = card.querySelector(".vcard-insight");
-      if(!box || !v || typeof Polish==="undefined") return;
-      if(!box.hidden){ box.hidden = true; return; }
-      const info = Polish.insightForVerse(v);
-      const cross = Polish.crossRefsInBank(v, VERSES, 3);
-      box.hidden = false;
-      box.innerHTML = '<b>'+esc(info.theme)+'</b> · '+esc(info.author)+
-        (info.roots.length?' · '+info.roots.map(r=>esc(r.w)).join(", "):'')+
-        (cross.length?' · see '+cross.map(esc).join(", "):'');
-    });
-  });
-  el.querySelectorAll(".vcard-listen").forEach(lBtn => {
-    lBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const id = lBtn.dataset.listenVid;
-      const v = VERSES.find(x => String(x.id) === id);
-      if(!v) return;
-      if(typeof window !== "undefined" && ('speechSynthesis' in window)){
-        /* cancel() can fire the previous utterance's onend in some
-           engines — mark it so a second Listen tap cannot launch a run
-           the player never asked for. */
-        if(el._studyUtter) el._studyUtter._ctvCancelled = true;
-        window.speechSynthesis.cancel();
-        const fullText = (v.p ? v.p + " " : "") + (v.a || "") + (v.s ? " " + v.s : "");
-        const utter = new SpeechSynthesisUtterance(fullText);
-        utter.rate = 0.9;
-        el._studyUtter = utter;
-        utter.onend = () => { if(utter._ctvCancelled) return; startRun("recall", SAVE.set.diff, { queue: [v], forcedVerse: v }); };
-        utter.onerror = () => { if(utter._ctvCancelled) return; startRun("recall", SAVE.set.diff, { queue: [v], forcedVerse: v }); };
-        window.speechSynthesis.speak(utter);
-        if(typeof toast === "function") toast("Listening to " + v.r + "…");
-      }
-    });
+  }).join("") +
+    (list.length > shown.length
+      ? '<button type="button" class="btn sm ghost" id="study-more">Show '+(list.length - shown.length)+' more of '+list.length+'</button>'
+      : "");
+}
+/* One listener for every study card, bound once: a tap opens the insight, the
+   Listen button starts a recall run, and the paging button extends the page. */
+function bindStudyList(){
+  const el = $("study-list");
+  if(!el || el._studyBound) return;
+  el._studyBound = true;
+  el.addEventListener("click", (e)=>{
+    if(e.target.closest("#study-more")){
+      el.dataset.cap = String((Number(el.dataset.cap) || STUDY_PAGE) + STUDY_PAGE_MORE);
+      drawStudy();
+      return;
+    }
+    const lBtn = e.target.closest(".vcard-listen");
+    if(lBtn){ studyListen(lBtn.dataset.listenVid, el); return; }
+    const card = e.target.closest(".vcard");
+    if(!card) return;
+    const v = VERSES.find(x=>String(x.id)===card.dataset.vid);
+    const box = card.querySelector(".vcard-insight");
+    if(!box || !v || typeof Polish==="undefined") return;
+    if(!box.hidden){ box.hidden = true; return; }
+    const info = Polish.insightForVerse(v);
+    const cross = Polish.crossRefsInBank(v, VERSES, 3);
+    box.hidden = false;
+    box.innerHTML = '<b>'+esc(info.theme)+'</b> · '+esc(info.author)+
+      (info.roots.length?' · '+info.roots.map(r=>esc(r.w)).join(", "):'')+
+      (cross.length?' · see '+cross.map(esc).join(", "):'');
   });
 }
 

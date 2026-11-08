@@ -53,15 +53,21 @@ const exec = (sb, code) => vm.runInContext(code, sb);
 /* ---------- the modules are on the page ---------- */
 
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+/* Perf: the NKJV data (~1.1 MB) is written into the page only for players
+   whose save says nkjv, but every file must still be offered, and the gate
+   must sit before edition.js so the written tags keep their load order. */
 [
   "js/nkjv/verses.js", "js/nkjv/passages.js", "js/nkjv/verses-tf.js",
   "js/nkjv/verses-notes.js", "js/nkjv/tablets.js", "js/nkjv/quotes.js",
   "js/nkjv/beat.js", "js/nkjv/tutorial.js"
 ].forEach(f => {
-  ok("index.html loads " + f, html.indexOf('src="' + f + '"') >= 0);
+  ok("index.html offers " + f, html.indexOf('"' + f + '"') >= 0);
 });
-ok("the NKJV data loads before edition.js",
-  html.indexOf('src="js/nkjv/verses.js"') < html.indexOf('src="js/edition.js"'));
+ok("the NKJV pack gate reads the save", html.indexOf('localStorage.getItem("ctv_save_v3")') >= 0);
+ok("the NKJV pack gate loads before edition.js",
+  html.indexOf('localStorage.getItem("ctv_save_v3")') >= 0 &&
+  html.indexOf('localStorage.getItem("ctv_save_v3")') < html.indexOf('src="js/edition.js"'));
+ok("a runtime switch fetches the pack first", html.indexOf("ensureNkjvData") >= 0 || fs.readFileSync(path.join(ROOT, "js", "briefs.js"), "utf8").indexOf("ensureNkjvData") >= 0);
 
 const sw = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
 ok("the service worker precaches the NKJV verse bank", sw.indexOf('"js/nkjv/verses.js"') >= 0);
@@ -163,6 +169,53 @@ eq("selecting an edition marks the choice on the save",
   exec(fresh, "enterCoffeePath()");
   ok("a first run with nothing chosen keeps the KJV bank",
     read(fresh, "VERSES.every(v => String(v.id).indexOf('nkjv~') !== 0)"));
+}
+
+/* ---------- the late switch ---------- */
+
+/* index.html writes the NKJV pack only when the save said nkjv at boot. A
+   device that booted KJV and then pulled an NKJV cloud save reaches
+   enterCoffeePath with no NKJV globals: it must fetch the pack before it
+   activates, or KJV text wears the NKJV label. A second request while the
+   fetch is in flight joins it rather than writing the tags twice. */
+{
+  const NKJV_FILES = PREFIX.filter(f => f.indexOf("js/nkjv/") === 0);
+  const sb = makeSandbox();
+  const src = PREFIX.filter(f => f.indexOf("js/nkjv/") !== 0).concat(ENGINE_FILES)
+    .map(f => fs.readFileSync(path.join(ROOT, f), "utf8")).join("\n;\n");
+  vm.runInContext(src, sb, { filename: "bundle-no-nkjv.js" });
+  ok("the late-switch boot starts without the NKJV pack", read(sb, "typeof NKJV_VERSES") === "undefined");
+
+  /* The shim's body records children; a script tag "loads" by running its
+     file in the sandbox once the test lets it. */
+  const loaded = [];
+  const queue = [];
+  sb.document.body.appendChild = function(el){
+    loaded.push(el.src);
+    queue.push(el);
+    return el;
+  };
+  function drain(){
+    while(queue.length){
+      const el = queue.shift();
+      vm.runInContext(fs.readFileSync(path.join(ROOT, el.src), "utf8"), sb, { filename: el.src });
+      if(typeof el.onload === "function") el.onload();
+    }
+  }
+  exec(sb, `
+    SAVE.set.translation = "nkjv";
+    SAVE.set.translationChosen = true;
+    globalThis.__joined = 0;
+    enterCoffeePath();
+    Edition.ensureNkjvData(function(){ globalThis.__joined++; });
+  `);
+  drain();
+  eq("a late NKJV switch fetches every pack file once", loaded.join(","), NKJV_FILES.join(","));
+  eq("a second request joins the fetch in flight", read(sb, "__joined"), 1);
+  eq("a late NKJV switch serves NKJV wording",
+    read(sb, `(function(){ const v = VERSES.find(x => x.id === "nkjv~genesis-2-7~living-being"); return v ? v.a : "(no such verse)"; })()`),
+    "living being");
+  eq("a late NKJV switch serves the NKJV lessons", read(sb, "TUTORIAL_QUESTIONS[4].a"), "strengthens me");
 }
 
 if (fail) {

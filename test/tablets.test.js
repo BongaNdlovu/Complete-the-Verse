@@ -1446,7 +1446,7 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   ok("the numerals kick", /\.tablets-stat b\.kick\{[^}]*animation:tabletsKick/.test(src));
   ok("the milestone banner is dressed", /\.tablets-milestone\.active\{[^}]*opacity:1/.test(src));
   ok("the stage washes exist", /\.tablets-flash\.miss\{/.test(src) && /\.tablets-flash\.gold\{/.test(src));
-  ok("the urgent slot pulses", /\.tablets-slot\.urgent\{[^}]*animation:tabletsSlotUrgent/.test(src));
+  ok("the urgent slot pulses", /\.tablets-slot\.urgent::after\{[^}]*animation:tabletsSlotUrgent/.test(src));
   ok("the juice sleeps under reduced motion", /body\.reduced \.tablets-stat b\.kick,/.test(src) && /body\.reduced \.tablets-flash,/.test(src));
 }
 {
@@ -1619,8 +1619,9 @@ ok("the clock label names 6.5s", html.indexOf('id="tablets-clock-lab">6.5s<') >=
   unstubRandom();
 }
 {
-  // FX13: the carve glow beats the urgent pulse (CSS source).
-  ok("the success glow beats the urgent pulse", /\.tablets-slot\.glow\.urgent\{animation:none\}/.test(src));
+  // FX13: the carve glow beats the urgent pulse (CSS source) — including the
+  // pulse's ::after layer, where the animation lives since the perf pass.
+  ok("the success glow beats the urgent pulse", /\.tablets-slot\.glow\.urgent,\.tablets-slot\.glow\.urgent::after\{animation:none\}/.test(src));
 }
 {
   // FX14: --tablets-rise has no consumer and is not written.

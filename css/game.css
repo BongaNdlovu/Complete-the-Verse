@@ -1186,6 +1186,11 @@ body.reduced.fx-act #grain{opacity:.08;animation:none}
 body.quality-balanced #grain{opacity:.06;animation-duration:1.2s}
 body.quality-balanced #cinematic-fx{opacity:.62}
 body.quality-balanced .smoke-wisp{filter:blur(28px)}
+/* Perf: on the balanced tier the grain stops drifting during play and the
+   tablets run — a moving overlay layer forces the blend below it to re-run
+   every frame of the game (quality-low hides it outright). */
+body.quality-balanced.view-play #grain,
+body.quality-balanced.view-tablets #grain{animation-play-state:paused}
 body.quality-low #grain,body.quality-low #cinematic-fx,body.quality-low #viz{display:none!important}
 body.quality-low .smoke-wisp{display:none!important}
 body.quality-low #tablets-fx{display:none!important}

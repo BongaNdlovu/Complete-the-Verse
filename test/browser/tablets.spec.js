@@ -63,7 +63,10 @@ test('the 0.75x clock climbs to The Mark and the last third quickens to 1.0x', a
       clock: R.tabletClock,
       max: R.tabletClockMax,
       rise: window.tabletsRiseOf(),
-      marker: parseFloat(document.getElementById('tablets-ladder-marker').style.top)
+      /* Perf: the marker rides transform now; the calc()'s px is its ladder
+         top. Chromium normalizes calc() ("calc(-50% + 9.4px)"), so take the
+         px number wherever it sits. */
+      marker: parseFloat((document.getElementById('tablets-ladder-marker').style.transform.match(/(-?[\d.]+)px/) || [])[1])
     };
   });
   expect(before.max).toBeCloseTo(8.8, 6);
@@ -73,7 +76,7 @@ test('the 0.75x clock climbs to The Mark and the last third quickens to 1.0x', a
     return {
       clock: R.tabletClock,
       rise: window.tabletsRiseOf(),
-      marker: parseFloat(document.getElementById('tablets-ladder-marker').style.top),
+      marker: parseFloat((document.getElementById('tablets-ladder-marker').style.transform.match(/(-?[\d.]+)px/) || [])[1]),
       elapsed: (performance.now() - R.proofStart) / 1000
     };
   });

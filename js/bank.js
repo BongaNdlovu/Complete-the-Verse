@@ -61,10 +61,16 @@ function absorbVersePack(pack){
   return n;
 }
 function absorbDeferredBanks(){
+  /* Perf: absorb every pack that has arrived in one pass, so the live bank
+     rebuilds once instead of once per script. The fallback keeps working
+     when edition.js is absent (headless suites). */
+  var packs = [];
+  if(typeof VERSES_MORE !== "undefined") packs.push(VERSES_MORE);
+  if(typeof VERSES_ASCENT !== "undefined") packs.push(VERSES_ASCENT);
+  if(typeof VERSES_EXPANSION !== "undefined") packs.push(VERSES_EXPANSION);
+  if(typeof Edition !== "undefined" && Edition.absorbPacks) return Edition.absorbPacks(packs);
   var n = 0;
-  if(typeof VERSES_MORE !== "undefined") n += absorbVersePack(VERSES_MORE);
-  if(typeof VERSES_ASCENT !== "undefined") n += absorbVersePack(VERSES_ASCENT);
-  if(typeof VERSES_EXPANSION !== "undefined") n += absorbVersePack(VERSES_EXPANSION);
+  packs.forEach(function(pack){ n += absorbVersePack(pack); });
   return n;
 }
 

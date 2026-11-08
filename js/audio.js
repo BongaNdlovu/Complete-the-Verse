@@ -177,6 +177,32 @@ const Snd = (function(){
       return true;
     }catch(e){ return false; }
   }
+  /* Perf: voice lines replay the same few recordings, so each src keeps one
+     Audio element (as the music beds already do) instead of building a new
+     media element and refetching per line. A reused element drops the stale
+     ended/error listeners of an interrupted line before it speaks again. */
+  const VOICE_CACHE_MAX = 24;
+  const voiceCache = [];
+  function voiceElement(src){
+    let a = null;
+    for(let i = 0; i < voiceCache.length; i++){
+      /* The element's own .src resolves to an absolute URL, so the raw key
+         travels on the element. */
+      if(voiceCache[i]._ctvSrc === src){ a = voiceCache[i]; break; }
+    }
+    if(!a){
+      a = new Audio(src);
+      a._ctvSrc = src;
+      voiceCache.push(a);
+      if(voiceCache.length > VOICE_CACHE_MAX) voiceCache.shift();
+      return a;
+    }
+    try{ a.pause(); }catch(e){}
+    if(a._ctvEnded){ a.removeEventListener("ended", a._ctvEnded); a._ctvEnded = null; }
+    if(a._ctvError){ a.removeEventListener("error", a._ctvError); a._ctvError = null; }
+    try{ a.currentTime = 0; }catch(e){}
+    return a;
+  }
   /* Recorded mission voice. Exclusive — a new line cuts the previous. */
   function playFile(src, onEnded){
     init();
@@ -185,11 +211,13 @@ const Snd = (function(){
       return null;
     }
     try{
-      const a = new Audio(src);
+      const a = voiceElement(src);
       a.volume = sfxOut();
       let done = false;
       function finish(){ if(done) return; done = true; if(onEnded) onEnded(); }
       if(onEnded){
+        a._ctvEnded = finish;
+        a._ctvError = finish;
         a.addEventListener("ended", finish, { once:true });
         a.addEventListener("error", finish, { once:true });
       }
@@ -215,7 +243,7 @@ const Snd = (function(){
         try{ voiceHold.pause(); voiceHold.currentTime=0; }catch(e){}
         voiceHold=null;
       }
-      const a=new Audio(src);
+      const a=voiceElement(src);
       a.preload="metadata";
       a.volume=sfxOut();
       voiceHold=a;
@@ -228,10 +256,11 @@ const Snd = (function(){
            the fallback starts; otherwise the fallback is cancelled too. */
         notifyVoiceFailure();
       });
-      a.addEventListener("ended", function(){
+      a._ctvEnded = function(){
         if(voiceHold===a) voiceHold=null;
         if(onEnded) onEnded();
-      });
+      };
+      a.addEventListener("ended", a._ctvEnded);
       return true;
     }catch(e){
       pendingVoice={src:src,duckMs:duckMs,onFail:onFail};

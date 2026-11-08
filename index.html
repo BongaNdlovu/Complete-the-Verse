@@ -1026,18 +1026,32 @@
 <script defer src="js/passages.js"></script>
 <script defer src="js/legacy-ids.js"></script>
 <script defer src="js/bank.js"></script>
-<!-- The NKJV edition. These are data only: they declare NKJV_* globals and
-     touch nothing else, so loading them costs a parse and nothing more
-     until Edition.activateEdition("nkjv") swaps them into the live arrays.
-     They must load before edition.js, which snapshots both stores at boot. -->
-<script defer src="js/nkjv/verses.js"></script>
-<script defer src="js/nkjv/passages.js"></script>
-<script defer src="js/nkjv/verses-tf.js"></script>
-<script defer src="js/nkjv/verses-notes.js"></script>
-<script defer src="js/nkjv/tablets.js"></script>
-<script defer src="js/nkjv/quotes.js"></script>
-<script defer src="js/nkjv/beat.js"></script>
-<script defer src="js/nkjv/tutorial.js"></script>
+<!-- The NKJV edition. These files are data only (~1.1 MB of object
+     literals): they declare NKJV_* globals and touch nothing else, so the
+     save decides who parses them. The default KJV player skips the whole
+     pack; a player whose save says nkjv gets the tags written below, which
+     keeps them parser-inserted and deferred so they still load before
+     edition.js, which snapshots both stores at boot. Switching editions at
+     runtime fetches the pack first through Edition.ensureNkjvData. -->
+<script>
+(function(){
+  var need = false;
+  try{
+    var raw = localStorage.getItem("ctv_save_v3");
+    if(raw){
+      var save = JSON.parse(raw);
+      need = !!(save && save.set && save.set.translation === "nkjv");
+    }
+  }catch(e){}
+  if(!need) return;
+  var files = ["js/nkjv/verses.js", "js/nkjv/passages.js", "js/nkjv/verses-tf.js",
+               "js/nkjv/verses-notes.js", "js/nkjv/tablets.js", "js/nkjv/quotes.js",
+               "js/nkjv/beat.js", "js/nkjv/tutorial.js"];
+  for(var i = 0; i < files.length; i++){
+    document.write('<script defer src="' + files[i] + '"><\/script>');
+  }
+})();
+</script>
 <script defer src="js/srs.js"></script>
 <script defer src="js/recall.js"></script>
 <script defer src="js/assemble.js"></script>

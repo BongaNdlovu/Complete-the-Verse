@@ -1388,7 +1388,14 @@ function bindEditionPicker(){
     nkjvBtn._bound = true;
     nkjvBtn.addEventListener("click", function(){
       if(typeof Snd !== "undefined" && Snd.ui) Snd.ui();
-      if(typeof Edition !== "undefined" && Edition.selectEdition) Edition.selectEdition("nkjv");
+      if(typeof Edition !== "undefined" && Edition.selectEdition){
+        /* Perf: the NKJV pack is only parsed when a player first needs it —
+           fetch it, then swap the edition. */
+        if(typeof Edition.ensureNkjvData === "function" && typeof NKJV_VERSES === "undefined"){
+          if(typeof toast === "function") toast("Opening the New King James…");
+          Edition.ensureNkjvData(function(){ Edition.selectEdition("nkjv"); });
+        } else Edition.selectEdition("nkjv");
+      }
       else {
         SAVE.set.translation = "nkjv";
         SAVE.set.translationChosen = true;
@@ -1427,7 +1434,13 @@ function enterCoffeePath(){
      back wearing an NKJV label. activateEdition is idempotent; first-time
      players (no translation chosen) never get here before the picker. */
   if(typeof Edition !== "undefined" && typeof SAVE !== "undefined" && SAVE.set && SAVE.set.translation === "nkjv"){
-    Edition.activateEdition("nkjv");
+    /* The page writes the NKJV pack only when the save said nkjv at boot. A
+       cloud save that switched this device to nkjv after boot finds the pack
+       missing, and activating an empty store left KJV text under an NKJV
+       label — fetch the pack first. */
+    if(typeof NKJV_VERSES === "undefined" && typeof Edition.ensureNkjvData === "function"){
+      Edition.ensureNkjvData(function(){ Edition.activateEdition("nkjv"); });
+    } else Edition.activateEdition("nkjv");
   }
   if(typeof window !== "undefined" && window._saveCorruptPending){
     window._saveCorruptPending = false;
