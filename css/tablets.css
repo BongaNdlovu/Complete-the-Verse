@@ -40,11 +40,15 @@ body.view-tablets .voice-caption{display:none!important}
   position:absolute;inset:0;pointer-events:none;z-index:8;opacity:0;
   box-shadow:inset 0 0 70px rgba(255,215,90,.55),inset 0 0 140px rgba(255,160,30,.3);
   transition:opacity .4s ease;animation:none}
-#tablets-aura.active{opacity:1;animation:tabletsSurgePulse .9s infinite alternate}
-@keyframes tabletsSurgePulse{
-  from{box-shadow:inset 0 0 60px rgba(255,215,90,.4),inset 0 0 110px rgba(255,160,30,.25)}
-  to{box-shadow:inset 0 0 100px rgba(255,230,120,.8),inset 0 0 180px rgba(255,180,50,.5)}
-}
+/* Perf: the surge breathes by cross-fading two pre-painted glow layers —
+   animating inset box-shadow repainted the whole stage twice a second for
+   the whole run. Only opacity moves now, so the compositor carries it. */
+#tablets-aura::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+  box-shadow:inset 0 0 100px rgba(255,230,120,.8),inset 0 0 180px rgba(255,180,50,.5)}
+#tablets-aura.active{opacity:1}
+#tablets-aura.active::after{animation:tabletsSurgePulse .9s infinite alternate}
+@keyframes tabletsSurgePulse{from{opacity:0}to{opacity:1}}
 .tablets-wrap{
   position:absolute;inset:0;display:flex;flex-direction:column;
   background:linear-gradient(180deg,#150605 0%,#0a0403 100%)}
@@ -159,7 +163,7 @@ body.reduced .tablets-shafts,body.motion-calm .tablets-shafts{display:none}
   background:rgba(10,6,3,.72);border:1px solid rgba(217,182,103,.25);border-radius:999px;padding:2px 7px;white-space:nowrap}
 .tablets-ladder span b{color:var(--gold-hot);font-weight:700;margin-left:4px}
 .tablets-ladder-marker{
-  position:absolute;left:50%;width:9px;height:9px;transform:translate(-50%,-50%) rotate(45deg);
+  position:absolute;left:50%;top:0;width:9px;height:9px;transform:translate(-50%,-50%) rotate(45deg);
   background:linear-gradient(135deg,#fff2c6,#dfa544);box-shadow:0 0 10px rgba(255,224,130,.9);border:1px solid #fff}
 /* E: the juice — HUD kick, milestone banner, stage washes, urgent slot. */
 .tablets-stat b.kick{animation:tabletsKick .34s cubic-bezier(.2,.9,.3,1.4)}
@@ -177,10 +181,15 @@ body.reduced .tablets-shafts,body.motion-calm .tablets-shafts{display:none}
 .tablets-flash.gold{background:radial-gradient(circle at 50% 50%,rgba(255,224,130,0) 30%,rgba(255,224,130,.3) 100%);animation:tabletsFlashWash .65s ease-out}
 .tablets-flash.strong.gold{background:radial-gradient(circle at 50% 50%,rgba(255,224,130,0) 22%,rgba(255,236,180,.44) 100%)}
 @keyframes tabletsFlashWash{0%{opacity:1}100%{opacity:0}}
-.tablets-slot.urgent{border-color:#ff5238;animation:tabletsSlotUrgent .42s infinite alternate}
+.tablets-slot.urgent{border-color:#ff5238}
+/* Perf: the urgent pulse is a pre-painted red glow layer fading in and out —
+   the old keyframes re-rendered the slot's box-shadow every frame. */
+.tablets-slot.urgent::after{
+  content:"";position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;opacity:0;
+  box-shadow:0 0 22px rgba(255,60,30,.85);animation:tabletsSlotUrgent .42s infinite alternate}
 /* FX13: a carve glow wins over the urgent pulse, so the success light shows. */
-.tablets-slot.glow.urgent{animation:none}
-@keyframes tabletsSlotUrgent{from{box-shadow:inset 0 6px 15px rgba(0,0,0,.98),0 0 16px rgba(229,181,88,.3)}to{box-shadow:inset 0 6px 15px rgba(0,0,0,.98),0 0 22px rgba(255,60,30,.85)}}
+.tablets-slot.glow.urgent,.tablets-slot.glow.urgent::after{animation:none}
+@keyframes tabletsSlotUrgent{from{opacity:0}to{opacity:1}}
 .tablets-ground{
   display:none;position:relative;width:215px;flex:0 0 auto;z-index:5;padding:10px;text-align:center;border-radius:12px;
   background:linear-gradient(180deg,#24170b 0%,#120b05 100%);border:1.5px solid #573e1c;
@@ -423,7 +432,7 @@ body.reduced .tablets-crack-burst,body.motion-calm .tablets-crack-burst,body.red
   height:10px;margin:6px 4px 2px;border-radius:6px;overflow:hidden;background:#160e06;
   border:1px solid #38240f;box-shadow:inset 0 2px 6px rgba(0,0,0,.95)}
 .tablets-clock-fill{
-  display:block;height:100%;width:100%;border-radius:5px;
+  display:block;height:100%;width:100%;border-radius:5px;transform-origin:0 50%;
   background:linear-gradient(90deg,#7c260f 0%,#c4761a 25%,#e5b558 70%,#fff0b3 100%);
   box-shadow:0 0 14px rgba(245,190,82,.85)}
 .tablets-clock-fill.urgent{
@@ -508,7 +517,8 @@ body.reduced .tablets-crack-burst,body.motion-calm .tablets-crack-burst,body.red
 .tablets-freeze-track{
   flex:1;height:7px;background:#140c04;border-radius:4px;border:1px solid #3d2810;overflow:hidden;display:block}
 .tablets-freeze-fill{
-  display:block;height:100%;width:0;background:linear-gradient(90deg,#964910,#e69622 60%,#fff2a1)}
+  display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:0 50%;
+  background:linear-gradient(90deg,#964910,#e69622 60%,#fff2a1)}
 .tablets-freeze em{font-style:normal;font-size:.58rem;color:#ffe291;font-weight:700}
 .tablets-keys-hint{font-family:var(--ui);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#8a7a62}
 /* A: the powers wear relic cards — key chip, name, effect, count, per-card accent. */
@@ -642,6 +652,12 @@ body.reduced .tablets-relic.recharging,
 body.motion-calm .tablets-relic.recharging,
 body.reduced .tablets-relic-pill,
 body.motion-calm .tablets-relic-pill{animation:none;transition:none}
+/* The urgent pulse and the aura surge moved to pre-painted ::after layers;
+   reduced motion quiets those the same way. */
+body.reduced .tablets-slot.urgent::after,
+body.motion-calm .tablets-slot.urgent::after,
+body.reduced #tablets-aura.active::after,
+body.motion-calm #tablets-aura.active::after{animation:none}
 body.reduced .tablets-lane .active,body.motion-calm .tablets-lane .active,body.reduced .tablets-score-popup,body.motion-calm .tablets-score-popup{animation:none;transition:none}
 body.reduced .tablets-mult.pop,body.motion-calm .tablets-mult.pop,
 body.reduced .tablets-combo.broke,body.motion-calm .tablets-combo.broke,
@@ -950,6 +966,7 @@ body.reduced #v-tablets .tablets-slot.glow,body.motion-calm #v-tablets .tablets-
 #v-tablets .tablets-stage.frozen .tablets-zone{background:rgba(150,210,255,.1);border-color:rgba(159,216,255,.5)}
 #v-tablets .tablets-stage.frozen .tablets-clock-fill{background:linear-gradient(90deg,#9fd8ff,#e6f7ff)}
 #tablets-aura.frozen{opacity:1;box-shadow:inset 0 0 90px rgba(160,215,255,.45)}
+#tablets-aura.frozen::after{animation:none;opacity:0}
 /* F2: the hint card. F3: the ward chip beside the lamps. F4: a review miss shows the true word in ice. */
 #v-tablets .tablets-relic[data-relic="hint"]{--relic:#f3dca4}
 #v-tablets .tablets-ward{display:inline-flex;align-items:center;flex:0 0 auto;padding:3px 9px;border-radius:999px;

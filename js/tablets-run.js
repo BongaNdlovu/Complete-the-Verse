@@ -17,6 +17,17 @@ function stopTabletsLoop(){
   }
   R.tabletRacing = false;
 }
+/* Perf: the run's chrome keeps one identity for the whole page, so the frame
+   loop holds its element refs instead of re-querying the document 60 times
+   a second. A ref is looked up again only while it is still missing. */
+const TABLET_REFS = {};
+function tabletsRef(id){
+  const cached = TABLET_REFS[id];
+  if(cached) return cached;
+  const el = $(id);
+  if(el) TABLET_REFS[id] = el;
+  return el || null;
+}
 function tabletsChapter(){
   const id = (R && R.tabletChapter) || "psalm23";
   return Tablets.chapter(id);
@@ -73,23 +84,29 @@ function tabletsTier(streak){
   return { name:"DEVOTED", mult:mult };
 }
 function paintTabletsClock(){
-  const fill = $("tablets-clock-fill");
-  const lab = $("tablets-clock-lab");
+  const fill = tabletsRef("tablets-clock-fill");
+  const lab = tabletsRef("tablets-clock-lab");
   const max = R.tabletClockMax || tabletsClockMax() || 1;
   const left = tabletsUntimed() ? 1 : (R.tabletClock || 0) / max;
   if(fill){
-    fill.style.width = (Math.min(100, Math.max(0, left) * 100)) + "%";
+    /* Perf: the sand paints with scaleX like the play clock (clocks.js) — a
+       width write here kept relaying out the bar every frame. */
+    const frac = Math.min(1, Math.max(0, left)).toFixed(4);
+    if(fill._ctvFrac !== frac){
+      fill._ctvFrac = frac;
+      fill.style.transform = "scaleX(" + frac + ")";
+    }
     fill.classList.toggle("banked", left > 1 && !tabletsUntimed());
     fill.classList.toggle("urgent", tabletsDangerLevel() > 0);
   }
   if(lab){
-    if(tabletsUntimed()) lab.textContent = "Untimed Hold";
-    else lab.textContent = (Math.max(0, R.tabletClock || 0)).toFixed(1) + "s";
+    const txt = tabletsUntimed() ? "Untimed Hold" : (Math.max(0, R.tabletClock || 0)).toFixed(1) + "s";
+    if(lab.textContent !== txt) lab.textContent = txt;
   }
   tabletsPaintRise();
-  const slotEl = $("tablets-slot");
+  const slotEl = tabletsRef("tablets-slot");
   if(slotEl) slotEl.classList.toggle("urgent", tabletsDangerLevel() > 0.5);
-  const stageEl = $("tablets-stage");
+  const stageEl = tabletsRef("tablets-stage");
   if(stageEl){
     stageEl.classList.toggle("danger", tabletsDangerLevel() > 0);
     stageEl.classList.toggle("gold", !!R.tabletGlory);
@@ -147,8 +164,10 @@ function tabletsActiveLineTop(verse){
 }
 /* R1: reduced motion and a run's first paint jump; otherwise the sheet eases toward its target. */
 function tabletsRollFrame(){
-  const win = $("tablets-roll"), sheet = $("tablets-sheet"), verse = $("tablets-verse");
+  const win = tabletsRef("tablets-roll"), sheet = tabletsRef("tablets-sheet"), verse = tabletsRef("tablets-verse");
   if(!win || !sheet || !verse) return;
+  /* Perf: nothing in the tick invalidates layout any more (the fills paint
+     with scaleX), so these offset reads are served from clean layout. */
   const snap = !!R.tabletRollSnap || tabletsUntimed();
   const target = tabletsRollTarget(win.clientHeight || 0, tabletsActiveLineTop(verse), tabletsRiseOf());
   R.tabletRollY = tabletsRollEase(R.tabletRollY || 0, target, snap, (R.tabletFrameDt || 0) * 60);
@@ -872,15 +891,25 @@ function paintTabletsTier(){
   if(pill) pill.classList.toggle("elevated", (R.streak || 0) >= 3);
 }
 function paintTabletsFreeze(){
-  const fill = $("tablets-freeze-fill");
-  const status = $("tablets-freeze-status");
-  const panel = $("tablets-freeze");
+  const fill = tabletsRef("tablets-freeze-fill");
+  const status = tabletsRef("tablets-freeze-status");
+  const panel = tabletsRef("tablets-freeze");
   const pct = Math.min(100, Math.round(R.freeze || 0));
-  if(fill) fill.style.width = pct + "%";
+  /* Perf: scaleX rides the compositor; the write is skipped when the round
+     percent has not moved. */
+  if(fill){
+    const frac = (pct / 100).toFixed(4);
+    if(fill._ctvFrac !== frac){
+      fill._ctvFrac = frac;
+      fill.style.transform = "scaleX(" + frac + ")";
+    }
+  }
   if(status){
-    if(R.freezeOn) status.textContent = Math.ceil(R.freezeLeft || 0) + "s";
-    else if((R.freeze || 0) >= 100) status.textContent = "READY!";
-    else status.textContent = pct + "%";
+    let txt;
+    if(R.freezeOn) txt = Math.ceil(R.freezeLeft || 0) + "s";
+    else if((R.freeze || 0) >= 100) txt = "READY!";
+    else txt = pct + "%";
+    if(status.textContent !== txt) status.textContent = txt;
   }
   if(panel){
     panel.classList.toggle("ready", !!(R.freezeOn || (R.freeze || 0) >= 100));
@@ -954,6 +983,14 @@ function tabletsSealMarks(left, total, snuffAt, glory){
 /* D: the ladder marker reads the same rise as the roll — 0 at the entry line, 100 at The Mark. */
 function tabletsLadderTop(rise){
   return (1 - rise) * 100;
+}
+/* Perf: the marker rides transform like the fills — a top write kept the
+   ladder relaying out every frame. The ladder's height is measured with the
+   fx canvas (init, view show, resize). */
+let tabletsLadderH = 0;
+function tabletsMeasure(){
+  const ladder = $("tablets-ladder");
+  tabletsLadderH = (ladder && ladder.clientHeight) || 0;
 }
 function paintTabletsPowers(){
   const illum = $("tablets-illum");
@@ -1716,8 +1753,15 @@ function tabletsTick(now){
   tabletsTickTrauma(dt);
   drawTabletsFx(dt);
   paintTabletsClock();
-  const ladderMarker = $("tablets-ladder-marker");
-  if(ladderMarker) ladderMarker.style.top = tabletsLadderTop(tabletsRiseOf()).toFixed(2) + "%";
+  const ladderMarker = tabletsRef("tablets-ladder-marker");
+  if(ladderMarker){
+    const y = tabletsLadderTop(tabletsRiseOf()) * tabletsLadderH / 100;
+    const t = "translate(-50%, calc(" + y.toFixed(1) + "px - 50%)) rotate(45deg)";
+    if(ladderMarker._ctvT !== t){
+      ladderMarker._ctvT = t;
+      ladderMarker.style.transform = t;
+    }
+  }
   paintTabletsFreeze();
   R.tabletRaf = requestAnimationFrame(tabletsTick);
 }
@@ -1820,6 +1864,7 @@ function startTabletsLoop(){
   paintTabletsTablet();
   paintTabletsTray();
   tabletsPaintModeNote();
+  tabletsMeasure();
   R.tabletLast = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
   if(typeof requestAnimationFrame === "function") R.tabletRaf = requestAnimationFrame(tabletsTick);
 }
@@ -2077,6 +2122,7 @@ var tabletsFx = { ctx:null, canvas:null, embers:[], sparks:[], rings:[], beams:[
 function tabletsFxSize(){
   const canvas = tabletsFx.canvas || $("tablets-fx");
   const stage = $("tablets-stage");
+  tabletsMeasure();
   if(!canvas || !stage) return;
   tabletsFx.canvas = canvas;
   tabletsFx.w = canvas.width = stage.clientWidth || 800;
@@ -2145,9 +2191,14 @@ function spawnTabletsRing(x, y, color, size, width){
 function drawTabletsFx(dt){
   const ctx = tabletsFx.ctx;
   if(!ctx) return;
-  /* R4: the canvas is sized before the view is shown (0 x 0), so it follows the laid-out stage from the first frame. */
-  const stage = $("tablets-stage");
-  if(stage && stage.clientWidth > 0 && (stage.clientWidth !== tabletsFx.w || stage.clientHeight !== tabletsFx.h)) tabletsFxSize();
+  /* Perf: the stage is re-measured on the first tick, on resize and every
+     45th frame — a clientWidth read every frame forced a style flush 60
+     times a second. The canvas is sized before the view is shown (0 x 0), so
+     the first tick still follows the laid-out stage. */
+  R.tabletFrameCount = (R.tabletFrameCount || 0) + 1;
+  const stage = tabletsRef("tablets-stage");
+  if(stage && (tabletsFx.w === 0 || R.tabletFrameCount % 45 === 0) &&
+     stage.clientWidth > 0 && (stage.clientWidth !== tabletsFx.w || stage.clientHeight !== tabletsFx.h)) tabletsFxSize();
   const w = tabletsFx.w;
   const h = tabletsFx.h;
   ctx.clearRect(0, 0, w, h);

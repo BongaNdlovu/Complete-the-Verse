@@ -329,7 +329,7 @@ function migrateBlitzUnits(out){
 }
 
 let _persistWarned = false;
-function persist(){
+function persistNow(){
   snapshotEdition(SAVE);
   try{ localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){
     console.error("Save persist failure:", e);
@@ -353,6 +353,31 @@ function persist(){
   if(typeof Cloud!=="undefined" && Cloud.configured() && Cloud.isSignedIn()){
     Cloud.schedulePush(SAVE);
   }
+}
+/* Perf: persist() runs on every answered verse, miss and reward, and the
+   whole save is ~100-300 KB of JSON. In the browser the write coalesces into
+   one trailing write 400 ms after the last call, flushed the moment the page
+   hides. Where there is no real document (the node suites) the write stays
+   synchronous, exactly as the tests read it. */
+const PERSIST_LIVE = typeof document !== "undefined" && typeof document.visibilityState === "string";
+let _persistTimer = 0;
+function persist(){
+  if(!PERSIST_LIVE){ persistNow(); return; }
+  clearTimeout(_persistTimer);
+  _persistTimer = setTimeout(persistNow, 400);
+}
+if(PERSIST_LIVE){
+  window.addEventListener("pagehide", function(){
+    if(_persistTimer){ clearTimeout(_persistTimer); _persistTimer = 0; }
+    persistNow();
+  });
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "hidden" && _persistTimer){
+      clearTimeout(_persistTimer);
+      _persistTimer = 0;
+      persistNow();
+    }
+  });
 }
 
 var SAVE = load();

@@ -271,23 +271,51 @@ var Edition = (function(){
     }
   }
 
-  // Absorb deferred packs: only into KJV store, never into NKJV
-  function absorbDeferred(pack){
+  // Absorb deferred packs: only into KJV store, never into NKJV.
+  // Perf: a pack's script tag fires "loaded" on every load attempt (a run,
+  // then the idle prefetch, then a tablets run), so absorption is deduped by
+  // the verse id — before this, every repeat pass pushed the whole pack into
+  // the KJV store again and the bank grew copies all session. Several packs
+  // absorbed in one pass also rebuild the live bank only once.
+  var absorbedVerseIds = null;
+  function kjvAbsorbedIds(){
+    if(!absorbedVerseIds){
+      absorbedVerseIds = {};
+      STORES.kjv.verses.forEach(function(v){
+        if(v && v.r) absorbedVerseIds[(typeof verseId === "function") ? verseId(v) : (v.r + "~" + v.a)] = true;
+      });
+    }
+    return absorbedVerseIds;
+  }
+
+  function absorbPacks(packs){
     initStores();
-    if(!pack || !pack.length) return 0;
+    if(!packs || !packs.length) return 0;
+    var known = kjvAbsorbedIds();
     var n = 0;
-    pack.forEach(function(v){
-      if(v.b === "Psalm") v.b = "Psalms";
-      // Add to KJV backing store
-      STORES.kjv.verses.push(Object.assign({}, v));
-      n++;
+    packs.forEach(function(pack){
+      if(!pack || !pack.length) return;
+      pack.forEach(function(v){
+        if(!v || !v.r) return;
+        if(v.b === "Psalm") v.b = "Psalms";
+        var id = (typeof verseId === "function") ? verseId(v) : (v.r + "~" + v.a);
+        if(known[id]) return;
+        known[id] = true;
+        // Add to KJV backing store
+        STORES.kjv.verses.push(Object.assign({}, v));
+        n++;
+      });
     });
 
     // If KJV is currently active, re-apply so live views update
-    if(getEdition() === "kjv") {
+    if(n && getEdition() === "kjv") {
       activateEdition("kjv");
     }
     return n;
+  }
+
+  function absorbDeferred(pack){
+    return absorbPacks([pack]);
   }
 
   function selectEdition(key){
@@ -308,14 +336,62 @@ var Edition = (function(){
     }
   }
 
+  /* Perf: the NKJV data pack is written into the page only for players whose
+     save says nkjv (see index.html), so switching editions at runtime has to
+     fetch it first. The tags go in one at a time to keep the data files'
+     order; the globals are absorbed into the store once they are all in. */
+  var NKJV_PACK = ["js/nkjv/verses.js", "js/nkjv/passages.js", "js/nkjv/verses-tf.js",
+    "js/nkjv/verses-notes.js", "js/nkjv/tablets.js", "js/nkjv/quotes.js",
+    "js/nkjv/beat.js", "js/nkjv/tutorial.js"];
+
+  /* Callers waiting on a pack fetch already in flight: a second tap or a
+     cloud switch joins it instead of writing the eight tags again. */
+  var nkjvWaiters = null;
+
+  function ensureNkjvData(done){
+    if(typeof NKJV_VERSES !== "undefined"){
+      if(done) done();
+      return;
+    }
+    if(typeof document === "undefined" || typeof document.createElement !== "function"){
+      /* Headless (tests boot the data files directly) or no page: nothing to fetch. */
+      if(done) done();
+      return;
+    }
+    if(nkjvWaiters){
+      if(done) nkjvWaiters.push(done);
+      return;
+    }
+    nkjvWaiters = done ? [done] : [];
+    var i = 0;
+    function next(){
+      if(i >= NKJV_PACK.length){
+        loadNkjvGlobals();
+        var waiting = nkjvWaiters;
+        nkjvWaiters = null;
+        waiting.forEach(function(fn){ fn(); });
+        return;
+      }
+      var s = document.createElement("script");
+      s.src = NKJV_PACK[i++];
+      s.async = false;
+      s.onload = next;
+      s.onerror = next;
+      (document.body || document.head).appendChild(s);
+    }
+    next();
+  }
+
   return {
     getEdition: getEdition,
     activateEdition: activateEdition,
     selectEdition: selectEdition,
+    ensureNkjvData: ensureNkjvData,
     translationTag: translationTag,
     translationName: translationName,
     registerNkjvStore: registerNkjvStore,
     absorbDeferred: absorbDeferred,
+    absorbPacks: absorbPacks,
     updateDomLabels: updateDomLabels,
     _stores: STORES
   };

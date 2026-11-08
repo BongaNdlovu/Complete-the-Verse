@@ -15,8 +15,12 @@
 
 const CACHE_VERSION = "ctv-v1.10.4";
 const CACHE_NAME = "ctv-shell-" + CACHE_VERSION;
-const AUDIO_CACHE = "ctv-audio-" + CACHE_VERSION;
-const MEDIA_CACHE = "ctv-media-" + CACHE_VERSION;
+/* Perf: the audio and media caches keep stable names — they are LRU-bounded
+   and version-independent by design (see their trim caps below), so a deploy
+   no longer throws away up to ~28 MB a player already downloaded. Only the
+   shell cache is versioned; activate still sweeps the old versioned copies. */
+const AUDIO_CACHE = "ctv-audio";
+const MEDIA_CACHE = "ctv-media";
 const MAX_AUDIO_ENTRIES = 25;
 const MAX_MEDIA_ENTRIES = 30;
 const MAX_AUDIO_BYTES = 12 * 1024 * 1024;
